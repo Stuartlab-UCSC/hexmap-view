@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- The icon can be used freely in both personal and commercial projects with no attribution required, but always appreciated. 
+You may NOT sub-license, resell, rent, redistribute or otherwise transfer the icon without express written permission from iconmonstr.com -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   version="1.1"
+   x="0px"
+   y="0px"
+   width="13"
+   height="13"
+   viewBox="0 0 13 13"
+   enable-background="new 0 0 512 512"
+   xml:space="preserve"
+   id="svg2"
+   inkscape:version="0.48.3.1 r9886"
+   sodipodi:docname="iconmonstr-help-4-icon.svg"><metadata
+   id="metadata9"><rdf:RDF><cc:Work
+       rdf:about=""><dc:format>image/svg+xml</dc:format><dc:type
+         rdf:resource="http://purl.org/dc/dcmitype/StillImage" /><dc:title></dc:title></cc:Work></rdf:RDF></metadata><defs
+   id="defs7" /><sodipodi:namedview
+   pagecolor="#ffffff"
+   bordercolor="#666666"
+   borderopacity="1"
+   objecttolerance="10"
+   gridtolerance="10"
+   guidetolerance="10"
+   inkscape:pageopacity="0"
+   inkscape:pageshadow="2"
+   inkscape:window-width="1301"
+   inkscape:window-height="704"
+   id="namedview5"
+   showgrid="false"
+   fit-margin-top="0"
+   fit-margin-left="0"
+   fit-margin-right="0"
+   fit-margin-bottom="0"
+   inkscape:zoom="3.6875"
+   inkscape:cx="-20.955261"
+   inkscape:cy="-40.881356"
+   inkscape:window-x="65"
+   inkscape:window-y="24"
+   inkscape:window-maximized="1"
+   inkscape:current-layer="svg2" />
+
+<path
+   id="help-4-icon"
+   d="M 6.5,0 C 2.9101384,0 0,2.9101384 0,6.5 0,10.089862 2.9101384,13 6.5,13 10.089862,13 13,10.089862 13,6.5 13,2.9101384 10.089862,0 6.5,0 z m 0,12.175289 c -3.1363132,0 -5.67528883,-2.5424788 -5.67528883,-5.6753202 0,-3.1362825 2.54238343,-5.6752891 5.67528883,-5.6752891 3.1362815,0 5.675289,2.5424152 5.675289,5.6752891 0,3.1363124 -2.5424468,5.6753202 -5.675289,5.6753202 z m 0,-10.716702 c -2.7843035,0 -5.0414126,2.2571094 -5.0414126,5.041413 0,2.7843036 2.2571091,5.041413 5.0414126,5.041413 2.7843035,0 5.041413,-2.2571094 5.041413,-5.041413 0,-2.7843036 -2.2571095,-5.041413 -5.041413,-5.041413 z m 0.059983,8.707287 c -0.4310509,0 -0.7805993,-0.3495805 -0.7805993,-0.7807255 0,-0.4310202 0.3495484,-0.7804732 0.7805993,-0.7804732 0.4311774,0 0.7806313,0.349453 0.7806313,0.7804732 3.14e-5,0.431145 -0.3494539,0.7807255 -0.7806313,0.7807255 z M 7.1737601,7.8584688 v 0.1404117 c 0,0 -1.1703786,0 -1.2868422,0 V 7.8584688 c 0,-0.397384 0.058027,-0.9070971 0.5193373,-1.3502645 0.4613739,-0.4432311 1.0379176,-0.8093449 1.0379176,-1.3630435 0,-0.612105 -0.424835,-0.9358427 -0.9604224,-0.9358427 -0.8924562,0 -0.9507986,0.9256195 -0.9727597,1.1293906 H 4.2594248 c 0.03332,-0.9651863 0.4412427,-2.3151674 2.2318349,-2.3151674 1.5517331,0 2.2494102,1.0392421 2.2494102,2.0138014 -3.15e-5,1.5511964 -1.5669102,1.8206617 -1.5669102,2.8211261 z"
+   inkscape:connector-curvature="0" />
+
+</svg>

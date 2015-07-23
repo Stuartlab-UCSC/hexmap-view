@@ -1,0 +1,85 @@
+<?xml version="1.0"?>
+<tool id="hexagram_add" name="Add Data to Hexagram Visualization" version="0.1">
+    <description>Load New Data to Current Hexagram Visualization</description>
+    <requirements>
+        <!--
+            Go get the drl-graph-layout package as defined in
+            tool_dependencies.xml
+        -->
+        <requirement type="package" version="1.1">drl-graph-layout</requirement>
+        <!--
+            And go get some Python modules that aren't standard.
+        -->
+        <requirement type="python-module">numpy</requirement>
+        <requirement type="python-module">scipy</requirement>
+    </requirements> 
+    <!-- 
+        This is the command to run as a Cheetah template.
+        We do fancy iteration over multiple score matrices (see
+        ../plotting/xy_plot.xml).
+    -->
+    <command interpreter="python">add_to_hexagram.py
+        --visualization "$hexagram"
+        --patient  "$patient_matrix"
+        --type "$data_type"
+        --html "$output"
+        --directory "$output.files_path"
+    </command>
+    <inputs>
+		<param name="patient_matrix" type="data" format="tabular"
+         	label="Matrix of Patient Data"/>
+        <param name="hexagram" type="data" format="html"
+         	label="Pre-existing Hexagram Visualization"/>
+         <param name="data_type" type="select" format="text"
+         	label="Data Type">
+         	<option value="rna-seq">Raw RNA-Seq</option>
+         	<option value="normal">Normalized</option>
+         	<option value="log2">Log2</option>
+         	<option value="rank">Rank</option>
+         	<option value="paradigm">Paradigm</option>
+         </param>
+    </inputs> 
+
+    <outputs>
+        <data name="output" label="Hexagram Visualization + New Data" 
+            format="html" hidden="false"/>
+    </outputs>
+    <stdio>
+        <!-- 
+            The tool catches all errors and returns 1, or 0 if no errors 
+            happened. 
+        -->
+        <exit_code range="1" level="fatal" 
+            description="Error in visualization generator (see below)" />
+        <exit_code range="2:" level="fatal" description="Unhandleable error" />
+    </stdio>
+    <help>
+
+Add To Hexagram Visualization
+=============================
+
+This tool allows you to load patient data, clinical trial data, drug signatures, etc. and add these samples to a pre-existing visualization.
+
+
+This tool produces a "hexagram visualization": an interactive Google Maps-based two-dimensional layout of the similarity matrix data, on a hexagonal grid, with the score matrix data represented as different available colorings of the hexagons. This visualization is an HTML web page with associated support files, and appears as the tool's output in your Galaxy history; to open it, click on the eyeball icon.
+
+If, instead of a rich interactive Web application, you get a boring white page with some text on it, you probably have tool output sanitization on. Turn sanitization off in your universe_wsgi.ini, or download the visualization, unzip it, and open the HTML file it contains. If you want to use a downloaded visualization, you will need to open it in a browser other than Chrome (which, for security reasons, does not let local Web pages access local files programmatically).
+
+Input Format
+------------
+
+The tool takes 2 input files:
+
+Pre-Exiting Hexagram Visualization
+++++++++++++++++++++++++++++++++++
+
+It is required to you add a hexagram visualization (HTML File) from your history. You must ran these pre-existing visualization with the raw data matrix from which the similarity scores were generated. 
+
+Data Files
+++++++++++
+
+You may want to add new patient data, TCGA data, etc. to your pre-exisiting hexagram visualization. These files must be of the same data type used to generate the pre-existing visualization, otherwise results will not be displayed or will be incorrect.
+
+    </help>
+</tool>
+

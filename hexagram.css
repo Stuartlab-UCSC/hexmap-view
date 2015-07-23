@@ -1,0 +1,657 @@
+/* Global font stuff */
+body {
+    font-family: sans-serif;
+}
+
+/*
+The visualization element needs to take up all available space.
+*/
+#visualization {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 100%;
+    overflow: hidden;
+}
+
+/* 
+Row and column layout boilerplate
+From http://blog.stevensanderson.com/2011/10/05/full-height-app-layouts-a-css-trick-to-make-it-easier/
+*/
+
+body {
+    margin: 0;
+}
+
+.row, .col {
+    overflow: hidden;
+    position: absolute;
+}
+
+.row { 
+    left: 0;
+    right: 0; 
+}
+
+.col { 
+    top: 0; 
+    bottom: 0;
+}
+
+.scroll-x {
+    overflow-x: auto;
+}
+
+.scroll-y {
+    overflow-y: auto;
+}
+
+/*
+Read as "The content row", distinct from whatever else that element might be.
+*/
+.content.row {
+    top: 6em;
+    bottom: 0;
+    z-index: 1;
+}
+
+.header.row {
+    height: 4em;
+    top: 2em;
+    border-bottom: 1px solid black;
+    overflow: visible;
+}
+
+.browse.col {
+    left: 0;
+    width: 22em;
+    /* Not sure what's up with the lack of dynamic height here, but... */
+    height: 4em;
+}
+
+.shortlist.col {
+    right: 0;
+    width: 21em;
+    overflow: visible;
+}
+
+.error.row{
+    height: 2em;
+    top: 0;
+    border-bottom: 1px solid black;
+    background: #F7EFAD;
+    z-index: 101;
+    display: none;
+}
+
+.tools.row {
+    height: 2em;
+    top: 0em;
+    border-bottom: 1px solid black;
+    background: #e0e0e0;
+}
+
+/*
+These are all supposed to stack against the left end in a toolbar thingy.
+*/
+.stacker {
+    float: left;
+    line-height: 2em;
+    margin-left: 0.5em;
+    height: 2em;
+}
+
+#error-notification {
+    color: red;
+    font-weight: bold;
+    text-align: center;
+    line-height: 2em;
+    margin-left: 0.5em;
+    height: 2em;
+}
+
+/* Except these which stack on the right */
+.stacker.right {
+    float: right;
+    margin-left: 0;
+    margin-right: 0.5em;
+}
+
+/* Code for fancy expandy side pannels */
+
+.panel-holder {
+    overflow: hidden;
+    height: 3.9em;
+    max-height: 4em;
+    top: 2.1em;
+    width: 20em;
+    position: fixed;
+    z-index: 100;
+    transition: max-height 100ms;
+}
+
+/* When a holder gets moused over, open it up to 100% window height */
+.panel-holder:hover {
+    height: auto;
+    max-height: 100%;
+    bottom: 0;
+}
+
+.panel {
+    position: relative;
+    top: 0;
+    left: 0;
+    height: 100%;
+    border-radius: 10px;
+    border: 1px solid gray;
+    background: white;
+    z-index: 100;
+}
+
+.panel-contents {
+    overflow-y: auto;
+    overflow-x: hidden;
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    top: 1em;
+}
+
+.panel-title {
+    text-align: center;
+    font-weight: bold;
+    font-family: sans-serif;
+    height: 1em;
+}
+
+/* Browsing stuff */
+
+#browse-holder {
+    margin-left: 0.5em;
+	width: 500px;
+}
+#search {
+    width: 322px;
+}
+
+#recalculate-statistics {
+    padding: 0.2em;
+	margin-left: 10px;
+}
+
+#comparison-stats {
+    padding: 0.2em;
+}
+
+#calculate-set-operation {
+    padding: 0.2em;
+}
+
+#inflate{
+    
+}
+
+#sort{
+	padding: 0.2em;
+}
+
+.recalculate-throbber {
+    display: none;
+}
+
+#recalculate-progress {
+    display: none;
+    position: relative;
+    top: 1em;
+	margin-top: -5px;
+	height: 10px;
+	width: 100px;
+}
+
+.recalculate-progress {
+    display: none;
+}
+
+.recalculate-finished {
+    display: none;
+}
+
+/* Popups for ordering up stats operations. */
+.dropdown {
+    display:none;
+    width: 25em;
+    overflow: visible;
+    width:370px;
+    height: 160px;
+    margin-left: 21em;
+    top: 68px;
+    position: fixed;
+    border-radius: 10px;
+    border: 1px solid gray;
+    background: white;
+    z-index: 100;
+}
+
+/* These ones need to be slightly taller. */
+.sort-attributes.dropdown {
+    height: 200px;
+}
+
+.set-operation.dropdown {
+    height: 200px;
+}
+
+
+.dropdown-title {
+    text-align: center;
+}
+
+.dropdown-body {
+    padding: 5px;
+    text-align: center;
+}
+
+.cancel {
+    float: right;
+    margin-right: 5px;
+}
+
+.help-button {
+    float: left;
+    margin-left: 5px;
+    margin-top: 5px;
+    padding: 2px;
+}
+
+.help-dialog {
+    display: none;
+}
+
+.help-text {
+    width: 30em;
+    max-height: 30em;
+    overflow: auto;
+}
+
+/*Adam Comparision Statistics Menu*/
+
+.comparison-stats-value {
+    width: 20em;
+	margin-bottom: 10px;
+}
+
+/* Set Operation Menu */
+
+#set-operation {
+    padding: 0.2em;
+}
+
+#set-operations-list {
+	margin-bottom: 20px;
+}
+
+.set-operation-value {
+    width: 15em;
+	margin-bottom: 10px;
+}
+
+.set-operation-layer-value {
+	width: 5em;
+	margin-left: 50px;
+} 
+
+
+/*Sort Attribtues Combined Functionality*/
+#sort-attributes {
+    padding: 0.2em;
+}
+
+.sort-attributes-panel-text {
+	text-align: center;
+	position: relative;
+	height: auto;
+	width: auto;
+	padding: 5px;
+}
+
+#sort-attributes-list {
+	width: 250px;
+}
+
+.sort-attributes-radio-buttons {
+	text-align: left;
+    position: relative;
+    height: auto;
+    width: auto;
+    padding: 5px;
+}
+
+.sort-attributes-value {
+    width: 25em;
+	margin-bottom: 10px;
+}
+.sort-attributes-button {
+	text-align: center;
+	width: 190px;
+}
+.sort-attributes-queries {
+	text-align: center;
+}
+.layout-stats-help {
+	text-align: left;
+	position: relative;
+	right: 225px;
+}
+
+.all-attributes {
+	text-align: center;
+	margin-left: 15px;
+}
+.specific-attributes {
+	text-align: center;
+	margin-left: 25px;	
+}
+
+.all-attributes-label {
+	font-size: 65%
+}
+.checkbox-labels {
+	font-size: 60%;
+}
+
+/* Do some custom styling of browse results */
+.layer-entry {
+    padding-right: 20px;
+}
+.select2-results .select2-highlighted {
+    background-image: url("right.svg");
+    background-repeat: no-repeat;
+    background-position: right center;
+}
+
+.layer-name {
+    /* Force silly underscore names into shape */
+    word-wrap: break-word;
+}
+
+/* Make the browse dropdown tall */
+.results-dropdown.select2-container .select2-results {
+    max-height: 30em;
+}
+
+.results-dropdown .select2-results {
+    max-height: 30em;
+}
+
+.layer-metadata {
+    font-size: 70%;
+    /* Serif is more visible at small sizes */
+    font-family: serif;
+}
+
+/* Vertical alignment tables */
+.vertical-table {
+    display: table;
+}
+
+.vertical-cell {
+    display: table-cell;
+    vertical-align: middle;
+}
+
+/* 
+    Not much room for the results for this column. Just get them out of the way.
+*/
+#browse-results.panel-contents {
+    top: 4em;
+}
+
+/* Map Layout Selection Stuff */
+
+#layout-holder{
+	margin-left: 0.5em;
+}
+
+#layout-search {
+    width: 22em;
+}
+
+.layout-entry {
+    padding-right: 20px;
+}
+
+layout-name {
+    /* Force silly underscore names into shape */
+    word-wrap: break-word;
+}
+#current-layout {
+	padding-top: .75em;
+	width: 700px;
+}
+#ranked-against {
+	padding-top: .5em;
+}
+
+/* Shortlist UI stuff */
+
+.shortlist-controls {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 2em;
+    background-image: url("drag.svg");
+    background-repeat: no-repeat;
+    background-position: 50% 70%; 
+    border-radius: 5px;
+    padding: 5px;
+}
+
+.shortlist-entry {
+    position: relative;
+    height: auto;
+    width: auto;
+    background: #E0E0FF;
+    border-radius: 5px;
+    padding: 5px;
+    padding-left: 3em;
+    margin: 0.5em;
+    word-wrap: break-word;
+}
+
+.shortlist-entry.selection {
+    background: #FFE0FF;
+}
+
+.shortlist-controls {
+    cursor: grab;
+    cursor: -moz-grab;
+    cursor: -webkit-grab;
+}
+
+.shortlist-controls:activate {
+    cursor: grabbing;
+    cursor: -moz-grabbing;
+    cursor: -webkit-grabbing;
+}
+
+.shortlist-entry:after {
+    content: "";
+    display: block;
+    clear: both;
+}
+
+#shortlist-holder {
+    right: 0;
+}
+
+.layer-on {
+
+}
+
+.radio-label, .radio-clear {
+    margin-right: 0.1em;
+    margin-left: 0.1em;
+}
+
+/* These are the layer scaling sliders */
+.range-slider {
+    width: 10em;
+    margin-left: 0.3em;
+    margin-right: 0.3em;
+    margin-top: 0.5em;
+}
+
+/*Shortlist holders*/
+#left-columns {
+	width: 33%;
+}
+#center-columns {
+	margin-left: 33%;	
+}
+#right-columns {
+	margin-left: 66%
+}
+
+/* Filtering stuff */
+
+.filter {
+    line-height: 1em;
+    vertical-align: center;
+}
+.filter-threshold, .filter-value {
+    display: none;
+    width: 5em;
+}
+.filter-holder {
+	float: left;
+	text-align: left;
+	width: 120px;
+}
+
+.save-filter {
+	display: none;
+}
+
+
+/* This is the color key */
+.key {
+    overflow: visible;
+    position: absolute;
+    z-index: 2;
+    top: 2em;
+    right: 2em;
+    height: 150px;
+    width: 150px;
+    display: none;
+    pointer-events: none;
+    font-family: serif;
+}
+
+#color-key {
+    width: 100px;
+    height: 100px;
+    position: absolute;
+    display: block;
+    left:25px;
+    top: 25px;
+    border: 1px solid white;
+}
+
+.label {
+    color: white;
+}
+
+.axis {
+    word-wrap: break-word;
+}
+
+#low-both {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+}
+
+#high-x {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+}
+
+#high-y {
+    position: absolute;
+    left: 0;
+    top: 0;
+}
+
+#x-axis {
+    position: absolute;
+    top: 155px;
+    width: 150px;
+    margin: auto;
+    text-align: center;
+}
+
+/* 
+    Complicated table centering thing from 
+    http://blog.themeforest.net/tutorials/vertical-centering-with-css/
+*/
+
+#y-axis-holder {
+    display: table;
+    right: 155px;
+    width: 150px;
+    top: 0;
+    height: 100%;
+    position: absolute;
+}
+
+#y-axis-cell {
+    display: table-cell;
+    vertical-align: middle;
+}
+
+#y-axis {
+    text-align: right;
+}
+
+/* This is the info window/infocard styling */
+.infocard {
+    word-break: break-all;
+    font-family: sans-serif;
+}
+
+.info-row {
+    margin-bottom: 0.1em;
+}
+
+.info-key {
+    background: green;
+    color: white;
+    text-align: center;
+    font-weight: bold;
+}
+
+.info-value {
+    background: #F0F0F0;
+}
+
+/* Tool stuff */
+textarea.import {
+    height: 10em;
+    width: 100%;
+    font-size: 10pt;
+}
+
+input.import {
+    width: 100%;
+    /* 
+        Apparently Firefox ignores your width and makes it some random size 
+        depending on font size. Make that small enough. 
+    */
+    font-size: 0.5em;
+}
+
+

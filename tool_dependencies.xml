@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+<!--
+Defines how to install the binaries that this tool depends on (in this case, DrL).
+Based on the examples at http://wiki.galaxyproject.org/ToolShedToolFeatures
+and http://toolshed.g2.bx.psu.edu/repos/jjohnson/defuse/file/f65857c1b92e/tool_dependencies.xml
+-->
+<tool_dependency>
+    <package name="drl-graph-layout" version="1.1">
+        <install version="1.0"><!-- This is the install tag version, not the package version -->
+            <actions>
+                <action type="shell_command">hg clone https://bitbucket.org/adam_novak/drl-graph-layout</action>
+                <!-- 
+                    TODO: We're supposed to copy the right Configuration.mk 
+                    file. Not doing so assumes our system is GNU.
+                -->
+                <action type="shell_command">hg up -r drl-graph-layout-1.1</action>
+                <action type="shell_command">make</action>
+                <action type="move_directory_files">
+                    <source_directory>bin</source_directory>
+                    <destination_directory>$INSTALL_DIR/bin</destination_directory>
+                </action>
+                <!-- 
+                    Now we can access DrL tools like truncate (at the expense of
+                    GNU truncate)
+                -->
+                <!-- 
+                    TODO: report to Galaxy that comments as the last element of 
+                    a set_enviromnent action atag are not properly handeled.
+                    See install_util.py line 435 in Galaxy revision 9d42f1e32efb
+                -->
+                <action type="set_environment">
+                    <environment_variable name="PATH" action="prepend_to">$INSTALL_DIR/bin</environment_variable>
+                </action>
+            </actions>
+        </install>
+        <readme>
+        This installs the latest DrL Graph Layout tool from Adam Novak's Bitbucket, because Shawn Martin has stopped maintaining it.
+        </readme>
+    </package>
+</tool_dependency>
