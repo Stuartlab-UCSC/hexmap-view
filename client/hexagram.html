@@ -1,28 +1,16 @@
-<!DOCTYPE html>
-<html>
     <head>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8"></meta>
         <meta name="viewport" content="maximum-scale=1.0"></meta>
         <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1"></meta>
-        <link rel="stylesheet" type="text/css" href="https://code.jquery.com/ui/1.10.2/themes/smoothness/jquery-ui.css" />
-        <link rel="stylesheet" type="text/css" href="select2.css" />
-        <link rel="stylesheet" type="text/css" href="hexagram.css" />
-        <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?sensor=false"></script>
-        <script type="text/javascript" src="https://code.jquery.com/jquery-1.9.1.min.js"></script>
-        <script type="text/javascript" src="https://code.jquery.com/ui/1.10.2/jquery-ui.js"></script>
-        <script type="text/javascript" src="jquery.tsv.js"></script>
-        <script type="text/javascript" src="color-0.4.1.js"></script>
-        <script type="text/javascript" src="maplabel-compiled.js"></script>
-        <script type="text/javascript" src="jstat.min.js"></script>
-        <script type="text/javascript" src="select2.js"></script>
-        <script type="text/javascript" src="hexagram.js"></script>
-        <script type="text/javascript" src="tools.js"></script>
         <title>Hexagram Visualization</title>
+        <link rel="favicon" href="favicon.ico" type="image/x-icon" />
     </head>
     <body>
         <div class="tools row" id="toolbar">
             <div class="stacker">
                 Tools:
+            </div>
+            <div id='loadDir' class='stacker' style='width: 9em;display:none'>
             </div>
             <div class="stacker right">
                 <img src="throbber.svg" class="recalculate-throbber" title="Recalculating..." />
@@ -196,4 +184,3 @@
             </div>
         </div>
     </body>
-</html>

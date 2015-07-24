@@ -10,6 +10,11 @@
 //   workflow completes, so that the infowindow can use click events again.
 //   (it got set to your tool's name by the code prepended to your callback).
 
+var app = app || {}; // jshint ignore:line
+
+(function (hex) {
+    //'use strict';
+
 $(function() {
     // Set up the add text control
     add_tool("add-text", "Add Text", function() {
@@ -210,7 +215,9 @@ $(function() {
         });
         
         import_form.dialog({
+            dialogClass: 'dialog',
             modal: true,
+            width: '20em',
             buttons: {
                 "Import": function() {
                     // Do the import of the data. The data in question is always
@@ -353,7 +360,9 @@ $(function() {
         select_box.change();
         
         export_form.dialog({
+            dialogClass: 'dialog',
             modal: true,
+            width: '20em',
             buttons: {
                 "Done": function() {
                     // First, close the dialog
@@ -412,127 +421,5 @@ $(function() {
      
     });
 });
-
-function supports_html5_storage() {
-	// Check to see if browser supports HTML5 Storage
-	// Any modern browser should pass.
-  	try {
-    	return "localStorage" in window && window["localStorage"] !== null;
-  	} catch (e) {
-    	return false;
-  	}
-}
-
-$(function() {
-    // Save session information by logging it in local browser storage
-    add_tool("save-session", "Save Session", function() {
-		if (supports_html5_storage()) {
-			// If browser supports html5 storage, use JSON to stringify
-			// the current_session JS object and store it.
-
-			// Clear any existing shortlist attributes in the current_session.
-			// Next populate the shortlist array & display array
-			// within the current_session object.
-			current_session.shortlist_attr = shortlist;
-			current_session.display_attr = get_current_layers();
-
-			// Currently, we only support one save session. 
-			// The previous session will be overridden.
-			localStorage.removeItem("session1");
-			localStorage.setItem("session1", JSON.stringify(current_session));
-		}
-		else {
-			complain("Browser does not support local storage of session.");
-		}
-
-		// Deselect the tool.	
-		selected_tool = undefined;
-     
-    });
-});
-
-$(function() {
-    // Load session information by retrieving it from local browser storage
-    add_tool("load-session", "Load Session", function() {
-		if (supports_html5_storage()) {
-			var old_session = localStorage.getItem("session1");
-			if (old_session === null) {
-				complain("No previous session can be found.");
-			}
-			else {
-				// Note that all values are parsed strings.
-				old_session = JSON.parse(old_session);
-				// Debug printing:
-				print(old_session);
-
-				// Clear existing shortlist & add all previously selected 
-				// attributes back to the shortlist.
-				var old_shortlist = old_session.shortlist_attr;
-				shortlist = old_shortlist;
-
-				// Construct user selection attributes
-				var old_selections = old_session.selection_attr;
-				for (var i = 0; i < old_selections.length; i++) {
-					var layer_name = old_selections[i].l_name;
-					var sig = old_selections[i].signatures;
-					select_list(sig, "user selection", undefined, layer_name, false);
-				}
-				
-				var old_set_attr = old_session.created_attr;
-				// Construct all set theory generated attributes
-				for (var i = 0; i < old_set_attr.length; i++) {					
-					// Hack: We need to sync asynchronous calls to select_list
-					// but some creations may be depenednet on previous ones.
-					// while this is false do not move on to the next computation.
-					set_operation_complete = false;
-					// Iterate through array of objects, where each object
-					// contains info to reconstruct the set theory layer.
-					var set_operand = old_set_attr[i].set;
-					var set_layers = old_set_attr[i].layers;
-					var layer_name = old_set_attr[i].l_name;
-					var values = old_set_attr[i].val;
-
-					if (layers[layer_name] == undefined) {
-						// Recompute set layer if it doesn't already exist.
-						switch (set_operand) {
-							case "intersection":
-								compute_intersection(values, set_layers, layer_name);
-								break;
-							case "union":
-								compute_union(values, set_layers, layer_name);
-								break;
-							case "set difference":
-								compute_set_difference(values, set_layers, layer_name);
-								break;
-							case "symmetric difference":
-								compute_symmetric_difference(values, set_layers, layer_name);
-								break;
-							case "absolute complement":
-								compute_absolute_complement(values, set_layers, layer_name);
-								break;
-							default:
-								complain ("Set Theory Error");
-						}
-					}	
-				}
-				
-				// Delete all attributes that the user previously created
-				// and deleted.
-				for (var i = 0; i < old_session.created_attr.length; i++){
-					var keep_attr = old_session.created_attr[i].keep;
-					if (keep_attr == false) {
-						//var delete_name = old_session.created_attr[i].l_name;
-						//delete layers[delete_name];
-						//layer_names_sorted.splice(layer_names_sorted.indexOf(delete_name), 1);
-					}
-				}
-			}
-		}
-
-		// Deselect the tool.	
-		selected_tool = undefined;
-     
-    });
-});
-
+})(app);
 

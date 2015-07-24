@@ -1,8 +1,18 @@
 // hexagram.js
 // Run the hexagram visualizer client.
 
-// Globals
-// This is a mapping from coordinates [x][y] in the global hex grid to signature
+var app = app || {}; // jshint ignore:line
+
+(function (hex) { // jshint ignore:line
+
+var userDebug = false; // Turn user debugging on/off
+
+// The map width and height in pixels
+var map_size_pix = 256;
+
+var rpc; // holds the remote procedure call object
+
+// This is a mapping from coordinates [x][y] in initHthe global hex grid to signature
 // name
 var signature_grid = [];
 
@@ -27,9 +37,6 @@ categorical_layers =[];
 
 // This is a list of layer names maintained in sorted order.
 var layer_names_sorted = [];
-
-// This is a list of the map-layout names mantained in order of entry
-var layout_names = [];
 
 // This holds an array of layer names that the user has added to the "shortlist"
 // They can be quickly selected for display.
@@ -77,9 +84,6 @@ var mutual_information_ranked = false;
 // Boolean for Creating Layer from Filter
 var created = false;
 
-// Stores the Name of Current Layout Displayed
-var current_layout_name;
-
 // Stores the layer names according to their ascribed indices in "layers.tab"
 var layer_names_by_index;
 
@@ -95,13 +99,13 @@ comparison_stats_l2 = "";
 
 // This holds colormaps (objects from layer values to category objects with a 
 // name and color). They are stored under the name of the layer they apply to.
-var colormaps = {}
+colormaps = {}
 
 // This holds an array of the available score matrix filenames
 var available_matrices = [];
 
 // This holds the Google Map that we use for visualization
-var googlemap = null;
+googlemap = null;
 
 // This is the global Google Maps info window. We only want one hex to have its
 // info open at a time.
@@ -113,7 +117,7 @@ var selected_signature = undefined;
 
 // Which tool is the user currently using (string name or undefined for no tool)
 // TODO: This is a horrible hack, replace it with a unified tool system at once.
-var selected_tool = undefined;
+selected_tool = undefined;
 
 // This object holds info regardin the user's current TumorMap session.
 // It will be stored to local storage as a string constructed with JSON.
@@ -128,7 +132,7 @@ var current_session = {
 var polygon_grid = [];
 
 // This holds an object of polygons by signature name
-var polygons = {};
+polygons = {};
 
 // How big is a hexagon in google maps units? This gets filled in once we have 
 // the hex assignment data. (This is really the side length.)
@@ -148,37 +152,7 @@ var tool_listener_next_id = 0;
 // these.
 var selection_next_id = 1;
 
-// This is a pool of statistics Web Workers.
-var rpc_workers = [];
-
-// This holds which RPC worker we ought to give work to next.
-// TODO: Better scheduling, and wrap all this into an RPC object.
-var next_free_worker = 0;
-
-// This holds how namy RPC jobs are currently running
-var jobs_running = 0;
-
-// This keeps track of how many RPC jobs are in the current batch.
-var jobs_in_batch = 0;
-
-// This is the object of pending callbacks by RPC id
-var rpc_callbacks = {};
-
-// This is the object of progress callbacks by RPC id
-var rpc_progress_callbacks = {};
-
-// This is the next unallocated RPC id
-var rpc_next_id = 0;
-
-// This is the first RPC ID in the current batch. Only one RPC batch is supposed
-// to be running at a time. Any replies from RPC callbacks with IDs smaller than
-// this should be ignored, as those results are no longer wanted.
-var rpc_batch_start = 0;
-
-// How many statistics Web Workers should we start?
-var NUM_RPC_WORKERS = 10;
-
-// What's the minimum number of pixels that hex_size must represent at the 
+// What's the minimum number of pixels that hex_size must represent at the
 // current zoom level before we start drawing hex borders?
 var MIN_BORDER_SIZE = 10;
 
@@ -200,20 +174,19 @@ var TOOL_EVENTS = [
     "mousemove"
 ];
 
-// This is a global variable that keeps track of the current Goolge Map zoom
-// This is needed to keep viewing consistent across layouts
-var global_zoom = 0;
+// The google elements obtained to transform to svg
+var googleElements;
 
-function print(text) {
+print = function (text) {
     // Print some logging text to the browser console
-        
-    if(console && console.log) {
+
+    if(userDebug && console && console.log) {
         // We know the console exists, and we can log to it.
         console.log(text);
     }
 }
 
-function complain(text) {
+complain = function (text) {
     // Display a temporary error message to the user.
     $("#error-notification").text(text);
     $(".error").show().delay(1250).fadeOut(1000);
@@ -303,8 +276,8 @@ function make_hexagon(row, column, hex_side_length, grid_offset) {
     // Set up the click listener to move the global info window to this hexagon
     // and display the hexagon's information
     google.maps.event.addListener(hexagon, "click", function(event) {
-        if(selected_tool == undefined) {
-            // The user isn't trying to use a tool currently, so we can use 
+        if(!selected_tool) {
+            // The user isn't trying to use a tool currently, so we can use
             // their clicks for the infowindow.
             
             // Remove the window from where it currently is
@@ -1022,7 +995,7 @@ function reset_comparison_stats_counter() {
 }
 
 
-function update_comparison_stats_drop_down () {
+update_comparison_stats_drop_down = function  () {
 
 	// This is the onchange command for the drop down displaying the 
 	// different stats query  functions. It is called whenever the user changes
@@ -1116,7 +1089,7 @@ function update_comparison_stats_selections () {
 
 }
 
-/* Replacement Code for New Consolidated Association Stats GUI */
+// Replacement Code for New Consolidated Association Stats GUI
 // Create GUI for Sort Attributes GUI
 function create_sort_attributes_ui () {
 	// Returns a Jquery element that is then prepended to the existing 
@@ -1373,7 +1346,7 @@ function show_set_operation_drop_down () {
 }
 
 
-function hide_set_operation_drop_down () {
+hide_set_operation_drop_down = function () {
 	// Hide Set Operation Drop Down Menu
 	$(".set-operation.dropdown").hide();
 
@@ -1450,7 +1423,7 @@ function create_set_operation_ui () {
 	return root;
 }
 
-function update_set_operation_drop_down () {
+update_set_operation_drop_down = function () {
 	// This is the onchange command for the drop down displaying the 
 	// different set operation functions. It is called whenever the user changes
 	// the selected set operation.
@@ -2631,7 +2604,7 @@ function reset_slider(layer_name, shortlist_entry) {
     });
 }
 
-function get_current_layers() {
+function get_current_layers() { // XXX there are two functions of this name !!!
     // Returns an array of the string names of the layers that are currently
     // supposed to be displayed, according to the shortlist UI.
     // Not responsible for enforcing maximum selected layers limit.
@@ -2723,7 +2696,7 @@ function get_current_filters() {
     return current_filters;
 }
 
-function get_current_layers() {
+function get_current_layers() { // XXX there are two functions of this name !!!
     // Returns an array of the string names of the layers that are currently
     // supposed to be displayed, according to the shortlist UI.
     // Not responsible for enforcing maximum selected layers limit.
@@ -3003,7 +2976,7 @@ function select_list(to_select, function_type, layer_names, new_layer_name, shor
 	return (new_layer_name);
 }
 
-function select_rectangle(start, end) {
+find_polygons_in_rectangle = function (start, end) {
     // Given two Google Maps LatLng objects (denoting arbitrary rectangle 
     // corners), add a new selection layer containing all the hexagons 
     // completely within that rectangle.
@@ -3047,11 +3020,14 @@ function select_rectangle(start, end) {
             in_box.push(signature);
         }
     }
-    
+    return in_box;
+}
+
+function select_rectangle(start, end) {
     // Now we have an array of the signatures that ought to be in the selection
     // (if they pass filters). Hand it off to select_list.
-    
-	var select_function_type = "user selection";
+    var in_box = find_polygons_in_rectangle(start, end),
+        select_function_type = "user selection";
     select_list(in_box, select_function_type);
     
 }
@@ -3068,18 +3044,18 @@ function with_association_stats(layer_name, callback) {
     
     if(binary_layers.indexOf(layer_name) != -1) {
         // It's a binary layer. Get the binary layer file
-        var filename = "layer_" + layer_index + "_b_b.tab";
+        var filename = ctx.project + "layer_" + layer_index + "_b_b.tab";
     } else if(cont_layers.indexOf(layer_name) != -1) {
         // It's a continuous layer. Get the continuous layer file
-        var filename = "layer_" + layer_index + "_r_r.tab";
+        var filename = ctx.project + "layer_" + layer_index + "_r_r.tab";
     }
         
     $.get(filename, function(tsv_data) {        
 	    // This is an array of rows, which are arrays of values:
-	    /*
-		    Layer1	Layer2	Layer 3...
-		    value	value	value
-	    */
+	    //
+		//    Layer1	Layer2	Layer 3...
+		//    value	value	value
+	    //
 	    // Parse the file
 
 	    var parsed = $.tsv.parseRows(tsv_data);
@@ -3131,12 +3107,12 @@ function get_association_stats_values(layer_name, drop_down_val, single_stat, la
 		// the selected attribute to other continuous values
 		if (drop_down_val == 1 && continuous_type == true) {
             layer_index = layer_names_by_index.indexOf(layer_name);
-			$.get("layer_" + layer_index + "_r_r.tab", function(tsv_data) {        
+			$.get(ctx.project + "layer_" + layer_index + "_r_r.tab", function(tsv_data) {
 				// This is an array of rows, which are arrays of values:
-				/*
-					Layer1	Layer2	Layer 3...
-					value	value	value
-				*/
+				//
+				//	Layer1	Layer2	Layer 3...
+				//	value	value	value
+				//
 				// Parse the file
 
 				var parsed = $.tsv.parseRows(tsv_data);
@@ -3167,10 +3143,10 @@ function get_association_stats_values(layer_name, drop_down_val, single_stat, la
 		if (drop_down_val == 0 && continuous_type == false) {
 			$.get(layer_name + "_b_b.tab", function(tsv_data) {        
 				// This is an array of rows, which are arrays of values:
-				/*
-					Layer1	Layer2	Layer 3...
-					value	value	value
-				*/
+				//
+				//	Layer1	Layer2	Layer 3...
+				//	value	value	value
+				//
 				// Parse the file
 
 				var parsed = $.tsv.parseRows(tsv_data);
@@ -3223,12 +3199,12 @@ function get_association_stats_values(layer_name, drop_down_val, single_stat, la
 			layer_index = layer_names_by_index.indexOf(layer_names[0])
 			$.get("layer_" + layer_index + "_r_r.tab", function(tsv_data) {        
 				// This is an array of rows, which are arrays of values:
-				/*
-					id		Layer1	Layer2	Layer 3...
-					Layer1	value	value	value
-					Layer2	value	value	value
-					Layer3	value	value	value
-				*/
+				//
+				//	id		Layer1	Layer2	Layer 3...
+				//	Layer1	value	value	value
+				//	Layer2	value	value	value
+				//	Layer3	value	value	value
+				//
 				// Parse the file
 
 				var parsed = $.tsv.parseRows(tsv_data);	
@@ -3253,12 +3229,12 @@ function get_association_stats_values(layer_name, drop_down_val, single_stat, la
 		
 		$.get(layer_names[0] + "_b_b.tab", function(tsv_data) {        
 				// This is an array of rows, which are arrays of values:
-				/*
-					id		Layer1	Layer2	Layer 3...
-					Layer1	value	value	value
-					Layer2	value	value	value
-					Layer3	value	value	value
-				*/
+				//
+				//	id		Layer1	Layer2	Layer 3...
+				//	Layer1	value	value	value
+				//	Layer2	value	value	value
+				//	Layer3	value	value	value
+				//
 				// Parse the file
 
 				parsed = $.tsv.parseRows(tsv_data);	
@@ -3300,7 +3276,7 @@ function get_mutual_information_statistics (layout_number, layer_names, function
 	
 	// What file should we get?
 	// Open up the file mi_<layout_number>_<layer_indices[0]>.tab
-	var filename = "mi_"+ layout_number + "_"+ layer_indices[0] +".tab";
+	var filename = ctx.project + "mi_"+ layout_number + "_"+ layer_indices[0] +".tab";
 	print("Fetching " + filename);
 
 	// function_index = 2 indicates a rank query
@@ -3448,7 +3424,7 @@ function get_current_layout_index (layout_name, recompute_stats) {
 	// will call the get_mutual_information_statisics function
 
 	var layout_index;
-	$.get("matrixnames.tab", function(tsv_data) {        
+	$.get(ctx.project + "matrixnames.tab", function(tsv_data) {
 		var parsed = $.tsv.parseRows(tsv_data);
 		
 		for (var i = 0; i < parsed.length; i++){
@@ -3577,7 +3553,7 @@ function recalculate_statistics(passed_filters) {
     
     // Say we're about to launch an RPC batch of statistics jobs. Cancel any
     // running jobs from the last batch.
-    rpc_new_batch();
+    rpc.new_batch();
     
     for(var layer_name in layers) {
         // Do the stats on each layer between those lists. This only processes
@@ -3611,7 +3587,11 @@ function recalculate_statistics_for_layer(layer_name, in_list, out_list, all) {
     
     // This holds a callback for setting the layer's p_value to the result of
     // the statistics.
-    var callback = function(results) {
+    var callback = function(reply) {
+    //var callback = function(results) {
+
+        var results = reply.results,
+            jobs_running = reply.jobs_running; // TODO replace with pub-sub or something meteor
         
         // The statistics code really sends back a dict of updated metadata for
         // each layer. Copy it over.
@@ -3641,7 +3621,7 @@ function recalculate_statistics_for_layer(layer_name, in_list, out_list, all) {
         // Already have this downloaded. A local copy to the web worker is
         // simplest, and a URL may not exist anyway.
         
-        rpc_call("statistics_for_layer", [layers[layer_name].data, in_list, 
+        rpc.call("statistics_for_layer", [layers[layer_name].data, in_list,
             out_list, all], callback);
     } else if(layers[layer_name].url != undefined) {
         // We have a URL, so the layer must be in a matrix, too.
@@ -3658,9 +3638,13 @@ function recalculate_statistics_for_matrix(matrix_url, in_list, out_list, all) {
     // between the given in and out lists, and update the layer p values. all is
     // a list of "all" signatures, from which we can calculate pseudocounts.
 
-    rpc_call("statistics_for_matrix", [matrix_url, in_list, out_list, all], 
-        function(result) {
-        
+    rpc.call("statistics_for_matrix", [matrix_url, in_list, out_list, all],
+        function(reply) {
+        //function(result) {
+
+        var results = reply.results,
+            jobs_running = reply.jobs_running; // TODO replace with pub-sub or something meteor
+
         // The return value is p values by layer name
         for(var layer_name in result) {
             // The statistics code really sends back a dict of updated metadata
@@ -3699,180 +3683,16 @@ function recalculate_statistics_for_matrix(matrix_url, in_list, out_list, all) {
     
 }
 
-function rpc_initialize() {
-    // Set up the RPC system. Must be called before rpc_call is used.
-    
-    for(var i = 0; i < NUM_RPC_WORKERS; i++) {
-        // Start the statistics RPC (remote procedure call) Web Worker
-        var worker = new Worker("statistics.js");
-        
-        // Send all its messages to our reply processor
-        worker.onmessage = rpc_reply;
-        
-        // Send its error events to our error processor
-        worker.onerror = rpc_error;
-        
-        // Add it to the list of workers
-        rpc_workers.push(worker);
-    }
-}
-
-function rpc_new_batch() {
-    // Should be called before you launch a logical set (or "batch") of RPC
-    // jobs. Prepares the UI to reflect the progress on the next batch of RPC
-    // jobs.
-    
-    // First, say that if anybody from the old batch replies to us, we don't
-    // want to know it. We only care about results from jobs launched after now.
-    rpc_batch_start = rpc_next_id;
-    
-    if(jobs_running > 0) {
-        // If any jobs are still running from the last batch, we need to kill
-        // and re-make all the workers, in order to stop them, so we don't waste
-        // time computing the last batch.
-        
-        for(var i = 0; i < rpc_workers.length; i++) {
-            // Kill each worker
-            rpc_workers[i].terminate();
-        }
-        
-        // Throw away the dead workers
-        rpc_workers = [];
-        
-        // Make a bunch of new workers
-        rpc_initialize();
-        
-        // Start at the beginning of the worker list.
-        next_free_worker = 0;
-        
-        // Say no jobs are running, since we killed them all.
-        jobs_running = 0;
-        
-        // Clear all the callbacks
-        rpc_callbacks = {};
-        rpc_progress_callbacks = {};
-    }
-    
-    // We're starting a new batch, so set the number of jobs in the batch
-    jobs_in_batch = 0;
-    
-    
-}
-
-function rpc_call(function_name, function_args, callback, progress_callback) {
-    // Given a function name and an array of arguments, send a message to a Web
-    // Worker thread to ask it to run the given job. When it responds with the
-    // return value, pass it to the given callback. If it responds with any
-    // intermediate results, pass them to the progress callback.
-    
-    // Allocate a new call id
-    var call_id = rpc_next_id;
-    rpc_next_id++;
-    
-    // Store the callback
-    rpc_callbacks[call_id] = callback;
-    
-    // We got a progress callback. Use that.
-    rpc_progress_callbacks[call_id] = progress_callback;
-    
-    // Launch the call. Pass the function name, function args, and id to send 
-    // back with the return value.
-    rpc_workers[next_free_worker].postMessage({
-        name: function_name,
-        args: function_args,
-        id: call_id
-    });
-    
-    // Next time, use the next worker on the list, wrapping if we run out.
-    // This ensures no one worker gets all the work.
-    next_free_worker = (next_free_worker + 1) % rpc_workers.length;
-    
-    // Update the UI with the number of jobs in flight. Decrement jobs_running
-    // so the callback knows if everything is done or not.
-    jobs_running++;
-    $("#jobs-running").text(jobs_running);
-    
-    // And the number of jobs total in the batch
-    jobs_in_batch++;
-    $("#jobs-in-batch").text(jobs_in_batch);
-}
-
-function rpc_reply(message) {
-    // Handle a Web Worker message, which may be an RPC response or a log entry.
-    
-    if(message.data.log != undefined) {
-        // This is really a log entry
-        print(message.data.log);
-        return;
-    }
-    
-    if(message.data.id < rpc_batch_start) {
-        // This job is not part of the current batch. Don't believe its lies.
-        // TODO: Report errors even here?
-        return;
-    }
-    
-    if(message.data.progress != undefined) {
-        // This is really an intermediate progress report
-        if(rpc_progress_callbacks[message.data.id] != undefined) {
-            // We have a callback registered to handle it. Call that.
-            rpc_progress_callbacks[message.data.id](message.data.progress);
-        } else {
-            print("Warning: got progress without progress callback for " + 
-                message.data.id);
-        }
-        return;
-    }
-    
-    // This is really a job completion message (success or error).
-    
-    // Update the UI with the number of jobs in flight.
-    jobs_running--;
-    $("#jobs-running").text(jobs_running);
-    
-    if(message.data.error) {
-        // The RPC call generated an error.
-        // Inform the page.
-        print("RPC error: " + message.data.error);
-        
-        // Get rid of the callback
-        delete rpc_callbacks[message.data.id];
-        
-        // And the progress callback
-        delete rpc_progress_callbacks[message.data.id];
-        
-        return;
-    }
-    
-    // Pass the return value to the registered callback.
-    rpc_callbacks[message.data.id](message.data.return_value);
-    
-    // Get rid of the callback
-    delete rpc_callbacks[message.data.id];
-    
-    // And the progress callback
-    delete rpc_progress_callbacks[message.data.id];
-}
-
-function rpc_error(error) {
-    // Handle an error event from a web worker
-    // See http://www.whatwg.org/specs/web-apps/current-work/multipage/workers.h
-    // tml#errorevent
-    
-    complain("Web Worker error: " + error.message);
-    print(error.message + "\n at" + error.filename + " line " + error.lineno + 
-        " column " + error.column);
-}
-
-function initialize_view(initial_zoom) {
+initialize_view = function () {
     // Initialize the global Google Map.
-    
+
     // Configure a Google map
-    var mapOptions = {
-        // Look at the center of the map
-        center: get_LatLng(128, 128),
-        // Zoom all the way out
-        zoom: initial_zoom,
+    if (_.isUndefined(ctx.center)) {
+        ctx.center = new google.maps.LatLng(0,0);
+    }
+    mapOptions = {
+        center: ctx.center,
+        zoom: ctx.zoom,
         mapTypeId: "blank",
         // Don't show a map type picker.
         mapTypeControlOptions: {
@@ -3881,7 +3701,7 @@ function initialize_view(initial_zoom) {
         // Or a street view man that lets you walk around various Earth places.
         streetViewControl: false
     };
-    
+
     // Create the actual map
     googlemap = new google.maps.Map(document.getElementById("visualization"),
         mapOptions);
@@ -3920,6 +3740,7 @@ function initialize_view(initial_zoom) {
     google.maps.event.addListener(googlemap, "zoom_changed", function(event) {
         // Get the current zoom level (low is out)
         var zoom = googlemap.getZoom();
+        ctx.zoom = zoom;
         
         // API docs say: pixelCoordinate = worldCoordinate * 2 ^ zoomLevel
         // So this holds the number of pixels that the global length hex_size 
@@ -3945,14 +3766,29 @@ function initialize_view(initial_zoom) {
     subscribe_tool_listeners(googlemap);
     
 }
+re_initialize_view = function () { // swat
+	// Re_initialize the view because something changed that requires it
 
-function add_tool(tool_name, tool_menu_option, callback) {
+    // Save current map settings
+    print ('ctx:');
+    print (ctx);
+    print ('googlemap:');
+    print (googlemap);
+    ctx.zoom = googlemap.getZoom();
+    ctx.center = googlemap.getCenter();
+
+    initialize_view ();
+    recreate_map(ctx.current_layout_name, 1);
+    refresh ();
+}
+
+add_tool = function (tool_name, tool_menu_option, callback, hover_text) {
     // Given a programmatic unique name for a tool, some text for the tool's
     // button, and a callback for when the user clicks that button, add a tool
     // to the tool menu.
     
     // This hodls a button to activate the tool.
-    var tool_button = $("<a/>").attr("href", "#").addClass("stacker");
+    var tool_button = $("<a/>").attr({"id": "tool_" + tool_name, "href": "#"}).addClass("stacker");
     tool_button.text(tool_menu_option);
     tool_button.click(function() {
         // New tool. Remove all current tool listeners
@@ -3964,11 +3800,14 @@ function add_tool(tool_name, tool_menu_option, callback) {
         
         // End of tool workflow must set current_tool to undefined.
     });
+    if (hover_text) {
+        tool_button.prop('title', hover_text);
+    }
     
     $("#toolbar").append(tool_button);
 }
 
-function add_tool_listener(name, handler, cleanup) {
+add_tool_listener = function (name, handler, cleanup) {
     // Add a global event listener over the Google map and everything on it. 
     // name specifies the event to listen to, and handler is the function to be
     // set up as an event handler. It should take a single argument: the Google 
@@ -3993,7 +3832,7 @@ function add_tool_listener(name, handler, cleanup) {
     return handle;  
 }
 
-function remove_tool_listener(handle) {
+remove_tool_listener = function (handle) {
     // Given a handle returned by add_tool_listener, remove the listener so it
     // will no longer fire on its event. May be called only once on a given 
     // handle. Runs any cleanup code associated with the handle being removed.
@@ -4007,7 +3846,7 @@ function remove_tool_listener(handle) {
     delete tool_listeners[handle];
 }
 
-function clear_tool_listeners() {
+clear_tool_listeners = function () {
     // We're starting to use another tool. Remove all current tool listeners. 
     // Run any associated cleanup code for each listener.
     
@@ -4016,7 +3855,7 @@ function clear_tool_listeners() {
     }
 }
 
-function subscribe_tool_listeners(maps_object) {
+subscribe_tool_listeners = function (maps_object) {
     // Put the given Google Maps object into the tool events system, so that 
     // events on it will fire global tool events. This can happen before or 
     // after the tool events themselves are enabled.
@@ -4085,7 +3924,7 @@ function refresh() {
     window.clearTimeout(redraw_handle);
     
     // Make a new one to happen as soon as this event finishes
-    redraw_handle = window.setTimeout(redraw_view, 0);
+    redraw_handle = Meteor.setTimeout(redraw_view, 0);
 }
 
 function redraw_view() {
@@ -4125,7 +3964,7 @@ function redraw_view() {
         
         // Turn all the hexes the filtered-out color, pre-emptively
         for(var signature in polygons) {
-            set_hexagon_color(polygons[signature], "black");
+            set_hexagon_color(polygons[signature], "black"); // TODO maybe this should be the current BG color
         }
         
         // Go get the list of filter-passing hexes.
@@ -4485,6 +4324,7 @@ function get_color(u_name, u, v_name, v) {
         } else {
             // Calculate what shade we need from v on -1 to 1, with a minimum
             // value of 20 to avoid blacks.
+            // TODO should we also have a max value? & how does 30 min translate to the below? swat
             var hsv_value = 60 + v * 40;
         }
         
@@ -4546,68 +4386,67 @@ function mix2 (a, b, c, d, amount1, amount2) {
     return mix(mix(a, b, amount1), mix(c, d, amount1), amount2);
 }
 
-// Define a flat projection
-// See https://developers.google.com/maps/documentation/javascript/maptypes#Projections
-function FlatProjection() {
+FlatProjection = function () {
+}
+BlankMapType = function () {
 }
 
+mapTypeDef = function() {
 
-FlatProjection.prototype.fromLatLngToPoint = function(latLng) {
-    // Given a LatLng from -90 to 90 and -180 to 180, transform to an x, y Point 
-    // from 0 to 256 and 0 to 256   
-    var point = new google.maps.Point((latLng.lng() + 180) * 256 / 360, 
-        (latLng.lat() + 90) * 256 / 180);
-    
-    return point;
+    // Define a flat projection
+    // See https://developers.google.com/maps/documentation/javascript/maptypes#Projections
+    FlatProjection.prototype.fromLatLngToPoint = function(latLng) {
+        // Given a LatLng from -90 to 90 and -180 to 180, transform to an x, y Point 
+        // from 0 to 256 and 0 to 256   
+        var point = new google.maps.Point((latLng.lng() + 180) * 256 / 360, 
+            (latLng.lat() + 90) * 256 / 180);
+        
+        return point;
 
-}
+    }
 
+    FlatProjection.prototype.fromPointToLatLng = function(point, noWrap) {
+        // Given a an x, y Point from 0 to 256 and 0 to 256, transform to a LatLng from
+        // -90 to 90 and -180 to 180
+        var latLng = new google.maps.LatLng(point.y * 180 / 256 - 90, 
+            point.x * 360 / 256 - 180, noWrap);
+        
+        return latLng;
+    }
 
-FlatProjection.prototype.fromPointToLatLng = function(point, noWrap) {
-    // Given a an x, y Point from 0 to 256 and 0 to 256, transform to a LatLng from
-    // -90 to 90 and -180 to 180
-    var latLng = new google.maps.LatLng(point.y * 180 / 256 - 90, 
-        point.x * 360 / 256 - 180, noWrap);
-    
-    return latLng;
-}
+    // Define a Google Maps MapType that's all blank
+    // See https://developers.google.com/maps/documentation/javascript/examples/maptype-base
+    BlankMapType.prototype.tileSize = new google.maps.Size(256,256);
+    BlankMapType.prototype.maxZoom = 19;
 
-// Define a Google Maps MapType that's all blank
-// See https://developers.google.com/maps/documentation/javascript/examples/maptype-base
-function BlankMapType() {
-}
+    BlankMapType.prototype.getTile = function(coord, zoom, ownerDocument) {
+        // This is the element representing this tile in the map
+        // It should be an empty div
+        var div = ownerDocument.createElement("div");
+        div.style.width = this.tileSize.width + "px";
+        div.style.height = this.tileSize.height + "px";
+        div.style.backgroundColor = ctx.background;
+        
+        return div;
+    }
 
-BlankMapType.prototype.tileSize = new google.maps.Size(256,256);
-BlankMapType.prototype.maxZoom = 19;
+    BlankMapType.prototype.name = "Blank";
+    BlankMapType.prototype.alt = "Blank Map";
 
-BlankMapType.prototype.getTile = function(coord, zoom, ownerDocument) {
-    // This is the element representing this tile in the map
-    // It should be an empty div
-    var div = ownerDocument.createElement("div");
-    div.style.width = this.tileSize.width + "px";
-    div.style.height = this.tileSize.height + "px";
-    div.style.backgroundColor = "#000000";
-    
-    return div;
-}
-
-BlankMapType.prototype.name = "Blank";
-BlankMapType.prototype.alt = "Blank Map";
-
-BlankMapType.prototype.projection = new FlatProjection();
-
+    BlankMapType.prototype.projection = new FlatProjection();
+},
 
 
-function get_LatLng(x, y) {
+get_LatLng = function (x, y) {
     // Given a point x, y in map space (0 to 256), get the corresponding LatLng
     return FlatProjection.prototype.fromPointToLatLng(
         new google.maps.Point(x, y));
 }
 
-function assignment_values (layout_index, spacing) {
+assignment_values = function (layout_index, spacing) {
 	// Download the signature assignments to hexagons and fill in the global 
     // hexagon assignment grid.
-    $.get("assignments" + layout_index +".tab", function(tsv_data) { 
+    $.get(ctx.project + "assignments" + layout_index +".tab", function(tsv_data) {
 
     
         // This is an array of rows, which are arrays of values:
@@ -4758,14 +4597,14 @@ function clumpiness_values(layout_index) {
 // of clumpiness scores.
 function recreate_map(layout_name, spacing) {
 
-	var layout_index = layout_names.indexOf(layout_name);
+	var layout_index = ctx.layout_names.indexOf(layout_name);
 	assignment_values(layout_index, spacing);
 	clumpiness_values(layout_index);
 
 }
 
 function create_indexed_layers_array () {
-	$.get("layers.tab", function(tsv_data) {
+	$.get(ctx.project + "layers.tab", function(tsv_data) {
 		// Create a list of layer names ordered by their indices
 		layer_names_by_index = new Array (layer_names_sorted.length);
 		parsed = $.tsv.parseRows(tsv_data);
@@ -4788,14 +4627,13 @@ function create_indexed_layers_array () {
     }, "text");
 
 }
-
-$(function() {
-
+initHex = function () {
     // Set up the RPC system for background statistics
-    rpc_initialize();
+    rpc = rpcCreate();
 
     // Set up the Google Map
-    initialize_view(0);
+    mapTypeDef();
+    initialize_view();
     
     // Set up the layer search
     $("#search").select2({
@@ -5041,7 +4879,7 @@ $(function() {
 		set_operation_clicks = 0;
 	};
 
-	/* New Consolidate Stats Fetching */
+	// New Consolidate Stats Fetching
 	// Get the "Sort Attributes" Button. It will be the first indexed item in
 	// the retured array
 	var sort_buttons = document.getElementsByClassName ("sort-attributes-button");
@@ -5115,7 +4953,7 @@ $(function() {
 	});
 
     // Download the layer index
-    $.get("layers.tab", function(tsv_data) {
+    $.get(ctx.project + "layers.tab", function(tsv_data) {
         // Layer index is <name>\t<filename>\t<hexes with values>\t<ones in
         // binary layers>\t<clumpiness for layout 0>\t<clumpiness for layout
         // 1>\t...
@@ -5133,8 +4971,8 @@ $(function() {
             
             // This is the URL from which to download the TSV for the actual 
             // layer.
-            var layer_url = parsed[i][1];
-            
+            var layer_url = ctx.project + parsed[i][1];
+
             // This is the number of hexes that the layer has any values for.
             // We need to get it from the server so we don't have to download 
             // the layer to have it.
@@ -5192,7 +5030,7 @@ $(function() {
     
     // Download full score matrix index, which we later use for statistics. Note
     // that stats won't work unless this finishes first. TODO: enforce this.
-    $.get("matrices.tab", function(tsv_data) {
+    $.get(ctx.project + "matrices.tab", function(tsv_data) {
         // Matrix index is just <filename>
         var parsed = $.tsv.parseRows(tsv_data);
         
@@ -5207,20 +5045,20 @@ $(function() {
             }
             
             // Add it to the global list
-            available_matrices.push(matrix_name);
+            available_matrices.push(ctx.project + matrix_name);
         }
     }, "text");
     
 
 	// Download Information on what layers are continuous and which are binary
-	$.get("Layer_Data_Types.tab", function(tsv_data) {        
+	$.get(ctx.project + "Layer_Data_Types.tab", function(tsv_data) {
         // This is an array of rows, which are arrays of values:
-        /*
-			id		Layer1	Layer2	Layer 3...
-			Layer1	value	value	value
-			Layer2	value	value	value
-			Layer3	value	value	value
-		*/
+        //
+		//	id		Layer1	Layer2	Layer 3...
+		//	Layer1	value	value	value
+		//	Layer2	value	value	value
+		//	Layer3	value	value	value
+		//
 
 		// Parse the file
         var parsed = $.tsv.parseRows(tsv_data);
@@ -5231,7 +5069,7 @@ $(function() {
 	}, "text");  
 
     // Download color map information
-    $.get("colormaps.tab", function(tsv_data) {
+    $.get(ctx.project + "colormaps.tab", function(tsv_data) {
         // Colormap data is <layer name>\t<value>\t<category name>\t<color>
         // \t<value>\t<category name>\t<color>...
         var parsed = $.tsv.parseRows(tsv_data);
@@ -5261,8 +5099,9 @@ $(function() {
                 // The colormap gets an object with the name and color that the
                 // index number refers to. Color is stored as a color object.
                 colormap[category_index] = {
-                   name: parsed[i][j + 1],
-                    color: Color(parsed[i][j + 2])
+                    name: parsed[i][j + 1],
+                    color: Color(parsed[i][j + 2]), // operating color in map
+                    fileColor: Color(parsed[i][j + 2]), // color from orig file
                 };
                 
                 print( colormap[category_index].name + " -> " +  
@@ -5271,10 +5110,11 @@ $(function() {
             
             // Store the finished color map in the global object
             colormaps[layer_name] = colormap;
-            
+
             
         }
-        
+        Session.set('colormaps', colormaps);
+
         // We may need to redraw the view in response to having new color map 
         // info, if it came particularly late.
         refresh();
@@ -5282,7 +5122,7 @@ $(function() {
     }, "text");
 
 // Download the Matrix Names and pass it to the layout_names array
-	$.get("matrixnames.tab", function(tsv_data) {
+	$.get(ctx.project + "matrixnames.tab", function(tsv_data) {
         // This is an array of rows, which are strings of matrix names
         var parsed = $.tsv.parseRows(tsv_data);
         
@@ -5295,22 +5135,19 @@ $(function() {
                 continue;
             }
             // Add layout names to global array of names
-            layout_names.push(label);
+            ctx.layout_names.push(label);
             
-            if(layout_names.length == 1) {
+            if(ctx.layout_names.length == 1) {
                 // This is the very first layout. Pull it up.
                     
                 // TODO: We don't go through the normal change event since we
                 // never change the dropdown value actually. But we duplicate
                 // user selection hode here.
-                var current_layout = "Current Layout: " + layout_names[0];         
+                var current_layout = "Current Layout: " + ctx.layout_names[0];         
 	 
 		        $("#current-layout").text(current_layout);
-		        initialize_view (0);
-                recreate_map(layout_names[0], 1);
-		        refresh ();
-		        current_layout_name = layout_names[0];
-                
+		        ctx.current_layout_name = ctx.layout_names[0];
+		        re_initialize_view ();
             }
         }     
     }, "text");
@@ -5331,9 +5168,9 @@ $(function() {
                 start_position = query.context;
             }
         
-            for(var i = start_position; i < layout_names.length; i++) {
+            for(var i = start_position; i < ctx.layout_names.length; i++) {
                 // For each possible result
-                if(layout_names[i].toLowerCase().indexOf(
+                if(ctx.layout_names[i].toLowerCase().indexOf(
                     query.term.toLowerCase()) != -1) {
                     
                     // Query search term is in this layer's name. Add a select2
@@ -5341,7 +5178,7 @@ $(function() {
                     // formatter looks up by ID and makes UI elements
                     // dynamically.
                     results.push({
-                        id: layout_names[i]
+                        id: ctx.layout_names[i]
                     });
                     
                     if(results.length >= SEARCH_PAGE_SIZE) {
@@ -5356,7 +5193,7 @@ $(function() {
             query.callback({
                 results: results,
                 // Say there's more if we broke out of the loop.
-                more: i < layout_names.length,
+                more: i < ctx.layout_names.length,
                 // If there are more results, start after where we left off.
                 context: i + 1
             });
@@ -5381,15 +5218,15 @@ $(function() {
 		var current_layout = "Current Layout: " + layout_name;         
 	 
 		$("#current-layout").text(current_layout);
-		initialize_view (0);
-        recreate_map(layout_name, 1);
-		refresh ();
+		re_initialize_view();
+
         // Don't actually change the selection.
         // This keeps the dropdown open when we click.
         event.preventDefault();
 
-		// Update Global Variables
-		current_layout_name = layout_name;
+		// Update state // swat
+        //ctx.current_layout_index = // swat
+		ctx.current_layout_name = layout_name;
 		
 		// If currently sorted by mutual information, the mutual information
 		// values must be added for the specific layout and must be resorted.
@@ -5405,5 +5242,5 @@ $(function() {
 	// Update Dropdown to reflect appropriately
 	clumpiness_values(0);
 	update_browse_ui();
-
-});
+};
+})(app);
