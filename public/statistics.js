@@ -1,5 +1,10 @@
 // statistics.js: Web Worker file to run statistical tests in the background.
 
+var app = app || {}; // jshint ignore:line
+
+(function (hex) {
+    //'use strict';
+
 // Constants:
 // How many pseudocount trials should we use for the binomial test?
 var BINOMIAL_PSEUDOCOUNTS = 5;
@@ -19,7 +24,13 @@ onmessage = function(message) {
     // arguments, and "id" set to an ID that should be returned with the return
     // value in a reply message. If the function call fails, an error is sent
     // back.
-    
+
+    //debug('onmessage()');
+    postMessage({
+        log: 'WTF'
+    });
+
+
     // Set the id for progress notifications (since we only run one message at a
     // time in a worker).
     progress.id = message.data.id;
@@ -84,9 +95,16 @@ function print(message) {
     });
 }
 
+function debug(message) {
+    postMessage(JSON.stringify({type:'debug',message:message}));
+}
+
 function progress(amount) {
     // Set the progress abr on the page to the given portion full.  It comes
     // with an ID that onmessage sets on this function.
+
+    debug('progress()');
+
     postMessage({
         id: progress.id,
         progress: amount
@@ -105,6 +123,9 @@ function statistics_for_matrix(matrix_url, in_list, out_list, all_list) {
     // A side effect of this is that we won't have more simultaneous downloads 
     // than workers, which is probably good.
     // This holds the request.
+
+    debug('statistics_for_matrix()');
+
     var request = new XMLHttpRequest();
     // Get the layer data by GET. The false makes it synchronous.
     request.open("GET", matrix_url, false);
@@ -190,6 +211,9 @@ function statistics_for_layer(layer_data, in_list, out_list, all_list) {
     // of all signatures that figure into the analysis at all. Return the p
     // value for the layer, or NaN if no p value could be calculated.
 
+
+    debug('statistics_for_layer()');
+
     // This holds whether the layer is discrete
     var is_discrete = true;
     
@@ -229,6 +253,9 @@ function statistics_for_url(layer_url, in_list, out_list, all_list) {
     // that figure into the analysis at all. Return the p value for the layer,
     // or NaN if no p value could be calculated.
     
+
+    debug('statistics_for_url()');
+
     print("Running statistics for individual layer " + layer_url);
     
     // Download the layer data synchronously. 
@@ -286,6 +313,9 @@ function t_compare(layer_data, in_list, out_list, all_list) {
     // either the p value of the test (two-tailed), or NaN if the test cannot be
     // performed (due to, e.g. fewer than 2 samples in one category).
     
+
+    debug('t_compare()');
+
     // Go through the in list and calculate all the summary statistics
     // How many non-NaN values?
     var number_in = 0;
@@ -379,6 +409,9 @@ function t_test(mean_in, unbiased_variance_in, number_in, mean_out,
     // https://en.wikipedia.org/wiki/Student%27s_t-test
     // Assumes we have enough samples to actually perform the test.
     
+
+    debug('t_test()');
+
     // First, calculate the t statistic, which is where our observations fall on
     // the t distribution.
     var t_statistic = (mean_in - mean_out) / Math.sqrt((unbiased_variance_in /
@@ -421,6 +454,9 @@ function hypergeometric_compare(layer_data, in_list, out_list, all_list) {
     // Population size = size of union of in-group and out-group
     // Total available successes in population = number of 1s in that union
     
+
+    debug('hypergeometric_compare()');
+
     // What signatures are in the union of the in-group and the out-group?
     // Object maps from signature to true.
     var union = {};
@@ -507,6 +543,9 @@ function hypergeometric_test(successes, draws, available, population) {
     // size population contianing availbale successful items, under the null
     // hypothesis that the draws really did come from that population.
     
+
+    debug('hypergeometric_test()');
+
     // This holds the probability of exactly what we've observed under the null
     // hypothesis.
     var observed_probability = jStat.hypgeom.pdf(successes, population,
@@ -642,7 +681,9 @@ function binomial_compare(layer_data, in_list, out_list, all_list) {
     // successes. Signature names appearing in all_list but with no data in
     // layer_data are not counted.
     
-    
+
+    debug('binomial_compare()');
+
     // Work out the distribution from the out list
     // How many out signatures are 1?
     var outside_yes = 0;
@@ -744,6 +785,9 @@ function binomial_compare(layer_data, in_list, out_list, all_list) {
 }    
     
 function binomial_test(trials, successes, success_probability) {
+
+    debug('binomial_test()');
+
     if(trials < successes) {
         print("Trying to test " + trials + " trials with " + successes + 
             " successes!");
@@ -885,6 +929,9 @@ function binomial_cdf(trials, successes, success_probability) {
     // ution_function and http://en.wikipedia.org/wiki/Regularized_incomplete_be
     // ta_function#Incomplete_beta_function
     
+
+    debug('binomial_cdf()');
+
     if(trials == successes) {
         // We would have a 0 alpha for the beta distribution (no failures)
         // Calculate this one by hand (it's easy)
@@ -919,7 +966,10 @@ function binomial_pmf(trials, successes, success_probability) {
     // success rate is the probability of succeeding so many times and failing
     // so many times, summed over all the mutually exclusive arrangements of
     // successes and failures.
-    return (choose(trials, successes) * 
+
+    debug('binomia_pmf()');
+
+    return (choose(trials, successes) *
         Math.pow(success_probability, successes) * 
         Math.pow(1 - success_probability, trials - successes));
     
@@ -936,6 +986,9 @@ function choose(available, selected) {
     // So, no overflow unless the result itself is too big.
     // See http://arantxa.ii.uam.es/~ssantini/writing/notes/s667_binomial.pdf
     
+
+    debug('choose()');
+
     if(selected < available - selected) {
         // It would be faster to think about choosing what we don't include. So
         // do that instead.
@@ -1034,3 +1087,4 @@ function pearson_correlation (a1, a2) {
 	}
 }
 */
+});

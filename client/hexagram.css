@@ -13,6 +13,7 @@ The visualization element needs to take up all available space.
     bottom: 0;
     width: 100%;
     overflow: hidden;
+    background-color: #000000;
 }
 
 /* 
@@ -22,6 +23,11 @@ From http://blog.stevensanderson.com/2011/10/05/full-height-app-layouts-a-css-tr
 
 body {
     margin: 0;
+}
+
+.dialogDiv {
+    min-height: 3em;
+    padding: 0.5em;
 }
 
 .row, .col {
@@ -100,6 +106,10 @@ These are all supposed to stack against the left end in a toolbar thingy.
     line-height: 2em;
     margin-left: 0.5em;
     height: 2em;
+}
+
+#s2id_loadDir {
+    padding-top: 0.2em;
 }
 
 #error-notification {
@@ -639,19 +649,73 @@ layout-name {
 }
 
 /* Tool stuff */
+textarea {
+    width: 100%;
+}
 textarea.import {
     height: 10em;
-    width: 100%;
     font-size: 10pt;
 }
 
 input.import {
     width: 100%;
-    /* 
+    /*
         Apparently Firefox ignores your width and makes it some random size 
         depending on font size. Make that small enough. 
     */
+    /*
     font-size: 0.5em;
+    */
+}
+.dialog {
+    font-size: 0.8em;
 }
 
-
+#colorTable {
+    width: 100%;
+    font-size: 0.9em;
+    overflow: scroll;
+}
+#colorTable thead {
+    font-size: 1.2em;
+}
+#colorTable tbody tr:nth-child(odd) {
+	background: #f4f4f4;
+}
+#colorTable tbody tr.selected {
+	background: #dddddd;
+}
+#colorTable td {
+    padding: 0.2em 0.4em;
+    text-align: right;
+    max-width: 10em;
+    white-space: nowrap;
+    overflow-x: hidden;
+}
+#colorTable td:first-child {
+    max-width: 13em;
+}
+#colorTable td span {
+    padding: 0.2em 0.4em;
+}
+#colorTable input {
+    width: 6em;
+    color: black;
+}
+#colorTable input.dark:not(.isFileVal) {
+    color: white;
+}
+#colorTable input.isFileVal {
+    font-style: italic;
+    color: #777777;
+}
+#colorTable input.isFileVal.dark {
+    color: #bbbbbb;
+}
+#colorTable input.empty {
+    font-style: italic;
+    color: #777777;
+}
+#colorTable input.empty.dark {
+    color: #bbbbbb;
+}
