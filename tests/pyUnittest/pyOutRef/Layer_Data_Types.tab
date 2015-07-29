@@ -1,0 +1,3 @@
+Continuous	Apoptosis	Random	DNA_signature	Placement Badness
+Binary	TP53_mutated	TP63_mutated	TP53_expression_altered	TP63_expression_altered	DNA_Repair_Broken
+Categorical	Subtype	RB1_level

@@ -3141,7 +3141,7 @@ function get_association_stats_values(layer_name, drop_down_val, single_stat, la
 		// drop_down_val == 0, indicates that the user wants to compare
 		// the selected attribute to other binary values
 		if (drop_down_val == 0 && continuous_type == false) {
-			$.get(layer_name + "_b_b.tab", function(tsv_data) {        
+			$.get(ctx.project + layer_name + "_b_b.tab", function(tsv_data) {
 				// This is an array of rows, which are arrays of values:
 				//
 				//	Layer1	Layer2	Layer 3...
@@ -3197,7 +3197,7 @@ function get_association_stats_values(layer_name, drop_down_val, single_stat, la
 		// Look in Continuous_Continuous file if they are both Continuous
 		if (layer1_cont == true & layer2_cont == true) {
 			layer_index = layer_names_by_index.indexOf(layer_names[0])
-			$.get("layer_" + layer_index + "_r_r.tab", function(tsv_data) {        
+			$.get(ctx.project + "layer_" + layer_index + "_r_r.tab", function(tsv_data) {
 				// This is an array of rows, which are arrays of values:
 				//
 				//	id		Layer1	Layer2	Layer 3...
@@ -3227,7 +3227,7 @@ function get_association_stats_values(layer_name, drop_down_val, single_stat, la
 		// Look in b_b files if both are binary
 		if (layer1_cont == false & layer2_cont == false) {
 		
-		$.get(layer_names[0] + "_b_b.tab", function(tsv_data) {        
+		$.get(ctx.project + layer_names[0] + "_b_b.tab", function(tsv_data) {
 				// This is an array of rows, which are arrays of values:
 				//
 				//	id		Layer1	Layer2	Layer 3...
