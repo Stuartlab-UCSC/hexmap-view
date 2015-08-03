@@ -1085,21 +1085,11 @@ def pearson_corr_2 (cont_values, layer_names, options, num_processes, num_pairs)
     return True
 
 def chi_squared (pval_dir, subprocess_string, optionsDirectory, total_processes):
-    print 'CHI-squared with: ------------------'
-    print '  pval_dir:', pval_dir
-    print '  subprocess_string:', subprocess_string
-    print '  optionsDirectory:', optionsDirectory
-    print '  total_processes:', total_processes
-    print '-------------------'
     return subprocess.Popen(['python', 'chi.py', pval_dir, subprocess_string, optionsDirectory, total_processes])
-    # x = subprocess.Popen(['python', 'chi.py', pval_dir,
-    #    subprocess_string, options.directory, str(total_processes)])
 
 def chi_squared_binary_stats_looper (
     debug_writer, # caller-initiated  RO
     pval_dir, # caller-initiated  RO
-    pids, # caller-initiated  RW
-    return_status, # caller-initiated RW
     layer_names, # args RO
     num_processes, # args max_processes RO
     num_tables, # args max_tables  RO
@@ -1109,6 +1099,11 @@ def chi_squared_binary_stats_looper (
     # Counter to chain together a variable number of layer combinations
     # for chi.py subprocess
     current_tables = 0
+
+    return_status = []
+
+    # List of pids
+    pids = []
 
     # Counter for active subprocesses
     current_processes = 0
@@ -1120,13 +1115,12 @@ def chi_squared_binary_stats_looper (
     # Loop through the layers, creating strings that will be passed to the
     # the chi.py subprocess. First group layer indices and binary layer indices
     # with commas. The former will allow the subprocess to access the raw
-    # layer data files, and the later will be printed along with the p-values
+    # layer data files, and the latter will be printed along with the p-values
     # indicating placement of the p-value within the numpy matrix.   
     for index1, a1_name in enumerate (ctx.binary_layers):
         index2 = index1
 
-        # We need to break when we reach the second to last element
-        # as the last element has nothing to compare against.
+        # Loop through the remainder of the layers to form a pair to compare
         for a2_name in ctx.binary_layers[index1:]:
 
             # Index according to layer_names (all layers). This is needed
@@ -1145,48 +1139,30 @@ def chi_squared_binary_stats_looper (
             else:
                 subprocess_string = ";".join([subprocess_string, current_string])
 
-            # Loop while the number of current processes is below the allowed
-            # processes. Poll each process until one has successfully completed.
-            # Delete this pid, lower the counter by one and open a pid with
-            # the created string.
+            if (current_tables == num_tables) or (a2_name == ctx.binary_layers[-1]):
 
-            print 'LLLLLLLLLLLLooping:', 'a1_name.X.a2_name:', a1_name, '.X.', a2_name
-            while current_processes >= num_processes:
-                for pid_index, x in enumerate (pids):
-                     value = x.poll()
-                     if value == 0:
-                         current_processes -= 1
-                         del pids[pid_index]
-                         del return_status[pid_index]
-                         break
+                # Loop while the number of current processes is below the allowed
+                # number. Poll each process until one has successfully completed.
+                # Delete this pid, lower the counter by one and open a pid with
+                # the created string.
+                while current_processes >= num_processes:
+                    for pid_index, x in enumerate (pids):
+                         value = x.poll()
+                         if value == 0:
+                             current_processes -= 1
+                             del pids[pid_index]
+                             del return_status[pid_index]
+                             break
 
-            print 'Caller of caller vars:'
-            print '  pids:', pids
-            print '  return_status:', return_status
-            print '  layer_names:', layer_names
-            print '  num_processes:', num_processes
-            print '  num_tables:', num_tables
-            print '  options:', options
-            print '  ctx.binary_layers:', ctx.binary_layers
+                x = statsFx(pval_dir, subprocess_string, options.directory,
+                    str(total_processes))
 
-            print 'Caller vars:'
-            print '  current_tables:', current_tables
-            print '  current_processes:', current_processes
-            print '  total_processes:', total_processes
-
-            print 'Loop vars:'
-            print '  current_string:', current_string
-            print '  l1_index:', l1_index
-            print '  l2_index:', l2_index
-
-            x = statsFx(pval_dir, subprocess_string, options.directory,
-                str(total_processes))
-
-            pids.append (x)
-            return_status.append(None)
-            debug_writer.line ("Binary Stats Subprocess Opened: ", subprocess_string)
-            current_processes += 1
-            total_processes += 1
+                pids.append (x)
+                return_status.append(None)
+                debug_writer.line ("Binary Stats Subprocess Opened: ", subprocess_string)
+                current_processes += 1
+                total_processes += 1
+                current_tables = 0
 
             # Increase the counter for current tables. When this counter is
             # equal to the variable-defined number of tables per subprocess
@@ -1194,8 +1170,8 @@ def chi_squared_binary_stats_looper (
             # Increase index2 by 1
             index2 += 1
             current_tables += 1
-            if (current_tables == num_tables):
-                current_tables = 0
+
+    return {'return_status': return_status, 'pids': pids}
 
 def chi_squared_binary_stats (layers, layer_names, num_processes, num_tables, options):
     """
@@ -1204,19 +1180,17 @@ def chi_squared_binary_stats (layers, layer_names, num_processes, num_tables, op
     binary association statistics, via scipy's chi-squared contingency table
     statistics functionality. 
 
-    These indepent subprocesses will utilized layer_<index>.tab files to retrieve
+    These independent subprocesses will utilized layer_<index>.tab files to retrieve
     the raw data values for each hexagram. They will access the hexagram names
     through a shared file.
 
     Each subprocess will process its p-values to a file along with each p-values
     "indices". These indices will map the p-value to a 3600 by 3600 numpy matrix.
     After all computations are complete, we will open all these temporary files
-    and place them in them matrix in two locations: (index 1, index 2) &
+    and place them in the matrix in two locations: (index 1, index 2) &
     (index 2, index 1). Then we shall print out the layer association stats
     file for the client to access.
     """
-
-    #import pdb; pdb.set_trace()
 
     # Debugging
     debug_writer = tsv.TsvWriter(open(os.path.join(options.directory, "debug_binary.tab"), "w"))
@@ -1242,26 +1216,19 @@ def chi_squared_binary_stats (layers, layer_names, num_processes, num_tables, op
     # Debugging
     debug_writer.line ("Wrote all hex names to temp directory")
 
-    # List of pids
-    pids = []
     # Mechanism for code execution after all pids have completed
     all_complete = False
-    return_status = []
 
-    print 'return_status before:', return_status
-    chi_squared_binary_stats_looper (
+    returned = chi_squared_binary_stats_looper (
         debug_writer,
         pval_dir,
-        pids,
-        return_status,
         layer_names,
         num_processes,
         num_tables,
         options,
         chi_squared)
-
-    print 'PPPPPPPPPPPPPPPPPPP pids :', pids
-    print 'return_status after:', return_status
+    return_status = returned['return_status']
+    pids = returned['pids']
 
     while all_complete == False:
         for index, pid in enumerate(pids):
@@ -1269,7 +1236,6 @@ def chi_squared_binary_stats (layers, layer_names, num_processes, num_tables, op
             if return_status[index] == None or return_status[index] == 0:
                 continue
             elif return_status[index] > 0 or return_status[index] < 0:
-                print pid, return_status[index], index
                 sys.exit(return_status[index])
         all_complete = all(status == 0 for status in return_status)
 
@@ -1277,7 +1243,6 @@ def chi_squared_binary_stats (layers, layer_names, num_processes, num_tables, op
     p_vals = numpy.zeros(shape=(num_layers, num_layers))
 
     pval_dir_elements = os.listdir(pval_dir)
-    print "Directory Elements:", pval_dir_elements
     for file_name in pval_dir_elements:
         if file_name != "hex_names.tab":
             p_reader = tsv.TsvReader(open(os.path.join(pval_dir, file_name), "r"))
