@@ -2268,45 +2268,48 @@ print (PCA_Test)
     # This holds a list of them
     static_files = [
         # Static images
-        "drag.svg",
-        "filter.svg",
-        "statistics.svg",
-        "right.svg",
-		"set.svg",
-		"save.svg",
-        "help.svg",
-        "sort.svg",
-        "mutual.svg",
-        "throbber.svg",
-		"sort_attributes.svg",
+        "public/drag.svg",
+        "public/filter.svg",
+        "public/statistics.svg",
+        "public/right.svg",
+		"public/set.svg",
+		"public/save.svg",
+        "public/help.svg",
+        "public/sort.svg",
+        "public/mutual.svg",
+        "public/throbber.svg",
+		"public/sort_attributes.svg",
         
         # jQuery itself is pulled from a CDN.
         # We can't take everything offline since Google Maps needs to be sourced
         # from Google, so we might as well use CDN jQuery.
         
         # Select2 scripts and resources:
-        "select2.css",
-        "select2.js",
-        "select2.png",
-        "select2-spinner.gif",
-        "select2x2.png",
+        "client/lib/select2.css",
+        "client/lib/select2.js",
+        "client/lib/select2.png",
+        "client/lib/select2-spinner.gif",
+        "client/lib/select2x2.png",
         
+        # The jQuery-ui js & css
+        "client/lib/jquery-ui.js",
+        "client/lib/jquery-ui.theme.css",
         # The jQuery.tsv plugin
-        "jquery.tsv.js",
+        "client/lib/jquery.tsv.js",
         # The color library
-        "color-0.4.1.js",
+        "client/lib/color-0.4.1.js",
         # The jStat statistics library
-        "jstat.min.js",
+        "client/lib/jstat.min.js",
         # The Google Maps MapLabel library
-        "maplabel-compiled.js",
+        "public/maplabel-compiled.js",
         # The main CSS file
-        "hexagram.css",
+        "client/hexagram.css",
         # The main JavaScript file that runs the page
-        "hexagram.js",
+        "client/hexagram.js",
         # Web Worker for statistics
-        "statistics.js",
+        "public/statistics.js",
         # File with all the tool code
-        "tools.js"
+        "client/atools.js"
     ]
     
     # We'd just use a directory of static files, but Galaxy needs single-level
