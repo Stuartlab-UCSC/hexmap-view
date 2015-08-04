@@ -5,7 +5,7 @@ from rootDir import *
 rootDir = getRootDir()
 serverDir = rootDir + 'server/'
 testDir = rootDir + 'tests/pyUnittest/'
-inDir = testDir + 'pyIn/'
+inDir = testDir + 'pyInBinChi/'
 outDir = testDir + 'pyOutTest/'
 sys.path.append(serverDir)
 import hexagram
@@ -48,13 +48,17 @@ class TestBinaryBinary(unittest.TestCase):
     def test_files(s):
         s.hexIt()
         os.chdir(outDir)
-        files = glob.glob('*b_b*')
-        refFiles = ['DNA_Repair_Broken_b_b.tab', 'TP53_expression_altered_b_b.tab', 'TP53_mutated_b_b.tab', 'TP63_expression_altered_b_b.tab', 'TP63_mutated_b_b.tab']
-        print 'files', files
+        files = glob.glob('*chi2*')
+        refFiles = ['DNA_Repair_Broken_chi2.tab', 'RB1_level_chi2.tab',
+            'Subtype_chi2.tab', 'TP53_expression_altered_chi2.tab',
+            'TP53_mutated_chi2.tab', 'TP63_expression_altered_chi2.tab',
+            'TP63_mutated_chi2.tab']
+        #refFiles = ['DNA_Repair_Broken_chi2.tab', 'TP53_expression_altered_chi2.tab', 'TP53_mutated_chi2.tab', 'TP63_expression_altered_chi2.tab', 'TP63_mutated_chi2.tab']
+        #print 'FFFFFFFFFFFFFiles', files
         s.assertTrue(files == refFiles)
 
-    def test_binaryFileContents(s):
-        with open(outDir + 'DNA_Repair_Broken_b_b.tab', 'rU') as fIn:
+    def test_chi2FileContents(s):
+        with open(outDir + 'DNA_Repair_Broken_chi2.tab', 'rU') as fIn:
             fIn = csv.DictReader(fIn, delimiter='\t')
             r = fIn.next();
             s.assertEqual(float(r['TP53_mutated']), 0.000340309112565)
@@ -62,10 +66,8 @@ class TestBinaryBinary(unittest.TestCase):
             s.assertEqual(float(r['TP53_expression_altered']), 8.95324483173E-14)
             s.assertEqual(float(r['TP63_expression_altered']), 8.95324483173E-14)
             s.assertEqual(float(r['DNA_Repair_Broken']), 8.95324483173E-14)
-
-    def test_chi2CallCount(s):
-        # TODO: this is being called 120 times when there are only 25 p-values
-        pass
+            s.assertEqual(float(r['Subtype']), 9.35762296884e-14)
+            s.assertEqual(float(r['RB1_level']), 0.442955611255)
 
 if __name__ == '__main__':
     unittest.main()
