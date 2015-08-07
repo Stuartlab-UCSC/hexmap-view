@@ -20,6 +20,7 @@ import scipy.stats, scipy.linalg, scipy.misc
 import time 
 import os.path
 import tsv, csv
+from assocStats import association_statistics
 
 # We have a mutualinformation module to do the MI calculations.
 import mutualinformation
@@ -31,10 +32,10 @@ import mutualinformation
 class Context:
     def __init__(s):
         s.matrices = [] # Opened matrices files
-        s.all_hexagons = {} # All "hexagons" dicts
-        s.binary_layers = [] # Binary layer_names
-        s.continuous_layers = [] # Continous layer_names
-        s.categorical_layers = [] # categorical layer_names
+        s.all_hexagons = {} # Hexagon dicts {layout0: {(x, y): hex_name, ...}, layout1: {(x, y): hex_name, ...}}
+        s.binary_layers = [] # Binary layer_names, TODO does this include all layouts, or only layout zero?
+        s.continuous_layers = [] # Continous layer_names, TODO "
+        s.categorical_layers = [] # categorical layer_names, TODO "
         s.beta_computation_data = {} # data formatted to compute beta values
 
     def printIt(s):
@@ -642,25 +643,6 @@ def determine_layer_data_types (layers, layer_names, options):
  
     type_writer.close()
 
-def run_association_statistics(layers, layer_names, options):
-    """
-    The tool will deploy the appropriate association stat test on each
-    array of layers. These tools will compute either R (Correlation Coefficients)
-    or p-values.
-
-    The values generated from each individual stats test will be printed to
-    seperate files. On the clientside the user will be asked to select what type
-    of value they want to correlate their selected attribute against.
-    """             
-    # Run Stats on Continuous Layers
-    curated_windows = window_tool(25,25,10)
-    cont_values = continuous_window_values(layers, ctx.continuous_layers,
-        curated_windows)
-    pearson_corr_2(cont_values, layer_names, options, 10, 100)
-
-    # Run Stats on binary Layers
-    chi_squared_binary_stats (layers, layer_names, 10, 3600, options)
-    return True    
 
 def run_mutual_information_statistics(layers, layer_names, options):
     """    
@@ -879,9 +861,12 @@ def continuous_window_values(layers, layer_names, curated_windows):
     in this list will contain a list, containing 3 types of values. The first 
     type of value will be a string containing the layer/attribute name.
     The second type of value will be the index of the layer within continuous_layers.
-    The thirdt type of value will be the mean value of the continuous values
+    The third type of value will be the mean value of the continuous values
     for the samples in that window.
     """
+    # NOTE: TODO: This routine is not currently being used and may have only
+    # been intended for association stats, but those are layout-independent,
+    # so should not be windowed.
     # At the moment we will be harcoding the map for which windowing and other
     # association statistics will be run upon. 
     hex_dict_num = 0
@@ -1081,191 +1066,6 @@ def pearson_corr_2 (cont_values, layer_names, options, num_processes, num_pairs)
         r_writer.line(*ctx.continuous_layers)
         r_writer.line(*row)
         r_writer.close() 
-
-    return True
-
-def chi_squared (pval_dir, subprocess_string, optionsDirectory, total_processes):
-    return subprocess.Popen(['python', 'chi.py', pval_dir, subprocess_string, optionsDirectory, total_processes])
-
-def chi_squared_binary_stats_looper (
-    debug_writer, # caller-initiated  RO
-    pval_dir, # caller-initiated  RO
-    layer_names, # args RO
-    num_processes, # args max_processes RO
-    num_tables, # args max_tables  RO
-    options, # args  RO
-    statsFx): # statistical function  RO
-
-    # Counter to chain together a variable number of layer combinations
-    # for chi.py subprocess
-    current_tables = 0
-
-    return_status = []
-
-    # List of pids
-    pids = []
-
-    # Counter for active subprocesses
-    current_processes = 0
-
-    # Counter for total processes. This will index the output files
-    # from chi.py.
-    total_processes = 0
-
-    # Loop through the layers, creating strings that will be passed to the
-    # the chi.py subprocess. First group layer indices and binary layer indices
-    # with commas. The former will allow the subprocess to access the raw
-    # layer data files, and the latter will be printed along with the p-values
-    # indicating placement of the p-value within the numpy matrix.
-
-    chi2_layers = ctx.binary_layers + ctx.categorical_layers
-    for index1, a1_name in enumerate (chi2_layers):
-        index2 = index1
-
-        # Loop through the remainder of the layers to form a pair to compare
-        for a2_name in chi2_layers[index1:]:
-
-            # Index according to layer_names (all layers). This is needed
-            # to look up the appropriate raw data file.
-            l1_index = str(layer_names.index(a1_name))
-            l2_index = str(layer_names.index(a2_name))
-
-            # Join layer indices & binary layer indices (used to place the p-values
-            # returned by the subprocess into the numpy matrix) by commas.
-            current_string = ",".join([l1_index, l2_index, str(index1), str(index2)])
-
-            # Initialize new subprocess string or add to the existing one
-            # chaining current strings with semi colons.
-            if (current_tables == 0):
-                subprocess_string = current_string
-            else:
-                subprocess_string = ";".join([subprocess_string, current_string])
-
-            if (current_tables == num_tables) or (a2_name == chi2_layers[-1]):
-
-                # Loop while the number of current processes is below the allowed
-                # number. Poll each process until one has successfully completed.
-                # Delete this pid, lower the counter by one and open a pid with
-                # the created string.
-                while current_processes >= num_processes:
-                    for pid_index, x in enumerate (pids):
-                         value = x.poll()
-                         if value == 0:
-                             current_processes -= 1
-                             del pids[pid_index]
-                             del return_status[pid_index]
-                             break
-
-                x = statsFx(pval_dir, subprocess_string, options.directory,
-                    str(total_processes))
-
-                pids.append (x)
-                return_status.append(None)
-                debug_writer.line ("Binary Stats Subprocess Opened: ", subprocess_string)
-                current_processes += 1
-                total_processes += 1
-                current_tables = 0
-
-            # Increase the counter for current tables. When this counter is
-            # equal to the variable-defined number of tables per subprocess
-            # reset the counter to 0.
-            # Increase index2 by 1
-            index2 += 1
-            current_tables += 1
-
-    return {'return_status': return_status, 'pids': pids, 'chi2_layers': chi2_layers}
-
-def chi_squared_binary_stats (layers, layer_names, num_processes, num_tables, options):
-    """
-    This tool will launch a variable number of independent threads, each of which
-    will calculate a variable number of contingency tables & p-values for
-    binary association statistics, via scipy's chi-squared contingency table
-    statistics functionality. 
-
-    These independent subprocesses will utilized layer_<index>.tab files to retrieve
-    the raw data values for each hexagram. They will access the hexagram names
-    through a shared file.
-
-    Each subprocess will process its p-values to a file along with each p-values
-    "indices". These indices will map the p-value to a 3600 by 3600 numpy matrix.
-    After all computations are complete, we will open all these temporary files
-    and place them in the matrix in two locations: (index 1, index 2) &
-    (index 2, index 1). Then we shall print out the layer association stats
-    file for the client to access.
-    """
-
-    # Debugging
-    debug_writer = tsv.TsvWriter(open(os.path.join(options.directory, "debug_binary.tab"), "w"))
-    debug_writer.line ("Continuous Value Association Stats Completed: ", time.asctime(time.localtime(time.time())))
-
-    # Make a temporary directory to hold the output files of the chi.py script
-    pval_dir = tempfile.mkdtemp()
-
-    # Debugging
-    debug_writer.line("Created Temporary Directory for Binary Association Stats")
-    debug_writer.line ("Temp Directory is at ", pval_dir)
-
-    # Associations stats are the same across layouts/map data types so
-    # we can run associaton stats on the default hex_dict, indexed at 0.
-    hex_dict_num = 0
-    # Retrieve the hexagon names from the appropriate hexagon dictionary
-    hex_values = ctx.all_hexagons[hex_dict_num].values()
-    # Write the hexagon names to a shared file
-    h_writer = tsv.TsvWriter(open(os.path.join(pval_dir, "hex_names.tab"), "w"))
-    h_writer.line(*hex_values)
-    h_writer.close()
-
-    # Debugging
-    debug_writer.line ("Wrote all hex names to temp directory")
-
-    # Mechanism for code execution after all pids have completed
-    all_complete = False
-
-    returned = chi_squared_binary_stats_looper (
-        debug_writer,
-        pval_dir,
-        layer_names,
-        num_processes,
-        num_tables,
-        options,
-        chi_squared)
-    return_status = returned['return_status']
-    pids = returned['pids']
-    chi2_layers = returned['chi2_layers']
-
-    while all_complete == False:
-        for index, pid in enumerate(pids):
-            return_status[index] = pid.poll()
-            if return_status[index] == None or return_status[index] == 0:
-                continue
-            elif return_status[index] > 0 or return_status[index] < 0:
-                sys.exit(return_status[index])
-        all_complete = all(status == 0 for status in return_status)
-
-    num_layers = len(chi2_layers)
-    p_vals = numpy.zeros(shape=(num_layers, num_layers))
-
-    pval_dir_elements = os.listdir(pval_dir)
-    for file_name in pval_dir_elements:
-        if file_name != "hex_names.tab":
-            p_reader = tsv.TsvReader(open(os.path.join(pval_dir, file_name), "r"))
-            p_iterator = p_reader.__iter__()
-            for line in p_iterator:
-                index1 = int(line[0])
-                index2 = int(line[1])
-                p = float(line[2])
-                p_vals[index1, index2] = p
-                p_vals[index2, index1] = p
-
-    # Delete our temporary directory.
-    shutil.rmtree(pval_dir)
-
-    for index, row in enumerate(p_vals):
-        p_writer = tsv.TsvWriter(open(os.path.join(options.directory, 
-            chi2_layers[index]+"_chi2.tab"), "w"))
-        p_writer.line(*chi2_layers)
-        p_writer.line(*row)
-        p_writer.close() 
 
     return True
 
@@ -2022,7 +1822,7 @@ def hexIt(options):
     # Run Associated Statistics
     if options.associations == True:
         print "Running association statistics..."
-        run_association_statistics(layers, layer_names, options)
+        association_statistics(layers, layer_names, ctx, options)
 
     # Run Mutual Information Statistics:
     if options.mutualinfo == True:

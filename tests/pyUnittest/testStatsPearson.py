@@ -48,25 +48,20 @@ class TestBinaryBinary(unittest.TestCase):
     def test_files(s):
         s.hexIt()
         os.chdir(outDir)
-        files = glob.glob('*chi2*')
-        refFiles = ['layer_0_chi2.tab', 'layer_1_chi2.tab',
-            'layer_2_chi2.tab', 'layer_3_chi2.tab',
-            'layer_4_chi2.tab', 'layer_7_chi2.tab',
-            'layer_9_chi2.tab']
+        files = glob.glob('*pear*')
+        refFiles = ['layer_10_pear.tab', 'layer_5_pear.tab', 'layer_6_pear.tab',
+            'layer_8_pear.tab']
         #print 'FFFFFFFFFFFFFiles', files
         s.assertTrue(files == refFiles)
 
-    def test_chi2FileContents(s):
-        with open(outDir + 'layer_7_chi2.tab', 'rU') as fIn:
+    def test_fileContents(s):
+        with open(outDir + 'layer_5_pear.tab', 'rU') as fIn:
             fIn = csv.DictReader(fIn, delimiter='\t')
             r = fIn.next();
-            s.assertEqual(float(r['TP53_mutated']), 0.000340309112565)
-            s.assertEqual(float(r['TP63_mutated']), 0.000340309112565)
-            s.assertEqual(float(r['TP53_expression_altered']), 8.95324483173E-14)
-            s.assertEqual(float(r['TP63_expression_altered']), 8.95324483173E-14)
-            s.assertEqual(float(r['DNA_Repair_Broken']), 8.95324483173E-14)
-            s.assertEqual(float(r['Subtype']), 9.35762296884e-14)
-            s.assertEqual(float(r['RB1_level']), 0.442955611255)
+            s.assertEqual(float(r['Apoptosis']), 1.0)
+            s.assertEqual(float(r['Random']), -0.489895298791)
+            s.assertEqual(float(r['DNA_signature']), 0.581026937372)
+            s.assertEqual(float(r['Placement Badness']), -0.133589914257)
 
 if __name__ == '__main__':
     unittest.main()

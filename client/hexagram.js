@@ -3044,10 +3044,10 @@ function with_association_stats(layer_name, callback) {
     
     if(binary_layers.indexOf(layer_name) != -1) {
         // It's a binary layer. Get the binary layer file
-        var filename = ctx.project + "layer_" + layer_index + "_b_b.tab";
+        var filename = ctx.project + "layer_" + layer_index + "_chi2.tab";
     } else if(cont_layers.indexOf(layer_name) != -1) {
         // It's a continuous layer. Get the continuous layer file
-        var filename = ctx.project + "layer_" + layer_index + "_r_r.tab";
+        var filename = ctx.project + "layer_" + layer_index + "_pear.tab";
     }
         
     $.get(filename, function(tsv_data) {        
