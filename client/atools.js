@@ -6,7 +6,7 @@
 // * Add a tool with add_tool with your tool code as the callback.
 // * Add at least one tool listener with add_tool_listener. Give it cleanup code
 //   if necessary to remove temporary UI elements.
-// * Make sure to set selected_tool to undefined when your tool's normal 
+// * Make sure to set oper.tool_selected to undefined when your tool's normal 
 //   workflow completes, so that the infowindow can use click events again.
 //   (it got set to your tool's name by the code prepended to your callback).
 
@@ -15,10 +15,126 @@ var app = app || {}; // jshint ignore:line
 (function (hex) {
     //'use strict';
 
+    // This is an array of all Google Maps events that tools can use.
+    var TOOL_EVENTS = [
+        "click",
+        "mousemove"
+    ];
+    
+    // This holds all the currently active tool event listeners.
+    // They are indexed by handle, and are objects with a "handler" and an "event".
+    var tool_listeners = {};
+
+    // This holds the next tool listener handle to give out
+    var tool_listener_next_id = 0;
+
+
+    add_tool = function (tool_name, tool_menu_option, callback, hover_text) {
+        // Given a programmatic unique name for a tool, some text for the tool's
+        // button, and a callback for when the user clicks that button, add a tool
+        // to the tool menu.
+        
+        // This holss a button to activate the tool.
+        var tool_button = $("<a/>").attr({"id": "tool_" + tool_name, "href": "#"}).addClass("stacker");
+        tool_button.text(tool_menu_option);
+        tool_button.click(function() {
+            // New tool. Remove all current tool listeners
+            clear_tool_listeners();
+            
+            // Say that the select tool is selected
+            oper.tool_selected = tool_name;
+
+            callback();
+            
+            // End of tool workflow must set current_tool to undefined.
+        });
+        if (hover_text) {
+            tool_button.prop('title', hover_text);
+        }
+        
+        $("#toolbar").append(tool_button);
+    }
+
+    function add_tool_listener(name, handler, cleanup) {
+        // Add a global event listener over the Google map and everything on it. 
+        // name specifies the event to listen to, and handler is the function to be
+        // set up as an event handler. It should take a single argument: the Google 
+        // Maps event. A handle is returned that can be used to remove the event 
+        // listen with remove_tool_listener.
+        // Only events in the TOOL_EVENTS array are allowed to be passed for name.
+        // TODO: Bundle this event thing into its own object.
+        // If "cleanup" is specified, it must be a 0-argument function to call when
+        // this listener is removed.
+        
+        // Get a handle
+        var handle = tool_listener_next_id;
+        tool_listener_next_id++;
+        
+        // Add the listener for the given event under that handle.
+        // TODO: do we also need to index this for O(1) event handling?
+        tool_listeners[handle] = {
+            handler: handler,
+            event: name,
+            cleanup: cleanup
+        };
+        return handle;  
+    }
+
+    function remove_tool_listener(handle) {
+        // Given a handle returned by add_tool_listener, remove the listener so it
+        // will no longer fire on its event. May be called only once on a given 
+        // handle. Runs any cleanup code associated with the handle being removed.
+        
+        if(tool_listeners[handle].cleanup) {
+            // Run cleanup code if applicable
+            tool_listeners[handle].cleanup();
+        }
+        
+        // Remove the property from the object
+        delete tool_listeners[handle];
+    }
+
+    function clear_tool_listeners() {
+        // We're starting to use another tool. Remove all current tool listeners. 
+        // Run any associated cleanup code for each listener.
+        
+        for(var handle in tool_listeners) {
+            remove_tool_listener(handle);
+        }
+    }
+
+    subscribe_tool_listeners = function (maps_object) {
+        // Put the given Google Maps object into the tool events system, so that 
+        // events on it will fire global tool events. This can happen before or 
+        // after the tool events themselves are enabled.
+        
+        for(var i = 0; i < TOOL_EVENTS.length; i++) {
+            // For each event name we care about,
+            // use an inline function to generate an event name specific handler,
+            // and attach that to the Maps object.
+            google.maps.event.addListener(maps_object, TOOL_EVENTS[i], 
+                function(event_name) {
+                    return function(event) {
+                        // We are handling an event_name event
+                        
+                        for(var handle in tool_listeners) {
+                            if(tool_listeners[handle].event == event_name) {
+                                // The handler wants this event
+                                // Fire it with the Google Maps event args
+                                tool_listeners[handle].handler(event);
+                            }
+                        }
+                    };
+            }(TOOL_EVENTS[i]));
+        }
+        
+    }
+
+
 $(function() {
     // Set up the add text control
     add_tool("add-text", "Add Text", function() {
-        
+
         // We'll prompt the user for some text, and then put a label where they 
         // next click.
         
@@ -27,7 +143,7 @@ $(function() {
             
         if(!text) {
             // They don't want to put a label
-            selected_tool = undefined;
+            oper.tool_selected = undefined;
             return;
         }
         
@@ -54,7 +170,7 @@ $(function() {
             remove_tool_listener(handle);
         }, function() {
             // Cleanup: de-select ourselves.
-            selected_tool = undefined;
+            oper.tool_selected = undefined;
         });
     });
 });
@@ -162,7 +278,7 @@ $(function() {
             // references are resolved at runtime.
             var stop_handle = add_tool_listener("click", finish, function() {
                 // Cleanup: say this tool is no longer selected
-                selected_tool = undefined;
+                oper.tool_selected = undefined;
             });
             
         }, function() {
@@ -230,12 +346,12 @@ $(function() {
                     $(this).dialog("close");
                     
                     // Done with the tool
-                    selected_tool = undefined;
+                    oper.tool_selected = undefined;
                 }   
             },
             close: function() {
                 // They didn't want to use this tool.
-                selected_tool = undefined;
+                oper.tool_selected = undefined;
             }
         });
     });
@@ -369,12 +485,12 @@ $(function() {
                     $(this).dialog("close");
                     
                     // Done with the tool
-                    selected_tool = undefined;
+                    oper.tool_selected = undefined;
                 }   
             },
             close: function() {
                 // They didn't want to use this tool.
-                selected_tool = undefined;
+                oper.tool_selected = undefined;
             }
         });
     });
@@ -391,7 +507,7 @@ $(function() {
 					+ "/" + window.location.pathname);
 		
 		alert(link);
-		selected_tool = undefined;
+		oper.tool_selected = undefined;
      
     });
 });
@@ -417,9 +533,11 @@ $(function() {
 		// Hide any "ranked against" caption
 		$("#ranked-against").hide();
 		
-		selected_tool = undefined;
+		oper.tool_selected = undefined;
      
     });
+
+    oper.selected_tool = undefined;
 });
 })(app);
 

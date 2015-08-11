@@ -4,7 +4,8 @@
 
 var app = app || {}; // jshint ignore:line
 
-ctx = {};
+ctx = {}; // Persistent state to be saved eventually
+oper = {}; // Shared state not to be saved to persist store
 
 (function (hex) { // jshint ignore:line
     //'use strict';

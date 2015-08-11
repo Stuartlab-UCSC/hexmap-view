@@ -1,5 +1,5 @@
 
-/* global add_tool, selected_tool, ctx, re_initialize_view, colormaps, Color, $, window */
+/* global add_tool, oper, ctx, re_initialize_view, colormaps, Color, $, window */
 
 var app = app || {}; // jshint ignore:line
 
@@ -30,7 +30,7 @@ var app = app || {}; // jshint ignore:line
                     minHeight: '10em',
                     width: '10em',
                     close: function () {
-                        selected_tool = undefined;
+                        oper.selected_tool = undefined;
                     }
                 });
             }
@@ -63,7 +63,7 @@ var app = app || {}; // jshint ignore:line
             init();
 
             // Deselect the tool.
-            selected_tool = undefined;
+            oper.selected_tool = undefined;
         });
     });
 
@@ -275,7 +275,7 @@ var app = app || {}; // jshint ignore:line
                             }
                         ],
                         close: function () {
-                            selected_tool = undefined;
+                            oper.selected_tool = undefined;
                         }
                     });
             }
@@ -306,7 +306,7 @@ var app = app || {}; // jshint ignore:line
             init();
 
             // Deselect the tool.
-            selected_tool = undefined;
+            oper.selected_tool = undefined;
         });
     });
 })(app);

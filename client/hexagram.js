@@ -28,7 +28,7 @@ var layer_pickers = [];
 // A boolean "selection" that specifies whether this is a user selection or not.
 // (This may be absent, which is the same as false.)
 // Various optional metadata fields
-var layers = {};
+layers = {};
 
 // List of layer types
 cont_layers = [];
@@ -88,7 +88,7 @@ var created = false;
 var layer_names_by_index;
 
 // Stores the Index of the Current Layout Selected. Default is 0 for default layout.
-var current_layout_index = 0;
+current_layout_index = 0;
 
 // Stores the text that informs user what sorting mechanism has been employed
 var current_sort_text = "Attributes Ranked by Frequency";
@@ -115,10 +115,6 @@ var info_window = null;
 // about.
 var selected_signature = undefined;
 
-// Which tool is the user currently using (string name or undefined for no tool)
-// TODO: This is a horrible hack, replace it with a unified tool system at once.
-selected_tool = undefined;
-
 // This object holds info regardin the user's current TumorMap session.
 // It will be stored to local storage as a string constructed with JSON.
 var current_session = {
@@ -141,13 +137,6 @@ var hex_size;
 // This holds a handle for the currently enqueued view redrawing timeout.
 var redraw_handle;
 
-// This holds all the currently active tool event listeners.
-// They are indexed by handle, and are objects with a "handler" and an "event".
-var tool_listeners = {};
-
-// This holds the next tool listener handle to give out
-var tool_listener_next_id = 0;
-
 // This holds the next selection number to use. Start at 1 since the user sees 
 // these.
 var selection_next_id = 1;
@@ -167,12 +156,6 @@ var SEARCH_PAGE_SIZE = 10;
 
 // How big is our color key in pixels?
 var KEY_SIZE = 100;
-
-// This is an array of all Google Maps events that tools can use.
-var TOOL_EVENTS = [
-    "click",
-    "mousemove"
-];
 
 // The google elements obtained to transform to svg
 var googleElements;
@@ -276,7 +259,7 @@ function make_hexagon(row, column, hex_side_length, grid_offset) {
     // Set up the click listener to move the global info window to this hexagon
     // and display the hexagon's information
     google.maps.event.addListener(hexagon, "click", function(event) {
-        if(!selected_tool) {
+        if(!oper.tool_selected) {
             // The user isn't trying to use a tool currently, so we can use
             // their clicks for the infowindow.
             
@@ -639,7 +622,7 @@ function with_layers(layer_list, callback) {
     }
 }
 
-function have_layer(layer_name) {
+have_layer = function (layer_name) {
     // Returns true if a layer exists with the given name, false otherwise.
     return layers.hasOwnProperty(layer_name);
 }
@@ -2526,7 +2509,7 @@ function make_browse_ui(layer_name) {
     return root;
 }
 
-function update_browse_ui(type_value) {
+update_browse_ui = function(type_value) {
     // Make the layer browse UI reflect the current list of layers in sorted
     // order.
     
@@ -3023,7 +3006,7 @@ find_polygons_in_rectangle = function (start, end) {
     return in_box;
 }
 
-function select_rectangle(start, end) {
+select_rectangle = function (start, end) {
     // Now we have an array of the signatures that ought to be in the selection
     // (if they pass filters). Hand it off to select_list.
     var in_box = find_polygons_in_rectangle(start, end),
@@ -3037,16 +3020,16 @@ function with_association_stats(layer_name, callback) {
     // all other continuous or binary layers, as appropriate, and call the
     // callback with an object from layer name to statistic value. The statistic
     // is a p value from a chi-squared test (of some description) for binary
-    // layers, and an r correlation value for continuous layers.
+    // & categorical layers, and an r correlation value for continuous layers.
     
     // Get the layer index
     layer_index = layer_names_by_index.indexOf(layer_name);
     
-    if(binary_layers.indexOf(layer_name) != -1) {
-        // It's a binary layer. Get the binary layer file
+    if(binary_layers.indexOf(layer_name) != -1 && categorical_layers.indexOf(layer_name) != -1) {
+        // It's a binary or categorical layer. Get the layer file
         var filename = ctx.project + "layer_" + layer_index + "_chi2.tab";
     } else if(cont_layers.indexOf(layer_name) != -1) {
-        // It's a continuous layer. Get the continuous layer file
+        // It's a continuous layer. Get the layer file
         var filename = ctx.project + "layer_" + layer_index + "_pear.tab";
     }
         
@@ -3107,7 +3090,7 @@ function get_association_stats_values(layer_name, drop_down_val, single_stat, la
 		// the selected attribute to other continuous values
 		if (drop_down_val == 1 && continuous_type == true) {
             layer_index = layer_names_by_index.indexOf(layer_name);
-			$.get(ctx.project + "layer_" + layer_index + "_r_r.tab", function(tsv_data) {
+			$.get(ctx.project + "layer_" + layer_index + "_pear.tab", function(tsv_data) {
 				// This is an array of rows, which are arrays of values:
 				//
 				//	Layer1	Layer2	Layer 3...
@@ -3197,7 +3180,7 @@ function get_association_stats_values(layer_name, drop_down_val, single_stat, la
 		// Look in Continuous_Continuous file if they are both Continuous
 		if (layer1_cont == true & layer2_cont == true) {
 			layer_index = layer_names_by_index.indexOf(layer_names[0])
-			$.get(ctx.project + "layer_" + layer_index + "_r_r.tab", function(tsv_data) {
+			$.get(ctx.project + "layer_" + layer_index + "_pear.tab", function(tsv_data) {
 				// This is an array of rows, which are arrays of values:
 				//
 				//	id		Layer1	Layer2	Layer 3...
@@ -3780,106 +3763,6 @@ re_initialize_view = function () { // swat
     initialize_view ();
     recreate_map(ctx.current_layout_name, 1);
     refresh ();
-}
-
-add_tool = function (tool_name, tool_menu_option, callback, hover_text) {
-    // Given a programmatic unique name for a tool, some text for the tool's
-    // button, and a callback for when the user clicks that button, add a tool
-    // to the tool menu.
-    
-    // This hodls a button to activate the tool.
-    var tool_button = $("<a/>").attr({"id": "tool_" + tool_name, "href": "#"}).addClass("stacker");
-    tool_button.text(tool_menu_option);
-    tool_button.click(function() {
-        // New tool. Remove all current tool listeners
-        clear_tool_listeners();
-        
-        // Say that the select tool is selected
-        selected_tool = tool_name;
-        callback();
-        
-        // End of tool workflow must set current_tool to undefined.
-    });
-    if (hover_text) {
-        tool_button.prop('title', hover_text);
-    }
-    
-    $("#toolbar").append(tool_button);
-}
-
-add_tool_listener = function (name, handler, cleanup) {
-    // Add a global event listener over the Google map and everything on it. 
-    // name specifies the event to listen to, and handler is the function to be
-    // set up as an event handler. It should take a single argument: the Google 
-    // Maps event. A handle is returned that can be used to remove the event 
-    // listen with remove_tool_listener.
-    // Only events in the TOOL_EVENTS array are allowed to be passed for name.
-    // TODO: Bundle this event thing into its own object.
-    // If "cleanup" is specified, it must be a 0-argument function to call when
-    // this listener is removed.
-    
-    // Get a handle
-    var handle = tool_listener_next_id;
-    tool_listener_next_id++;
-    
-    // Add the listener for the given event under that handle.
-    // TODO: do we also need to index this for O(1) event handling?
-    tool_listeners[handle] = {
-        handler: handler,
-        event: name,
-        cleanup: cleanup
-    };
-    return handle;  
-}
-
-remove_tool_listener = function (handle) {
-    // Given a handle returned by add_tool_listener, remove the listener so it
-    // will no longer fire on its event. May be called only once on a given 
-    // handle. Runs any cleanup code associated with the handle being removed.
-    
-    if(tool_listeners[handle].cleanup) {
-        // Run cleanup code if applicable
-        tool_listeners[handle].cleanup();
-    }
-    
-    // Remove the property from the object
-    delete tool_listeners[handle];
-}
-
-clear_tool_listeners = function () {
-    // We're starting to use another tool. Remove all current tool listeners. 
-    // Run any associated cleanup code for each listener.
-    
-    for(var handle in tool_listeners) {
-        remove_tool_listener(handle);
-    }
-}
-
-subscribe_tool_listeners = function (maps_object) {
-    // Put the given Google Maps object into the tool events system, so that 
-    // events on it will fire global tool events. This can happen before or 
-    // after the tool events themselves are enabled.
-    
-    for(var i = 0; i < TOOL_EVENTS.length; i++) {
-        // For each event name we care about,
-        // use an inline function to generate an event name specific handler,
-        // and attach that to the Maps object.
-        google.maps.event.addListener(maps_object, TOOL_EVENTS[i], 
-            function(event_name) {
-                return function(event) {
-                    // We are handling an event_name event
-                    
-                    for(var handle in tool_listeners) {
-                        if(tool_listeners[handle].event == event_name) {
-                            // The handler wants this event
-                            // Fire it with the Google Maps event args
-                            tool_listeners[handle].handler(event);
-                        }
-                    }
-                };
-        }(TOOL_EVENTS[i]));
-    }
-    
 }
 
 function have_colormap(colormap_name) {
@@ -4569,7 +4452,7 @@ assignment_values = function (layout_index, spacing) {
     }, "text");
 }
 
-function clumpiness_values(layout_index) {
+clumpiness_values = function (layout_index) {
     // Set the clumpiness scores for all layers to the appropriate values for
     // the given layout index. Just pulls from each layer's clumpiness_array
     // field.
