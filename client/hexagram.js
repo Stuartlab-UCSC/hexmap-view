@@ -4510,6 +4510,18 @@ function create_indexed_layers_array () {
     }, "text");
 
 }
+// Create GUI for show genes 
+function create_show_genes_ui () {
+    // Returns a Jquery element that is then prepended to the existing 
+    // set theory drop-down menu    
+
+    // This holds the root element for this set operation UI 
+    var root = $("<div/>").addClass("show-genes-entry");
+    var show_genes_button = $("<input/>").attr("type", "button");
+    show_genes_button.addClass ("show-genes-button");
+    root.append (show_genes_button);
+    return root
+}
 initHex = function () {
     // Set up the RPC system for background statistics
     rpc = rpcCreate();
@@ -4608,6 +4620,9 @@ initHex = function () {
         event.preventDefault();
     });
 
+    // Create Pop-Up UI for Show Genes
+     $("#show-genes").prepend(create_show_genes_ui ());
+     
 	// Create Pop-Up UI for Comparison Statistics 
 	$("#comparison-statistics").prepend(create_comparison_stats_ui ());
 
