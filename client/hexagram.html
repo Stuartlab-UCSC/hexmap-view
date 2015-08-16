@@ -1,14 +1,10 @@
-    <head>
-		<meta http-equiv="Content-Type" content="text/html; charset=utf-8"></meta>
-        <meta name="viewport" content="maximum-scale=1.0"></meta>
-        <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1"></meta>
-        <title>Hexagram Visualization</title>
-        <link rel="favicon" href="favicon.ico" type="image/x-icon" />
-    </head>
-    <body>
+<template name='mapPage'>
         <div class="tools row" id="toolbar">
-            <div class="stacker">
-                Tools:
+            <div class="title stacker">
+                UCSC Tumor Map
+            </div>
+            <div class="stacker" style='padding-right:0.5em'>
+                PanCan12 mRNA Seq
             </div>
             <div id='loadDir' class='stacker' style='width: 9em;display:none'>
             </div>
@@ -183,4 +179,4 @@
             <div id="visualization">
             </div>
         </div>
-    </body>
+</template>

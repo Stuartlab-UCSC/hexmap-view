@@ -5096,26 +5096,26 @@ initHex = function () {
   	// Handle result selection
     $("#layout-search").on("select2-selecting", function(event) {
         // The select2 id of the thing clicked (the layout's name) is event.val
-        var layout_name = event.val;		
+        var layout_name = event.val;
 
 		var current_layout = "Current Layout: " + layout_name;         
 	 
 		$("#current-layout").text(current_layout);
-		re_initialize_view();
 
         // Don't actually change the selection.
         // This keeps the dropdown open when we click.
+        // TODO only one layer at a time can be displayed, so we don't need to
+        //      keep the dropdown open
         event.preventDefault();
 
-		// Update state // swat
-        //ctx.current_layout_index = // swat
 		ctx.current_layout_name = layout_name;
-		
+
 		// If currently sorted by mutual information, the mutual information
 		// values must be added for the specific layout and must be resorted.
 		// Function will update current_layout_index & reextract stats if needed
 		get_current_layout_index (layout_name, mutual_information_ranked);
-
+        
+		re_initialize_view();
     });
 
 	create_indexed_layers_array ();

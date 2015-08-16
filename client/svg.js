@@ -8,7 +8,7 @@ var app = app || {}; // jshint ignore:line
 (function (hex) { // jshint ignore:line
     //'use strict';
 
-    $(function () {
+    initSvg = function () {
 
         function get_xy(latLng) {
             // Given a point LatLng in the range, -90:90, -180:180, get the
@@ -16,7 +16,7 @@ var app = app || {}; // jshint ignore:line
             return FlatProjection.prototype.fromLatLngToPoint(latLng);
         }
 
-        add_tool("download", "Download", function () {
+        add_tool("download", "Download View", function () {
             var svgMapSize = 5120;
 
             function get_svgXy(latLng, dims) {
@@ -173,8 +173,8 @@ var app = app || {}; // jshint ignore:line
             init();
 
             // Deselect the tool.
-            selected_tool = undefined;
+            ctx.selected_tool = undefined;
 
         }, 'Download visible part of map as SVG');
-    });
+    };
 })(app);

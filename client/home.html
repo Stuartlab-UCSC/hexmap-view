@@ -1,0 +1,140 @@
+
+<template name="homePage">
+<div style='padding-left:2em;padding-right:2em'>
+<a href="#" class="mapPage" style='float:right;padding-left:1em;padding:1em;margin:1em;border:1px rgb(0,0,238) solid;vertical-align:top'>
+    <div style='text-align:center'>interact with this live map<br>PanCan12</div>
+    <img src="pancan12-mRNA-Seq.png" width="300" style='padding-top:1em'>
+    <img src="pancan12tissueLegend.png" height="110" style='vertical-align:top;padding-top:3em'>
+</a>
+
+<h1>UCSC Tumor Map</h1>
+
+<div style='font-size:1.2em;font-weight:normal'>
+About the PanCan12 data:<br>
+<a href="#Layers">Layers</a><br>
+<a href="#Attributes">Attributes</a><br>
+<a href="#Statistics">Statistics</a><br>
+<a href="#Subtypes">Subtypes</a><br>
+<a href="#GenePrograms">Gene Programs</a><br>
+<a href="#ClinicalFeatures">Clinical Features</a><br>
+</div>
+
+<h3 id='Layers'>Layers</h3>
+<ul style="line-height:100%">
+<li>mRNA - 3,589 samples</li>
+<li>Copy number - 4,693 samples </li>
+<li>RPPA - protein level - 3,467 samples</li>
+<li>DNA methylation - 2,206 samples</li>
+<li>Paradigm Activity Levels (vs. normal) - 3,516 samples</li>
+<li>micro RNA - 1,397 samples</li>
+<li>CLR - combines mRNA, microRNA and RPPA - 4,468 samples</li>
+</ul >
+<h3 id='Attributes'>Attributes</h3>
+<ul style="line-height:100%">
+<li>Tissue - 12 tumor types from TCGA Pancan</li>
+<li>Mutations - 225 gene level events</li>
+<li>Amplifications - 999 gene level events</li>
+<li>Deletions - 1,987 gene level events</li>
+<li>Gene Programs - Denise Wolf - 43 gene programs and pathways were created by applying a bimodality filter and Weighted Gene Correlation Network Analysis (WGCNA) to aggregate the bimodal signatures and pathways into coherent clusters.</li>
+<li>Pancan Subtypes from Breast, Overian, Colon, Rectal, GBM, UCEC</li>
+<li style='color:red'>Pancan Subtypes from Cell paper - in press</li>
+<li>Pardigm transcription hubs</li>
+<li>Pardigm activity hubs</li>
+<li>Summary stats for all layers </li>
+<li>Clinical attributes</li>
+</ul >
+<h3 id='Statistics'>Statistics</h3>
+<ul style="line-height:100%">
+<li style='display:none'>Sort Attributes by Contrasting Sample Sets</li>
+<li style='display:none'>Sort Attributes by a pivot attribute (layout independent)</li>
+<li style='display:none'>Sort Attributes by a pivot attribute (layout dependent)</li>
+<li>Sample grouping - draw a box on the map</li>
+<li>Union/Intersection/Difference of sets of Samples </li>
+</ul >
+<h3 id='Subtypes'>Subtypes</h3>
+<ul style="line-height:100%">
+<li>BRCA</li>
+<li>COAD</li>
+<li>READ</li>
+<li>UCEC</li>
+<li>GBM</li>
+<li>OV</li>
+<li>pancan_subtype_integrated - cluster of clusters</li>
+<li>pancan_subtype_methylation</li>
+<li>pancan_subtype_RPPA</li>
+<li>pancan_subtype_mRNA</li>
+<li>pancan_subtype_miRNA</li>
+<li>pancan_subtype_mutations</li>
+</ul >
+<h3 id='GenePrograms'>Gene Programs</h3>
+<ul style="line-height:100%">
+<li>GP1_Proliferation/DNA repair program</li>
+<li>GP2_Immune (T cell/B cell) program</li>
+<li>GP3_Tumor suppressing miRNA targets program</li>
+<li>GP4_GPS/ECM program</li>
+<li>GP5_Myc targets/TERT program</li>
+<li>GP6_Squamous differentiation/development program</li>
+<li>GP7_Estrogen signaling program</li>
+<li>GP8_FOXO/stemness program</li>
+<li>GP9_Cell-cell adhesion program</li>
+<li>GP10_Fatty acid oxidation program</li>
+<li>GP11_Immune (IFN) program</li>
+<li>GP12_Hypoxia/Glycolosis program</li>
+<li>GP13_Neural signaling program</li>
+<li>GP14_Plasma membrane cell-cell signaling program</li>
+<li>GP15_EGF signaling program</li>
+<li>GP16_Protein kinase signaling (MAPKs) program</li>
+<li>GP17_Basal signaling program</li>
+<li>GP18_Vesicle/EPR membrane coat program</li>
+<li>GP19_1Q amplicon program</li>
+<li>GP20_TAL1-leukemia/erythropoiesis program</li>
+<li>GP21_Anti-apoptosis/DNA stability program</li>
+<li>GP22_16Q22-24 amplicon program</li>
+<li>AKT_PATHWAY program</li>
+<li>ALK_PATHWAY program</li>
+<li>CTLA4_PATHWAY program</li>
+<li>IGF1R_PATHWAY program</li>
+<li>MTOR_PATHWAY program</li>
+<li>PTEN_PATHWAY program</li>
+<li>RAS_PATHWAY program</li>
+<li>RB_PATHWAY program</li>
+<li>VEGF_PATHWAY program</li>
+<li>HDAC_TARGETS_DN program</li>
+<li>RETINOL_METABOLISM program</li>
+<li>MYC_AMPLIFICATION_TARGETS program</li>
+<li>RESPONSE_TO_ANDROGEN program</li>
+<li>PD1_SIGNALING program</li>
+<li>PI3K_CASCADE program</li>
+<li>CASPASE_CASCADE (APOPTOSIS) program</li>
+<li>HER2_AMPLIFIED program</li>
+<li>P53_MUTATED program</li>
+<li>BRCA_ATR_PATHWAY program</li>
+<li>PROLIFERATION/CELL CYCLE program</li>
+</ul >
+<h3 id='ClinicalFeatures'>Clinical Features</h3>
+<ul style="line-height:100%">
+<li>gender</li><li>
+number_of_lymphnodes_positive</li><li>
+colon_polyps_present</li><li>
+microsatellite_instability</li><li>
+metastasis_pathological_spread</li><li>
+height</li><li>
+weight</li><li>
+age_at_initial_pathologic_diagnosis</li><li>
+icd_10</li><li>
+lymphovascular_invasion_present</li><li>
+karnofsky_performance_score</li><li>
+neoplasm_histologic_grade</li><li>
+icd_o_3_site</li><li>
+primary_tumor_t_stage</li><li>
+lymphnode_pathologic_spread</li><li>
+acute_myeloid_leukemia_calgb_cytogenetics_risk_category</li><li>
+tumor_stage_and_substage</li><li>
+neoplasm_disease_lymph_node_stage</li><li>
+primary_tumor_pathologic_spread</li><li>
+history_of_colon_polyps</li><li>
+tumor_stage</li><li>
+tissue_source</li>
+</ul>
+</div>
+</template>

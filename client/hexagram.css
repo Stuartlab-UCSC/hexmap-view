@@ -176,6 +176,13 @@ These are all supposed to stack against the left end in a toolbar thingy.
     height: 1em;
 }
 
+.title {
+    font-size: 1.2em;
+    font-weight: bold;
+    padding-right: 0.5em;
+    margin-top: -0.2em;
+}
+
 /* Browsing stuff */
 
 #browse-holder {
