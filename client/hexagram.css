@@ -383,7 +383,7 @@ These are all supposed to stack against the left end in a toolbar thingy.
     padding-right: 20px;
 }
 .select2-results .select2-highlighted {
-    background-image: url("right.svg");
+    background-image: url("images/right.svg");
     background-repeat: no-repeat;
     background-position: right center;
 }
@@ -459,7 +459,7 @@ layout-name {
     top: 0;
     bottom: 0;
     width: 2em;
-    background-image: url("drag.svg");
+    background-image: url("images/drag.svg");
     background-repeat: no-repeat;
     background-position: 50% 70%; 
     border-radius: 5px;

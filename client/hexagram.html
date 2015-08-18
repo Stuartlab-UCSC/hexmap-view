@@ -1,15 +1,54 @@
-<template name='mapPage'>
+<!DOCTYPE html>
+<html>
+    <head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta name="viewport" content="maximum-scale=1.0" />
+        <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1" />
+
+        <!-- online library scripts -->
+        <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?sensor=false"></script>
+        <script type="text/javascript" src="https://code.jquery.com/jquery-1.9.1.min.js"></script>
+        <script type="text/javascript" src="https://code.jquery.com/ui/1.10.2/jquery-ui.js"></script>
+
+        <!-- Local library scripts -->
+        <script type="text/javascript" src="lib/underscore.js"></script>
+        <script type="text/javascript" src="lib/jquery.tsv.js"></script>
+        <script type="text/javascript" src="lib/color-0.4.1.js"></script>
+        <script type="text/javascript" src="lib/jstat.min.js"></script>
+        <script type="text/javascript" src="lib/select2.js"></script>
+        <script type="text/javascript" src="lib/maplabel.js"></script>
+        <!--
+        <script type="text/javascript" src="lib/require.js"></script>
+		<script type="text/javascript" src="lib/react-with-addons.js"></script>
+		<script type="text/javascript" src="lib/JSXTransformer.js"></script>
+        -->
+
+        <!-- Scripts we wrote -->
+        <script type="text/javascript" src="state.js"></script>
+        <script type="text/javascript" src="hexagram.js"></script>
+        <!-- <script type="text/javascript" src="load.js"></script> -->
+        <script type="text/javascript" src="atools.js"></script>
+        <script type="text/javascript" src="svg.js"></script>
+        <script type="text/javascript" src="colors.js"></script>
+        <script type="text/javascript" src="mainHex.js"></script>
+
+        <link rel="stylesheet" type="text/css" href="https://code.jquery.com/ui/1.10.2/themes/smoothness/jquery-ui.css">
+        <link rel="stylesheet" type="text/css" href="lib/select2.css">
+        <link rel="stylesheet" type="text/css" href="hexagram.css">
+        <title>Hexagram Visualization</title>
+    </head>
+    <body id='body'>
+
+        <!-- <div class="tools row viewport" id="toolbar"> -->
+
         <div class="tools row" id="toolbar">
             <div class="title stacker">
                 UCSC Tumor Map
             </div>
-            <div class="stacker" style='padding-right:0.5em'>
-                PanCan12 mRNA Seq
-            </div>
-            <div id='loadDir' class='stacker' style='width: 9em;display:none'>
+            <div id='loadDir' class='stacker' style='display:none;width: 9em'>
             </div>
             <div class="stacker right">
-                <img src="throbber.svg" class="recalculate-throbber" title="Recalculating..." />
+                <img src="images/throbber.svg" class="recalculate-throbber" title="Recalculating..." />
                 <span class="recalculate-progress">
                     <span id="jobs-running">0</span>/<span id="jobs-in-batch">0</span> jobs running.
                 </span>
@@ -26,10 +65,10 @@
                 <div class="vertical-cell">
                     <div id="browse-holder">
                         <input id="search" type="hidden"/>
-                        <img style='display:none' src="statistics.svg" id="comparison-stats" title="Differential Contrast of Sample Selections" onclick="update_comparison_stats_drop_down()"/>
-						<img src="throbber.svg" class="recalculate-throbber" title="Recalculating..." />
-						<img src="set.svg" id="set-operation" title="Calculate Set Operation"/>
-						<img style='display:none' src="sort_attributes.svg" id="sort-attributes" title="Sort Attributes by Association with Pivot Attribute"/>
+                        <img style='display:none' src="images/statistics.svg" id="comparison-stats" title="Differential Contrast of Sample Selections" onclick="update_comparison_stats_drop_down()"/>
+						<img src="images/throbber.svg" class="recalculate-throbber" title="Recalculating..." />
+						<img src="images/set.svg" id="set-operation" title="Calculate Set Operation"/>
+						<img style='display:none' src="images/sort_attributes.svg" id="sort-attributes" title="Sort Attributes by Association with Pivot Attribute"/>
                     </div>
 					<div id="layout-holder">
 						<input id="layout-search" type="hidden"/>
@@ -67,7 +106,7 @@
 			<div class="sort-attributes dropdown">
 				<div class="dropdown-title">Sort Attributes by Pivot
 				    <a class="cancel" href="#" onclick="hide_sort_attributes_drop_down(); reset_sort_attributes_counter()">X</a>
-				    <img class="help-button" id="sort-attributes-help" src="help.svg"/>
+				    <img class="help-button" id="sort-attributes-help" src="images/help.svg"/>
 				    <!-- Help dialog for this dropdown -->
 			        <div class="help-dialog" title="Pivot Sort Help">
 			            <div class="help-text">
@@ -179,4 +218,5 @@
             <div id="visualization">
             </div>
         </div>
-</template>
+    </body>
+</html>
