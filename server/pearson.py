@@ -5,10 +5,10 @@ coefficients (r-values) from two layer arrays. We are seperating this function
 from the hexagram.py file so that we can parallelize the computations.
 """ 
 import argparse, sys, os, itertools, math, numpy, subprocess, shutil, tempfile
-import traceback, numpy
+import traceback, numpy, pprint
 import scipy.stats
 import os.path
-import tsv
+import tsv, csv
 
 def main (args):
     """
@@ -21,9 +21,9 @@ def main (args):
     args[] = 'python'
     args[0] = 'pearson.py'
     args[1] = 'temp_directory' - temporary directory to print files to
-    args[2] = 'subprocess_string' - string containing sets of four values.
-               The four value are "layer1 index, layer 2 index, cont layer 1
-               index, cont layer 2 index;..."
+    args[2] = 'subprocess_string' - string containing sets of four index values:
+               layer-1, layer-2, pearson-layer-1, pearson-layer-2; ..."
+               we're using var names of lx1, lx2, slx1, slx2
     args[3] = 'total_processes'- current number of processes which is used
                by the subprocess as the index for the printed file
     """
@@ -32,82 +32,65 @@ def main (args):
     directory = args[1]
     file_index = args[3]
 
-    # Currently the subprocess string is of the format:
-    # "index1,index2;index1,index3;"
-    # Split it such that ["index1,index2", "index1,index3"]
-    list_of_index_pairs = args[2].split(";")
+    # Convert the subprocess string into a list of lists
+    index_quads = []
+    for quad in args[2].split(";"):
+        index_quads.append(quad.split(","))
 
-    # Now split each element in list_of_index_pairs such that:
-    # [ [index1, index2], [index1, index 3]]
-    cont_indices_repeated = []
-    for pair in list_of_index_pairs:
-        cont_indices_repeated.append(pair.split(","))
+    #print 'index_quads:', index_quads
 
     # We want to parse out the requisite rows from the cont_values.tab file
     # Before we do so, we want a single list of layers that we shall need.
     # This way we won't create multiples of the same rows.
-    cont_indices_single = []
-    for pair in cont_indices_repeated:
-        index1 = pair[0]
-        index2 = pair[1]
-        if index1 not in cont_indices_single:
-            cont_indices_single.append(int(index1))
-        if index2 not in cont_indices_single:
-            cont_indices_single.append(int(index2))  
+    uniq_layers = set()
 
-    # Debugging:
-    print ('cont_indices_single: ', cont_indices_single)
+    # Note that quad[0] & quad[1] are not used in this file
+    for quad in index_quads:
+        uniq_layers.add(quad[2])
+        uniq_layers.add(quad[3])
 
-    # Parse the cont_values.tab file for appropriate values
-    continuous_layers = [None] * len(cont_indices_single)
-    continuous_values = [None] * len(cont_indices_single)
-    values_reader = tsv.TsvReader(open(os.path.join(directory, "cont_values.tab"), "r"))
+    uniq = dict([])
 
-    value_iterator = values_reader.__iter__()
+    uniq_layers = list(uniq_layers)
+    for i, u in enumerate(uniq_layers):
+        uniq[u] = ''
 
-    for index, layer in enumerate(value_iterator):
-        if index in cont_indices_single:
-            continuous_layers.insert (index ,layer[:2])
-            print ('continuous_layers: ', continuous_layers)
-            current_values = []
-            current_values = map(float, layer[2:])
-            print ('current_values: ', current_values)
-            continuous_values.insert(index, current_values)
+    # Find the layers of interest in the cont_values.tab file
+    with open(os.path.join(directory, "cont_values.tab"), 'rU') as reader:
+        reader = csv.reader(reader, delimiter='\t')
 
-    # Compute correlation coefficients & print to file.
+        value_iterator = reader.__iter__()
+
+        for i, layer in enumerate(value_iterator):
+            ulx = str(layer[1:2][0])
+            if ulx in uniq.keys():
+                uniq[ulx] = float(layer[2:][0])
+
     # Write all pearson correlation coefficients computed to a file.
     # pearson_values_<file_index>.tab
-    r_val_writer = tsv.TsvWriter(open(os.path.join(directory, "pearson_values_"+ file_index + ".tab"), "w"))
-    for pair in cont_indices_repeated:
-        index1 = int(pair[0])
-        index2 = int(pair[1])
-        layer1_val = continuous_values[index1]
-        layer2_val = continuous_values[index2]
+    with open(os.path.join(directory, "pearson_values_"+ file_index + ".tab"), "w") as writer:
+        writer = csv.writer(writer, delimiter='\t')
+        for quad in index_quads:
 
-        # We remove all windows that have 0s as they had no samples with
-        # values for the attribute/layer.
-        if 0 in layer1_val or 0 in layer2_val:
-            a1 = []
-            a2 = []
-            for m_index, mean in enumerate (layer1_val):
-                if mean != 0 and layer2_val[m_index] != 0:
-                    a1.append(mean)   
-                    a2.append(layer2_val[m_index])
-            layer1_val = a1
-            layer2_val = a2
+            # We remove all windows that have 0s as they had no samples with
+            # values for the attribute/layer.
+            slx1 = quad[2]
+            slx2 = quad[3]
+            #print 'slx1, slx2, uniq:', slx1, slx2, uniq
+            val1 = uniq[slx1]
+            val2 = uniq[slx2]
+            if val1 != 0 and val2 != 0:
 
-        # Compute R Coefficient & P-Value
-        pearson_val = scipy.stats.pearsonr(layer1_val,layer2_val)
-        # Take Absolute Value Because We Want to Know All Correlations
-        # Positive and Negative
-        r_val = pearson_val[0]
+                # Compute R Coefficient & P-Value, ignoring the P-Value
+                pearson_val = scipy.stats.pearsonr([val1], [val2])
+                # Take Absolute Value Because We Want to Know All Correlations
+                # Positive and Negative
+                r_val = pearson_val[0]
 
-        # Write a new line to the output file in the following format:
-        # Layer1 Name	Layer2 Name	Continuous Index1	Continuous Index2	R-Coeff
-        r_val_writer.line(continuous_layers[index1][0], continuous_layers[index2][0],
-        continuous_layers[index1][1], continuous_layers[index2][1], r_val)
-    
-    r_val_writer.close()
+                # Write a new line to the output file in the following format:
+                # Continuous Index1	Continuous Index2	R-Coeff
+                #print 'slx1, slx2, val1, val2, r_val:',slx1, slx2, val1, val2, r_val
+                writer.writerow([slx1, slx2, r_val])
 
     return 0
 

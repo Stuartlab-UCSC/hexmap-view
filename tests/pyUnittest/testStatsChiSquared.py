@@ -10,7 +10,7 @@ outDir = testDir + 'pyOutTest/'
 sys.path.append(serverDir)
 import hexagram
 
-class TestBinaryBinary(unittest.TestCase):
+class TestChi2(unittest.TestCase):
 
     def hexIt(s):
         global inDir, outDir

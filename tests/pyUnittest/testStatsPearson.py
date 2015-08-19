@@ -10,7 +10,7 @@ outDir = testDir + 'pyOutTest/'
 sys.path.append(serverDir)
 import hexagram
 
-class TestBinaryBinary(unittest.TestCase):
+class TestPearson(unittest.TestCase):
 
     def hexIt(s):
         global inDir, outDir
@@ -53,7 +53,7 @@ class TestBinaryBinary(unittest.TestCase):
             'layer_8_pear.tab']
         #print 'FFFFFFFFFFFFFiles', files
         s.assertTrue(files == refFiles)
-
+    """
     def test_fileContents(s):
         with open(outDir + 'layer_5_pear.tab', 'rU') as fIn:
             fIn = csv.DictReader(fIn, delimiter='\t')
@@ -62,6 +62,6 @@ class TestBinaryBinary(unittest.TestCase):
             s.assertEqual(float(r['Random']), -0.489895298791)
             s.assertEqual(float(r['DNA_signature']), 0.581026937372)
             s.assertEqual(float(r['Placement Badness']), -0.133589914257)
-
+    """
 if __name__ == '__main__':
     unittest.main()

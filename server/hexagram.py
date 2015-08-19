@@ -15,7 +15,7 @@ Re-uses sample code and documentation from
 """
 
 import argparse, sys, os, itertools, math, numpy, subprocess, shutil, tempfile
-import collections, multiprocessing, traceback, numpy, time
+import collections, multiprocessing, traceback, numpy, time, pprint
 import scipy.stats, scipy.linalg, scipy.misc
 import time 
 import os.path
@@ -33,9 +33,9 @@ class Context:
     def __init__(s):
         s.matrices = [] # Opened matrices files
         s.all_hexagons = {} # Hexagon dicts {layout0: {(x, y): hex_name, ...}, layout1: {(x, y): hex_name, ...}}
-        s.binary_layers = [] # Binary layer_names, TODO does this include all layouts, or only layout zero?
-        s.continuous_layers = [] # Continous layer_names, TODO "
-        s.categorical_layers = [] # categorical layer_names, TODO "
+        s.binary_layers = [] # Binary layer_names in the first layout
+        s.continuous_layers = [] # Continous layer_names in the first layout
+        s.categorical_layers = [] # categorical layer_names in the first layout
         s.beta_computation_data = {} # data formatted to compute beta values
 
     def printIt(s):
@@ -1433,7 +1433,7 @@ def compute_hexagram_assignments(nodes, index, options):
     """
     Now that we are taking multiple similarity matrices as inputs, we must
     compute hexagram assignments for each similarity matrix. These assignments 
-    are based up on the nodes ouput provided by the DrL function. 
+    are based up on the nodes output provided by the DrL function. 
 
     Index relates each matrix name with its drl output, nodes, assignments, etc.
     Options contains the parsed arguments that are present in the main method.
@@ -1709,7 +1709,7 @@ def hexIt(options):
             
         # We're done with this score file now
         scores_reader.close()
-    
+
     # We're done with all the input score matrices, so our index is done too.
     matrix_index_writer.close()
     
@@ -1727,7 +1727,7 @@ def hexIt(options):
     layer_files = {name: os.path.join(options.directory, 
         "layer_{}.tab".format(number)) for (name, number) in itertools.izip(
         layer_names, itertools.count())}
-        
+
     for layer_name, layer in layers.iteritems():
         # Write out all the individual layer files
         # This holds the writer for this layer file

@@ -4,7 +4,7 @@ chi.py is used to parallelize computations for association statistics via
 chi-squared contingency table calculations.
 """ 
 import argparse, sys, os, itertools, math, numpy, subprocess, shutil, tempfile
-import traceback, numpy
+import traceback, numpy, pprint
 import scipy.stats
 import os.path
 import tsv
@@ -19,13 +19,16 @@ def main (args):
 
     args[] = 'python'
     args[0] = 'chi.py'
-    args[1] = 'temp_directory' - temporary directory to print files to
+    args[1] = 'temp_directory' - temporary directory to read & write files
     args[2] = 'subprocess_string' - string containing sets of four index values:
-               layer 1, layer 2, chi2 layer 1, chi2 layer 2; ..."
+               layer-1, layer-2, chi2-layer-1, chi2-layer-2; ..."
+               we're using var names of lx1, lx2, slx1, slx2
     args[3] = 'working_directory' - directory to which main process writes files
     args[4] = 'file_index' - index to assign to file for writing purposes
     """
 
+    #print 'chi subprocess_string:', args[2]
+    
     # Parse the directory to which files will be written
     temp_dir = args[1]
     working_dir = args[3]
@@ -34,7 +37,7 @@ def main (args):
     # Split string into array of array of values, where each element in the 
     # array list is a string of four values, separated by commas
     # comparison_values_separated is an array of arrays such that:
-    # [ [layer1, layer2, chi2_layer1, chi2_layer2], [l1,l2,b1,b2],...]
+    # [ [layer1, layer2, chi2_layer1, chi2_layer2], [layer1, layer2, chi2_layer1, chi2_layer2] ...]
     comparisons = args[2].split(";")
     comparison_indices_separated = []
     for i in comparisons:
@@ -46,19 +49,20 @@ def main (args):
     # layers [index] [hex_name] returns the integer value
     layer_indices = []
     for comparison_pair in comparison_indices_separated:
-        index1 = comparison_pair[0]
-        index2 = comparison_pair[1]
-        if index1 not in layer_indices:
-            layer_indices.append(index1)
-        if index2 not in layer_indices:
-            layer_indices.append(index2)  
+        #print 'comparison_pair', comparison_pair
+        lx1 = comparison_pair[0]
+        lx2 = comparison_pair[1]
+        if lx1 not in layer_indices:
+            layer_indices.append(lx1)
+        if lx2 not in layer_indices:
+            layer_indices.append(lx2)  
     layers = {}
-    for index in layer_indices:
-        l_reader = tsv.TsvReader(open(os.path.join(working_dir, "layer_"+ str(index) +".tab"), "r"))
+    for lx in layer_indices:
+        l_reader = tsv.TsvReader(open(os.path.join(working_dir, "layer_"+ str(lx) +".tab"), "r"))
         layer_iterator = l_reader.__iter__()
-        layers[index] = {}
+        layers[lx] = {}
         for data_row in layer_iterator:
-            layers[index][data_row[0]] = int(float(data_row[1]))
+            layers[lx][data_row[0]] = int(float(data_row[1]))
         l_reader.close()
 
     # Parse the file containing all the hexagon names as a list.
@@ -68,9 +72,8 @@ def main (args):
     hex_names = hex_iterator.next()
     h_reader.close()
 
-
     # Open the writer which will write three values per line:
-    # chi2_index 1      chi2_index2      p_value
+    # chi2-index-1      chi2-index-2      p_value
     p_writer = tsv.TsvWriter(open(os.path.join(temp_dir, "p_val" + file_index + ".tab"), "w"))
 
     # Iterate over comparison_indices_separated. Pull out the index indices
@@ -78,34 +81,35 @@ def main (args):
     # hex_names. If the hexagon is found in both layers, account for
     # it in the contingency table counts.
     # Then pass the table to scipy.stats p_value function.
-    # Finally, print our chi2_index1, chi2_index 2, and the p_value
+    # Finally, print our stats-layer-index1, stats-layer-index 2, and the p_value
     # to the p_val<index>.tab
     for comparison in comparison_indices_separated:
         num_valid = 0
-        l1_index = comparison[0]
-        l2_index = comparison[1]
-        chi2_1_index = comparison[2]
-        chi2_2_index = comparison[3]
+        lx1 = comparison[0]
+        lx2 = comparison[1]
+        slx1 = comparison[2]
+        slx2 = comparison[3]
 
         # Find the range in each of layer 1 & 2
-        layer_values = layers[l1_index].values()
+        layer_values = layers[lx1].values()
         l1_max = max(layer_values)
         l1_min = min(layer_values)
-        layer_values = layers[l2_index].values()
+        layer_values = layers[lx2].values()
         l2_max = max(layer_values)
         l2_min = min(layer_values)
 
         # Initialize the contingency table
         table = [[0 for i in range(l2_max - l2_min + 1)] for j in range(l1_max - l1_min + 1)]
 
+        # count the number of each value in each of the two layers
         for hexagon in hex_names:
             has_data = True
             try:
-                l1_val = layers[l1_index][hexagon]
+                l1_val = layers[lx1][hexagon]
             except KeyError:
                 has_data = False
             try:
-                l2_val = layers[l2_index][hexagon]
+                l2_val = layers[lx2][hexagon]
             except KeyError:
                 has_data = False
             if has_data == True:
@@ -119,7 +123,7 @@ def main (args):
             # See <http://stats.stackexchange.com/q/73708>. Chi-squared can't be
             # done in this case, so we make p NaN.
             p = float("NaN")
-        p_writer.line (chi2_1_index, chi2_2_index, p)
+        p_writer.line (slx1, slx2, p)
 
     p_writer.close()
     return 0
