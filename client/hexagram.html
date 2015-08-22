@@ -5,34 +5,7 @@
         <meta name="viewport" content="maximum-scale=1.0" />
         <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1" />
 
-        <!-- online library scripts -->
-        <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?sensor=false"></script>
-        <script type="text/javascript" src="https://code.jquery.com/jquery-1.9.1.min.js"></script>
-        <script type="text/javascript" src="https://code.jquery.com/ui/1.10.2/jquery-ui.js"></script>
-
-        <!-- Local library scripts -->
-        <script type="text/javascript" src="lib/underscore.js"></script>
-        <script type="text/javascript" src="lib/jquery.tsv.js"></script>
-        <script type="text/javascript" src="lib/color-0.4.1.js"></script>
-        <script type="text/javascript" src="lib/jstat.min.js"></script>
-        <script type="text/javascript" src="lib/select2.js"></script>
-        <script type="text/javascript" src="lib/maplabel.js"></script>
-        <!--
-        <script type="text/javascript" src="lib/require.js"></script>
-		<script type="text/javascript" src="lib/react-with-addons.js"></script>
-		<script type="text/javascript" src="lib/JSXTransformer.js"></script>
-        -->
-
-        <!-- Scripts we wrote -->
-        <script type="text/javascript" src="state.js"></script>
-        <script type="text/javascript" src="hexagram.js"></script>
-        <!-- <script type="text/javascript" src="load.js"></script> -->
-        <script type="text/javascript" src="atools.js"></script>
-        <script type="text/javascript" src="svg.js"></script>
-        <script type="text/javascript" src="colors.js"></script>
-        <script type="text/javascript" src="mainHex.js"></script>
-
-        <link rel="stylesheet" type="text/css" href="https://code.jquery.com/ui/1.10.2/themes/smoothness/jquery-ui.css">
+         <link rel="stylesheet" type="text/css" href="https://code.jquery.com/ui/1.10.2/themes/smoothness/jquery-ui.css">
         <link rel="stylesheet" type="text/css" href="lib/select2.css">
         <link rel="stylesheet" type="text/css" href="hexagram.css">
         <title>Hexagram Visualization</title>
@@ -68,7 +41,7 @@
                         <img style='display:none' src="images/statistics.svg" id="comparison-stats" title="Differential Contrast of Sample Selections" onclick="update_comparison_stats_drop_down()"/>
 						<img src="images/throbber.svg" class="recalculate-throbber" title="Recalculating..." />
 						<img src="images/set.svg" id="set-operation" title="Calculate Set Operation"/>
-						<img style='display:none' src="images/sort_attributes.svg" id="sort-attributes" title="Sort Attributes by Association with Pivot Attribute"/>
+						<img src="images/sort_attributes.svg" id="sort-attributes-button"/>
                     </div>
 					<div id="layout-holder">
 						<input id="layout-search" type="hidden"/>
@@ -103,88 +76,118 @@
 				    </div>
 			    </div>
 			</div>
-			<div class="sort-attributes dropdown">
-				<div class="dropdown-title">Sort Attributes by Pivot
-				    <a class="cancel" href="#" onclick="hide_sort_attributes_drop_down(); reset_sort_attributes_counter()">X</a>
-				    <img class="help-button" id="sort-attributes-help" src="images/help.svg"/>
-				    <!-- Help dialog for this dropdown -->
-			        <div class="help-dialog" title="Pivot Sort Help">
-			            <div class="help-text">
-			                <p>
-			                    <b>Pivot Attribute:</b> Pivot Attribute is the attribute against 
-				                which all other attributes are compared. The list of attributes 
-				                is sorted in terms of association with the pivot attribtue.
-			                </p>
-                            <p>
-                                <b>Layout Aware:</b> Layout Aware statistics are calculated by examining 
-				                the presence of two attributes 
-				                within regions across the tumor map. Since Layout Aware 
-				                statistics depend on the location of tumors, each map 
-				                produces different statistics. Thus, an mRNA Seq map will 
-				                have different statistics values than a DNA Methylation map. 
-				                Layout Aware statistics will help you find attributes that 
-				                can be mutually exclusive but invoke similar pathways 
-				                as indicated by the proximity of tumors with these attributes 
-				                on the map.
-			                </p>
-			                <p> <b>Anticorrelated Only:</b> Layout Aware statistics are
-			                    calculated only for layers that are significantly
-			                    anticorrelated with the pivot, and the same type as the
-			                    pivot. Povit may not be categorical.
-			                </p>
-                            <p>
-                                <b>Layout Independent:</b> Layout Independent 
-                                statistics are calculated without taking the map layout into 
-                                account. Standard statistical tests such as Pearson Correlation 
-                                and Chi-Squared are utilized.
-                            </p>
-                            <p>
-                                <b>All Attributes: WARNING:</b> 
-                                Selecting all attributes will result in a single list of sorted attributes 
-                                that have been ranked with results from different statistics tests. Comparisons 
-                                may not be accurate. It is recommended to compare pivot attribute to 
-                                different data types one at a time, e.g. using one statistics test.
-                            </p>
-				            <p>
-                                <b>Categorical:</b> Sort pivot attribute against all attributes with 
-                                categorical data values.
-                            </p>
-                            <p>
-                                <b>Continuous:</b> Sort pivot attribute 
-                                against all attributes with continuous data values.
-                            </p>
-                        </div>
-			        </div>
-				</div>
-				<div class="dropdown-body">
-				    <div class="sort-attributes-panel-text">Pivot Attribute: 
-				    <select id="sort-attributes-list">
-						    <option value = "" selected = "selected">Select Pivot</option>
-					    </select>
-				    </div>
-				    
-				    <div id="layout-awareness">
-				        <input type="radio" name="layout-awareness" id="sort-layout-aware" value="true" />
-				        <label for=sort-layout-aware>Layout Aware</label><br/>
-				        <input type="radio" name="layout-awareness" id="sort-layout-independent" value="false" />
-				        <label for=sort-layout-independent>Layout Independent</label><br/>
-			        </div>
-				    <div id="layout-dependent-options">
-				        <input type="checkbox" id="anticorrelated-only" />
-				        <label for="anticorrelated-only">Anticorrelated Only</label>
-				    </div>
-				    <div id="layout-independent-options">
-				        <input type="radio" name="use-attributes" id="use-all-attributes" value="All Attributes" />
-				        <label for="all-attributes">All Attributes</label><br/>
-				        <input type="radio" name="use-attributes" id="use-categorical" value="Categorical" />
-				        <label for="categorical">Categorical</label>
-				        <input type="radio" name="use-attributes" id="use-continuous" value="Continuous" />
-				        <label for="continuous">Continuous</label>
-				    </div>
-				    <div id="sort-attributes-queries" class="dropdown-contents">
-				    </div>
-			    </div>
-			</div>
+			<div id="sort-attributes">
+                <div id="sort-attributes-dialog" style='display:none'>
+                <table>
+                    <tr style=''>
+                        <td class='dialog-value'>
+                            <img class="help-button" src="images/help.svg">
+                         </td>
+                    </tr>
+
+                    <tr>
+                        <td class='dialog-label'>
+                            Focus attribute:
+                        </td>
+                        <td class='dialog-value'>
+                            <select class="list"></select>
+                        </td>
+                    </tr>
+                    <tr class='region-sample-options'>
+                        <td class='dialog-label'>
+                            Sort based on:
+                        </td>
+                        <td class='dialog-value'>
+                            Samples
+                            <!--
+                            <input style='display:none' type="radio" name="region-sample-options" id="sort-region-based" value="true" />
+                            <label style='display:none' for=sort-region-based>Region</label><br/>
+                            <input style='display:none' type="radio" name="region-sample-options" id="sort-sample-based" value="false" />
+                            <label style='display:none' for=sort-sample-based>Sample</label><br/>
+                            -->
+                        </td>
+                    </tr>
+                    <tr style='display:none' class='region-based-options'>
+                        <td>
+                            <span>Anticorrelated only:</span>
+                            <input type="radio" name="anticorrelated" id="anticorrelated-only-pos" value="Positive Associated" />
+                            <label for="anticorrelated-only-pos">Positive Associated</label><br/>
+                            <input type="radio" name="anticorrelated" id="anticorrelated-only-neg" value="Negative Associated" />
+                            <label for="anticorrelated-only-pos">Negative Associated</label><br/>
+                        </td>
+                    </tr>
+                    <tr class='sample-based-options'>
+                        <td class='dialog-label'>
+                            Attribute value types:
+                        </td>
+                        <td class='dialog-value'>
+                            <input id='sort-binary' type="checkbox"/>
+                            <label for="sort-binary">0/1</label>
+                        </td>
+                    </tr>
+                    <tr class='sample-based-options'>
+                        <td class='dialog-label'></td>
+                        <td class='dialog-value'>
+                            <input id='sort-categorical' type="checkbox"/>
+                            <label for="sort-categorical">Integer</label>
+                        </td>
+                    </tr>
+			    </table> <!-- sort-attributes-dialog -->
+                </div>
+                <div id='sort-attributes-help-dialog' title="Sort Help" style='display:none'>
+                    <div>
+                        <p>
+                            Integer and 0/1 values are support for this sort.
+                            Floating point values are not supported.
+                        </p>
+                        <p>
+                            <b>Focus attribute:</b> The focus attribute is the attribute against
+                            which all other attributes are compared. The list of attributes 
+                            is sorted in terms of association with the focus attribute.
+                        </p>
+                        <p style='display:none'>
+                            <b>Region-based:</b> Region-based statistics are calculated by examining
+                            the presence of two attributes 
+                            within regions across the tumor map. Since Region-based
+                            statistics depend on the location of tumors, each map 
+                            produces different statistics. Thus, an mRNA Seq map will 
+                            have different statistics values than a DNA Methylation map. 
+                            Region-based statistics will help you find attributes that
+                            can be mutually exclusive but invoke similar pathways 
+                            as indicated by the proximity of tumors with these attributes 
+                            on the map.
+                        </p>
+                        <p style='display:none'>
+                            <b>Anticorrelated:</b> Region-based statistics are
+                            calculated only for layers that are significantly
+                            anticorrelated with the focus attribute, and the same type as the
+                            focus attribute. Focus attribute may not have categorical/integer values.
+                        </p>
+                        <p>
+                            <b>Sort based on samples:</b> Sample-based
+                            statistics are calculated without taking the map layout into 
+                            account. A standard statistical test, Chi-Squared, is used.
+                        </p>
+                        <p style='display:none'>
+                            <b>All Attributes: WARNING:</b> 
+                            Selecting all attributes will result in a single list of sorted attributes 
+                            that have been ranked with results from statistics tests. Comparisons
+                            may not be accurate. It is recommended to compare focus attribute to
+                            different data types one at a time, e.g. using one statistics test.
+                        </p>
+                        <p>
+                            <b>Value type: 0/1:</b> Sort focus attribute against all attributes with 0/1 values.
+                        </p>
+                        <p>
+                            <b>Value type: Integer:</b> Sort focus attribute against all attributes with integer values.
+                        </p>
+                        <p style='display:none'>
+                            <b>Floating Point:</b> Sort focus attribute
+                            against all attributes with continuous data values.
+                        </p>
+                    </div>
+                </div> <!-- help-dialog -->
+			</div> <!-- sort-attributes -->
 			
 			
 			
@@ -218,5 +221,35 @@
             <div id="visualization">
             </div>
         </div>
+
+        <!-- load the scripts last so the user will see something sooner rather than later -->
+
+        <!-- online library scripts -->
+        <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?sensor=false"></script>
+        <script type="text/javascript" src="https://code.jquery.com/jquery-1.9.1.min.js"></script>
+        <script type="text/javascript" src="https://code.jquery.com/ui/1.10.2/jquery-ui.js"></script>
+
+        <!-- Local library scripts -->
+        <script type="text/javascript" src="lib/underscore.js"></script>
+        <script type="text/javascript" src="lib/jquery.tsv.js"></script>
+        <script type="text/javascript" src="lib/color-0.4.1.js"></script>
+        <script type="text/javascript" src="lib/jstat.min.js"></script>
+        <script type="text/javascript" src="lib/select2.js"></script>
+        <script type="text/javascript" src="lib/maplabel.js"></script>
+        <!--
+        <script type="text/javascript" src="lib/require.js"></script>
+		<script type="text/javascript" src="lib/react-with-addons.js"></script>
+		<script type="text/javascript" src="lib/JSXTransformer.js"></script>
+        -->
+
+        <!-- Scripts we wrote -->
+        <script type="text/javascript" src="state.js"></script>
+        <script type="text/javascript" src="hexagram.js"></script>
+        <!-- <script type="text/javascript" src="load.js"></script> -->
+        <script type="text/javascript" src="atools.js"></script>
+        <script type="text/javascript" src="sortAttrs.js"></script>
+        <script type="text/javascript" src="svg.js"></script>
+        <script type="text/javascript" src="colors.js"></script>
+        <script type="text/javascript" src="mainHex.js"></script>
     </body>
 </html>

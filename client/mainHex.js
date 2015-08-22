@@ -7,6 +7,17 @@ var app = app || {}; // jshint ignore:line
 ctx = {}; // Persistent state to be saved eventually
 oper = {}; // Shared state not to be saved to persist store
 
+// This holds a list of layer objects by name.
+// Layer objects have:
+// A downloading function "downloader"
+// A data object (from hex name to float) "data"
+// A magnitude "magnitude"
+// A boolean "selection" that specifies whether this is a user selection or not.
+// (This may be absent, which is the same as false.)
+// Various optional metadata fields
+layers = {};
+
+
 (function (hex) { // jshint ignore:line
     //'use strict';
 
@@ -16,6 +27,24 @@ oper = {}; // Shared state not to be saved to persist store
         initColors();
         initHex();
         //initDataUpload();
+    }
+
+    function init_operating_values() {
+
+        // Lists of layer types
+        oper.cont_layers = [];
+        oper.bin_layers = [];
+        oper.cat_layers =[];
+
+        // Stores the text that informs user what sorting mechanism has been employed
+        oper.current_sort_text = "Attributes Ranked by Frequency";
+
+        // Stores the layer names according to their ascribed indices in "layers.tab"
+        oper.layer_names_by_index = [];
+        
+        // Whether the data is ranked by Mutual Information. If the layout
+        // changes, the stats must be updated.
+        oper.mutual_information_ranked = false;
     }
 
     window.onload = function () {
@@ -34,6 +63,8 @@ oper = {}; // Shared state not to be saved to persist store
 
             ctx = stateCreate();
             ctx.project = 'projects/';
+
+            init_operating_values();
 
             //try {
             //    parsed = JSON.parse(json_data);
@@ -58,8 +89,6 @@ oper = {}; // Shared state not to be saved to persist store
             $('#loadDir').select2({
                     data: data,
                     placeholder: "Load Project",
-                    // We want our dropdown to be big enough to browse.
-                    dropdownCssClass: "results-dropdown",
                 })
                 // Handle result selection
                 .on("select2-selecting", function (event) {

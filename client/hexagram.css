@@ -183,6 +183,19 @@ These are all supposed to stack against the left end in a toolbar thingy.
     margin-top: -0.2em;
 }
 
+.dialog-label,
+.dialog-value {
+	text-align: right;
+	font-weight: normal;
+	vertical-align: middle;
+	padding: .2em .3em;
+	white-space: nowrap;
+}
+
+.dialog-value {
+	text-align: left;
+}
+
 /* Browsing stuff */
 
 #browse-holder {
@@ -251,15 +264,9 @@ These are all supposed to stack against the left end in a toolbar thingy.
     z-index: 100;
 }
 
-/* These ones need to be slightly taller. */
-.sort-attributes.dropdown {
-    height: 200px;
-}
-
 .set-operation.dropdown {
     height: 200px;
 }
-
 
 .dropdown-title {
     text-align: center;
@@ -302,7 +309,7 @@ These are all supposed to stack against the left end in a toolbar thingy.
 /* Set Operation Menu */
 
 #set-operation {
-    padding: 0.2em;
+    padding: 3px;
 }
 
 #set-operations-list {
@@ -319,43 +326,16 @@ These are all supposed to stack against the left end in a toolbar thingy.
 	margin-left: 50px;
 } 
 
-
 /*Sort Attribtues Combined Functionality*/
-#sort-attributes {
-    padding: 0.2em;
-}
-
-.sort-attributes-panel-text {
-	text-align: center;
-	position: relative;
-	height: auto;
-	width: auto;
-	padding: 5px;
+#sort-attributes-button {
+    padding: 4px;
+    padding-top: 5px;
 }
 
 #sort-attributes-list {
 	width: 250px;
 }
 
-.sort-attributes-radio-buttons {
-	text-align: left;
-    position: relative;
-    height: auto;
-    width: auto;
-    padding: 5px;
-}
-
-.sort-attributes-value {
-    width: 25em;
-	margin-bottom: 10px;
-}
-.sort-attributes-button {
-	text-align: center;
-	width: 190px;
-}
-.sort-attributes-queries {
-	text-align: center;
-}
 .layout-stats-help {
 	text-align: left;
 	position: relative;
@@ -391,15 +371,6 @@ These are all supposed to stack against the left end in a toolbar thingy.
 .layer-name {
     /* Force silly underscore names into shape */
     word-wrap: break-word;
-}
-
-/* Make the browse dropdown tall */
-.results-dropdown.select2-container .select2-results {
-    max-height: 30em;
-}
-
-.results-dropdown .select2-results {
-    max-height: 30em;
 }
 
 .layer-metadata {

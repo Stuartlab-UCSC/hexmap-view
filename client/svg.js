@@ -2,7 +2,7 @@
 
 // A tool to download an svg file of the current viewport
 
-/* global $, FlatProjection, add_tool, polygons, google, googlemap, find_polygons_in_rectangle, selected_tool, window */
+/* global $, FlatProjection, add_tool, polygons, google, googlemap, find_polygons_in_rectangle, oper, window */
 
 var app = app || {}; // jshint ignore:line
 
@@ -178,7 +178,7 @@ var app = app || {}; // jshint ignore:line
         init();
 
 		// Deselect the tool.	
-        ctx.selected_tool = undefined;
+        oper.tool_selected = undefined;
 
     }, 'Download visible part of map as SVG');
     };

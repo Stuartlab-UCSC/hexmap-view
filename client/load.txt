@@ -36,8 +36,6 @@ $(function() {
         $('#loadDir').select2({
                 data: data,
                 placeholder: "Load Project",
-                // We want our dropdown to be big enough to browse.
-                dropdownCssClass: "results-dropdown",
             })
             // Handle result selection
             .on("select2-selecting", function(event) {

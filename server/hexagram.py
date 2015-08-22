@@ -865,7 +865,7 @@ def continuous_window_values(layers, layer_names, curated_windows):
     for the samples in that window.
     """
     # NOTE: TODO: This routine is not currently being used and may have only
-    # been intended for association stats, but those are layout-independent,
+    # been intended for association stats, but those are sample-based,
     # so should not be windowed.
     # At the moment we will be harcoding the map for which windowing and other
     # association statistics will be run upon. 

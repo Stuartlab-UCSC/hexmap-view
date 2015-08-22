@@ -20,21 +20,6 @@ var signature_grid = [];
 // authority on what layers are currently selected.
 var layer_pickers = [];
 
-// This holds a list of layer objects by name.
-// Layer objects have:
-// A downloading function "downloader"
-// A data object (from hex name to float) "data"
-// A magnitude "magnitude"
-// A boolean "selection" that specifies whether this is a user selection or not.
-// (This may be absent, which is the same as false.)
-// Various optional metadata fields
-layers = {};
-
-// List of layer types
-cont_layers = [];
-binary_layers = [];
-categorical_layers =[];
-
 // This is a list of layer names maintained in sorted order.
 var layer_names_sorted = [];
 
@@ -51,9 +36,6 @@ var set_operation_clicks = 0;
 
 // Records number of comparison-stats clicks
 var comparison_stats_clicks = 0;
-
-// Records number of sort attribute clicks
-var sort_attributes_clicks = 0;
 
 // Hack: Keep global variable to tell when load session computation is complete
 var set_operation_complete = false;
@@ -77,21 +59,11 @@ var first_opening = true;
 var first_opening_stats = true;
 var first_opening_comparison_stats = true;
 
-// Whether the data is ranked by Mutual Information. If the layout changes, the stats 
-// must be updated. 
-var mutual_information_ranked = false;
-
 // Boolean for Creating Layer from Filter
 var created = false;
 
-// Stores the layer names according to their ascribed indices in "layers.tab"
-var layer_names_by_index;
-
 // Stores the Index of the Current Layout Selected. Default is 0 for default layout.
 current_layout_index = 0;
-
-// Stores the text that informs user what sorting mechanism has been employed
-var current_sort_text = "Attributes Ranked by Frequency";
 
 // Comparison Stats Layers
 comparison_stats_l1 = "";
@@ -175,7 +147,7 @@ complain = function (text) {
     $(".error").show().delay(1250).fadeOut(1000);
     
     if(console && console.error) {
-        // Inform the browser console of this problem.as
+        // Inform the browser console of this problem.
         console.error(text);
     }
 }
@@ -803,7 +775,7 @@ function make_shortlist_ui(layer_name) {
 			}
 		
 			// Update the browse UI with the new layer.
-			if (mutual_information_ranked == true) {
+			if (oper.mutual_information_ranked == true) {
 		    	update_browse_ui("mutual_information");
 			}
 			else {
@@ -973,6 +945,12 @@ function hide_comparison_stats_drop_down () {
 	$(".comparison-stats.dropdown").hide();
 }
 
+reset_comparison_stats = function() {
+    hide_comparison_stats_drop_down();
+    comparison_stats_clicks = 0;
+}
+
+
 function reset_comparison_stats_counter() {
 	comparison_stats_clicks++;
 }
@@ -1016,7 +994,7 @@ update_comparison_stats_drop_down = function  () {
 
 
 function update_comparison_stats_selections () {
-	// This function is called when the shorlist is changed.
+	// This function is called when the shortlist is changed.
 	// It appropriately updates the drop down containing the list of layers
 	// to match the layers found in the shortlist.
 
@@ -1073,239 +1051,6 @@ function update_comparison_stats_selections () {
 }
 
 // Replacement Code for New Consolidated Association Stats GUI
-// Create GUI for Sort Attributes GUI
-function create_sort_attributes_ui () {
-	// Returns a Jquery element that is then prepended to the existing 
-	// set theory drop-down menu	
-
-    // This holds the root element for this set operation UI 
-    var root = $("<div/>").addClass("sort-attributes-entry");
-
-	// Load all attributes currently in the shortlist to the
-	// picklist with the id 'sort-attributes-list' 
-	update_sort_attributes_selections();
-	
-	// Set up the listener on that picklist
-	$("#sort-attributes-list").change(update_sort_attributes_drop_down);
-
-	// Hide the layout awareness controls
-	$("#layout-awareness").hide();
-	
-	// Hide Layout (In)dependent Options
-	hide_layout_independent();
-	hide_layout_dependent();
-	
-	// Attach listeners for layout dependence option. Radio buttons only "change"
-	// on selection, so we sort of need to think about all of them at once.
-	$("input[name=layout-awareness]:radio").change(function() {
-	    if($(this).val() == "true") {
-	        // We want the layout dependent stuff.
-	        hide_layout_independent();
-	        show_layout_dependent();
-	    } else {
-	        // We want the layout independent stuff.
-	        hide_layout_dependent();
-	        show_layout_independent();
-	    }
-    });
-
-	// Sort Button
-	var sort_attributes_button = $("<input/>").attr("type", "button");
-	sort_attributes_button.addClass ("sort-attributes-button");
-	sort_attributes_button.prop('value','Sort Attributes');
-	sort_attributes_button.hide();
-
-	// Append User Inputs to jQuery Root
-	root.append(sort_attributes_button);
-	
-	return root;
-}
-
-function show_sort_attributes_drop_down () {
-	// Show "Sort Attributes" Popup GUI
-	$(".sort-attributes.dropdown").show();
-
-}
-
-function hide_sort_attributes_drop_down () {
-	// Hide "Sort Attributes" Popup GUI
-	$(".sort-attributes.dropdown").hide();
-	hide_layout_independent();
-	hide_layout_dependent();
-
-	reset_sort_attributes_panel();
-}
-
-function reset_sort_attributes_panel () {
-	// Reset the sort attriubtes panel so that radio buttons are hidden,
-	// the "layout aware" radio button is selected by default, hides the
-	// "sort attributes" button, and sets the pick list to "select pivot".
-
-	// TODO: Replacement code neede for new input mechanisms
-	// Hide the Radio Buttons for "Layout Aware" & "Layout Independent"
-	$("#layout-awareness").hide();
-	// Uncheck them all.
-	$("#layout-awareness > :checked").prop("checked", false);
-	
-	// Hide the "Sort Attributes" Button
-	$(".sort-attributes-button").hide();
-
-	// Hide Layout (In)dependent Options
-	hide_layout_independent();
-	hide_layout_dependent();
-
-    // Set the "Select Pivot" drop down to the default value
-    $("#sort-attributes-list").val("");
-}
-
-function reset_sort_attributes_counter() {
-	sort_attributes_clicks++;
-}
-
-function get_sort_attributes_selection () {
-	// For the new dop-down GUI for sort attributes selection
-	// we neeed a function to determine which mutual information query is selected.
-	// This way we can display the appropriate divs.	
-	
-	return $("#sort-attributes-list").val();
-}
-
-function update_sort_attributes_drop_down () {
-	
-	// This is the change handler for the drop down displaying the 
-	// different sort attributes functions. 
-
-	// Get the value of the attribute selection made by the user.
-	var selection = get_sort_attributes_selection();
-	
-	if (selection == "") {
-	    // Default Selected
-		reset_sort_attributes_panel();
-	} else {
-	    // We've selected an actual layer
-	    
-	    // Set to default mode of layout aware.
-	    $("#sort-layout-aware").prop("checked", true);
-	    show_layout_dependent();
-	    
-		// Show radio buttons & text labels
-		$("#layout-awareness").show();
-		
-		// Show the "Sort Attributes" Button
-		$(".sort-attributes-button").show();
-	}
-
-}
-
-function update_sort_attributes_selections () {
-	// This function is called when the shortlist is changed and to initialize
-	// the configuration of the "Select Pivot Attribute" picklist.
-	// It appropriately updates the drop down containing the list of layers
-	// to match the layers found in the shortlist.
-
-	// Get the list of all layers in the shortlist except those that are
-	// user creations (for which there are no stats).
-	var shortlist_layers = [];
-	$("#shortlist").children().each(function(index, element) {
-	 	// Get the layer name
-        var layer_name = $(element).data("layer");
-		if (!layers[layer_name].selection) {
-			shortlist_layers.push(layer_name);
-		}
-	});
-
-
-	// Get a the "Select Pivot Attribute Dropdown"
-	var pivot_dropdown = document.getElementById("sort-attributes-list");
-	
-	if(pivot_dropdown == undefined) {
-        // Dropdown has not yet been created. Don't try and mess with it.
-        // TODO: Why not just always have it exist?
-        return;
-    }
-	
-	// Remove all existing layer names
-	var length = pivot_dropdown.options.length;
-	do{
-		pivot_dropdown.remove(0);
-		length--;		
-	}
-	while (length > 0);
-
-	// Add the default value that were stripped in the last step.
-	var default_value = document.createElement("option");
-	default_value.text = "Select Pivot Attribute";
-	default_value.value = "";
-	pivot_dropdown.add(default_value);
-	
-	// Add the layer names from the shortlist to the picklist. Make sure to put
-	// layer names in the values since the text gets mangled by the html parser.
-	for (var j = 0; j < shortlist_layers.length; j++) {
-		var option = document.createElement("option");
-		option.text = shortlist_layers[j];
-		option.value = shortlist_layers[j];
-		pivot_dropdown.add(option);
-	}
-}
-
-function show_layout_independent () {
-	// Show Layout Independent Options "All Attributes", "Categorical",
-	// "Continuous", etc.
-
-    // Show everything
-	$("#layout-independent-options").show();
-	
-	// Re-enable everything
-	$("#layout-independent-options > input").prop("disabled", false);
-
-    // Disable the things that don't work with this layer.
-    
-    // This doesn't work with anything yet.
-    $("#use-all-attributes").prop("disabled", true);
-    
-    // What layer is selected?
-    var selected_layer = $("#sort-attributes-list").val();
-    
-    if (categorical_layers.indexOf(selected_layer) < 0 && 
-        binary_layers.indexOf(selected_layer) < 0){
-		
-		$("#use-categorical").prop("disabled", true);	
-	}
-	if (cont_layers.indexOf(selected_layer) < 0) {
-		$("#use-continuous").prop("disabled", true);
-	}
-    
-    // TODO: Have a better layer type system than scanning huge arrays of all
-    // the layers in each type.
-
-	// TODO: Lift Restrictions on Checkboxes
-
-}
-
-function hide_layout_independent () {
-	// Hide Layout Independent Options "All Attributes", "Categorical",
-	// "Continuous", etc.
-	
-	// Hide everything
-	$("#layout-independent-options").hide();
-	
-	// Uncheck all the checked things
-	$("#layout-independent-options > :checked").prop("checked", false);
-	
-}
-
-function show_layout_dependent() {
-    // Show options for layout dependent pivot sort
-    $("#layout-dependent-options").show();
-}
-
-function hide_layout_dependent() {
-    // Hide options for layout dependent pivot sort
-    $("#layout-dependent-options").hide();
-    
-    // Uncheck all the checked things
-	$("#layout-dependent-options > :checked").prop("checked", false);
-}
 
 
 // Set Operation GUI
@@ -1327,7 +1072,6 @@ function show_set_operation_drop_down () {
 	$(".set-operation.dropdown").show();
 
 }
-
 
 hide_set_operation_drop_down = function () {
 	// Hide Set Operation Drop Down Menu
@@ -1378,6 +1122,11 @@ hide_set_operation_drop_down = function () {
 
 function reset_set_operation_counter () {
 	set_operation_clicks++;
+}
+
+reset_set_operations = function () {
+    hide_set_operation_drop_down();
+    reset_set_operation_counter();
 }
 
 function create_set_operation_ui () {
@@ -1483,7 +1232,7 @@ function update_set_operation_selections () {
         var layer_name = $(element).data("layer");
 		// If the attribute does not have continuous values add it to the drop
 		// downs. (There is no set theory for continuous attributes).
-        if (cont_layers.indexOf (layer_name) < 0) {
+        if (oper.cont_layers.indexOf (layer_name) < 0) {
 			layers.push(layer_name);
 		}
 	});
@@ -1635,7 +1384,7 @@ function create_set_operation_pick_list(value,layer_object) {
 }
 
 
-function update_shortlist_ui() {
+update_shortlist_ui = function () {
     // Go through the shortlist and make sure each layer there has an entry in 
     // the shortlist UI, and that each UI element has an entry in the shortlist.
     // Also make sure the metadata for all existing layers is up to date.
@@ -1690,7 +1439,6 @@ function update_shortlist_ui() {
 	// Update Values for GUI Dropdowns
 	update_set_operation_selections ();
 	update_comparison_stats_selections ();
-	update_sort_attributes_selections (); 
 }	
 
 function compute_intersection (values, intersection_layer_names, name) {
@@ -2089,7 +1837,7 @@ function layer_sort_order_p_value(a, b) {
 		    !layers[b].selection && !isNaN(layers[b].positives) && 
 		    layers[b].n > 0) {
 		    
-		    // We have checked to see each layer is supposed to be bianry layer
+		    // We have checked to see if each layer is supposed to be binary layer
 		    // without downloading.  TODO: This is kind of a hack. Redesign the
 		    // whole system with a proper concept of layer type.
 		    
@@ -2455,7 +2203,8 @@ function fill_layer_metadata(container, layer_name) {
             positives: "Number of ones",
             inside_yes: "Ones in A",
             outside_yes: "Ones in background",
-            clumpiness: "Density score"
+            clumpiness: "Density score",
+            p_value: "P-value",
         }
         
         if(lookup[attribute]) {
@@ -2468,7 +2217,7 @@ function fill_layer_metadata(container, layer_name) {
         metadata.text(attribute + " = " + value_formatted);
         
         container.append(metadata);
-        
+
     }
 }
 
@@ -2517,7 +2266,7 @@ update_browse_ui = function(type_value) {
     sort_layers(layer_names_sorted, type_value);
 
     // Set the "Sorting Text" Label
-	$("#ranked-against").text(current_sort_text);
+	$("#ranked-against").text(oper.current_sort_text);
     
     // Close the select if it was open, forcing the data to refresh when it
     // opens again.
@@ -2934,7 +2683,7 @@ function select_list(to_select, function_type, layer_names, new_layer_name, shor
         });
         
         // Update the browse UI with the new layer.
-		if (mutual_information_ranked == true) {
+		if (oper.mutual_information_ranked == true) {
         	update_browse_ui("mutual_information");
 		}
 		else {
@@ -3023,12 +2772,12 @@ function with_association_stats(layer_name, callback) {
     // & categorical layers, and an r correlation value for continuous layers.
     
     // Get the layer index
-    layer_index = layer_names_by_index.indexOf(layer_name);
+    layer_index = oper.layer_names_by_index.indexOf(layer_name);
     
-    if(binary_layers.indexOf(layer_name) != -1 && categorical_layers.indexOf(layer_name) != -1) {
+    if(oper.bin_layers.indexOf(layer_name) != -1 && oper.cat_layers.indexOf(layer_name) != -1) {
         // It's a binary or categorical layer. Get the layer file
         var filename = ctx.project + "layer_" + layer_index + "_chi2.tab";
-    } else if(cont_layers.indexOf(layer_name) != -1) {
+    } else if(oper.cont_layers.indexOf(layer_name) != -1) {
         // It's a continuous layer. Get the layer file
         var filename = ctx.project + "layer_" + layer_index + "_pear.tab";
     }
@@ -3064,182 +2813,6 @@ function with_association_stats(layer_name, callback) {
     }, "text")
 }
 
-function get_association_stats_values(layer_name, drop_down_val, single_stat, layer_names){
-	// Download the Association Statistics file and fill in values for
-	// Each layer depending on the layer_name
-	// e.g. fill all pearson correlation values from tests ran between
-	// layer_name and all other layers
-	
-	// TODO: rewrite in terms of with_association_stats
-
-	// If single_stat == true, then the user is only requesting one value 
-	// from the query. 
-
-	if (single_stat == false) {
-
-		// Determine if the selected layer has continuous or binary data values
-		var continuous_type = false;
-
-		// Determine if the selected layer has continuous or binary data values
-		layer_index = cont_layers.indexOf(layer_name);
-		if (layer_index >= 0) {
-			continuous_type = true;
-		}
-
-		// drop_down_val == 1, indicates that the user wants to compare
-		// the selected attribute to other continuous values
-		if (drop_down_val == 1 && continuous_type == true) {
-            layer_index = layer_names_by_index.indexOf(layer_name);
-			$.get(ctx.project + "layer_" + layer_index + "_pear.tab", function(tsv_data) {
-				// This is an array of rows, which are arrays of values:
-				//
-				//	Layer1	Layer2	Layer 3...
-				//	value	value	value
-				//
-				// Parse the file
-
-				var parsed = $.tsv.parseRows(tsv_data);
-				row_header = parsed[0];
-		
-				stats_values = parsed[1];
-
-				for (var i = 0; i < row_header.length; i++){
-					compare_layer_name = row_header[i];
-		            value = parseFloat(stats_values[i]);
-					layers[compare_layer_name].r_value = value;			
-				}
-
-			}, "text")
-			.done(function() {
-				current_sort_text = "(LI) Attributes Ranked According to: " + layer_name;
-				update_browse_ui("r_value");
-                mutual_information_ranked = false;
-
-			})
- 			.fail(function() {
-				complain("Association Stats Weren't Precomputed!");
-			});
-		}
-
-		// drop_down_val == 0, indicates that the user wants to compare
-		// the selected attribute to other binary values
-		if (drop_down_val == 0 && continuous_type == false) {
-			$.get(ctx.project + layer_name + "_b_b.tab", function(tsv_data) {
-				// This is an array of rows, which are arrays of values:
-				//
-				//	Layer1	Layer2	Layer 3...
-				//	value	value	value
-				//
-				// Parse the file
-
-				var parsed = $.tsv.parseRows(tsv_data);
-				row_header = parsed[0];
-				layer_index = row_header.indexOf(layer_name);
-		
-				stats_values = parsed[1];
-
-				for (var i = 0; i < row_header.length; i++){
-					compare_layer_name = row_header[i];
-		            value = parseFloat(stats_values[i]);
-					layers[compare_layer_name].p_value = value;
-			
-				}
-			
-			}, "text")
-			.done(function() {
-				current_sort_text = "(LI) Attributes Ranked According to: " + layer_name;
-		 		update_browse_ui();
-                mutual_information_ranked = false;
-
-
-			})
- 			.fail(function() {
-				complain("Association Stats Weren't Precomputed!");
-				// var ranked_against_label = document.getElementById("ranked-against").style.visibility="hidden";
-                mutual_information_ranked = false;
-			});
-		}
-	}
-
-	// For Stats Query
-	if (single_stat == true) {
-		// Determine if layer 1 has continuous or binary data values
-		var layer1_cont = false
-		layer_index = cont_layers.indexOf(layer_names[0]);
-		if (layer_index > 0) {
-			layer1_cont = true;
-		}
-
-		// Determine if layer 2 has continuous or binary values
-		var layer2_cont = false
-		layer_index = cont_layers.indexOf(layer_names[1]);
-		if (layer_index > 0) {
-			layer2_cont = true;
-		}
-		
-		// Look in Continuous_Continuous file if they are both Continuous
-		if (layer1_cont == true & layer2_cont == true) {
-			layer_index = layer_names_by_index.indexOf(layer_names[0])
-			$.get(ctx.project + "layer_" + layer_index + "_pear.tab", function(tsv_data) {
-				// This is an array of rows, which are arrays of values:
-				//
-				//	id		Layer1	Layer2	Layer 3...
-				//	Layer1	value	value	value
-				//	Layer2	value	value	value
-				//	Layer3	value	value	value
-				//
-				// Parse the file
-
-				var parsed = $.tsv.parseRows(tsv_data);	
-				var row_header = parsed[0];
-				var layer2_index = row_header.indexOf(layer_names[1]);	
-				stats_value = parsed[1][layer2_index];	
-
-			}, "text")
-			.done(function() {
-
-			})
- 			.fail(function() {
-				complain("Association Stats Weren't Precomputed!");
-			});
-
-			var type = "R-Coefficient: ";
-			return type;
-		}		
-
-		// Look in b_b files if both are binary
-		if (layer1_cont == false & layer2_cont == false) {
-		
-		$.get(ctx.project + layer_names[0] + "_b_b.tab", function(tsv_data) {
-				// This is an array of rows, which are arrays of values:
-				//
-				//	id		Layer1	Layer2	Layer 3...
-				//	Layer1	value	value	value
-				//	Layer2	value	value	value
-				//	Layer3	value	value	value
-				//
-				// Parse the file
-
-				parsed = $.tsv.parseRows(tsv_data);	
-				row_header = parsed[0];
-				layer2_index = row_header.indexOf(layer_names[1]);	
-				stats_value = parsed[1][layer2_index];	
-			
-			}, "text")
-			.done(function() {
-
-			})
- 			.fail(function() {
-				complain("Association Stats Weren't Precomputed!");
-			});
-
-			var type = "P-Value: ";
-			return type;
-		}
-		
-	}
-}
-
 function get_mutual_information_statistics (layout_number, layer_names, function_index, anticorrelated_only) {
 	// Retrieve the appropraite mutual information values and return either
 	// a sorted list or a specific value, via alert box.
@@ -3253,7 +2826,7 @@ function get_mutual_information_statistics (layout_number, layer_names, function
 	
 	for (var i = 0; i < layer_names.length; i++) {
 	    // Go get the index for each layer we asked for.
-	    layer_index = layer_names_by_index.indexOf(layer_names[i]);
+	    layer_index = oper.layer_names_by_index.indexOf(layer_names[i]);
         layer_indices.push(layer_index);
     }
 	
@@ -3318,7 +2891,7 @@ function get_mutual_information_statistics (layout_number, layer_names, function
             	        // Grab the stat value
             	        var stat = layer_stats[compare_layer_name];
             	        
-                        if(binary_layers.indexOf(layer_names[0]) != -1) {
+                        if(oper.bin_layers.indexOf(layer_names[0]) != -1) {
                             // We're doing a binary layer. Reject anything
                             // with a significant score. TODO: Is this just
                             // going to throw out anticorrelated things as
@@ -3328,7 +2901,7 @@ function get_mutual_information_statistics (layout_number, layer_names, function
                                 // to this layer.
                                 continue;
                             }
-                        } else if(cont_layers.indexOf(layer_names[0]) !=
+                        } else if(oper.cont_layers.indexOf(layer_names[0]) !=
                             -1) {
                             
                             // We're doing a continuous layer. Reject
@@ -3340,19 +2913,19 @@ function get_mutual_information_statistics (layout_number, layer_names, function
                 	}
                 	
                 	// Set the mutual information for this layer against the 
-                	// pivot layer.
+                	// focus layer.
 			        layers[compare_layer_name].mutual_information = value;
 		        }
                   
                   
                 // Now we're done getting the MIs, update the UI
-                current_sort_text = "(LA) Attributes Ranked According to: " + layer_names[0];
+                oper.current_sort_text = "(LA) Attributes Ranked According to: " + layer_names[0];
                 update_browse_ui("mutual_information");
                 
                 // Save the parameters we were called with, so we can be called
                 // again if someone changes the layout. TODO: This is a massive
                 // hack.
-                mutual_information_ranked = true;
+                oper.mutual_information_ranked = true;
 			    mutual_information_sorted_against [0] = layer_names[0];
 			    mutual_information_filtered = anticorrelated_only;
                 
@@ -3385,7 +2958,7 @@ function get_mutual_information_statistics (layout_number, layer_names, function
 	});
 } 
 
-function clear_current_stats_values () {
+clear_current_stats_values = function  () {
 	// For a specific layer, delete all stats values:
 	// density, p_value, r_value, mutual_information.
     for(var layer_name in layers) {
@@ -3394,7 +2967,7 @@ function clear_current_stats_values () {
         delete layers[layer_name].p_value;
         delete layers[layer_name].mutual_information;
      }
-	current_sort_text = "Attributes Ranked According to Frequency";
+	oper.current_sort_text = "Attributes Ranked According to Frequency";
 	update_browse_ui();	
 }
 
@@ -3587,7 +3160,7 @@ function recalculate_statistics_for_layer(layer_name, in_list, out_list, all) {
             // TODO: Unify this code with similar callback below.
             // Re-sort everything and draw all the new p values.
 
-			current_sort_text = "Attributes Ranked by Contrast between " + comparison_stats_l1 + " & " + comparison_stats_l2;
+			oper.current_sort_text = "Attributes Ranked by Contrast between " + comparison_stats_l1 + " & " + comparison_stats_l2;
             update_browse_ui();
             update_shortlist_ui();
             
@@ -3642,7 +3215,7 @@ function recalculate_statistics_for_matrix(matrix_url, in_list, out_list, all) {
             // TODO: Unify this code with similar callback above.
             // Re-sort everything and draw all the new p values.
 
-			current_sort_text = "Attributes Ranked by Contrast between " + comparison_stats_l1 + " & " + comparison_stats_l2;
+			oper.current_sort_text = "Attributes Ranked by Contrast between " + comparison_stats_l1 + " & " + comparison_stats_l2;
             update_browse_ui();
             update_shortlist_ui();
 
@@ -4489,7 +4062,7 @@ function recreate_map(layout_name, spacing) {
 function create_indexed_layers_array () {
 	$.get(ctx.project + "layers.tab", function(tsv_data) {
 		// Create a list of layer names ordered by their indices
-		layer_names_by_index = new Array (layer_names_sorted.length);
+		oper.layer_names_by_index = new Array (layer_names_sorted.length);
 		parsed = $.tsv.parseRows(tsv_data);
 		for (var i = 0; i < parsed.length; i++) {
 		    if(parsed[i].length < 2) {
@@ -4505,7 +4078,7 @@ function create_indexed_layers_array () {
 			// index will be where number ends
 			var period_index =file_name.lastIndexOf(".");
 			var index_value = file_name.substring(underscore_index+1, period_index);
-			layer_names_by_index [index_value] = parsed[i][0];
+			oper.layer_names_by_index [index_value] = parsed[i][0];
 		 }			     
     }, "text");
 
@@ -4573,8 +4146,12 @@ initHex = function () {
             // Get the layer name, and make the browse UI for it.
             return make_browse_ui(result.id);
         },
-        // We want our dropdown to be big enough to browse.
-        dropdownCssClass: "results-dropdown"
+    });
+
+    // Make the bottom of the list within the main window
+    $('#search').parent().on('select2-open', function () {
+        var results = $('#select2-drop .select2-results');
+        results.css('max-height', $(window).height() - results.offset().top - 15);
     });
 
     // Handle result selection
@@ -4622,8 +4199,6 @@ initHex = function () {
 		// if the user clicks on the function icon it will open immediately
 		hide_set_operation_drop_down ();
 		set_operation_clicks = 0;
-		hide_sort_attributes_drop_down();
-		sort_attributes_clicks = 0;
 
 		if (comparison_stats_clicks % 2 != 0){
 				show_comparison_stats_drop_down ();	
@@ -4648,8 +4223,6 @@ initHex = function () {
 		// if the user clicks on the function icon it will open immediately
 		hide_comparison_stats_drop_down ();
 		comparison_stats_clicks = 0;
-		hide_sort_attributes_drop_down();
-		sort_attributes_clicks = 0;
 
 		if (set_operation_clicks % 2 != 0){
 				show_set_operation_drop_down ();
@@ -4662,30 +4235,7 @@ initHex = function () {
 	
 	});
 
-	// Create Pop-Up UI for Sorting Attributes by Association w/ Pivot Attribute
-	$("#sort-attributes-queries").prepend(create_sort_attributes_ui());
-
-	// Action handler for display of Sort Atttributes Pop-Up
-	$("#sort-attributes").button().click(function() {
-		sort_attributes_clicks++;
-
-		// Hide other functions so that if one is visible, 
-		// it disappears from sight. Reset the sort attributes counter so that 
-		// if the user clicks on the function icon it will open immediately
-		hide_set_operation_drop_down ();
-		set_operation_clicks = 0;
-		hide_comparison_stats_drop_down ();
-		comparison_stats_clicks = 0;
-
-		if (sort_attributes_clicks % 2 != 0){
-				show_sort_attributes_drop_down ();	
-				// Update so that there are no repeated "Select" Attrributes
-				update_sort_attributes_selections (); 	
-			}
-		else {
-			hide_sort_attributes_drop_down ();
-		}			
-	});
+    init_sort_attrs();
 
 	// Computation of Comparison Statistics
 	var comparison_stats_button = document.getElementsByClassName ("comparison-stats-button");
@@ -4763,56 +4313,6 @@ initHex = function () {
 	};
 
 	// New Consolidate Stats Fetching
-	// Get the "Sort Attributes" Button. It will be the first indexed item in
-	// the retured array
-	var sort_buttons = document.getElementsByClassName ("sort-attributes-button");
-
-	sort_buttons[0].onclick = function () {
-		// Complaint Presented, if true do not close panel. User probalby wants
-		// to adjust settings.
-		var complaint_presented = false;
-
-		// The Stats Query Operations were originally constructed to take
-		// arrays. For the time being, we will work around this construction
-		// by creation an array with the pivot attribute as the first and
-		// only element.
-		var pivot_attr = [];
-		pivot_attr.push($("#sort-attributes-list").val());
-
-		// Check to see which radio label is selected. 
-		if($("#sort-layout-aware").is(":checked")) {
-			print("The Mutual Information Stats Should Load Now...");
-			clear_current_stats_values ();
-			// The function to set the mututal information stats takes
-			// the current layout index (global), the array containing
-			// the name of the pivot attribute and 1 for pair ranking 
-			// (we don't want this) and 2 for sorting attributes (we want).
-			get_mutual_information_statistics (current_layout_index, pivot_attr, 2, $("#anticorrelated-only").is(":checked")); 
-		}
-
-		if($("#sort-layout-independent").is(":checked")) {
-			clear_current_stats_values ();
-			// Check to see which data type combination is selected
-			
-			if ($("#use-all-attributes").is(":checked")) {
-				//TODO: Incoporate Stats Test So That This Is Possible
-			} else if ($("#use-categorical").is(":checked")) {
-				// Only compares against binary at the moment
-				get_association_stats_values(pivot_attr[0], 0, false);
-			} else if ($("#use-continuous").is(":checked")) {
-				get_association_stats_values(pivot_attr[0], 1, false);
-			}
-
-		}
-
-		// Keep Open if Complaint Presented (User Probably Wants to Tweak
-		// and Rerun). Else close.
-		if (complaint_presented == false) {
-			hide_sort_attributes_drop_down();
-			sort_attributes_clicks = 0;
-		}
-
-	};
 
 	// Set up help buttons to open their sibling help dialogs.
 	$(".help-button").each(function() {
@@ -4945,9 +4445,9 @@ initHex = function () {
 
 		// Parse the file
         var parsed = $.tsv.parseRows(tsv_data);
-		cont_layers = parsed[0];
-		binary_layers = parsed[1];	
-        categorical_layers = parsed[2];	
+		oper.cont_layers = parsed[0];
+		oper.bin_layers = parsed[1];	
+        oper.cat_layers = parsed[2];
         
 	}, "text");  
 
@@ -5089,8 +4589,12 @@ initHex = function () {
             // Get the layer name, and make the browse UI for it.
             return make_toggle_layout_ui(result.id);
         },
-        // We want our dropdown to be big enough to browse.
-        dropdownCssClass: "results-dropdown"
+    });
+
+    // Make the bottom of the list within the main window
+    $('#layout-search').parent().on('select2-open', function () {
+        var results = $('#select2-drop .select2-results');
+        results.css('max-height', $(window).height() - results.offset().top - 15);
     });
   
   	// Handle result selection
@@ -5113,7 +4617,7 @@ initHex = function () {
 		// If currently sorted by mutual information, the mutual information
 		// values must be added for the specific layout and must be resorted.
 		// Function will update current_layout_index & reextract stats if needed
-		get_current_layout_index (layout_name, mutual_information_ranked);
+		get_current_layout_index (layout_name, oper.mutual_information_ranked);
         
 		re_initialize_view();
     });

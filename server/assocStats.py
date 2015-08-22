@@ -81,7 +81,7 @@ def stats_looper (
             else:
                 subprocess_string = ";".join([subprocess_string, current_string])
 
-            if (current_pairs == num_pairs) or (layer_name2 == ac['stats_layers'][-1]):
+            if (current_pairs >= num_pairs) or (layer_name2 == ac['stats_layers'][-1]):
 
                 # Loop while the number of current processes is below the allowed
                 # number. Poll each process until one has successfully completed.

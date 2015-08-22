@@ -1,5 +1,5 @@
 
-/* global add_tool, selected_tool, ctx, re_initialize_view, colormaps, Color, $, window */
+/* global add_tool, oper, ctx, re_initialize_view, colormaps, Color, $, window */
 
 var app = app || {}; // jshint ignore:line
 
@@ -34,7 +34,7 @@ var app = app || {}; // jshint ignore:line
 
             // A set of black or white choice buttons
             $black = renderChoice('black');
-            $form.append($('<br>'))
+            $form.append($('<br>'));
             $white = renderChoice('white');
 
             // The modal dialog
@@ -44,7 +44,7 @@ var app = app || {}; // jshint ignore:line
                 minHeight: '10em',
                 width: '10em',
                 close: function() {
-                    selected_tool = undefined;
+                    oper.tool_selected = undefined;
                 }
             });
         }
@@ -66,7 +66,7 @@ var app = app || {}; // jshint ignore:line
             });
 
 		// Deselect the tool.	
-		selected_tool = undefined;
+		oper.tool_selected = undefined;
     });
 
     // A tool to change the colorMap
@@ -300,7 +300,7 @@ var app = app || {}; // jshint ignore:line
                         }
                     ],
                     close: function() {
-                        selected_tool = undefined;
+                        oper.tool_selected = undefined;
                     }
                 })
             return $form;
@@ -321,7 +321,7 @@ var app = app || {}; // jshint ignore:line
                 .on('focusout', 'input', focusout);
 
 		// Deselect the tool.	
-		selected_tool = undefined;
+		oper.tool_selected = undefined;
 
     });
     }
