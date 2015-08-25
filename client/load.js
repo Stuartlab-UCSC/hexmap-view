@@ -18,8 +18,8 @@ $(function() {
             parsed = JSON.parse(json_data);
         }
         catch(err) {
-            print('Unable to parse the project directory info from the server, so using public/pancan12');
-            json_data = '[["public", "pancan12"]]';
+            print('Unable to parse the project information from the server, so using public/pancan12stats');
+            json_data = '[["public", "pancan12stats"]]';
         };
 
         // Transform to the structure needed for the dropdown

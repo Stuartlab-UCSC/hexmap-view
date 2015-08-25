@@ -17,7 +17,7 @@ var app = app || {}; // jshint ignore:line
         s.project = 'data/public/pancan12/';
         s.rpc = null; // remote procedure call object
     }
-/*
+
     State.prototype._supports_html5_storage = function () {
         // Check to see if browser supports HTML5 Storage
         // Any modern browser should pass.
@@ -60,11 +60,12 @@ var app = app || {}; // jshint ignore:line
         // For now, we are only loading the 'project' from saved state
         s.project = JSON.parse(stateJson).project;
     };
-*/
+
     stateCreate = function () { // jshint ignore:line
         return new State();
     };
-/*
+
+/* meteor:
         var state = new Mongo.Collection('clientState');
         //var state = new Mongo.Collection(null);
         state.insert({

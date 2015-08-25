@@ -12,21 +12,24 @@ app.set('json spaces');
 
 // should do this for every request:
 app.use(function (req, res, next) {
-    console.log('%s %s %s', req.method, req.url, req.path);
+    var date = new Date(),
+        stamp = date.getDate() + ':'
+            + date.getHours() + ':'
+            + date.getMinutes() + ':'
+            + date.getSeconds();
+    console.log('%s %s %s %s', stamp, req.method, req.url, req.path);
     next();
 })
 
-// Set the root for static files
-app.use(express.static('./'));
-
 // Handle request for project data directories
 app.get('/getProjDirs', function(req, res) {
-    console.log('!!! handling getProjDirs');
+    console.log('handling the /getProjDirs request');
     var fs = require("fs"),
         path = require("path"),
         projects = {},
-        root = 'data',
+        root = '.data',
         dirs = fs.readdirSync(root);
+
     dirs.forEach(function (user) {
         fullPath = root + '/' + user;
         if (fs.statSync(fullPath).isDirectory()) {
@@ -43,6 +46,10 @@ app.get('/getProjDirs', function(req, res) {
 
     res.json(projects);
 });
+
+
+// Set the root for static files
+app.use(express.static('./'));
 
 console.log('listening on port ' + PORT);
 app.listen(PORT);
