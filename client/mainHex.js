@@ -52,7 +52,7 @@ layers = {};
         ctx.project = '.data/public/pancan12stats/'; // the default project
 
         // Download Information on project directories
-        $.get("./getProjDirs", function (json_data) {
+        $.get("getProjDirs", function (json_data) {
             // The data is of the form:
             // {
             //    public: [proj1, proj2 ...],

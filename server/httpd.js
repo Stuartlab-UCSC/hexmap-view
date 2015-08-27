@@ -18,17 +18,20 @@ app.use(function (req, res, next) {
             + date.getMinutes() + ':'
             + date.getSeconds();
     console.log('%s %s %s %s', stamp, req.method, req.url, req.path);
-    next();
+    next();  // move on to the next URL handler
 })
 
-// Handle request for project data directories
-app.get('/getProjDirs', function(req, res) {
+function getProjDirs(req, res) {
     console.log('handling the /getProjDirs request');
     var fs = require("fs"),
         path = require("path"),
         projects = {},
-        root = '.data',
+        root = 'hex/.data', // 
+        //root = '/hex/.data', // no such file on su2c-dev hexProxy/hex
+        //root = '.data', // works on localhost:8112
         dirs = fs.readdirSync(root);
+
+    console.log('dirs', dirs);
 
     dirs.forEach(function (user) {
         fullPath = root + '/' + user;
@@ -43,10 +46,15 @@ app.get('/getProjDirs', function(req, res) {
             });
         }
     });
-
+    console.log('projects', projects);
     res.json(projects);
-});
+}
 
+// Handle requests for project data directories
+app.get('/getProjDirs/', getProjDirs); // without an httpd proxy
+app.get('/hex/getProjDirs/', getProjDirs); // su2c-dev:hexProxy/hex
+app.get('/hex/hex-me/getProjDirs/', getProjDirs); // su2c-dev:hexProxy/hex/hex-me
+app.get('/hex/hex-stats/getProjDirs/', getProjDirs); // su2c-dev:hexProxy/hex/hex-stats
 
 // Set the root for static files
 app.use(express.static('./'));
