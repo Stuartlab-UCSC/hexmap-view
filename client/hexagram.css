@@ -188,7 +188,7 @@ These are all supposed to stack against the left end in a toolbar thingy.
 	text-align: right;
 	font-weight: normal;
 	vertical-align: middle;
-	padding: .2em .3em;
+	padding: .25em .3em;
 	white-space: nowrap;
 }
 

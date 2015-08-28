@@ -2336,7 +2336,7 @@ function reset_slider(layer_name, shortlist_entry) {
     });
 }
 
-function get_current_layers() { // XXX there are two functions of this name !!!
+function get_current_layers() {
     // Returns an array of the string names of the layers that are currently
     // supposed to be displayed, according to the shortlist UI.
     // Not responsible for enforcing maximum selected layers limit.
@@ -2426,33 +2426,6 @@ function get_current_filters() {
     });
     
     return current_filters;
-}
-
-function get_current_layers() { // XXX there are two functions of this name !!!
-    // Returns an array of the string names of the layers that are currently
-    // supposed to be displayed, according to the shortlist UI.
-    // Not responsible for enforcing maximum selected layers limit.
-    
-    // This holds a list of the string names of the currently selected layers,
-    // in order.
-    var current_layers = [];
-    
-    $("#shortlist").children().each(function(index, element) {
-        // This holds the checkbox that determines if we use this layer
-        var checkbox = $(element).find(".layer-on");
-        if(checkbox.is(":checked")) {
-            // Put the layer in if its checkbox is checked.
-            current_layers.push($(element).data("layer"));
-        }
-    });
-    
-    // Return things in reverse order relative to the UI.
-    // Thus, layer-added layers will be "secondary", and e.g. selecting 
-    // something with only tissue up behaves as you might expect, highlighting 
-    // those things.
-    current_layers.reverse();
-    
-    return current_layers;
 }
 
 function with_filtered_signatures(filters, callback) {

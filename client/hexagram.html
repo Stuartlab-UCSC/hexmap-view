@@ -76,6 +76,8 @@
 				    </div>
 			    </div>
 			</div>
+
+
 			<div id="sort-attributes">
                 <div id="sort-attributes-dialog" style='display:none'>
                 <table>
@@ -93,21 +95,22 @@
                             <select class="list"></select>
                         </td>
                     </tr>
-                    <tr class='region-sample-options'>
-                        <td class='dialog-label'>
-                            Sort based on:
+                    <tr style='display:none' class='region-sample-section'>
+                        <td class='dialog-label' style='vertical-align:top'>
+                            Sort attributes as:
                         </td>
                         <td class='dialog-value'>
-                            Samples
-                            <!--
-                            <input style='display:none' type="radio" name="region-sample-options" id="sort-region-based" value="true" />
-                            <label style='display:none' for=sort-region-based>Region</label><br/>
-                            <input style='display:none' type="radio" name="region-sample-options" id="sort-sample-based" value="false" />
-                            <label style='display:none' for=sort-sample-based>Sample</label><br/>
-                            -->
+                            <label>
+                                <input type='radio' name='region-sample-section' id='sort-sample-based' value='sample-based' checked='checked'/>
+                                Sample-based
+                            </label><br>
+                             <label style='color:grey'>
+                                <input type='radio' name='region-sample-section' id='sort-region-based' value='region-based' disabled='disabled' />
+                                Region-based
+                            </label>
                         </td>
                     </tr>
-                    <tr style='display:none' class='region-based-options'>
+                    <tr style='display:none' class='region-section'>
                         <td>
                             <span>Anticorrelated only:</span>
                             <input type="radio" name="anticorrelated" id="anticorrelated-only-pos" value="Positive Associated" />
@@ -116,38 +119,50 @@
                             <label for="anticorrelated-only-pos">Negative Associated</label><br/>
                         </td>
                     </tr>
-                    <tr class='sample-based-options'>
+                    <tr class='sample-section'>
                         <td class='dialog-label'>
-                            Attribute value types:
+                            Include attributes<br>that are:
                         </td>
                         <td class='dialog-value'>
-                            <input id='sort-binary' type="checkbox"/>
-                            <label for="sort-binary">0/1</label>
-                        </td>
+                            <label>
+                                <input class='sort-binary' type="checkbox" checked=true />
+                                Labels (yes/no)
+                            </label></br>
+                            <label>
+                                <input class='sort-categorical' type="checkbox" />
+                                Categories
+                            </label>
+                       </td>
                     </tr>
-                    <tr class='sample-based-options'>
-                        <td class='dialog-label'></td>
-                        <td class='dialog-value'>
-                            <input id='sort-categorical' type="checkbox"/>
-                            <label for="sort-categorical">Integer</label>
-                        </td>
-                    </tr>
-			    </table> <!-- sort-attributes-dialog -->
-                </div>
+			    </table>
+                </div> <!-- sort-attributes-dialog -->
                 <div id='sort-attributes-help-dialog' title="Sort Help" style='display:none'>
                     <div>
                         <p>
-                            Integer and 0/1 values are support for this sort.
-                            Floating point values are not supported.
+                            The statistics for the sort are calculated without
+                            taking the map layout into account. A chi-Squared
+                            test is used.
                         </p>
                         <p>
-                            <b>Focus attribute:</b> The focus attribute is the attribute against
-                            which all other attributes are compared. The list of attributes 
-                            is sorted in terms of association with the focus attribute.
+                            <b>Samples included:</b> All samples that have values
+                            for the particular attribute are included in the
+                            statistics and the sort. That is, null values are
+                            dropped from the statistics.
+                        </p>
+                        <p>
+                            <b>Attributes included:</b> Attributes that have
+                            category values or label (yes/no) values may be included.
+                            Floating point (continuous) values are not included.
+                            Attributes built by the user from other attributes are not
+                            included.
+                        </p>
+                        <p>
+                            <b>Focus attribute:</b> Attributes are sorted
+                            in terms of association with the focus attribute.
                         </p>
                         <p style='display:none'>
-                            <b>Region-based:</b> Region-based statistics are calculated by examining
-                            the presence of two attributes 
+                            <b>Region-based:</b> Region-based statistics are
+                            calculated by examining the presence of two attributes
                             within regions across the tumor map. Since Region-based
                             statistics depend on the location of tumors, each map 
                             produces different statistics. Thus, an mRNA Seq map will 
@@ -161,12 +176,18 @@
                             <b>Anticorrelated:</b> Region-based statistics are
                             calculated only for layers that are significantly
                             anticorrelated with the focus attribute, and the same type as the
-                            focus attribute. Focus attribute may not have categorical/integer values.
+                            focus attribute. Focus attribute may not have category
+                            or label (yes/no) values.
                         </p>
-                        <p>
-                            <b>Sort based on samples:</b> Sample-based
+                        <p style='display:none'>
+                            <b>Sort attributes as: Sample-based:</b> These
                             statistics are calculated without taking the map layout into 
-                            account. A standard statistical test, Chi-Squared, is used.
+                            account. Chi-Squared is used.
+                        </p>
+                        <p style='display:none'>
+                            <b>Sort attributes as: Region-based:</b> These
+                            statistics are calculated while taking the map layout into
+                            account. This option is not yet available.
                         </p>
                         <p style='display:none'>
                             <b>All Attributes: WARNING:</b> 
@@ -176,10 +197,14 @@
                             different data types one at a time, e.g. using one statistics test.
                         </p>
                         <p>
-                            <b>Value type: 0/1:</b> Sort focus attribute against all attributes with 0/1 values.
+                            <b>Include attributes that are Labels (yes/no):</b>
+                            Sort all attributes with label (yes/no) values against
+                            the focus attribute.
                         </p>
                         <p>
-                            <b>Value type: Integer:</b> Sort focus attribute against all attributes with integer values.
+                            <b>Include attributes that are Categories:</b>
+                            Sort all attributes with category values against
+                            the focus attribute.
                         </p>
                         <p style='display:none'>
                             <b>Floating Point:</b> Sort focus attribute
@@ -194,7 +219,7 @@
             <div class="shortlist col">
                 <div id="shortlist-holder" class="panel-holder">
                     <div id="shortlist-panel" class="panel">
-                        <div class="panel-title">Shortlist</div>
+                        <div class="panel-title">Short List</div>
                         <div id="shortlist" class="panel-contents">
                         </div>
                     </div>
@@ -246,6 +271,7 @@
         <script type="text/javascript" src="state.js"></script>
         <script type="text/javascript" src="hexagram.js"></script>
         <!-- <script type="text/javascript" src="load.js"></script> -->
+        <script type="text/javascript" src="assocStats.js"></script>
         <script type="text/javascript" src="atools.js"></script>
         <script type="text/javascript" src="sortAttrs.js"></script>
         <script type="text/javascript" src="svg.js"></script>
