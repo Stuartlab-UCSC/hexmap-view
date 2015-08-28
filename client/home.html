@@ -1,22 +1,10 @@
 
-<!DOCTYPE html>
-<html>
-<head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <meta name="viewport" content="maximum-scale=1.0" />
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1" />
-    <title>Tumor Map of UCSC</title>
-</head>
-<body style='padding:2em;padding-top:1em;font-family: Verdana,Arial,sans-serif;font-size:0.9em;font-family:Lucida Grande,Lucida Sans Unicode,sans-serif;'>
-
-<!--
-<p style='font-size:38px;letter-spacing:-1px;color:#F1B521;line-height:1.1em'>
-GENOMICS INSTITUTE
-</p>
--->
+<template name="homePage">
+<div style='background-color:#E7E5D7'>
 <div style='padding-top:0.5em'>
-<img src="images/ucsc-stack.jpg" style='height:45px;margin-top:-6px'>
-<span style='font-size:38px;padding-left:0.5em;vertical-align:top;letter-spacing:-1px;color:#F1B521;line-height:1.1em'>Tumor Map</span>
+<img src="ucscgi_clear.png" style='height:60px;margin-top:-6px'>
+<span style='font-size:38px;padding-left:0.5em;vertical-align:top;letter-spacing:-1px;color:#F1B521;line-height:1.1em'>
+    Tumor Map
 </span>
 </div>
 
@@ -24,16 +12,16 @@ GENOMICS INSTITUTE
 Our Mission
 </h3>
 <p>
-We provide a visualization of genomic samples that share common molecular
+We provide visualization of genomic samples that share common molecular
 profiles, allowing multiple platforms and data types to be combined
 to view sample relationships in multiple omic spaces.
 </p>
 
 <div style='width:20em;float:left;display:inline-block;padding-bottom:1em;padding-right:2em'>
-    <div style='margin-bottom: 1em;display:inline-block;text-align:center;border:1px rgb(0,0,238) solid;vertical-align:top'>
-        <a href="hexagram.html">
+    <div style='margin-bottom: 1em;display:inline-block;text-align:center;vertical-align:top'>
+        <a href="#" class='mapPage'>
             <div style='padding-top:0.5em;'>PanCan12, Live</div>
-            <img src="images/pancan12-mRNA-Seq.png" width="300" style='padding-top:1em'>
+            <img src="pancan12-mRNA-Seq.png" width="300" style='padding-top:1em'>
         </a>
     </div>
 
@@ -193,9 +181,9 @@ About Us
 </h3>
 <p>
 We research genomics in the
-<a href='https://sysbiowiki.soe.ucsc.edu/Welcome'>Stuart laboratory</a>,
+<a href='https://sysbiowiki.soe.ucsc.edu/Welcome' target='_blank'>Stuart laboratory</a>,
 part of the
-<a href='http://genomics.ucsc.edu'>UC Santa Cruz Genomics Institute</a>.
+<a href='http://genomics.ucsc.edu' target='_blank'>UC Santa Cruz Genomics Institute</a>.
 </p>
 <p>
 Yulia Newton<br>
@@ -225,6 +213,6 @@ the discussion group.
 <p style='font-size:0.7em'>
 (v0.9.2 rc2)
 </p>
-</body>
-</html>
+</div>
+</template>
 

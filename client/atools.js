@@ -133,8 +133,7 @@ var app = app || {}; // jshint ignore:line
 
         // Set up the link to the home page
         add_tool("to-home", "Home", function() {
-            window.open('index.html', '_self');
-            //$('.homePage').click();
+            $('.homePage').click();
             oper.tool_selected = undefined;
         });
 
@@ -495,6 +494,7 @@ function select_string(string) {
         });
     });
 
+/* useless if not running under galaxy
     // Set up the link to this page control
     add_tool("link-to-page", "Link", function() {
         
@@ -508,7 +508,7 @@ function select_string(string) {
             oper.tool_selected = undefined;
      
     });
-
+*/
         /* TODO disable until it works
     // Set up the reset sort order to clumpiness scores, if present. Clears all
     // computed statistics p-values and r-values.

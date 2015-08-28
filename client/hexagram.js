@@ -660,7 +660,7 @@ function make_shortlist_ui(layer_name) {
     
     // Add an image label for the filter control.
     // TODO: put this in a label    
-	var filter_image = $("<img/>").attr("src", "images/filter.svg");
+	var filter_image = $("<img/>").attr("src", "filter.svg");
     filter_image.addClass("control-icon");
 	filter_image.addClass("filter-image");
     filter_image.attr("title", "Filter on Layer");
@@ -684,7 +684,7 @@ function make_shortlist_ui(layer_name) {
 	filter_holder.append(filter_value);
 
 	// Add a image for the save function
-	var save_filter = $("<img/>").attr("src", "images/save.svg");
+	var save_filter = $("<img/>").attr("src", "save.svg");
 	save_filter.addClass("save-filter");
 	save_filter.attr("title", "Save Filter as Layer");
 
@@ -3120,7 +3120,7 @@ function recalculate_statistics_for_layer(layer_name, in_list, out_list, all) {
     //var callback = function(results) {
 
         var results = reply.results,
-            jobs_running = reply.jobs_running; // TODO replace with pub-sub?
+            jobs_running = reply.jobs_running; // TODO replace with pub-sub or something meteor
         
         // The statistics code really sends back a dict of updated metadata for
         // each layer. Copy it over.
@@ -3172,7 +3172,7 @@ function recalculate_statistics_for_matrix(matrix_url, in_list, out_list, all) {
         //function(result) {
 
         var results = reply.results,
-            jobs_running = reply.jobs_running; // TODO replace with pub-sub
+            jobs_running = reply.jobs_running; // TODO replace with pub-sub or something meteor
 
         // The return value is p values by layer name
         for(var layer_name in result) {
@@ -3353,7 +3353,7 @@ function refresh() {
     window.clearTimeout(redraw_handle);
     
     // Make a new one to happen as soon as this event finishes
-    redraw_handle = window.setTimeout(redraw_view, 0);
+    redraw_handle = Meteor.setTimeout(redraw_view, 0);
 }
 
 function redraw_view() {
@@ -4469,7 +4469,7 @@ initHex = function () {
 
             
         }
-        ctx.colormaps = colormaps;
+        Session.set('colormaps', colormaps);
 
         // We may need to redraw the view in response to having new color map 
         // info, if it came particularly late.

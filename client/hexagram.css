@@ -1,8 +1,4 @@
 /* Global font stuff */
-body {
-    font-family: sans-serif;
-}
-
 /*
 The visualization element needs to take up all available space.
 */
@@ -172,7 +168,7 @@ These are all supposed to stack against the left end in a toolbar thingy.
 .panel-title {
     text-align: center;
     font-weight: bold;
-    font-family: sans-serif;
+    /*font-family: sans-serif;*/
     height: 1em;
 }
 
@@ -363,7 +359,7 @@ These are all supposed to stack against the left end in a toolbar thingy.
     padding-right: 20px;
 }
 .select2-results .select2-highlighted {
-    background-image: url("images/right.svg");
+    background-image: url("right.svg");
     background-repeat: no-repeat;
     background-position: right center;
 }
@@ -376,7 +372,7 @@ These are all supposed to stack against the left end in a toolbar thingy.
 .layer-metadata {
     font-size: 70%;
     /* Serif is more visible at small sizes */
-    font-family: serif;
+    /*font-family: serif;*/
 }
 
 /* Vertical alignment tables */
@@ -430,7 +426,7 @@ layout-name {
     top: 0;
     bottom: 0;
     width: 2em;
-    background-image: url("images/drag.svg");
+    background-image: url("drag.svg");
     background-repeat: no-repeat;
     background-position: 50% 70%; 
     border-radius: 5px;
@@ -535,7 +531,7 @@ layout-name {
     width: 150px;
     display: none;
     pointer-events: none;
-    font-family: serif;
+    /* font-family: serif; */
 }
 
 #color-key {
@@ -608,7 +604,7 @@ layout-name {
 /* This is the info window/infocard styling */
 .infocard {
     word-break: break-all;
-    font-family: sans-serif;
+   /* font-family: sans-serif; */
 }
 
 .info-row {

@@ -105,9 +105,6 @@ var app = app || {}; // jshint ignore:line
                 // Transform google elements to svg format
                 var i,
                     sPoly,
-                    i,
-                    min,
-                    max,
                     dims = findPolygonExtents(googlePolygonKeys),
 
                     // Define the svg element,

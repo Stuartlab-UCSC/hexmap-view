@@ -1,27 +1,14 @@
-<!DOCTYPE html>
-<html>
-    <head>
-		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-        <meta name="viewport" content="maximum-scale=1.0" />
-        <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1" />
-
-         <link rel="stylesheet" type="text/css" href="https://code.jquery.com/ui/1.10.2/themes/smoothness/jquery-ui.css">
-        <link rel="stylesheet" type="text/css" href="lib/select2.css">
-        <link rel="stylesheet" type="text/css" href="hexagram.css">
-        <title>Tumor Map of UCSC</title>
-    </head>
-    <body id='body'>
-
-        <!-- <div class="tools row viewport" id="toolbar"> -->
-
+<template name='mapPage'>
         <div class="tools row" id="toolbar">
             <div class="title stacker">
                 UCSC Tumor Map
             </div>
+            <!--
             <div id='loadDir' class='stacker' style='display:none;width: 9em'>
             </div>
+            -->
             <div class="stacker right">
-                <img src="images/throbber.svg" class="recalculate-throbber" title="Recalculating..." />
+                <img src="throbber.svg" class="recalculate-throbber" title="Recalculating..." />
                 <span class="recalculate-progress">
                     <span id="jobs-running">0</span>/<span id="jobs-in-batch">0</span> jobs running.
                 </span>
@@ -38,10 +25,10 @@
                 <div class="vertical-cell">
                     <div id="browse-holder">
                         <input id="search" type="hidden"/>
-                        <img style='display:none' src="images/statistics.svg" id="comparison-stats" title="Differential Contrast of Sample Selections" onclick="update_comparison_stats_drop_down()"/>
-						<img src="images/throbber.svg" class="recalculate-throbber" title="Recalculating..." />
-						<img src="images/set.svg" id="set-operation" title="Calculate Set Operation"/>
-						<img src="images/sort_attributes.svg" id="sort-attributes-button"/>
+                        <img style='display:none' src="statistics.svg" id="comparison-stats" title="Differential Contrast of Sample Selections" onclick="update_comparison_stats_drop_down()"/>
+						<img src="throbber.svg" class="recalculate-throbber" title="Recalculating..." />
+						<img src="set.svg" id="set-operation" title="Calculate Set Operation"/>
+						<img style='display:none' src="sort_attributes.svg" id="sort-attributes" title="Sort Attributes by Association with Pivot Attribute"/>
                     </div>
 					<div id="layout-holder">
 						<input id="layout-search" type="hidden"/>
@@ -124,12 +111,13 @@
                             Include attributes<br>that are:
                         </td>
                         <td class='dialog-value'>
-                            <label>
-                                <input class='sort-binary' type="checkbox" checked=true />
+                            <input class='sort-binary' id='sort-binary' type="checkbox" checked=true />
+                            <label for='sort-binary'>
                                 Labels (yes/no)
-                            </label></br>
-                            <label>
-                                <input class='sort-categorical' type="checkbox" />
+                            </label>
+                            <br>
+                            <input class='sort-categorical' id='sort-categorical' type="checkbox" />
+                            <label for='sort-categorical'>
                                 Categories
                             </label>
                        </td>
@@ -246,36 +234,4 @@
             <div id="visualization">
             </div>
         </div>
-
-        <!-- load the scripts last so the user will see something sooner rather than later -->
-
-        <!-- online library scripts -->
-        <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?sensor=false"></script>
-        <script type="text/javascript" src="https://code.jquery.com/jquery-1.9.1.min.js"></script>
-        <script type="text/javascript" src="https://code.jquery.com/ui/1.10.2/jquery-ui.js"></script>
-
-        <!-- Local library scripts -->
-        <script type="text/javascript" src="lib/underscore.js"></script>
-        <script type="text/javascript" src="lib/jquery.tsv.js"></script>
-        <script type="text/javascript" src="lib/color-0.4.1.js"></script>
-        <script type="text/javascript" src="lib/jstat.min.js"></script>
-        <script type="text/javascript" src="lib/select2.js"></script>
-        <script type="text/javascript" src="lib/maplabel.js"></script>
-        <!--
-        <script type="text/javascript" src="lib/require.js"></script>
-		<script type="text/javascript" src="lib/react-with-addons.js"></script>
-		<script type="text/javascript" src="lib/JSXTransformer.js"></script>
-        -->
-
-        <!-- Scripts we wrote -->
-        <script type="text/javascript" src="state.js"></script>
-        <script type="text/javascript" src="hexagram.js"></script>
-        <!-- <script type="text/javascript" src="load.js"></script> -->
-        <script type="text/javascript" src="assocStats.js"></script>
-        <script type="text/javascript" src="atools.js"></script>
-        <script type="text/javascript" src="sortAttrs.js"></script>
-        <script type="text/javascript" src="svg.js"></script>
-        <script type="text/javascript" src="colors.js"></script>
-        <script type="text/javascript" src="mainHex.js"></script>
-    </body>
-</html>
+</template>

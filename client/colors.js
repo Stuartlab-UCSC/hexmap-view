@@ -1,329 +1,303 @@
 
-/* global add_tool, oper, ctx, re_initialize_view, colormaps, Color, $, window */
+/* global add_tool, selected_tool, ctx, re_initialize_view, colormaps, Color, $, window */
 
 var app = app || {}; // jshint ignore:line
 
 (function (hex) { // jshint ignore:line
     //'use strict';
 
-    initColors = function () {
+    // Define the colormap template helper, at this scope for some reason
+    Template.colormapT.helpers({
 
-    // A tool to change the background color
-    add_tool("change-background", "Background", function() {
-
-        var $form, $black, $white;
-
-        function renderChoice (color) {
-            var $name = $("<input>" + color + "</input>")
-                .attr({
-                    name: 'backgroundColor',
-                    value: color,
-                    type: 'radio'
-                })
-                .css('margin', '0.5em');
-            $form.append($('<label/>').css('margin', '1em').append($name));
-            return $name;
+        // Use the Session version of the colormap
+        colorArray: function () {
+            var colorArray = Session.get('colorArray')
+            return colorArray;
         }
+    });
 
-        function render () {
+    initColors = function () {
+    // A tool to change the background color
+        add_tool("change-background", "Background", function () {
 
-            $form = $("<form/>")
-                .attr("title", "Background")
-                .css('min-height', '3em')
-                .css('padding', '0.5em');
+            var $form = $('#backgroundDiv');
 
-            // A set of black or white choice buttons
-            $black = renderChoice('black');
-            $form.append($('<br>'));
-            $white = renderChoice('white');
-
-            // The modal dialog
-            $form.dialog({
-                dialogClass: 'dialog',
-                modal: true,
-                minHeight: '10em',
-                width: '10em',
-                close: function() {
-                    oper.tool_selected = undefined;
+            Template.background.helpers ({
+                blackChecked: function () {
+                    return (Session.equals('persBackground', 'black'));
+                },
+                whiteChecked: function () {
+                    return (Session.equals('persBackground', 'white'));
                 }
             });
-        }
+
+            function render() {
+
+                // The modal dialog
+                $form.dialog({
+                    dialogClass: 'dialog',
+                    modal: true,
+                    minHeight: '10em',
+                    width: '10em',
+                    close: function () {
+                        selected_tool = undefined;
+                    }
+                });
+            }
 
             render();
 
             // Set the proper radio button according to state
-            if (ctx.background === 'black') {
-                $black.prop('checked', true);
+            if (Session.equals('persBackground', 'black')) {
+                $('#backgroundBlack').prop('checked', true);
             } else {
-                $white.prop('checked', true);
+                $('#backgroundWhite').prop('checked', true);
             }
 
             // When a radio button is clicked, change background and exit dialog
-            $form.on('click', 'input', function(event) {
-                ctx.background = $(event.target).attr('value');
-                $form.dialog('close');
-                re_initialize_view()
-            });
-
-		// Deselect the tool.	
-		oper.tool_selected = undefined;
-    });
-
-    // A tool to change the colorMap
-    add_tool("change-foreground", "ColorMap", function() {
-
-        var $form;
-
-        function makeTsv ($link) {
-            var tsv = '';
-
-            Object.keys(colormaps).forEach(function (layer) {
-                tsv += layer;
-                colormaps[layer].forEach(function (attr, j, array) {
-                    tsv += '\t' + j + '\t' + attr.name + '\t' + attr.color.hexString();
-                });
-                tsv += '\n';
-            });
-
-            // Fill in the data URI for saving. We use the handy
-            // window.bota encoding function.
-            $link.attr("href", "data:text/plain;base64," + window.btoa(tsv));
-
-            $link[0].click();
-        }
-
-        function setInputAttrs ($t, color, defalt) {
-            var val = color.hexString();
-            $t
-                .prop('value', val)
-                .data('operVal', val)
-                .css('background-color', val);
-            $t.removeClass('empty');
-            if (color.dark()) {
-                $t.addClass('dark');
-            } else {
-                $t.removeClass('dark');
-            }
-            if (defalt) {
-                $t.addClass('defalt');
-            } else {
-                $t.removeClass('defalt');
-            }
-        }
-
-        function focusout (ev) {
-
-            // When a textbox loses focus,
-            // update its properties & update the map
-            var $t = $(ev.target),
-                newVal = $t.prop('value').trim().toUpperCase(),
-                operVal = $t.data('operVal'),
-                fileVal,
-                fileColor,
-                category;
-
-            $t.removeClass('empty');
-
-            if (newVal === operVal) {
-
-                // No change, so clean up the textbox & bail
-                $t.prop('value', operVal);
-                return;
-            }
-            category = colormaps[$t.data('layer')][$t.data('index')]
-            fileColor = category.fileColor;
-            fileVal = fileColor.hexString();
-
-            if (newVal === fileVal || (newVal === '' && operVal !== fileVal)) {
-
-                // The new value is the same as the color in the file,
-                // or the new value is empty and the operating color is
-                // different than the color in the file.
-                // Either way, update the operating color & textbox to the
-                // color in the file
-                category.color = fileColor;
-                setInputAttrs($t, fileColor, true);
-
-            } else if (!newVal.match(/^#([a-fA-F0-9]{6})$/)) {
-
-                // An invalid hex string, so disable the event
-                // handling while we shake the textbox, then bail
-                $form.off('focusout', 'input');
-                $t.effect('shake', null, null, function () {
-                    $form.on('focusout', 'input', focusout);
-                    $t.focus();
-                });
-                return;
-
-            } else {
-                // The new value is not the same as the operating or file color,
-                // so update the operating color & clean up the textbox
-                category.color = Color(newVal);
-                setInputAttrs($t, category.color, false);
-            }
-            re_initialize_view() // Update the map with the new color
-        }
-
-        function keyup (ev) {
-
-            // When a textbox loses focus & has changed,
-            // update its properties & update the map
-            var $t = $(ev.target),
-                newVal = $t.prop('value').trim(),
-                category;
-
-            $t.removeClass('empty');
-
-            if (ev.keyCode === 13) {
-                focusout(ev);
-
-            } else if (newVal === '') {
-
-                // When the textbox is empty, display the file color string
-                // so the user will know what that is
-                category = colormaps[$t.data('layer')][$t.data('index')]
-                $t
-                    .prop('value', category.fileColor.hexString())
-                    .addClass('empty');
-            }
-        }
-
-        function renderTableBody ($tbody) {
-            var $row, $input, title, color;
-
-            // Step through the layers/attributes in the colormap,
-            // adding a row for each
-            Object.keys(colormaps).forEach(function (layer) {
-                $row = $('<tr/>');
-                $tbody.append($row);
-                $row.append($('<td/>')
-                    .prop('title', layer)
-                    .text(layer + ':')
-                );
-
-                // Step through the attribute's categories,
-                // adding a label and color cell for each
-                colormaps[layer].forEach(function (attr, j) {
-                    title = attr.name + " of " + layer;
-                    color = attr.color;
-                    $input = $('<input/>')
-                        .data({
-                            layer: layer,
-                            index: j,
-                            operVal: color.hexString()
-                        })
-                        .prop({
-                            'title': title,
-                            'value': color.hexString()
-                        })
-                        .css('background-color', color.hexString());
-                    if (color.dark()) {
-                        $input.addClass('dark');
+            // TODO meteorize?
+            $form.on('click', 'input', function (event) {
+                Meteor.setTimeout(function () { // Let the ui catch up
+                    var val = $(event.target).attr('value');
+                    if (!Session.equals('persBackground', val)) {
+                        Session.set("persBackground", val);
+                        ctx.background = val;
+                        re_initialize_view();
                     }
-                    if (color.hexString() === attr.fileColor.hexString()) {
-                        $input.addClass('defalt');
-                    }
-                    $row
-                        .append($('<td/>')
-                            .prop('title', title)
-                            .text(attr.name + ':')
-                        )
-                        .append($('<td/>')
-                            .append($input)
-                        );
-                 });
+                    $form.dialog('close');
+                }, 0);
             });
-        }
 
-        function render () {
-            var $form = $('<form/>'),
-                $tbody = $('<tbody/>'),
-                hint;
+            // Deselect the tool.
+            selected_tool = undefined;
+        });
 
-            // a table of colors in the same format as
-            // the colormaps.tab file, minus the indexes
-            $form
-                .attr('title', 'ColorMap')
-                .append($('<table/>')
-                    .prop('id', 'colorTable')
+        // Prepare a tool to change the colorMap
 
-                    // Add the table header
-                    .append($('<thead/>')
-                        .append($('<tr/>')
-                            .append($('<td/>').text('Attribute'))
-                            .append($('<td/>').text('Category'))
-                            .append($('<td/>').text('Color'))
-                            .append($('<td/>').text('...'))
-                        )
-                    )
-                    .append($tbody)
-                );
+        findRowLayer = function ($row, colorArray) {
 
-            renderTableBody($tbody);
+            // Find the layer in the colorArray from a row element
+            var layerName = $row.find('td:first').attr('title');
+            return _.find(colorArray, function (layer) {
+                return (layer.name === layerName);
+            });
+        };
 
-            hint = "<div style='font-size:0.9em;padding-top:0.3em'>"
-                + "Hint: Restore a color from the colormaps file by"
-                + " emptying the text-box.</div>"
-            $form.append($(hint))
+        findColumnCat = function ($input, colorArray) {
 
-            // Add a hidden download file link. The "download"
-            // attribute makes the browser save it, and the
-            // href data URI holds the data
-            $link = $('<a/>')
-                .attr({
-                    'download': 'colormaps.tab',
-                    'href': 'used later'
-                })
-                .text('download')
-                .css('display', 'none');
+            // Find the category in the colorArray from an input element
+            var layer = findRowLayer($input.parents('tr'), colorArray),
+                $el = $input.parent().prev(),
+                catName = $.trim(($el).text());
 
-            $form
-                .append($link)
-                .dialog({
-                    dialogClass: 'dialog',
-                    modal: true,
-                    width: $(window).width() * 2 / 3, //'54em',
-                    height: $(window).height() * 2 / 3,
-                    maxHeight: $(window).height(),
-                    position: {my: 'left top', at: 'left top', of: window},
-                    buttons: [
-                        {text: 'Done',
-                            click: function() {
-                                $(this).dialog('close');
+            // Trim and remove the trailing colon
+            catName = catName.slice(0, catName.length - 1);
+
+            // Return the wanted category
+            return _.find(layer.cats, function (cat) {
+                return (cat.name === catName);
+            });
+        };
+
+        setCatAttrs = function (a) {
+
+            // Set category input attributes that may change with user edits.
+            if (rgbArrayToObj(a.operVal).dark()) {
+                a.dark = 'dark';
+            } else {
+                a.dark = '';
+            }
+            if (a.operVal === a.fileVal) {
+                a.isFileVal = 'isFileVal';
+            } else {
+                a.isFileVal = '';
+            }
+        };
+
+        updateColormap = function (aCat) {
+
+            // Update the colormap, then redraw the hexmap
+            var layer = aCat.layer,
+                catI;
+
+            _.find(colormaps[layer], function (cat, i) {
+                if (cat.name === aCat.name) {
+                    catI = i;
+                    return true;
+                }
+                return false;
+            });
+            colormaps[layer][catI].color = Color(aCat.operVal);
+            re_initialize_view();
+        };
+
+        Template.colormapT.events({
+
+            // Fires when a row is clicked.
+            // Highlights the clicked row to make it easier for the user
+            // to follow across all of the categories for this layer.
+            'click tr': function (ev) {
+                var $t = $(ev.currentTarget),
+
+                    // Clear the 'selected' attribute of all layers
+                    colorArray = _.map(Session.get('colorArray'), function (layer) {
+                        var l = _.clone(layer);
+                        l.selected = '';
+                        return l;
+                    }),
+                    // Find the current layer in the color array
+                    selected = findRowLayer($t, colorArray);
+                selected.selected = 'selected';
+                Session.set('colorArray', colorArray);
+            },
+
+            // Fires when a color input field loses focus.
+            // Update its properties & the map
+            'blur input': function (ev) {
+                var $t = $(ev.currentTarget),
+                    $row = $t.parents('tr'),
+                    colorArray = Session.get('colorArray'),
+                    cat = findColumnCat($t, colorArray),
+                    newVal = $t.prop('value').trim().toUpperCase();
+
+                if (cat.shaking === 'shaking') {
+
+                    // nothing to do when the input box is shaking
+                    return;
+                }
+                if (!newVal.match(/^#([A-F0-9]{6})$/)) {
+
+                    // An invalid hex string, so set the Session to shake then
+                    // set the Session to not shake and put the focus back to this
+                    cat.shaking = 'shaking';
+                    Session.set('colorArray', colorArray);
+                    $t.effect('shake', null, null, function () {
+                        cat.shaking = '';
+                        Session.set('colorArray', colorArray);
+                        $t.focus();
+                    });
+                    return;
+                }
+                $t.prop('value', newVal); // clean up the input box value
+                if (newVal !== cat.operVal) {
+
+                    // The new value is not the same as the operating color,
+                    // so update the operating color & update the colormap
+                    cat.operVal = newVal;
+                    setCatAttrs(cat);
+                    Session.set('colorArray', colorArray);
+                    Meteor.flush();
+                    updateColormap(cat);
+                }
+            },
+            
+            // Fires when a key is released in a color input field
+            'keyup input': function (ev, otherKeyup) {
+                var $t = $(ev.currentTarget),
+                    newVal = $t.prop('value').trim(),
+                    colorArray,
+                    cat;
+
+                if (newVal === '') {
+
+                    // The textbox is empty so display the file color string
+                    // so the user will know what that is
+                    colorArray = Session.get('colorArray');
+                    cat = findColumnCat($t, colorArray);
+                    $t.prop('value', cat.fileVal)
+                }
+                if (ev.which === 13) {
+
+                    // This is the return key, so trigger a blur event
+                    $t.parent().next().next().find('input').focus();
+                }
+            },
+        });
+
+        // A tool to change the colorMap
+
+        // Convert an rgb array, [66, 77, 88], to an object, {r:66, b:77, g:88}
+        rgbArrayToObj = function (arr) {
+            return new Color({r: arr[0], g: arr[1], b: arr[2]});
+        };
+
+        add_tool("change-foreground", "ColorMap", function () {
+
+            var $form = $('#colorMapDiv'),
+                $link = $('#colorMapDiv a');
+
+            function makeTsv($link) {
+                var tsv = '';
+
+                Object.keys(colormaps).forEach(function (layer) {
+                    tsv += layer;
+                    colormaps[layer].forEach(function (cat, catIndex) {
+                        tsv += '\t' + catIndex + '\t' + cat.name + '\t' + cat.color.hexString();
+                    });
+                    tsv += '\n';
+                });
+
+                // Fill in the data URI for saving. We use the handy
+                // window.bota encoding function.
+                $link.attr("href", "data:text/plain;base64," + window.btoa(tsv));
+
+                $link[0].click();
+            }
+
+           function render() {
+                $form
+                    .append($link)
+                    .dialog({
+                        dialogClass: 'dialog',
+                        modal: true,
+                        width: $(window).width() * 2 / 3,
+                        height: $(window).height() * 2 / 3,
+                        position: {my: 'left top', at: 'left top', of: window},
+                        buttons: [
+                            {
+                                text: 'Done',
+                                click: function () {
+                                    $(this).dialog('close');
+                                }
+                            },
+                            {
+                                text: 'Download',
+                                click: function () {
+                                    makeTsv($link);
+                                    $(this).dialog('close');
+                                }
                             }
-                        },
-                        {text: 'Download',
-                            click: function() {
-                                makeTsv($link);
-                                $(this).dialog('close');
-                            }
+                        ],
+                        close: function () {
+                            selected_tool = undefined;
                         }
-                    ],
-                    close: function() {
-                        oper.tool_selected = undefined;
-                    }
-                })
-            return $form;
-        }
+                    });
+            }
 
-            $form = render();
-            $form
+            function colormapToColorArray() {
 
-                // Highlight the clicked row to make it easier to follow
-                // across all of the categories for this attribute
-                .on('click', 'tr', function(event) {
-                    $form.find('tr').removeClass('selected');
-                    $(event.target).parents('tr').addClass('selected');
-                })
+                // Convert the colormap into a form the template can use
+                return _.map(colormaps, function(layerVal, layerKey) {
+                    var cats = _.map(layerVal, function(val, key) {
+                        var cat = {
+                                name: val.name,
+                                fileVal: rgbArrayToObj(val.fileColor.values.rgb).hexString(),
+                                operVal: val.color.hexString(),
+                                layer: layerKey,
+                            };
+                        setCatAttrs(cat);
+                        return cat;
+                    })
+                    return {name: layerKey, cats: cats, selected: ''};
+                });
+            }
 
-                // Handle events from the color input textbox
-                .on('keyup', 'input', keyup)
-                .on('focusout', 'input', focusout);
+            Session.set('colorArray', colormapToColorArray());
+            render();
 
-		// Deselect the tool.	
-		oper.tool_selected = undefined;
-
-    });
+            // Deselect the tool.
+            selected_tool = undefined;
+        });
     }
 })(app);
 
