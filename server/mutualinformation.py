@@ -113,19 +113,19 @@ def all_pairs(value_dict):
                 # this pair.
                 continue
             
-            if layer_a == layer_b:
+            #if layer_a == layer_b:
                 # Don't do layers against themselves. That would be silly.
-                continue
+                # TODO let's be silly so the focus attr on sorts will be in the sort list
+                #continue
             
-            # First compute the joint distribution on-demand. We only ever
-            # use it this once.
+            # First compute the joint distribution on-demand. We use it once.
             joint_distribution = compute_empirical_distribution(
                 zip(value_dict[layer_a], value_dict[layer_b]))
             
             # Work out the mutual information between this pair of layers,
             # using the precomputed distributions. TODO: this isn't going to
             # work well at all if we don't have enough windows that we can
-            # eliably estimate the distribution of (discrete) sum integers
+            # reliably estimate the distribution of (discrete) sum integers
             # for a given layer from the observed sum values for that layer.
             
             # Calculate the mutual information in bits
@@ -133,8 +133,7 @@ def all_pairs(value_dict):
                 distributions[layer_b], joint_distribution)
                 
             # Calculate the redundancy
-            redundancy = information / (entropies[layer_a] + 
-                entropies[layer_b])
+            redundancy = information / (entropies[layer_a] + entropies[layer_b])
             
             # Calculate the maximum possible redundancy
             max_redundancy = (min(entropies[layer_a], entropies[layer_b]) / 

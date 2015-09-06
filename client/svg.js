@@ -157,26 +157,26 @@ var app = app || {}; // jshint ignore:line
                     svg = googleToSvg(googleElements, viewport);
                 $('#svgAnchor').empty();
 
-                    // Add a hidden download file link. The "download"
-                    // attribute makes the browser save it, and the
-                    // href data URI holds the data
-                    var $link = $('<a/>')
-                        .attr({
-                            download: 'hex.svg',
-                            href: 'data:text/plain;base64,' + window.btoa(svg)
-                        })
-                        .text('download')
-                        .css('display', 'none');
-                    $('#body').append($link);
-                    $link[0].click();
-                    $link.remove();
-                }
+                // Add a hidden download file link. The "download"
+                // attribute makes the browser save it, and the
+                // href data URI holds the data
+                var $link = $('<a/>')
+                    .attr({
+                        download: 'hex.svg',
+                        href: 'data:text/plain;base64,' + window.btoa(svg)
+                    })
+                    .text('download')
+                    .css('display', 'none');
+                $('#body').append($link);
+                $link[0].click();
+                $link.remove();
+            }
 
-        init();
+            init();
 
-		// Deselect the tool.	
-        oper.tool_selected = undefined;
+            // Deselect the tool.
+            tool_activity(false);
 
-    }, 'Download visible part of map as SVG');
+        }, 'Download visible part of map as SVG');
     };
 })(app);

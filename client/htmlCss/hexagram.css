@@ -19,6 +19,22 @@ From http://blog.stevensanderson.com/2011/10/05/full-height-app-layouts-a-css-tr
 
 body {
     margin: 0;
+    background-color: #E7E5D7;
+}
+
+#mapPage {
+    background-color: white;
+}
+
+#homePage h3 {
+    font-size: 1.3em;
+    margin-top: 0.6em;
+    margin-bottom: 0;
+}
+
+#homePage p {
+    margin-top: 0.3em;
+    margin-bottom: 0.3em;
 }
 
 .dialogDiv {
@@ -53,23 +69,23 @@ body {
 Read as "The content row", distinct from whatever else that element might be.
 */
 .content.row {
-    top: 6em;
+    top: 6.3em;
     bottom: 0;
     z-index: 1;
 }
 
 .header.row {
-    height: 4em;
+    /*height: 4.2em;
+    border-bottom: 1px solid black;*/
     top: 2em;
-    border-bottom: 1px solid black;
     overflow: visible;
+    background-color:white;
 }
 
 .browse.col {
     left: 0;
     width: 22em;
-    /* Not sure what's up with the lack of dynamic height here, but... */
-    height: 4em;
+    /*height: 4.2em;*/
 }
 
 .shortlist.col {
@@ -91,7 +107,7 @@ Read as "The content row", distinct from whatever else that element might be.
     height: 2em;
     top: 0em;
     border-bottom: 1px solid black;
-    background: #e0e0e0;
+    /*background: #e0e0e0;*/
 }
 
 /*
@@ -184,7 +200,7 @@ These are all supposed to stack against the left end in a toolbar thingy.
 	text-align: right;
 	font-weight: normal;
 	vertical-align: middle;
-	padding: .25em .3em;
+	padding: 0.3em;
 	white-space: nowrap;
 }
 
@@ -196,10 +212,10 @@ These are all supposed to stack against the left end in a toolbar thingy.
 
 #browse-holder {
     margin-left: 0.5em;
-	width: 500px;
+	width: 25em;
 }
 #search {
-    width: 322px;
+    width: 29em;/*322px;*/
 }
 
 #recalculate-statistics {
@@ -218,10 +234,15 @@ These are all supposed to stack against the left end in a toolbar thingy.
 #inflate{
     
 }
-
-#sort{
-	padding: 0.2em;
+/*
+#sort-attributes .dialog-label {
+    width: 40em;
 }
+
+#sort-attributes .dialog-value {
+    width: 10em;
+}
+*/
 
 .recalculate-throbber {
     display: none;
@@ -320,7 +341,14 @@ These are all supposed to stack against the left end in a toolbar thingy.
 .set-operation-layer-value {
 	width: 5em;
 	margin-left: 50px;
-} 
+}
+
+#comparison-stats,
+#set-operation,
+#sort-attributes-button {
+    border: 1px solid #aaaaaa;
+    margin-top: 5px;
+}
 
 /*Sort Attribtues Combined Functionality*/
 #sort-attributes-button {
@@ -348,10 +376,10 @@ These are all supposed to stack against the left end in a toolbar thingy.
 }
 
 .all-attributes-label {
-	font-size: 65%
+	font-size: 0.6em;
 }
 .checkbox-labels {
-	font-size: 60%;
+	font-size: 0.6em;
 }
 
 /* Do some custom styling of browse results */
@@ -370,7 +398,7 @@ These are all supposed to stack against the left end in a toolbar thingy.
 }
 
 .layer-metadata {
-    font-size: 70%;
+    font-size: 0.65em;
     /* Serif is more visible at small sizes */
     /*font-family: serif;*/
 }
@@ -576,6 +604,7 @@ layout-name {
     width: 150px;
     margin: auto;
     text-align: center;
+    font-size: 0.9em;
 }
 
 /* 
@@ -599,6 +628,7 @@ layout-name {
 
 #y-axis {
     text-align: right;
+    font-size: 0.9em;
 }
 
 /* This is the info window/infocard styling */

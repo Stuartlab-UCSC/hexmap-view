@@ -20,13 +20,6 @@ var signature_grid = [];
 // authority on what layers are currently selected.
 var layer_pickers = [];
 
-// This is a list of layer names maintained in sorted order.
-var layer_names_sorted = [];
-
-// This holds an array of layer names that the user has added to the "shortlist"
-// They can be quickly selected for display.
-var shortlist = [];
-
 // This holds an object form shortlisted layer names to jQuery shortlist UI
 // elements, so we can efficiently tell if e.g. one is selected.
 var shortlist_ui = {};
@@ -48,7 +41,7 @@ var mutual_information_sorted_against = [];
 
 // Records whether mutual information is filtered. TODO: We need a better way to
 // keep track of stats state for recomputing on layout change!
-var mutual_information_filtered = undefined;
+//var mutual_information_filtered = undefined; // unused
 
 // Records Stats Value from Query
 var stats_value = 0;
@@ -90,10 +83,7 @@ var selected_signature = undefined;
 // This object holds info regardin the user's current TumorMap session.
 // It will be stored to local storage as a string constructed with JSON.
 var current_session = {
-	'created_attr': [],
-	'shortlist_attr': [],
-	'display_attr': [],
-	'selection_attr': []
+	'created_attr': []
 };
 
 // This holds the grid of hexagon polygons on that Google Map.
@@ -231,7 +221,7 @@ function make_hexagon(row, column, hex_side_length, grid_offset) {
     // Set up the click listener to move the global info window to this hexagon
     // and display the hexagon's information
     google.maps.event.addListener(hexagon, "click", function(event) {
-        if(!oper.tool_selected) {
+        if(!tool_activity()) {
             // The user isn't trying to use a tool currently, so we can use
             // their clicks for the infowindow.
             
@@ -333,7 +323,7 @@ function with_infocard(signature, callback) {
     // This holds a list of the string names of the currently selected layers,
     // in order.
     // Just use everything on the shortlist.
-    var current_layers = shortlist;
+    var current_layers = oper.shortlist;
     
     // Obtain the layer objects (mapping from signatures/hex labels to colors)
     with_layers(current_layers, function(retrieved_layers) { 
@@ -396,7 +386,7 @@ function add_layer_url(layer_name, layer_url, attributes) {
     }
     
     // Add it to the sorted layer list.
-    layer_names_sorted.push(layer_name);
+    oper.layer_names_sorted.push(layer_name);
     
     // Don't sort because our caller does that when they're done adding layers.
 
@@ -426,7 +416,7 @@ function add_layer_data(layer_name, data, attributes) {
     
     if(!replacing) {
         // Add it to the sorted layer list, since it's not there yet.
-        layer_names_sorted.push(layer_name);
+        oper.layer_names_sorted.push(layer_name);
     }
 
     // Don't sort because our caller does that when they're done adding layers.
@@ -652,7 +642,7 @@ function make_shortlist_ui(layer_name) {
     
     // Fill it in
     fill_layer_metadata(metadata_holder, layer_name);
-    
+
     contents.append(metadata_holder);
 
 	// Add a div to hold the filtering stuff so it wraps together.
@@ -728,7 +718,7 @@ function make_shortlist_ui(layer_name) {
     // Run the removal process
     remove_link.click(function() {
         // Remove this layer from the shortlist
-        shortlist.splice(shortlist.indexOf(layer_name), 1);
+        oper.shortlist.splice(oper.shortlist.indexOf(layer_name), 1);
         
         // Remove this from the DOM
         root.remove();
@@ -749,7 +739,7 @@ function make_shortlist_ui(layer_name) {
 		// Run the deletion process
 		delete_link.click(function() {
 		    // Remove this layer from the shortlist
-		    shortlist.splice(shortlist.indexOf(layer_name), 1);
+		    oper.shortlist.splice(oper.shortlist.indexOf(layer_name), 1);
 		    
 		    // Remove this from the DOM
 		    root.remove();
@@ -763,7 +753,7 @@ function make_shortlist_ui(layer_name) {
 		    }
 
 			// Remove from layers list as well
-			layer_names_sorted.splice(layer_names_sorted.indexOf(layer_name), 1);
+			oper.layer_names_sorted.splice(oper.layer_names_sorted.indexOf(layer_name), 1);
 			delete layers[layer_name];
 
 			// Alter "keep" attribute from current_session
@@ -1055,8 +1045,8 @@ function update_comparison_stats_selections () {
 
 // Set Operation GUI
 function get_set_operation_selection () {
-	// For the new dop-down GUI for set operation selection
-	// we neeed a function to determine which set operation is selected.
+	// For the new drop-down GUI for set operation selection
+	// we need a function to determine which set operation is selected.
 	// This way we can display the appropriate divs.	
 	
 	// Drop Down List & Index for Selected Element
@@ -1392,9 +1382,9 @@ update_shortlist_ui = function () {
     // Clear the existing UI lookup table
     shortlist_ui = {};
     
-    for(var i = 0; i < shortlist.length; i++) {
+    for(var i = 0; i < oper.shortlist.length; i++) {
         // For each shortlist entry, put a false in the lookup table
-        shortlist_ui[shortlist[i]] = false;
+        shortlist_ui[oper.shortlist[i]] = false;
     }
     
     
@@ -2147,13 +2137,13 @@ function sort_layers(layer_array, type_value) {
 	}
 }
 
-function fill_layer_metadata(container, layer_name) {
+fill_layer_metadata = function (container, layer_name) {
     // Empty the given jQuery container element, and fill it with layer metadata
     // for the layer with the given name.
     
     // Empty the container.
     container.html("");
-    
+
     for(attribute in layers[layer_name]) {
         // Go through everything we know about this layer
         if(attribute == "data" || attribute == "url" || 
@@ -2236,34 +2226,12 @@ function make_toggle_layout_ui(layout_name) {
     return root;
 }
 
-function make_browse_ui(layer_name) {
-    // Returns a jQuery element to represent the layer with the given name in 
-    // the browse panel.
-    
-    // This holds a jQuery element that's the root of the structure we're
-    // building.
-    var root = $("<div/>").addClass("layer-entry");
-    root.data("layer-name", layer_name);
-    
-    // Put in the layer name in a div that makes it wrap.
-    root.append($("<div/>").addClass("layer-name").text(layer_name));
-    
-    // Put in a layer metadata container div
-    var metadata_container = $("<div/>").addClass("layer-metadata-container");
-    
-    fill_layer_metadata(metadata_container, layer_name);
-    
-    root.append(metadata_container);
-    
-    return root;
-}
-
 update_browse_ui = function(type_value) {
     // Make the layer browse UI reflect the current list of layers in sorted
     // order.
     
     // Re-sort the sorted list that we maintain
-    sort_layers(layer_names_sorted, type_value);
+    sort_layers(oper.layer_names_sorted, type_value);
 
     // Set the "Sorting Text" Label
 	$("#ranked-against").text(oper.current_sort_text);
@@ -2480,7 +2448,7 @@ function with_filtered_signatures(filters, callback) {
     });
 }
 
-function select_list(to_select, function_type, layer_names, new_layer_name, shortlist_push) {
+select_list = function (to_select, function_type, layer_names, new_layer_name, shortlist_push) {
     // Given an array of signature names, add a new selection layer containing
     // just those hexes. Only looks at hexes that are not filtered out by the
     // currently selected filters.
@@ -2559,10 +2527,13 @@ function select_list(to_select, function_type, layer_names, new_layer_name, shor
 				 {
 					return;
 				 }
-				current_session.selection_attr.push({"l_name":layer_name,
-													"signatures": to_select,
-													"keep": true
-													});
+                /*
+                // TODO this was removed once, but forgot why, so put it back in for now
+                current_session.selection_attr.push({"l_name":layer_name,
+													 "signatures": to_select,
+													 "keep": true
+													 });
+                */
 							
 			}
 			
@@ -2666,11 +2637,11 @@ function select_list(to_select, function_type, layer_names, new_layer_name, shor
 		if (shortlist_push != false) {
 		    // Immediately shortlist it if the attribute is being created for
 			// the first time.
-		    shortlist.push(layer_name);
+		    oper.shortlist.push(layer_name);
 		    update_shortlist_ui();
 		}
 
-		if (shortlist_push == false && shortlist.indexOf(layer_name)>=0) {
+		if (shortlist_push == false && oper.shortlist.indexOf(layer_name)>=0) {
 		    // Immediately update shortlist it if the attribute is being loaded
 			// and has been declared as part of the shortlist.
 		    update_shortlist_ui();
@@ -2737,200 +2708,6 @@ select_rectangle = function (start, end) {
     
 }
 
-function with_association_stats(layer_name, callback) {
-    // Download the association statistics values for the given layer against
-    // all other continuous or binary layers, as appropriate, and call the
-    // callback with an object from layer name to statistic value. The statistic
-    // is a p value from a chi-squared test (of some description) for binary
-    // & categorical layers, and an r correlation value for continuous layers.
-    
-    // Get the layer index
-    layer_index = oper.layer_names_by_index.indexOf(layer_name);
-    
-    if(oper.bin_layers.indexOf(layer_name) != -1 && oper.cat_layers.indexOf(layer_name) != -1) {
-        // It's a binary or categorical layer. Get the layer file
-        var filename = ctx.project + "layer_" + layer_index + "_chi2.tab";
-    } else if(oper.cont_layers.indexOf(layer_name) != -1) {
-        // It's a continuous layer. Get the layer file
-        var filename = ctx.project + "layer_" + layer_index + "_pear.tab";
-    }
-        
-    $.get(filename, function(tsv_data) {        
-	    // This is an array of rows, which are arrays of values:
-	    //
-		//    Layer1	Layer2	Layer 3...
-		//    value	value	value
-	    //
-	    // Parse the file
-
-	    var parsed = $.tsv.parseRows(tsv_data);
-	    row_header = parsed[0];
-
-	    stats_values = parsed[1];
-	    
-	    // Make an object to fill with the stat values by layer name
-	    var stat_values = {};
-
-	    for (var i = 0; i < row_header.length; i++){
-	        // Parse all the other layer names and the values against them.
-		    compare_layer_name = row_header[i];
-            value = parseFloat(stats_values[i]);
-            
-            // Populate the object to call back with
-		    stat_values[compare_layer_name] = value;			
-	    }
-	    
-	    // Call the callback
-	    callback(stat_values);
-
-    }, "text")
-}
-
-function get_mutual_information_statistics (layout_number, layer_names, function_index, anticorrelated_only) {
-	// Retrieve the appropraite mutual information values and return either
-	// a sorted list or a specific value, via alert box.
-	// All mutual information values are stored in files of the format
-	// "mi_<layout_number>_<layer_number>.tab". 
-	// If anticorrelated_only is true, only updates anticorrelated layers.
-
-	// First we must retrieve the file indices for the respective layer_names.
-	
-	var layer_indices = [];
-	
-	for (var i = 0; i < layer_names.length; i++) {
-	    // Go get the index for each layer we asked for.
-	    layer_index = oper.layer_names_by_index.indexOf(layer_names[i]);
-        layer_indices.push(layer_index);
-    }
-	
-	// What file should we get?
-	// Open up the file mi_<layout_number>_<layer_indices[0]>.tab
-	var filename = ctx.project + "mi_"+ layout_number + "_"+ layer_indices[0] +".tab";
-	print("Fetching " + filename);
-
-	// function_index = 2 indicates a rank query
-	// Column 1 is a list of layer/attribute names
-	// Column 2 is a list of mutual information values
-	// Assign the mutual information values to the layer elements
-	// When this done, update the browse ui via the mutual information
-	// sort.
-	$.get(filename, function(tsv_data) { 
-		// Parsed object contains mutual information stats       
-		var parsed = $.tsv.parseRows(tsv_data);
-
-		// Pair Query
-		if (function_index == 1) {
-			for (var i = 0; i < parsed.length - 1; i++) {
-				if (layer_names[1] == parsed[i][0]) {
-					mutual_information_value = parsed[i][1];
-				}
-			}
-		}
-	
-		// Ranking Query
-		if (function_index == 2) {
-		
-		    var callback = function(layer_stats) {
-                // Given an object from layer name to layer statistic (p
-                // value for binary, correlation for continuous), update the
-                // mutual_information fields on the layers that, according
-                // to the statistics, are anticorrelated with this one. If
-                // layer_stats is undefined, just updates all layers.
-                
-                    
-                // Seems like parsed.length is picking up an extraneous line
-                // Debugger states that there is an extra element ""
-                // (nothing)
-		        for (var i = 0; i < parsed.length - 1; i++) {
-			        // First element of each row is the layer name
-			        // to which the selected layer is being compared against.
-			        var compare_layer_name = parsed[i][0];
-			        // Extract the value - 2nd element of each row 
-                	var value = parseFloat(parsed[i][1]);
-                	
-                	if(layer_stats != undefined) {
-                	
-                	    if(!layer_stats.hasOwnProperty(
-                	        compare_layer_name)) {
-                            // Skip anything we haven't heard of. TODO: We
-                            // could probably safely keep anything we never
-                            // calculated a correlation for.
-                            continue;
-                	    }
-                	    
-            	        // We need to check if this layer passed the filter,
-            	        // and continue otherwise.
-            	        
-            	        // Grab the stat value
-            	        var stat = layer_stats[compare_layer_name];
-            	        
-                        if(oper.bin_layers.indexOf(layer_names[0]) != -1) {
-                            // We're doing a binary layer. Reject anything
-                            // with a significant score. TODO: Is this just
-                            // going to throw out anticorrelated things as
-                            // well as correlated things?
-                            if(stat < 0.05) {
-                                // Skip anything significantly chi-squared
-                                // to this layer.
-                                continue;
-                            }
-                        } else if(oper.cont_layers.indexOf(layer_names[0]) !=
-                            -1) {
-                            
-                            // We're doing a continuous layer. Reject
-                            // anything with a non-negative correlation.
-                            if(stat >= 0) {
-                                continue;
-                            }
-                        }
-                	}
-                	
-                	// Set the mutual information for this layer against the 
-                	// focus layer.
-			        layers[compare_layer_name].mutual_information = value;
-		        }
-                  
-                  
-                // Now we're done getting the MIs, update the UI
-                oper.current_sort_text = "(LA) Attributes Ranked According to: " + layer_names[0];
-                update_browse_ui("mutual_information");
-                
-                // Save the parameters we were called with, so we can be called
-                // again if someone changes the layout. TODO: This is a massive
-                // hack.
-                oper.mutual_information_ranked = true;
-			    mutual_information_sorted_against [0] = layer_names[0];
-			    mutual_information_filtered = anticorrelated_only;
-                
-		    };
-		
-			
-			
-			if(anticorrelated_only) {
-                // Restrict to anticorrelated layers (of the same type). Go
-                // get a dict from layer name to p value with this layer,
-                // and pass it to the callback defined above.
-			    with_association_stats(layer_names[0], callback)
-			} else {
-			    // No restrictions. Call the callback directly on undefined.
-			    callback();
-			}
-			
-			
-			
-		}
-
-	}, "text")
-	.fail(function() {
-		if (function_index ==2) {
-			complain("Mutual Information Stats Were Not Pre-Computed!");
-
-			// $("#ranked-against").text("(MI) Attributes Ranked According to: " + layer_names[0]);
-			// var ranked_against_label = document.getElementById("ranked-against").style.visibility="hidden";
-		}
-	});
-} 
-
 clear_current_stats_values = function  () {
 	// For a specific layer, delete all stats values:
 	// density, p_value, r_value, mutual_information.
@@ -2940,7 +2717,7 @@ clear_current_stats_values = function  () {
         delete layers[layer_name].p_value;
         delete layers[layer_name].mutual_information;
      }
-	oper.current_sort_text = "Attributes Ranked According to Frequency";
+	oper.current_sort_text = "Attributes ranked according to frequency";
 	update_browse_ui();	
 }
 
@@ -2967,7 +2744,8 @@ function get_current_layout_index (layout_name, recompute_stats) {
 		if (recompute_stats == true) {
 		    // We need to re-run stats given this new layout. Go grab our global variables where we kept what stats we ran.
 		    // TODO: Fix this to not be terrible.
-			get_mutual_information_statistics (current_layout_index, mutual_information_sorted_against, 2, mutual_information_filtered);
+			// TODO mutual_information_sorted_against is always an empty array
+			//get_mutual_information_statistics (current_layout_index, mutual_information_sorted_against, 'rank', mutual_information_filtered);
 		}
 	})
  	.fail(function() {
@@ -3133,7 +2911,7 @@ function recalculate_statistics_for_layer(layer_name, in_list, out_list, all) {
             // TODO: Unify this code with similar callback below.
             // Re-sort everything and draw all the new p values.
 
-			oper.current_sort_text = "Attributes Ranked by Contrast between " + comparison_stats_l1 + " & " + comparison_stats_l2;
+			oper.current_sort_text = "Ranked by contrast between " + comparison_stats_l1 + " & " + comparison_stats_l2;
             update_browse_ui();
             update_shortlist_ui();
             
@@ -3188,7 +2966,7 @@ function recalculate_statistics_for_matrix(matrix_url, in_list, out_list, all) {
             // TODO: Unify this code with similar callback above.
             // Re-sort everything and draw all the new p values.
 
-			oper.current_sort_text = "Attributes Ranked by Contrast between " + comparison_stats_l1 + " & " + comparison_stats_l2;
+			oper.current_sort_text = "Ranked by contrast between " + comparison_stats_l1 + " & " + comparison_stats_l2;
             update_browse_ui();
             update_shortlist_ui();
 
@@ -3209,7 +2987,6 @@ function recalculate_statistics_for_matrix(matrix_url, in_list, out_list, all) {
             value: progress
         });
     });    
-    
 }
 
 initialize_view = function () {
@@ -4003,11 +3780,11 @@ clumpiness_values = function (layout_index) {
     // the given layout index. Just pulls from each layer's clumpiness_array
     // field.
     
-    for(var i = 0; i < layer_names_sorted.length; i++) {
+    for(var i = 0; i < oper.layer_names_sorted.length; i++) {
         // For each layer
         
         // Get the layer object
-        layer = layers[layer_names_sorted[i]];
+        layer = layers[oper.layer_names_sorted[i]];
         
         if(layer.clumpiness_array != undefined) {
             // We have a set of clumpiness scores for this layer.
@@ -4035,7 +3812,7 @@ function recreate_map(layout_name, spacing) {
 function create_indexed_layers_array () {
 	$.get(ctx.project + "layers.tab", function(tsv_data) {
 		// Create a list of layer names ordered by their indices
-		oper.layer_names_by_index = new Array (layer_names_sorted.length);
+		oper.layer_names_by_index = new Array (oper.layer_names_sorted.length);
 		parsed = $.tsv.parseRows(tsv_data);
 		for (var i = 0; i < parsed.length; i++) {
 		    if(parsed[i].length < 2) {
@@ -4060,103 +3837,21 @@ initHex = function () {
     // Set up the RPC system for background statistics
     //rpc = rpcCreate();
 
+    // Initialize some operating values
+
+    // A list of layer names maintained in sorted order.
+    oper.layer_names_sorted = [];
+
+    // This holds an array of layer names that the user has added to the "shortlist"
+    // They can be quickly selected for display.
+    oper.shortlist = [];
+
     // Set up the Google Map
     mapTypeDef();
     initialize_view();
     
     // Set up the layer search
-    $("#search").select2({
-        placeholder: "Select Attribute...",
-        query: function(query) {
-            // Given a select2 query object, call query.callback with an object
-            // with a "results" array.
-            
-            // This is the array of result objects we will be sending back.
-            var results = [];
-        
-            // Get where we should start in the layer list, from select2's
-            // infinite scrolling.
-            var start_position = 0;
-            if(query.context != undefined) {
-                start_position = query.context;
-            }
-        
-            for(var i = start_position; i < layer_names_sorted.length; i++) {
-                // For each possible result
-                if(layer_names_sorted[i].toLowerCase().indexOf(
-                    query.term.toLowerCase()) != -1) {
-                    
-                    // Query search term is in this layer's name. Add a select2
-                    // record to our results. Don't specify text: our custom
-                    // formatter looks up by ID and makes UI elements
-                    // dynamically.
-                    results.push({
-                        id: layer_names_sorted[i]
-                    });
-                    
-                    if(results.length >= SEARCH_PAGE_SIZE) {
-                        // Page is full. Send it on.
-                        break;
-                    }
-                    
-                }
-            }
-            
-            // Give the results back to select2 as the results parameter.
-            query.callback({
-                results: results,
-                // Say there's more if we broke out of the loop.
-                more: i < layer_names_sorted.length,
-                // If there are more results, start after where we left off.
-                context: i + 1
-            });
-        },
-        formatResult: function(result, container, query) {
-            // Given a select2 result record, the element that our results go
-            // in, and the query used to get the result, return a jQuery element
-            // that goes in the container to represent the result.
-            
-            // Get the layer name, and make the browse UI for it.
-            return make_browse_ui(result.id);
-        },
-    });
-
-    // Make the bottom of the list within the main window
-    $('#search').parent().on('select2-open', function () {
-        var results = $('#select2-drop .select2-results');
-        results.css('max-height', $(window).height() - results.offset().top - 15);
-    });
-
-    // Handle result selection
-    $("#search").on("select2-selecting", function(event) {
-        // The select2 id of the thing clicked (the layer's name) is event.val
-        var layer_name = event.val;
-        
-        // User chose this layer. Add it to the global shortlist.
-        
-        // Only add to the shortlist if it isn't already there
-        // Was it already there?
-        var found = false;
-        for(var j = 0; j < shortlist.length; j++) {
-            if(shortlist[j] == layer_name) {
-                found = true;
-                break;
-            }
-        }
-        
-        if(!found) {
-            // It's new. Add it to the shortlist
-            shortlist.push(layer_name);
-            
-            // Update the UI to reflect this. This may redraw the view.
-            update_shortlist_ui();
-            
-        }
-        
-        // Don't actually change the selection.
-        // This keeps the dropdown open when we click.
-        event.preventDefault();
-    });
+    initLayerLists();
 
 	// Create Pop-Up UI for Comparison Statistics 
 	$("#comparison-statistics").prepend(create_comparison_stats_ui ());
@@ -4365,14 +4060,14 @@ initHex = function () {
 		// Add Tissue or 1st Attribute as Default Select
         if (layers["tissue"] != undefined){
 			with_layer("tissue", function(layer) {
-    	    	shortlist.push("tissue");
+    	    	oper.shortlist.push("tissue");
 				update_shortlist_ui();
 
 			});
         }
-        else if (layer_names_sorted.length > 0){
-			with_layer(layer_names_sorted[0], function(layer) {
-    	    	shortlist.push(layer_names_sorted[0]);
+        else if (oper.layer_names_sorted.length > 0){
+			with_layer(oper.layer_names_sorted[0], function(layer) {
+    	    	oper.shortlist.push(oper.layer_names_sorted[0]);
 				update_shortlist_ui();
 
 			});

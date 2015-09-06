@@ -1,0 +1,101 @@
+<template name='mapPage'>
+    <div id='mapPage'>
+        <div class="tools row" id="toolbar">
+            <div class="title stacker">
+                UCSC Tumor Map
+            </div>
+            <!--
+            <div id='loadDir' class='stacker' style='display:none;width: 9em'>
+            </div>
+            -->
+            <div class="stacker right">
+                <img src="throbber.svg" class="recalculate-throbber" title="Recalculating..." />
+                <span class="recalculate-progress">
+                    <span id="jobs-running">0</span>/<span id="jobs-in-batch">0</span> jobs running.
+                </span>
+                <span class="recalculate-finished">
+                    Done.
+                </span>
+            </div>
+            <div class="stacker right">
+                <div id="recalculate-progress" class="recalculate-progress"></div>
+            </div>
+        </div>
+        <div class="header row" id="header">
+            <div class="browse col vertical-table">
+                <div class="vertical-cell">
+                    <div id="browse-holder">
+                        <input id="search" type="hidden"/>
+                        <img style='display:none' src="statistics.svg" id="comparison-stats" title="Differential Contrast of Sample Selections" onclick="update_comparison_stats_drop_down()"/>
+						<img src="throbber.svg" class="recalculate-throbber" title="Recalculating..." />
+						<img src="set.svg" id="set-operation" title="Calculate Set Operation"/>
+						<img src="sort_attributes.svg" id="sort-attributes-button" title="Sort Attributes by Association with a Focus Attribute"/>
+                    </div>
+					<div id="layout-holder">
+						<input id="layout-search" type="hidden"/>
+					</div>
+				</div>
+				<div id="current-layout">Current Layout:</div> 	
+				<div id="ranked-against">Attributes ranked according to frequency</div> 
+            </div>
+			<div class="comparison-stats dropdown">
+				<div class="dropdown-title">Sort Attributes by Dichotomy
+					<a class="cancel" href="#" onclick="hide_comparison_stats_drop_down(); reset_comparison_stats_counter()">X </a>
+				</div>
+				<div class="dropdown-body">
+				    <div id="comparison-statistics" class="dropdown-contents">
+				    </div>
+			    </div>
+			</div>
+			<div class="set-operation dropdown">
+				<div class="dropdown-title">Perform Set Operation
+					<a class="cancel" href="#" onclick="hide_set_operation_drop_down(); reset_set_operation_counter()">X</a>
+				</div>
+				<div class="dropdown-body">
+				    <select id="set-operations-list" onchange="update_set_operation_drop_down()">
+					    <option value = "0" selected = 'selected'>Select Set Operation:</option>
+					    <option value = "1">∩ - Intersection</option>
+					    <option value = "2">U - Union</option>  
+					    <option value = "3">\ - Set Difference</option>
+					    <option value = "4">∆ - Symmetric Difference</option>
+					    <option value = "5">Not:</option>
+				    </select>
+				    <div id="set-operations" class="dropdown-contents">
+				    </div>
+			    </div>
+			</div>
+
+            {{> sortAttrs}}
+			
+            <div class="shortlist col">
+                <div id="shortlist-holder" class="panel-holder">
+                    <div id="shortlist-panel" class="panel">
+                        <div class="panel-title">Short List</div>
+                        <div id="shortlist" class="panel-contents">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="error row" id="error">
+            <div id="error-notification">
+            </div>
+        </div>
+        <div class="content row" id="content">
+            <div class="key">
+                <canvas id="color-key" width="100" height="100"></canvas>
+                <div class="label" id="low-both">Low</div>
+                <div class="label" id="high-x">High</div>
+                <div class="label y" id="high-y">High</div>
+                <div class="label axis" id="x-axis"></div>
+                <div id="y-axis-holder">
+                    <div id="y-axis-cell">
+                        <div class="label axis" id="y-axis"></div>
+                    </div>
+                </div>
+            </div>
+            <div id="visualization">
+            </div>
+        </div>
+    </div>
+</template>

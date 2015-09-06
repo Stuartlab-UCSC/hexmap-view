@@ -15,15 +15,18 @@ Re-uses sample code and documentation from
 """
 
 import argparse, sys, os, itertools, math, numpy, subprocess, shutil, tempfile
-import collections, multiprocessing, traceback, numpy, time, pprint
+import collections, multiprocessing, traceback, numpy, time, datetime, pprint
 import scipy.stats, scipy.linalg, scipy.misc
-import time 
+import time
 import os.path
 import tsv, csv
 from assocStats import association_statistics
 
 # We have a mutualinformation module to do the MI calculations.
 import mutualinformation
+
+def timestamp():
+    print str(datetime.datetime.now())[8:-7]
 
 # Global variable to hold opened matrices files
 #matrices = []
@@ -116,6 +119,7 @@ def parse_args(args):
         
    
     a = parser.parse_args(args)
+    timestamp();
     print "#ARGS",args, a, "raw",a.raw
     return a
 
@@ -561,7 +565,7 @@ class ClusterFinder(object):
                 
                 
         # We have now found the best p for any window for this layer.
-        print "Best p found: {}".format(best_p)
+        #print "Best p found: {}".format(best_p)
         sys.stdout.flush()
         
         return best_p                
@@ -704,7 +708,8 @@ def run_mutual_information_statistics(layers, layer_names, options):
             else:
                 # Don't bin counts.
                 layer_window_values[layer_name] = window_sums
-                
+        """
+        TODO skip continuous for now
         for layer_name in ctx.continuous_layers:
             
             # For continuous layers, get the average for each window, but
@@ -744,8 +749,8 @@ def run_mutual_information_statistics(layers, layer_names, options):
             # past-the-end bin)
             layer_window_values[layer_name] = numpy.digitize(window_averages,
                 bins)
-                
-        
+        """
+        timestamp();
         print "{} pairs to run".format(len(layer_window_values) ** 2 -
             len(layer_window_values))
             
@@ -785,6 +790,7 @@ def run_mutual_information_statistics(layers, layer_names, options):
             
             pair += 1
             
+        timestamp();
         print("{} pairs processed".format(pair))
             
         if information_writer is not None:
@@ -1024,6 +1030,7 @@ def pearson_corr_2 (cont_values, layer_names, options, num_processes, num_pairs)
             if current_pairs == num_pairs:
                 current_pairs = 0
 
+    timestamp();
     print ("All processes complete: ", all_complete)
     while all_complete == False:
         for index, pid in enumerate(pids):
@@ -1034,6 +1041,7 @@ def pearson_corr_2 (cont_values, layer_names, options, num_processes, num_pairs)
                 print (pid, return_status[index], index)
                 sys.exit(return_status[index])
         all_complete = all(status == 0 for status in return_status)
+    timestamp();
     print ("All processes complete: ", all_complete)
 
     num_layers = len(ctx.continuous_layers)
@@ -1070,27 +1078,26 @@ def pearson_corr_2 (cont_values, layer_names, options, num_processes, num_pairs)
     return True
 
 def open_matrices(names):
-	"""
-	The argument parser now take multiple similarity matrices as input and 
-	saves their file name as strings. We want to store the names of these
-	strings for display later in hexagram.js in order to allow the user to 
-	navigate and know what type of visualization map they are looking at -
-	gene expression, copy number, etc. 
+    """
+    The argument parser now take multiple similarity matrices as input and
+    saves their file name as strings. We want to store the names of these
+    strings for display later in hexagram.js in order to allow the user to 
+    navigate and know what type of visualization map they are looking at -
+    gene expression, copy number, etc. 
 
-	Since, the parser no longer opens the files automatically we must, do it
-	in this function.
-	"""
-
-	# For each file name, open the file and add it to the matrices list
-	# 'r' is the argument stating that the file will be read-only
-	for i, similarity_filename in enumerate(names):
-		print "Opening Matrix {}...".format(i)
-		matrix_file = tsv.TsvReader(open(similarity_filename, "r")) 
-		ctx.matrices.append(matrix_file)
+    Since, the parser no longer opens the files automatically we must, do it
+    in this function.
+    """
+    # For each file name, open the file and add it to the matrices list
+    # 'r' is the argument stating that the file will be read-only
+    for i, similarity_filename in enumerate(names):
+        print "Opening Matrix {}...".format(i)
+        matrix_file = tsv.TsvReader(open(similarity_filename, "r"))
+        ctx.matrices.append(matrix_file)
 
 
 def compute_beta (coords, PCA, index, options):
-    """ 
+    """
     Compute and return a beta matrix from coords * matrix.
     Then print the matrix to a file to be read on clientside.
     """
@@ -1116,9 +1123,9 @@ def compute_beta (coords, PCA, index, options):
 
 def return_beta(options):
     """ 
-	Returns a boolean that determines whether betas can/should
-	be computed.
-	"""
+    Returns a boolean that determines whether betas can/should
+    be computed.
+    """
     beta_boolean = True
     if options.raw is None:
         beta_boolean = False
@@ -1127,9 +1134,9 @@ def return_beta(options):
 
 def raw_data_to_matrix(raw_data, hexagons_dict, data_type, options, index):
     """
-	Converts raw data file into an m * n matrix, where m = samples
-	and n = genes
-	"""
+    Converts raw data file into an m * n matrix, where m = samples
+    and n = genes
+    """
     # First open the raw data file.
     raw = tsv.TsvReader(open(raw_data, 'r')) 
 
@@ -1254,7 +1261,7 @@ def raw_data_to_matrix(raw_data, hexagons_dict, data_type, options, index):
     gene_writer.line(data_type)
     gene_writer.line(*genes)
     gene_writer.close()
- 
+
     print ("Correct Matrix:")
     print (correct_matrix)
 
@@ -1321,113 +1328,114 @@ def normalize_raw_data_values (matrix, numRows, numColumns):
     
 
 def drl_similarity_functions(matrix, index, options):
-	"""
-	Performs all the functions needed to format a similarity matrix into a 
-	tsv format whereby the DrL can take the values. Then all of the DrL
-	functions are performed on the similarity matrix.
+    """
+    Performs all the functions needed to format a similarity matrix into a 
+    tsv format whereby the DrL can take the values. Then all of the DrL
+    functions are performed on the similarity matrix.
 
-	Options is passed to access options.singletons and other required apsects
+    Options is passed to access options.singletons and other required apsects
     of the parsed args.
-	"""
-	
-	# Work in a temporary directory
-	# If not available, create the directory.
-	drl_directory = tempfile.mkdtemp()
+    """
+    
+    # Work in a temporary directory
+    # If not available, create the directory.
+    drl_directory = tempfile.mkdtemp()
     
     # This is the base name for all the files that DrL uses to do the layout
     # We're going to put it in a temporary directory.
-	# index added to extension in order to keep track of
-	# respective layouts
-	drl_basename = os.path.join(drl_directory, "layout" + str(index))
+    # index added to extension in order to keep track of
+    # respective layouts
+    drl_basename = os.path.join(drl_directory, "layout" + str(index))
 
-	# We can just pass our similarity matrix to DrL's truncate
+    # We can just pass our similarity matrix to DrL's truncate
     # But we want to run it through our tsv parser to strip comments and ensure
     # it's valid
     
     # This holds a reader for the similarity matrix
-	sim_reader = matrix
+    sim_reader = matrix
     
     # This holds a writer for the sim file
-	sim_writer = tsv.TsvWriter(open(drl_basename + ".sim", "w"))
+    sim_writer = tsv.TsvWriter(open(drl_basename + ".sim", "w"))
     
-	print "Regularizing similarity matrix..."
-	sys.stdout.flush()
+    print "Regularizing similarity matrix..."
+    sys.stdout.flush()
     
     # This holds a list of all unique signature names in the similarity matrix.
     # We can use it to add edges to keep singletons.
-	signatures = set()
+    signatures = set()
 
-	print "Reach for parts in sim_reader"
-	for parts in sim_reader:
+    print "Reach for parts in sim_reader"
+    for parts in sim_reader:
         # Keep the signature names used
-		signatures.add(parts[0])
-		signatures.add(parts[1])
+        signatures.add(parts[0])
+        signatures.add(parts[1])
         
         # Save the line to the regularized file
-		sim_writer.list_line(parts)
+        sim_writer.list_line(parts)
     
-	if options.singletons:    
+    if options.singletons:
         # Now add a self-edge on every node, so we don't drop nodes with no
         # other strictly positive edges
-		for signature in signatures:
-			sim_writer.line(signature, signature, 1)
+        for signature in signatures:
+            sim_writer.line(signature, signature, 1)
         
-	sim_reader.close()
-	sim_writer.close()
+    sim_reader.close()
+    sim_writer.close()
     
     # Now our input for DrL is prepared!
     
     # Do DrL truncate.
     # TODO: pass a truncation level
-	print "DrL: Truncating..."
-	sys.stdout.flush()
-        if options.drlpath:
-            subprocess.check_call(["truncate", "-t", str(options.truncation_edges), 
-            drl_basename], env={"PATH": options.drlpath}) 
-        else:
-            subprocess.check_call(["truncate", "-t", str(options.truncation_edges),
-                drl_basename])
+    timestamp();
+    print "DrL: Truncating..."
+    sys.stdout.flush()
+    if options.drlpath:
+        subprocess.check_call(["truncate", "-t", str(options.truncation_edges), 
+        drl_basename], env={"PATH": options.drlpath}) 
+    else:
+        subprocess.check_call(["truncate", "-t", str(options.truncation_edges),
+            drl_basename])
 
     # Run the DrL layout engine.
-	print "DrL: Doing layout..."
-	sys.stdout.flush()
-        if options.drlpath:
-            subprocess.check_call(["layout", drl_basename], env={"PATH": options.drlpath}) 
-        else:
-            subprocess.check_call(["layout", drl_basename]) 
-    
+    print "DrL: Doing layout..."
+    sys.stdout.flush()
+    if options.drlpath:
+        subprocess.check_call(["layout", drl_basename], env={"PATH": options.drlpath}) 
+    else:
+        subprocess.check_call(["layout", drl_basename]) 
+
     # Put the string names back
-	print "DrL: Restoring names..."
-	sys.stdout.flush()
-        if options.drlpath:
-            subprocess.check_call(["recoord", drl_basename], env={"PATH": options.drlpath}) 
-        else:
-            subprocess.check_call(["recoord", drl_basename]) 
+    print "DrL: Restoring names..."
+    sys.stdout.flush()
+    if options.drlpath:
+        subprocess.check_call(["recoord", drl_basename], env={"PATH": options.drlpath}) 
+    else:
+        subprocess.check_call(["recoord", drl_basename]) 
         
     # Now DrL has saved its coordinates as <signature name>\t<x>\t<y> rows in 
     # <basename>.coord
     
     # We want to read that.
     # This holds a reader for the DrL output
-	coord_reader = tsv.TsvReader(open(drl_basename + ".coord", "r"))
+    coord_reader = tsv.TsvReader(open(drl_basename + ".coord", "r"))
     
     # This holds a dict from signature name string to (x, y) float tuple. It is
     # also our official collection of node names that made it through DrL, and
     # therefore need their score data sent to the client.
-	nodes = {}
+    nodes = {}
 
-	print "Reading DrL output..."
-	sys.stdout.flush()
-	for parts in coord_reader:
-		nodes[parts[0]] = (float(parts[1]), float(parts[2])) 
+    print "Reading DrL output..."
+    sys.stdout.flush()
+    for parts in coord_reader:
+        nodes[parts[0]] = (float(parts[1]), float(parts[2]))
 
-	coord_reader.close()
-    
+    coord_reader.close()
+
     # Delete our temporary directory.
-	shutil.rmtree(drl_directory)
+    shutil.rmtree(drl_directory)
 
-	# Return nodes dict back to main method for further processes
-	return nodes
+    # Return nodes dict back to main method for further processes
+    return nodes
 
 def compute_hexagram_assignments(nodes, index, options):
     """
@@ -1534,7 +1542,7 @@ def run_clumpiness_statistics(layers, layer_names, window_size, layout_index):
     There must be at least one layer.
     
     """
-    
+    timestamp();
     print("Running tiling clumpiness statistics for layout {} with window size "
         "{}...".format(layout_index, window_size))
 
@@ -1577,27 +1585,27 @@ def hexIt(options):
     if not os.path.exists(options.directory):
         # makedirs is the right thing to use here: recursive
         os.makedirs(options.directory)
-	
+    
     print "Writing matrix names..."
     # We must write the file names for hexagram.js to access.
     write_matrix_names(options)
 
     print "About to open matrices..."
 
-	# We have file names stored in options.similarity
-	# We must open the files and store them in matrices list for access
+    # We have file names stored in options.similarity
+    # We must open the files and store them in matrices list for access
     open_matrices(options.similarity)
 
     print "Opened matrices..."
 
-	# The nodes list stores the list of nodes for each matrix
-	# We must keep track of each set of nodes
+    # The nodes list stores the list of nodes for each matrix
+    # We must keep track of each set of nodes
     nodes_multiple = []
 
     print "Created nodes_multiple list..."
 
-	# Index for drl.tab and drl.layout file naming. With indexes we can match
-	# file names, to matrices, to drl output files.
+    # Index for drl.tab and drl.layout file naming. With indexes we can match
+    # file names, to matrices, to drl output files.
     for index, i in enumerate (ctx.matrices):
         nodes_multiple.append (drl_similarity_functions(i, index, options))
     
@@ -1652,7 +1660,7 @@ def hexIt(options):
         # This holds an iterator over lines in that file
         # TODO: Write a proper header/data API
         scores_iterator = scores_reader.__iter__()
-        
+
         try:
             # This holds the names of the columns (except the first, which is 
             # labels). They also happen to be layer names
@@ -1690,7 +1698,7 @@ def hexIt(options):
                 
                 for (layer_name, score) in itertools.izip(file_layer_names, 
                     layer_scores):
-                    
+
                     # Store all the layer scores in the appropriate
                     # dictionaries.
                     try:
@@ -1736,7 +1744,7 @@ def hexIt(options):
             # Write the score for this signature in this layer
             scores_writer.line(signature_name, score)
         scores_writer.close()
-    
+
     # We send "clumpiness scores" for each layer to the client (greater is
     # clumpier), if the user has elected to spend the long amount of time it
     # takes to calculate them.
@@ -1821,11 +1829,13 @@ def hexIt(options):
 
     # Run Associated Statistics
     if options.associations == True:
+        timestamp();
         print "Running association statistics..."
         association_statistics(layers, layer_names, ctx, options)
 
     # Run Mutual Information Statistics:
     if options.mutualinfo == True:
+        timestamp();
         print "Running MI statistics..."
         run_mutual_information_statistics(layers, layer_names, options)
 
@@ -1833,7 +1843,6 @@ def hexIt(options):
     
     # Check Whether User Provided Raw Data for Dynamic Loading
     should_compute = return_beta(options)
-    print (should_compute)
 
     if (should_compute == True):
         # Extract Files Related to Beta Computation
@@ -1856,7 +1865,7 @@ def hexIt(options):
         # raw_data_files and place them in a matrix.
         # Then we must extract the x and y coordinates for that set of hexagons.
         # Finally we must add this to the global dict of beta computation values.
-	print raw_data_files
+        print raw_data_files
         for sim, raw_data in enumerate (raw_data_files):
             values = {}
             hex_dict_num = sim_list[sim]
@@ -2010,7 +2019,7 @@ def hexIt(options):
             PCA_Test = numpy.asmatrix(S_diag) * numpy.asmatrix(U_trunc_t) * data_val[0]
             print ("PCA_Test Shape", PCA_Test.shape)
             
-print (PCA_Test)
+            print (PCA_Test)
               
             coords_2_swapped = beta * PCA_Test
             coords_2 = numpy.transpose(coords_2_swapped)
@@ -2026,7 +2035,7 @@ print (PCA_Test)
 
     else:
         print ("No Data Provided...Skipping Beta Calculations")
-	
+    
 
     # Copy over the user-specified colormaps file, or make an empty TSV if it's
     # not specified.
@@ -2052,8 +2061,7 @@ print (PCA_Test)
     # still be empty.
     colormaps_writer.close()
 
-
-
+    timestamp();
     print "Visualization generation complete!"
        
     return 0
@@ -2072,13 +2080,13 @@ print (PCA_Test)
         "public/filter.svg",
         "public/statistics.svg",
         "public/right.svg",
-		"public/set.svg",
-		"public/save.svg",
+        "public/set.svg",
+        "public/save.svg",
         "public/help.svg",
         "public/sort.svg",
         "public/mutual.svg",
         "public/throbber.svg",
-		"public/sort_attributes.svg",
+        "public/sort_attributes.svg",
         
         # jQuery itself is pulled from a CDN.
         # We can't take everything offline since Google Maps needs to be sourced

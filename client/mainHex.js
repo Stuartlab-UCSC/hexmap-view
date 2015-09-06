@@ -6,7 +6,7 @@ var app = app || {}; // jshint ignore:line
 
 ctx = {}; // Persistent state to be saved eventually
 oper = {}; // Shared state not to be saved to persist store
-layers = {};
+layers = {}; // contains almost all information about attributes
 
 (function (hex) { // jshint ignore:line
     //'use strict';

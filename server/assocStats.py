@@ -1,5 +1,5 @@
 """
-assoc_stats.py: Run the association statistics.
+assocStats.py: Run the association statistics.
 """
 import sys, os, numpy, subprocess, shutil, tempfile,pprint
 import tsv, csv
@@ -240,6 +240,10 @@ def association_statistics(layers, layer_names, ctx, options):
     The tool will deploy the appropriate association stat test on each
     array of layers. These tools will compute the correlation values between pairs
     of attributes.
+    @param layers: the global layers object
+    @param layer_names: list of all layer names
+    @param ctx: global context for hexagram.py
+    @param options: those options passed into hexagram.py
 
     The values generated from each individual stats test will be printed to
     separate files. On the clientside the user will be asked to select what type
@@ -266,17 +270,19 @@ def association_statistics(layers, layer_names, ctx, options):
     }
 
     # Find the mean of each continuous attribute.
-    find_means(layers, ctx.continuous_layers, hex_names, ac)
+    # TODO find_means(layers, ctx.continuous_layers, hex_names, ac)
 
     # TODO the pearson stats need to be tested & verified
-    #per_stats_type(layers, layer_names, 10, 100, ac, ctx, options)
+    # TODO per_stats_type(layers, layer_names, 10, 100, ac, ctx, options)
 
-    # Run Stats on binary & categorical Layers.
+    # Run Stats on binary Layers.
+    # TODO Run Stats on binary & categorical Layers.
     # Create the association statistics context.
     ac = {
         'type': 'chi2',
         'stats_fx': chi2, # the stats to be run on this data
-        'stats_layers': ctx.binary_layers + ctx.categorical_layers, # data types for these stats
+        'stats_layers': ctx.binary_layers, # data types for these stats
+        # TODO 'stats_layers': ctx.binary_layers + ctx.categorical_layers, # data types for these stats
         'temp_dir': temp_dir, # the dir to store temporary working files
         'ref_file': hex_names_file, # a temporary reference file of hexagon names for these stats
     }

@@ -1,0 +1,117 @@
+<template name='sortAttrs'>
+    <form id="sort-attributes-dialog" style='display:none'>
+        <table>
+            <tr>
+                <td class='dialog-value'>
+                    <img class="help-button" src="help.svg">
+                 </td>
+            </tr>
+            <tr>
+                <td class='dialog-label'>
+                    Focus attribute:
+                </td>
+                <td class='dialog-value'>
+                    <select class="list"></select>
+                </td>
+            </tr>
+            <tr>
+                <td class='dialog-label' style='vertical-align:top'>
+                    Sort attributes as:
+                </td>
+                <td class='dialog-value'>
+                    <label>
+                        <input type='radio' name='region-sample-based' id='sample-based' value='sample-based' checked='checked'/>
+                        Sample-based
+                    </label><br>
+                     <label>
+                        <input type='radio' name='region-sample-based' id='region-based' value='region-based' />
+                        Region-based
+                    </label>
+                </td>
+            </tr>
+            <tr style='display:none'>
+                <td class='dialog-label' style='vertical-align:top'>
+                    Include attributes that are:
+                </td>
+                <td class='dialog-value'>
+                    <input class='bin' type="checkbox" />
+                    <label for='bin' class='bin-label'>
+                        Labels (yes/no)
+                    </label>
+                    <br>
+                    <input class='cat' type="checkbox" />
+                    <label for='cat' class='cat-label'>
+                        Categories
+                    </label>
+                    <br>
+                    <input class='cont' type="checkbox" />
+                    <label for='cont' class='cont-label'>
+                        Numeric
+                    </label>
+               </td>
+            </tr>
+            <tr>
+                <td class='dialog-label corr-label' style='vertical-align:top'>
+                    Correlation:
+                </td>
+                <td class='dialog-value'>
+                    <input type="radio" name="corr" id="corr-pos" value="positive" />
+                    <label for="corr-pos" class='corr-pos-label'>Positive</label><br/>
+                    <input type="radio" name="corr" id="corr-neg" value="negative" />
+                    <label for="corr-neg" class='corr-neg-label'>Negative</label>
+                </td>
+            </tr>
+        </table>
+    </form> <!-- sort-attributes-dialog -->
+    <div id='sort-attributes-help-dialog' title="Sort Help" style='display:none'>
+        <div>
+            <p>
+                <b>Attributes included:</b> Attributes included in the statistics
+                and sort are those with Label (yes/no) values. Attributes not
+                included are those:
+                <ul><li>
+                    with a value type of Category or Numeric</li><li>
+                    defined by a set (Venn diagram) operation</li><li>
+                    defined by selecting samples in a region with the Select tool</li><li>
+                    defined by selecting samples with the Import tool
+                </li></ul>
+            </p>
+            <p>
+                <b>Focus attribute:</b> Attributes are sorted
+                in terms of association with the focus attribute. The list
+                contains attributes from the Short List with Label (yes/no)
+                values, and not those defined by a set (Venn diagram) operation.
+            </p>
+            <p>
+                <b>Sort attributes as Sample-based:</b> The statistics for
+                the sort are calculated without taking the map layout into
+                account. The chi-Squared test is used.
+            </p>
+            <p>
+                <b>Sort attributes as Region-based:</b> The statistics for
+                the sort are calculated while taking the map layout into
+                account.
+            </p>
+            <p>
+                Mutual information statistics are calculated by examining the
+                presence of two attributes within regions across the tumor
+                map. Region-based statistics will help you find attributes that
+                can be mutually exclusive but invoke similar pathways 
+                as indicated by the proximity of tumors with these attributes 
+                on the map.
+            </p>
+            <p>
+                <b>Correlation:</b>
+                Region-based statistics are calculated only for layers that are
+                significantly correlated or anticorrelated with the focus attribute.
+            </p>
+            <p style='display:none'>
+                <b>All Attributes: WARNING:</b>
+                Selecting all attributes will result in a single list of sorted attributes 
+                that have been ranked with results from statistics tests. Comparisons
+                may not be accurate. It is recommended to compare focus attribute to
+                different data types one at a time, e.g. using one statistics test.
+            </p>
+        </div>
+    </div> <!-- help-dialog -->
+</template>

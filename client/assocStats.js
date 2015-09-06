@@ -9,7 +9,7 @@ var app = app || {}; // jshint ignore:line
     get_association_stats_values = function (layer_name, binary, categorical) {
         // @param layer_name: the focus attribute
         // @param binary: true: compare focus attr against binary attrs, false: not
-        // @param binary: true: compare focus attr against categorical attrs, false:not
+        // @param categorical: true: compare focus attr against categorical attrs, false:not
         // @ returns: nothing
 
         // So far we only support combinations of binary and categorical values,
@@ -17,7 +17,6 @@ var app = app || {}; // jshint ignore:line
             var layer_index = oper.layer_names_by_index.indexOf(layer_name),
                 file = ctx.project + "layer_" + layer_index + "_chi2.tab";
             $.get(file, function(tsv_data) {
-            //$.get(ctx.project + "colormaps.tab", function(tsv_data) {
                 // This is an array of rows, which are arrays of values:
                 //
                 //	Layer1	Layer2	Layer 3...
@@ -40,17 +39,17 @@ var app = app || {}; // jshint ignore:line
                 }
             }, "text")
             .done(function() {
-                oper.current_sort_text = "(LI) Attributes Ranked According to: " + layer_name;
+                oper.current_sort_text = "Sample-base ranked in terms of: " + layer_name;
                 update_browse_ui();
                 update_shortlist_ui();
-                oper.mutual_information_ranked = false; // TODO why when this is sample-based, not region-based
+                oper.mutual_information_ranked = false;
 
 
             })
             .fail(function() {
                 complain("Association Stats Weren't Precomputed!");
                 // var ranked_against_label = document.getElementById("ranked-against").style.visibility="hidden";
-                oper.mutual_information_ranked = false;  // TODO why when this is sample-based, not region-based
+                oper.mutual_information_ranked = false;
             });
             var x = 0;
     //function get_association_stats_values(layer_name, single_stat, drop_down_val, layer_names) {
@@ -109,7 +108,7 @@ var app = app || {}; // jshint ignore:line
 
                 }, "text")
                 .done(function() {
-                    oper.current_sort_text = "(LI) Attributes Ranked According to: " + layer_name;
+                    oper.current_sort_text = "Sample-base ranked in terms of: " + layer_name;
                     update_browse_ui("r_value");
                     oper.mutual_information_ranked = false;
 
