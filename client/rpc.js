@@ -6,71 +6,90 @@
 var app = app || {}; // jshint ignore:line
 
 // The only public method
-rpcCreate = null; // jshint ignore:line
+initRpc = null; // jshint ignore:line
 
 (function (hex) { // jshint ignore:line
     //'use strict';
+
+    var self;
 
     function Rpc() {
 
         var s = this;
 
+        self = this;
+
+        s.worker_filename = Session.get('proxPre') + 'statistics.js';
+
+        // How many statistics Web Workers should we start?
+        s.NUM_RPC_WORKERS = 1; // TODO testing
+        //s.NUM_RPC_WORKERS = 10;
+
         // This is a pool of statistics Web Workers.
-        s.workers = [];
+        s.workers;
 
         // This holds which RPC worker we ought to give work to next.
         // TODO: Better scheduling, and wrap all this into an RPC object.
-        s.next_free_worker = 0;
+        s.next_free_worker;
 
         // This holds how namy RPC jobs are currently running
-        s.jobs_running = 0;
+        s.jobs_running;
 
         // This keeps track of how many RPC jobs are in the current batch.
-        s.jobs_in_batch = 0;
+        s.jobs_in_batch;
 
         // This is the object of pending callbacks by RPC id
-        s.callbacks = {};
+        s.callbacks;
 
         // This is the object of progress callbacks by RPC id
-        s.progress_callbacks = {};
+        s.progress_callbacks;
 
         // This is the next unallocated RPC/batch id
-        s.next_id = 0;
+        s.next_id;
 
         // This is the first RPC ID in the current batch. Only one RPC batch is supposed
         // to be running at a time. Any replies from RPC callbacks with IDs smaller than
         // this should be ignored, as those results are no longer wanted.
-        s.batch_start = 0;
-
-        // How many statistics Web Workers should we start?
-        //s.NUM_RPC_WORKERS = 1; // TODO testing
-        s.NUM_RPC_WORKERS = 10;
+        s.batch_start;
     }
 
     Rpc.prototype.initialize = function () {
         // Set up the RPC system. Must be called before 'call' is used.
         console.log('rpc.initialize');
+
         var s = this,
             i,
-            worker,
-            onmessage = function (e) {
-                if (e.data.type === 'debug') {
-                    console.log(e.data.message);
-                } else {
-                    s._reply(e);
-                }
-            };
+            worker;
+
+        // Throw away the dead workers
+        s.workers = [];
+
+        // Start at the beginning of the worker list.
+        s.next_free_worker = 0;
+
+        // Say no jobs are running, since we killed them all.
+        s.jobs_running = 0;
+
+        // We're starting a new batch, so set the number of jobs in the batch
+        s.jobs_in_batch = 0;
+
+        // Clear all the callbacks
+        s.callbacks = {};
+        s.progress_callbacks = {};
+
+        s.next_id = 0;
+
+        s.batch_start = 0
 
         for (i = 0; i < s.NUM_RPC_WORKERS; i += 1) {
             // Start the statistics RPC (remote procedure call) Web Worker
-            worker = new Worker("statistics.js");
+            worker = new Worker(s.worker_filename);
 
             // Send all its messages to our reply processor
-            //worker.onmessage = s._reply;
-            worker.onmessage = onmessage;
+            worker.onmessage = s._worker_reply;
 
             // Send its error events to our error processor
-            worker.onerror = s._error;
+            worker.onerror = s._worker_error;
 
             // Add it to the list of workers
             s.workers.push(worker);
@@ -100,26 +119,10 @@ rpcCreate = null; // jshint ignore:line
                 // Kill each worker
                 s.workers[i].terminate();
             }
-
-            // Throw away the dead workers
-            s.workers = [];
-
-            // Make a bunch of new workers
-            s.initialize();
-
-            // Start at the beginning of the worker list.
-            s.next_free_worker = 0;
-
-            // Say no jobs are running, since we killed them all.
-            s.jobs_running = 0;
-
-            // Clear all the callbacks
-            s.callbacks = {};
-            s.progress_callbacks = {};
         }
 
-        // We're starting a new batch, so set the number of jobs in the batch
-        s.jobs_in_batch = 0;
+        // Reset variables
+        s.initialize();
     };
 
     Rpc.prototype.call = function (function_name, function_args, callback, progress_callback) {
@@ -128,24 +131,28 @@ rpcCreate = null; // jshint ignore:line
         // return value, pass it to the given callback. If it responds with any
         // intermediate results, pass them to the progress callback.
 
-        console.log('rpc.call');
+        console.log('rpc.call function_name:', function_name);
+        console.log('function_args:', function_args);
+        console.log('callback:', callback);
+        console.log('progress_callback:', progress_callback);
+
         // Allocate a new call id
         var s = this,
-            call_id = s.next_id;
+            id = s.next_id;
         s.next_id += 1;
 
         // Store the callback
-        s.callbacks[call_id] = callback;
+        s.callbacks[id] = callback;
 
         // We got a progress callback. Use that.
-        s.progress_callbacks[call_id] = progress_callback;
+        s.progress_callbacks[id] = progress_callback;
 
         // Launch the call. Pass the function name, function args, and id to send
         // back with the return value.
         s.workers[s.next_free_worker].postMessage({
             name: function_name,
             args: function_args,
-            id: call_id
+            id: id
         });
 
         // Next time, use the next worker on the list, wrapping if we run out.
@@ -162,13 +169,18 @@ rpcCreate = null; // jshint ignore:line
         $("#jobs-in-batch").text(s.jobs_in_batch);
     };
 
-    Rpc.prototype._reply = function (message) {
-        // Handle a Web Worker message, which may be an RPC response or a log entry.
-        console.log('rpc._reply');
-        console.trace();
+    Rpc.prototype._worker_reply = function (message) {
+        // Handle a Web Worker message, which may be an RPC response, log or debug message
 
-        var s = this;
-        if (message.data.log !== undefined) {
+        console.log('rpc._worker_reply');
+        var s = self; // TODO
+
+        if (!_.isUndefined(message.data.type) && message.data.type === 'debug') {
+            console.log(message.data.message);
+            return;
+        }
+
+        if (!_.isUndefined(message.data.log)) {
             // This is really a log entry
             print(message.data.log);
             return;
@@ -217,7 +229,6 @@ rpcCreate = null; // jshint ignore:line
             results: message.data.return_value,
             jobs_running: s.jobs_running
         });
-        //s.callbacks[message.data.id](message.data.return_value);
 
         // Get rid of the callback
         delete s.callbacks[message.data.id];
@@ -226,18 +237,20 @@ rpcCreate = null; // jshint ignore:line
         delete s.progress_callbacks[message.data.id];
     };
 
-    Rpc.prototype._error = function (error) {
-        console.log('rpc._error');
+    Rpc.prototype._worker_error = function (error) {
+
+        console.log('rpc _worker_error');
         // Handle an error event from a web worker
         // See http://www.whatwg.org/specs/web-apps/current-work/multipage/workers.h
         // tml#errorevent
 
-        complain("Web Worker error: " + error.message);
+        complain("Web Worker error: " + error.message); // TODO
         print(error.message + "\n at" + error.filename + " line " + error.lineno +
-                " column " + error.column);
+                " column " + error.column); // TODO
     };
 
-    rpcCreate = function () { // jshint ignore:line
+    initRpc = function () { // jshint ignore:line
+        console.log('initRpc');
         var rpc = new Rpc();
         rpc.initialize();
         return rpc;

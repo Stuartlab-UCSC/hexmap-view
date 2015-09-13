@@ -23,11 +23,10 @@ var app = app || {}; // jshint ignore:line
             var $form = $('#backgroundDiv');
 
             Template.background.helpers ({
-                blackChecked: function () {
-                    return (Session.equals('persBackground', 'black'));
-                },
                 whiteChecked: function () {
-                    return (Session.equals('persBackground', 'white'));
+                    return (Session.equals('persBackground', 'white'))
+                        ? 'checked'
+                        : '';
                 }
             });
 

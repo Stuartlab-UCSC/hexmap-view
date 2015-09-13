@@ -23,7 +23,7 @@ def main (args):
     args[1] = 'temp_directory' - temporary directory to print files to
     args[2] = 'subprocess_string' - string containing sets of four index values:
                layer-1, layer-2, pearson-layer-1, pearson-layer-2; ..."
-               we're using var names of lx1, lx2, slx1, slx2
+               we're using var names of lx1, lx2, slx1, slx2, respectively
     args[3] = 'total_processes'- current number of processes which is used
                by the subprocess as the index for the printed file
     """

@@ -167,10 +167,10 @@ var app = app || {}; // jshint ignore:line
                 return type;
             }		
 
-            // Look in b_b files if both are binary
+            // Look in chi2 files if both are binary
             if (layer1_cont == false & layer2_cont == false) {
             
-            $.get(ctx.project + layer_names[0] + "_b_b.tab", function(tsv_data) {
+            $.get(ctx.project + layer_names[0] + "_chi2.tab", function(tsv_data) {
                     // This is an array of rows, which are arrays of values:
                     //
                     //	id		Layer1	Layer2	Layer 3...

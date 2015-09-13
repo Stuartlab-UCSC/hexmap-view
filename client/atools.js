@@ -80,7 +80,7 @@ var app = app || {}; // jshint ignore:line
     }
 
     tool_activity = function (setValue) {
-        if (_.isUndefined(setValue) {
+        if (_.isUndefined(setValue)) {
             return tool_active;
         } else {
             tool_active = setValue;

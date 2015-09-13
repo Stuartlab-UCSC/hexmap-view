@@ -212,7 +212,14 @@ These are all supposed to stack against the left end in a toolbar thingy.
 
 #browse-holder {
     margin-left: 0.5em;
-	width: 25em;
+	width: 27em;
+}
+#browse-holder img {
+    height: 24px;
+    width: 24px;
+    padding: 3px;
+    margin-top: 5px;
+    margin-right: 2px;
 }
 #search {
     width: 29em;/*322px;*/

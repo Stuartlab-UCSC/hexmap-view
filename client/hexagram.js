@@ -24,14 +24,8 @@ var layer_pickers = [];
 // elements, so we can efficiently tell if e.g. one is selected.
 var shortlist_ui = {};
 
-// Records number of set-operation clicks
-var set_operation_clicks = 0;
-
 // Records number of comparison-stats clicks
 var comparison_stats_clicks = 0;
-
-// Hack: Keep global variable to tell when load session computation is complete
-var set_operation_complete = false;
 
 // Records the Mutual Information Value from Query
 var mutual_information_value = 0;
@@ -79,12 +73,6 @@ var info_window = null;
 // This holds the signature name of the hex that the info window is currently
 // about.
 var selected_signature = undefined;
-
-// This object holds info regardin the user's current TumorMap session.
-// It will be stored to local storage as a string constructed with JSON.
-var current_session = {
-	'created_attr': []
-};
 
 // This holds the grid of hexagon polygons on that Google Map.
 var polygon_grid = [];
@@ -422,7 +410,7 @@ function add_layer_data(layer_name, data, attributes) {
     // Don't sort because our caller does that when they're done adding layers.
 }
 
-function with_layer(layer_name, callback) {
+with_layer = function (layer_name, callback) {
     // Run the callback, passing it the layer (object from hex label/signature
     // to float) with the given name.
     // This is how you get layers, and allows for layers to be downloaded 
@@ -545,7 +533,7 @@ function with_layer(layer_name, callback) {
 		}
 }
 
-function with_layers(layer_list, callback) {
+with_layers = function (layer_list, callback) {
     // Given an array of layer names, call the callback with an array of the 
     // corresponding layer objects (objects from signatures to floats).
     // Conceptually it's like calling with_layer several times in a loop, only
@@ -649,8 +637,8 @@ function make_shortlist_ui(layer_name) {
     var filter_holder = $("<div/>").addClass("filter-holder");
     
     // Add an image label for the filter control.
-    // TODO: put this in a label    
-	var filter_image = $("<img/>").attr("src", "filter.svg");
+    // TODO: put this in a label
+	var filter_image = $("<img/>").attr("src", Session.get('proxPre') + "filter.svg");
     filter_image.addClass("control-icon");
 	filter_image.addClass("filter-image");
     filter_image.attr("title", "Filter on Layer");
@@ -674,7 +662,7 @@ function make_shortlist_ui(layer_name) {
 	filter_holder.append(filter_value);
 
 	// Add a image for the save function
-	var save_filter = $("<img/>").attr("src", "save.svg");
+	var save_filter = $("<img/>").attr("src", Session.get('proxPre') + "save.svg");
 	save_filter.addClass("save-filter");
 	save_filter.attr("title", "Save Filter as Layer");
 
@@ -756,10 +744,10 @@ function make_shortlist_ui(layer_name) {
 			oper.layer_names_sorted.splice(oper.layer_names_sorted.indexOf(layer_name), 1);
 			delete layers[layer_name];
 
-			// Alter "keep" attribute from current_session
-			for (var i = 0; i < current_session.created_attr.length; i++) {
-				if (current_session.created_attr[i].l_name == layer_name) {
-					current_session.created_attr[i].keep = false;
+			// Alter "keep" property of the created attribute
+			for (var i = 0; i < ctx.created_attr.length; i++) {
+				if (ctx.created_attr[i].l_name == layer_name) {
+					ctx.created_attr[i].keep = false;
 					break;
 				}
 			}
@@ -930,7 +918,7 @@ function show_comparison_stats_drop_down () {
 	$(".comparison-stats.dropdown").show();
 }
 
-function hide_comparison_stats_drop_down () {
+hide_comparison_stats_drop_down = function () {
 	// Hide Comparison Stats Drop Down Menu
 	$(".comparison-stats.dropdown").hide();
 }
@@ -1043,337 +1031,6 @@ function update_comparison_stats_selections () {
 // Replacement Code for New Consolidated Association Stats GUI
 
 
-// Set Operation GUI
-function get_set_operation_selection () {
-	// For the new drop-down GUI for set operation selection
-	// we need a function to determine which set operation is selected.
-	// This way we can display the appropriate divs.	
-	
-	// Drop Down List & Index for Selected Element
-	var drop_down = document.getElementById("set-operations-list");
-	var index = drop_down.selectedIndex;
-	var selection = drop_down.options[index];
-	
-	return selection;	
-}
-
-function show_set_operation_drop_down () {
-	// Show Set Operation Drop Down Menu
-	$(".set-operation.dropdown").show();
-
-}
-
-hide_set_operation_drop_down = function () {
-	// Hide Set Operation Drop Down Menu
-	$(".set-operation.dropdown").hide();
-
-	var drop_downs = document.getElementsByClassName("set-operation-value");
-	for (var i = 0; i < drop_downs.length; i++) {
-		drop_downs[i].style.visibility="hidden";
-	}
-
-	// Hide the Data Values for the Selected Layers
-	var drop_downs_layer_values = document.getElementsByClassName("set-operation-layer-value");
-	for (var i = 0; i < drop_downs_layer_values.length; i++) {
-		drop_downs_layer_values[i].style.visibility="hidden";
-	}
-
-	// Hide the Compute Button
-	var compute_button = document.getElementsByClassName("compute-button");
-	compute_button[0].style.visibility = "hidden";
-
-	// Set the "Select Layer" drop down to the default value
-	var list = document.getElementById("set-operations-list");
-	list.selectedIndex = 0;
-	
-	var list_value = document.getElementsByClassName("set-operation-value");
-	list_value[0].selectedIndex = 0;
-	list_value[1].selectedIndex = 0;
-
-	// Remove all elements from drop downs holding the data values for the 
-	// selected layers. This way there are no values presented when the user
-	// clicks on the set operation button to open it again.
-	var set_operation_layer_values = document.getElementsByClassName("set-operation-layer-value");
-	var length = set_operation_layer_values[0].options.length;
-	do{
-		set_operation_layer_values[0].remove(0);
-		length--;		
-	}
-	while (length > 0);
-
-	var length = set_operation_layer_values[1].options.length;
-	do{
-		set_operation_layer_values[1].remove(0);
-		length--;		
-	}
-	while (length > 0);
-	
-}
-
-function reset_set_operation_counter () {
-	set_operation_clicks++;
-}
-
-reset_set_operations = function () {
-    hide_set_operation_drop_down();
-    reset_set_operation_counter();
-}
-
-function create_set_operation_ui () {
-	// Returns a Jquery element that is then prepended to the existing 
-	// set theory drop-down menu	
-
-    // This holds the root element for this set operation UI 
-    var root = $("<div/>").addClass("set-operation-entry");
-	
-	// Add Drop Downs to hold the selected layers and and selected data values 
-    var set_theory_value1 = $("<select/>").addClass("set-operation-value");
-	var set_theory_layer_value1 = $("<select/>").addClass("set-operation-layer-value");
-	var set_theory_value2 = $("<select/>").addClass("set-operation-value");	
-	var set_theory_layer_value2 = $("<select/>").addClass("set-operation-layer-value");
-
-	var compute_button = $("<input/>").attr("type", "button");
-	compute_button.addClass ("compute-button");
-
-	// Append to Root
-	root.append (set_theory_value1);
-	root.append (set_theory_layer_value1);
-	root.append (set_theory_value2);
-	root.append (set_theory_layer_value2);
-	root.append (compute_button);
-
-	return root;
-}
-
-update_set_operation_drop_down = function () {
-	// This is the onchange command for the drop down displaying the 
-	// different set operation functions. It is called whenever the user changes
-	// the selected set operation.
-
-	// Get the value of the set operation selection made by the user.
-	var selection = get_set_operation_selection();
-	var value = selection.value;	
-	// Check if the selectin value is that of one of set operation functions
-	if (selection.value == 1 || selection.value == 2 
-		|| selection.value == 3 || selection.value == 4
-		|| selection.value == 5){
-			// Make the drop downs that hold layer names and data values visible
-			var drop_downs = document.getElementsByClassName("set-operation-value");
-			var drop_downs_layer_values = document.getElementsByClassName("set-operation-layer-value");
-
-			for (var i = 0; i < drop_downs.length; i++) {
-				drop_downs[i].style.visibility="visible";
-			}
-			
-			for (var i = 0; i < drop_downs_layer_values.length; i++) {
-				drop_downs_layer_values[i].style.visibility="visible";
-			}
-
-			var compute_button = document.getElementsByClassName("compute-button");
-			compute_button[0].style.visibility = "visible";
-			compute_button[0].value = "Compute Set Operation";
-
-			if (first_opening == true) {
-				// Set the default value for the drop down, holding the selected layers
-				var default_value = document.createElement("option");
-				default_value.text = "Select Attribute 1";
-				default_value.value = 0;
-				drop_downs[0].add(default_value);
-
-				var default_value2 = document.createElement("option");
-				default_value2.text = "Select Attribute 2";
-				default_value2.value = 0;
-				drop_downs[1].add(default_value2);
-				
-				// Prevent from adding the default value again
-				first_opening = false;
-			}
-
-			// Hide the second set of drop downs if "Not:" is selected
-			if (selection.value == 5) {
-				drop_downs[1].style.visibility="hidden";
-				drop_downs_layer_values[1].style.visibility="hidden";
-			}
-	}	
-	else {
-		// If the user has the default value selected, hide all drop downs
-		var drop_downs = document.getElementsByClassName("set-operation-value");
-		for (var i = 0; i < drop_downs.length; i++) {
-			drop_downs[i].style.visibility="hidden";
-		}
-		var drop_downs_layer_values = document.getElementsByClassName("set-operation-layer-value");
-		for (var i = 0; i < drop_downs_layer_values.length; i++) {
-				drop_downs_layer_values[i].style.visibility="hidden";
-		}
-		var compute_button = document.getElementsByClassName("compute-button");
-			compute_button[0].style.visibility = "hidden";
-	}
-}
-
-function update_set_operation_selections () {
-	// This function is called when the shorlist is changed.
-	// It appropriately updates the drop down containing the list of layers
-	// to match the layers found in the shortlist.
-
-	// Get the list of all layers
-	var layers = [];
-	$("#shortlist").children().each(function(index, element) {
-	 	// Get the layer name
-        var layer_name = $(element).data("layer");
-		// If the attribute does not have continuous values add it to the drop
-		// downs. (There is no set theory for continuous attributes).
-        if (oper.cont_layers.indexOf (layer_name) < 0) {
-			layers.push(layer_name);
-		}
-	});
-
-	// Get a list of all drop downs that contain layer names
-	var drop_downs = document.getElementsByClassName("set-operation-value");
-
-	// Remove all existing layer names from both dropdowns
-	var length = drop_downs[0].options.length;
-	do{
-		drop_downs[0].remove(0);
-		length--;		
-	}
-	while (length > 0);
-	var length = drop_downs[1].options.length;
-	do{
-		drop_downs[1].remove(0);
-		length--;		
-	}
-	while (length > 0);
-
-	// Add the default values that were stripped in the last step.
-	var default_value = document.createElement("option");
-	default_value.text = "Select Attribute 1";
-	default_value.value = 0;
-	drop_downs[0].add(default_value);
-
-	var default_value2 = document.createElement("option");
-	default_value2.text = "Select Attribute 2";
-	default_value2.value = 0;
-	drop_downs[1].add(default_value2);
-	
-	first_opening = false;
-	
-	// Add the layer names from the shortlist to the drop downs that store
-	// layer names.		
-	for (var i = 0; i < drop_downs.length; i++){
-		for (var j = 0; j < layers.length; j++) {
-			var option = document.createElement("option");
-			option.text = layers[j];
-			option.value = j+1;
-			drop_downs[i].add(option);
-		}
-	}
-
-	// Remove all elements from drop downs holding the data values for the 
-	// selected layers. This way there are no values presented when the user
-	// clicks on the set operation button to open it again.
-	var set_operation_layer_values = document.getElementsByClassName("set-operation-layer-value");
-	var length = set_operation_layer_values[0].options.length;
-	do{
-		set_operation_layer_values[0].remove(0);
-		length--;		
-	}
-	while (length > 0);
-
-	var length = set_operation_layer_values[1].options.length;
-	do{
-		set_operation_layer_values[1].remove(0);
-		length--;		
-	}
-	while (length > 0);
-
-	// Call the function containing onchange commands for these dropdowns.
-	// This way the data values are updated according the the selected layer.
-	update_set_operation_data_values ();
-}
-
-function update_set_operation_data_values () {
-	// Define the onchange commands for the drop downs that hold layer names.
-	// This way the data values are updated according the the selected layer.
-
-	// Get all drop down elements
-	var selected_function = document.getElementById ("set-operations-list");
-	var drop_downs = document.getElementsByClassName("set-operation-value");
-	var set_operation_layer_values = document.getElementsByClassName("set-operation-layer-value");
-
-	// The "Select Layer1" Dropdown onchange function
-	drop_downs[0].onchange = function(){
-		// Strip current values of the data value dropdown
-		var length = set_operation_layer_values[0].options.length;
-		do{
-			set_operation_layer_values[0].remove(0);
-			length--;		
-		}
-		while (length > 0);
-	
-		// Add the data values depending on the selected layer
-		var selectedIndex = drop_downs[0].selectedIndex;
-		var layer_name = drop_downs[0].options[selectedIndex].text;
-		var set_operation_data_value_select = set_operation_layer_values[0];
-		create_set_operation_pick_list(set_operation_data_value_select, layer_name);
-	};
-
-	// The "Select Layer2" Dropdown onchange function
-	drop_downs[1].onchange = function(){
-		// Strip current values of the data value dropdown
-		var length = set_operation_layer_values[1].options.length;
-		do{
-			set_operation_layer_values[1].remove(0);
-			length--;		
-		}
-		while (length > 0);
-
-		// Add the data values depending on the selected layer
-		var selectedIndex = drop_downs[1].selectedIndex;
-		var layer_name = drop_downs[1].options[selectedIndex].text;
-		var set_operation_data_value_select = set_operation_layer_values[1];
-		create_set_operation_pick_list(set_operation_data_value_select, layer_name);
-	};
-
-}
-
-function create_set_operation_pick_list(value,layer_object) {
-
-	// We must create a drop down containing the data values for the selected
-	// layer.
-
-	// The Javascript "select" element that contains the data values
-	// is passed as "value" and the selected layer is passed as "layer_object". 
-
-	// First, figure out what kind of filter settings we take based on 
-	// what kind of layer we are.
-	with_layer(layer_object, function(layer) {
-                    
-             // No options available. We have to add them.
-             for(var i = 0; i < layer.magnitude + 1; i++) {
-             	// Make an option for each value;
-				var option = document.createElement("option");
-				option.value = i;
-                            
-                if(colormaps[layer_object].hasOwnProperty(i)) {
-                	// We have a real name for this value
-                    option.text = (colormaps[layer_object][i].name);
-                 } else {
-                     // No name. Use the number.
-                     option.text = i;
-                     }  
-                 value.add(option);
-     
-                 // Select the last option, so that 1 on 0/1 layers will 
-                 // be selected by default.
-				 var last_index = value.options.length - 1;
-                 value.selectedIndex = last_index;   
-                }                
-            // Now that the right controls are there, assume they have 
-            refresh();
-     });
-}
-
-
 update_shortlist_ui = function () {
     // Go through the shortlist and make sure each layer there has an entry in 
     // the shortlist UI, and that each UI element has an entry in the shortlist.
@@ -1427,251 +1084,8 @@ update_shortlist_ui = function () {
     });
 
 	// Update Values for GUI Dropdowns
-	update_set_operation_selections ();
 	update_comparison_stats_selections ();
 }	
-
-function compute_intersection (values, intersection_layer_names, name) {
-	// A function that will take a list of layer names
-	// that have been selected for the intersection utility.
-	// Fetches the respective layers and list of tumor ids.
-	// Then compares data elements of the same tumor id
-	// between both layers. Adds these hexes to a new layer
-	// for visualization
-	
-	with_layers (intersection_layer_names, function (intersection_layers) {
-		//Array of signatures that intersect 
-		var intersection_signatures = [];
-
-		// Gather Tumor-ID Signatures.
-		for (hex in polygons)
-		{
-			if (intersection_layers[0].data[hex] == values[0] && intersection_layers[1].data[hex] == values[1]){
-				intersection_signatures.push(hex);
-			}		
-		}
-
-		// Store the recorded layer name for current_session info or utilize
-		// the predetermined name (if loading a session).
-		var layer_name;
-		if (name != undefined) {
-			layer_name = select_list (intersection_signatures, "intersection", undefined, name, false);
-		}
-		else {
-			layer_name = select_list (intersection_signatures, "intersection");
-		}
-		// Store current session info about the newly created attributes
-		var recorded_set_attr = [];
-		for (var i = 0; i < current_session.created_attr.length; i++) {
-			var existing_name = current_session.created_attr[i].l_name;
-			recorded_set_attr.push(existing_name);
-		}
-		if (layer_name in recorded_set_attr == false && layer_name != undefined){
-			current_session.created_attr.push({"set":"intersection", 
-												"l_name":layer_name,
-												"layers":intersection_layer_names,
-												"val":values,
-												"keep": true
-												});
-		}
-	});
-}
-
-function compute_union (values, union_layer_names, name) {
-	// A function that will take a list of layer names
-	// that have been selected for the union utility.
-	// Fetches the respective layers and list of tumor ids.
-	// Then compares data elements of the same tumor id
-	// between both layers. Adds these hexes to a new layer
-	// for visualization
-	
-	with_layers (union_layer_names, function (union_layers) {
-		//Array of signatures 
-		var union_signatures = [];
-		// Gather Tumor-ID Signatures.
-		for (hex in polygons)
-		{
-			// Union Function
-			if (union_layers[0].data[hex] == values[0] || union_layers[1].data[hex] == values[1]){
-				union_signatures.push(hex);
-			}		
-		}
-
-		// Store the recorded layer name for current_session info or utilize
-		// the predetermined name (if loading a session).
-		if (name != undefined) {
-			var layer_name = select_list (union_signatures, "union", undefined, name, false);
-		}
-		else {
-			var layer_name = select_list (union_signatures, "union");
-		}
-
-		// Store current session info about the newly created attributes
-		var recorded_set_attr = [];
-		for (var i = 0; i < current_session.created_attr.length; i++) {
-			var existing_name = current_session.created_attr[i].l_name;
-			recorded_set_attr.push(existing_name);
-		}
-		if (layer_name in recorded_set_attr == false && layer_name != undefined){
-			current_session.created_attr.push({"set":"union", 
-												"l_name":layer_name,
-												"layers":union_layer_names,
-												"val":values,
-												"keep": true
-												});
-		}
-	});
-}
-
-function compute_set_difference (values, set_difference_layer_names, name) {
-	// A function that will take a list of layer names
-	// that have been selected for the set difference utility.
-	// Fetches the respective layers and list of tumor ids.
-	// Then compares data elements of the same tumor id
-	// between both layers. Adds these hexes to a new layer
-	// for visualization
-	
-	with_layers (set_difference_layer_names, function (set_difference_layers) {
-		//Array of signatures  
-		var set_difference_signatures = [];
-	
-		// Gather Tumor-ID Signatures.
-		for (hex in polygons)
-		{
-			// Set Difference Function
-			if (set_difference_layers[0].data[hex] == values[0] && 
-				set_difference_layers[1].data[hex] != values[1]){
-				set_difference_signatures.push(hex);
-			}
-		}
-
-		// Store the recorded layer name for current_session info or utilize
-		// the predetermined name (if loading a session).
-		var layer_name;
-		if (name != undefined) {
-			layer_name = select_list (set_difference_signatures, "set difference", undefined, name, false);
-		}
-		else {
-			layer_name = select_list (set_difference_signatures, "set difference");
-		}
-
-		// Store current session info about the newly created attributes
-		var recorded_set_attr = [];
-		for (var i = 0; i < current_session.created_attr.length; i++) {
-			var existing_name = current_session.created_attr[i].l_name;
-			recorded_set_attr.push(existing_name);
-		}
-		if (layer_name in recorded_set_attr == false && layer_name != undefined){
-			current_session.created_attr.push({"set":"set difference", 
-												"l_name":layer_name,
-												"layers":set_difference_layer_names,
-												"val":values,
-												"keep": true
-												});
-		}
-	});
-}
-
-function compute_symmetric_difference (values, symmetric_difference_layer_names, name) {
-	// A function that will take a list of layer names
-	// that have been selected for the set difference utility.
-	// Fetches the respective layers and list of tumor ids.
-	// Then compares data elements of the same tumor id
-	// between both layers. Adds these hexes to a new layer
-	// for visualization
-
-	with_layers (symmetric_difference_layer_names, function (symmetric_difference_layers) {
-		//Array of signatures 
-		var symmetric_difference_signatures = [];
-	
-		// Gather Tumor-ID Signatures.
-		for (hex in polygons)
-		{
-			// Symmetric Difference Function
-			if (symmetric_difference_layers[0].data[hex] == values[0] && 
-				symmetric_difference_layers[1].data[hex] != values[1]){
-				symmetric_difference_signatures.push(hex);
-			}
-			if (symmetric_difference_layers[0].data[hex] != values[0] &&
-				symmetric_difference_layers[1].data[hex] == values[1]){
-				symmetric_difference_signatures.push(hex);
-			}
-		}
-		// Store the recorded layer name for current_session info or utilize
-		// the predetermined name (if loading a session).
-		var layer_name;
-		if (name != undefined) {
-			layer_name = select_list (symmetric_difference_signatures, "symmetric difference", undefined, name, false);
-		}
-		else {
-			layer_name = select_list (symmetric_difference_signatures, "symmetric difference");
-		}
-
-		// Store current session info about the newly created attributes
-		var recorded_set_attr = [];
-		for (var i = 0; i < current_session.created_attr.length; i++) {
-			var existing_name = current_session.created_attr[i].l_name;
-			recorded_set_attr.push(existing_name);
-		}
-		if (layer_name in recorded_set_attr == false && layer_name != undefined){
-			current_session.created_attr.push({"set":"symmetric difference", 
-												"l_name":layer_name,
-												"layers":symmetric_difference_layer_names,
-												"val":values,
-												"keep": true
-												});
-		}
-	});
-}
-
-function compute_absolute_complement (values, absolute_complement_layer_names, name) {
-	// A function that will take a list of layer names
-	// that have been selected for the set difference utility.
-	// Fetches the respective layers and list of tumor ids.
-	// Then compares data elements of the same tumor id
-	// between both layers. Adds these hexes to a new layer
-	// for visualization
-
-	with_layers (absolute_complement_layer_names, function (absolute_complement_layers) {
-		//Array of signatures 
-		var absolute_complement_signatures = [];
-	
-		// Gather Tumor-ID Signatures.
-		for (hex in polygons)
-		{
-			// Absolute Complement Function
-			if (absolute_complement_layers[0].data[hex] != values[0]) {
-				absolute_complement_signatures.push(hex);
-			}
-		}
-	
-		// Store the recorded layer name for current_session info or utilize
-		// the predetermined name (if loading a session).
-		var layer_name;
-		if (name != undefined) {
-			layer_name = select_list (absolute_complement_signatures, "absolute complement", undefined, name, false);
-		}
-		else {
-			layer_name = select_list (absolute_complement_signatures, "absolute complement");
-		}
-
-		// Store current session info about the newly created attributes
-		var recorded_set_attr = [];
-		for (var i = 0; i < current_session.created_attr.length; i++) {
-			var existing_name = current_session.created_attr[i].l_name;
-			recorded_set_attr.push(existing_name);
-		}
-		if (layer_name in recorded_set_attr == false && layer_name != undefined){
-			current_session.created_attr.push({"set":"absolute complement", 
-											"l_name":layer_name,
-											"layers":absolute_complement_layer_names,
-											"val":values,
-											"keep": true
-											});
-		}
-
-	});
-}
 
 function layer_sort_order_clumpiness_value(a, b) {
     // A sort function defined on layer names.
@@ -2234,7 +1648,9 @@ update_browse_ui = function(type_value) {
     sort_layers(oper.layer_names_sorted, type_value);
 
     // Set the "Sorting Text" Label
-	$("#ranked-against").text(oper.current_sort_text);
+	$("#ranked-against")
+        .text(oper.current_sort_text)
+        .prop('title', oper.current_sort_text);
     
     // Close the select if it was open, forcing the data to refresh when it
     // opens again.
@@ -2527,14 +1943,6 @@ select_list = function (to_select, function_type, layer_names, new_layer_name, s
 				 {
 					return;
 				 }
-                /*
-                // TODO this was removed once, but forgot why, so put it back in for now
-                current_session.selection_attr.push({"l_name":layer_name,
-													 "signatures": to_select,
-													 "keep": true
-													 });
-                */
-							
 			}
 			
 			// intersection for layer name
@@ -2611,12 +2019,6 @@ select_list = function (to_select, function_type, layer_names, new_layer_name, s
 		else {
 			// Layer name already exists. User is loading a previous session.
 			layer_name = new_layer_name;
-			if (function_type == "intersection" || function_type == "union"
-					|| function_type == "set difference"
-					|| function_type == "symmetric difference"
-					|| function_type == "absolute complement"){
-					set_operation_complete = true;
-				}
 		}
 		
         // Add the layer. Say it is a selection
@@ -2754,6 +2156,7 @@ function get_current_layout_index (layout_name, recompute_stats) {
 }
 
 function recalculate_statistics(passed_filters) {
+    // Recalculate the compare-stats, using the given filters.
     // Interrogate the UI to determine signatures that are "in" and "out", and
     // run an appropriate statisical test for each layer between the "in" and
     // "out" signatures, and update all the "p_value" fields for all the layers
@@ -2953,11 +2356,11 @@ function recalculate_statistics_for_matrix(matrix_url, in_list, out_list, all) {
             jobs_running = reply.jobs_running; // TODO replace with pub-sub or something meteor
 
         // The return value is p values by layer name
-        for(var layer_name in result) {
+        for(var layer_name in results) {
             // The statistics code really sends back a dict of updated metadata
             // for each layer. Copy it over.
-            for(var metadata in result[layer_name]) {
-                layers[layer_name][metadata] = result[layer_name][metadata];
+            for(var metadata in results[layer_name]) {
+                layers[layer_name][metadata] = results[layer_name][metadata];
             }
         }
         
@@ -3122,7 +2525,7 @@ function get_range_position(score, low, high) {
     return score;
 }
 
-function refresh() {
+refresh = function () {
     // Schedule the view to be redrawn after the current event finishes.
     
     // Get rid of the previous redraw request, if there was one. We only want 
@@ -3835,7 +3238,12 @@ function create_indexed_layers_array () {
 }
 initHex = function () {
     // Set up the RPC system for background statistics
-    //rpc = rpcCreate();
+    rpc = initRpc();
+
+    // Initialize some persistent store values
+
+    // Attributes created via a select or set operation
+	ctx.created_attr = []
 
     // Initialize some operating values
 
@@ -3850,7 +3258,6 @@ initHex = function () {
     mapTypeDef();
     initialize_view();
     
-    // Set up the layer search
     initLayerLists();
 
 	// Create Pop-Up UI for Comparison Statistics 
@@ -3863,11 +3270,7 @@ initHex = function () {
 		comparison_stats_clicks++;
 
 		// Hide other functions so that if one is visible, 
-		// it disappears from sight. Reset the set operation counter so that 
-		// if the user clicks on the function icon it will open immediately
-		hide_set_operation_drop_down ();
-		set_operation_clicks = 0;
-
+		// it disappears from sight.
 		if (comparison_stats_clicks % 2 != 0){
 				show_comparison_stats_drop_down ();	
 				// Update so that there are no repeated "All Tumor" Attrributes
@@ -3879,30 +3282,7 @@ initHex = function () {
 	
 	});
 
-	// Create Pop-Up UI for Set Operations
-	$("#set-operations").prepend(create_set_operation_ui ());
-
-	// Action handler for display of set operation pop-up
-	$("#set-operation").button().click(function() {
-		set_operation_clicks++;
-
-		// Hide other functions so that if one is visible, 
-		// it disappears from sight. Reset the set operation counter so that 
-		// if the user clicks on the function icon it will open immediately
-		hide_comparison_stats_drop_down ();
-		comparison_stats_clicks = 0;
-
-		if (set_operation_clicks % 2 != 0){
-				show_set_operation_drop_down ();
-				// Update so that there are no repeated "Select" Attrributes
-				update_set_operation_selections ();
-			}
-		else {
-			hide_set_operation_drop_down ();
-		}		
-	
-	});
-
+    initSetOperations();
     init_sort_attrs();
 
 	// Computation of Comparison Statistics
@@ -3925,59 +3305,6 @@ initHex = function () {
         });
         
 		
-	};
-
-	// Computation of Set Operations
-	var compute_button = document.getElementsByClassName ("compute-button");
-	compute_button[0].onclick = function () {
-		var layer_names = [];
-		var layer_values = [];
-		var layer_values_text = [];
-
-		var drop_down_layers = document.getElementsByClassName("set-operation-value");
-		var drop_down_data_values = document.getElementsByClassName("set-operation-layer-value");
-
-		var function_type = document.getElementById("set-operations-list");
-		var selected_function = function_type.selectedIndex;
-
-		var selected_index = drop_down_layers[0].selectedIndex;
-		layer_names.push(drop_down_layers[0].options[selected_index].text);	
-
-		var selected_index = drop_down_data_values[0].selectedIndex;
-		layer_values.push(drop_down_data_values[0].options[selected_index].value);	
-		layer_values_text.push(drop_down_data_values[0].options[selected_index].text);
-
-		if (selected_function != 5) {
-			var selected_index = drop_down_data_values[1].selectedIndex;
-			layer_values.push(drop_down_data_values[1].options[selected_index].value);	
-			layer_values_text.push(drop_down_data_values[1].options[selected_index].text);
-			var selected_index = drop_down_layers[1].selectedIndex;
-			layer_names.push(drop_down_layers[1].options[selected_index].text);
-		}
-		
-		switch (selected_function) {
-			case 1:
-				compute_intersection(layer_values, layer_names);
-				break;
-			case 2:
-				compute_union(layer_values, layer_names);
-				break;
-			case 3:
-				compute_set_difference(layer_values, layer_names);
-				break;
-			case 4:
-				compute_symmetric_difference(layer_values, layer_names);
-				break;
-			case 5:
-				compute_absolute_complement(layer_values, layer_names);
-				break
-			default:
-				complain ("Set Theory Error");
-		}
-        
-		print (current_session);
-        hide_set_operation_drop_down ();
-		set_operation_clicks = 0;
 	};
 
 	// New Consolidate Stats Fetching

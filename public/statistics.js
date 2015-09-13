@@ -1,8 +1,8 @@
 // statistics.js: Web Worker file to run statistical tests in the background.
 
-var app = app || {}; // jshint ignore:line
+//var app = app || {}; // jshint ignore:line
 
-(function (hex) {
+//(function (hex) {
     //'use strict';
 
 // Constants:
@@ -16,17 +16,17 @@ var LOG_SUSPICIOUS = false;
 // Go get jStat (the one from <https://github.com/jstat/jstat>, which is better
 // than the other project, also named jStat, that we used to use). Hope it's
 // happy in Worker-land.
-importScripts("jstat.min.js");
+importScripts("jstat.js");
 
-onmessage = function(message) {
+self.onmessage = function(message) {
     // Handle incoming messages from the page. Each message's data is an RPC
     // request, with "name" set to a function name, "args" set to an array of
     // arguments, and "id" set to an ID that should be returned with the return
     // value in a reply message. If the function call fails, an error is sent
     // back.
 
-    //debug('onmessage()');
-    postMessage({
+    debug('onmessage()');
+   self.postMessage({
         log: 'WTF'
     });
 
@@ -72,7 +72,7 @@ onmessage = function(message) {
         }
         error_message += ")";
 
-        postMessage({
+       self.postMessage({
             id: message.data.id,
             error: error_message
         });
@@ -82,7 +82,7 @@ onmessage = function(message) {
     
     
     // Send the return value back with the id.
-    postMessage({
+   self.postMessage({
         id: message.data.id,
         return_value: return_value
     });
@@ -90,13 +90,14 @@ onmessage = function(message) {
 
 function print(message) {
     // Print a message to the console of the parent page.
-    postMessage({
+   self.postMessage({
         log: message
     });
 }
 
 function debug(message) {
-    postMessage(JSON.stringify({type:'debug',message:message}));
+    self.postMessage({type: 'debug', message: message});
+    //postMessage(JSON.stringify({type:'debug',message:message}));
 }
 
 function progress(amount) {
@@ -105,7 +106,7 @@ function progress(amount) {
 
     debug('progress()');
 
-    postMessage({
+    self.postMessage({
         id: progress.id,
         progress: amount
     });
@@ -247,6 +248,7 @@ function statistics_for_layer(layer_data, in_list, out_list, all_list) {
 
 }
 
+/* TODO unused
 function statistics_for_url(layer_url, in_list, out_list, all_list) {
     // Run the stats for the layer with the given url, between the given in and
     // out arrays of signatures. all_list specifies the names of all signatures
@@ -304,6 +306,7 @@ function statistics_for_url(layer_url, in_list, out_list, all_list) {
     // Run stats on the downloaded data
     return statistics_for_layer(layer_data, in_list, out_list, all_list);
 }
+*/
 
 function t_compare(layer_data, in_list, out_list, all_list) {
     // Given the data of a continuous layer object (an object from signature
@@ -1087,4 +1090,4 @@ function pearson_correlation (a1, a2) {
 	}
 }
 */
-});
+//});

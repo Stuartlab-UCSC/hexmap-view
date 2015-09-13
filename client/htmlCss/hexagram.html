@@ -2,14 +2,11 @@
     <div id='mapPage'>
         <div class="tools row" id="toolbar">
             <div class="title stacker">
+            <img class='stacker cyber-slug' style='height:30px;margin-top:0.3em;margin-right:0.5em'>
                 UCSC Tumor Map
             </div>
-            <!--
-            <div id='loadDir' class='stacker' style='display:none;width: 9em'>
-            </div>
-            -->
             <div class="stacker right">
-                <img src="throbber.svg" class="recalculate-throbber" title="Recalculating..." />
+                <img class="recalculate-throbber throbber" title="Recalculating..." />
                 <span class="recalculate-progress">
                     <span id="jobs-running">0</span>/<span id="jobs-in-batch">0</span> jobs running.
                 </span>
@@ -26,10 +23,10 @@
                 <div class="vertical-cell">
                     <div id="browse-holder">
                         <input id="search" type="hidden"/>
-                        <img style='display:none' src="statistics.svg" id="comparison-stats" title="Differential Contrast of Sample Selections" onclick="update_comparison_stats_drop_down()"/>
-						<img src="throbber.svg" class="recalculate-throbber" title="Recalculating..." />
-						<img src="set.svg" id="set-operation" title="Calculate Set Operation"/>
-						<img src="sort_attributes.svg" id="sort-attributes-button" title="Sort Attributes by Association with a Focus Attribute"/>
+                        <img class="statistics" id="comparison-stats" title="Differential Contrast of Sample Selections" onclick="update_comparison_stats_drop_down()"/>
+						<img class="recalculate-throbber throbber" title="Recalculating..." />
+						<img class="set" id="set-operation" title="Calculate Set Operation"/>
+						<img class="sort_attributes" id="sort-attributes-button" title="Sort Attributes by Association with a Focus Attribute"/>
                     </div>
 					<div id="layout-holder">
 						<input id="layout-search" type="hidden"/>
@@ -47,26 +44,10 @@
 				    </div>
 			    </div>
 			</div>
-			<div class="set-operation dropdown">
-				<div class="dropdown-title">Perform Set Operation
-					<a class="cancel" href="#" onclick="hide_set_operation_drop_down(); reset_set_operation_counter()">X</a>
-				</div>
-				<div class="dropdown-body">
-				    <select id="set-operations-list" onchange="update_set_operation_drop_down()">
-					    <option value = "0" selected = 'selected'>Select Set Operation:</option>
-					    <option value = "1">∩ - Intersection</option>
-					    <option value = "2">U - Union</option>  
-					    <option value = "3">\ - Set Difference</option>
-					    <option value = "4">∆ - Symmetric Difference</option>
-					    <option value = "5">Not:</option>
-				    </select>
-				    <div id="set-operations" class="dropdown-contents">
-				    </div>
-			    </div>
-			</div>
 
+            {{> setOper }}
             {{> sortAttrs}}
-			
+
             <div class="shortlist col">
                 <div id="shortlist-holder" class="panel-holder">
                     <div id="shortlist-panel" class="panel">

@@ -20,13 +20,14 @@ import scipy.stats, scipy.linalg, scipy.misc
 import time
 import os.path
 import tsv, csv
-from assocStats import association_statistics
+from sampleBaseStats import sample_based_statistics
+from regionBaseStats import region_based_statistics
 
 # We have a mutualinformation module to do the MI calculations.
 import mutualinformation
 
 def timestamp():
-    print str(datetime.datetime.now())[8:-7]
+    return str(datetime.datetime.now())[8:-7]
 
 # Global variable to hold opened matrices files
 #matrices = []
@@ -93,7 +94,7 @@ def parse_args(args):
         help="directory in which contain drl binaries")
     parser.add_argument("--query", type=str, default=None,
         help="Galaxy-escaped name of the query signature")
-    parser.add_argument("--window_size", type=int, default=20,
+    parser.add_argument("--window_size", type=int, default=25, # 20 is not symmetric
         help="size of the window to use when looking for clusters")
     parser.add_argument("--mi_window_size", type=int, default=25,
         help="size of the window to use when running mutual information stats")
@@ -119,7 +120,6 @@ def parse_args(args):
         
    
     a = parser.parse_args(args)
-    timestamp();
     print "#ARGS",args, a, "raw",a.raw
     return a
 
@@ -598,21 +598,27 @@ def determine_layer_data_types (layers, layer_names, options):
     # Retrieve the hexagon names from the appropriate hexagon dictionary
     hex_values = ctx.all_hexagons[hex_dict_num].values()
 
-    # For each layer name, scan through all its values. If you find a non-integral
+    # For each layer name, scan through all its values. If you find a non-integer
     # value, it's continuous. Otherwise, if you find a value greater than 1 or
-    # less than 0, it's categorical (which we don't care about at the moment).
-    # Otherwise, it's binary.
-    for index, layer_name in enumerate (layer_names):
+    # less than 0, it's categorical Otherwise, it's binary.
+    # TODO unfortunately, this is typing integer continuous as categorical,
+    # where they should be typed as continuous.
+
+    for layer_name, layer in layers.iteritems():
+
+        # Skip any layers with no values. This means the clumper did not
+        # put any values in this layer.
+        if len(layer) < 0:
+            continue
+
         # Does this layer meet the requirements of a binary layer?
         can_be_binary = True
     
         # Does this layer meet the requirements of a categorical (not
         # continuous) layer?
         can_be_categorical = True
-    
-        for value in layers[layer_name].itervalues():
-            # Not accounting for categorical layers at the moment
-            
+
+        for value in layer.itervalues():
             if value % 1 != 0:
                 # It's continuous (fractional)
                 can_be_binary = False
@@ -623,13 +629,21 @@ def determine_layer_data_types (layers, layer_names, options):
                 # It's not binary, but it could still be either continuous
                 # or categorical.
                 can_be_binary = False
-            
-                  
+                break
+
         if can_be_binary:
+
             # We're done, and nothing rules out it being binary
+            # TODO this is capturing layers with no values
             ctx.binary_layers.append(layer_name)
+
         elif can_be_categorical:
-            # It's not binary and we didn't hit a continuous value
+
+            # It's not binary and we didn't hit a continuous float value
+
+            # TODO we could have continous values which happen to be integers.
+            # For now those types will be mis-placed as categorical
+
             ctx.categorical_layers.append(layer_name)
         else:
             # It is not binary or categorical, so it is continuous
@@ -647,435 +661,7 @@ def determine_layer_data_types (layers, layer_names, options):
  
     type_writer.close()
 
-
-def run_mutual_information_statistics(layers, layer_names, options):
-    """    
-    For every binary or continuous layer and for every layout, we need a
-    mi_<layer number>_<layout number>.tab file, with scores asociating that
-    layer with other layers of its type, in <other layer name>\t<score>
-    format. This uses mutual information (realy, normalized redundancy)
-    instead of the statistical tests above to produce a score between 0 and 1,
-    with higher being more mutual information.
-    """
-    
-    # We're going to need a mapping from layer name to layer index.
-    layer_indices = {name: i for i, name in enumerate(layer_names)}
-    
-    for layout_index in ctx.all_hexagons.iterkeys():
-        # We look at all layouts for this.
-        # We assume layout doesn't somehow change layer types.
-        
-        # Get windows in this layout. Doesn't really matter what order they're
-        # in, since we only compare within layouts. Keep the threshold used
-        # above.
-        curated_windows = window_tool(options.mi_window_size, 
-            options.mi_window_size, threshold=options.mi_window_threshold,
-            layout_index=layout_index)
-            
-        # This will hold per-window discrete values for each layer for which we
-        # are computing mutual information statistics. For binary layers, it is
-        # the sum of the number of ones in the window. For non-binary layers, it
-        # is the histogram bin number in which the window's average value falls,
-        # or a past-the-last-bin number for an empty window with a NaN average.
-        # This is indexed by layer name, to get a list of per-window values.
-        layer_window_values = {}
-       
-        for layer_name in ctx.binary_layers:
-        
-            # For binary layers, get the sum for each window. But use 0 for
-            # hexes that don't have values in a certain layer. Also
-            # (re)discretize by binning as for continuous below.
-            
-            # This holds sums for each window.
-            window_sums = [sum((layers[layer_name][hexagon] 
-                if layers[layer_name].has_key(hexagon) else 0)
-                for hexagon in window)
-                for window in curated_windows]
-           
-            if options.mi_binary_binning:
-                # We want to bin counts
-                
-                # Now we have our list of the sums values for each window.
-                # Histogram bin the non-NaN values. See
-                # <https://gist.github.com/elsonidoq/4230222>
-                _, bins = numpy.histogram([total for total in window_sums 
-                    if not math.isnan(total)])
-                    
-                # Work out the bin numbers for all the totals (NaN windows get the
-                # past-the-end bin)
-                layer_window_values[layer_name] = numpy.digitize(window_sums,
-                    bins)
-            else:
-                # Don't bin counts.
-                layer_window_values[layer_name] = window_sums
-        """
-        TODO skip continuous for now
-        for layer_name in ctx.continuous_layers:
-            
-            # For continuous layers, get the average for each window, but
-            # discretize using histogram bin number.
-            
-            # This holds averages for each window.
-            window_averages = []          
-                        
-            for window in curated_windows:
-                # Compute the sum of the layer in the window
-                window_sum = 0
-                # And the number of hexes with values involved
-                window_values = 0
-                
-                for hexagon in window:
-                    if layers[layer_name].has_key(hexagon):
-                        # Sum up over all the hexagons in this window with
-                        # values for this layer
-                        window_sum += layers[layer_name][hexagon]
-                        window_values += 1
-                
-                if window_values == 0:
-                    # Can't take the average Use NaN
-                    window_averages.append(float("NaN"))
-                else:
-                    # Use the average like we're supposed to
-                    # TODO: do we need float() here?
-                    window_averages.append(float(window_sum) / window_values)
-                    
-            # Now we have our list of the average values for each window.
-            # Histogram bin the non-NaN values. See
-            # <https://gist.github.com/elsonidoq/4230222>
-            _, bins = numpy.histogram([average for average in window_averages 
-                if not math.isnan(average)])
-                
-            # Work out the bin numbers for all the averages (NaN windows get the
-            # past-the-end bin)
-            layer_window_values[layer_name] = numpy.digitize(window_averages,
-                bins)
-        """
-        timestamp();
-        print "{} pairs to run".format(len(layer_window_values) ** 2 -
-            len(layer_window_values))
-            
-        # What layer are we writing the file for?
-        current_first_layer = None
-        # Where are we writing it to?
-        information_writer = None
-        
-        # How many pairs have we done?
-        pair = 0
-        
-        for (layer_a, layer_b, redundancy) in mutualinformation.all_pairs(
-            layer_window_values):
-            
-            # Go get mutual information for each pair of layers, grouped by the
-            # first layer.
-            
-            if layer_a != current_first_layer:
-                # We're changing first layers.
-                
-                if information_writer is not None:
-                    # Close the previous file.
-                    information_writer.close()
-                    
-                # Open a tsv writer for the new first layer's redundancies with
-                # everyone else.
-                information_writer = tsv.TsvWriter(open(os.path.join(
-                    options.directory, "mi_{}_{}.tab".format(layout_index, 
-                    layer_indices[layer_a])), "w"))
-                    
-                # Record that we're on that layer as the first layer now.
-                current_first_layer = layer_a
-                
-                
-            # Make a line for redundancy with this other layer.
-            information_writer.line(layer_b, str(redundancy))
-            
-            pair += 1
-            
-        timestamp();
-        print("{} pairs processed".format(pair))
-            
-        if information_writer is not None:
-                    # Close the last file.
-                    information_writer.close()
-
-def window_tool(width, height, threshold=0, layout_index=0):
-    """
-    Given a width and height, this tool will seperate the 256 * 256 Google Map
-    Grid into windows of equal size. Then we will construct a list
-    that will represent the windows of the grid.
-    We will iterate over each hexagram, looking at it's 
-    x and y values. We will apply floor division (//) to the x & y values
-    and observe the quotients, which will represent the row and column 
-    in which the hexagram should be added. Then we will append this hex name
-    to a list of hexes in its window.
-    
-    Returns a list of lists (one per window) of hexagon names for the hexagons
-    in that window. This list depends only on the layout, and is the same for
-    all layers (obviously).
-    
-    If the number of hexes in a window is less than the passed threshold, that
-    window is not included in the returned list.
-    
-    By default, this function operates only on the first layout. layout_index
-    can change this to other layouts.
-    
-    Break up of a 4 by 4 Grid:
-    row 3 |12|13|14|15|      
-    row 2 |8 |9 |10|11|     If the row, col pair returned by the // is for example 
-    row 1 |4 |5 |6 |7 |     (3,2) - the appropriate window in the list would be given
-    row 0 |0 |1 |2 |3 |     by row * numcols + col. In this case, 3*4 + 2 = 14
-    """
-
-    # Retrieve the hexagon names from the appropriate hexagon dictionary
-    hex_values = ctx.all_hexagons[layout_index].values()
-    #print ("Hex Values:", hex_values)
-    hex_values_length = len(hex_values)
-
-    # Retrieve all X and Y coordinates for these hexagons
-    x_values = extract_coords (0, hex_values_length, ctx.all_hexagons[layout_index])
-    y_values = extract_coords (1, hex_values_length, ctx.all_hexagons[layout_index])
-    
-    
-    # defaultdict of lists containing spatially mapped hexagons, indexed by
-    # (window row, window col) tuples.
-    window_assignments = collections.defaultdict(list)
-    
-    # For each hexagon determine its window and place it in the appropriate list
-    # Extract the appropriate x & y coordinate and determine the appropriate
-    # row and colum numbers. Then use these to compute the correct index
-    # in the window_assignments list.
-    for index, hex_name in enumerate(hex_values):
-        # What column is this hex's window?
-        col = int(x_values[index]//width)
-        # What row is this hex's window?
-        row = int(y_values[index]//height)
-        
-        # Put the hex in the appropriate window.
-        window_assignments[(row, col)].append(hex_name)
-
-    # Curate the windows. If the number of samples in a window is less than
-    # the threshold defined in window_tool's argument, discard the window
-    curated_windows = []
-    for window in window_assignments.itervalues():
-        if len(window) >= threshold:
-            curated_windows.append(window)
-    
-    return curated_windows
-
-def continuous_window_values(layers, layer_names, curated_windows):
-    """
-    This tool will generate a list of attributes (layers). Each element
-    in this list will contain a list, containing 3 types of values. The first 
-    type of value will be a string containing the layer/attribute name.
-    The second type of value will be the index of the layer within continuous_layers.
-    The third type of value will be the mean value of the continuous values
-    for the samples in that window.
-    """
-    # NOTE: TODO: This routine is not currently being used and may have only
-    # been intended for association stats, but those are sample-based,
-    # so should not be windowed.
-    # At the moment we will be harcoding the map for which windowing and other
-    # association statistics will be run upon. 
-    hex_dict_num = 0
-
-    # Retrieve the hexagon names from the appropriate hexagon dictionary
-    hex_values = ctx.all_hexagons[hex_dict_num].values()
-
-    # Create the list that will contain the attribute/layer lists
-    num_layers = len(layer_names)
-    cont_layers = [ [] for i in range(num_layers) ]
-
-    # The data structure for accessing tissue scores/layer values is:
-    # layers dict: layer name, sample-id, score/value
-    for index, layer_name in enumerate(layer_names):
-        cont_layers[index].append(layer_name)
-        cont_layer_index = ctx.continuous_layers.index(layer_name)
-        cont_layers[index].append(cont_layer_index)
-        for window in curated_windows:
-            # Holds the continuous values for each window
-            values = 0
-            # Keep track of the number of samples that have value
-            num_val = 0
-            for sample in window:
-                try:
-                    score = layers[layer_name][sample]
-                    values = values + score
-                    num_val += 1
-                except KeyError:
-                   values += 0
-            # 0 Will Signify No Val
-            # When we run a Pearson Correlation, we will splice out
-            # this indices
-            if (num_val > 0):
-                mean_v = values/(num_val)
-            else:
-                mean_v = 0
-            cont_layers[index].append(mean_v)
-                
-    return cont_layers 
-
-
-
-def pearson_corr_2 (cont_values, layer_names, options, num_processes, num_pairs):
-    """    
-    This tool will compute pearson correlation coefficients and p-values
-    using two attributes from cont_layers. This tool will run the scipy 
-    stats calculation utilizing a series of subprocesses initiated via
-    the popen module and the pearson.py code. 
-    
-    The pearson.py will take several arguments (popen only takes strings): 
-
-    args[] = 'python'
-    args[0] = 'pearson.py'
-    args[1] = 'temp_directory' - temporary directory to print files to
-    args[2] = 'subprocess_string' - string containing sets of four values.
-               The four value are "layer1 index, layer 2 index, cont layer 1
-               index, cont layer 2 index;..."
-    args[3] = 'total_processes'- current number of processes which is used
-               by the subprocess as the index for the printed file
-    """ 
-    # Where pearson.py is sitting. It should be right next to this file.
-    file_loc = os.path.dirname(os.path.realpath(__file__))
-
-    # Make a temporary directory to hold the output files of the pearson.py script
-    pearson_dir = tempfile.mkdtemp()
-
-    # Print a file containing all the values of cont_layers so that the
-    # pearson.py subprocesses can independently access these values
-    # Note that cont_layers has the following structure:
-    # cont_values [0] = [Layer 1 Name, Index in continuous_layers, v1, v2, v3, v4...]
-    cont_values_writer = tsv.TsvWriter(open(os.path.join(pearson_dir, "cont_values.tab"), "w"))
-    for layer in cont_values:
-        cont_values_writer.line(*layer)
-    cont_values_writer.close()
-
-    # Counter to chain together a variable number of layer combinations
-    # for pearson.py subprocess
-    current_pairs = 0
-    # Counter for number of active subprocesses
-    current_processes = 0
-    # Counter for number of total processes. This will index the output files
-    # from pearson.py.
-    total_processes = 0
-    # List of pids
-    pids = []
-    # Mechanism for code execution after all pids have completed
-    all_complete = False
-    return_status = []
-
-    # index2 must not be reset to 0 every time
-
-    # Loop through the layers, creating strings that will be passed to the 
-    # the pearson.py subprocess. First group layer indices and binary layer indices
-    # with commas. The former will allow the subprocess to access the raw
-    # layer data files, and the latter will be printed along with the correlation 
-    # coefficient values, indicating placement of the r-coefficient 
-    # within the numpy matrix.   
-
-    for index1, layer1 in enumerate(cont_values):
-        index2 = index1
-        for layer2 in cont_values[index1:]:
-            # Combine two index integers by comma
-            # Seperate each pair of integers by semi-colon
-            # These pairs indicate which two layers to use in the pearson
-            # correlation coefficient computation
-            current_string = ",".join([str(index1), str(index2)])
-
-            # Initialize a new subprocess string or add the existing one
-            # chaining current strings together with semi colons
-            if current_pairs == 0:
-                subprocess_string = current_string
-            else:
-                subprocess_string = ";".join([subprocess_string, current_string])
-
-            # If the number of current subprocesses is below the total
-            # number of simultaneous processes allowed, open a new process
-            # for the constructed string. If the number of current 
-            # subprocesses is equal to the number of allowed processes
-            # poll the pids until you find one that has completed 
-            # successfully. Delete this pid, lower the counter by one
-            # and open a pid with the created string.
-
-            if current_processes < num_processes and current_pairs == num_pairs - 1:
-                x = subprocess.Popen(['python', 'pearson.py', pearson_dir, subprocess_string, str(total_processes)], cwd = file_loc)
-
-                pids.append (x)
-                return_status.append(None)
-                current_processes += 1
-                total_processes += 1
-
-            elif current_processes >= num_processes and current_pairs == num_pairs - 1:
-                while current_processes >= num_processes:
-                    for pid_index, x in enumerate (pids):
-                         value = x.poll()
-                         if value == 0:
-                             current_processes += -1
-                             del pids[pid_index]
-                             del return_status[pid_index]
-                             break
-
-                x = subprocess.Popen(['python', 'pearson.py', pearson_dir, subprocess_string, str(total_processes)], cwd = file_loc)
-
-                pids.append (x)
-                return_status.append(None)
-                current_processes += 1
-                total_processes += 1
-
-            # Increase the index2 counter.          
-            # Also, Increase the counter for current pairs. When this counter is 
-            # equal to the variable-defined number of pairs per subprocess
-            # set the counter equal to 0.
-            # Increase index2 by 1
-            index2 += 1
-            current_pairs += 1
-            if current_pairs == num_pairs:
-                current_pairs = 0
-
-    timestamp();
-    print ("All processes complete: ", all_complete)
-    while all_complete == False:
-        for index, pid in enumerate(pids):
-            return_status[index] = pid.poll()
-            if return_status[index] == None or return_status[index] == 0:
-                continue
-            elif return_status[index] > 0 or return_status[index] < 0:
-                print (pid, return_status[index], index)
-                sys.exit(return_status[index])
-        all_complete = all(status == 0 for status in return_status)
-    timestamp();
-    print ("All processes complete: ", all_complete)
-
-    num_layers = len(ctx.continuous_layers)
-    r_coefficients = numpy.zeros(shape=(num_layers, num_layers))
-
-    if all_complete == True:
-       pearson_dir_elements = os.listdir(pearson_dir)
-       print ("Directory Elements:", pearson_dir_elements)
-       for file_name in pearson_dir_elements:
-           if file_name != "cont_values.tab":
-               r_reader = tsv.TsvReader(open(os.path.join(pearson_dir, file_name), "r"))
-               r_iterator = r_reader.__iter__()
-               for values in r_iterator:
-                   index1 = int(values[2])
-                   index2 = int(values[3])
-                   r_val = float(values[4])
-                   r_coefficients[index1, index2] = r_val 
-                   r_coefficients[index2, index1] = r_val
-
-    # Delete our temporary directory.
-    shutil.rmtree(pearson_dir)
-
-    for index, row in enumerate(r_coefficients):
-        name = ctx.continuous_layers[index]
-        layer_list_index = str(layer_names.index(name))
-
-        r_writer = tsv.TsvWriter(open(os.path.join(options.directory, 
-        "layer_" + layer_list_index +"_r_r.tab"), "w")) 
-
-        r_writer.line(*ctx.continuous_layers)
-        r_writer.line(*row)
-        r_writer.close() 
-
-    return True
+    print timestamp(), 'Attribute counts:', len(ctx.binary_layers) + len(ctx.categorical_layers) + len(ctx.continuous_layers), '= Binary:', len(ctx.binary_layers), '+ Categorical:', len(ctx.categorical_layers), '+ Continuous:', len(ctx.continuous_layers)
 
 def open_matrices(names):
     """
@@ -1386,8 +972,7 @@ def drl_similarity_functions(matrix, index, options):
     
     # Do DrL truncate.
     # TODO: pass a truncation level
-    timestamp();
-    print "DrL: Truncating..."
+    print timestamp(), "DrL: Truncating..."
     sys.stdout.flush()
     if options.drlpath:
         subprocess.check_call(["truncate", "-t", str(options.truncation_edges), 
@@ -1542,14 +1127,14 @@ def run_clumpiness_statistics(layers, layer_names, window_size, layout_index):
     There must be at least one layer.
     
     """
-    timestamp();
-    print("Running tiling clumpiness statistics for layout {} with window size "
-        "{}...".format(layout_index, window_size))
+    print timestamp(), "Running tiling clumpiness statistics for layout {} with window size " "{}...".format(layout_index, window_size)
 
     # Load the hexagons dict for this layout
     hexagons = ctx.all_hexagons[layout_index]
     
-    # This holds an iterator that makes ClusterFinders for all out layers
+    print timestamp(), 'Hexagon count:', len(hexagons)
+
+    # This holds an iterator that makes ClusterFinders for all our layers
     cluster_finders = [ClusterFinder(hexagons, layers[layer_name], 
         window_size=window_size) for layer_name in layer_names]
     
@@ -1566,7 +1151,9 @@ def run_clumpiness_statistics(layers, layer_names, window_size, layout_index):
     pool.join()
     
     # Return a dict from layer name to clumpiness score (negative log 10 of best
-    # p value). We hope the order of the dict items has not changed. We max the
+    # p value).
+    # TODO We hope the order of the dict items has not changed.
+    # We max the
     # actual p value together with the min float, in case the p value is too
     # good (i.e. 0).
     return {layer_name: -math.log10(max(best_p_value, sys.float_info.min)) 
@@ -1574,6 +1161,10 @@ def run_clumpiness_statistics(layers, layer_names, window_size, layout_index):
         best_p_values)}
 
 def hexIt(options):
+
+    # Set some global context values
+    ctx.extract_coords = extract_coords
+    ctx.timestamp = timestamp
 
     # Test our picking
     x, y = hexagon_center(0, 0)
@@ -1608,7 +1199,7 @@ def hexIt(options):
     # file names, to matrices, to drl output files.
     for index, i in enumerate (ctx.matrices):
         nodes_multiple.append (drl_similarity_functions(i, index, options))
-    
+
     # Compute Hexagam Assignments for each similarity matrix's drl output,
     # which is found in nodes_multiple.
 
@@ -1643,6 +1234,7 @@ def hexIt(options):
     layers = {}
     
     # This holds the names of all layers
+    # TODO they should hold those layers with at least one value
     layer_names = []
     
     for matrix_number, score_filename in enumerate(options.scores):
@@ -1692,7 +1284,7 @@ def hexIt(options):
                     # space and makes the client-side layer counts accurate for
                     # the data actually displayable.
                     continue
-                
+
                 # These are the scores for all the layers for this signature
                 layer_scores = parts[1:]
                 
@@ -1782,8 +1374,9 @@ def hexIt(options):
     # the empty string as their TSV field value, so we can safely pull any layer
     # out of this by name.
     layer_positives = collections.defaultdict(str)
-    
+
     for layer_name in layer_names:
+
         # Assume it's a binary layer until proven otherwise
         layer_positives[layer_name] = 0
         for value in layers[layer_name].itervalues():
@@ -1829,15 +1422,15 @@ def hexIt(options):
 
     # Run Associated Statistics
     if options.associations == True:
-        timestamp();
-        print "Running association statistics..."
-        association_statistics(layers, layer_names, ctx, options)
+        print timestamp(), "Running sample-based statistics..."
+        sample_based_statistics(layers, layer_names, ctx, options)
+        print timestamp(), "Sample-based statistics complete"
 
     # Run Mutual Information Statistics:
     if options.mutualinfo == True:
-        timestamp();
-        print "Running MI statistics..."
-        run_mutual_information_statistics(layers, layer_names, options)
+        print timestamp(), "Running region-based statistics..."
+        region_based_statistics(layers, layer_names, ctx, options)
+        print timestamp(), "Region-based statistics complete"
 
     #create_gmt(layers, layer_names, options)
     
@@ -2061,8 +1654,7 @@ def hexIt(options):
     # still be empty.
     colormaps_writer.close()
 
-    timestamp();
-    print "Visualization generation complete!"
+    print timestamp(), "Visualization generation complete!"
        
     return 0
 """
@@ -2141,6 +1733,7 @@ def main(args):
     name. The return value should be used as the program's exit code.
     """
 
+    print timestamp(), 'Started'
     print "Starting command: {}".format(" ".join(args))
     return hexIt(parse_args(args)) # This holds the nicely-parsed options object
 

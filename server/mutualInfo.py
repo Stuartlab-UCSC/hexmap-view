@@ -1,10 +1,9 @@
 #!/usr/bin/env python2.7
 """
-mutualinformation.py: library for mutual information statistics for the tumor
-map visualization.
+mutualInfo.py: the parallel task to compute mutual information stats.
 """
 
-import collections, math
+import collections, math, pprint
 
 def compute_empirical_distribution(values):
     """
@@ -84,7 +83,9 @@ def all_pairs(value_dict):
     contiguous group.
     
     """
-    
+    print('value_dict ==========================')
+    pprint.pprint(value_dict)
+
     # Compute the individual distributions, and store them by layer name.
     distributions = {layer_name: compute_empirical_distribution(values) 
         for layer_name, values in value_dict.iteritems()}
@@ -115,8 +116,7 @@ def all_pairs(value_dict):
             
             #if layer_a == layer_b:
                 # Don't do layers against themselves. That would be silly.
-                # TODO let's be silly so the focus attr on sorts will be in the sort list
-                #continue
+                continue
             
             # First compute the joint distribution on-demand. We use it once.
             joint_distribution = compute_empirical_distribution(
@@ -144,6 +144,13 @@ def all_pairs(value_dict):
             # <http://en.wikipedia.org/wiki/Mutual_information> TODO: factor
             # out the identical denominators.
             redundancy /= max_redundancy
-            
+
+            print('layer_a --------------------------------------')
+            pprint.pprint(layer_a)
+            print('layer_b')
+            pprint.pprint(layer_b)
+            print('redundancy')
+            pprint.pprint(redundancy)
+
             # Yield the redundancy value
             yield (layer_a, layer_b, redundancy)

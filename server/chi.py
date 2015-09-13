@@ -21,8 +21,10 @@ def main (args):
     args[0] = 'chi.py'
     args[1] = 'temp_directory' - temporary directory to read & write files
     args[2] = 'subprocess_string' - string containing sets of four index values:
-               layer-1, layer-2, chi2-layer-1, chi2-layer-2; ..."
-               we're using var names of lx1, lx2, slx1, slx2
+               layer_1, layer_2, chi2_layer_1, chi2_layerf_2; ..."
+               where layer_* are layer indices of the global layer object
+               and chi2_layer_* are layer indices of the stats list of layers
+               we're using var names of glx1, glx2, lx1, lx2 respectively
     args[3] = 'working_directory' - directory to which main process writes files
     args[4] = 'file_index' - index to assign to file for writing purposes
     """
@@ -48,22 +50,35 @@ def main (args):
     # As you parse the layer files, add to the dictionary such that
     # layers [index] [hex_name] returns the integer value
     layer_indices = []
+    global_layers = {}
     for comparison_pair in comparison_indices_separated:
-        #print 'comparison_pair', comparison_pair
-        lx1 = comparison_pair[0]
-        lx2 = comparison_pair[1]
+        glx1 = comparison_pair[0]
+        glx2 = comparison_pair[1]
+        lx1 = comparison_pair[2]
+        lx2 = comparison_pair[3]
         if lx1 not in layer_indices:
             layer_indices.append(lx1)
+            global_layers[lx1] = glx1
         if lx2 not in layer_indices:
-            layer_indices.append(lx2)  
+            layer_indices.append(lx2)
+            global_layers[lx2] = glx2
+
     layers = {}
+    unreadable_files = []
     for lx in layer_indices:
-        l_reader = tsv.TsvReader(open(os.path.join(working_dir, "layer_"+ str(lx) +".tab"), "r"))
-        layer_iterator = l_reader.__iter__()
-        layers[lx] = {}
-        for data_row in layer_iterator:
-            layers[lx][data_row[0]] = int(float(data_row[1]))
-        l_reader.close()
+        try:
+            glx = global_layers[lx]
+            #print('lx, glx:', lx, glx)
+            filename = os.path.join(working_dir, "layer_"+ str(glx) +".tab")
+            l_reader = tsv.TsvReader(open(filename, "r"))
+            layer_iterator = l_reader.__iter__()
+            layers[lx] = {}
+            for data_row in layer_iterator:
+                layers[lx][data_row[0]] = int(float(data_row[1]))
+            l_reader.close()
+        except:
+            #print 'Could not find the file:', filename, 'continuing with layers found'
+            unreadable_files.append(glx)
 
     # Parse the file containing all the hexagon names as a list.
     hex_names = []
@@ -85,16 +100,26 @@ def main (args):
     # to the p_val<index>.tab
     for comparison in comparison_indices_separated:
         num_valid = 0
-        lx1 = comparison[0]
-        lx2 = comparison[1]
-        slx1 = comparison[2]
-        slx2 = comparison[3]
+        glx1 = comparison[0]
+        glx2 = comparison[1]
+        if glx1 in unreadable_files or glx2 in unreadable_files:
+            continue
+        lx1 = comparison[2]
+        lx2 = comparison[3]
 
-        # Find the range in each of layer 1 & 2
+        # Find the range of layer 1
         layer_values = layers[lx1].values()
+        if len(layer_values) < 1:
+            print 'layer_values is empty'
+            continue
         l1_max = max(layer_values)
         l1_min = min(layer_values)
+
+        # Find the range of layer 2
         layer_values = layers[lx2].values()
+        if len(layer_values) < 1:
+            print 'layer_values is empty'
+            continue
         l2_max = max(layer_values)
         l2_min = min(layer_values)
 
@@ -107,11 +132,15 @@ def main (args):
             try:
                 l1_val = layers[lx1][hexagon]
             except KeyError:
+                # this means this hexagon has no value in this layer
                 has_data = False
+
             try:
                 l2_val = layers[lx2][hexagon]
             except KeyError:
+                # this means this hexagon has no value in this layer
                 has_data = False
+
             if has_data == True:
                 num_valid += 1
                 table[l1_val - l1_min][l2_val - l2_min] += 1
@@ -123,7 +152,7 @@ def main (args):
             # See <http://stats.stackexchange.com/q/73708>. Chi-squared can't be
             # done in this case, so we make p NaN.
             p = float("NaN")
-        p_writer.line (slx1, slx2, p)
+        p_writer.line (lx1, lx2, p)
 
     p_writer.close()
     return 0
