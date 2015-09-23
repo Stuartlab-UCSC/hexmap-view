@@ -14,21 +14,21 @@ var app = app || {}; // jshint ignore:line
         // & categorical layers, and an r correlation value for continuous layers.
         
         // Get the layer index
-        layer_index = oper.layer_names_by_index.indexOf(layer_name);
+        layer_index = ctx.layer_names_by_index.indexOf(layer_name);
 
         // We let the UI control which value types are supported for assoc stats
         // or mutual info stats.
 
-        if(oper.bin_layers.indexOf(layer_name) != -1
-                && oper.cat_layers.indexOf(layer_name) != -1) {
+        if(ctx.bin_layers.indexOf(layer_name) != -1
+                && ctx.cat_layers.indexOf(layer_name) != -1) {
 
             // It's a binary or categorical layer. Get the layer file
-            var filename = ctx.project + "layer_" + layer_index + "_chi2.tab";
+            var filename = ctx.project + "layer_" + layer_index + "_sstats.tab";
 
-        } else if(oper.cont_layers.indexOf(layer_name) != -1) {
+        } else if(ctx.cont_layers.indexOf(layer_name) != -1) {
 
             // It's a continuous layer. Get the layer file
-            var filename = ctx.project + "layer_" + layer_index + "_pear.tab";
+            var filename = ctx.project + "layer_" + layer_index + "_sstats.tab";
         }
             
         $.get(filename, function(tsv_data) {        
@@ -62,7 +62,7 @@ var app = app || {}; // jshint ignore:line
         }, "text")
     }
 
-    function get_stats(layer_names, parsed) {
+    function get_stats(layer_names, parsed, anticorrelated) {
     //function get_stats(layer_names, layer_stats, parsed) { // TODO layer stats are never passed in
             // Given an object from layer name to layer statistic (p
             // value for binary, ...), update the
@@ -96,7 +96,7 @@ var app = app || {}; // jshint ignore:line
                     // Grab the stat value
                     var stat = layer_stats[compare_layer_name];
                     
-                    if(oper.bin_layers.indexOf(layer_names[0]) != -1) {
+                    if(ctx.bin_layers.indexOf(layer_names[0]) != -1) {
                         // We're doing a binary layer. Reject anything
                         // with a significant score. TODO: Is this just
                         // going to throw out anticorrelated things as
@@ -106,7 +106,7 @@ var app = app || {}; // jshint ignore:line
                             // to this layer.
                             continue;
                         }
-                    } else if(oper.cont_layers.indexOf(layer_names[0]) !=
+                    } else if(ctx.cont_layers.indexOf(layer_names[0]) !=
                         -1) {
                         
                         // We're doing a continuous layer. Reject
@@ -124,21 +124,28 @@ var app = app || {}; // jshint ignore:line
             }
 
             // Now we're done getting the MIs, update the UI
-              oper.current_sort_text = "Region-base ranked in terms of: " + layer_names[0];
-            //oper.current_sort_text = "(LA) Attributes Ranked According to: " + layer_names[0];
-            update_browse_ui("mutual_information");
+            var corr = 'correlation',
+                type = 'region-based-positive';
+            if (anticorrelated) {
+                corr = 'anticorrelation';
+                type = 'region-based-negative';
+            }
+            ctx.current_sort_text = 'Region-base ranked in terms of ' + corr + 'with: ' + compare_layer_name;
+            update_browse_ui(type);
             
             // Save the parameters we were called with, so we can be called
             // again if someone changes the layout. TODO: This is a massive
             // hack.
-            oper.mutual_information_ranked = true;
+            ctx.mutual_information_ranked = true;
             //mutual_information_sorted_against [0] = layer_names[0]; // TODO unused
             //mutual_information_filtered = anticorrelated; // TODO unused
             
         }
 
     function rank_query(layer_names, parsed, anticorrelated) {
-        // TODO what does this have to do with pos vs neg correlation?
+        get_stats(layer_names, parsed, anticorrelated);
+        /*
+        // TODO this is older code that used p-values from sample-based stats
             
         if (anticorrelated) {
             // Restrict to anticorrelated layers (of the same type). Go
@@ -151,31 +158,38 @@ var app = app || {}; // jshint ignore:line
             // No restrictions. Call the callback directly on undefined.
             get_stats(layer_names, parsed);
         }
+        */
     }
 
-    get_mutual_information_statistics = function (layout_number, layer_names, query_type, anticorrelated) {
+    get_mutual_information_statistics = function (unused_layout_number, focus_attr, query_type, anticorrelated) {
         // Retrieve the appropriate mutual information values
+        // @param unused_layout_number: not used because our stats are only on
+        //                              the first layer
+        // @param layer_names: a list of layer names to consider. for now we
+        //                     only process the first element and consider all
+        //                     layers for the results
+        // @param query_type: type of query we want to do. for now we only
+        //                    support 'rank'
+        // @param anticorrelated: true: sort with anticorrelated values at the top
+        //                        false: sort with correlated values at the top
         // TODO and return either a sorted list or a specific value, via alert box.
         // All mutual information values are stored in files of the format
-        // "mi_<layout_number>_<layer_number>.tab".
+        // "layer_<layer_number>_rstats.tab".
         // If anticorrelated is true, only updates anticorrelated layers.
         // TODO the help says only for layers that are significantly
         // anticorrelated with the focus attribute, and the same type as the
         // focus attribute. Focus attribute may not have category or label (yes/no) values.
 
-        // First we must retrieve the file indices for the respective layer_names.
-        
-        var layer_indices = [];
-        
-        for (var i = 0; i < layer_names.length; i++) {
-            // Go get the index for each layer we asked for.
-            layer_index = oper.layer_names_by_index.indexOf(layer_names[i]);
-            layer_indices.push(layer_index);
+        if (ctx.bin_layers.indexOf(focus_attr) === -1) {
+            return
         }
         
+        var layer_index = ctx.layer_names_by_index.indexOf(focus_attr);
+
+        var layer_names = ctx.bin_layers;
+
         // What file should we get?
-        // Open up the file mi_<layout_number>_<layer_indices[0]>.tab
-        var filename = ctx.project + "mi_"+ layout_number + "_"+ layer_indices[0] +".tab";
+        var filename = ctx.project + "layer_"+ layer_index + "_rstats.tab";
         print("Fetching " + filename);
 
         // query_type = 'rank' indicates a rank query

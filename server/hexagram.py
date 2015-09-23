@@ -94,15 +94,15 @@ def parse_args(args):
         help="directory in which contain drl binaries")
     parser.add_argument("--query", type=str, default=None,
         help="Galaxy-escaped name of the query signature")
-    parser.add_argument("--window_size", type=int, default=25, # 20 is not symmetric
-        help="size of the window to use when looking for clusters")
+    parser.add_argument("--window_size", type=int, default=20,
+        help="the square of this is the number of windows to use when looking for clusters")
     parser.add_argument("--mi_window_size", type=int, default=25,
-        help="size of the window to use when running mutual information stats")
+        help="the square of this is the number of windows to use when running region-based stats")
     parser.add_argument("--mi_window_threshold", type=int, default=30,
-        help="min number of hexes in a mutual information window to count it")
+        help="min number of hexagons per window to be included in the calculations for region-based statistics")
     parser.add_argument("--mi_binary_no_binning", action="store_false", 
         dest="mi_binary_binning",
-        help="whether to bin counts from binary layers for mutual information")
+        help="whether to bin counts from binary layers for region-based stats")
     parser.add_argument("--truncation_edges", type=int, default=10,
         help="number of edges for DrL truncate to pass per node")
     parser.add_argument("--no-stats", dest="stats", action="store_false", 
@@ -113,7 +113,7 @@ def parse_args(args):
         help="disable computation of attribute association statistics")
     parser.add_argument("--no-mutualinfo", dest="mutualinfo", action="store_false", 
         default=True,
-        help="disable computation of mutual infomration statistics")
+        help="disable computation of region-based statistics")
     parser.add_argument("--include-singletons", dest="singletons", 
         action="store_true", default=False,
         help="add self-edges to retain unconnected points")
@@ -990,7 +990,7 @@ def drl_similarity_functions(matrix, index, options):
         subprocess.check_call(["layout", drl_basename]) 
 
     # Put the string names back
-    print "DrL: Restoring names..."
+    print timestamp(), "DrL: Restoring names..."
     sys.stdout.flush()
     if options.drlpath:
         subprocess.check_call(["recoord", drl_basename], env={"PATH": options.drlpath}) 
@@ -1009,7 +1009,7 @@ def drl_similarity_functions(matrix, index, options):
     # therefore need their score data sent to the client.
     nodes = {}
 
-    print "Reading DrL output..."
+    print timestamp(), "Reading DrL output..."
     sys.stdout.flush()
     for parts in coord_reader:
         nodes[parts[0]] = (float(parts[1]), float(parts[2]))
@@ -1420,16 +1420,16 @@ def hexIt(options):
     # Sort Layers According to Data Type
     determine_layer_data_types (layers, layer_names, options)
 
-    # Run Associated Statistics
+    # Run sample-based stats
     if options.associations == True:
         print timestamp(), "Running sample-based statistics..."
         sample_based_statistics(layers, layer_names, ctx, options)
         print timestamp(), "Sample-based statistics complete"
 
-    # Run Mutual Information Statistics:
+    # Run region-based stats
     if options.mutualinfo == True:
         print timestamp(), "Running region-based statistics..."
-        region_based_statistics(layers, layer_names, ctx, options)
+        #region_based_statistics(layers, layer_names, ctx, options) # TODO
         print timestamp(), "Region-based statistics complete"
 
     #create_gmt(layers, layer_names, options)
@@ -1655,7 +1655,9 @@ def hexIt(options):
     colormaps_writer.close()
 
     print timestamp(), "Visualization generation complete!"
-       
+    sys.stderr.flush()
+    sys.stdout.flush()
+
     return 0
 """
     # Now copy any static files from where they live next to this Python file 
@@ -1741,7 +1743,7 @@ if __name__ == "__main__" :
     try:
         # Get the return code to return
         # Don't just exit with it because sys.exit works by exceptions.
-        return_code = main(sys.argv)
+         return_code = main(sys.argv)
     except:
         traceback.print_exc()
         # Return a definite number and not some unspecified error code.

@@ -9,7 +9,7 @@ import scipy.stats
 import os.path
 import tsv
 
-def main (args):
+def chi (args):
     """
     This tool will create contingency tables depending on the layer counts
     and then utilize these contingency tables to compute a chi-squared p-value.
@@ -156,6 +156,9 @@ def main (args):
 
     p_writer.close()
     return 0
+
+def main(args):
+    chi(args)
 
 if __name__ == "__main__" :
     try:

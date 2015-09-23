@@ -1,7 +1,0 @@
-Subtype	1	Subtype 1	#f00	2	Subtype 2	#0f0	3	Subtype 3	#ff0
-TP53_mutated	0	No mutation	#0000FF	1	Has mutation	#FF0000
-TP53_expression_altered	0	Not overexpressed	#0000FF	1	Overexpressed	#FF0000
-TP63_mutated	0	No mutation	#0000FF	1	Has mutation	#FF0000
-TP63_expression_altered	0	Not overexpressed	#0000FF	1	Overexpressed	#FF0000
-DNA_Repair_Broken	0	Ok	#0000FF	1	Broken	#FF0000
-RB1 level	1	Low	#f00	2	Medium	#0f0	3	High	#ff0

@@ -24,7 +24,7 @@ var app = app || {}; // jshint ignore:line
 
             Template.background.helpers ({
                 whiteChecked: function () {
-                    return (Session.equals('persBackground', 'white'))
+                    return (Session.equals('background', 'white'))
                         ? 'checked'
                         : '';
                 }
@@ -47,7 +47,7 @@ var app = app || {}; // jshint ignore:line
             render();
 
             // Set the proper radio button according to state
-            if (Session.equals('persBackground', 'black')) {
+            if (Session.equals('background', 'black')) {
                 $('#backgroundBlack').prop('checked', true);
             } else {
                 $('#backgroundWhite').prop('checked', true);
@@ -58,9 +58,8 @@ var app = app || {}; // jshint ignore:line
             $form.on('click', 'input', function (event) {
                 Meteor.setTimeout(function () { // Let the ui catch up
                     var val = $(event.target).attr('value');
-                    if (!Session.equals('persBackground', val)) {
-                        Session.set("persBackground", val);
-                        ctx.background = val;
+                    if (!Session.equals('background', val)) {
+                        Session.set("background", val);
                         re_initialize_view();
                     }
                     $form.dialog('close');

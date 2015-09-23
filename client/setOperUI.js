@@ -181,7 +181,7 @@ var app = app || {}; // jshint ignore:line
             var layer_name = $(element).data("layer");
             // If the attribute does not have continuous values add it to the drop
             // downs. (There is no set theory for continuous attributes).
-            if (oper.cont_layers.indexOf (layer_name) < 0) {
+            if (ctx.cont_layers.indexOf (layer_name) < 0) {
                 layers.push(layer_name);
             }
         });

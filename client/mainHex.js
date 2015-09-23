@@ -4,13 +4,13 @@
 
 var app = app || {}; // jshint ignore:line
 
-ctx = {}; // Persistent state to be saved eventually
-oper = {}; // Shared state not to be saved to persist store
+ctx = null; // Persistent state to be saved eventually
 layers = {}; // contains almost all information about attributes
 
 (function (hex) { // jshint ignore:line
     //'use strict';
 
+    // Define the sources for images
     var homePageSrcs = [
             {pre: 'ucscgi_clear', suf: '.png'},
             {pre: 'pancan12-mRNA-Seq', suf: '.png'},
@@ -18,6 +18,7 @@ layers = {}; // contains almost all information about attributes
         ],
         mapPageSrcs = [
             {pre: 'cyber-slug', suf: '.svg'},
+            {pre: 'help-button', suf: '.png'},
             {pre: 'throbber', suf: '.svg'},
             {pre: 'statistics', suf: '.svg'},
             {pre: 'set', suf: '.svg'},
@@ -27,32 +28,23 @@ layers = {}; // contains almost all information about attributes
             {pre: 'help', suf: '.svg'},
         ];
 
-    // Get the host url, for fixing up proxied servers
-    var url = Meteor.absoluteUrl();
-
+    // Prefx image URLs which may be different on different servers.
+    // There must be a better way to do this
     function fixProxies (templateName) {
-        // There must be a better way to do this
-        var srcs = eval(templateName + 'Srcs');
+        var url = Meteor.absoluteUrl(),
+            srcs = eval(templateName + 'Srcs');
         _.each(srcs, function (src) {
             $('img.' + src.pre).prop('src', url + src.pre + src.suf);
         });
     }
 
-    // Fix the prefix for images & such called from javascript
-    if (location.host === 'localhost:3000') {
-        Session.setDefault("proxPre", "");
-    } else {
-        Session.setDefault("proxPre", "hexmap/");
-    }
-
-    // Default to the home page if its not already set
-    Session.setDefault("page", "homePage");
-
     Template.body.helpers({
         page: function () {
-            return Session.get("page")
+            if (!ctx) ctx = initState();
+            return Session.get("page");
         },
         proxPre: function () {
+        if (!ctx) ctx = initState();
             return Session.get("proxPre");
         }
     });
@@ -67,39 +59,29 @@ layers = {}; // contains almost all information about attributes
     });
 
     Template.homePage.onRendered(function () {
-        fixProxies ('homePage');
+        if (!ctx) ctx = initState();
+        fixProxies('homePage');
     });
 
     Template.mapPage.onRendered(function () {
+        if (!ctx) ctx = initState();
         fixProxies ('mapPage');
         initMrtGooglemaps();
     });
 
-    initialize_pers = function () {
-        Session.set("persBackground", "black");
-    };
     initMrtGooglemaps = function () {
-        // Initialize the meteor module, mrt:googlemaps
-        initialize_pers();
-        ctx = stateCreate();
-
-        //ctx.project = 'hexmap/projects/'; // su2c-dev proxy
-        //ctx.project = 'projects/'; localhost
-        ctx.project = Session.get('proxPre') + 'projects/';
-
-        //console.log('Unable to parse the project directory info from the server, so using public/pancan12');
-
         setTimeout(function () {
-        GoogleMaps.init({}, function () {
-        
-            // Initialize everything else
-            initTools();
-            initColors();
-            initSvg();
-            initHex();
-            $.get("maplabel.js");
-            //$.get("maplabel-compiled.js");
-        });
+            GoogleMaps.init({}, function () {
+            
+                // Initialize everything else
+                initProject();
+                initTools();
+                initColors();
+                initSvg();
+                initHex();
+                $.get("maplabel.js");
+                //$.get("maplabel-compiled.js");
+            });
         }, 0)
     };
 })(app);

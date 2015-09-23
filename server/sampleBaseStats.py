@@ -2,9 +2,14 @@
 sampleBaseStats.py: Run the sample-based statistics.
 """
 import sys, os, numpy, subprocess, shutil, tempfile, pprint
-import tsv, csv, datetime, time, math
+import tsv, csv, datetime, time, math, multiprocessing
 
-def pearson (subprocess_string, optionsDirectory, total_processes, ac):
+
+MAX_JOB_COUNT = multiprocessing.cpu_count()
+if MAX_JOB_COUNT < 1:
+    MAX_JOB_COUNT = 8
+
+def pearson (subprocess_string, optionsDirectory, total_processes, sctx):
     """
     The subprocess call to pearson.py takes the following arguments
     args[] = 'python'
@@ -16,9 +21,9 @@ def pearson (subprocess_string, optionsDirectory, total_processes, ac):
     args[3] = 'total_processes'- current number of processes which is used
                by the subprocess as the index for the printed file
     """ 
-    return subprocess.Popen(['python', 'pearson.py', ac['temp_dir'], subprocess_string, str(total_processes)])
+    return subprocess.Popen(['python', 'pearson.py', sctx['temp_dir'], subprocess_string, str(total_processes)])
 
-def chi2 (subprocess_string, optionsDirectory, total_processes, ac):
+def chi2 (subprocess_string, optionsDirectory, total_processes, sctx):
     """
     The subprocess call to chi.py takes the following arguments
     args[] = 'python'
@@ -29,7 +34,7 @@ def chi2 (subprocess_string, optionsDirectory, total_processes, ac):
     args[3] = 'working_directory' - directory to which main process writes files
     args[4] = 'total_processes' - index for names of the output file
     """
-    return subprocess.Popen(['python', 'chi.py', ac['temp_dir'], subprocess_string, optionsDirectory, total_processes])
+    return subprocess.Popen(['python', 'chi.py', sctx['temp_dir'], subprocess_string, optionsDirectory, total_processes])
 
 def timestamp():
     return str(datetime.datetime.now())[8:-7]
@@ -62,7 +67,7 @@ def stats_looper (
     layer_names, # args RO
     num_processes, # args max_processes RO
     num_pairs, # args max_pairs  RO
-    ac, # association stats context
+    sctx, # stats context
     ctx, # hexagram context
     options): # statistical function  RO
 
@@ -73,8 +78,6 @@ def stats_looper (
     # Sum of pairs processed for this test type
     sum_pairs = 0
     pair_message_count = 1
-
-    proc_status = []
 
     # List of process handles
     procs = []
@@ -88,11 +91,11 @@ def stats_looper (
     # attributes to be compared, separated by commas. Then append additional
     # index groups, separated by semi-colons.
     # slx = stats layer index, lx = global layer index
-    for slx1, layer_name1 in enumerate (ac['stats_layers']):
+    for slx1, layer_name1 in enumerate (sctx['stats_layers']):
         slx2 = slx1 - 1
 
         # Loop through the remainder of the layers to form pairs to compare
-        for layer_name2 in ac['stats_layers'][slx1:]:
+        for layer_name2 in sctx['stats_layers'][slx1:]:
 
             # Increase the current pairs-counter
             current_pairs += 1
@@ -118,27 +121,27 @@ def stats_looper (
 
             # Submit the job if we've reach our max pairs-per-process
             # or the end of the layer-1's data
-            if (current_pairs >= num_pairs) or (layer_name2 == ac['stats_layers'][-1]):
+            if (current_pairs >= num_pairs) or (layer_name2 == sctx['stats_layers'][-1]):
                 procs = wait_for_free_process(procs, num_processes)
 
 
-                procs.append(ac['stats_fx'](
+                procs.append(sctx['stats_fx'](
                                 subprocess_string, options.directory,
-                                str(total_processes), ac
+                                str(total_processes), sctx
                             ))
                 total_processes += 1
                 sum_pairs += current_pairs
                 current_pairs = 0
 
         # Log a progress message for every ~1/30th of pairs processed
-        if sum_pairs > ac['total_pairs'] * pair_message_count / 30:
-            print timestamp(), sum_pairs, 'of', ac['total_pairs'], "Pairs processed"
+        if sum_pairs > sctx['total_pairs'] * pair_message_count / 30:
+            print timestamp(), str(pair_message_count) + '/30 of', sctx['total_pairs'], 'pairs'
             sys.stdout.flush()
             pair_message_count += 1
 
     return procs
 
-def per_stats_type (layers, layer_names, num_processes, num_pairs, ac, ctx, options):
+def per_stats_type (layers, layer_names, num_processes, num_pairs, sctx, ctx, options):
     """
     This tool will launch a variable number of independent threads, each of which
     will calculate a variable number of correlations for pairs of attributes.
@@ -155,74 +158,74 @@ def per_stats_type (layers, layer_names, num_processes, num_pairs, ac, ctx, opti
         layer_names,
         num_processes,
         num_pairs,
-        ac,
+        sctx,
         ctx,
         options)
 
     # When we reach here, all processes have been submitted and we're just
     # waiting for the last bunch to finish
-    print timestamp(), 'Waiting for the last bunch of jobs to complete'
+    print timestamp(), 'Waiting for the last jobs to complete'
     sys.stdout.flush()
     wait_for_free_process (procs, 1)
 
-    # Fill matrix of stat_layers by stat_layers with the p-values/r-correlation
-    print timestamp(), 'Populating the matrix of correlation values'
+    # Fill matrix with stat_layers and their values
+    print timestamp(), 'Populating the stats value matrix'
     sys.stdout.flush()
-    num_layers = len(ac['stats_layers'])
-    corr_vals = numpy.zeros(shape=(num_layers, num_layers))
+    num_layers = len(sctx['stats_layers'])
+    vals = numpy.zeros(shape=(num_layers, num_layers))
 
-    dir_elements = os.listdir(ac['temp_dir'])
+    dir_elements = os.listdir(sctx['temp_dir'])
     layer_count = len(dir_elements) -1 # num of attributes
     value_total = (layer_count**2 + layer_count) / 2 # number of unique values in the table
     value_count = 0
     message_count = 1
     for file_name in iter(dir_elements):
-        if file_name != ac['ref_file']:
-            reader = tsv.TsvReader(open(os.path.join(ac['temp_dir'], file_name), "r"))
+        if file_name != sctx['ref_file']:
+            reader = tsv.TsvReader(open(os.path.join(sctx['temp_dir'], file_name), "r"))
             for line in reader.__iter__():
                 slx1 = int(line[0])
                 slx2 = int(line[1])
                 val = float(line[2])
 
-                corr_vals[slx1, slx2] = val
-                corr_vals[slx2, slx1] = val
+                vals[slx1, slx2] = val
+                vals[slx2, slx1] = val
                 value_count += 1
 
         # Log a progress message for every ~1/30th of values processed
         if value_count > value_total * message_count / 30:
-            print timestamp(), value_count, 'of', value_total, "Values populated"
+            print timestamp(), str(message_count) + '/30 of', value_total, 'values'
             sys.stdout.flush()
             message_count += 1
 
     # Delete our temporary directory.
-    shutil.rmtree(ac['temp_dir'])
+    shutil.rmtree(sctx['temp_dir'])
 
-    print timestamp(), 'Writing the correlation files'
+    print timestamp(), 'Writing the statistics files'
     sys.stdout.flush()
 
     written_count = 0
     message_count = 1
-    for i, row in enumerate(corr_vals):
-        name = ac['stats_layers'][i]
+    for i, row in enumerate(vals):
+        name = sctx['stats_layers'][i]
         layer_index = str(layer_names.index(name))
         
-        # File names are like: layer_9_chi2.tab, layer_9_pear.tab
+        # File names are like: layer_9_sstat.tab, layer_9_8_rstat.tab
         writer = tsv.TsvWriter(open(os.path.join(options.directory,
-            'layer_' + layer_index + '_' + ac['type'] + '.tab'), 'w'))
-        writer.line(*ac['stats_layers'])
+            'layer_' + layer_index + '_sstats.tab'), 'w'))
+        writer.line(*sctx['stats_layers'])
         writer.line(*row)
         writer.close()
         written_count += 1
 
         # Log a progress message for every ~1/30th of files written
-        if written_count > written_count * message_count / 30:
-            print timestamp(), written_count, 'of', layer_count, "Files written"
+        if written_count > layer_count * message_count / 30:
+            print timestamp(), str(message_count) + '/30 of', layer_count, 'files'
             sys.stdout.flush()
             message_count += 1
 
     return True
 
-def find_means (layers, stats_layers, hex_names, ac):
+def find_means (layers, stats_layers, hex_names, sctx):
     """
     Find the mean of each attribute's value in each hexagram
     @param layers: all layers
@@ -238,7 +241,7 @@ def find_means (layers, stats_layers, hex_names, ac):
     """
 
     # Save to the continuous values file
-    with open(os.path.join(ac['temp_dir'], ac['ref_file']), 'w') as writer:
+    with open(os.path.join(sctx['temp_dir'], sctx['ref_file']), 'w') as writer:
         writer = csv.writer(writer, delimiter='\t')
 
         # The data structure for accessing tissue scores/layer values is:
@@ -297,9 +300,13 @@ def sample_based_statistics(layers, layer_names, ctx, options):
     writer.line(*hex_names)
     writer.close()
 
+    print 'Using all', MAX_JOB_COUNT, 'processors for parallel jobs'
+
+    """ 
+    Ignore these stats for now
     # Run Stats on Continuous Layers.
     # Create the association statistics context.
-    ac = {
+    sctx = {
         'type': 'pear',
         'stats_fx': pearson, # the stats to be run on this data
         'stats_layers': ctx.continuous_layers, # data types for these stats
@@ -308,22 +315,23 @@ def sample_based_statistics(layers, layer_names, ctx, options):
     }
 
     # Find the mean of each continuous attribute.
-    # TODO find_means(layers, ctx.continuous_layers, hex_names, ac)
+    # TODO find_means(layers, ctx.continuous_layers, hex_names, sctx)
 
     # TODO the pearson stats need to be tested & verified
     # print str(len(ctx.continuous_layers) ** 2), "Continuous pairs to run for sample-based stats"
-    # TODO per_stats_type(layers, layer_names, 10, 100, ac, ctx, options)
+    # TODO per_stats_type(layers, layer_names, MAX_JOB_COUNT, 100, ac, ctx, options)
+    """
 
     # Run Stats on binary Layers.
-    # TODO Run Stats on binary & categorical Layers.
+    # TODO Run Stats on binary & categorical Layers
 
     if ctx.binary_layers == 0:
         print('No binary layers for chi2 to process')
         return True
 
-    # Create the association statistics context.
+    # Create the statistics context.
     total_pairs = reduce(lambda x, y: x+y, range(len(ctx.binary_layers) + 1))
-    ac = {
+    sctx = {
         'type': 'chi2',
         'stats_fx': chi2, # the stats to be run on this data
         'stats_layers': ctx.binary_layers, # data types for these stats
@@ -333,7 +341,8 @@ def sample_based_statistics(layers, layer_names, ctx, options):
         'total_pairs': total_pairs,
      }
 
-    print ac['total_pairs'], "Binary pairs to run for sample-based binary stats"
-    per_stats_type(layers, layer_names, 10, 3600, ac, ctx, options)
+    print timestamp(), "Processing the", total_pairs, "binary pairs"
+
+    per_stats_type(layers, layer_names, MAX_JOB_COUNT, 3600, sctx, ctx, options)
 
     return True    

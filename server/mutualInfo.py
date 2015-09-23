@@ -14,9 +14,15 @@ def compute_empirical_distribution(values):
     
     """
     
+    #print 'values of compute_empirical_distribution:'
+    #pprint.pprint(values)
+
     # Count all the values
     counts = collections.Counter(values)
     
+    #print 'counts:'
+    #pprint.pprint(counts)
+
     # Divide all the counts by the total number of things, yielding the
     # probability. Put these probabilities in a defaultdict with a default
     # probability of 0.
@@ -83,16 +89,22 @@ def all_pairs(value_dict):
     contiguous group.
     
     """
-    print('value_dict ==========================')
-    pprint.pprint(value_dict)
+    #print('value_dict ==========================')
+    #pprint.pprint(value_dict)
 
     # Compute the individual distributions, and store them by layer name.
     distributions = {layer_name: compute_empirical_distribution(values) 
         for layer_name, values in value_dict.iteritems()}
+
+    #print 'distributions:'
+    #pprint.pprint(distributions)
         
     # Pre-compute the individual entropies in bits
     entropies = {layer_name: entropy(distribution) 
         for layer_name, distribution in distributions.iteritems()}
+        
+    #print 'entropies:'
+    #pprint.pprint(entropies)
         
     for layer_a in value_dict.iterkeys():
         # For each layer
@@ -101,7 +113,7 @@ def all_pairs(value_dict):
             # We can't find normalized mutual information since one
             # layer always has the same value for every window. Skip
             # this pair.
-            print("Layer {} has 0 entropy; skipping.".format(layer_a))
+            print("Layer {} has 0 entropy; skipping it.".format(layer_a))
             continue
             
         for layer_b in value_dict.iterkeys():
@@ -114,7 +126,7 @@ def all_pairs(value_dict):
                 # this pair.
                 continue
             
-            #if layer_a == layer_b:
+            if layer_a == layer_b:
                 # Don't do layers against themselves. That would be silly.
                 continue
             
@@ -122,6 +134,9 @@ def all_pairs(value_dict):
             joint_distribution = compute_empirical_distribution(
                 zip(value_dict[layer_a], value_dict[layer_b]))
             
+            #print 'joint_distribution:'
+            #pprint.pprint(joint_distribution)
+
             # Work out the mutual information between this pair of layers,
             # using the precomputed distributions. TODO: this isn't going to
             # work well at all if we don't have enough windows that we can
@@ -145,12 +160,12 @@ def all_pairs(value_dict):
             # out the identical denominators.
             redundancy /= max_redundancy
 
-            print('layer_a --------------------------------------')
-            pprint.pprint(layer_a)
-            print('layer_b')
-            pprint.pprint(layer_b)
-            print('redundancy')
-            pprint.pprint(redundancy)
+            #print('layer_a --------------------------------------')
+            #pprint.pprint(layer_a)
+            #print('layer_b')
+            #pprint.pprint(layer_b)
+            #print('redundancy')
+            #pprint.pprint(redundancy)
 
             # Yield the redundancy value
             yield (layer_a, layer_b, redundancy)

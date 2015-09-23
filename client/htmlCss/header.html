@@ -1,0 +1,42 @@
+<template name='header'>
+    <div class="header row" id="header">
+        <div class="browse col vertical-table">
+            <div class="vertical-cell">
+                <div id="browse-holder">
+                    <input id="search" type="hidden"/>
+                    <img class="statistics" id="comparison-stats" title="Differential Contrast of Sample Selections" onclick="update_comparison_stats_drop_down()"/>
+                    <img class="recalculate-throbber throbber" title="Recalculating..." />
+                    <img class="set" id="set-operation" title="Calculate Set Operation"/>
+                    <img class="sort_attributes" id="sort-attributes-button" title="Sort Attributes by Association with a Focus Attribute"/>
+                </div>
+                <div id="layout-holder">
+                    <input id="layout-search" type="hidden"/>
+                </div>
+            </div>
+            <div id="current-layout">Current Layout:</div> 	
+            <div id="ranked-against">Attributes ranked according to frequency</div> 
+        </div>
+        <div class="comparison-stats dropdown">
+            <div class="dropdown-title">Sort Attributes by Dichotomy
+                <a class="cancel" href="#" onclick="hide_comparison_stats_drop_down(); reset_comparison_stats_counter()">X </a>
+            </div>
+            <div class="dropdown-body">
+                <div id="comparison-statistics" class="dropdown-contents">
+                </div>
+            </div>
+        </div>
+
+        {{> setOper }}
+        {{> sortAttrs}}
+
+        <div class="shortlist col">
+            <div id="shortlist-holder" class="panel-holder">
+                <div id="shortlist-panel" class="panel">
+                    <div class="panel-title">Short List</div>
+                    <div id="shortlist" class="panel-contents">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>

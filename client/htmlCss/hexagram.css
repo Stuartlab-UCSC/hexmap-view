@@ -37,6 +37,11 @@ body {
     margin-bottom: 0.3em;
 }
 
+.dialog {
+    font-size: 0.9em;
+}
+
+
 .dialogDiv {
     min-height: 3em;
     padding: 0.5em;
@@ -84,7 +89,7 @@ Read as "The content row", distinct from whatever else that element might be.
 
 .browse.col {
     left: 0;
-    width: 22em;
+    width: 24em;
     /*height: 4.2em;*/
 }
 
@@ -120,8 +125,13 @@ These are all supposed to stack against the left end in a toolbar thingy.
     height: 2em;
 }
 
-#s2id_loadDir {
+#project {
     padding-top: 0.2em;
+    width: 15em;
+}
+#s2id_project {
+    padding-top: 0.2em;
+    width: 15em;
 }
 
 #error-notification {
@@ -308,9 +318,10 @@ These are all supposed to stack against the left end in a toolbar thingy.
 
 .help-button {
     float: left;
-    margin-left: 5px;
+    margin-left: 1em;
     margin-top: 5px;
     padding: 2px;
+    height: 28px;
 }
 
 .help-dialog {
@@ -677,9 +688,6 @@ input.import {
     /*
     font-size: 0.5em;
     */
-}
-.dialog {
-    font-size: 0.8em;
 }
 
 #colorTable {

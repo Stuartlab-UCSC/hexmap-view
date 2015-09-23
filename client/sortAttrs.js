@@ -122,7 +122,7 @@ var app = app || {}; // jshint ignore:line
             get_association_stats_values(focus_attr, bin, cat);
 
 		} else { // region-based requested
-			get_mutual_information_statistics (current_layout_index, [focus_attr], 'rank', corr_neg);
+			get_mutual_information_statistics (current_layout_index, focus_attr, 'rank', corr_neg);
         }
 /*
 		// Check to see which radio label is selected. 
@@ -160,9 +160,8 @@ var app = app || {}; // jshint ignore:line
         $("#shortlist").children().each(function(index, element) {
             // Get the layer name
             var layer_name = $(element).data("layer");
-            if (oper.bin_layers.indexOf(layer_name)) {
-            //if (oper.bin_layers.indexOf(layer_name) > -1
-            //    && !layers[layer_name].selection) {
+            if (ctx.bin_layers.indexOf(layer_name) > -1
+                    && _.isUndefined(layers[layer_name].selection)) {
                 $option = $('<option>');
                 $option
                     .text(layer_name)
@@ -194,6 +193,18 @@ var app = app || {}; // jshint ignore:line
         enable_proper_value_types();
         $corr_neg.prop('checked', corr_neg);
         enable_proper_corr();
+
+        $help.detach()
+            .css('display', 'inline');
+        $('.ui-dialog-buttonpane').append($help);
+
+        // Action handlers
+        $dialog
+            .on('change', '#sample-based, #region-based', sort_base_change)
+            .on('change', '.list', list_option_change)
+            .on('change', '.bin, .cat, .cont', value_type_change)
+            .on('change', '#corr-pos, #corr-neg', corr_change);
+        $help.on('click', show_help);
     }
 
     function show_dialog () {
@@ -202,7 +213,7 @@ var app = app || {}; // jshint ignore:line
             dialogClass: 'dialog',
             modal: true,
             minHeight: '10em',
-            width: '31em',
+            width: '34em',
             close: destroy_dialog,
             buttons: [
                 {
@@ -211,6 +222,7 @@ var app = app || {}; // jshint ignore:line
                 },
             ],
         });
+
 
         setTimeout(init_dialog, 0); // give the dialog DOM a chance to load
     }
@@ -234,7 +246,7 @@ var app = app || {}; // jshint ignore:line
         $cat = $dialog.find('.cat');
         $cont = $dialog.find('.cont');
         $corr_neg = $('#corr-neg');
-
+        $help = $('.help-button');
 
         // Handler for clicking the button on the toolbar
         $("#sort-attributes-button")
@@ -249,14 +261,6 @@ var app = app || {}; // jshint ignore:line
 
                 show_dialog();
             });
-
-        // Action handlers
-        $dialog
-            .on('click', '.help-button', show_help)
-            .on('change', '#sample-based, #region-based', sort_base_change)
-            .on('change', '.list', list_option_change)
-            .on('change', '.bin, .cat, .cont', value_type_change)
-            .on('change', '#corr-pos, #corr-neg', corr_change);
     }
 })(app);
 

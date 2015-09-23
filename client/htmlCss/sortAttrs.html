@@ -2,11 +2,6 @@
     <form id="sort-attributes-dialog" style='display:none'>
         <table>
             <tr>
-                <td class='dialog-value'>
-                    <img class="help-button help">
-                 </td>
-            </tr>
-            <tr>
                 <td class='dialog-label'>
                     Focus attribute:
                 </td>
@@ -21,11 +16,11 @@
                 <td class='dialog-value'>
                     <label>
                         <input type='radio' name='region-sample-based' id='sample-based' value='sample-based' checked='checked'/>
-                        Sample-based
+                        Sample-based (layout independent)
                     </label><br>
                      <label>
                         <input type='radio' name='region-sample-based' id='region-based' value='region-based' />
-                        Region-based
+                        Region-based (layout aware)
                     </label>
                 </td>
             </tr>
@@ -62,7 +57,10 @@
                 </td>
             </tr>
         </table>
+        <img class="help-button help" style='display:none'>
     </form> <!-- sort-attributes-dialog -->
+
+
     <div id='sort-attributes-help-dialog' title="Sort Help" style='display:none'>
         <div>
             <p>

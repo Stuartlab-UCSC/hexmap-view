@@ -311,7 +311,7 @@ function with_infocard(signature, callback) {
     // This holds a list of the string names of the currently selected layers,
     // in order.
     // Just use everything on the shortlist.
-    var current_layers = oper.shortlist;
+    var current_layers = ctx.shortlist;
     
     // Obtain the layer objects (mapping from signatures/hex labels to colors)
     with_layers(current_layers, function(retrieved_layers) { 
@@ -374,7 +374,7 @@ function add_layer_url(layer_name, layer_url, attributes) {
     }
     
     // Add it to the sorted layer list.
-    oper.layer_names_sorted.push(layer_name);
+    ctx.layer_names_sorted.push(layer_name);
     
     // Don't sort because our caller does that when they're done adding layers.
 
@@ -404,7 +404,7 @@ function add_layer_data(layer_name, data, attributes) {
     
     if(!replacing) {
         // Add it to the sorted layer list, since it's not there yet.
-        oper.layer_names_sorted.push(layer_name);
+        ctx.layer_names_sorted.push(layer_name);
     }
 
     // Don't sort because our caller does that when they're done adding layers.
@@ -706,7 +706,7 @@ function make_shortlist_ui(layer_name) {
     // Run the removal process
     remove_link.click(function() {
         // Remove this layer from the shortlist
-        oper.shortlist.splice(oper.shortlist.indexOf(layer_name), 1);
+        ctx.shortlist.splice(ctx.shortlist.indexOf(layer_name), 1);
         
         // Remove this from the DOM
         root.remove();
@@ -727,7 +727,7 @@ function make_shortlist_ui(layer_name) {
 		// Run the deletion process
 		delete_link.click(function() {
 		    // Remove this layer from the shortlist
-		    oper.shortlist.splice(oper.shortlist.indexOf(layer_name), 1);
+		    ctx.shortlist.splice(ctx.shortlist.indexOf(layer_name), 1);
 		    
 		    // Remove this from the DOM
 		    root.remove();
@@ -741,7 +741,7 @@ function make_shortlist_ui(layer_name) {
 		    }
 
 			// Remove from layers list as well
-			oper.layer_names_sorted.splice(oper.layer_names_sorted.indexOf(layer_name), 1);
+			ctx.layer_names_sorted.splice(ctx.layer_names_sorted.indexOf(layer_name), 1);
 			delete layers[layer_name];
 
 			// Alter "keep" property of the created attribute
@@ -753,7 +753,7 @@ function make_shortlist_ui(layer_name) {
 			}
 		
 			// Update the browse UI with the new layer.
-			if (oper.mutual_information_ranked == true) {
+			if (ctx.mutual_information_ranked == true) {
 		    	update_browse_ui("mutual_information");
 			}
 			else {
@@ -1039,9 +1039,9 @@ update_shortlist_ui = function () {
     // Clear the existing UI lookup table
     shortlist_ui = {};
     
-    for(var i = 0; i < oper.shortlist.length; i++) {
+    for(var i = 0; i < ctx.shortlist.length; i++) {
         // For each shortlist entry, put a false in the lookup table
-        shortlist_ui[oper.shortlist[i]] = false;
+        shortlist_ui[ctx.shortlist[i]] = false;
     }
     
     
@@ -1419,6 +1419,87 @@ function layer_sort_order_r_value(a, b) {
     
 }
 
+function layer_sort_order_common(a, b) {
+
+    // By clumpiness
+    if(layers[a].clumpiness < layers[b].clumpiness) {
+        // a has a lower clumpiness score, so put it first.
+        return -1;
+    } else if(layers[b].clumpiness < layers[a].clumpiness) {
+        // b has a lower clumpiness score. Put it first instead.
+        return 1;
+    } else if(isNaN(layers[b].clumpiness) && !isNaN(layers[a].clumpiness)) {
+        // a has a clumpiness score and b doesn't, so put a first
+        return -1;
+    } else if(!isNaN(layers[b].clumpiness) && isNaN(layers[a].clumpiness)) {
+        // b has a clumpiness score and a doesn't, so put b first.
+        return 1;
+    }			
+    
+    if(!layers[a].selection && !isNaN(layers[a].positives) && layers[a].n > 0 &&
+        !layers[b].selection && !isNaN(layers[b].positives) && 
+        layers[b].n > 0) {
+        
+        // We have checked to see each layer is supposed to be binary layer
+        // without downloading.  TODO: This is kind of a hack. Redesign the
+        // whole system with a proper concept of layer type.
+        
+        // We've also verified they both have some data in them. Otherwise we
+        // might divide by 0 trying to calculate frequency.
+            
+        // Two binary layers (not selections).
+        // Compute the frequency of the least common value for each
+        
+        // This is the frequency of the least common value in a (will be <=1/2)
+        var minor_frequency_a = layers[a].positives / layers[a].n;
+        if(minor_frequency_a > 0.5) {
+            minor_frequency_a = 1 - minor_frequency_a;
+        }
+        
+        // And this is the same frequency for the b layer
+        var minor_frequency_b = layers[b].positives / layers[b].n;
+        if(minor_frequency_b > 0.5) {
+            minor_frequency_b = 1 - minor_frequency_b;
+        }
+
+        if(minor_frequency_a > minor_frequency_b) {
+            // a is more evenly split, so put it first
+            return -1;
+        } else if(minor_frequency_a < minor_frequency_b) {
+            // b is more evenly split, so put it first
+            return 1;
+        } 
+       
+    } else if (!layers[a].selection && !isNaN(layers[a].positives) && 
+        layers[a].n > 0) {
+        
+        // a is a binary layer we can nicely sort by minor value frequency, but
+        // b isn't. Put a first so that we can avoid intransitive sort cycles.
+        
+        // Example: X and Z are binary layers, Y is a non-binary layer, Y comes
+        // after X and before Z by name ordering, but Z comes before X by minor
+        // frequency ordering. This sort is impossible.
+        
+        // The solution is to put both X and Z in front of Y, because they're
+        // more interesting.
+        
+        return -1;
+    
+    } else if (!layers[b].selection && !isNaN(layers[b].positives) && 
+        layers[b].n > 0) {
+        
+        // b is a binary layer that we can evaluate based on minor value
+        // frequency, but a isn't. Put b first.
+        
+        return 1;
+		    
+    }
+    // We couldn't find a difference in selection status, p-value, or clumpiness
+    // score, or the binary layer minor value frequency, or whether each layer
+    // *had* a binary layer minor value frequency, so use lexicographic ordering
+    // on the name.
+    return a.localeCompare(b);
+}
 function layer_sort_order_mutual_information(a, b) {
     // A sort function defined on layer names.
     // Return <0 if a belongs before b, >0 if a belongs after
@@ -1440,98 +1521,61 @@ function layer_sort_order_mutual_information(a, b) {
         return 1;
     }
 
-		if(layers[a]["mutual_information"] > layers[b]["mutual_information"]) {
-		    // a has a greater mutual info value, so put it first.
-		    return -1;
-		} else if(layers[b]["mutual_information"] > layers[a]["mutual_information"]) {
-		    // b has a greater mutual info value. Put it first instead.
-		    return 1;
-		} else if(isNaN(layers[b]["mutual_information"]) && !isNaN(layers[a]["mutual_information"])) {
-		    // a has a mutual info value and b doesn't, so put a first
-		    return -1;
-		} else if(!isNaN(layers[b]["mutual_information"]) && isNaN(layers[a]["mutual_information"])) {
-		    // b has a mutual info value and a doesn't, so put b first.
-		    return 1;
-		}
-		
-		if(layers[a].clumpiness < layers[b].clumpiness) {
-		    // a has a lower clumpiness score, so put it first.
-		    return -1;
-		} else if(layers[b].clumpiness < layers[a].clumpiness) {
-		    // b has a lower clumpiness score. Put it first instead.
-		    return 1;
-		} else if(isNaN(layers[b].clumpiness) && !isNaN(layers[a].clumpiness)) {
-		    // a has a clumpiness score and b doesn't, so put a first
-		    return -1;
-		} else if(!isNaN(layers[b].clumpiness) && isNaN(layers[a].clumpiness)) {
-		    // b has a clumpiness score and a doesn't, so put b first.
-		    return 1;
-		}			
-		
-		if(!layers[a].selection && !isNaN(layers[a].positives) && layers[a].n > 0 &&
-		    !layers[b].selection && !isNaN(layers[b].positives) && 
-		    layers[b].n > 0) {
-		    
-		    // We have checked to see each layer is supposed to be bianry layer
-		    // without downloading.  TODO: This is kind of a hack. Redesign the
-		    // whole system with a proper concept of layer type.
-		    
-		    // We've also verified they both have some data in them. Otherwise we
-		    // might divide by 0 trying to calculate frequency.
-		        
-		    // Two binary layers (not selections).
-		    // Compute the frequency of the least common value for each
-		    
-		    // This is the frequency of the least common value in a (will be <=1/2)
-		    var minor_frequency_a = layers[a].positives / layers[a].n;
-		    if(minor_frequency_a > 0.5) {
-		        minor_frequency_a = 1 - minor_frequency_a;
-		    }
-		    
-		    // And this is the same frequency for the b layer
-		    var minor_frequency_b = layers[b].positives / layers[b].n;
-		    if(minor_frequency_b > 0.5) {
-		        minor_frequency_b = 1 - minor_frequency_b;
-		    }
+    if(layers[a]["mutual_information"] > layers[b]["mutual_information"]) {
+        // a has a greater mutual info value, so put it first.
+        return -1;
+    } else if(layers[b]["mutual_information"] > layers[a]["mutual_information"]) {
+        // b has a greater mutual info value. Put it first instead.
+        return 1;
+    } else if(isNaN(layers[b]["mutual_information"]) && !isNaN(layers[a]["mutual_information"])) {
+        // a has a mutual info value and b doesn't, so put a first
+        return -1;
+    } else if(!isNaN(layers[b]["mutual_information"]) && isNaN(layers[a]["mutual_information"])) {
+        // b has a mutual info value and a doesn't, so put b first.
+        return 1;
+    }
 
-		    if(minor_frequency_a > minor_frequency_b) {
-		        // a is more evenly split, so put it first
-		        return -1;
-		    } else if(minor_frequency_a < minor_frequency_b) {
-		        // b is more evenly split, so put it first
-		        return 1;
-		    } 
-		   
-		} else if (!layers[a].selection && !isNaN(layers[a].positives) && 
-		    layers[a].n > 0) {
-		    
-		    // a is a binary layer we can nicely sort by minor value frequency, but
-		    // b isn't. Put a first so that we can avoid intransitive sort cycles.
-		    
-		    // Example: X and Z are binary layers, Y is a non-binary layer, Y comes
-		    // after X and before Z by name ordering, but Z comes before X by minor
-		    // frequency ordering. This sort is impossible.
-		    
-		    // The solution is to put both X and Z in front of Y, because they're
-		    // more interesting.
-		    
-		    return -1;
-		
-		} else if (!layers[b].selection && !isNaN(layers[b].positives) && 
-		    layers[b].n > 0) {
-		    
-		    // b is a binary layer that we can evaluate based on minor value
-		    // frequency, but a isn't. Put b first.
-		    
-		    return 1;
-		    
-		}
-    // We couldn't find a difference in selection status, p-value, or clumpiness
-    // score, or the binary layer minor value frequency, or whether each layer
-    // *had* a binary layer minor value frequency, so use lexicographic ordering
-    // on the name.
-    return a.localeCompare(b);
+    return layer_sort_order_common(a, b);
+}
+
+function layer_sort_order_mutual_information_negative(a, b) {
+    // A sort function defined on layer names.
+    // Return <0 if a belongs before b, >0 if a belongs after
+    // b, and 0 if their order doesn't matter.
     
+    // Sort by selection status, then mutual information, then clumpiness, then (for binary
+    // layers that are not selections) the frequency of the less common value,
+    // then alphabetically by name if all else fails.
+
+    // Note that we can consult the layer metadata "n" and "positives" fields to
+    // calculate the frequency of the least common value in binary layers,
+    // without downloading them.
+
+    // By selection status
+    if(layers[a].selection && !layers[b].selection) {
+        // a is a selection and b isn't, so put a first.
+        return -1;
+    } else if(layers[b].selection && !layers[a].selection) {
+        // b is a selection and a isn't, so put b first.
+        return 1;
+    }
+
+    // By mutual information
+    if(layers[a]["mutual_information"] > layers[b]["mutual_information"]) {
+        // a has a lesser mutual info value, so put it first.
+        return 1;
+    } else if(layers[b]["mutual_information"] > layers[a]["mutual_information"]) {
+        // b has a lesser mutual info value. Put it first instead.
+        return -1;
+    } else if(isNaN(layers[b]["mutual_information"]) && !isNaN(layers[a]["mutual_information"])) {
+        // a has a mutual info value and b doesn't, so put a first
+        return -1;
+    } else if(!isNaN(layers[b]["mutual_information"]) && isNaN(layers[a]["mutual_information"])) {
+        // b has a mutual info value and a doesn't, so put b first.
+        return 1;
+    }
+
+    return layer_sort_order_common(a, b);
 }
 
 function sort_layers(layer_array, type_value) {
@@ -1539,14 +1583,18 @@ function sort_layers(layer_array, type_value) {
     // to appear to the user.
     // We should sort by p value, with NaNs at the end. But selections should be
     // first.
-    
-	if (type_value == "r_value") {
-    	layer_array.sort(layer_sort_order_r_value);
-	}
-	else if (type_value == "mutual_information") {
+
+	if (type_value == "region-based-positive") {
     	layer_array.sort(layer_sort_order_mutual_information);
-	}
-	else {
+
+    } else if (type_value == "region-based-negative") {
+        layer_array.sort(layer_sort_order_mutual_information_negative);
+
+    // unused:
+    //} else if (type_value == "r_value") {
+    //	layer_array.sort(layer_sort_order_r_value);
+
+	} else {
 		layer_array.sort(layer_sort_order_p_value);
 	}
 }
@@ -1609,6 +1657,7 @@ fill_layer_metadata = function (container, layer_name) {
             outside_yes: "Ones in background",
             clumpiness: "Density score",
             p_value: "P-value",
+            mutual_information: "Correlation",
         }
         
         if(lookup[attribute]) {
@@ -1645,12 +1694,12 @@ update_browse_ui = function(type_value) {
     // order.
     
     // Re-sort the sorted list that we maintain
-    sort_layers(oper.layer_names_sorted, type_value);
+    sort_layers(ctx.layer_names_sorted, type_value);
 
     // Set the "Sorting Text" Label
 	$("#ranked-against")
-        .text(oper.current_sort_text)
-        .prop('title', oper.current_sort_text);
+        .text(ctx.current_sort_text)
+        .prop('title', ctx.current_sort_text);
     
     // Close the select if it was open, forcing the data to refresh when it
     // opens again.
@@ -2029,7 +2078,7 @@ select_list = function (to_select, function_type, layer_names, new_layer_name, s
         });
         
         // Update the browse UI with the new layer.
-		if (oper.mutual_information_ranked == true) {
+		if (ctx.mutual_information_ranked == true) {
         	update_browse_ui("mutual_information");
 		}
 		else {
@@ -2039,11 +2088,11 @@ select_list = function (to_select, function_type, layer_names, new_layer_name, s
 		if (shortlist_push != false) {
 		    // Immediately shortlist it if the attribute is being created for
 			// the first time.
-		    oper.shortlist.push(layer_name);
+		    ctx.shortlist.push(layer_name);
 		    update_shortlist_ui();
 		}
 
-		if (shortlist_push == false && oper.shortlist.indexOf(layer_name)>=0) {
+		if (shortlist_push == false && ctx.shortlist.indexOf(layer_name)>=0) {
 		    // Immediately update shortlist it if the attribute is being loaded
 			// and has been declared as part of the shortlist.
 		    update_shortlist_ui();
@@ -2119,7 +2168,7 @@ clear_current_stats_values = function  () {
         delete layers[layer_name].p_value;
         delete layers[layer_name].mutual_information;
      }
-	oper.current_sort_text = "Attributes ranked according to frequency";
+	ctx.current_sort_text = "Attributes ranked according to frequency";
 	update_browse_ui();	
 }
 
@@ -2314,7 +2363,7 @@ function recalculate_statistics_for_layer(layer_name, in_list, out_list, all) {
             // TODO: Unify this code with similar callback below.
             // Re-sort everything and draw all the new p values.
 
-			oper.current_sort_text = "Ranked by contrast between " + comparison_stats_l1 + " & " + comparison_stats_l2;
+			ctx.current_sort_text = "Ranked by contrast between " + comparison_stats_l1 + " & " + comparison_stats_l2;
             update_browse_ui();
             update_shortlist_ui();
             
@@ -2369,7 +2418,7 @@ function recalculate_statistics_for_matrix(matrix_url, in_list, out_list, all) {
             // TODO: Unify this code with similar callback above.
             // Re-sort everything and draw all the new p values.
 
-			oper.current_sort_text = "Ranked by contrast between " + comparison_stats_l1 + " & " + comparison_stats_l2;
+			ctx.current_sort_text = "Ranked by contrast between " + comparison_stats_l1 + " & " + comparison_stats_l2;
             update_browse_ui();
             update_shortlist_ui();
 
@@ -3034,7 +3083,7 @@ mapTypeDef = function() {
         var div = ownerDocument.createElement("div");
         div.style.width = this.tileSize.width + "px";
         div.style.height = this.tileSize.height + "px";
-        div.style.backgroundColor = ctx.background;
+        div.style.backgroundColor = Session.get('background'); // TODO tie session var to html
         
         return div;
     }
@@ -3183,11 +3232,11 @@ clumpiness_values = function (layout_index) {
     // the given layout index. Just pulls from each layer's clumpiness_array
     // field.
     
-    for(var i = 0; i < oper.layer_names_sorted.length; i++) {
+    for(var i = 0; i < ctx.layer_names_sorted.length; i++) {
         // For each layer
         
         // Get the layer object
-        layer = layers[oper.layer_names_sorted[i]];
+        layer = layers[ctx.layer_names_sorted[i]];
         
         if(layer.clumpiness_array != undefined) {
             // We have a set of clumpiness scores for this layer.
@@ -3215,7 +3264,7 @@ function recreate_map(layout_name, spacing) {
 function create_indexed_layers_array () {
 	$.get(ctx.project + "layers.tab", function(tsv_data) {
 		// Create a list of layer names ordered by their indices
-		oper.layer_names_by_index = new Array (oper.layer_names_sorted.length);
+		ctx.layer_names_by_index = new Array (ctx.layer_names_sorted.length);
 		parsed = $.tsv.parseRows(tsv_data);
 		for (var i = 0; i < parsed.length; i++) {
 		    if(parsed[i].length < 2) {
@@ -3231,7 +3280,7 @@ function create_indexed_layers_array () {
 			// index will be where number ends
 			var period_index =file_name.lastIndexOf(".");
 			var index_value = file_name.substring(underscore_index+1, period_index);
-			oper.layer_names_by_index [index_value] = parsed[i][0];
+			ctx.layer_names_by_index [index_value] = parsed[i][0];
 		 }			     
     }, "text");
 
@@ -3248,11 +3297,11 @@ initHex = function () {
     // Initialize some operating values
 
     // A list of layer names maintained in sorted order.
-    oper.layer_names_sorted = [];
+    ctx.layer_names_sorted = [];
 
     // This holds an array of layer names that the user has added to the "shortlist"
     // They can be quickly selected for display.
-    oper.shortlist = [];
+    ctx.shortlist = [];
 
     // Set up the Google Map
     mapTypeDef();
@@ -3387,14 +3436,14 @@ initHex = function () {
 		// Add Tissue or 1st Attribute as Default Select
         if (layers["tissue"] != undefined){
 			with_layer("tissue", function(layer) {
-    	    	oper.shortlist.push("tissue");
+    	    	ctx.shortlist.push("tissue");
 				update_shortlist_ui();
 
 			});
         }
-        else if (oper.layer_names_sorted.length > 0){
-			with_layer(oper.layer_names_sorted[0], function(layer) {
-    	    	oper.shortlist.push(oper.layer_names_sorted[0]);
+        else if (ctx.layer_names_sorted.length > 0){
+			with_layer(ctx.layer_names_sorted[0], function(layer) {
+    	    	ctx.shortlist.push(ctx.layer_names_sorted[0]);
 				update_shortlist_ui();
 
 			});
@@ -3440,9 +3489,9 @@ initHex = function () {
 
 		// Parse the file
         var parsed = $.tsv.parseRows(tsv_data);
-		oper.cont_layers = parsed[0];
-		oper.bin_layers = parsed[1];	
-        oper.cat_layers = parsed[2];
+		ctx.cont_layers = parsed[0];
+		ctx.bin_layers = parsed[1];	
+        ctx.cat_layers = parsed[2];
         
 	}, "text");  
 
@@ -3491,7 +3540,6 @@ initHex = function () {
 
             
         }
-        Session.set('colormaps', colormaps);
 
         // We may need to redraw the view in response to having new color map 
         // info, if it came particularly late.
@@ -3612,7 +3660,7 @@ initHex = function () {
 		// If currently sorted by mutual information, the mutual information
 		// values must be added for the specific layout and must be resorted.
 		// Function will update current_layout_index & reextract stats if needed
-		get_current_layout_index (layout_name, oper.mutual_information_ranked);
+		get_current_layout_index (layout_name, ctx.mutual_information_ranked);
         
 		re_initialize_view();
     });

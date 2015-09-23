@@ -53,9 +53,9 @@ var app = app || {}; // jshint ignore:line
                     start_position = query.context;
                 }
             
-                for(var i = start_position; i < oper.layer_names_sorted.length; i++) {
+                for(var i = start_position; i < ctx.layer_names_sorted.length; i++) {
                     // For each possible result
-                    if(oper.layer_names_sorted[i].toLowerCase().indexOf(
+                    if(ctx.layer_names_sorted[i].toLowerCase().indexOf(
                         query.term.toLowerCase()) != -1) {
                         
                         // Query search term is in this layer's name. Add a select2
@@ -63,7 +63,7 @@ var app = app || {}; // jshint ignore:line
                         // formatter looks up by ID and makes UI elements
                         // dynamically.
                         results.push({
-                            id: oper.layer_names_sorted[i]
+                            id: ctx.layer_names_sorted[i]
                         });
                         
                         if(results.length >= SEARCH_PAGE_SIZE) {
@@ -78,7 +78,7 @@ var app = app || {}; // jshint ignore:line
                 query.callback({
                     results: results,
                     // Say there's more if we broke out of the loop.
-                    more: i < oper.layer_names_sorted.length,
+                    more: i < ctx.layer_names_sorted.length,
                     // If there are more results, start after where we left off.
                     context: i + 1
                 });
@@ -109,8 +109,8 @@ var app = app || {}; // jshint ignore:line
             // Only add to the shortlist if it isn't already there
             // Was it already there?
             var found = false;
-            for(var j = 0; j < oper.shortlist.length; j++) {
-                if(oper.shortlist[j] == layer_name) {
+            for(var j = 0; j < ctx.shortlist.length; j++) {
+                if(ctx.shortlist[j] == layer_name) {
                     found = true;
                     break;
                 }
@@ -118,7 +118,7 @@ var app = app || {}; // jshint ignore:line
             
             if(!found) {
                 // It's new. Add it to the shortlist
-                oper.shortlist.push(layer_name);
+                ctx.shortlist.push(layer_name);
                 
                 // Update the UI to reflect this. This may redraw the view.
                 update_shortlist_ui();
