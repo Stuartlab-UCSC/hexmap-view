@@ -2,14 +2,18 @@
 /*
 The visualization element needs to take up all available space.
 */
-#visualization {
+#visualization, #gridMap {
     position: absolute;
     left: 0;
     top: 0;
     bottom: 0;
     width: 100%;
     overflow: hidden;
-    background-color: #000000;
+    background-color: rbg(229,227,223);
+}
+
+#gridMap .gm-style {
+    background-color: #fff;
 }
 
 /* 
@@ -133,6 +137,13 @@ These are all supposed to stack against the left end in a toolbar thingy.
     padding-top: 0.2em;
     width: 15em;
 }
+#project.static {
+    font-size: 1.1em;
+    vertical-align: center;
+    margin-top: -0.4em;
+    padding-right: 0.5em;
+    width: auto;
+}
 
 #error-notification {
     color: red;
@@ -150,7 +161,7 @@ These are all supposed to stack against the left end in a toolbar thingy.
     margin-right: 0.5em;
 }
 
-/* Code for fancy expandy side pannels */
+/* Code for fancy expandy side panels */
 
 .panel-holder {
     overflow: hidden;
@@ -570,7 +581,7 @@ layout-name {
 .key {
     overflow: visible;
     position: absolute;
-    z-index: 2;
+    z-index: 3;
     top: 2em;
     right: 2em;
     height: 150px;
@@ -738,3 +749,37 @@ input.import {
 #colorTable input.empty.dark {
     color: #bbbbbb;
 }
+
+#coords {
+    display: none;
+    text-align: left;
+    padding-right: 0.3em;
+    background: #eee;
+    margin-top: 0.1em;
+    width: 19em;
+}
+#coords td {
+    text-align: right;
+    padding: 0;
+    width: 2.3em;
+}
+#coords td:first-child {
+    padding-right: 0.3em;
+    width: 5em;
+}
+#coords td:nth-child(4) {
+    font-size: 0.7em;
+    width: 8em;
+}
+
+
+
+
+
+
+
+
+
+
+
+

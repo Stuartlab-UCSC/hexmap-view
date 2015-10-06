@@ -3,11 +3,7 @@ sampleBaseStats.py: Run the sample-based statistics.
 """
 import sys, os, numpy, subprocess, shutil, tempfile, pprint
 import tsv, csv, datetime, time, math, multiprocessing
-
-
-MAX_JOB_COUNT = multiprocessing.cpu_count()
-if MAX_JOB_COUNT < 1:
-    MAX_JOB_COUNT = 8
+import pool
 
 def pearson (subprocess_string, optionsDirectory, total_processes, sctx):
     """
@@ -134,7 +130,7 @@ def stats_looper (
                 current_pairs = 0
 
         # Log a progress message for every ~1/30th of pairs processed
-        if sum_pairs > sctx['total_pairs'] * pair_message_count / 30:
+        if sum_pairs >= sctx['total_pairs'] * pair_message_count / 30:
             print timestamp(), str(pair_message_count) + '/30 of', sctx['total_pairs'], 'pairs'
             sys.stdout.flush()
             pair_message_count += 1
@@ -192,7 +188,7 @@ def per_stats_type (layers, layer_names, num_processes, num_pairs, sctx, ctx, op
                 value_count += 1
 
         # Log a progress message for every ~1/30th of values processed
-        if value_count > value_total * message_count / 30:
+        if value_count >= value_total * message_count / 30:
             print timestamp(), str(message_count) + '/30 of', value_total, 'values'
             sys.stdout.flush()
             message_count += 1
@@ -218,7 +214,7 @@ def per_stats_type (layers, layer_names, num_processes, num_pairs, sctx, ctx, op
         written_count += 1
 
         # Log a progress message for every ~1/30th of files written
-        if written_count > layer_count * message_count / 30:
+        if written_count >= layer_count * message_count / 30:
             print timestamp(), str(message_count) + '/30 of', layer_count, 'files'
             sys.stdout.flush()
             message_count += 1
@@ -300,7 +296,9 @@ def sample_based_statistics(layers, layer_names, ctx, options):
     writer.line(*hex_names)
     writer.close()
 
-    print 'Using all', MAX_JOB_COUNT, 'processors for parallel jobs'
+    MAX_JOB_COUNT = pool.max_job_count()
+
+    print 'Using', MAX_JOB_COUNT, 'processors for parallel jobs'
 
     """ 
     Ignore these stats for now

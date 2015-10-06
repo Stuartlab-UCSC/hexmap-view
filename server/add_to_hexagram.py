@@ -15,7 +15,7 @@ Re-uses sample code and documentation from
 """
 
 import argparse, sys, os, itertools, math, numpy, subprocess, shutil, tempfile, re
-import collections, multiprocessing, traceback, numpy, time
+import collections, traceback, numpy, time
 import scipy.stats, scipy.linalg
 import os.path
 import tsv

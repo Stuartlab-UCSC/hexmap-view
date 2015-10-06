@@ -142,19 +142,13 @@ function make_hexagon(row, column, hex_side_length, grid_offset) {
     // How much horizontal space is needed per hex on average, stacked the 
     // way we stack them (wiggly)?
     var hex_column_width = 3.0/2.0 * hex_side_length;
-    
+
     // How tall is a hexagon?
     var hex_height = Math.sqrt(3) * hex_side_length;
-    
-    // How far apart are hexagons on our grid, horizontally (world coordinate units)?
-    var hex_padding_horizontal = 0;
-    
-    // And vertically (world coordinate units)?
-    var hex_padding_veritcal = 0;
-    
-    // First, what are x and y in 0-256 world coordinates fo this grid position?
-    var x = column * (hex_column_width + hex_padding_horizontal);
-    var y = row * (hex_height + hex_padding_veritcal);
+
+    // First, what are x and y in 0-256 world coordinates for this grid position?
+    var x = column * hex_column_width;
+    var y = row * hex_height;
     if(column % 2 == 1) {
         // Odd columns go up
         y -= hex_height / 2; 
@@ -200,7 +194,8 @@ function make_hexagon(row, column, hex_side_length, grid_offset) {
         // Only turn on the border if we're big enough
         strokeWeight: hex_size_pixels < MIN_BORDER_SIZE ? 0 : HEX_STROKE_WEIGHT, 
         fillColor: "#FF0000",
-        fillOpacity: 1.0
+        fillOpacity: 1.0,
+        zIndex: 1,
     });
     
     // Attach the hexagon to the global map
@@ -1583,6 +1578,7 @@ function sort_layers(layer_array, type_value) {
     // to appear to the user.
     // We should sort by p value, with NaNs at the end. But selections should be
     // first.
+    if (layer_array.length === 0) return;
 
 	if (type_value == "region-based-positive") {
     	layer_array.sort(layer_sort_order_mutual_information);
@@ -1595,7 +1591,13 @@ function sort_layers(layer_array, type_value) {
     //	layer_array.sort(layer_sort_order_r_value);
 
 	} else {
+        // The default sort
 		layer_array.sort(layer_sort_order_p_value);
+        if (!_.isUndefined(ctx.first_layer)) {
+            // move the 'First' attribute to the top
+            layer_array.splice(layer_array.indexOf(ctx.first_layer), 1);
+            layer_array.unshift(ctx.first_layer);
+        }
 	}
 }
 
@@ -1773,6 +1775,7 @@ function get_current_layers() {
     // Returns an array of the string names of the layers that are currently
     // supposed to be displayed, according to the shortlist UI.
     // Not responsible for enforcing maximum selected layers limit.
+    // TODO why don't we keep track of this dynamically rather than when asked?
     
     // This holds a list of the string names of the currently selected layers,
     // in order.
@@ -2444,18 +2447,23 @@ function recalculate_statistics_for_matrix(matrix_url, in_list, out_list, all) {
 initialize_view = function () {
     // Initialize the global Google Map.
 
-    // Configure a Google map
-    if (_.isUndefined(ctx.center)) {
-        ctx.center = new google.maps.LatLng(0,0);
-    }
-    mapOptions = {
+    var mapOptions = {
         center: ctx.center,
+        //center: Session.get('center'),
         zoom: ctx.zoom,
         mapTypeId: "blank",
         // Don't show a map type picker.
         mapTypeControlOptions: {
-              mapTypeIds: []
+            mapTypeIds: []
         },
+        /*
+        // TODO This does not force the large zoom control to show even if
+        // the google maps docs says it does
+        zoomControl:true,
+        zoomControlOptions: {
+            style:google.maps.ZoomControlStyle.LARGE
+        },
+        */
         // Or a street view man that lets you walk around various Earth places.
         streetViewControl: false
     };
@@ -2466,7 +2474,7 @@ initialize_view = function () {
         
     // Attach the blank map type to the map
     googlemap.mapTypes.set("blank", new BlankMapType());
-    
+
     // Make the global info window
     info_window = new google.maps.InfoWindow({
         content: "No Signature Selected",
@@ -2491,6 +2499,11 @@ initialize_view = function () {
     google.maps.event.addListener(info_window, "closeclick", function(event) {
         selected_signature = undefined;
     });
+
+    google.maps.event.addListener(googlemap, "center_changed", function(event) {
+        ctx.center = googlemap.getCenter();
+        //Session.set('center', googlemap.getCenter());
+    });
     
     // We also have an event listener that checks when the zoom level changes,
     // and turns off hex borders if we zoom out far enough, and turns them on
@@ -2499,7 +2512,7 @@ initialize_view = function () {
         // Get the current zoom level (low is out)
         var zoom = googlemap.getZoom();
         ctx.zoom = zoom;
-        
+
         // API docs say: pixelCoordinate = worldCoordinate * 2 ^ zoomLevel
         // So this holds the number of pixels that the global length hex_size 
         // corresponds to at this zoom level.
@@ -2533,18 +2546,17 @@ re_initialize_view = function () { // swat
     print ('googlemap:');
     print (googlemap);
     ctx.zoom = googlemap.getZoom();
-    ctx.center = googlemap.getCenter();
 
     initialize_view ();
-    recreate_map(ctx.current_layout_name, 1);
+    recreate_map(ctx.current_layout_name);
     refresh ();
 }
 
-function have_colormap(colormap_name) {
+have_colormap = function (colormap_name) {
     // Returns true if the given string is the name of a colormap, or false if 
     // it is only a layer.
-    
-    return !(colormaps[colormap_name] == undefined);
+
+    return (colormap_name in colormaps)
 }
 
 function get_range_position(score, low, high) {
@@ -2682,7 +2694,9 @@ function redraw_view() {
                 set_hexagon_color(polygons[label], computed_color);
             }
         });
-        
+
+        //redraw_legend(retrieved_layers);
+
         // Draw the color key.
         if(retrieved_layers.length == 0) {
             // No color key to draw
@@ -2819,7 +2833,7 @@ function redraw_view() {
                 $("#high-x").show();
             }
         }
-        
+
         
     });
     
@@ -2827,7 +2841,7 @@ function redraw_view() {
     redraw_info_window();
 }
 
-function get_color(u_name, u, v_name, v) {
+get_color = function (u_name, u, v_name, v) {
     // Given u and v, which represent the heat in each of the two currently 
     // displayed layers, as well as u_name and v_name, which are the 
     // corresponding layer names, return the computed CSS color.
@@ -3044,68 +3058,10 @@ function mix2 (a, b, c, d, amount1, amount2) {
     return mix(mix(a, b, amount1), mix(c, d, amount1), amount2);
 }
 
-FlatProjection = function () {
-}
-BlankMapType = function () {
-}
-
-mapTypeDef = function() {
-
-    // Define a flat projection
-    // See https://developers.google.com/maps/documentation/javascript/maptypes#Projections
-    FlatProjection.prototype.fromLatLngToPoint = function(latLng) {
-        // Given a LatLng from -90 to 90 and -180 to 180, transform to an x, y Point 
-        // from 0 to 256 and 0 to 256   
-        var point = new google.maps.Point((latLng.lng() + 180) * 256 / 360, 
-            (latLng.lat() + 90) * 256 / 180);
-        
-        return point;
-
-    }
-
-    FlatProjection.prototype.fromPointToLatLng = function(point, noWrap) {
-        // Given a an x, y Point from 0 to 256 and 0 to 256, transform to a LatLng from
-        // -90 to 90 and -180 to 180
-        var latLng = new google.maps.LatLng(point.y * 180 / 256 - 90, 
-            point.x * 360 / 256 - 180, noWrap);
-        
-        return latLng;
-    }
-
-    // Define a Google Maps MapType that's all blank
-    // See https://developers.google.com/maps/documentation/javascript/examples/maptype-base
-    BlankMapType.prototype.tileSize = new google.maps.Size(256,256);
-    BlankMapType.prototype.maxZoom = 19;
-
-    BlankMapType.prototype.getTile = function(coord, zoom, ownerDocument) {
-        // This is the element representing this tile in the map
-        // It should be an empty div
-        var div = ownerDocument.createElement("div");
-        div.style.width = this.tileSize.width + "px";
-        div.style.height = this.tileSize.height + "px";
-        div.style.backgroundColor = Session.get('background'); // TODO tie session var to html
-        
-        return div;
-    }
-
-    BlankMapType.prototype.name = "Blank";
-    BlankMapType.prototype.alt = "Blank Map";
-
-    BlankMapType.prototype.projection = new FlatProjection();
-},
-
-
-get_LatLng = function (x, y) {
-    // Given a point x, y in map space (0 to 256), get the corresponding LatLng
-    return FlatProjection.prototype.fromPointToLatLng(
-        new google.maps.Point(x, y));
-}
-
-assignment_values = function (layout_index, spacing) {
-	// Download the signature assignments to hexagons and fill in the global 
+assignment_values = function (layout_index) {
+	// Download the signature assignments to hexagons and fill in the global
     // hexagon assignment grid.
     $.get(ctx.project + "assignments" + layout_index +".tab", function(tsv_data) {
-
     
         // This is an array of rows, which are arrays of values:
         // id, x, y
@@ -3116,7 +3072,7 @@ assignment_values = function (layout_index, spacing) {
         // And y
         var max_y = 0;
         
-        // Fill in the global signature grid and ploygon grid arrays.
+        // Fill in the global signature grid and polygon grid arrays.
         for(var i = 0; i < parsed.length; i++) {
             // Get the label
             var label = parsed[i][0];
@@ -3131,14 +3087,9 @@ assignment_values = function (layout_index, spacing) {
             // And the y coord
             var y = parseInt(parsed[i][2]);
 
-			x = x * spacing;
-			y = y * spacing;			
-
-
             // Update maxes
             max_x = Math.max(x, max_x);
             max_y = Math.max(y, max_y);
-           
 
             // Make sure we have a row
             if(signature_grid[y] == null) {
@@ -3153,24 +3104,24 @@ assignment_values = function (layout_index, spacing) {
         
         // We need to fit this whole thing into a 256x256 grid.
         // How big can we make each hexagon?
-        // TODO: Do the algrbra to make this exact. Right now we just make a 
+        // TODO: Do the algebra to make this exact. Right now we just make a
         // grid that we know to be small enough.
         // Divide the space into one column per column, and calculate 
         // side length from column width. Add an extra column for dangling
         // corners.
         var side_length_x = (256)/ (max_x + 2) * (2.0 / 3.0);
-        
+
         print("Max hexagon side length horizontally is " + side_length_x);
         
         // Divide the space into rows and calculate the side length
-        // from hex height. Remember to add an extra row for wggle.
+        // from hex height. Remember to add an extra row for wiggle.
         var side_length_y = ((256)/(max_y + 2)) / Math.sqrt(3);
-        
+
         print("Max hexagon side length vertically is " + side_length_y);
         
         // How long is a hexagon side in world coords?
         // Shrink it from the biggest we can have so that we don't wrap off the 
-        // edges of the map.
+        // edges of the map. Divide by 2 to make it fit a 128x128 grid
         var hexagon_side_length = Math.min(side_length_x, side_length_y) / 2.0;
 
         // Store this in the global hex_size, so we can later calculate the hex
@@ -3202,9 +3153,6 @@ assignment_values = function (layout_index, spacing) {
             // And the y coord
             var y = parseInt(parsed[i][2]);
 
-			x = x * spacing;
-			y = y * spacing;			
-
             // Make a hexagon on the Google map and store that.
             var hexagon = make_hexagon(y, x, hexagon_side_length, grid_offset);
             // Store by x, y in grid
@@ -3218,11 +3166,17 @@ assignment_values = function (layout_index, spacing) {
             
         }
         
-        // Now that the ploygons exist, do the initial redraw to set all their 
+        // Now that the polygons exist, do the initial redraw to set all their
         // colors corectly. In case someone has messed with the controls.
         // TODO: can someone yet have messed with the controlls?
         refresh();
-        
+
+        // Initialize tools requiring polygons to be drawn by triggering an
+        // an idle event
+        center = googlemap.getCenter()
+        googlemap.setCenter(new google.maps.LatLng(center.lat(),
+            center.lng() + .000000001));
+        google.maps.event.addListener(googlemap, 'idle', initMapDrawn);
 
     }, "text");
 }
@@ -3253,10 +3207,10 @@ clumpiness_values = function (layout_index) {
 // function as these files are indexed according to the appropriate layout.
 // Also pass it to the clumpiness_values function to swap to the appropriate set
 // of clumpiness scores.
-function recreate_map(layout_name, spacing) {
+function recreate_map(layout_name) {
 
 	var layout_index = ctx.layout_names.indexOf(layout_name);
-	assignment_values(layout_index, spacing);
+	assignment_values(layout_index);
 	clumpiness_values(layout_index);
 
 }
@@ -3303,7 +3257,35 @@ initHex = function () {
     // They can be quickly selected for display.
     ctx.shortlist = [];
 
-    // Set up the Google Map
+    // TODO we need to get this from the server before the attribute sort the
+    // user sees on startup. We're lucky now. We need to guarantee this is done
+    // first.
+	// Download Information on what layers are continuous and which are binary
+	$.get(ctx.project + "Layer_Data_Types.tab", function(tsv_data) {
+        // This is an array of rows with the following content:
+        //
+		//	FirstAttribute		Layer6
+		//	Continuous		Layer1	Layer2	Layer3 ...
+		//	Binary	Layer4	Layer5	Layer6 ...
+		//	Categorical	Layer7	Layer8	Layer9 ...
+		//
+
+		// Parse the file
+        var parsed = $.tsv.parseRows(tsv_data);
+        _.each(parsed, function (line) {
+            if (line[0] === 'Binary') {
+                ctx.bin_layers = line.slice(1);
+            } else if (line[0] === 'Continuous') {
+                ctx.cont_layers = line.slice(1);
+            } else if (line[0] === 'Categorical') {
+                ctx.cat_layers = line.slice(1);
+            } else if (line[0] === 'FirstAttribute') {
+                ctx.first_layer = line.slice(1).join();
+            } // skip any lines we don't know about
+        });
+	}, "text");  
+
+    // Set up the Google Map type and projection
     mapTypeDef();
     initialize_view();
     
@@ -3314,7 +3296,6 @@ initHex = function () {
 
 	// Action handler for display of comparison statistics query pop-up
 	$("#comparison-stats").button().click(function() {
-        
 
 		comparison_stats_clicks++;
 
@@ -3327,8 +3308,7 @@ initHex = function () {
 			}
 		else {
 			hide_comparison_stats_drop_down ();
-		}		
-	
+		}
 	});
 
     initSetOperations();
@@ -3355,8 +3335,6 @@ initHex = function () {
         
 		
 	};
-
-	// New Consolidate Stats Fetching
 
 	// Set up help buttons to open their sibling help dialogs.
 	$(".help-button").each(function() {
@@ -3476,25 +3454,6 @@ initHex = function () {
         }
     }, "text");
     
-
-	// Download Information on what layers are continuous and which are binary
-	$.get(ctx.project + "Layer_Data_Types.tab", function(tsv_data) {
-        // This is an array of rows, which are arrays of values:
-        //
-		//	id		Layer1	Layer2	Layer 3...
-		//	Layer1	value	value	value
-		//	Layer2	value	value	value
-		//	Layer3	value	value	value
-		//
-
-		// Parse the file
-        var parsed = $.tsv.parseRows(tsv_data);
-		ctx.cont_layers = parsed[0];
-		ctx.bin_layers = parsed[1];	
-        ctx.cat_layers = parsed[2];
-        
-	}, "text");  
-
     // Download color map information
     $.get(ctx.project + "colormaps.tab", function(tsv_data) {
         // Colormap data is <layer name>\t<value>\t<category name>\t<color>
@@ -3537,8 +3496,6 @@ initHex = function () {
             
             // Store the finished color map in the global object
             colormaps[layer_name] = colormap;
-
-            
         }
 
         // We may need to redraw the view in response to having new color map 

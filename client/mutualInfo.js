@@ -161,7 +161,7 @@ var app = app || {}; // jshint ignore:line
         */
     }
 
-    get_mutual_information_statistics = function (unused_layout_number, focus_attr, query_type, anticorrelated) {
+    get_mutual_information_statistics = function (layout_index, focus_attr, query_type, anticorrelated) {
         // Retrieve the appropriate mutual information values
         // @param unused_layout_number: not used because our stats are only on
         //                              the first layer
@@ -174,7 +174,7 @@ var app = app || {}; // jshint ignore:line
         //                        false: sort with correlated values at the top
         // TODO and return either a sorted list or a specific value, via alert box.
         // All mutual information values are stored in files of the format
-        // "layer_<layer_number>_rstats.tab".
+        // "layer_<layer_index>_<layout_index>_rstats.tab".
         // If anticorrelated is true, only updates anticorrelated layers.
         // TODO the help says only for layers that are significantly
         // anticorrelated with the focus attribute, and the same type as the
@@ -189,7 +189,7 @@ var app = app || {}; // jshint ignore:line
         var layer_names = ctx.bin_layers;
 
         // What file should we get?
-        var filename = ctx.project + "layer_"+ layer_index + "_rstats.tab";
+        var filename = ctx.project + "layer_"+ layer_index + "_" + layout_index + "_rstats.tab";
         print("Fetching " + filename);
 
         // query_type = 'rank' indicates a rank query

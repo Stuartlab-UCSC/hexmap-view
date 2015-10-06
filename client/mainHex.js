@@ -4,6 +4,7 @@
 
 var app = app || {}; // jshint ignore:line
 
+DEV = true;
 ctx = null; // Persistent state to be saved eventually
 layers = {}; // contains almost all information about attributes
 
@@ -24,11 +25,14 @@ layers = {}; // contains almost all information about attributes
             {pre: 'set', suf: '.svg'},
             {pre: 'sort_attributes', suf: '.svg'},
         ],
+        gridPageSrcs = [
+        ],
         sortAttrsSrcs = [
             {pre: 'help', suf: '.svg'},
-        ];
+        ],
+        googlemapsInitialized = false;
 
-    // Prefx image URLs which may be different on different servers.
+    // Prefix for image URLs may be different on different servers.
     // There must be a better way to do this
     function fixProxies (templateName) {
         var url = Meteor.absoluteUrl(),
@@ -38,13 +42,28 @@ layers = {}; // contains almost all information about attributes
         });
     }
 
+    function convertStoredCenterToLatLng() {
+        /*
+        if (_.isNull(Session.get('center'))) {
+            Session.set('center', [0, 0]);
+        Session.set('center', new google.maps.LatLng(
+            Session.get('center')[0], Session.get('center')[1]));
+        }
+        */
+        if (_.isNull(ctx.center) {
+            ctx.center = [0, 0];
+        }
+        ctx.center = new google.maps.LatLng(ctx.center[0], ctx.center[1]);
+
+    }
+
     Template.body.helpers({
         page: function () {
-            if (!ctx) ctx = initState();
-            return Session.get("page");
+            if (_.isNull(ctx)) ctx = initState();
+            return Session.get('page');
         },
         proxPre: function () {
-        if (!ctx) ctx = initState();
+        if (_.isNull(ctx)) ctx = initState();
             return Session.get("proxPre");
         }
     });
@@ -52,35 +71,90 @@ layers = {}; // contains almost all information about attributes
     Template.body.events({
         "click .homePage": function () {
             Session.set("page", "homePage");
+            location.reload();
         },
         "click .mapPage": function() {
             Session.set("page", "mapPage");
-        }
+            location.reload();
+        },
+        "click .defaultMapPage": function() {
+            ctx.project = 'data/public/pancan12/';
+            Session.set("page", "mapPage");
+            location.reload();
+        },
+        "click .gridPage": function() {
+            Session.set("page", "gridPage");
+            location.reload();
+        },
     });
 
     Template.homePage.onRendered(function () {
-        if (!ctx) ctx = initState();
         fixProxies('homePage');
     });
 
     Template.mapPage.onRendered(function () {
-        if (!ctx) ctx = initState();
+
+        // TODO this may be removed when we are not
+        // drawing mapPage along with the gridPage
+        if (!Session.equals('page', 'mapPage')) return;
+
+        // We want to show/hide these early on
+        $('#coords').hide();
+        if (DEV) $('.sort_attributes, .statistics').show()
+
         fixProxies ('mapPage');
-        initMrtGooglemaps();
+        initMrtGooglemapsForMap();
     });
 
-    initMrtGooglemaps = function () {
+    Template.gridPage.onRendered(function () {
+        $('#coords').hide();  // We want to catch this early on
+        fixProxies ('gridPage');
+        initMrtGooglemapsForGrid();
+    });
+
+    initMapDrawn = function () {
+        // Initialize modules that need to have the map drawn.
+        initSvg();
+        if (DEV) initGrid();
+        initCoords();
+    }
+
+    initGridDrawn = function () {
+        // Initialize modules that need to have the grid drawn.
+        initCoords();
+    }
+
+    function initHomeLink() {
+        // Set up the link to the home page
+        add_tool("to-home", "Home", function() {
+            $('.homePage').click();
+            tool_active = false;
+        });
+    }
+
+    initMrtGooglemapsForMap = function () {
         setTimeout(function () {
             GoogleMaps.init({}, function () {
             
                 // Initialize everything else
+                initHomeLink();
                 initProject();
                 initTools();
                 initColors();
-                initSvg();
+                convertStoredCenterToLatLng();
                 initHex();
                 $.get("maplabel.js");
-                //$.get("maplabel-compiled.js");
+            });
+        }, 0)
+    };
+
+    initMrtGooglemapsForGrid = function () {
+        setTimeout(function () {
+            GoogleMaps.init({}, function () {
+                initHomeLink();
+                convertStoredCenterToLatLng();
+                initHex();
+                initGrid();
             });
         }, 0)
     };

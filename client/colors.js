@@ -59,7 +59,7 @@ var app = app || {}; // jshint ignore:line
                 Meteor.setTimeout(function () { // Let the ui catch up
                     var val = $(event.target).attr('value');
                     if (!Session.equals('background', val)) {
-                        Session.set("background", val);
+                        Session.set('background', val);
                         re_initialize_view();
                     }
                     $form.dialog('close');
@@ -68,7 +68,7 @@ var app = app || {}; // jshint ignore:line
 
             // Deselect the tool.
             selected_tool = undefined;
-        });
+        }, 'Change the background color', 'mapOnly');
 
         // Prepare a tool to change the colorMap
 
@@ -295,7 +295,7 @@ var app = app || {}; // jshint ignore:line
 
             // Deselect the tool.
             selected_tool = undefined;
-        });
+        }, 'Change colors of attributes', 'mapOnly');
     }
 })(app);
 

@@ -1,0 +1,21 @@
+<template name='navBar'>
+    <div class="tools row" id="toolbar">
+        <div class="title stacker">
+        <img class='stacker cyber-slug' style='height:30px;margin-top:0.3em;margin-right:0.5em'>
+            UCSC Tumor Map
+        </div>
+        <div id='project' class='mapOnly stacker'></div>
+        <div class="mapOnly stacker right">
+            <img class="recalculate-throbber throbber" title="Recalculating..." />
+            <span class="recalculate-progress">
+                <span id="jobs-running">0</span>/<span id="jobs-in-batch">0</span> jobs running.
+            </span>
+            <span class="recalculate-finished">
+                Done.
+            </span>
+        </div>
+        <div class="mapOnly stacker right">
+            <div id="recalculate-progress" class="recalculate-progress"></div>
+        </div>
+    </div>
+</template>

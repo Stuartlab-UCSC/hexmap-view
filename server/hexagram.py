@@ -13,18 +13,21 @@ present in your PATH.
 Re-uses sample code and documentation from 
 <http://users.soe.ucsc.edu/~karplus/bme205/f12/Scaffold.html>
 """
-
 import argparse, sys, os, itertools, math, numpy, subprocess, shutil, tempfile
-import collections, multiprocessing, traceback, numpy, time, datetime, pprint
+import collections, traceback, numpy, time, datetime, pprint
 import scipy.stats, scipy.linalg, scipy.misc
-import time
+import time, socket
+from types import *
 import os.path
 import tsv, csv
 from sampleBaseStats import sample_based_statistics
 from regionBaseStats import region_based_statistics
+import pool
 
 # We have a mutualinformation module to do the MI calculations.
 import mutualinformation
+
+DEV = False; # True if in development mode, False if not
 
 def timestamp():
     return str(datetime.datetime.now())[8:-7]
@@ -38,7 +41,7 @@ class Context:
         s.matrices = [] # Opened matrices files
         s.all_hexagons = {} # Hexagon dicts {layout0: {(x, y): hex_name, ...}, layout1: {(x, y): hex_name, ...}}
         s.binary_layers = [] # Binary layer_names in the first layout
-        s.continuous_layers = [] # Continous layer_names in the first layout
+        s.continuous_layers = [] # Continuous layer_names in the first layout
         s.categorical_layers = [] # categorical layer_names in the first layout
         s.beta_computation_data = {} # data formatted to compute beta values
 
@@ -90,22 +93,26 @@ def parse_args(args):
         help="where to write HTML report")
     parser.add_argument("--directory", "-d", type=str, default=".",
         help="directory in which to create other output files")
-    parser.add_argument("--drlpath", "-r", type=str, 
+    parser.add_argument("--drlpath", "-r", type=str,
         help="directory in which contain drl binaries")
+    parser.add_argument("--first_attribute", type=str, default="",
+        help="initial attribute to be at the top of the list and in the short list")
     parser.add_argument("--query", type=str, default=None,
         help="Galaxy-escaped name of the query signature")
     parser.add_argument("--window_size", type=int, default=20,
         help="the square of this is the number of windows to use when looking for clusters")
-    parser.add_argument("--mi_window_size", type=int, default=25,
-        help="the square of this is the number of windows to use when running region-based stats")
-    parser.add_argument("--mi_window_threshold", type=int, default=30,
+    parser.add_argument("--mi_window_size", type=int,
+        help="this parameter is no longer used; an adaptive grid is used instead")
+    parser.add_argument("--mi_window_threshold", type=int, default=5,
         help="min number of hexagons per window to be included in the calculations for region-based statistics")
-    parser.add_argument("--mi_binary_no_binning", action="store_false", 
+    parser.add_argument("--mi_window_threshold_upper", type=int, default=20,
+        help="max number of hexagons per window to be included in the calculations for region-based statistics")
+    parser.add_argument("--mi_binary_no_binning", action="store_false",
         dest="mi_binary_binning",
         help="whether to bin counts from binary layers for region-based stats")
     parser.add_argument("--truncation_edges", type=int, default=10,
         help="number of edges for DrL truncate to pass per node")
-    parser.add_argument("--no-stats", dest="stats", action="store_false", 
+    parser.add_argument("--no-stats", dest="clumpinessStats", action="store_false",
         default=True,
         help="disable cluster-finding statistics")
     parser.add_argument("--no-associations", dest="associations", action="store_false", 
@@ -570,21 +577,6 @@ class ClusterFinder(object):
         
         return best_p                
 
-def run_functor(functor):
-    """
-    Given a no-argument functor (like a ClusterFinder), run it and return its 
-    result. We can use this with multiprocessing.map and map it over a list of 
-    job functors to do them.
-    
-    Handles getting more than multiprocessing's pitiful exception output
-    """
-    
-    try:
-        return functor()
-    except:
-        # Put all exception text into an exception and raise that
-        raise Exception(traceback.format_exc())
-
 def determine_layer_data_types (layers, layer_names, options):
     """
     This tool will act as the organizational control for all association 
@@ -655,6 +647,7 @@ def determine_layer_data_types (layers, layer_names, options):
     type_writer = tsv.TsvWriter(open(os.path.join(options.directory, 
     "Layer_Data_Types.tab"), "w"))
 
+    type_writer.line("FirstAttribute", options.first_attribute)
     type_writer.line("Continuous", *ctx.continuous_layers)
     type_writer.line("Binary", *ctx.binary_layers)
     type_writer.line("Categorical", *ctx.categorical_layers)
@@ -859,9 +852,8 @@ def raw_data_to_matrix(raw_data, hexagons_dict, data_type, options, index):
 
 def extract_coords (axis, size, hexagons):
     """
-    Extract the coordinate values for a certain set of hexagons
-    and multiply these values by 2. Then assign them to a numpy matrix,
-    and return this matrix.
+    Extract the coordinate values for a certain set of hexagons.
+    Then assign them to a numpy matrix, and return this matrix.
     """
     coords_matrix = numpy.zeros(shape=(size, 1))
     min_val = min(coords[axis] for coords in hexagons.iterkeys())
@@ -869,7 +861,7 @@ def extract_coords (axis, size, hexagons):
     index = 0
         
     for coords, name in hexagons.iteritems():
-        val = coords[axis] - min_val  
+        val = coords[axis] - min_val
         val = val * 1
         coords_matrix[index, 0] = val
         index += 1
@@ -1036,13 +1028,30 @@ def compute_hexagram_assignments(nodes, index, options):
     index.
     
     """
+    # Write out the xy coordinates before squiggling. First find the x and y
+    # offsets needed to make all hexagon positions positive
+    min_x = min_y = None
+    for name, coords in nodes.iteritems():
+        if min_x is None:
+            min_x = coords[0]
+            min_y = coords[1]
+        else:
+            min_x = min(min_x, coords[0])
+            min_y = min(min_y, coords[1])
+    node_writer = tsv.TsvWriter(open(os.path.join(options.directory, "xyPreSquiggle_"+ str(index) + ".tab"), "w"))
+    for name, coords in nodes.iteritems():
+
+        # Write this node, converted to all-positive coordinates.
+        node_writer.line(name, coords[0] - min_x, coords[1] - min_y)
+    node_writer.close()
+
     # Do the hexagon layout
     # We do the squiggly rows setup, so express everything as integer x, y
     
     # This is a defaultdict from (x, y) integer tuple to id that goes there, or
     # None if it's free.
     hexagons = collections.defaultdict(lambda: None)
-    
+
     # This holds the side length that we use
     side_length = 1.0
     
@@ -1134,22 +1143,14 @@ def run_clumpiness_statistics(layers, layer_names, window_size, layout_index):
     
     print timestamp(), 'Hexagon count:', len(hexagons)
 
-    # This holds an iterator that makes ClusterFinders for all our layers
-    cluster_finders = [ClusterFinder(hexagons, layers[layer_name], 
+    # This holds an iterator that makes ClusterFinders for all our layers. These
+    # ClusterFinders are passed to the pool for parallel subprocessing
+    cluster_finders = [ClusterFinder(hexagons, layers[layer_name],
         window_size=window_size) for layer_name in layer_names]
-    
-    print "{} jobs to do.".format(len(cluster_finders))
-   
-    # This holds a multiprocessing pool for parallelization
-    pool = multiprocessing.Pool()
-   
-    # This holds all the best p values in the same order
-    best_p_values = pool.map(run_functor, cluster_finders)
-    
-    # Close down the pool so multiprocessing won't die sillily at the end
-    pool.close()
-    pool.join()
-    
+
+    # Use a multiprocessing pool to manage and execute subprocesses
+    best_p_values = pool.runSubProcesses(cluster_finders)
+
     # Return a dict from layer name to clumpiness score (negative log 10 of best
     # p value).
     # TODO We hope the order of the dict items has not changed.
@@ -1227,8 +1228,7 @@ def hexIt(options):
         "matrices.tab"), "w"))
         
     # Read in all the layer data at once
-    # TODO: Don't read in all the layer data at once
-    
+
     # This holds a dict from layer name to a dict from signature name to 
     # score.
     layers = {}
@@ -1315,10 +1315,11 @@ def hexIt(options):
     
     # We have now loaded all layer data into memory as Python objects. What
     # could possibly go wrong?
-    
-    # Stick our placement badness layer on the end
-    layer_names.append("Placement Badness")
-    layers["Placement Badness"] = placement_badnesses_multiple[0]
+
+    if DEV:
+        # Stick our placement badness layer on the end
+        layer_names.append("Placement Badness")
+        layers["Placement Badness"] = placement_badnesses_multiple[0]
        
     # Now we need to write layer files.
         
@@ -1345,9 +1346,9 @@ def hexIt(options):
     # layout.
     clumpiness_scores = []
     
-    if len(layer_names) > 0 and options.stats:
+    if len(layer_names) > 0 and options.clumpinessStats:
         # We want to do clumpiness scores. We skip it when there are no layers,
-        # so we don't try to join a never-used multiproicessing pool, which
+        # so we don't try to join a never-used multiprocessing pool, which
         # seems to hang.
         
         print "We need to run density statistics for {} layouts".format(
@@ -1425,12 +1426,16 @@ def hexIt(options):
         print timestamp(), "Running sample-based statistics..."
         sample_based_statistics(layers, layer_names, ctx, options)
         print timestamp(), "Sample-based statistics complete"
+    else:
+        print 'Skipping association (sample-based) stats'
 
     # Run region-based stats
     if options.mutualinfo == True:
         print timestamp(), "Running region-based statistics..."
-        #region_based_statistics(layers, layer_names, ctx, options) # TODO
+        region_based_statistics(layers, layer_names, nodes_multiple, ctx, options) # TODO
         print timestamp(), "Region-based statistics complete"
+    else:
+        print 'Skipping mutual information (region-based) stats'
 
     #create_gmt(layers, layer_names, options)
     

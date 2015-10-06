@@ -6,13 +6,13 @@ if (!(typeof MochaWeb === 'undefined')) {
 
         describe ('State', function () {
 
-            it ('stateCreate should exist', function () {
+            it ('initState should exist', function () {
                 Meteor.flush();
-                chai.assert(stateCreate);
+                chai.assert(initState);
             });
             it ('state attributes & methods should exist', function () {
                 Meteor.flush();
-                var s = stateCreate();
+                var s = initState();
                 chai.assert.equal(s.background, 'black');
                 chai.assert.equal(s.zoom, 1);
                 chai.assert.equal(s.layout_names.length, 0);

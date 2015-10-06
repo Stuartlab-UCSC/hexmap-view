@@ -6,6 +6,29 @@ var app = app || {}; // jshint ignore:line
 (function (hex) { // jshint ignore:line
     //'use strict';
 
+    var urlProject = null,
+        proxPre,
+        pageAtLoad = null,
+        localStorageName;
+
+    // Prefix for images and other such files
+    if (location.host === 'localhost:3000') {
+        proxPre = '';
+    } else if (DEV) {
+        proxPre = 'hexmap/';
+    } else {
+        proxPre = 'hex/';
+    }
+    storeName = proxPre + '-hexMapState';
+
+    // Find the project if one was included in the URL, replacing every '.' with '/'
+    if ( window.location.search.indexOf( '?p=' ) > -1 ) {
+        urlProject = proxPre
+            + 'data/'
+            + window.location.search.slice(3).replace(/\./g, '/')
+            + '/';
+    }
+
     State = function() {
 
         // The state stores the values used across modules for different
@@ -30,103 +53,131 @@ var app = app || {}; // jshint ignore:line
 
         var s = this;
 
-        // Variables persisting for the browser tab session
         s.localStorage = {
             all: [
                 'background',
+                'center',
                 'current_layout_name',
                 'page',
                 'project',
-                'zoom', // TODO should save center of the map as well
+                'zoom',
             ],
 
-            // These are cleared  when the project changes
+            // These are cleared when the project changes
             project: [
+                'center',
                 'current_layout_name',
                 'zoom',
             ],
         }
-        s.nolocalStorage = false;
         s.alreadySaved = false;
 
         // Variables maintained in the reactive meteor Session, with defaults
+        Session.setDefault('page', 'homePage');  // page to display
         Session.setDefault('background', 'black');  // Visualization background color
-        Session.setDefault('page', 'homePage');  // Show homePage or mapPage
-        Session.setDefault('proxPre', (location.host === 'localhost:3000')
-            ? '' : 'hexmap/');  // Prefix for images and other such files
+        Session.setDefault('proxPre', proxPre);  // Prefix for images and other such files
+        //Session.setDefault('center', [0, 0]);
 
         // Variables maintained in this state object, with defaults.
+        s.project = proxPre + 'data/public/pancan12/';  // The project data to load
+    }
+
+    State.prototype.setProjectDefaults = function () {
+        var s = this;
         s.layout_names = [];  // Map layout names maintained in order of entry
-        s.project = 'data/public/pancan12/';  // The project data loaded
         s.zoom = 1;  // Map zoom level where 1 is one level above most zoomed out
+        s.center = null;
     }
 
     State.prototype.save = function (newProject) {
         // Save state by writing it to local browser store.
-        // Both parameters are optional.
+        // newProject is optional.
         var s = this,
             store = {},
             index,
             isNewProject = !_.isUndefined(newProject);
 
-        if (s.noLocalstore) {
-            return;
-        }
         if (s.alreadySaved) {
             return;
         }
         s.alreadySaved = true;
 
-        // Save the new parameters passed into here
-        if (isNewProject) {
-            ctx.project = newProject;
-            Session.set('page', 'mapPage');
+        // If we have a new project, clear any state related to the old project
+        if (isNewProject && newProject !== s.project) {
+            s.project = newProject;
+            s.clearProjectData();
         }
 
         // Find all of the vars to be saved by walking though our localStorage list
-        _.each(s.localStorage.all, function (hold) {
+        _.each(s.localStorage.all, function (key) {
 
             // If this is a Session var we want to store it
-            if (!Session.equals(hold, undefined)) {
-                store[hold] = Session.get(hold);
+            if (!Session.equals(key, undefined)) {
+                if (key === 'center') {
+                    // We need to store this as an array of two numbers rather
+                    // than as latLng since when we retrieve it, we won't know
+                    // about google maps yet so won't understand LatLng.
+                    store.center = [Session.get('center').lat(),
+                                    Session.get('center').lng()]
+                } else {
+                    store[key] = Session.get(key);
+                }
+                var x = 0; // TODO
 
-            // If this var belongs to this object we want to store it
-            } else if (!_.isUndefined(s[hold]) && !_.isNull(s[hold])) {
-                store[hold] = s[hold];
+            // If this var belongs to this ctx object we want to store it
+            } else if (!_.isUndefined(s[key]) && !_.isNull(s[key])) {
+                if (key === 'center') {
+                    if (pageAtLoad === 'homePage') {
+
+                        // No need to translate from LatLng to array
+                        store.center = ctx.center;
+                    } else {
+                        // We need to store this as an array of two numbers rather
+                        // than as latLng since when we retrieve it, we won't know
+                        // about google maps yet so won't understand LatLng.
+                        store.center = [ctx.center.lat(), ctx.center.lng()];
+                    }
+                } else {
+                    store[key] = s[key];
+                }
 
             // this var has no value to store
             } else {
                 return;
             }
-            // Don't store project vars if the project has changed
-            if (isNewProject && s.localStorage.project.indexOf(hold) > -1) {
-                delete store[hold];
-            }
         });
 
         // The previous state will be overwritten in localStorage
-        window['localStorage'].removeItem("hexMapState");
-        window['localStorage'].setItem("hexMapState", JSON.stringify(store));
+        window['localStorage'].removeItem(storeName);
+        window['localStorage'].setItem(storeName, JSON.stringify(store));
+    };
+
+    State.prototype.clearProjectData = function () {
+        var s = this;
+
+        // Clear any old project data from the state
+        _.each(s.localStorage.project, function (key) {
+
+            // If this is a Session var remove it from there
+            if (!Session.equals(key, undefined)) {
+                Session.set(key, undefined);
+                delete Session.keys[key];
+
+            // If this var belongs to this state object, remove it from here
+            } else if (!_.isUndefined(s[key]) && !_.isNull(s[key])) {
+                delete s[key];
+            }
+        });
+        s.setProjectDefaults();
     };
 
     State.prototype.load = function () {
-        // Load state from local store
 
+        // Load state from local store
         var s = this,
             store;
 
-        // Check to see if browser supports HTML5 Store
-        // Any modern browser should pass.
-        // TODO if a browser does not support this, there is no way for a user
-        // to change projects. Project could be passed in the URL
-        try {
-            "localStorage" in window && window["localStorage"] !== null;
-        } catch (e) {
-            complain("Browser does not support local store.");
-            s.noLocalstore = true;
-            return;
-        }
-        store = JSON.parse(window['localStorage'].getItem("hexMapState"));
+        store = JSON.parse(window['localStorage'].getItem(storeName));
 
         if (store === null) {
             print("No saved state found, so using defaults.");
@@ -140,22 +191,58 @@ var app = app || {}; // jshint ignore:line
             if (s.localStorage.all.indexOf(key) < 0) {
                 return;
             }
-            // Load this object's vars
-            if (!_.isUndefined(s[key]) && !_.isNull(s[key])) {
+            // Load this object's vars into this state if maintained in this state
+            if (!_.isUndefined(s[key])) {
                 s[key] = val;
 
-            // Otherwise assume this is a Session var
+            // Otherwise assume this is a Session var and load it into there
             } else {
                 Session.set(key, val);
             }
         });
+        if (urlProject) {
+
+            // Override the project if one was passed in the URL and different
+            // than the current project
+            // the map page
+            if (urlProject != s.project) {
+                s.project = urlProject;
+                s.clearProjectData();
+            }
+            Session.set('page', 'mapPage');
+
+            // Clear the project from the URL so it doesn't take precedent
+            // when the user selects a new project
+            window.location.search = '';
+        }
     };
 
+    function checkLocalStore () {
+
+        // Check to see if browser supports HTML5 Store
+        // Any modern browser should pass.
+        // TODO if a browser does not support this, there is no way for a user
+        // to change projects. Project could be passed in the URL
+        try {
+            "localStorage" in window && window["localStorage"] !== null;
+        } catch (e) {
+            complain("Browser does not support local store.");
+            return false;
+        }
+        return true;
+    }
+
     initState = function () { // jshint ignore:line
-        s = new State();
-        s.load();
-        window.onbeforeunload = function() {
-            s.save();
+        var storageSupported = checkLocalStore(),
+            s = new State();
+            s.setProjectDefaults();
+
+        if (storageSupported) {
+            s.load();
+            pageAtLoad = Session.get('page');
+            window.onbeforeunload = function() {
+                s.save();
+            }
         }
         return s;
     };

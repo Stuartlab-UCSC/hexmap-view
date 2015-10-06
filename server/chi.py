@@ -39,16 +39,17 @@ def chi (args):
     # Split string into array of array of values, where each element in the 
     # array list is a string of four values, separated by commas
     # comparison_values_separated is an array of arrays such that:
-    # [ [layer1, layer2, chi2_layer1, chi2_layer2], [layer1, layer2, chi2_layer1, chi2_layer2] ...]
+    # [ [layer1, layer2, chi2_layer1, chi2_layer2],
+    #   [layer1, layer2, chi2_layer1, chi2_layer2] ...]
+    # Using var names of glx1, glx2, lx1, lx2 respectively
     comparisons = args[2].split(";")
     comparison_indices_separated = []
     for i in comparisons:
         comparison_indices_separated.append(i.split(","))
 
-    # Determine the layer indices and push to a list so that we can create
-    # a python dict containing the values for these layers
-    # As you parse the layer files, add to the dictionary such that
-    # layers [index] [hex_name] returns the integer value
+    # Determine the stats layer indices and global layer indices, building a
+    # list of stats layer indices and a look-up dictionary of global layer
+    # indices referenced by stats layer index.
     layer_indices = []
     global_layers = {}
     for comparison_pair in comparison_indices_separated:
@@ -63,6 +64,9 @@ def chi (args):
             layer_indices.append(lx2)
             global_layers[lx2] = glx2
 
+    # Build a dictionary of stats layer dictionaries so that
+    # layers[stats-layer-index][hex_name] reflects the data in the layer_*.tab
+    # files related to all the pairs passed into this routine
     layers = {}
     unreadable_files = []
     for lx in layer_indices:
@@ -77,7 +81,8 @@ def chi (args):
                 layers[lx][data_row[0]] = int(float(data_row[1]))
             l_reader.close()
         except:
-            #print 'Could not find the file:', filename, 'continuing with layers found'
+            # There will not be a layer if TBD
+            print 'Could not find the file:', filename, 'continuing with layers found'
             unreadable_files.append(glx)
 
     # Parse the file containing all the hexagon names as a list.
@@ -91,13 +96,13 @@ def chi (args):
     # chi2-index-1      chi2-index-2      p_value
     p_writer = tsv.TsvWriter(open(os.path.join(temp_dir, "p_val" + file_index + ".tab"), "w"))
 
-    # Iterate over comparison_indices_separated. Pull out the index indices
-    # (first two values). Then, both layers for each hexagon in 
-    # hex_names. If the hexagon is found in both layers, account for
-    # it in the contingency table counts.
-    # Then pass the table to scipy.stats p_value function.
-    # Finally, print our stats-layer-index1, stats-layer-index 2, and the p_value
+    # Iterate over the list of quads passed into this routine, pulling out the
+    # pairs of global layer indices, and the pairs of stat layer indices.
+    # Build a contingency table to pass to the chi-squared calc.
+    # Finally, write our stats-layer-index1, stats-layer-index 2, and the p_value
     # to the p_val<index>.tab
+
+    empty_layer_files = set()
     for comparison in comparison_indices_separated:
         num_valid = 0
         glx1 = comparison[0]
@@ -110,23 +115,28 @@ def chi (args):
         # Find the range of layer 1
         layer_values = layers[lx1].values()
         if len(layer_values) < 1:
-            print 'layer_values is empty'
+            empty_layer_files.add(global_layers[lx1])
             continue
+
+        # This is silly for binary data, but good for categorical data
         l1_max = max(layer_values)
         l1_min = min(layer_values)
 
         # Find the range of layer 2
         layer_values = layers[lx2].values()
         if len(layer_values) < 1:
-            print 'layer_values is empty'
+            empty_layer_files.add(global_layers[lx2])
             continue
+
+        # This is silly for binary data, but good for categorical data
         l2_max = max(layer_values)
         l2_min = min(layer_values)
 
         # Initialize the contingency table
         table = [[0 for i in range(l2_max - l2_min + 1)] for j in range(l1_max - l1_min + 1)]
 
-        # count the number of each value in each of the two layers
+        # Count the number of each value in each of the two layers If the
+        # hexagon is found in both layers, increment the contingency table count.
         for hexagon in hex_names:
             has_data = True
             try:
@@ -144,7 +154,8 @@ def chi (args):
             if has_data == True:
                 num_valid += 1
                 table[l1_val - l1_min][l2_val - l2_min] += 1
-
+                
+        # Call the chi-squared function
         try:
             _, p, _, _ = scipy.stats.chi2_contingency(table)
         except ValueError:
@@ -155,6 +166,11 @@ def chi (args):
         p_writer.line (lx1, lx2, p)
 
     p_writer.close()
+
+    # TODO should we remove these attributes with no values from
+    # ctx.binary_layers & ctx.categorical_layers ?
+    print 'layer_values are empty for the layers:', list(empty_layer_files)
+
     return 0
 
 def main(args):

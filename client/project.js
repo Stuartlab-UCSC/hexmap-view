@@ -20,13 +20,11 @@ var app = app || {}; // jshint ignore:line
     Project.prototype._getProjects = function () {
         Project.prototype._populate({
             'public': ['pancan12'],
-            'baertsch': ['project1'],
             'mcrchopra': ['first'],
             'sokolov': ['stemness'],
-            'swat': ['paper_mrna'],
-            'ynewton': ['someProject'],
+            'swat': ['paper-mrna-400', 'tiny'],
+            'ynewton': ['gliomas-paper'],
         });
-
     };
 
     Project.prototype._populate = function (parsed) {
@@ -63,8 +61,6 @@ var app = app || {}; // jshint ignore:line
                 ctx.save(event.val);
 
                 // Reload the app
-                //Session.set("page", "mapPage");
-                //console.log('page set to:', Session.get("page"));
                 location.reload();
         });
         $('#project').select2("val", ctx.project); //set the value in the select
@@ -83,10 +79,14 @@ var app = app || {}; // jshint ignore:line
     };
 
     initProject = function () { // jshint ignore:line
-        console.log('initProject');
-        var project = new Project();
-        project._initialize();
-        return project; // TODO needed?
+        if (DEV) {
+            var project = new Project();
+            project._initialize();
+        } else {
+            $('#project')
+                .text(ctx.project.split('/').slice(-2,-1))
+                .addClass('static');
+        }
     };
 
 })(app);

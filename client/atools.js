@@ -113,7 +113,7 @@ var app = app || {}; // jshint ignore:line
         }
     }
 
-    add_tool = function (tool_name, tool_menu_option, callback, hover_text) {
+    add_tool = function (tool_name, tool_menu_option, callback, hover_text, klass) {
         // Given a programmatic unique name for a tool, some text for the tool's
         // button, and a callback for when the user clicks that button, add a tool
         // to the tool menu.
@@ -135,17 +135,14 @@ var app = app || {}; // jshint ignore:line
         if (hover_text) {
             tool_button.prop('title', hover_text);
         }
+        if (klass) {
+            tool_button.addClass(klass);
+        }
         
         $("#toolbar").append(tool_button);
     }
 
     initTools = function () {
-
-        // Set up the link to the home page
-        add_tool("to-home", "Home", function() {
-            $('.homePage').click();
-            tool_active = false;
-        });
 
         // Set up the add text control
         add_tool("add-text", "Add Text", function() {
@@ -187,7 +184,7 @@ var app = app || {}; // jshint ignore:line
                 // Cleanup: de-select ourselves.
                     tool_active = false;
             });
-        });
+        }, 'Add text to the map', 'mapOnly');
 
         // Set up the selection tool
         add_tool("select", "Select", function() {
@@ -300,7 +297,7 @@ var app = app || {}; // jshint ignore:line
                     draggableCursor: undefined
                 });
             });
-        });
+        }, 'Select a region of hexagons', 'mapOnly');
 
         // A tool for importing a list of hexes as a selection
         add_tool("import", "Import", function() {
@@ -365,7 +362,7 @@ var app = app || {}; // jshint ignore:line
                         tool_active = false;
                 }
             });
-        });
+        }, 'Import a list of hexagons as a selection', 'mapOnly');
 
         // The actual text to selection import function used by that tool
         function select_string(string) {
@@ -502,7 +499,7 @@ var app = app || {}; // jshint ignore:line
                         tool_active = false;
                 }
             });
-        });
+        }, 'Export the selection as a list of hexagons', 'mapOnly');
 
     /* useless if not running under galaxy
         // Set up the link to this page control
