@@ -8,17 +8,18 @@ var app = app || {}; // jshint ignore:line
 
     var urlProject = null,
         proxPre,
-        pageAtLoad = null,
         localStorageName;
 
     // Prefix for images and other such files
     if (location.host === 'localhost:3000') {
         proxPre = '';
     } else if (DEV) {
-        proxPre = 'hexmap/';
+        proxPre = '/hexmap/';
     } else {
-        proxPre = 'hex/';
+        proxPre = '/hex/';
     }
+
+    // Keep localStore of different development versions separate
     storeName = proxPre + '-hexMapState';
 
     // Find the project if one was included in the URL, replacing every '.' with '/'
@@ -73,16 +74,20 @@ var app = app || {}; // jshint ignore:line
         s.alreadySaved = false;
 
         // Variables maintained in the reactive meteor Session, with defaults
-        Session.setDefault('page', 'homePage');  // page to display
+        if (DEV) {
+            Session.setDefault('page', 'homePage');  // page to display
+        } else {
+            Session.setDefault('page', 'mapPage');  // page to display
+        }
         Session.setDefault('background', 'black');  // Visualization background color
         Session.setDefault('proxPre', proxPre);  // Prefix for images and other such files
-        //Session.setDefault('center', [0, 0]);
 
         // Variables maintained in this state object, with defaults.
         s.project = proxPre + 'data/public/pancan12/';  // The project data to load
     }
 
     State.prototype.setProjectDefaults = function () {
+        // Project variables maintained in this state object, with defaults.
         var s = this;
         s.layout_names = [];  // Map layout names maintained in order of entry
         s.zoom = 1;  // Map zoom level where 1 is one level above most zoomed out
@@ -111,23 +116,14 @@ var app = app || {}; // jshint ignore:line
         // Find all of the vars to be saved by walking though our localStorage list
         _.each(s.localStorage.all, function (key) {
 
-            // If this is a Session var we want to store it
+            // If this is a Session var we want to store it there
             if (!Session.equals(key, undefined)) {
-                if (key === 'center') {
-                    // We need to store this as an array of two numbers rather
-                    // than as latLng since when we retrieve it, we won't know
-                    // about google maps yet so won't understand LatLng.
-                    store.center = [Session.get('center').lat(),
-                                    Session.get('center').lng()]
-                } else {
-                    store[key] = Session.get(key);
-                }
-                var x = 0; // TODO
+                store[key] = Session.get(key);
 
-            // If this var belongs to this ctx object we want to store it
+            // If this var belongs to this ctx object we want to store it here
             } else if (!_.isUndefined(s[key]) && !_.isNull(s[key])) {
                 if (key === 'center') {
-                    if (pageAtLoad === 'homePage') {
+                    if (Array.isArray(ctx.center)) {
 
                         // No need to translate from LatLng to array
                         store.center = ctx.center;
@@ -141,13 +137,13 @@ var app = app || {}; // jshint ignore:line
                     store[key] = s[key];
                 }
 
-            // this var has no value to store
+            // This var has no value to store
             } else {
                 return;
             }
         });
 
-        // The previous state will be overwritten in localStorage
+        // Overwrite the previous state in localStorage
         window['localStorage'].removeItem(storeName);
         window['localStorage'].setItem(storeName, JSON.stringify(store));
     };
@@ -181,25 +177,25 @@ var app = app || {}; // jshint ignore:line
 
         if (store === null) {
             print("No saved state found, so using defaults.");
-            return;
+        } else {
+
+            // Walk through the localStorage loading anything we recognize
+            _.each(store, function (val, key) {
+
+                // Skip those we don't know
+                if (s.localStorage.all.indexOf(key) < 0) {
+                    return;
+                }
+                // Load this object's vars into this state if maintained in this state
+                if (!_.isUndefined(s[key])) {
+                    s[key] = val;
+
+                // Otherwise assume this is a Session var and load it into there
+                } else {
+                    Session.set(key, val);
+                }
+            });
         }
-
-        // Walk through the localStorage loading anything we recognize
-        _.each(store, function (val, key) {
-
-            // Skip those we don't know
-            if (s.localStorage.all.indexOf(key) < 0) {
-                return;
-            }
-            // Load this object's vars into this state if maintained in this state
-            if (!_.isUndefined(s[key])) {
-                s[key] = val;
-
-            // Otherwise assume this is a Session var and load it into there
-            } else {
-                Session.set(key, val);
-            }
-        });
         if (urlProject) {
 
             // Override the project if one was passed in the URL and different
@@ -239,7 +235,8 @@ var app = app || {}; // jshint ignore:line
 
         if (storageSupported) {
             s.load();
-            pageAtLoad = Session.get('page');
+
+            // Create a listener to know when to save state
             window.onbeforeunload = function() {
                 s.save();
             }

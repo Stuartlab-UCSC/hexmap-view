@@ -42,7 +42,6 @@ var app = app || {}; // jshint ignore:line
                 text: user,
                 children: _.map(userProjs, function (proj) {
                     id = Session.get("proxPre") + 'data/' + user + '/' + proj + '/';
-                    //id = 'data/' + user + '/' + proj + '/';
                     return { id: id, text: proj };
                 })
             }
@@ -74,7 +73,6 @@ var app = app || {}; // jshint ignore:line
 
     Project.prototype._initialize = function () {
         // Set up the project widgets.
-        console.log('project.initialize');
         Project.prototype._getProjects();
     };
 

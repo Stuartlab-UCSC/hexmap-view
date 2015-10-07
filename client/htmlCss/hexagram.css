@@ -327,6 +327,11 @@ These are all supposed to stack against the left end in a toolbar thingy.
     margin-right: 5px;
 }
 
+.helpNav {
+    padding-top: 0.25em;
+    height: 24px;
+}
+
 .help-button {
     float: left;
     margin-left: 1em;
@@ -584,16 +589,16 @@ layout-name {
     z-index: 3;
     top: 2em;
     right: 2em;
-    height: 150px;
-    width: 150px;
+    height: 175px;
+    width: 175px;
     display: none;
     pointer-events: none;
     /* font-family: serif; */
 }
 
 #color-key {
-    width: 100px;
-    height: 100px;
+    width: 125px;
+    height: 125px;
     position: absolute;
     display: block;
     left:25px;
@@ -629,7 +634,7 @@ layout-name {
 
 #x-axis {
     position: absolute;
-    top: 155px;
+    top: 180px;
     width: 150px;
     margin: auto;
     text-align: center;
@@ -643,7 +648,7 @@ layout-name {
 
 #y-axis-holder {
     display: table;
-    right: 155px;
+    right: 180px;
     width: 150px;
     top: 0;
     height: 100%;

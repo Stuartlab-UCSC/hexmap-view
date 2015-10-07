@@ -160,12 +160,12 @@ def per_stats_type (layers, layer_names, num_processes, num_pairs, sctx, ctx, op
 
     # When we reach here, all processes have been submitted and we're just
     # waiting for the last bunch to finish
-    print timestamp(), 'Waiting for the last jobs to complete'
+    print timestamp(), 'Waiting for the last jobs to complete for sample-based stats'
     sys.stdout.flush()
     wait_for_free_process (procs, 1)
 
     # Fill matrix with stat_layers and their values
-    print timestamp(), 'Populating the stats value matrix'
+    print timestamp(), 'Populating the value matrix for sample-based stats'
     sys.stdout.flush()
     num_layers = len(sctx['stats_layers'])
     vals = numpy.zeros(shape=(num_layers, num_layers))
@@ -174,7 +174,6 @@ def per_stats_type (layers, layer_names, num_processes, num_pairs, sctx, ctx, op
     layer_count = len(dir_elements) -1 # num of attributes
     value_total = (layer_count**2 + layer_count) / 2 # number of unique values in the table
     value_count = 0
-    message_count = 1
     for file_name in iter(dir_elements):
         if file_name != sctx['ref_file']:
             reader = tsv.TsvReader(open(os.path.join(sctx['temp_dir'], file_name), "r"))
@@ -187,20 +186,13 @@ def per_stats_type (layers, layer_names, num_processes, num_pairs, sctx, ctx, op
                 vals[slx2, slx1] = val
                 value_count += 1
 
-        # Log a progress message for every ~1/30th of values processed
-        if value_count >= value_total * message_count / 30:
-            print timestamp(), str(message_count) + '/30 of', value_total, 'values'
-            sys.stdout.flush()
-            message_count += 1
-
     # Delete our temporary directory.
     shutil.rmtree(sctx['temp_dir'])
 
-    print timestamp(), 'Writing the statistics files'
+    print timestamp(), 'Writing the files for sample-based stats'
     sys.stdout.flush()
 
     written_count = 0
-    message_count = 1
     for i, row in enumerate(vals):
         name = sctx['stats_layers'][i]
         layer_index = str(layer_names.index(name))
@@ -212,12 +204,6 @@ def per_stats_type (layers, layer_names, num_processes, num_pairs, sctx, ctx, op
         writer.line(*row)
         writer.close()
         written_count += 1
-
-        # Log a progress message for every ~1/30th of files written
-        if written_count >= layer_count * message_count / 30:
-            print timestamp(), str(message_count) + '/30 of', layer_count, 'files'
-            sys.stdout.flush()
-            message_count += 1
 
     return True
 

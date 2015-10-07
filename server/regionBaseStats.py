@@ -129,23 +129,24 @@ def window_tool(ctx, directory, nodes_raw, lowerT, upperT, layoutIndex):
                 if len_names >= lowerT:
                     curated.append(names)
 
-        # Recurse through any windows with too many nodes
+        # Recurse through any windows with too many nodes by dividing the window
+        # into 4 new windows
         W /= 2
         for widx in divide:
 
-            # Determine the maxes & mins and recurse. Window indices start at
+            # Determine the new minimums and recurse. Window indices start at
             # the origin in the upper left window and go clockwise.
             if widx == (0, 0):
                 window_level(minX, minY, W)
-            elif widx == (0, 1):
-                window_level(minX+W*2, minY, W)
+            elif widx == (1, 0):
+                window_level(minX+W, minY, W)
             elif widx == (1, 1):
-                window_level(minX+W*2, minY+W*2, W)
-            else:
-                window_level(minX, minY+W*2, W)
+                window_level(minX+W, minY+W, W)
+            else: # (0, 1)
+                window_level(minX, minY+W, W)
 
-    # Start up the recursive spiral thing
-    # passing the origin and the window length
+    # Start up the adaptive windowing by passing the origin and window length to
+    # the recursive routine.
     window_level(0, 0, W)
 
     fOutFile.close()

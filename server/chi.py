@@ -68,7 +68,7 @@ def chi (args):
     # layers[stats-layer-index][hex_name] reflects the data in the layer_*.tab
     # files related to all the pairs passed into this routine
     layers = {}
-    unreadable_files = []
+    unreadable_files = set()
     for lx in layer_indices:
         try:
             glx = global_layers[lx]
@@ -81,9 +81,11 @@ def chi (args):
                 layers[lx][data_row[0]] = int(float(data_row[1]))
             l_reader.close()
         except:
-            # There will not be a layer if TBD
-            print 'Could not find the file:', filename, 'continuing with layers found'
-            unreadable_files.append(glx)
+            # There may not be a layer if TODO
+            unreadable_files.add(glx)
+
+    if len(list(unreadable_files)) > 0:
+        print 'Could not find these layer_*.tab files, continuing without them:', list(unreadable_files)
 
     # Parse the file containing all the hexagon names as a list.
     hex_names = []
@@ -169,7 +171,8 @@ def chi (args):
 
     # TODO should we remove these attributes with no values from
     # ctx.binary_layers & ctx.categorical_layers ?
-    print 'layer_values are empty for the layers:', list(empty_layer_files)
+    if len(list(empty_layer_files)) > 0:
+        print 'layer_values are empty for the layers:', list(empty_layer_files)
 
     return 0
 

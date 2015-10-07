@@ -303,10 +303,10 @@ var app = app || {}; // jshint ignore:line
         add_tool("import", "Import", function() {
             // Make the import form
             var import_form = $("<form/>").attr("title", 
-                "Import List As Selection");
-            
-            import_form.append($("<div/>").text("Input names, one per line:"));
-            
+                "Enter a List As a Selection");
+
+            import_form.append($("<div/>").text("Enter hexagon names to be selected on the map with one per line:"));
+
             // A big text box
             var text_area = $("<textarea/>").addClass("import");
                 import_form.append(text_area);
@@ -362,7 +362,7 @@ var app = app || {}; // jshint ignore:line
                         tool_active = false;
                 }
             });
-        }, 'Import a list of hexagons as a selection', 'mapOnly');
+        }, 'Enter a List As a Selection', 'mapOnly');
 
         // The actual text to selection import function used by that tool
         function select_string(string) {
@@ -500,7 +500,7 @@ var app = app || {}; // jshint ignore:line
                 }
             });
         }, 'Export the selection as a list of hexagons', 'mapOnly');
-
+            
     /* useless if not running under galaxy
         // Set up the link to this page control
         add_tool("link-to-page", "Link", function() {

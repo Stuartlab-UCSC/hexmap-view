@@ -4,7 +4,8 @@
 
 var app = app || {}; // jshint ignore:line
 
-DEV = true;
+DEV = true; // true if in development mode, false if not
+
 ctx = null; // Persistent state to be saved eventually
 layers = {}; // contains almost all information about attributes
 
@@ -12,23 +13,23 @@ layers = {}; // contains almost all information about attributes
     //'use strict';
 
     // Define the sources for images
-    var homePageSrcs = [
+    var navBarSrcs = [
+            {pre: 'question-sign', suf: '.svg'},
+        ],
+        homePageSrcs = [
             {pre: 'ucscgi_clear', suf: '.png'},
             {pre: 'pancan12-mRNA-Seq', suf: '.png'},
             {pre: 'cyber-slug', suf: '.svg'},
         ],
         mapPageSrcs = [
             {pre: 'cyber-slug', suf: '.svg'},
-            {pre: 'help-button', suf: '.png'},
+            {pre: 'question-sign', suf: '.svg'},
             {pre: 'throbber', suf: '.svg'},
             {pre: 'statistics', suf: '.svg'},
             {pre: 'set', suf: '.svg'},
             {pre: 'sort_attributes', suf: '.svg'},
         ],
         gridPageSrcs = [
-        ],
-        sortAttrsSrcs = [
-            {pre: 'help', suf: '.svg'},
         ],
         googlemapsInitialized = false;
 
@@ -43,18 +44,10 @@ layers = {}; // contains almost all information about attributes
     }
 
     function convertStoredCenterToLatLng() {
-        /*
-        if (_.isNull(Session.get('center'))) {
-            Session.set('center', [0, 0]);
-        Session.set('center', new google.maps.LatLng(
-            Session.get('center')[0], Session.get('center')[1]));
-        }
-        */
-        if (_.isNull(ctx.center) {
+        if (_.isNull(ctx.center)) {
             ctx.center = [0, 0];
         }
         ctx.center = new google.maps.LatLng(ctx.center[0], ctx.center[1]);
-
     }
 
     Template.body.helpers({
@@ -63,7 +56,7 @@ layers = {}; // contains almost all information about attributes
             return Session.get('page');
         },
         proxPre: function () {
-        if (_.isNull(ctx)) ctx = initState();
+            if (_.isNull(ctx)) ctx = initState();
             return Session.get("proxPre");
         }
     });
@@ -102,6 +95,7 @@ layers = {}; // contains almost all information about attributes
         $('#coords').hide();
         if (DEV) $('.sort_attributes, .statistics').show()
 
+        fixProxies ('navBar');
         fixProxies ('mapPage');
         initMrtGooglemapsForMap();
     });
@@ -126,6 +120,7 @@ layers = {}; // contains almost all information about attributes
 
     function initHomeLink() {
         // Set up the link to the home page
+        if (!DEV) return;
         add_tool("to-home", "Home", function() {
             $('.homePage').click();
             tool_active = false;

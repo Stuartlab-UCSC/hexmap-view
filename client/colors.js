@@ -17,6 +17,7 @@ var app = app || {}; // jshint ignore:line
     });
 
     initColors = function () {
+
     // A tool to change the background color
         add_tool("change-background", "Background", function () {
 
@@ -218,7 +219,7 @@ var app = app || {}; // jshint ignore:line
         rgbArrayToObj = function (arr) {
             return new Color({r: arr[0], g: arr[1], b: arr[2]});
         };
-
+/* BROKEN TODO
         add_tool("change-foreground", "ColorMap", function () {
 
             var $form = $('#colorMapDiv'),
@@ -296,6 +297,7 @@ var app = app || {}; // jshint ignore:line
             // Deselect the tool.
             selected_tool = undefined;
         }, 'Change colors of attributes', 'mapOnly');
+*/
     }
 })(app);
 
