@@ -71,61 +71,65 @@ var app = app || {}; // jshint ignore:line
             new google.maps.Point(x, y));
     }
 
-    getHexLatLngCoords= function (c, len, wt, ht) {
+    getHexLatLngCoords= function (c, len) {
 
-        // Define a hexagon in latLng coordinates, given in xy coordinates:
-        // @param c: the center point in xy coordinates
-        // @param len: the length of the hexagon side xy coordinates
-        // @param ht: the height of the hexagon xy coordinates
+        // Define a hexagon in latLng coordinates, given in xy coordinates
+        // @param c: the center point as [x,y]
+        // @param len: length of the hexagon side
+        // @param ht: height of the hexagon
+
+        // If the center is an array, it is in xy coordinates, otherwise the
+        // center is a latLng object which needs to be converted to xy
+        // coordinates
+        var ht = Math.sqrt(3) * len;
+
         return [
-            get_LatLng(c.x - len, c.y),
-            get_LatLng(c.x - len / 2, c.y - ht / 2),
-            get_LatLng(c.x + len / 2, c.y - ht / 2),
-            get_LatLng(c.x + len, c.y),
-            get_LatLng(c.x + len / 2, c.y + ht / 2),
-            get_LatLng(c.x - len / 2, c.y + ht / 2),
+            get_LatLng(c[0] - len, c[1]),
+            get_LatLng(c[0] - len / 2, c[1] - ht / 2),
+            get_LatLng(c[0] + len / 2, c[1] - ht / 2),
+            get_LatLng(c[0] + len, c[1]),
+            get_LatLng(c[0] + len / 2, c[1] + ht / 2),
+            get_LatLng(c[0] - len / 2, c[1] + ht / 2),
         ];
     }
         
-    findHexagonDims = function (maxX, maxY) {
+    findHexagonDims = function (maxX, maxY, zoom, gridSizeIn, wiggleIn) {
 
         // Find the hexagon dimensions given a maximum X and Y
+        // @param maxX
+        // @param maxY
+        // @param zoom: a zoom level
+        // @param gridSize: grid size in the x and y extents
+        // @param wiggle: some extra room to account for
         var side_length_x,
             side_length_y,
             sideLen
             wt,
-            ht;
+            ht,
+            gridSize = _.isUndefined(gridSizeIn) ? 256 : gridSizeIn, // 256 for squiggled hexagons
+            wiggle = _.isUndefined(wiggleIn) ? 0 : wiggleIn; // 2 for squiggled hexagons
 
-        // We need to fit this whole thing into a 256x256 grid.
-        // How big can we make each hexagon?
-        // We may want to do the algebra to make this exact. Right now we just
-        // make a grid that we know to be small enough.
-        // Divide the space into one column per column, and calculate 
-        // side length from column width. Add an extra column for dangling
-        // corners.
-        var side_length_x = (256)/ (maxX + 2) * (2.0 / 3.0);
+        var side_length_x = (gridSize)/ (maxX + wiggle) * (2.0 / 3.0);
 
-        print("Max hexagon side length horizontally is " + side_length_x);
-        
         // Divide the space into rows and calculate the side length
         // from hex height. Remember to add an extra row for wiggle.
-        var side_length_y = ((256)/(maxY + 2)) / Math.sqrt(3);
+        var side_length_y = ((gridSize)/(maxY + wiggle)) / Math.sqrt(3);
 
-        print("Max hexagon side length vertically is " + side_length_y);
-        
         // How long is a hexagon side in world coords?
         // Shrink it from the biggest we can have so that we don't wrap off the 
-        // edges of the map. Divide by 2 to make it fit a 128x128 grid
-        var sideLen = Math.min(side_length_x, side_length_y) / 2.0;
+        // edges of the map. Divide by 2 to make it fit a grid half the
+        // dimensions of the std rgrid
+        //var sideLen = Math.min(side_length_x, side_length_y) / 2.0;
+        var sideLen = Math.min(side_length_x, side_length_y) / Math.pow(2, zoom);
+
+        // How tall is a hexagon?
+        var ht = Math.sqrt(3) * sideLen;
 
         // How much horizontal space is needed per hex on average, stacked the
         // way we stack them (wiggly)?
         var wt = 3.0/2.0 * sideLen;
 
-        // How tall is a hexagon?
-        var ht = Math.sqrt(3) * sideLen;
-
-        return {sideLen: sideLen, wt: wt, ht: ht}
+        return {len: sideLen, wt: wt, ht: ht}
     }
 
     get_xyPix = function (latLng) {

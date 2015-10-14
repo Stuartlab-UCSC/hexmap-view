@@ -3,10 +3,17 @@
 
 var app = app || {}; // jshint ignore:line
 
+if (DEV) {
+    PAGE = 'homePage';
+} else {
+    PAGE = 'mapPage'; // TODO special for gioma paper
+}
+
 (function (hex) { // jshint ignore:line
     //'use strict';
 
-    var urlProject = null,
+    var DEFAULT_PROJECT = 'data/public/pancan12/',
+        urlProject = null,
         proxPre,
         localStorageName;
 
@@ -59,6 +66,7 @@ var app = app || {}; // jshint ignore:line
                 'background',
                 'center',
                 'current_layout_name',
+                'gridZoom',
                 'page',
                 'project',
                 'zoom',
@@ -68,31 +76,52 @@ var app = app || {}; // jshint ignore:line
             project: [
                 'center',
                 'current_layout_name',
+                'gridZoom',
                 'zoom',
             ],
         }
         s.alreadySaved = false;
 
-        // Variables maintained in the reactive meteor Session, with defaults
-        if (DEV) {
-            Session.setDefault('page', 'homePage');  // page to display
-        } else {
-            Session.setDefault('page', 'mapPage');  // page to display
-        }
+        Session.setDefault('page', PAGE);
         Session.setDefault('background', 'black');  // Visualization background color
         Session.setDefault('proxPre', proxPre);  // Prefix for images and other such files
 
         // Variables maintained in this state object, with defaults.
-        s.project = proxPre + 'data/public/pancan12/';  // The project data to load
+        s.project = proxPre + DEFAULT_PROJECT;  // The project data to load
     }
 
+    State.prototype.getDefaultProject = function () {
+        return DEFAULT_PROJECT;
+    };
+
     State.prototype.setProjectDefaults = function () {
-        // Project variables maintained in this state object, with defaults.
         var s = this;
+
+        // Project variables maintained in this state object, with defaults.
+        s.gridZoom = 1;  // Zoom level of the grid
         s.layout_names = [];  // Map layout names maintained in order of entry
         s.zoom = 1;  // Map zoom level where 1 is one level above most zoomed out
         s.center = null;
     }
+
+    State.prototype.clearProjectData = function () {
+        var s = this;
+
+        // Clear any old project data from the state
+        _.each(s.localStorage.project, function (key) {
+
+            // If this is a Session var remove it from there
+            if (!Session.equals(key, undefined)) {
+                Session.set(key, undefined);
+                delete Session.keys[key];
+
+            // If this var belongs to this state object, remove it from here
+            } else if (!_.isUndefined(s[key]) && !_.isNull(s[key])) {
+                delete s[key];
+            }
+        });
+        s.setProjectDefaults();
+    };
 
     State.prototype.save = function (newProject) {
         // Save state by writing it to local browser store.
@@ -136,7 +165,6 @@ var app = app || {}; // jshint ignore:line
                 } else {
                     store[key] = s[key];
                 }
-
             // This var has no value to store
             } else {
                 return;
@@ -148,40 +176,27 @@ var app = app || {}; // jshint ignore:line
         window['localStorage'].setItem(storeName, JSON.stringify(store));
     };
 
-    State.prototype.clearProjectData = function () {
-        var s = this;
-
-        // Clear any old project data from the state
-        _.each(s.localStorage.project, function (key) {
-
-            // If this is a Session var remove it from there
-            if (!Session.equals(key, undefined)) {
-                Session.set(key, undefined);
-                delete Session.keys[key];
-
-            // If this var belongs to this state object, remove it from here
-            } else if (!_.isUndefined(s[key]) && !_.isNull(s[key])) {
-                delete s[key];
-            }
-        });
-        s.setProjectDefaults();
-    };
-
     State.prototype.load = function () {
+    
+    
 
         // Load state from local store
         var s = this,
-            store;
-
-        store = JSON.parse(window['localStorage'].getItem(storeName));
+            page = Session.get('page'),
+            store = JSON.parse(window['localStorage'].getItem(storeName));
 
         if (store === null) {
-            print("No saved state found, so using defaults.");
+            console.log("No saved state found, so using defaults.");
+
         } else {
 
             // Walk through the localStorage loading anything we recognize
             _.each(store, function (val, key) {
 
+                if (key === 'page') {
+                    page = val; // Don't set the session var yet, page may change
+                    return;
+                }
                 // Skip those we don't know
                 if (s.localStorage.all.indexOf(key) < 0) {
                     return;
@@ -196,21 +211,19 @@ var app = app || {}; // jshint ignore:line
                 }
             });
         }
+
         if (urlProject) {
 
             // Override the project if one was passed in the URL and different
-            // than the current project
-            // the map page
-            if (urlProject != s.project) {
+            // from the current project. Go to the map page
+            if (s.project != urlProject) {
                 s.project = urlProject;
                 s.clearProjectData();
             }
-            Session.set('page', 'mapPage');
-
-            // Clear the project from the URL so it doesn't take precedent
-            // when the user selects a new project
-            window.location.search = '';
+            page = 'mapPage';
         }
+
+        Session.set('page', page);
     };
 
     function checkLocalStore () {
@@ -222,7 +235,7 @@ var app = app || {}; // jshint ignore:line
         try {
             "localStorage" in window && window["localStorage"] !== null;
         } catch (e) {
-            complain("Browser does not support local store.");
+            complain("Browser does not support local storage.");
             return false;
         }
         return true;

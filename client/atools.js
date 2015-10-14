@@ -459,7 +459,7 @@ var app = app || {}; // jshint ignore:line
                         // It's selected, put it in
                         
                         if(exported != "") {
-                            // If there's already text, put a newline first.
+                            // If there's already text, add a newline.
                             exported += "\n";
                         }
                         

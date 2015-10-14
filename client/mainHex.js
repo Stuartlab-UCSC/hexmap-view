@@ -50,34 +50,50 @@ layers = {}; // contains almost all information about attributes
         ctx.center = new google.maps.LatLng(ctx.center[0], ctx.center[1]);
     }
 
+    Template.localStoreT.created = function () {
+        // This template is only used to initialize state
+        if (_.isNull(ctx)) ctx = initState();
+    }
+
     Template.body.helpers({
         page: function () {
-            if (_.isNull(ctx)) ctx = initState();
             return Session.get('page');
         },
-        proxPre: function () {
-            if (_.isNull(ctx)) ctx = initState();
-            return Session.get("proxPre");
-        }
     });
 
+    queryFreeReload = function () {
+
+        // Strip everything after the query string question mark in the href & reload
+        var href = window.location.href
+            quest = href.indexOf('?');
+        if (quest > -1) {
+            href = href.slice(0, href.indexOf('?'));
+        }
+        window.location.assign(href);
+    }
+
+    pageReload = function (page) {
+        Session.set('page', page);
+        queryFreeReload();
+    }
+
     Template.body.events({
+
+        // Reload so global variables get reset and release memory
+        // TODO we should not require a reload, however we don't yet have a
+        // method to clear the appropriate state and reload does this for us
         "click .homePage": function () {
-            Session.set("page", "homePage");
-            location.reload();
+            pageReload('homePage');
         },
         "click .mapPage": function() {
-            Session.set("page", "mapPage");
-            location.reload();
+            pageReload('mapPage');
         },
         "click .defaultMapPage": function() {
-            ctx.project = 'data/public/pancan12/';
-            Session.set("page", "mapPage");
-            location.reload();
+            ctx.project = Session.get('proxPre') + ctx.getDefaultProject();
+            pageReload('mapPage');
         },
         "click .gridPage": function() {
-            Session.set("page", "gridPage");
-            location.reload();
+            pageReload('gridPage');
         },
     });
 
@@ -125,6 +141,13 @@ layers = {}; // contains almost all information about attributes
             $('.homePage').click();
             tool_active = false;
         });
+    }
+
+    fileNotFound = function (firstLine) {
+        // TODO this is a hacky way to find there is no file.
+        // However, until meteor fixes it:
+        // https://github.com/iron-meteor/iron-router/issues/1055
+        return (firstLine === '<!DOCTYPE html>');
     }
 
     initMrtGooglemapsForMap = function () {

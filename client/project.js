@@ -22,7 +22,7 @@ var app = app || {}; // jshint ignore:line
             'public': ['pancan12'],
             'mcrchopra': ['first'],
             'sokolov': ['stemness'],
-            'swat': ['paper-mrna-400', 'tiny'],
+            'swat': ['paper', 'tiny'],
             'ynewton': ['gliomas-paper'],
         });
     };
@@ -56,13 +56,28 @@ var app = app || {}; // jshint ignore:line
             .on("select2-selecting", function(event) {
 
                 // The select2 id of the thing clicked is event.val
-                // Save the dir to the session storage
+                // Save the dir to session storage and reload the app
                 ctx.save(event.val);
+                queryFreeReload();
+       });
 
-                // Reload the app
-                location.reload();
+        // Is the context project a valid project?
+        var validProject = _.find(data, function (user) {
+            var projectMatch = _.find(user.children, function (proj) {
+                var idMatch = (proj.id === ctx.project);
+                return idMatch;
+            });
+            return !_.isUndefined(projectMatch);
         });
-        $('#project').select2("val", ctx.project); //set the value in the select
+        if (validProject) {
+
+            // Set the value in the select to the current project
+            $('#project').select2("val", ctx.project);
+        } else {
+            alert('Sorry, "' + ctx.project + '" is not a valid project, loading the default instead.');
+            ctx.project = ctx.getDefaultProject();
+            queryFreeReload();
+        }
 
         // Make the bottom of the list within the main window
         $('#project').parent().on('select2-open', function () {

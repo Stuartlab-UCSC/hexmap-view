@@ -6,31 +6,44 @@ var app = app || {}; // jshint ignore:line
 (function (hex) { // jshint ignore:line
     //'use strict';
 
-    // our map: lng: -90 -> 90  x: 0 -> 128
-    //          lat: -45 -> 45  y: 0 -> 128
+    // our map range: lng: -90 -> 90   x: 0 -> 128
+    //                lat: -45 -> 45   y: 0 -> 128
 
     var xyMapSize = 256,
         GRID_OFFSET = 256 / 4,
-        SEED_RADIUS = 1000000,
+        HEX_COLOR = '#00F',
+        ORPHAN_COLOR = '#F00',
+        HEX_LEN_SEED = 9,
+        RADIUS_SEED = 100000,
+        TINY_BIT = 0.000001,
         gridMap = null,
         dims = null,
         initialized = false,
-        hexes = [],
-        dots = [];
+        hexes = [];
 
     function buildGrid(layout) {
         var file = ctx.project + 'grid_' + layout + '.tab';
         $.get(file, function(tsv_data) {
-        
+
             // This is an array of lines, with two points each:
             //
             //  x1  y1  x2  y2
             //  x3  y3  x4  y4
             //  ...
+
             var parsed = $.tsv.parseRows(tsv_data),
-                xyLines = _.filter(parsed, function (row) {
-                    return (row.length === 4);
-                });
+                xyLines;
+
+            if (fileNotFound(parsed[0][0])) {
+                alert('Sorry, the file containing the grid points was not found ' +
+                    'so only the pre-squiggle hexagons will be displayed. (grid_*.tab)')
+                return;
+            }
+
+            // Remove any blank lines
+            xyLines = _.filter(parsed, function (row) {
+                return (row.length === 4);
+            });
 
             xyLines = _.map(xyLines, function (row) {
                 return [[parseFloat(row[0]), parseFloat(row[1])],
@@ -50,38 +63,136 @@ var app = app || {}; // jshint ignore:line
                     strokeColor: '#888',
                     strokeOpacity: 1.0,
                     strokeWeight: 1,
-                    zIndex: 3,
+                    zIndex: 4,
                 });
                 line.setMap(gridMap);
             });
         });
     }
 
-    function buildScatter(layout) {
+    function findOrphans(layout) {
+
+        // Find those points, pre-hexagon assignment,
+        // that were not mapped to this layer's grid
+        var file = ctx.project + 'gridOrphans_' + layout + '.tab';
+        $.get(file, function(tsv_data) {
+
+            // This is an array of points names.
+
+            var orphans = _.map($.tsv.parseRows(tsv_data), function (row) {
+                return row[0];
+            });
+
+            if (fileNotFound(orphans[0])) {
+                orphans = [];
+            }
+
+            buildScatter(layout, orphans);
+        }, "text");
+    }
+
+    function adjustForZoom () {
+        ctx.gridZoom = gridMap.getZoom();
+
+        var hexLen = HEX_LEN_SEED / Math.pow(2, ctx.gridZoom),
+            add = hexLen / 20;
+
+        _.each(hexes, function (hex) {
+            var line = [get_LatLng(hex.xyCenter[0]-add, hex.xyCenter[1]-add),
+                        get_LatLng(hex.xyCenter[0]+add, hex.xyCenter[1]+add)],
+                path = getHexLatLngCoords(hex.xyCenter, hexLen);
+
+            hex.polygon.setOptions({ path: path });
+            hex.dot.setOptions({ path: line });
+        });
+    }
+
+    drawGridPoints = function (points, pointNames, orphans) {
+
+        // Set up the options common to all hexagons
+        var hexLen = HEX_LEN_SEED / Math.pow(2, ctx.gridZoom),
+            add = hexLen / 20,
+            hexOpts = {
+                fillColor: HEX_COLOR,
+                fillOpacity: 0.1,
+                map: gridMap,
+                strokeWeight: 0,
+                zIndex: 2,
+            },
+            dotOpts = {
+                fillColor: '#000',
+                map: gridMap,
+                strokeColor: '#000',
+                strokeWeight: 1,
+                zIndex: 3,
+            };
+
+        // Draw the point as a hexagon with a dot in the middle
+        _.each(points, function (xyPoint, i) {
+
+            // The color depends on whether it is an orphan or not
+            if (orphans.length > 0) {
+                var orphan = _.contains(orphans, pointNames[i]);
+                if (orphan) {
+                    hexOpts['fillColor'] = ORPHAN_COLOR;
+                } else {
+                    hexOpts['fillColor'] = HEX_COLOR;
+                }
+            }
+            // Find the hexagon points
+            hexOpts.path = getHexLatLngCoords(xyPoint, hexLen);
+
+            // Find the center point
+            dotOpts.path = [get_LatLng(xyPoint[0]-add, xyPoint[1]-add),
+                             get_LatLng(xyPoint[0]+add, xyPoint[1]+add)];
+
+            // Render the hexagon and its center, and save then in an array
+            hexes.push({
+                xyCenter: xyPoint,
+                polygon: new google.maps.Polygon(hexOpts),
+                dot: new google.maps.Polyline(dotOpts),
+            });
+        });
+    }
+
+    function buildScatter(layout, orphans) {
+
+        // Render the points before they were assigned to hexagons
         var file = ctx.project + 'xyPreSquiggle_' + layout + '.tab';
         $.get(file, function(tsv_data) {
         
-            // This is an array of sample locations, in the form:
-            //
+            // This is an array of point locations, in the form:
             //  s1  x1  y1
             //  s2  x2  y2
             //  ...
 
             // Parse the file
             var parsed = $.tsv.parseRows(tsv_data),
-                xyPointsRaw = _.filter(parsed, function (row) {
-                    return (row.length === 3);
-                }),
-                xyPointsObj,
-                xyPointsMap,
-                hexPoints,
-                rawDims;
+                xyPointsRaw,
+                pointNames,
+                xyPointsMap;
+
+            if (fileNotFound(parsed[0][0])) {
+                alert('Sorry, the file of pre-squiggle hexagons was not found so '
+                    + 'there is nothing to display. (xyPreSquiggle_*.tab)')
+                return;
+            }
+
+            xyPointsRaw = _.filter(parsed, function (row) {
+                return (row.length === 3);
+            });
+            pointNames = _.map(xyPointsRaw, function (row) {
+                return row[0];
+            });
+
+
 
             xyPointsRaw = _.map(xyPointsRaw, function (row) {
                 return [row[1], row[2]]
             });
 
-            dims = findGridExtents(xyMapSize, xyPointsRaw);
+            dims = findGridExtents(xyMapSize-TINY_BIT, xyPointsRaw);
+            buildGrid(layout);
 
             // Scale to create object coords of (0, 0) -> (xyMapSize/2, xyMapSize/2)
             // so the map will not wrap around the world east and west. And add
@@ -91,80 +202,15 @@ var app = app || {}; // jshint ignore:line
                         (row[1] * dims.scale / 2) + (xyMapSize / 4)];
             });
 
-/* TODO later for hexagons
-
-            // Find the dimensions of a hexagon
-            hexDim = findHexagonDims(dims.xMax, dims.yMax);
-
-            // Draw the point as a hexagon
-            _.each(xyPointsMap, function (xyPoint) {
-
-                // Find the hexagon points
-                hexPoints = getHexLatLngCoords(xyPoint, hexDim.len, hexDim.wt, hexDim.ht)
-                var line = new google.maps.Polyline({
-                    path: hexPoints,
-                    strokeColor: '#888',
-                    strokeOpacity: 1.0,
-                    strokeWeight: 0,
-                    fillColor: '#00F',
-                    fillOpacity: 0.3,
-                    zIndex: 2,
-                });
-                line.setMap(gridMap);
-            });
-*/
-
-            console.log('zoom', ctx.zoom);
-
-            // Draw the point as a circle
-            _.each(xyPointsMap, function (xyPoint) {
-                var llPoint = get_LatLng(xyPoint[0], xyPoint[1]),
-                    opts = {
-                        strokeColor: '#000',
-                        strokeOpacity: 1,
-                        strokeWeight: 0,
-                        fillColor: '#00F',
-                        fillOpacity: 0.3,
-                        map: gridMap,
-                        center: llPoint,
-                        radius: SEED_RADIUS / Math.pow(2, ctx.zoom),
-                        zIndex: 2,
-                    }
-                    hexes.push(new google.maps.Circle(opts));
-                    opts['strokeWeight'] = 1;
-                    opts['radius'] /= 12;
-                    dots.push(new google.maps.Circle(opts));
-            });
-            
-            initGridDrawn();
+            drawGridPoints(xyPointsMap, pointNames, orphans);
         });
     }
 
-    function adjustForZoom () {
-        ctx.zoom = gridMap.getZoom();
-
-        console.log('zoom', ctx.zoom);
-
-        var hexRadius = SEED_RADIUS / Math.pow(2, ctx.zoom),
-            dotRadius = hexRadius / 12;
-
-        _.each(hexes, function (hex) {
-            hex.setOptions({
-                radius: hexRadius,
-            });
-        });
-        _.each(dots, function (dot) {
-            dot.setOptions({
-                radius: dotRadius,
-            });
-        });
-    }
-
-    function initGridMap () {
+    function createMap () {
         mapTypeDef();
         var mapOptions = {
             center: ctx.center,
-            zoom: ctx.zoom,
+            zoom: ctx.gridZoom,
             mapTypeId: "blank",
             // Don't show a map type picker.
             mapTypeControlOptions: {
@@ -215,6 +261,7 @@ var app = app || {}; // jshint ignore:line
         });
         xSize = xMax - idims.xMin;
         ySize = yMax - idims.yMin;
+
         // Use a scale that is half the size of the map to
         // prevent it from wrapping around the world
         idims.scale = xyMapSize / Math.max(xSize, ySize);
@@ -228,12 +275,6 @@ var app = app || {}; // jshint ignore:line
         return idims;
     }
 
-    function reInitGridMap() {
-        initGridMap();
-        buildScatter(current_layout_index);
-        buildGrid(current_layout_index);
-    }
-
     getGridMap = function () {
         return gridMap;
     }
@@ -243,8 +284,13 @@ var app = app || {}; // jshint ignore:line
         if (initialized) return;
         initialized = true;
 
-        // Minor setup if this is the main map page
+        if (Session.equals('page', 'homePage')) {
+            return;
+        }
+
         if (Session.equals('page', 'mapPage')) {
+
+            // Create a link to the grid page from the map page
             add_tool("to-grid", "Methods", function() {
                 $('.gridPage').click();
                 tool_active = false;
@@ -254,7 +300,8 @@ var app = app || {}; // jshint ignore:line
 
         // Initialize the grid page and grid map
         $('.mapOnly').hide();
-        reInitGridMap();
+        createMap();
+        findOrphans(current_layout_index);
         add_tool("to-map", "Hex Map", function() {
             $('.mapPage').click();
             tool_active = false;

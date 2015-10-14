@@ -9,15 +9,18 @@ import collections, multiprocessing, traceback, numpy, time, datetime, pprint
 import scipy.stats, scipy.linalg, scipy.misc
 import time, copy
 import os.path
-import tsv, csv
+import tsv, csv, json
 import mutualInfo
 
 PSEUDOCOUNT = 5
 
+# Extra to capture nodes on the far side of the grid extents
+TINY_BIT = 0.00000000001
+
 def timestamp():
     return str(datetime.datetime.now())[8:-7]
 
-def window_tool(ctx, directory, nodes_raw, lowerT, upperT, layoutIndex):
+def window_tool(directory, nodes_raw, lowerT, upperT, layoutIndex):
     """
     Given a list of nodes, this tool will create a 2 x 2 grid containing 4
     windows of equal size. We will iterate over each node, looking at it's x &
@@ -40,6 +43,90 @@ def window_tool(ctx, directory, nodes_raw, lowerT, upperT, layoutIndex):
     print timestamp(), 'Windowing starting...'
     sys.stdout.flush()
 
+    # Define the iterative function for drawing the adaptive grid
+    def window_level(minX, minY, windowWidth, gridId):
+        """
+        This collects node names belonging to a 2 x 2 grid of 4 windows, with
+        window lengths of W. minX and minY are the minimum coordinates of the 
+        grid.
+        Note that gridId is just for debugging.
+        """
+        W = windowWidth
+
+        # Write the grid for this level to a file
+        midX = minX + W
+        midY = minY + W
+        row = [minX, midY, minX + W * 2, midY]
+        fOut.writerow(row)
+        row = [midX, minY, midX, minY + W * 2]
+        fOut.writerow(row)
+
+        # Initialize windows as a grid that will contain up to 4 windows,
+        # each containing nodes whose coordinates are within that window. These
+        # windows will be indexed by (window_row, window_col) resulting in up to
+        # 4 windows with indices of:  (0,0), (1,0) (1,1), (0,1).
+
+        windows = dict([
+            ((0, 0), []),
+            ((1, 0), []),
+            ((1, 1), []),
+            ((0, 1), []),
+        ])
+
+        # For each node within the boundaries of the grid, add it to the
+        # window whose boundaries contain the node
+        for name, coord in nodes.iteritems():
+
+            # Try to find the window for this node and save if it is found
+            col = int((coord[0] - minX) // W)
+            row = int((coord[1] - minY) // W)
+            if col > -1 and col < 2 and row > -1 and row < 2:
+                windows[(col, row)].append(name)
+
+        # Windows with no nodes will not be in the list of window counts. Using
+        # the thresholds, determine which windows to toss, which to keep, and
+        # which to divide further.
+        divide = []
+        for widx, names in windows.iteritems():
+            len_names = len(names)
+
+            # For window node counts above the upper threshold, divide further.
+            if len_names > upperT:
+                divide.append(widx)
+            else:
+                # Remove the nodes for consideration in further divisions
+                for name in names:
+                    try:
+                        del nodes[name]
+                    except:
+                        print 'ERROR: node was already removed:', name
+
+                # Window counts above the lower threshold get saved to the
+                # curated list
+                if len_names >= lowerT:
+                    curated.append(names)
+
+        # For each window with too many nodes, divide it into 4 new windows
+        midX = minX + W
+        midY = minY + W
+        W /= 2
+        for widx in divide:
+
+            # Determine the new minimums and recurse. Window indices start at
+            # the origin in the upper left window and go clockwise.
+            if widx == (0, 0):
+                window_level(minX, minY, W, gridId + '.1')
+            elif widx == (1, 0):
+                window_level(midX, minY, W, gridId + '.2')
+            elif widx == (1, 1):
+                window_level(midX, midY, W, gridId + '.3')
+            elif widx ==(0, 1):
+                window_level(minX, midY, W, gridId + '.4')
+            else:
+                print 'ERROR: bad window index in grid:', widx
+
+        # End of window_level()
+
     # Find the extents of the nodes
     minX = maxX = minY = maxY = None
     for name, coord in nodes_raw.iteritems():
@@ -52,7 +139,7 @@ def window_tool(ctx, directory, nodes_raw, lowerT, upperT, layoutIndex):
             minY = min(minY, coord[1])
             maxY = max(maxY, coord[1])
 
-    # Find the maximum extent, and normalize each node by shifting it to the
+    # Find the maximum extents, and normalize each node by shifting it to the
     # origin (0, 0).
     nodes = {}
     for name, coord in nodes_raw.iteritems():
@@ -65,9 +152,11 @@ def window_tool(ctx, directory, nodes_raw, lowerT, upperT, layoutIndex):
     fOutFile = open(filename, 'w')
     fOut = csv.writer(fOutFile, delimiter='\t')
 
-    # Write the bounds of the outer-most grid
+    # Write the bounds of the outer-most grid, adding a bit to the window
+    # width so no node will be on the South or West borders
     G = max((maxX - minX), (maxY - minY))
-    W = G / 2
+    #W = G / 2
+    W = G / 2 + TINY_BIT
     fOut.writerow([0, 0, G, 0])
     fOut.writerow([0, 0, 0, G])
     fOut.writerow([G, G, G, 0])
@@ -77,84 +166,25 @@ def window_tool(ctx, directory, nodes_raw, lowerT, upperT, layoutIndex):
     # between the lower and upper thresholds
     curated = []
 
-    def window_level(minX, minY, W):
-        """
-        This collects node names belonging to a 2 x 2 grid of 4 windows, with a
-        window lengths of W. minX and minY are the minimum coordinates of the 
-        grid.
-        """
-        # Write the grid for this level
-        midX = minX + W
-        midY = minY + W
-        row = [minX, midY, minX + W * 2, midY]
-        fOut.writerow(row)
-        row = [midX, minY, midX, minY + W * 2]
-        fOut.writerow(row)
-
-        # Initialize windows as a defaultdict of 4 lists containing nodes mapped
-        # to each window. Indexed by (window_row, window_col) tuples of:
-        #   (0,0), (1,0) (1,1), (0,1)
-        windows = collections.defaultdict(list)
-
-        # Assign each node to the appropriate window. Use the x & y coordinate
-        # to determine the appropriate row and colum, which is used as the index
-        # into the window.
-        for name, coord in nodes.iteritems():
-            col = int((coord[0] - minX) // W)
-            row = int((coord[1] - minY) // W)
-            if col > -1 and col <= 2 and row > -1 and row <= 2:
-                windows[(row, col)].append(name)
-
-        # We now have between 1 and 4 windows; there will not be a window if
-        # no nodes belong to it. Using the thresholds, determine which windows
-        # to toss, which to keep, and which to divide further.
-        divide = []
-        for widx, names in windows.iteritems():
-            len_names = len(names)
-
-            # For a window whose node count is above the upper threshold,
-            # we want to divide further.
-            if len_names > upperT:
-                divide.append(widx)
-            else:
-                # Remove the nodes for consideration in further divisions
-                for name in names:
-                    try:
-                        del nodes[name]
-                    except:
-                        print 'Warning: node was already removed:', name
-
-                # For window counts above the lower threshold,
-                # save to the curated list
-                if len_names >= lowerT:
-                    curated.append(names)
-
-        # Recurse through any windows with too many nodes by dividing the window
-        # into 4 new windows
-        W /= 2
-        for widx in divide:
-
-            # Determine the new minimums and recurse. Window indices start at
-            # the origin in the upper left window and go clockwise.
-            if widx == (0, 0):
-                window_level(minX, minY, W)
-            elif widx == (1, 0):
-                window_level(minX+W, minY, W)
-            elif widx == (1, 1):
-                window_level(minX+W, minY+W, W)
-            else: # (0, 1)
-                window_level(minX, minY+W, W)
-
-    # Start up the adaptive windowing by passing the origin and window length to
-    # the recursive routine.
-    window_level(0, 0, W)
+    # Start up the adaptive windowing by passing the origin and window width to
+    # the recursive routine
+    window_level(0, 0, W, '1')
 
     fOutFile.close()
 
     if len(nodes.keys()) > 0:
-        print 'Warning: nodes that were not assigned to a window:', nodes
+        print 'ERROR: nodes that were not assigned to a window:', nodes
+
+        # writed these orphans to a file for debugging
+        filename = os.path.join(directory, 'gridOrphans_' + str(layoutIndex) + '.tab')
+        fOutFile = open(filename, 'w')
+        fOut = csv.writer(fOutFile, delimiter='\t')
+        for name, coord in nodes.iteritems():
+            fOut.writerow([name])
+        fOutFile.close()
 
     print timestamp(), 'Windowing complete'
+    sys.stdout.flush()
 
     return curated
 
@@ -187,20 +217,26 @@ def pearson_all_pairs(layerPairs):
         # Yield the stats value
         yield (pair[0], pair[1], val)
 
-
 def buildLayerPairs(statsLayers, layers, C, C2):
+
     # Build the layer pairs given:
     # @param statsLayers: layer names to include in the pair
     # @param layers: all the information we need for every layer
     # @param C: array of node names in each window
-    # @param C2: array of values to be added to each member in A & B
-    # A & B will have the same length as C2 and C, and will include the
-    # normalized node counts for each attribute
+    # @param C2: array of values to be added to each member in A & B.
+    #
+    # A & B will contain the normalized node counts for each attribute and will
+    # have the same length as C2 and C.
 
-    # Initialize the layerPairs
+    # Initialize the layerPairs which is what this routine is returning
     layerPairs = []
+    message_count = 0 # Counts of messages
+    pairCount = len(statsLayers) ** 2 - len(statsLayers)  # without compare to self
 
-    # Build a vector for each attribute containing counts for each window
+    print 'Starting to build', pairCount, 'layer pairs...'
+
+    # Build a vector for each attribute containing a count of nodes per window
+
     for layerA in statsLayers:
 
         for layerB in statsLayers:
@@ -213,10 +249,9 @@ def buildLayerPairs(statsLayers, layers, C, C2):
 
             # Find nodes with an attribute value of one
             for i, nodes in enumerate(C):
-            #for i, nodes in C:
                 for node in nodes:
 
-                    # Does this node have a value of one in layer A, B?
+                    # Does this node have a value of one in layer A or B?
                     a = (layers[layerA].has_key(node) and layers[layerA][node] == 1)
                     b = (layers[layerB].has_key(node) and layers[layerB][node] == 1)
 
@@ -229,6 +264,14 @@ def buildLayerPairs(statsLayers, layers, C, C2):
 
             layerPairs.append([layerA, layerB, A, B])
 
+        # Log a progress message for every ~1/30th of pairs generated
+        if len(layerPairs) > pairCount * message_count / 30:
+            print timestamp(), str(message_count) + '/30 of', pairCount, 'pairs'
+            sys.stdout.flush()
+            message_count += 1
+
+    print timestamp(), 'Layer pairs built'
+
     return layerPairs
 
 def correlatePairs(layerPairs, directory, layoutIndex, layerIndices, windowLength):
@@ -238,8 +281,8 @@ def correlatePairs(layerPairs, directory, layoutIndex, layerIndices, windowLengt
     # index.
 
     pairCount = len(layerPairs)
-    print timestamp(), pairCount, 'pairs to run for', windowLength, 'windows'
-    # pairs_to_run = len(layer_window_values) ** 2 - len(layer_window_values)  # without compare to self
+
+    print timestamp(), 'Starting correlations for', pairCount, 'pairs in', windowLength, 'windows'
 
     # What layer are we writing the file for?
     current_first_layer = None
@@ -348,7 +391,7 @@ def normalized_pearson_statistics(layers, layerNames, nodes_multiple, ctx, optio
     #        R correlation and a P value.
 
     if ctx.binary_layers == 0:
-        print('No binary layers for region-based stats to process')
+        print 'No binary layers for region-based stats to process'
         return True
 
     for layoutIndex in ctx.all_hexagons.iterkeys():
@@ -361,7 +404,6 @@ def normalized_pearson_statistics(layers, layerNames, nodes_multiple, ctx, optio
         # Create the windows containing lists of node names in each window.
         # Following our naming scheme above, assign C to the curated windows
         C = window_tool(
-            ctx,
             options.directory,
             nodes_multiple[layoutIndex],
             options.mi_window_threshold,
@@ -379,9 +421,50 @@ def normalized_pearson_statistics(layers, layerNames, nodes_multiple, ctx, optio
 
         layerPairs = buildLayerPairs(ctx.binary_layers, layers, C, C2)
 
-        # for layoutIndex in ctx.all_hexagons.iterkeys():
-
         correlatePairs(layerPairs, options.directory, layoutIndex, layerIndices, len(C))
 
-def region_based_statistics(layers, layerNames, nodes_multiple, ctx, options):
+# TODO unused so far but may want this to restart in the middle of a run
+def load_context_and_run(directory):
+    filename = os.path.join(directory, 'stats_context.tab')
+    with open(filename, 'r') as fIn:
+        layers = json.loads(fIn.readline())
+        layerNames = json.loads(fIn.readline())
+        nodes_multiple = json.loads(fIn.readline())
+        ctx = json.loads(fIn.readline())
+        options = json.loads(fIn.readline())
     normalized_pearson_statistics(layers, layerNames, nodes_multiple, ctx, options)
+
+# TODO unused so far but may want this to restart in the middle of a run
+def save_context(directory, layers, layerNames, nodes_multiple, ctx, options):
+    filename = os.path.join(directory, 'stats_context.tab')
+    print 'all_hexagons', ctx.all_hexagons
+    shortCtx = {
+        'binary_layers': ctx.binary_layers,
+    }
+    shortOptions = {
+        'directory': options.directory,
+        'mi_window_threshold': options.mi_window_threshold,
+        'mi_window_threshold_upper': options.mi_window_threshold_upper,
+    }
+    with open(filename, 'w') as fOut:
+        fOut.write(json.dumps(layers) + '\n')
+        fOut.write(json.dumps(layerNames) + '\n')
+        fOut.write(json.dumps(nodes_multiple) + '\n')
+        fOut.write(json.dumps(shortCtx) + '\n')
+        fOut.write(json.dumps(shortOptions) + '\n')
+
+def region_based_statistics(directory, layers, layerNames, nodes_multiple, ctx, options):
+#def region_based_statistics(directory, layers=None, layerNames=None, nodes_multiple=None, ctx=None, options=None):
+
+    print timestamp(), "Running region-based statistics..."
+    normalized_pearson_statistics(layers, layerNames, nodes_multiple, ctx, options)
+    print timestamp(), "Region-based statistics complete"
+
+    """
+    # Unused so far
+    if layers == None:
+        c = load_context_and_run(directory)
+    else:
+        save_context(directory, layers, layerNames, nodes_multiple, ctx, options)
+    """
+

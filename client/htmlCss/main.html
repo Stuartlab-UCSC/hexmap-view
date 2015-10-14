@@ -3,11 +3,15 @@
     <meta name="viewport" content="maximum-scale=1.0"></meta>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1"></meta>
     <title>UCSC Tumor Map</title>
-    <link rel="icon" sizes="16x16 32x32" href="/favicon.ico?v=2">
+    <link rel="icon" href="/favicon.ico?v=2" type="image/x-icon" />
 </head>
 <body style='padding:2em;padding-top:1em;font-family:sans-serif'>
-    <a href="#" class="homePage" style='display:none'></a>
-    <a href="#" class="mapPage" style='display:none'></a>
-    <a href="#" class="gridPage" style='display:none'></a>
+    {{> localStoreT}}
+    <a href="" class="homePage" style='display:none'></a>
+    <a href="" class="mapPage" style='display:none'></a>
+    <a href="" class="gridPage" style='display:none'></a>
     {{> Template.dynamic template=page }}
 </body>
+
+<template name="localStoreT">
+</template>

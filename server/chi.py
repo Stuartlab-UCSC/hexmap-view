@@ -7,7 +7,7 @@ import argparse, sys, os, itertools, math, numpy, subprocess, shutil, tempfile
 import traceback, numpy, pprint
 import scipy.stats
 import os.path
-import tsv
+import tsv, csv
 
 def chi (args):
     """
@@ -169,15 +169,17 @@ def chi (args):
 
     p_writer.close()
 
-    # TODO should we remove these attributes with no values from
-    # ctx.binary_layers & ctx.categorical_layers ?
+    # Report empty layer files by creating a file that will be reported later
     if len(list(empty_layer_files)) > 0:
-        print 'layer_values are empty for the layers:', list(empty_layer_files)
+        file = os.path.join(working_dir, 'empty_layers_' + file_index + '.tab')
+        with open(file, 'w') as f:
+            f = csv.writer(f, delimiter='\t')
+            f.writerow(list(empty_layer_files))
 
     return 0
 
 def main(args):
-    chi(args)
+    return chi(args)
 
 if __name__ == "__main__" :
     try:

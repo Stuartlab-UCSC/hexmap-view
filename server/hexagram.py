@@ -13,21 +13,19 @@ present in your PATH.
 Re-uses sample code and documentation from 
 <http://users.soe.ucsc.edu/~karplus/bme205/f12/Scaffold.html>
 """
+
+DEV = False; # True if in development mode, False if not
+
 import argparse, sys, os, itertools, math, numpy, subprocess, shutil, tempfile
 import collections, traceback, numpy, time, datetime, pprint
 import scipy.stats, scipy.linalg, scipy.misc
 import time, socket
 from types import *
 import os.path
-import tsv, csv
+import tsv, csv, json
 from sampleBaseStats import sample_based_statistics
 from regionBaseStats import region_based_statistics
 import pool
-
-# We have a mutualinformation module to do the MI calculations.
-import mutualinformation
-
-DEV = False; # True if in development mode, False if not
 
 def timestamp():
     return str(datetime.datetime.now())[8:-7]
@@ -572,9 +570,7 @@ class ClusterFinder(object):
                 
                 
         # We have now found the best p for any window for this layer.
-        #print "Best p found: {}".format(best_p)
-        sys.stdout.flush()
-        
+
         return best_p                
 
 def determine_layer_data_types (layers, layer_names, options):
@@ -647,7 +643,8 @@ def determine_layer_data_types (layers, layer_names, options):
     type_writer = tsv.TsvWriter(open(os.path.join(options.directory, 
     "Layer_Data_Types.tab"), "w"))
 
-    type_writer.line("FirstAttribute", options.first_attribute)
+    if (options.first_attribute):
+        type_writer.line("FirstAttribute", options.first_attribute)
     type_writer.line("Continuous", *ctx.continuous_layers)
     type_writer.line("Binary", *ctx.binary_layers)
     type_writer.line("Categorical", *ctx.categorical_layers)
@@ -791,9 +788,6 @@ def raw_data_to_matrix(raw_data, hexagons_dict, data_type, options, index):
                     data_cindex += 1                   
             cindex += 1    
     
-    # Clear buffers to make sure that the matrix has been fully created.  
-    sys.stdout.flush()
-
     # Close the raw data file. We no longer need to read from it.
     raw.close()
 
@@ -913,7 +907,11 @@ def drl_similarity_functions(matrix, index, options):
 
     Options is passed to access options.singletons and other required apsects
     of the parsed args.
+    @param matrix: most information for this layout
+    @param index: index for this layout
     """
+
+    print timestamp(), '============== Starting drl computations for layout:', index, '... =============='
     
     # Work in a temporary directory
     # If not available, create the directory.
@@ -934,9 +932,6 @@ def drl_similarity_functions(matrix, index, options):
     
     # This holds a writer for the sim file
     sim_writer = tsv.TsvWriter(open(drl_basename + ".sim", "w"))
-    
-    print "Regularizing similarity matrix..."
-    sys.stdout.flush()
     
     # This holds a list of all unique signature names in the similarity matrix.
     # We can use it to add edges to keep singletons.
@@ -966,7 +961,7 @@ def drl_similarity_functions(matrix, index, options):
     # TODO: pass a truncation level
     print timestamp(), "DrL: Truncating..."
     sys.stdout.flush()
-    if options.drlpath:
+        if options.drlpath:
         subprocess.check_call(["truncate", "-t", str(options.truncation_edges), 
         drl_basename], env={"PATH": options.drlpath}) 
     else:
@@ -1010,6 +1005,8 @@ def drl_similarity_functions(matrix, index, options):
 
     # Delete our temporary directory.
     shutil.rmtree(drl_directory)
+
+    print timestamp(), '============== drl computations completed for layout:', index, '=============='
 
     # Return nodes dict back to main method for further processes
     return nodes
@@ -1421,21 +1418,29 @@ def hexIt(options):
     # Sort Layers According to Data Type
     determine_layer_data_types (layers, layer_names, options)
 
-    # Run sample-based stats
-    if options.associations == True:
-        print timestamp(), "Running sample-based statistics..."
-        sample_based_statistics(layers, layer_names, ctx, options)
-        print timestamp(), "Sample-based statistics complete"
-    else:
-        print 'Skipping association (sample-based) stats'
+    # Copy over the user-specified colormaps file, or make an empty TSV if it's
+    # not specified.
+    
+    # This holds a writer for the sim file. Creating it creates the file.
+    colormaps_writer = tsv.TsvWriter(open(os.path.join(options.directory, 
+        "colormaps.tab"), "w"))
+    
+    if options.colormaps is not None:
+        # The user specified colormap data, so copy it over
+        # This holds a reader for the colormaps file
+        colormaps_reader = tsv.TsvReader(open(options.colormaps, 'r'))
 
-    # Run region-based stats
-    if options.mutualinfo == True:
-        print timestamp(), "Running region-based statistics..."
-        region_based_statistics(layers, layer_names, nodes_multiple, ctx, options) # TODO
-        print timestamp(), "Region-based statistics complete"
-    else:
-        print 'Skipping mutual information (region-based) stats'
+        print "Regularizing colormaps file..."
+        sys.stdout.flush()
+        
+        for parts in colormaps_reader:
+            colormaps_writer.list_line(parts)
+        
+        colormaps_reader.close()
+    
+    # Close the colormaps file we wrote. It may have gotten data, or it may 
+    # still be empty.
+    colormaps_writer.close()
 
     #create_gmt(layers, layer_names, options)
     
@@ -1634,104 +1639,19 @@ def hexIt(options):
     else:
         print ("No Data Provided...Skipping Beta Calculations")
     
+    # Run sample-based stats
+    if options.associations == True:
+        sample_based_statistics(layers, layer_names, ctx, options)
+    else:
+        print 'Skipping association (sample-based) stats'
 
-    # Copy over the user-specified colormaps file, or make an empty TSV if it's
-    # not specified.
-    
-    # This holds a writer for the sim file. Creating it creates the file.
-    colormaps_writer = tsv.TsvWriter(open(os.path.join(options.directory, 
-        "colormaps.tab"), "w"))
-    
-    if options.colormaps is not None:
-        # The user specified colormap data, so copy it over
-        # This holds a reader for the colormaps file
-        colormaps_reader = tsv.TsvReader(open(options.colormaps, 'r'))
-
-        print "Regularizing colormaps file..."
-        sys.stdout.flush()
-        
-        for parts in colormaps_reader:
-            colormaps_writer.list_line(parts)
-        
-        colormaps_reader.close()
-    
-    # Close the colormaps file we wrote. It may have gotten data, or it may 
-    # still be empty.
-    colormaps_writer.close()
+    # Run region-based stats
+    if options.mutualinfo == True:
+        region_based_statistics(options.directory, layers, layer_names, nodes_multiple, ctx, options)
+    else:
+        print 'Skipping mutual information (region-based) stats'
 
     print timestamp(), "Visualization generation complete!"
-    sys.stderr.flush()
-    sys.stdout.flush()
-
-    return 0
-"""
-    # Now copy any static files from where they live next to this Python file 
-    # into the web page bundle.
-    # This holds the directory where this script lives, which also contains 
-    # static files.
-    tool_root = os.path.dirname(os.path.realpath(__file__))
-    
-    # Copy over all the static files we need for the web page
-    # This holds a list of them
-    static_files = [
-        # Static images
-        "public/drag.svg",
-        "public/filter.svg",
-        "public/statistics.svg",
-        "public/right.svg",
-        "public/set.svg",
-        "public/save.svg",
-        "public/help.svg",
-        "public/sort.svg",
-        "public/mutual.svg",
-        "public/throbber.svg",
-        "public/sort_attributes.svg",
-        
-        # jQuery itself is pulled from a CDN.
-        # We can't take everything offline since Google Maps needs to be sourced
-        # from Google, so we might as well use CDN jQuery.
-        
-        # Select2 scripts and resources:
-        "client/lib/select2.css",
-        "client/lib/select2.js",
-        "client/lib/select2.png",
-        "client/lib/select2-spinner.gif",
-        "client/lib/select2x2.png",
-        
-        # The jQuery-ui js & css
-        "client/lib/jquery-ui.js",
-        "client/lib/jquery-ui.theme.css",
-        # The jQuery.tsv plugin
-        "client/lib/jquery.tsv.js",
-        # The color library
-        "client/lib/color-0.4.1.js",
-        # The jStat statistics library
-        "client/lib/jstat.min.js",
-        # The Google Maps MapLabel library
-        "public/maplabel-compiled.js",
-        # The main CSS file
-        "client/hexagram.css",
-        # The main JavaScript file that runs the page
-        "client/hexagram.js",
-        # Web Worker for statistics
-        "public/statistics.js",
-        # File with all the tool code
-        "client/atools.js"
-    ]
-    
-    # We'd just use a directory of static files, but Galaxy needs single-level
-    # output.
-    for filename in static_files:
-        shutil.copy2(os.path.join(tool_root, filename), options.directory)
-    
-    # Copy the HTML file to our output file. It automatically knows to read
-    # assignments.tab, and does its own TSV parsing
-    shutil.copy2(os.path.join(tool_root, "hexagram.html"), options.html)
-
-    print "Visualization generation complete!"
-       
-    return 0
-"""
 
 def main(args):
     """
@@ -1742,6 +1662,7 @@ def main(args):
 
     print timestamp(), 'Started'
     print "Starting command: {}".format(" ".join(args))
+    sys.stdout.flush()
     return hexIt(parse_args(args)) # This holds the nicely-parsed options object
 
 if __name__ == "__main__" :

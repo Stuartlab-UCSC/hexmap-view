@@ -3,7 +3,7 @@ sampleBaseStats.py: Run the sample-based statistics.
 """
 import sys, os, numpy, subprocess, shutil, tempfile, pprint
 import tsv, csv, datetime, time, math, multiprocessing
-import pool
+import pool, traceback
 
 def pearson (subprocess_string, optionsDirectory, total_processes, sctx):
     """
@@ -120,7 +120,6 @@ def stats_looper (
             if (current_pairs >= num_pairs) or (layer_name2 == sctx['stats_layers'][-1]):
                 procs = wait_for_free_process(procs, num_processes)
 
-
                 procs.append(sctx['stats_fx'](
                                 subprocess_string, options.directory,
                                 str(total_processes), sctx
@@ -197,13 +196,32 @@ def per_stats_type (layers, layer_names, num_processes, num_pairs, sctx, ctx, op
         name = sctx['stats_layers'][i]
         layer_index = str(layer_names.index(name))
         
-        # File names are like: layer_9_sstat.tab, layer_9_8_rstat.tab
+        # File names are like: layer_9_sstat.tab
         writer = tsv.TsvWriter(open(os.path.join(options.directory,
             'layer_' + layer_index + '_sstats.tab'), 'w'))
         writer.line(*sctx['stats_layers'])
         writer.line(*row)
         writer.close()
         written_count += 1
+
+    # Gather any empty layer indices and log them
+    empty_layers = set()
+    for i in range(0, len(layer_names)):
+        try:
+            file = os.path.join(options.directory, 'empty_layers_' + str(i) + '.tab')
+            with open(file, 'rU') as f:
+                f = csv.reader(f, delimiter='\t')
+                value_iterator = f.__iter__()
+                for j, layer in enumerate(value_iterator):
+                    empty_layers.add(layer[0])
+
+            os.remove(file)
+
+        except:
+            pass
+
+    if len(list(empty_layers)) > 0:
+        print 'WARNING: No values in these layers:', list(empty_layers)
 
     return True
 
@@ -273,6 +291,8 @@ def sample_based_statistics(layers, layer_names, ctx, options):
     of value they want to correlate their selected attribute against.
     """
 
+    print timestamp(), "Running sample-based statistics..."
+
     temp_dir = tempfile.mkdtemp()
     hex_names_file = 'hex_names.tab'
 
@@ -328,5 +348,7 @@ def sample_based_statistics(layers, layer_names, ctx, options):
     print timestamp(), "Processing the", total_pairs, "binary pairs"
 
     per_stats_type(layers, layer_names, MAX_JOB_COUNT, 3600, sctx, ctx, options)
+
+    print timestamp(), "Sample-based statistics complete"
 
     return True    

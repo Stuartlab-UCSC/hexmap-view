@@ -70,7 +70,7 @@ var app = app || {}; // jshint ignore:line
                     + " x='1' y='1'"
                     + " width='100%'"
                     + " height='100%'"
-                    + " fill='white'" // TODO use var instead of literal
+                    + " fill='white'"
                     + " ></rect>\n";
 
                 // Transform each polygon to xy space
@@ -84,26 +84,11 @@ var app = app || {}; // jshint ignore:line
                 return svg + "</svg>\n";
             }
 
-            function init () {
-
-                var svg = googleToSvg();
-
-                // Add a hidden download file link. The "download"
-                // attribute makes the browser save it, and the
-                // href data URI holds the data
-                var $link = $('<a/>')
-                    .attr({
-                        download: 'hex.svg',
-                        href: 'data:text/plain;base64,' + window.btoa(svg)
-                    })
-                    .text('download')
-                    .css('display', 'none');
-                $('#body').append($link);
-                $link[0].click();
-                $link.remove();
-            }
-
-            init();
+            var svg = googleToSvg();
+            $('#tool_svg').attr({
+                href: "data:text/plain;base64," + window.btoa(svg),
+                download: "hex.svg",
+            });
 
             // Deselect the tool.
             tool_activity(false);
