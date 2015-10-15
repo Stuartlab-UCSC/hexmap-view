@@ -1,0 +1,48 @@
+
+.tools.row {
+    top: 0em;
+    /*background: #e0e0e0;*/
+}
+
+/*
+These are all supposed to stack against the left end in a toolbar thingy.
+*/
+.stacker {
+    float: left;
+    margin-left: 0.5em;
+    line-height: 2em;
+    height: 2em;
+}
+
+#project {
+    padding-top: 0.2em;
+    width: 15em;
+}
+#s2id_project {
+    padding-top: 0.2em;
+    width: 15em;
+}
+#project.static {
+    font-size: 1.1em;
+    vertical-align: center;
+    margin-top: -0.4em;
+    padding-right: 0.5em;
+    width: auto;
+}
+
+#error-notification {
+    color: red;
+    font-weight: bold;
+    text-align: center;
+    margin-left: 0.5em;
+    line-height: 2em;
+    height: 2em;
+}
+
+/* Except these which stack on the right */
+.stacker.right {
+    float: right;
+    margin-left: 0;
+    margin-right: 0.5em;
+}
+

@@ -1,4 +1,9 @@
-/* Global font stuff */
+/*
+aHexagram.css
+
+This file needs to load first after library css files, meteor loads in 
+alphabetical order, hence the file name.
+*/
 /*
 The visualization element needs to take up all available space.
 */
@@ -61,17 +66,13 @@ body {
     right: 0; 
 }
 
+.row-frame {
+
+}
+
 .col { 
     top: 0; 
     bottom: 0;
-}
-
-.scroll-x {
-    overflow-x: auto;
-}
-
-.scroll-y {
-    overflow-y: auto;
 }
 
 /*
@@ -83,26 +84,6 @@ Read as "The content row", distinct from whatever else that element might be.
     z-index: 1;
 }
 
-.header.row {
-    /*height: 4.2em;
-    border-bottom: 1px solid black;*/
-    top: 2em;
-    overflow: visible;
-    background-color:white;
-}
-
-.browse.col {
-    left: 0;
-    width: 24em;
-    /*height: 4.2em;*/
-}
-
-.shortlist.col {
-    right: 0;
-    width: 21em;
-    overflow: visible;
-}
-
 .error.row{
     height: 2em;
     top: 0;
@@ -111,104 +92,13 @@ Read as "The content row", distinct from whatever else that element might be.
     z-index: 101;
     display: none;
 }
-
-.tools.row {
-    height: 2em;
-    top: 0em;
-    border-bottom: 1px solid black;
-    /*background: #e0e0e0;*/
-}
-
 /*
-These are all supposed to stack against the left end in a toolbar thingy.
+.footer.row {
+    height: 50px;
+    bottom: 0;
+    line-height: 50px;
+}
 */
-.stacker {
-    float: left;
-    line-height: 2em;
-    margin-left: 0.5em;
-    height: 2em;
-}
-
-#project {
-    padding-top: 0.2em;
-    width: 15em;
-}
-#s2id_project {
-    padding-top: 0.2em;
-    width: 15em;
-}
-#project.static {
-    font-size: 1.1em;
-    vertical-align: center;
-    margin-top: -0.4em;
-    padding-right: 0.5em;
-    width: auto;
-}
-
-#error-notification {
-    color: red;
-    font-weight: bold;
-    text-align: center;
-    line-height: 2em;
-    margin-left: 0.5em;
-    height: 2em;
-}
-
-/* Except these which stack on the right */
-.stacker.right {
-    float: right;
-    margin-left: 0;
-    margin-right: 0.5em;
-}
-
-/* Code for fancy expandy side panels */
-
-.panel-holder {
-    overflow: hidden;
-    height: 3.9em;
-    max-height: 4em;
-    top: 2.1em;
-    width: 20em;
-    position: fixed;
-    z-index: 100;
-    transition: max-height 100ms;
-}
-
-/* When a holder gets moused over, open it up to 100% window height */
-.panel-holder:hover {
-    height: auto;
-    max-height: 100%;
-    bottom: 0;
-}
-
-.panel {
-    position: relative;
-    top: 0;
-    left: 0;
-    height: 100%;
-    border-radius: 10px;
-    border: 1px solid gray;
-    background: white;
-    z-index: 100;
-}
-
-.panel-contents {
-    overflow-y: auto;
-    overflow-x: hidden;
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    top: 1em;
-}
-
-.panel-title {
-    text-align: center;
-    font-weight: bold;
-    /*font-family: sans-serif;*/
-    height: 1em;
-}
-
 .title {
     font-size: 1.2em;
     font-weight: bold;
@@ -229,23 +119,6 @@ These are all supposed to stack against the left end in a toolbar thingy.
 	text-align: left;
 }
 
-/* Browsing stuff */
-
-#browse-holder {
-    margin-left: 0.5em;
-	width: 27em;
-}
-#browse-holder img {
-    height: 24px;
-    width: 24px;
-    padding: 3px;
-    margin-top: 5px;
-    margin-right: 2px;
-}
-#search {
-    width: 29em;/*322px;*/
-}
-
 #recalculate-statistics {
     padding: 0.2em;
 	margin-left: 10px;
@@ -254,23 +127,6 @@ These are all supposed to stack against the left end in a toolbar thingy.
 #comparison-stats {
     padding: 0.2em;
 }
-
-#calculate-set-operation {
-    padding: 0.2em;
-}
-
-#inflate{
-    
-}
-/*
-#sort-attributes .dialog-label {
-    width: 40em;
-}
-
-#sort-attributes .dialog-value {
-    width: 10em;
-}
-*/
 
 .recalculate-throbber {
     display: none;
@@ -307,10 +163,6 @@ These are all supposed to stack against the left end in a toolbar thingy.
     border: 1px solid gray;
     background: white;
     z-index: 100;
-}
-
-.set-operation.dropdown {
-    height: 200px;
 }
 
 .dropdown-title {
@@ -357,26 +209,6 @@ These are all supposed to stack against the left end in a toolbar thingy.
 	margin-bottom: 10px;
 }
 
-/* Set Operation Menu */
-
-#set-operation {
-    padding: 3px;
-}
-
-#set-operations-list {
-	margin-bottom: 20px;
-}
-
-.set-operation-value {
-    width: 15em;
-	margin-bottom: 10px;
-}
-
-.set-operation-layer-value {
-	width: 5em;
-	margin-left: 50px;
-}
-
 #comparison-stats,
 #set-operation,
 #sort-attributes-button {
@@ -384,22 +216,17 @@ These are all supposed to stack against the left end in a toolbar thingy.
     margin-top: 5px;
 }
 
-/*Sort Attribtues Combined Functionality*/
+/*Sort Attributes Combined Functionality*/
 #sort-attributes-button {
     padding: 4px;
     padding-top: 5px;
 }
-
+/* used? TODO
 #sort-attributes-list {
 	width: 250px;
 }
-
-.layout-stats-help {
-	text-align: left;
-	position: relative;
-	right: 225px;
-}
-
+*/
+/* used? TODO
 .all-attributes {
 	text-align: center;
 	margin-left: 15px;
@@ -412,257 +239,14 @@ These are all supposed to stack against the left end in a toolbar thingy.
 .all-attributes-label {
 	font-size: 0.6em;
 }
+*/
 .checkbox-labels {
 	font-size: 0.6em;
-}
-
-/* Do some custom styling of browse results */
-.layer-entry {
-    padding-right: 20px;
-}
-.select2-results .select2-highlighted {
-    background-image: url("right.svg");
-    background-repeat: no-repeat;
-    background-position: right center;
-}
-
-.layer-name {
-    /* Force silly underscore names into shape */
-    word-wrap: break-word;
-}
-
-.layer-metadata {
-    font-size: 0.65em;
-    /* Serif is more visible at small sizes */
-    /*font-family: serif;*/
-}
-
-/* Vertical alignment tables */
-.vertical-table {
-    display: table;
-}
-
-.vertical-cell {
-    display: table-cell;
-    vertical-align: middle;
-}
-
-/* 
-    Not much room for the results for this column. Just get them out of the way.
-*/
-#browse-results.panel-contents {
-    top: 4em;
-}
-
-/* Map Layout Selection Stuff */
-
-#layout-holder{
-	margin-left: 0.5em;
-}
-
-#layout-search {
-    width: 22em;
-}
-
-.layout-entry {
-    padding-right: 20px;
-}
-
-layout-name {
-    /* Force silly underscore names into shape */
-    word-wrap: break-word;
-}
-#current-layout {
-	padding-top: .75em;
-	width: 700px;
-}
-#ranked-against {
-	padding-top: .5em;
-}
-
-/* Shortlist UI stuff */
-
-.shortlist-controls {
-    position: absolute;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    width: 2em;
-    background-image: url("drag.svg");
-    background-repeat: no-repeat;
-    background-position: 50% 70%; 
-    border-radius: 5px;
-    padding: 5px;
-}
-
-.shortlist-entry {
-    position: relative;
-    height: auto;
-    width: auto;
-    background: #E0E0FF;
-    border-radius: 5px;
-    padding: 5px;
-    padding-left: 3em;
-    margin: 0.5em;
-    word-wrap: break-word;
-}
-
-.shortlist-entry.selection {
-    background: #FFE0FF;
-}
-
-.shortlist-controls {
-    cursor: grab;
-    cursor: -moz-grab;
-    cursor: -webkit-grab;
-}
-
-.shortlist-controls:activate {
-    cursor: grabbing;
-    cursor: -moz-grabbing;
-    cursor: -webkit-grabbing;
-}
-
-.shortlist-entry:after {
-    content: "";
-    display: block;
-    clear: both;
-}
-
-#shortlist-holder {
-    right: 0;
-}
-
-.layer-on {
-
 }
 
 .radio-label, .radio-clear {
     margin-right: 0.1em;
     margin-left: 0.1em;
-}
-
-/* These are the layer scaling sliders */
-.range-slider {
-    width: 10em;
-    margin-left: 0.3em;
-    margin-right: 0.3em;
-    margin-top: 0.5em;
-}
-
-/*Shortlist holders*/
-#left-columns {
-	width: 33%;
-}
-#center-columns {
-	margin-left: 33%;	
-}
-#right-columns {
-	margin-left: 66%
-}
-
-/* Filtering stuff */
-
-.filter {
-    line-height: 1em;
-    vertical-align: center;
-}
-.filter-threshold, .filter-value {
-    display: none;
-    width: 5em;
-}
-.filter-holder {
-	float: left;
-	text-align: left;
-	width: 120px;
-}
-
-.save-filter {
-	display: none;
-}
-
-
-/* This is the color key */
-.key {
-    overflow: visible;
-    position: absolute;
-    z-index: 3;
-    top: 2em;
-    right: 2em;
-    height: 175px;
-    width: 175px;
-    display: none;
-    pointer-events: none;
-    /* font-family: serif; */
-}
-
-#color-key {
-    width: 125px;
-    height: 125px;
-    position: absolute;
-    display: block;
-    left:25px;
-    top: 25px;
-    border: 1px solid white;
-}
-
-.label {
-    color: white;
-}
-
-.axis {
-    word-wrap: break-word;
-}
-
-#low-both {
-    position: absolute;
-    left: 0;
-    bottom: 0;
-}
-
-#high-x {
-    position: absolute;
-    right: 0;
-    bottom: 0;
-}
-
-#high-y {
-    position: absolute;
-    left: 0;
-    top: 0;
-}
-
-#x-axis {
-    position: absolute;
-    top: 180px;
-    width: 150px;
-    margin: auto;
-    text-align: center;
-    font-size: 0.9em;
-}
-
-/* 
-    Complicated table centering thing from 
-    http://blog.themeforest.net/tutorials/vertical-centering-with-css/
-*/
-
-#y-axis-holder {
-    display: table;
-    right: 180px;
-    width: 150px;
-    top: 0;
-    height: 100%;
-    position: absolute;
-}
-
-#y-axis-cell {
-    display: table-cell;
-    vertical-align: middle;
-}
-
-#y-axis {
-    text-align: right;
-    font-size: 0.9em;
 }
 
 /* This is the info window/infocard styling */
@@ -697,94 +281,5 @@ textarea.import {
 
 input.import {
     width: 100%;
-    /*
-        Apparently Firefox ignores your width and makes it some random size 
-        depending on font size. Make that small enough. 
-    */
-    /*
-    font-size: 0.5em;
-    */
 }
-
-#colorTable {
-    width: 100%;
-    font-size: 0.9em;
-    overflow: scroll;
-}
-#colorTable thead {
-    font-size: 1.2em;
-}
-#colorTable tbody tr:nth-child(odd) {
-	background: #f4f4f4;
-}
-#colorTable tbody tr.selected {
-	background: #dddddd;
-}
-#colorTable td {
-    padding: 0.2em 0.4em;
-    text-align: right;
-    max-width: 10em;
-    white-space: nowrap;
-    overflow-x: hidden;
-}
-#colorTable td:first-child {
-    max-width: 13em;
-}
-#colorTable td span {
-    padding: 0.2em 0.4em;
-}
-#colorTable input {
-    width: 6em;
-    color: black;
-}
-#colorTable input.dark:not(.isFileVal) {
-    color: white;
-}
-#colorTable input.isFileVal {
-    font-style: italic;
-    color: #777777;
-}
-#colorTable input.isFileVal.dark {
-    color: #bbbbbb;
-}
-#colorTable input.empty {
-    font-style: italic;
-    color: #777777;
-}
-#colorTable input.empty.dark {
-    color: #bbbbbb;
-}
-
-#coords {
-    display: none;
-    text-align: left;
-    padding-right: 0.3em;
-    background: #eee;
-    margin-top: 0.1em;
-    width: 19em;
-}
-#coords td {
-    text-align: right;
-    padding: 0;
-    width: 2.3em;
-}
-#coords td:first-child {
-    padding-right: 0.3em;
-    width: 5em;
-}
-#coords td:nth-child(4) {
-    font-size: 0.7em;
-    width: 8em;
-}
-
-
-
-
-
-
-
-
-
-
-
 

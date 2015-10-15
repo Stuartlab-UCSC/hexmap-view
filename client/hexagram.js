@@ -924,7 +924,7 @@ reset_comparison_stats = function() {
 }
 
 
-function reset_comparison_stats_counter() {
+reset_comparison_stats_counter = function () {
 	comparison_stats_clicks++;
 }
 

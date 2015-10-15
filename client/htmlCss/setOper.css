@@ -1,0 +1,28 @@
+/* Set Operation Menu */
+
+#set-operation {
+    padding: 3px;
+}
+
+#set-operations-list {
+	margin-bottom: 20px;
+}
+
+.set-operation-value {
+    width: 15em;
+	margin-bottom: 10px;
+}
+
+.set-operation-layer-value {
+	width: 5em;
+	margin-left: 50px;
+}
+
+#calculate-set-operation {
+    padding: 0.2em;
+}
+
+.set-operation.dropdown {
+    height: 200px;
+}
+

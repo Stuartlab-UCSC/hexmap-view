@@ -1,0 +1,118 @@
+/* Browsing stuff */
+
+.header.row {
+    border-bottom: 1px solid black;
+    top: 2em;
+    overflow: visible;
+    background-color:white;
+}
+
+/* Vertical alignment tables */
+.vertical-table {
+    display: table;
+}
+
+.vertical-cell {
+    display: table-cell;
+    vertical-align: middle;
+}
+
+.browse.col {
+    left: 0;
+    width: 24em;
+}
+
+#browse-holder {
+    margin-left: 0.5em;
+	width: 27em;
+}
+
+#browse-holder img {
+    height: 24px;
+    width: 24px;
+    padding: 3px;
+    margin-top: 5px;
+    margin-right: 2px;
+}
+
+#search {
+    width: 29em;/*322px;*/
+}
+
+/* 
+    Not much room for the results for this column. Just get them out of the way.
+*/
+#browse-results.panel-contents {
+    top: 4em;
+}
+
+/* Do some custom styling of browse results */
+.layer-entry {
+    padding-right: 20px;
+}
+
+.select2-results .select2-highlighted {
+    background-image: url("right.svg");
+    background-repeat: no-repeat;
+    background-position: right center;
+}
+
+.layer-name {
+    /* Force silly underscore names into shape */
+    word-wrap: break-word;
+}
+
+.layer-metadata {
+    font-size: 0.65em;
+}
+
+
+/* Map Layout Selection Stuff */
+
+#layout-holder{
+	margin-left: 0.5em;
+}
+
+#layout-search {
+    width: 22em;
+}
+
+.layout-entry {
+    padding-right: 20px;
+}
+
+layout-name {
+    /* Force silly underscore names into shape */
+    word-wrap: break-word;
+}
+
+#current-layout {
+	padding-top: .75em;
+	width: 700px;
+}
+
+#ranked-against {
+	padding-top: .5em;
+}
+
+#coords {
+    display: none;
+    text-align: left;
+    padding-right: 0.3em;
+    background: #eee;
+    margin-top: 0.1em;
+    width: 19em;
+}
+#coords td {
+    text-align: right;
+    padding: 0;
+    width: 2.3em;
+}
+#coords td:first-child {
+    padding-right: 0.3em;
+    width: 5em;
+}
+#coords td:nth-child(4) {
+    font-size: 0.7em;
+    width: 8em;
+}

@@ -1,0 +1,136 @@
+/* Code for fancy expandy side panels in the shortlist */
+
+.shortlist.col {
+    right: 0;
+    width: 21em;
+    overflow: visible;
+}
+
+.panel-holder {
+    overflow: hidden;
+    height: 3.9em;
+    max-height: 4em;
+    top: 2.1em;
+    width: 20em;
+    position: fixed;
+    z-index: 100;
+    transition: max-height 100ms;
+}
+
+/* When a holder gets moused over, open it up to 100% window height */
+.panel-holder:hover {
+    height: auto;
+    max-height: 100%;
+    bottom: 0;
+}
+
+.panel {
+    position: relative;
+    top: 0;
+    left: 0;
+    height: 100%;
+    border-radius: 10px;
+    border: 1px solid gray;
+    background: white;
+    z-index: 100;
+}
+
+.panel-contents {
+    overflow-y: auto;
+    overflow-x: hidden;
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    top: 1em;
+}
+
+.panel-title {
+    text-align: center;
+    font-weight: bold;
+    /*font-family: sans-serif;*/
+    height: 1em;
+}
+
+/* Shortlist UI stuff */
+
+.shortlist-controls {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 2em;
+    background-image: url("drag.svg");
+    background-repeat: no-repeat;
+    background-position: 50% 70%; 
+    border-radius: 5px;
+    padding: 5px;
+}
+
+.shortlist-entry {
+    position: relative;
+    height: auto;
+    width: auto;
+    background: #E0E0FF;
+    border-radius: 5px;
+    padding: 5px;
+    padding-left: 3em;
+    margin: 0.5em;
+    word-wrap: break-word;
+}
+
+.shortlist-entry.selection {
+    background: #FFE0FF;
+}
+
+.shortlist-controls {
+    cursor: grab;
+    cursor: -moz-grab;
+    cursor: -webkit-grab;
+}
+
+.shortlist-controls:activate {
+    cursor: grabbing;
+    cursor: -moz-grabbing;
+    cursor: -webkit-grabbing;
+}
+
+.shortlist-entry:after {
+    content: "";
+    display: block;
+    clear: both;
+}
+
+#shortlist-holder {
+    right: 0;
+}
+
+/* Filtering stuff */
+
+.filter {
+    line-height: 1em;
+    vertical-align: center;
+}
+.filter-threshold, .filter-value {
+    display: none;
+    width: 5em;
+}
+.filter-holder {
+	float: left;
+	text-align: left;
+	width: 120px;
+}
+
+.save-filter {
+	display: none;
+}
+
+/* These are the layer scaling sliders */
+.range-slider {
+    width: 10em;
+    margin-left: 0.3em;
+    margin-right: 0.3em;
+    margin-top: 0.5em;
+}
+
+
