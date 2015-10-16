@@ -1,60 +1,29 @@
 /* Browsing stuff */
 
-.header.row {
+.header {
+    display: inline-block;
     border-bottom: 1px solid black;
-    top: 2em;
-    overflow: visible;
-    background-color:white;
+    width: 100%;
+    position: relative;
+    background-color: #fefefe;
 }
 
-/* Vertical alignment tables */
-.vertical-table {
-    display: table;
+.layer-row .stacker {
+    line-height: 2.9em;
 }
 
-.vertical-cell {
-    display: table-cell;
-    vertical-align: middle;
-}
-
-.browse.col {
-    left: 0;
-    width: 24em;
-}
-
-#browse-holder {
-    margin-left: 0.5em;
-	width: 27em;
-}
-
-#browse-holder img {
-    height: 24px;
-    width: 24px;
-    padding: 3px;
-    margin-top: 5px;
-    margin-right: 2px;
+#s2id_search {
+    padding-top: 0.45em;
+    margin-right: 0.5em;
+    width: 15em;
 }
 
 #search {
-    width: 29em;/*322px;*/
+    width: 29em;
 }
 
-/* 
-    Not much room for the results for this column. Just get them out of the way.
-*/
-#browse-results.panel-contents {
-    top: 4em;
-}
-
-/* Do some custom styling of browse results */
 .layer-entry {
     padding-right: 20px;
-}
-
-.select2-results .select2-highlighted {
-    background-image: url("right.svg");
-    background-repeat: no-repeat;
-    background-position: right center;
 }
 
 .layer-name {
@@ -66,11 +35,32 @@
     font-size: 0.65em;
 }
 
+#comparison-stats,
+#set-operation,
+#sort-attributes-button {
+    height: 24px;
+    width: 24px;
+    padding: 3px;
+    margin: 0.3em;
+    border: 1px solid #aaaaaa;
+}
 
-/* Map Layout Selection Stuff */
+#ranked-against {
+    line-height: 2.6em;
+}
 
-#layout-holder{
-	margin-left: 0.5em;
+/* ***************** layout **************** */
+
+#layout-row {
+    margin-top: -0.3em;
+}
+
+#current-layout {
+	padding-top: 0.2em;
+}
+
+#s2id_layout-search {
+    padding-top: 0.3em;
 }
 
 #layout-search {
@@ -86,14 +76,10 @@ layout-name {
     word-wrap: break-word;
 }
 
-#current-layout {
-	padding-top: .75em;
-	width: 700px;
-}
 
-#ranked-against {
-	padding-top: .5em;
-}
+
+
+
 
 #coords {
     display: none;

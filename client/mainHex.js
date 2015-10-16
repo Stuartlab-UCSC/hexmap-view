@@ -30,6 +30,7 @@ layers = {}; // contains almost all information about attributes
             {pre: 'sort_attributes', suf: '.svg'},
         ],
         gridPageSrcs = [
+            {pre: 'cyber-slug', suf: '.svg'},
         ],
         googlemapsInitialized = false;
 
@@ -124,7 +125,7 @@ layers = {}; // contains almost all information about attributes
 
     initMapDrawn = function () {
         // Initialize modules that need to have the map drawn.
-        initSvg();
+        if (Session.equals('page', 'mapPage')) initSvg();
         if (DEV) initGrid();
         initCoords();
     }
@@ -150,10 +151,26 @@ layers = {}; // contains almost all information about attributes
         return (firstLine === '<!DOCTYPE html>');
     }
 
+    function resizeMap () {
+
+        // Capture a resize window event to resize the map.
+        // We need to do this before the google map or it will not be centered.
+        var windowHt = $(window).height(),
+            navHt = $('#toolbar').height(),
+            headerHt = $('#header').height();
+        $('#mapContent').height(windowHt - navHt - headerHt - 2);
+        $('#gridContent').height(windowHt - navHt - 2);
+    }
+
+    function resizeShortlist () {
+    }
+
     initMrtGooglemapsForMap = function () {
         setTimeout(function () {
+            resizeMap();
+            $(window).resize(resizeMap);
             GoogleMaps.init({}, function () {
-            
+
                 // Initialize everything else
                 initHomeLink();
                 initProject();
@@ -168,6 +185,8 @@ layers = {}; // contains almost all information about attributes
 
     initMrtGooglemapsForGrid = function () {
         setTimeout(function () {
+            resizeMap();
+            $(window).resize(resizeMap);
             GoogleMaps.init({}, function () {
                 initHomeLink();
                 convertStoredCenterToLatLng();

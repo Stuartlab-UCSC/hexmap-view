@@ -1,9 +1,53 @@
 /*
 aHexagram.css
 
-This file needs to load first after library css files, meteor loads in 
+This file needs to load just after library css files, meteor loads in 
 alphabetical order, hence the file name.
 */
+
+body {
+    margin: 0;
+    padding: 0;
+    background-color: #E7E5D7;
+    font-family: sans-serif;
+}
+
+.row {
+    display: inline-block;
+    width: 100%;
+    vertical-align: middle;
+}
+
+/* These are all supposed to stack against the left end of a row. */
+.stacker {
+    float: left;
+    margin-left: 0.5em;
+    line-height: 2.3em;
+    vertical-align: middle;
+}
+
+/* Except these which stack against the right end of a row. */
+.stacker.right {
+    float: right;
+    margin-left: 0;
+    margin-right: 0.5em;
+}
+
+#homePage {
+    padding: 1.5em;
+}
+
+#homePage h3 {
+    font-size: 1.3em;
+    margin-top: 0.6em;
+    margin-bottom: 0;
+}
+
+#homePage p {
+    margin-top: 0.3em;
+    margin-bottom: 0.3em;
+}
+
 /*
 The visualization element needs to take up all available space.
 */
@@ -21,29 +65,10 @@ The visualization element needs to take up all available space.
     background-color: #fff;
 }
 
-/* 
-Row and column layout boilerplate
-From http://blog.stevensanderson.com/2011/10/05/full-height-app-layouts-a-css-trick-to-make-it-easier/
-*/
-
-body {
-    margin: 0;
-    background-color: #E7E5D7;
-}
-
-#mapPage {
-    background-color: white;
-}
-
-#homePage h3 {
-    font-size: 1.3em;
-    margin-top: 0.6em;
-    margin-bottom: 0;
-}
-
-#homePage p {
-    margin-top: 0.3em;
-    margin-bottom: 0.3em;
+.select2-results .select2-highlighted {
+    background-image: url("right.svg");
+    background-repeat: no-repeat;
+    background-position: right center;
 }
 
 .dialog {
@@ -55,32 +80,13 @@ body {
     min-height: 3em;
     padding: 0.5em;
 }
-
-.row, .col {
-    overflow: hidden;
-    position: absolute;
-}
-
-.row { 
-    left: 0;
-    right: 0; 
-}
-
-.row-frame {
-
-}
-
-.col { 
-    top: 0; 
-    bottom: 0;
-}
-
 /*
 Read as "The content row", distinct from whatever else that element might be.
 */
-.content.row {
-    top: 6.3em;
-    bottom: 0;
+.content {
+    position: relative;
+    top: 0px;
+    height: 300px;
     z-index: 1;
 }
 
@@ -92,20 +98,6 @@ Read as "The content row", distinct from whatever else that element might be.
     z-index: 101;
     display: none;
 }
-/*
-.footer.row {
-    height: 50px;
-    bottom: 0;
-    line-height: 50px;
-}
-*/
-.title {
-    font-size: 1.2em;
-    font-weight: bold;
-    padding-right: 0.5em;
-    margin-top: -0.2em;
-}
-
 .dialog-label,
 .dialog-value {
 	text-align: right;
@@ -179,11 +171,6 @@ Read as "The content row", distinct from whatever else that element might be.
     margin-right: 5px;
 }
 
-.helpNav {
-    padding-top: 0.25em;
-    height: 24px;
-}
-
 .help-button {
     float: left;
     margin-left: 1em;
@@ -202,44 +189,11 @@ Read as "The content row", distinct from whatever else that element might be.
     overflow: auto;
 }
 
-/*Adam Comparision Statistics Menu*/
-
 .comparison-stats-value {
     width: 20em;
 	margin-bottom: 10px;
 }
 
-#comparison-stats,
-#set-operation,
-#sort-attributes-button {
-    border: 1px solid #aaaaaa;
-    margin-top: 5px;
-}
-
-/*Sort Attributes Combined Functionality*/
-#sort-attributes-button {
-    padding: 4px;
-    padding-top: 5px;
-}
-/* used? TODO
-#sort-attributes-list {
-	width: 250px;
-}
-*/
-/* used? TODO
-.all-attributes {
-	text-align: center;
-	margin-left: 15px;
-}
-.specific-attributes {
-	text-align: center;
-	margin-left: 25px;	
-}
-
-.all-attributes-label {
-	font-size: 0.6em;
-}
-*/
 .checkbox-labels {
 	font-size: 0.6em;
 }
@@ -252,7 +206,6 @@ Read as "The content row", distinct from whatever else that element might be.
 /* This is the info window/infocard styling */
 .infocard {
     word-break: break-all;
-   /* font-family: sans-serif; */
 }
 
 .info-row {

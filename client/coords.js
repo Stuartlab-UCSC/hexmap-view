@@ -201,6 +201,7 @@ var app = app || {}; // jshint ignore:line
     }
 
     initCoords = function () {
+
         if (initialized || !SHOW_COORDS) return
         initialized = true;
 
@@ -210,7 +211,7 @@ var app = app || {}; // jshint ignore:line
             $el;
 
         // hide some labels so the coordinates will show instead
-        $('#current-layout, #ranked-against').hide();
+        $('#layout-row, #ranked-against').hide();
 
         if (Session.equals('page', 'gridPage')) {
             map = getGridMap();

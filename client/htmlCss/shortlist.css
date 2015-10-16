@@ -1,6 +1,6 @@
 /* Code for fancy expandy side panels in the shortlist */
 
-.shortlist.col {
+.shortlist {
     right: 0;
     width: 21em;
     overflow: visible;
@@ -8,9 +8,10 @@
 
 .panel-holder {
     overflow: hidden;
-    height: 3.9em;
-    max-height: 4em;
+    height: 4.75em;
+    max-height: 6em;
     top: 2.1em;
+    right: 0;
     width: 20em;
     position: fixed;
     z-index: 100;
@@ -48,7 +49,6 @@
 .panel-title {
     text-align: center;
     font-weight: bold;
-    /*font-family: sans-serif;*/
     height: 1em;
 }
 
@@ -99,10 +99,6 @@
     content: "";
     display: block;
     clear: both;
-}
-
-#shortlist-holder {
-    right: 0;
 }
 
 /* Filtering stuff */

@@ -1,25 +1,21 @@
 <template name='header'>
-    <div class="header row" id="header">
-        <div class="browse col vertical-table">
-            <div class="mapOnly vertical-cell">
-                <div id="browse-holder">
-                    <input id="search" type="hidden"/>
-                    <img style='display:none' class="statistics" id="comparison-stats" title="Differential Contrast of Sample Selections" onclick="update_comparison_stats_drop_down()"/>
-                    <img class="recalculate-throbber throbber" title="Recalculating..." />
-                    <img class="set" id="set-operation" title="Calculate Set Operation"/>
-                    <img style='display:none' class="sort_attributes" id="sort-attributes-button" title="Sort Attributes by Association with a Focus Attribute"/>
-                </div>
-                <div id="layout-holder">
-                    <input id="layout-search" type="hidden"/>
-                </div>
-            </div>
-            <div class='mapOnly' id="current-layout">Current Layout:</div>
-            <div class='mapOnly' id="ranked-against">Attributes ranked according to frequency</div>
+    <div class="header mapOnly" id="header">
+        <div class='layer-row row'>
+            <input id="search" class='stacker' type="hidden"/>
+            <img style='display:none' class="statistics stacker" id="comparison-stats" title="Differential Contrast of Sample Selections" onclick="update_comparison_stats_drop_down()"/>
+            <img class="recalculate-throbber throbber stacker" title="Recalculating..." />
+            <img class="set stacker" id="set-operation" title="Calculate Set Operation"/>
+            <img style='display:none' class="sort_attributes stacker" id="sort-attributes-button" title="Sort Attributes by Association with a Focus Attribute"/>
+            <div id="ranked-against" class='stacker'>Attributes ranked according to frequency</div>
+        </div>
+        <div id="layout-row" class='row'>
+            <div id="current-layout" class='stacker'>Current Layout:</div>
+            <input id="layout-search" class='stacker' type="hidden"/>
 
             {{> coords }}
 
         </div>
-        <div class="comparison-stats dropdown">
+        <div style='display:none' class="comparison-stats dropdown">
             <div class="dropdown-title">Sort Attributes by Dichotomy
                 <a class="cancel" href="#" onclick="hide_comparison_stats_drop_down(); reset_comparison_stats_counter()">X </a>
             </div>

@@ -1,33 +1,41 @@
 
-.tools.row {
-    top: 0em;
-    /*background: #e0e0e0;*/
+.tools {
+    background: #E7E5D7;
 }
 
-/*
-These are all supposed to stack against the left end in a toolbar thingy.
-*/
-.stacker {
-    float: left;
-    margin-left: 0.5em;
-    line-height: 2em;
-    height: 2em;
+.cyber-slug {
+    height: 30px;
+    margin-top: 0.25em;
+    margin-right:0.5em;
 }
 
-#project {
-    padding-top: 0.2em;
-    width: 15em;
+.title {
+    font-size: 1.2em;
+    font-weight: bold;
+    margin-left: 0;
+    padding-right: 0.5em;
+    padding-top: 0.5em;
+    line-height: 1em;
 }
+
+#project,
 #s2id_project {
-    padding-top: 0.2em;
+    padding-top: 0.3em;
     width: 15em;
 }
+
 #project.static {
     font-size: 1.1em;
-    vertical-align: center;
     margin-top: -0.4em;
     padding-right: 0.5em;
     width: auto;
+}
+
+.helpNav {
+    margin-top: 0.2em;
+    margin-bottom: -0.5em;
+    height: 24px;
+    line-height: 24px;
 }
 
 #error-notification {
@@ -37,12 +45,5 @@ These are all supposed to stack against the left end in a toolbar thingy.
     margin-left: 0.5em;
     line-height: 2em;
     height: 2em;
-}
-
-/* Except these which stack on the right */
-.stacker.right {
-    float: right;
-    margin-left: 0;
-    margin-right: 0.5em;
 }
 
