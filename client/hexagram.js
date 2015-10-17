@@ -243,12 +243,13 @@ function set_hexagon_color(hexagon, color) {
     });
 }
 
-function set_hexagon_stroke_weight(hexagon, weight) {
+function set_hexagon_stroke_weight(hexagon, weight, color) {
     // Given a polygon, set the weight of hexagon's border stroke, in number of
-    // screen pixels.
+    // screen pixels, and the border color.
     
     hexagon.setOptions({
-        strokeWeight: weight
+        strokeWeight: weight,
+        strokeColor: color,
     });
 }
 
@@ -2524,10 +2525,15 @@ initialize_view = function () {
                 set_hexagon_stroke_weight(polygons[signature], 0);
             }
         } else {
+            if (Session.equals('background', 'white')) {
+                var strokeColor = 'white';
+            } else {
+                var strokeColor = 'black';
+            }
             // We can fit borders on the hexes
             for(var signature in polygons) {
                 set_hexagon_stroke_weight(polygons[signature], 
-                    HEX_STROKE_WEIGHT);
+                    HEX_STROKE_WEIGHT, strokeColor);
             }
         }
         
@@ -2721,7 +2727,11 @@ get_color = function (u_name, u, v_name, v) {
     
     if(isNaN(u) || isNaN(v) || u == undefined || v == undefined) {
         // At least one of our layers has no data for this hex.
-        return "black";
+        if (Session.equals('background', 'white')) {
+            return '#ccc';
+        } else {
+            return '#555';
+        }
     }
     
     if(have_colormap(u_name) && have_colormap(v_name) && 

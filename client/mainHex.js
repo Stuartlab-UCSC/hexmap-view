@@ -4,7 +4,7 @@
 
 var app = app || {}; // jshint ignore:line
 
-DEV = true; // true if in development mode, false if not
+DEV = false; // true if in development mode, false if not
 
 ctx = null; // Persistent state to be saved eventually
 layers = {}; // contains almost all information about attributes
@@ -19,7 +19,9 @@ layers = {}; // contains almost all information about attributes
         homePageSrcs = [
             {pre: 'ucscgi_clear', suf: '.png'},
             {pre: 'pancan12-mRNA-Seq', suf: '.png'},
+            {pre: 'gliomas-paper', suf: '.png'},
             {pre: 'cyber-slug', suf: '.svg'},
+            {pre: 'question-sign', suf: '.svg'},
         ],
         mapPageSrcs = [
             {pre: 'cyber-slug', suf: '.svg'},
@@ -137,7 +139,6 @@ layers = {}; // contains almost all information about attributes
 
     function initHomeLink() {
         // Set up the link to the home page
-        if (!DEV) return;
         add_tool("to-home", "Home", function() {
             $('.homePage').click();
             tool_active = false;

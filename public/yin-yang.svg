@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="250" height="250">
+ <defs>
+  <path id="y" d="m 425,25 c 110.4,0 200,89.6 200,200 0,110.4 -89.6,200 -200,200 -110.4,0 -200,89.6 -200,200 0,110.4 89.6,200 200,200 C 645.8,825 825,645.8 825,425 825,204.2 645.8,25 425,25 z m 0,537.5 c 34.5,0 62.5,28 62.5,62.5 0,34.5 -28,62.5 -62.5,62.5 -34.5,0 -62.5,-28 -62.5,-62.5 0,-34.5 28,-62.5 62.5,-62.5 z" />
+  <path id="d" d="m 450,200 c 0,27.61424 -22.38576,50 -50,50 -27.61424,0 -50,-22.38576 -50,-50 0,-27.61424 22.38576,-50 50,-50 27.61424,0 50,22.38576 50,50 z" />
+  <filter id="f">
+   <feGaussianBlur stdDeviation="12.375" />
+  </filter>
+ </defs>
+ <g transform="translate(17.2,-617.2)">
+  <g transform="matrix(0.28267752,0,0,0.28267752,-12.337947,622.06205)">
+   <path transform="translate(25,25)" d="M 800,400 C 800,620.9139 620.9139,800 400,800 179.0861,800 0,620.9139 0,400 0,179.0861 179.0861,0 400,0 620.9139,0 800,179.0861 800,400 z" style="opacity:0.5;fill:#7f7f7f;stroke:#7f7f7f;stroke-width:25;filter:url(#f)" />
+   <g transform="matrix(-1,0,0,-1,850,850)">
+    <g fill="#000" transform="matrix(-1,0,0,-1,825,825)">
+     <use xlink:href="#y" transform="translate(-25,-25)" />
+     <use xlink:href="#d" transform="matrix(1.25,0,0,1.25,-100,-50)" />
+    </g>
+    <g fill="#fff">
+     <use xlink:href="#y" />
+     <use xlink:href="#d" transform="matrix(1.25,0,0,-1.25,-75,475)" />
+    </g>
+   </g>
+  </g>
+ </g>
+</svg>

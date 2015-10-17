@@ -3,11 +3,7 @@
 
 var app = app || {}; // jshint ignore:line
 
-if (DEV) {
-    PAGE = 'homePage';
-} else {
-    PAGE = 'mapPage'; // TODO special for gioma paper
-}
+PAGE = 'homePage';
 
 (function (hex) { // jshint ignore:line
     //'use strict';
@@ -20,10 +16,10 @@ if (DEV) {
     // Prefix for images and other such files
     if (location.host === 'localhost:3000') {
         proxPre = '';
-    } else if (DEV) {
-        proxPre = '/hexmap/';
-    } else {
+    } else if (location.host === 'su2c-dev.ucsc.edu' && !DEV) {
         proxPre = '/hex/';
+    } else {
+        proxPre = '/hexmap/'; // su2c and su2c-dev
     }
 
     // Keep localStore of different development versions separate
