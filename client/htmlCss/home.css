@@ -1,0 +1,41 @@
+
+#homePage {
+    padding: 1.5em 3em;
+}
+
+#homePage .allProjects {
+    display: inline-block;
+    vertical-align: top;
+    padding-bottom: 1em;
+    padding-right: 2em'
+}
+
+#homePage .project {
+    float: left;
+    display: inline-block;
+    margin: 1em;
+}
+
+#homePage .thumbnail {
+    display: inline-block;
+    text-align: center;
+    background-color: white;
+    vertical-align: top;
+    width: 300px;
+}
+
+#homePage .thumbnail img {
+    /*height: 200px;*/
+}
+
+#homePage h3 {
+    font-size: 1.3em;
+    margin-top: 0.6em;
+    margin-bottom: 0;
+}
+
+#homePage p {
+    margin-top: 0.3em;
+    margin-bottom: 0.3em;
+}
+

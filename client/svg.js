@@ -70,7 +70,7 @@ var app = app || {}; // jshint ignore:line
                     + " x='1' y='1'"
                     + " width='100%'"
                     + " height='100%'"
-                    + " fill='white'"
+                    + " fill='" + Session.get('background') + "'"
                     + " ></rect>\n";
 
                 // Transform each polygon to xy space

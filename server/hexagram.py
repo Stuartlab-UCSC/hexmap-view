@@ -961,7 +961,7 @@ def drl_similarity_functions(matrix, index, options):
     # TODO: pass a truncation level
     print timestamp(), "DrL: Truncating..."
     sys.stdout.flush()
-        if options.drlpath:
+    if options.drlpath:
         subprocess.check_call(["truncate", "-t", str(options.truncation_edges), 
         drl_basename], env={"PATH": options.drlpath}) 
     else:
