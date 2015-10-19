@@ -25,7 +25,7 @@
 }
 
 #homePage .thumbnail img {
-    /*height: 200px;*/
+    width: 300px;
 }
 
 #homePage h3 {

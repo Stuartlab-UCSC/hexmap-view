@@ -16,10 +16,10 @@ PAGE = 'homePage';
     // Prefix for images and other such files
     if (location.host === 'localhost:3000') {
         proxPre = '';
-    } else if (location.host === 'su2c-dev.ucsc.edu' && !DEV) {
+    } else if (location.host === 'medbook.ucsc.edu' || !DEV) {
         proxPre = '/hex/';
     } else {
-        proxPre = '/hexmap/'; // su2c and su2c-dev:DEV
+        proxPre = '/hexmap/'; // su2c-dev:DEV
     }
 
     // Keep localStore of different development versions separate

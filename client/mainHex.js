@@ -6,7 +6,7 @@ var app = app || {}; // jshint ignore:line
 
 DEV = false; // true if in development mode, false if not
 
-ctx = null; // Persistent state to be saved eventually
+ctx = null; // State
 layers = {}; // contains almost all information about attributes
 
 (function (hex) { // jshint ignore:line
@@ -18,7 +18,7 @@ layers = {}; // contains almost all information about attributes
         ],
         homePageSrcs = [
             {pre: 'ucscgi_clear', suf: '.png'},
-            {pre: 'pancan12-mRNA-Seq', suf: '.png'},
+            {pre: 'pancan12', suf: '.png'},
             {pre: 'gliomas-paper', suf: '.png'},
             {pre: 'cyber-slug', suf: '.svg'},
             {pre: 'question-sign', suf: '.svg'},
@@ -91,9 +91,16 @@ layers = {}; // contains almost all information about attributes
         "click .mapPage": function() {
             pageReload('mapPage');
         },
-        "click .defaultMapPage": function() {
-            ctx.project = Session.get('proxPre') + ctx.getDefaultProject();
+
+        // TODO we shouldn't have to make one of these foreach project!
+        "click .public-pancan12": function() {
+            ctx.project = Session.get('proxPre') + 'data/public/pancan12/';
             pageReload('mapPage');
+        },
+        "click .ynewton-gliomas-paper": function() {
+            ctx.project = Session.get('proxPre') + 'data/ynewton/gliomas-paper/';
+            pageReload('mapPage');
+            
         },
         "click .gridPage": function() {
             pageReload('gridPage');
@@ -161,9 +168,6 @@ layers = {}; // contains almost all information about attributes
             headerHt = $('#header').height();
         $('#mapContent').height(windowHt - navHt - headerHt - 2);
         $('#gridContent').height(windowHt - navHt - 2);
-    }
-
-    function resizeShortlist () {
     }
 
     initMrtGooglemapsForMap = function () {
