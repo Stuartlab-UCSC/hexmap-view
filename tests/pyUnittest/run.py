@@ -30,7 +30,7 @@ def runPy():
             s.drlpath = None
             s.html = 'test.dat'
             s.mi_binary_binning = False # True default
-            s.mi_window_size = 30 # 25 default
+            s.mi_window_size = 25
             s.mi_window_threshold = 4 # 30 default
             s.mutualinfo = True
             s.names = ['mRNA seq']

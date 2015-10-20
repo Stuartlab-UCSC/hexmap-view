@@ -49,15 +49,15 @@ class TestChi2(unittest.TestCase):
         s.hexIt()
         os.chdir(outDir)
         files = glob.glob('*chi2*')
-        refFiles = ['layer_0_chi2.tab', 'layer_1_chi2.tab',
-            'layer_2_chi2.tab', 'layer_3_chi2.tab',
-            'layer_4_chi2.tab', 'layer_7_chi2.tab',
-            'layer_9_chi2.tab']
+        refFiles = ['layer_0_sstats.tab', 'layer_1_sstats.tab',
+            'layer_2_sstats.tab', 'layer_3_sstats.tab',
+            'layer_4_sstats.tab', 'layer_7_sstats.tab',
+            'layer_9_sstats.tab']
         #print 'FFFFFFFFFFFFFiles', files
         s.assertTrue(files == refFiles)
 
     def test_chi2FileContents(s):
-        with open(outDir + 'layer_7_chi2.tab', 'rU') as fIn:
+        with open(outDir + 'layer_7_sstats.tab', 'rU') as fIn:
             fIn = csv.DictReader(fIn, delimiter='\t')
             r = fIn.next();
             s.assertEqual(float(r['TP53_mutated']), 0.000340309112565)
