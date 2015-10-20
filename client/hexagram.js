@@ -1579,6 +1579,9 @@ function sort_layers(layer_array, type_value) {
     // to appear to the user.
     // We should sort by p value, with NaNs at the end. But selections should be
     // first.
+
+    // Define the default sort message
+    Session.setDefault('sortText', 'Density of attributes')
     if (layer_array.length === 0) return;
 
 	if (type_value == "region-based-positive") {
@@ -1586,10 +1589,6 @@ function sort_layers(layer_array, type_value) {
 
     } else if (type_value == "region-based-negative") {
         layer_array.sort(layer_sort_order_mutual_information_negative);
-
-    // unused:
-    //} else if (type_value == "r_value") {
-    //	layer_array.sort(layer_sort_order_r_value);
 
 	} else {
         // The default sort
@@ -1699,11 +1698,6 @@ update_browse_ui = function(type_value) {
     // Re-sort the sorted list that we maintain
     sort_layers(ctx.layer_names_sorted, type_value);
 
-    // Set the "Sorting Text" Label
-	$("#ranked-against")
-        .text(ctx.current_sort_text)
-        .prop('title', ctx.current_sort_text);
-    
     // Close the select if it was open, forcing the data to refresh when it
     // opens again.
     $("#search").select2("close");
@@ -2106,6 +2100,8 @@ select_list = function (to_select, function_type, layer_names, new_layer_name, s
     });
 	return (new_layer_name);
 }
+// TODO use find_polygons_in_rectangle & select_rectangle
+// in coords.js & select.js
 
 find_polygons_in_rectangle = function (start, end) {
     // Given two Google Maps LatLng objects (denoting arbitrary rectangle 
@@ -2172,7 +2168,7 @@ clear_current_stats_values = function  () {
         delete layers[layer_name].p_value;
         delete layers[layer_name].mutual_information;
      }
-	ctx.current_sort_text = "Attributes ranked according to frequency";
+	Session.set('sortText', "Density of attributes");
 	update_browse_ui();	
 }
 
@@ -2367,7 +2363,8 @@ function recalculate_statistics_for_layer(layer_name, in_list, out_list, all) {
             // TODO: Unify this code with similar callback below.
             // Re-sort everything and draw all the new p values.
 
-			ctx.current_sort_text = "Ranked by contrast between " + comparison_stats_l1 + " & " + comparison_stats_l2;
+			Session.set('sortText',
+                "Contrast between " + comparison_stats_l1 + " & " + comparison_stats_l2);
             update_browse_ui();
             update_shortlist_ui();
             
@@ -2422,7 +2419,8 @@ function recalculate_statistics_for_matrix(matrix_url, in_list, out_list, all) {
             // TODO: Unify this code with similar callback above.
             // Re-sort everything and draw all the new p values.
 
-			ctx.current_sort_text = "Ranked by contrast between " + comparison_stats_l1 + " & " + comparison_stats_l2;
+			Session.set('sortText',
+                "Contrast between " + comparison_stats_l1 + " & " + comparison_stats_l2);
             update_browse_ui();
             update_shortlist_ui();
 
@@ -2728,9 +2726,9 @@ get_color = function (u_name, u, v_name, v) {
     if(isNaN(u) || isNaN(v) || u == undefined || v == undefined) {
         // At least one of our layers has no data for this hex.
         if (Session.equals('background', 'white')) {
-            return '#eeeeee';
+            return '#ccc';
         } else {
-            return '#111111';
+            return '#555';
         }
     }
     
@@ -3467,7 +3465,7 @@ initHex = function () {
         var results = $('#select2-drop .select2-results');
         results.css('max-height', $(window).height() - results.offset().top - 15);
     });
-  
+
   	// Handle result selection
     $("#layout-search").on("select2-selecting", function(event) {
         // The select2 id of the thing clicked (the layout's name) is event.val

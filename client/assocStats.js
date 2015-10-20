@@ -39,7 +39,8 @@ var app = app || {}; // jshint ignore:line
                 }
             }, "text")
             .done(function() {
-                ctx.current_sort_text = "Sample-base ranked in terms of: " + layer_name;
+                Session.set('sortText',
+                    "Stats w/out layout in terms of: " + layer_name);
                 update_browse_ui();
                 update_shortlist_ui();
                 ctx.mutual_information_ranked = false;
@@ -48,7 +49,7 @@ var app = app || {}; // jshint ignore:line
             })
             .fail(function() {
                 complain("Association Stats Weren't Precomputed!");
-                // var ranked_against_label = document.getElementById("ranked-against").style.visibility="hidden";
+                // var ranked_against_label = document.getElementById("sortText").style.visibility="hidden";
                 ctx.mutual_information_ranked = false;
             });
             var x = 0;
@@ -108,7 +109,8 @@ var app = app || {}; // jshint ignore:line
 
                 }, "text")
                 .done(function() {
-                    ctx.current_sort_text = "Sample-base ranked in terms of: " + layer_name;
+                    Session.set('sortText', 
+                        "Stats w/layout in terms of: " + layer_name);
                     update_browse_ui("r_value");
                     ctx.mutual_information_ranked = false;
 

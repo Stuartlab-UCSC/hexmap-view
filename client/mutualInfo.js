@@ -130,7 +130,9 @@ var app = app || {}; // jshint ignore:line
                 corr = 'anticorrelation';
                 type = 'region-based-negative';
             }
-            ctx.current_sort_text = 'Region-base ranked in terms of ' + corr + 'with: ' + compare_layer_name;
+
+            Session.set('sortText',
+                'Stats w/layout in terms of ' + corr + ' with: ' + compare_layer_name);
             update_browse_ui(type);
             
             // Save the parameters we were called with, so we can be called
@@ -210,8 +212,8 @@ var app = app || {}; // jshint ignore:line
             if (query_type === 'rank') {
                 complain("Mutual Information Stats Were Not Pre-Computed!");
 
-                // $("#ranked-against").text("(MI) Attributes Ranked According to: " + layer_names[0]);
-                // var ranked_against_label = document.getElementById("ranked-against").style.visibility="hidden";
+                // Session.set('sortText', "(MI) Attributes sorted according to: " + layer_names[0]);
+                // var ranked_against_label = document.getElementById("sortText").style.visibility="hidden";
             }
         });
     }

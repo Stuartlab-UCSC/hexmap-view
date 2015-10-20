@@ -142,6 +142,8 @@ var app = app || {}; // jshint ignore:line
         // This populates the drop down containing the list of layers
         // to match the appropriate layers found in the shortlist.
 
+        var count = 1; // initialize the count to have only the filler option
+
         // Reset the list
         $list.empty();
 
@@ -167,10 +169,15 @@ var app = app || {}; // jshint ignore:line
                     .text(layer_name)
                     .val(layer_name);
                 $list.append($option);
+                count += 1;
             }
         });
         $option = $('option[value="' + focus_attr + '"]');
         $option.attr('selected', 'selected');
+        if (count < 2) {
+            alert('To sort by a focus attribute, add at least one Label (yes/no) attribute to the short list.');
+            destroy_dialog();
+        }
     }
 
     function destroy_dialog() {
@@ -222,7 +229,6 @@ var app = app || {}; // jshint ignore:line
                 },
             ],
         });
-
 
         setTimeout(init_dialog, 0); // give the dialog DOM a chance to load
     }

@@ -211,7 +211,7 @@ var app = app || {}; // jshint ignore:line
             $el;
 
         // hide some labels so the coordinates will show instead
-        $('#layout-row, #ranked-against').hide();
+        $('#layout-row, #sortText').hide();
 
         if (Session.equals('page', 'gridPage')) {
             map = getGridMap();

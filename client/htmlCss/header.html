@@ -1,12 +1,12 @@
-<template name='header'>
+<template name='headerT'>
     <div class="header mapOnly" id="header">
         <div class='layer-row row'>
             <input id="search" class='stacker' type="hidden"/>
-            <img style='display:none' class="statistics stacker" id="comparison-stats" title="Differential Contrast of Sample Selections" onclick="update_comparison_stats_drop_down()"/>
+            <img style='display:none' class="yin-yang stacker" id="comparison-stats" title="Differential Contrast of Sample Selections" onclick="update_comparison_stats_drop_down()"/>
             <img class="recalculate-throbber throbber stacker" title="Recalculating..." />
             <img class="set stacker" id="set-operation" title="Calculate Set Operation"/>
             <img style='display:none' class="sort_attributes stacker" id="sort-attributes-button" title="Sort Attributes by Association with a Focus Attribute"/>
-            <div id="ranked-against" class='stacker'>Attributes ranked according to frequency</div>
+            <div id="sortText" class='stacker' title='{{sortText}}'>Sort: {{sortText}}</div>
         </div>
         <div id="layout-row" class='row'>
             <input id="layout-search" class='stacker' type="hidden"/>

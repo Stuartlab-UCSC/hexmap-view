@@ -95,6 +95,8 @@ def parse_args(args):
         help="directory in which contain drl binaries")
     parser.add_argument("--first_attribute", type=str, default="",
         help="initial attribute to be at the top of the list and in the short list")
+    parser.add_argument("--hexagon-type", type=str, default="",
+        help="Determines label to put on the user interface for UI")
     parser.add_argument("--query", type=str, default=None,
         help="Galaxy-escaped name of the query signature")
     parser.add_argument("--window_size", type=int, default=20,

@@ -31,7 +31,7 @@ var app = app || {}; // jshint ignore:line
     // Indicator that a tool is in use
     var tool_active = false;
 
-    function add_tool_listener(name, handler, cleanup) {
+    add_tool_listener = function (name, handler, cleanup) {
         // Add a global event listener over the Google map and everything on it. 
         // name specifies the event to listen to, and handler is the function to be
         // set up as an event handler. It should take a single argument: the Google 
@@ -56,7 +56,7 @@ var app = app || {}; // jshint ignore:line
         return handle;  
     }
 
-    function remove_tool_listener(handle) {
+    remove_tool_listener = function (handle) {
         // Given a handle returned by add_tool_listener, remove the listener so it
         // will no longer fire on its event. May be called only once on a given 
         // handle. Runs any cleanup code associated with the handle being removed.
@@ -535,7 +535,7 @@ var app = app || {}; // jshint ignore:line
             update_browse_ui();
             
             // Hide any "ranked against" caption
-            $("#ranked-against").hide();
+            $("#sortText").hide();
             
                 tool_active = false;
         });

@@ -4,7 +4,7 @@
 
 var app = app || {}; // jshint ignore:line
 
-DEV = false; // true if in development mode, false if not
+DEV = true; // true if in development mode, false if not
 
 ctx = null; // State
 layers = {}; // contains almost all information about attributes
@@ -27,7 +27,7 @@ layers = {}; // contains almost all information about attributes
             {pre: 'cyber-slug', suf: '.svg'},
             {pre: 'question-sign', suf: '.svg'},
             {pre: 'throbber', suf: '.svg'},
-            {pre: 'statistics', suf: '.svg'},
+            {pre: 'yin-yang', suf: '.svg'},
             {pre: 'set', suf: '.svg'},
             {pre: 'sort_attributes', suf: '.svg'},
         ],
@@ -132,6 +132,12 @@ layers = {}; // contains almost all information about attributes
         initMrtGooglemapsForGrid();
     });
 
+    Template.headerT.helpers({
+        sortText: function () {
+            return Session.get('sortText');
+        },
+    });
+
     initMapDrawn = function () {
         // Initialize modules that need to have the map drawn.
         if (Session.equals('page', 'mapPage')) initSvg();
@@ -179,6 +185,7 @@ layers = {}; // contains almost all information about attributes
                 // Initialize everything else
                 initHomeLink();
                 initProject();
+                //if (DEV) initSelect();
                 initTools();
                 initColors();
                 convertStoredCenterToLatLng();
