@@ -1,3 +1,4 @@
 public/data
 server/run_*
 *.save
+*.pyc

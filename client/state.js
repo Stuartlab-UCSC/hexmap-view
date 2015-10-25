@@ -177,13 +177,14 @@ PAGE = 'homePage';
     };
 
     State.prototype.load = function () {
-    
-    
 
         // Load state from local store
         var s = this,
             page = Session.get('page'),
             store = JSON.parse(window['localStorage'].getItem(storeName));
+
+        // Reset the already saved flag
+        s.alreadySaved = false;
 
         if (store === null) {
             console.log("No saved state found, so using defaults.");

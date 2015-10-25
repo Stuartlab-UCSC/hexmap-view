@@ -6,7 +6,7 @@
 // * Add a tool with add_tool with your tool code as the callback.
 // * Add at least one tool listener with add_tool_listener. Give it cleanup code
 //   if necessary to remove temporary UI elements.
-// * Make sure to set tool_active to undefined when your tool's normal 
+// * Make sure to call tool_activity with false when your tool's normal
 //   workflow completes, so that the infowindow can use click events again.
 //   (it got set to your tool's name by the code prepended to your callback).
 
@@ -30,7 +30,7 @@ var app = app || {}; // jshint ignore:line
     var tool_listener_next_id = 0;
 
     // Indicator that a tool is in use
-    var tool_active = false;
+    var toolActive = false;
 
     add_tool_listener = function (name, handler, cleanup) {
         // Add a global event listener over the Google map and everything on it. 
@@ -80,11 +80,11 @@ var app = app || {}; // jshint ignore:line
         }
     }
 
-    tool_activity = function (setValue) {
-        if (_.isUndefined(setValue)) {
-            return tool_active;
+    tool_activity = function (activate) {
+        if (_.isUndefined(activate)) {
+            return toolActive;
         } else {
-            tool_active = setValue;
+            toolActive = activate;
         }
     }
 
@@ -127,7 +127,7 @@ var app = app || {}; // jshint ignore:line
             clear_tool_listeners();
             
             // Say that the tool is in use
-            tool_active = true;
+            tool_activity(true);
 
             callback();
 
@@ -156,7 +156,7 @@ var app = app || {}; // jshint ignore:line
                 
             if(!text) {
                 // They don't want to put a label
-                    tool_active = false;
+                    tool_activity(false);
                 return;
             }
             
@@ -183,7 +183,7 @@ var app = app || {}; // jshint ignore:line
                 remove_tool_listener(handle);
             }, function() {
                 // Cleanup: de-select ourselves.
-                    tool_active = false;
+                    tool_activity(false);
             });
         }, 'Add text to the map', 'mapOnly');
 
@@ -242,12 +242,12 @@ var app = app || {}; // jshint ignore:line
                         $(this).dialog("close");
                         
                         // Done with the tool
-                            tool_active = false;
+                            tool_activity(false);
                     }   
                 },
                 close: function() {
                     // They didn't want to use this tool.
-                        tool_active = false;
+                        tool_activity(false);
                 }
             });
         }, 'Enter a List As a Selection', 'mapOnly');
@@ -379,12 +379,12 @@ var app = app || {}; // jshint ignore:line
                         $(this).dialog("close");
                         
                         // Done with the tool
-                            tool_active = false;
+                            tool_activity(false);
                     }   
                 },
                 close: function() {
                     // They didn't want to use this tool.
-                        tool_active = false;
+                        tool_activity(false);
                 }
             });
         }, 'Export the selection as a list of hexagons', 'mapOnly');
@@ -400,7 +400,7 @@ var app = app || {}; // jshint ignore:line
                         + "/" + window.location.pathname);
             
             alert(link);
-                tool_active = false;
+                tool_activity(false);
          
         });
     */
@@ -425,7 +425,7 @@ var app = app || {}; // jshint ignore:line
             // Hide any "ranked against" caption
             $("#sortText").hide();
             
-                tool_active = false;
+                tool_activity(false);
         });
             */
     }

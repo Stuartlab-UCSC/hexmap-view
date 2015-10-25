@@ -71,8 +71,10 @@ layers = {}; // contains almost all information about attributes
             quest = href.indexOf('?');
         if (quest > -1) {
             href = href.slice(0, href.indexOf('?'));
+            window.location.assign(href);
+        } else {
+            window.location.reload();
         }
-        window.location.assign(href);
     }
 
     pageReload = function (page) {
@@ -152,7 +154,7 @@ layers = {}; // contains almost all information about attributes
         // Set up the link to the home page
         add_tool("to-home", "Home", function() {
             $('.homePage').click();
-            tool_active = false;
+            tool_activity(false);
         });
     }
 

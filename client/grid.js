@@ -293,7 +293,7 @@ var app = app || {}; // jshint ignore:line
             // Create a link to the grid page from the map page
             add_tool("to-grid", "Methods", function() {
                 $('.gridPage').click();
-                tool_active = false;
+                tool_activity(false);
             });
             return;
         }
@@ -304,7 +304,7 @@ var app = app || {}; // jshint ignore:line
         findOrphans(current_layout_index);
         add_tool("to-map", "Hex Map", function() {
             $('.mapPage').click();
-            tool_active = false;
+            tool_activity(false);
         });
     }
 })(app);

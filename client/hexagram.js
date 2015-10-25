@@ -189,14 +189,12 @@ function make_hexagon(row, column, hex_side_length, grid_offset) {
     // Construct the Polygon
     var hexagon = new google.maps.Polygon({
         paths: coords,
-        strokeColor: "#000000",
         strokeOpacity: 1.0,
-        // Only turn on the border if we're big enough
-        strokeWeight: hex_size_pixels < MIN_BORDER_SIZE ? 0 : HEX_STROKE_WEIGHT, 
         fillColor: "#FF0000",
         fillOpacity: 1.0,
         zIndex: 1,
     });
+    set_hexagon_stroke(hexagon);
     
     // Attach the hexagon to the global map
     hexagon.setMap(googlemap);
@@ -243,13 +241,20 @@ function set_hexagon_color(hexagon, color) {
     });
 }
 
-function set_hexagon_stroke_weight(hexagon, weight, color) {
+function set_hexagon_stroke(hexagon) {
     // Given a polygon, set the weight of hexagon's border stroke, in number of
     // screen pixels, and the border color.
-    
+
+    // API docs say: pixelCoordinate = worldCoordinate * 2 ^ zoomLevel
+    // So this holds the number of pixels that the global length hex_size 
+    // corresponds to at this zoom level.
+    var weight = (hex_size * Math.pow(2, ctx.zoom) >= MIN_BORDER_SIZE)
+            ? HEX_STROKE_WEIGHT
+            : 0;
+
     hexagon.setOptions({
         strokeWeight: weight,
-        strokeColor: color,
+        strokeColor: Session.get('background'),
     });
 }
 
@@ -2509,32 +2514,10 @@ initialize_view = function () {
     // again if we come back.
     google.maps.event.addListener(googlemap, "zoom_changed", function(event) {
         // Get the current zoom level (low is out)
-        var zoom = googlemap.getZoom();
-        ctx.zoom = zoom;
-
-        // API docs say: pixelCoordinate = worldCoordinate * 2 ^ zoomLevel
-        // So this holds the number of pixels that the global length hex_size 
-        // corresponds to at this zoom level.
-        var hex_size_pixels = hex_size * Math.pow(2, zoom);
-        
-        if(hex_size_pixels < MIN_BORDER_SIZE) {
-            // We're too small for borders
-            for(var signature in polygons) {
-                set_hexagon_stroke_weight(polygons[signature], 0);
-            }
-        } else {
-            if (Session.equals('background', 'white')) {
-                var strokeColor = 'white';
-            } else {
-                var strokeColor = 'black';
-            }
-            // We can fit borders on the hexes
-            for(var signature in polygons) {
-                set_hexagon_stroke_weight(polygons[signature], 
-                    HEX_STROKE_WEIGHT, strokeColor);
-            }
+        ctx.zoom = googlemap.getZoom();
+        for(var signature in polygons) {
+            set_hexagon_stroke(polygons[signature]);
         }
-        
     });
     
     // Subscribe all the tool listeners to the map
@@ -2638,7 +2621,7 @@ function redraw_view() {
         
         // Turn all the hexes the filtered-out color, pre-emptively
         for(var signature in polygons) {
-            set_hexagon_color(polygons[signature], "black"); // TODO maybe this should be the current BG color
+            set_hexagon_color(polygons[signature], noDataColor());
         }
         
         // Go get the list of filter-passing hexes.
@@ -2649,8 +2632,8 @@ function redraw_view() {
                 var label = signatures[i];
                 
                 // This holds the color we are calculating for this hexagon.
-                // Start with some arbitrary blank color.
-                var computed_color = "grey";
+                // Start with the no data color.
+                var computed_color = noDataColor();
                 
                 if(retrieved_layers.length >= 1) {
                     // We need to compute colors given the layers we found.
@@ -2725,11 +2708,7 @@ get_color = function (u_name, u, v_name, v) {
     
     if(isNaN(u) || isNaN(v) || u == undefined || v == undefined) {
         // At least one of our layers has no data for this hex.
-        if (Session.equals('background', 'white')) {
-            return '#ccc';
-        } else {
-            return '#555';
-        }
+        return noDataColor();
     }
     
     if(have_colormap(u_name) && have_colormap(v_name) && 
@@ -2743,21 +2722,20 @@ get_color = function (u_name, u, v_name, v) {
         if(u == 1) {
             if(v == 1) {    
                 // Both are on
-                return "#00FF00";
+                return COLOR_BINARY_BOTH_ON;
             } else {
                 // Only the first is on
-                return "#FFFF00";
+                return COLOR_BINARY_ON;
             }
         } else {
             if(v == 1) {
                 // Only the second is on
-                return "#0000FF";
+                return COLOR_BINARY_SECOND_ON;
             } else {
                 // Neither is on
-                return "#333333";
+                return COLOR_BINARY_OFF;
             }
-        }    
-        
+        }
     }
     
     if(have_colormap(u_name) && !colormaps[u_name].hasOwnProperty(u) && 
@@ -2767,15 +2745,12 @@ get_color = function (u_name, u, v_name, v) {
         // Use dark grey/yellow to make 1s stand out.
         
         if(u == 1) {
-            // Yellow for on
-            return "#FFFF00";
+            return COLOR_BINARY_ON;
         } else {
-            // Dark grey for off
-            return "#333333";
-        }        
+            return COLOR_BINARY_OFF;
+        }
     }
    
-    
     if(have_colormap(u_name)) {
         // u is a colormap
         if(colormaps[u_name].hasOwnProperty(u)) {

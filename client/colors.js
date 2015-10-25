@@ -6,6 +6,22 @@ var app = app || {}; // jshint ignore:line
 (function (hex) { // jshint ignore:line
     //'use strict';
 
+    // Some global colors
+    COLOR_BINARY_OFF = '#333';          // binary attr off
+    COLOR_BINARY_ON = '#FFFF00';        // binary attr on
+    COLOR_BINARY_BOTH_ON = '#00FF00';   // binary both attrs on
+    COLOR_BINARY_SECOND_ON = '#0000FF'; // binary second attr on
+
+    // The color to use as hexagon fill, depending on the background color
+    var NO_DATA_LIGHT_BG = '#ccc',
+        NO_DATA_DARK_BG = '#555';
+
+    noDataColor = function () {
+        return (Session.equals('background', 'white'))
+            ? NO_DATA_LIGHT_BG
+            : NO_DATA_DARK_BG;
+    }
+
     // Define the colormap template helper, at this scope for some reason
     Template.colormapT.helpers({
 
@@ -40,7 +56,7 @@ var app = app || {}; // jshint ignore:line
                     minHeight: '10em',
                     width: '10em',
                     close: function () {
-                        selected_tool = undefined;
+                        tool_activity(false);
                     }
                 });
             }
@@ -68,7 +84,7 @@ var app = app || {}; // jshint ignore:line
             });
 
             // Deselect the tool.
-            selected_tool = undefined;
+            tool_activity(false);
         }, 'Change the background color', 'mapOnly');
 
         // Prepare a tool to change the colorMap
@@ -268,7 +284,7 @@ var app = app || {}; // jshint ignore:line
                             }
                         ],
                         close: function () {
-                            selected_tool = undefined;
+                            tool_activity(false);
                         }
                     });
             }
@@ -295,7 +311,7 @@ var app = app || {}; // jshint ignore:line
             render();
 
             // Deselect the tool.
-            selected_tool = undefined;
+            tool_activity(false);
         }, 'Change colors of attributes', 'mapOnly');
 */
     }

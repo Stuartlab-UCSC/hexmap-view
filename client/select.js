@@ -11,6 +11,7 @@ var app = app || {}; // jshint ignore:line
         MAX_LAT = 90,
         MIN_LNG = -95,
         MAX_LNG = 85,
+        GUIDE_COLOR = 'orange',
 
         // Handles of map listeners
         preClickHandle,
@@ -19,12 +20,12 @@ var app = app || {}; // jshint ignore:line
         midHandle,
         stopHandle,
         
-        savedCursor, // the cursor to return to after the selection is complete
+        savedCursor, // Cursor to return reinstate after the selection is complete
         startLatLng, // Starting point of the selection area
-        shape, // google maps selection bounding shape
-        isRectangle, // rectangle or polygon?
+        shape, // Google maps selection boundary: rectangle or polygon
+        isRectangle, // Rectangle or polygon?
         guide, // Bounding lines of the selectable area
-        color; // Of the selection polygon and area
+        color; // Color of the selection boundary and fill
 
     function setCursor (cursor) {
         googlemap.setOptions({ draggableCursor: cursor });
@@ -62,17 +63,20 @@ var app = app || {}; // jshint ignore:line
         });
     }
 
+    function hexagonCursor (on) {
+
+        // Set the cursor on or off when hovering over the hexagons
+        _.each(get_polygons(), function(hex) {
+            polygons[hex].setOptions({clickable: on});
+        });
+    }
+
     function findHexagonsInSelection () {
 
         // Select the hexagons that are contained within the given polygon.
-
-        // This holds an array of all signature names in our selection polygon.
-        var inSelection = [],
-            googlePolygonKeys = get_polygons();
-
-        for (i in googlePolygonKeys) {
+        var inSelection = _.filter(get_polygons(), function(hex) {
             var contains = true;
-            verts = polygons[googlePolygonKeys[i]].getPath();
+            verts = polygons[hex].getPath();
             for (j = 0; j < verts.getLength(); j += 1) {
                 v = verts.getAt(j);
                  if (!google.maps.geometry.poly.containsLocation(v, shape)) {
@@ -80,10 +84,8 @@ var app = app || {}; // jshint ignore:line
                     break;
                 }
             }
-            if (contains) {
-                inSelection.push(googlePolygonKeys[i]);
-            }
-        }
+            return contains;
+        });
         select_list(inSelection, "user selection");
     }
 
@@ -95,9 +97,11 @@ var app = app || {}; // jshint ignore:line
                 && event.latLng.lat() > MIN_LAT
                 && event.latLng.lat() < MAX_LAT) {
             setCursor('crosshair');
+            guide.setOptions({strokeWeight: 0});
             return true;
         } else {
-            setCursor('not-allowed');
+            setCursor('help');
+            guide.setOptions({strokeWeight: 1});
             return false;
         }
     }
@@ -107,7 +111,7 @@ var app = app || {}; // jshint ignore:line
         // Handle the final click of the selection
 
         // Ignore if outside the selectable area
-        if (!inSelectable(event)) return;
+        inSelectable(event);
 
         // Don't trigger again
         remove_tool_listener(stopHandle);
@@ -142,8 +146,8 @@ var app = app || {}; // jshint ignore:line
 
          }
 
-        // Enable the zoom-by-double-click after a delay
-        // so the map doesn't pick up the double-click
+        // Enable the zoom-by-double-click,
+        // after a delay so the map doesn't pick up the double-click
         setTimeout(function () {
             googlemap.setOptions({
                 disableDoubleClickZoom: false,
@@ -156,19 +160,30 @@ var app = app || {}; // jshint ignore:line
          setCursor(savedCursor);
          findHexagonsInSelection();
 
-        // Remove the shapes
+        // Remove the bounding polygons and reset the hover curser for hexagons
         shape.setMap(null);
         guide.setMap(null);
         shape = guide = null;
+        hexagonCursor(true);
     }
 
+    function midSelect (event) {
+
+        // Handle a mid-point click of the selection for a polygon
+
+        // Change cursor and bounding box if needed
+        inSelectable(event);
+
+        shape.getPath().push(event.latLng);
+    }
+        
     function preview (event) {
 
         // This holds a selection preview event handler that should happen
         // when we mouse over the map after pressing the first point.
 
-        // Ignore if outside the selectable area
-        if (!inSelectable(event)) return;
+        // Change cursor and bounding box if needed
+        inSelectable(event);
 
         var latLng = event.latLng;
         if (isRectangle) {
@@ -192,22 +207,12 @@ var app = app || {}; // jshint ignore:line
         }
     }
 
-    function midSelect (event) {
-
-        // Handle a mid-point click of the selection for a polygon
-
-        // Ignore if outside the selectable area
-        if (!inSelectable(event)) return;
-
-        shape.getPath().push(event.latLng);
-    }
-        
     function startSelect (event) {
 
         // Handle the first click of the selection
 
         // Ignore if outside the selectable area
-        if (!inSelectable(event)) return;
+        inSelectable(event);
 
         // Don't trigger again
         remove_tool_listener(startHandle);
@@ -234,7 +239,7 @@ var app = app || {}; // jshint ignore:line
         // The listener can still use its own handle because variable 
         // references are resolved at runtime.
         stopHandle = add_tool_listener(stopClick, finishSelect, function() {
-            tool_active = false; // this tool is no longer selected
+            tool_activity(false); // this tool is no longer selected
         });
     }
 
@@ -255,20 +260,16 @@ var app = app || {}; // jshint ignore:line
         preClickHandle = add_tool_listener("mousemove", inSelectable);
 
         // Set the selection color depending on the background
-        var guideColor;
-        if (Session.equals('background', 'white')) {
-            color = 'black';
-            guideColor = '#ddd';
-        } else {
-            color = 'white';
-            guideColor = '#666';
-        }
+        color = (Session.equals('background', 'white'))
+            ? 'black'
+            : 'white';
 
-        // Display guidelines so the user may not try to wrap around the world
+        // Create guidelines so the user might understand
+        // the selection area might wrap around the world
         guide = new google.maps.Polygon({
             fillOpacity: 0,
-            strokeColor: guideColor,
-            strokeWeight: 1,
+            strokeColor: GUIDE_COLOR,
+            strokeWeight: 0,
             strokeOpacity: 1.0,
             clickable: false,
             map: googlemap,
@@ -280,6 +281,9 @@ var app = app || {}; // jshint ignore:line
                 {lat: MIN_LAT, lng: MAX_LNG},
             ]
         });
+
+        // Turn off the cursor for hovering over hexagons
+        hexagonCursor(false);
     }
 
     function addRectSelectTool() {
@@ -299,11 +303,11 @@ var app = app || {}; // jshint ignore:line
     initSelect = function () {
     
         // Add the button for the rectangular select to the toolbar
-        add_tool("SelectRectangle", "SelectRectangle", addRectSelectTool,
+        add_tool("Select", "Select", addRectSelectTool,
             'Select hexagons using a rectangular region', 'mapOnly');
     
         // Add the button for the polygon select to the toolbar
-        add_tool("SelectPolygon", "SelectPolygon", addPolySelectTool,
+        add_tool("SelectwPolygon", "SelectwPolygon", addPolySelectTool,
             'Select hexagons using a polygonal region', 'mapOnly');
     }
 })(app);
