@@ -95,8 +95,6 @@ def parse_args(args):
         help="directory in which contain drl binaries")
     parser.add_argument("--first_attribute", type=str, default="",
         help="initial attribute to be at the top of the list and in the short list")
-    parser.add_argument("--hexagon-type", type=str, default="",
-        help="Determines label to put on the user interface for UI")
     parser.add_argument("--query", type=str, default=None,
         help="Galaxy-escaped name of the query signature")
     parser.add_argument("--window_size", type=int, default=20,
@@ -110,7 +108,7 @@ def parse_args(args):
     parser.add_argument("--mi_binary_no_binning", action="store_false",
         dest="mi_binary_binning",
         help="whether to bin counts from binary layers for region-based stats")
-    parser.add_argument("--truncation_edges", type=int, default=10,
+    parser.add_argument("--truncation_edges", type=int, default=6,
         help="number of edges for DrL truncate to pass per node")
     parser.add_argument("--no-stats", dest="clumpinessStats", action="store_false",
         default=True,

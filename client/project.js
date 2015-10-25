@@ -19,10 +19,9 @@ var app = app || {}; // jshint ignore:line
 
     Project.prototype._getProjects = function () {
         Project.prototype._populate({
-            'public': ['pancan12'],
-            'mcrchopra': ['first'],
+            'pancan12': ['first', 'top6', 'top10', 'woutGiovanni'],
             'sokolov': ['stemness'],
-            'swat': ['paper', 'tiny'],
+            'swat': ['tiny'],
             'ynewton': ['gliomas-paper'],
         });
     };

@@ -18,7 +18,8 @@ var app = app || {}; // jshint ignore:line
     // This is an array of all Google Maps events that tools can use.
     var TOOL_EVENTS = [
         "click",
-        "mousemove"
+        "dblclick",
+        "mousemove",
     ];
     
     // This holds all the currently active tool event listeners.
@@ -185,119 +186,6 @@ var app = app || {}; // jshint ignore:line
                     tool_active = false;
             });
         }, 'Add text to the map', 'mapOnly');
-
-        // Set up the selection tool
-        add_tool("select", "Select", function() {
-        
-            // Turn on a crosshair cursor
-            googlemap.setOptions({
-                draggableCursor:"crosshair"
-            });
-        
-            // Add a listener to start the selection where the user clicks
-            var start_handle = add_tool_listener("click",
-                function(event) {
-                
-                // Don't trigger again
-                remove_tool_listener(start_handle);
-                
-                // Turn on a crosshair cursor again
-                googlemap.setOptions({
-                    draggableCursor:"crosshair"
-                });
-                
-                // Store the start of the selection
-                var selection_start = event.latLng;
-                
-                print("Selection started at " + selection_start);
-                
-                // Make a rectangle for the selection
-                var rectangle = new google.maps.Rectangle({
-                    fillColor: "#FFFFFF",
-                    strokeColor: "#FFFFFF",
-                    strokeWeight: 2,
-                    strokeOpacity: 1.0,
-                    fillOpacity: 0.5,
-                    // Don't give us a clickable cursor, or take mouse events.
-                    clickable: false, 
-                    map: googlemap,
-                    bounds: new google.maps.LatLngBounds(selection_start, 
-                        selection_start)
-                });
-                
-                // This holds a selection preview event handler that should happen
-                // when we mouse over the map or the rectangle.
-                var preview = function(event) {
-                    
-                    // Store the end of the selection (provisionally)
-                    var selection_end = event.latLng;
-                    
-                    
-                    if(selection_end.lng() < selection_start.lng()) {
-                        // The user has selected a backwards rectangle, which wraps
-                        // across the place where the globe is cut. None of our 
-                        // selections ever need to do this.
-                        
-                        // Make the rectangle backwards
-                        rectangle.setBounds(new google.maps.LatLngBounds(
-                            selection_end, selection_start));    
-                        
-                    } else {
-                        // Make the rectangle forwards
-                        rectangle.setBounds(new google.maps.LatLngBounds(
-                            selection_start, selection_end));    
-                    }
-                }
-                
-                // This holds a cleanup function to get rid of the rectangle when 
-                // the resizing listener goes away.
-                var preview_cleanup = function() {
-                    // Remove the rectangle
-                    rectangle.setMap(undefined);
-                    
-                    // Remove the crosshair cursor
-                    googlemap.setOptions({
-                        draggableCursor: undefined
-                    });
-                };
-                
-                // Add a mouse move listener for interactivity
-                // Works over the map, hexes, or the rectangle.
-                var move_handle = add_tool_listener("mousemove", preview, 
-                    preview_cleanup);
-                
-                // We need a listener to finish the selection
-                var finish = function(event) {
-                    // Don't trigger again
-                    remove_tool_listener(stop_handle);
-                    
-                    // Also stop the dynamic updates. This removes the rectangle.
-                    remove_tool_listener(move_handle);
-
-                    // Store the end of the selection
-                    var selection_end = event.latLng;
-                    
-                    print("Selection ended at " + selection_end);
-                        
-                    // Select the rectangle by arbitrary corners.
-                    select_rectangle(selection_start, selection_end);    
-                };
-                
-                // Attach the listener.
-                // The listener can still use its own handle because variable 
-                // references are resolved at runtime.
-                var stop_handle = add_tool_listener("click", finish, function() {
-                    // Cleanup: say this tool is no longer selected
-                        tool_active = false;
-                });
-                
-            }, function() {
-                // Remove the crosshair cursor
-                googlemap.setOptions({
-                    draggableCursor: undefined
-                });
-            });
-        }, 'Select a region of hexagons', 'mapOnly');
 
         // A tool for importing a list of hexes as a selection
         add_tool("import", "Import", function() {

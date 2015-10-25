@@ -122,8 +122,8 @@ print = function (text) {
 complain = function (text) {
     // Display a temporary error message to the user.
     $("#error-notification").text(text);
-    $(".error").show().delay(1250).fadeOut(1000);
-    
+    $(".error").show().delay(1250).fadeOut(1500);
+
     if(console && console.error) {
         // Inform the browser console of this problem.
         console.error(text);

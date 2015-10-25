@@ -6,6 +6,7 @@ var app = app || {}; // jshint ignore:line
 (function (hex) { // jshint ignore:line
     //'use strict';
 
+/* TODO unused
     function with_association_stats(layer_name, callback) {
         // Download the association statistics values for the given layer against
         // TODO all other continuous or binary layers, as appropriate, and call the
@@ -61,7 +62,7 @@ var app = app || {}; // jshint ignore:line
 
         }, "text")
     }
-
+*/
     function get_stats(layer_names, parsed, anticorrelated) {
     //function get_stats(layer_names, layer_stats, parsed) { // TODO layer stats are never passed in
             // Given an object from layer name to layer statistic (p
@@ -132,7 +133,7 @@ var app = app || {}; // jshint ignore:line
             }
 
             Session.set('sortText',
-                'Stats w/layout in terms of ' + corr + ' with: ' + compare_layer_name);
+                'Stats w/layout by ' + corr + ' with: ' + compare_layer_name);
             update_browse_ui(type);
             
             // Save the parameters we were called with, so we can be called
@@ -205,17 +206,16 @@ var app = app || {}; // jshint ignore:line
             // Parsed object contains mutual information stats       
             var parsed = $.tsv.parseRows(tsv_data);
 
+            if (fileNotFound(parsed[0][0])) {
+                if (query_type === 'rank') {
+                    complain("Layout Aware (region-based) Stats Were Not Pre-Computed!");
+                }
+                return;
+            }
+
             rank_query(layer_names, parsed, anticorrelated);
 
-        }, "text")
-        .fail(function() {
-            if (query_type === 'rank') {
-                complain("Mutual Information Stats Were Not Pre-Computed!");
-
-                // Session.set('sortText', "(MI) Attributes sorted according to: " + layer_names[0]);
-                // var ranked_against_label = document.getElementById("sortText").style.visibility="hidden";
-            }
-        });
+        }, "text");
     }
 })(app);
 

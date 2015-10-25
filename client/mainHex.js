@@ -94,7 +94,7 @@ layers = {}; // contains almost all information about attributes
 
         // TODO we shouldn't have to make one of these foreach project!
         "click .public-pancan12": function() {
-            ctx.project = Session.get('proxPre') + 'data/public/pancan12/';
+            ctx.project = Session.get('proxPre') + 'data/pancan12/first/';
             pageReload('mapPage');
         },
         "click .ynewton-gliomas-paper": function() {
@@ -117,8 +117,7 @@ layers = {}; // contains almost all information about attributes
         // drawing mapPage along with the gridPage
         if (!Session.equals('page', 'mapPage')) return;
 
-        // We want to show/hide these early on
-        $('#coords').hide();
+        // We want to show these early on
         if (DEV) $('.sort_attributes, .statistics').show()
 
         fixProxies ('navBar');
@@ -127,7 +126,6 @@ layers = {}; // contains almost all information about attributes
     });
 
     Template.gridPage.onRendered(function () {
-        $('#coords').hide();  // We want to catch this early on
         fixProxies ('gridPage');
         initMrtGooglemapsForGrid();
     });
@@ -185,7 +183,7 @@ layers = {}; // contains almost all information about attributes
                 // Initialize everything else
                 initHomeLink();
                 initProject();
-                //if (DEV) initSelect();
+                if (DEV) initSelect();
                 initTools();
                 initColors();
                 convertStoredCenterToLatLng();

@@ -14,45 +14,45 @@ var app = app || {}; // jshint ignore:line
 
         // So far we only support combinations of binary and categorical values,
         // which use the chi-squared method.
-            var layer_index = ctx.layer_names_by_index.indexOf(layer_name),
-                file = ctx.project + "layer_" + layer_index + "_sstats.tab";
-            $.get(file, function(tsv_data) {
-                // This is an array of rows, which are arrays of values:
-                //
-                //	Layer1	Layer2	Layer 3...
-                //	value	value	value
+        var layer_index = ctx.layer_names_by_index.indexOf(layer_name),
+            file = ctx.project + "layer_" + layer_index + "_sstats.tab";
+        $.get(file, function(tsv_data) {
+            // This is an array of rows, which are arrays of values:
+            //
+            //	Layer1	Layer2	Layer 3...
+            //	value	value	value
 
-                // Parse the file
-                var parsed = $.tsv.parseRows(tsv_data),
-                    row_header = parsed[0],
-                    layer_index = row_header.indexOf(layer_name),
-                    stats_values = parsed[1],
-                    compare_layer;
+            // Parse the file
+            var parsed = $.tsv.parseRows(tsv_data);
 
-                for (var i = 0; i < row_header.length; i++){
-                    compare_layer = row_header[i];
-                    if ((binary && ctx.bin_layers.indexOf(compare_layer) >= 0)
-                            || (categorical && ctx.cat_layers.indexOf(compare_layer) >= 0)) {
-                        value = parseFloat(stats_values[i]);
-                        layers[compare_layer].p_value = value;
-                    }
+            if (fileNotFound(parsed[0][0])) {
+                complain("Layout independent (Sample-based) stats were not precomputed!");
+                ctx.mutual_information_ranked = false;
+                return;
+            }
+
+            var row_header = parsed[0],
+                layer_index = row_header.indexOf(layer_name),
+                stats_values = parsed[1],
+                compare_layer;
+
+            for (var i = 0; i < row_header.length; i++){
+                compare_layer = row_header[i];
+                if ((binary && ctx.bin_layers.indexOf(compare_layer) >= 0)
+                        || (categorical && ctx.cat_layers.indexOf(compare_layer) >= 0)) {
+                    value = parseFloat(stats_values[i]);
+                    layers[compare_layer].p_value = value;
                 }
-            }, "text")
-            .done(function() {
-                Session.set('sortText',
-                    "Stats w/out layout in terms of: " + layer_name);
-                update_browse_ui();
-                update_shortlist_ui();
-                ctx.mutual_information_ranked = false;
+            }
+            Session.set('sortText',
+                "Stats w/out layout by: " + layer_name);
+            update_browse_ui();
+            update_shortlist_ui();
+            ctx.mutual_information_ranked = false;
+        }, "text");
+    }
+})(app);
 
-
-            })
-            .fail(function() {
-                complain("Association Stats Weren't Precomputed!");
-                // var ranked_against_label = document.getElementById("sortText").style.visibility="hidden";
-                ctx.mutual_information_ranked = false;
-            });
-            var x = 0;
     //function get_association_stats_values(layer_name, single_stat, drop_down_val, layer_names) {
         // @param layer_name: the focus attribute name
         // @param single_stat: true: requesting only one value from the query, false: more values
@@ -201,6 +201,3 @@ var app = app || {}; // jshint ignore:line
             
         }
     */
-    }
-})(app);
-

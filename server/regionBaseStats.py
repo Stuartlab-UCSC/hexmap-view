@@ -14,7 +14,7 @@ import mutualInfo
 
 PSEUDOCOUNT = 5
 
-# Extra to capture nodes on the far side of the grid extents
+# Extra to capture nodes on the far sides of the grid extents
 TINY_BIT = 0.00000000001
 
 def timestamp():

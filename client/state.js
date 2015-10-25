@@ -8,7 +8,7 @@ PAGE = 'homePage';
 (function (hex) { // jshint ignore:line
     //'use strict';
 
-    var DEFAULT_PROJECT = 'data/public/pancan12/',
+    var DEFAULT_PROJECT = 'data/pancan12/first/',
         urlProject = null,
         proxPre,
         localStorageName;
@@ -16,11 +16,15 @@ PAGE = 'homePage';
     // Prefix for images and other such files
     if (location.host === 'localhost:3000') {
         proxPre = '';
-    } else if (location.host === 'medbook.ucsc.edu' || !DEV) {
+    } else if (location.host === 'medbook.ucsc.edu') {
         proxPre = '/hex/';
-    } else {
+        DEFAULT_PROJECT = 'data/ynewton/gliomas-paper/';
+    } else if (DEV) {
         proxPre = '/hexmap/'; // su2c-dev:DEV
+    } else {
+        proxPre = '/hex/'; // su2c-dev:notDEV
     }
+    DEFAULT_PROJECT = proxPre + DEFAULT_PROJECT;
 
     // Keep localStore of different development versions separate
     storeName = proxPre + '-hexMapState';
@@ -83,7 +87,7 @@ PAGE = 'homePage';
         Session.setDefault('proxPre', proxPre);  // Prefix for images and other such files
 
         // Variables maintained in this state object, with defaults.
-        s.project = proxPre + DEFAULT_PROJECT;  // The project data to load
+        s.project = DEFAULT_PROJECT;  // The project data to load
     }
 
     State.prototype.getDefaultProject = function () {
