@@ -10,7 +10,9 @@ import scipy.stats, scipy.linalg, scipy.misc
 import time, copy
 import os.path
 import tsv, csv, json
-import mutualInfo
+import pool
+from math import log10, floor
+
 
 PSEUDOCOUNT = 5
 
@@ -188,151 +190,80 @@ def window_tool(directory, nodes_raw, lowerT, upperT, layoutIndex):
 
     return curated
 
-def pearson_all_pairs(layerPairs):
-    """
-    layerPairs are in the format:
-        [
-            [
-                layerNameA,
-                layerNameB,
-                [c1, c2, c3],
-                [c4, c4, c5],
-            ]
-            ...
-        ]
-    """
-    for pair in layerPairs:
+class ForEachLayer(object):
 
-        # Compute the pearson value with each other layer.
+    def __init__(s, statsLayers, layers, C, C2, layerA, layerIndices, directory, layout):
+
+        import traceback
+
+        # Build the filename
+        layer = str(layerIndices[layerA])
+        s.file = os.path.join(directory, 'layer_' + layer + '_' + layout + '_rstats.tab')
+
+        # Store the rest of the parameters
+        s.statsLayers = statsLayers
+        s.layers = layers
+        s.C = C
+        s.C2 = C2
+        s.layerA = layerA
+
+    @staticmethod
+    def significantDigits(x, sig=6):
+
+        if sig < 1:
+            raise ValueError("number of significant digits must be >= 1")
+        # Use %e format to get the n most significant digits, as a string.
+        format = "%." + str(sig-1) + "e"
+        return float(format % x)
+
+    @staticmethod
+    def pearsonOnePair(pair):
+
+        # Compute the pearson value for this layer pair.
         # This gets done each way, since order matters here.
 
         # Compute R Coefficient & P-Value. We want a sign, and we want the
         # p-value, so apply the sign of the R Coefficient to the P-Value
-        pearson_val = scipy.stats.pearsonr(pair[2], pair[3])
+        pearson_val = scipy.stats.pearsonr(pair[0], pair[1])
         r_val = pearson_val[0]
         val = p_val = pearson_val[1]
         if r_val < 0:
             val = -1 * p_val
+        return val
 
-        # Yield the stats value
-        yield (pair[0], pair[1], val)
+    def __call__(s):
 
-def buildLayerPairs(statsLayers, layers, C, C2):
+        # Open a csv writer for this layer's correlations w/all other layers
+        with open(s.file, 'w') as fOut:
+            fOut = csv.writer(fOut, delimiter='\t')
 
-    # Build the layer pairs given:
-    # @param statsLayers: layer names to include in the pair
-    # @param layers: all the information we need for every layer
-    # @param C: array of node names in each window
-    # @param C2: array of values to be added to each member in A & B.
-    #
-    # A & B will contain the normalized node counts for each attribute and will
-    # have the same length as C2 and C.
+            for layerB in s.statsLayers:
+                if s.layerA == layerB:
+                    continue
 
-    # Initialize the layerPairs which is what this routine is returning
-    layerPairs = []
-    message_count = 0 # Counts of messages
-    pairCount = len(statsLayers) ** 2 - len(statsLayers)  # without compare to self
+                # Initialize the counts for the layers to the additives in C2
+                A = copy.copy(s.C2)
+                B = copy.copy(s.C2)
 
-    print 'Starting to build', pairCount, 'layer pairs...'
+                # Find nodes with an attribute value of one
+                for i, nodes in enumerate(s.C):
+                    for node in nodes:
 
-    # Build a vector for each attribute containing a count of nodes per window
+                        # Does this node have a value of one in layer A or B?
+                        a = (s.layers[s.layerA].has_key(node) and s.layers[s.layerA][node] == 1)
+                        b = (s.layers[layerB].has_key(node) and s.layers[layerB][node] == 1)
 
-    for layerA in statsLayers:
+                        # Only increment the count if both a and b are not one
+                        if not (a and b):
+                            if a:
+                                A[i] += 1
+                            if b:
+                                B[i] += 1
 
-        for layerB in statsLayers:
-            if layerA == layerB:
-                continue
+                val = s.pearsonOnePair([A, B])
 
-            # Initialize the counts for the layers to the additives in C2
-            A = copy.copy(C2)
-            B = copy.copy(C2)
-
-            # Find nodes with an attribute value of one
-            for i, nodes in enumerate(C):
-                for node in nodes:
-
-                    # Does this node have a value of one in layer A or B?
-                    a = (layers[layerA].has_key(node) and layers[layerA][node] == 1)
-                    b = (layers[layerB].has_key(node) and layers[layerB][node] == 1)
-
-                    # Only increment the count if both a and b are not one
-                    if not (a and b):
-                        if a:
-                            A[i] += 1
-                        if b:
-                            B[i] += 1
-
-            layerPairs.append([layerA, layerB, A, B])
-
-        # Log a progress message for every ~1/30th of pairs generated
-        if len(layerPairs) > pairCount * message_count / 30:
-            print timestamp(), str(message_count) + '/30 of', pairCount, 'pairs'
-            sys.stdout.flush()
-            message_count += 1
-
-    print timestamp(), 'Layer pairs built'
-
-    return layerPairs
-
-def correlatePairs(layerPairs, directory, layoutIndex, layerIndices, windowLength):
-
-    # Run the Pearson correlation on each of the layer vector pairs
-    # Write to files of the form, layer_8_9_rstats.tab where 9 is the layout
-    # index.
-
-    pairCount = len(layerPairs)
-
-    print timestamp(), 'Starting correlations for', pairCount, 'pairs in', windowLength, 'windows'
-
-    # What layer are we writing the file for?
-    current_first_layer = None
-
-    # Where are we writing it to?
-    writer = None
-    
-    # How many pairs have we done?
-    pair = 0
-
-    message_count = 1
-
-    # Loop through all the pairs, writing to the stats file
-    for (layer_a, layer_b, stat) in pearson_all_pairs(layerPairs):
-
-        # Go get the stats for each pair of layers, grouped by the
-        # first layer.
-        
-        if layer_a != current_first_layer:
-            # We're changing first layers.
-            
-            if writer is not None:
-                # Close the previous file.
-                writer.close()
-                
-            # Open a tsv writer for the new first layer's correlations with
-            # everyone else.
-            file = os.path.join(directory, 'layer_' +
-                str(layerIndices[layer_a]) + '_' + str(layoutIndex) + '_rstats.tab')
-            writer = tsv.TsvWriter(open(file, 'w'))
-                
-            # Record that we're on that layer as the first layer now.
-            current_first_layer = layer_a
-            
-        # Make a line for the stat result with this other layer.
-        writer.line(layer_b, str(stat))
-        
-        pair += 1
-
-        # Log a progress message for every ~1/30th of pairs processed
-        if pair > pairCount * message_count / 30:
-            print timestamp(), str(message_count) + '/30 of', pairCount, 'pairs'
-            sys.stdout.flush()
-            message_count += 1
-
-    if writer is not None:
-        # Close the last file.
-        writer.close()
-
-    print timestamp(), "{} pairs processed".format(pair)
+                # Make a line for the stat result with this other layer
+                fOut.writerow([layerB, s.significantDigits(val)])
 
 def normalized_pearson_statistics(layers, layerNames, nodes_multiple, ctx, options):
 
@@ -419,9 +350,15 @@ def normalized_pearson_statistics(layers, layerNames, nodes_multiple, ctx, optio
         Sum = sum(C1)
         C2 = map(lambda x: float(x) * PSEUDOCOUNT / Sum, C1)
 
-        layerPairs = buildLayerPairs(ctx.binary_layers, layers, C, C2)
+        pairCount = len(ctx.binary_layers) ** 2 - len(ctx.binary_layers)  # without compare to self
 
-        correlatePairs(layerPairs, options.directory, layoutIndex, layerIndices, len(C))
+        print 'Starting to build', pairCount, 'layer pairs...'
+
+        # Build a vector for each attribute containing a count of nodes per window
+        allLayers = [ForEachLayer(ctx.binary_layers, layers, C, C2, layerA, layerIndices, options.directory, str(layoutIndex)) for layerA in ctx.binary_layers]
+        pool.runSubProcesses(allLayers)
+
+        print timestamp(), 'Stats complete for layout:', layoutIndex
 
 # TODO unused so far but may want this to restart in the middle of a run
 def load_context_and_run(directory):
@@ -461,7 +398,7 @@ def region_based_statistics(directory, layers, layerNames, nodes_multiple, ctx, 
     print timestamp(), "Region-based statistics complete"
 
     """
-    # Unused so far
+    # TODO unused so far but may want this to restart in the middle of a run
     if layers == None:
         c = load_context_and_run(directory)
     else:

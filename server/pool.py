@@ -13,6 +13,7 @@ else:
     MAX_JOB_COUNT = multiprocessing.cpu_count()
     if MAX_JOB_COUNT < 1:
         MAX_JOB_COUNT = 8
+
 print 'hostname, MAX_JOB_COUNT', hostname, MAX_JOB_COUNT
 
 def timestamp():
@@ -44,7 +45,7 @@ def runSubProcesses(jobs):
     # This holds a multiprocessing pool for parallelization
     pool = multiprocessing.Pool(MAX_JOB_COUNT)
    
-    # This holds all the best p values in the same order
+    # This holds all the return values in the same order as the jobs submitted
     poolResults = pool.map(runFunctor, jobs)
     
     # Close down the pool so multiprocessing won't die sillily at the end
