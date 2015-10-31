@@ -12,6 +12,7 @@ import os.path
 import tsv, csv, json
 import pool
 from math import log10, floor
+from statsSortLayoutLayer import ForEachLayer
 
 
 PSEUDOCOUNT = 5
@@ -22,7 +23,7 @@ TINY_BIT = 0.00000000001
 def timestamp():
     return str(datetime.datetime.now())[8:-7]
 
-def window_tool(directory, nodes_raw, lowerT, upperT, layoutIndex):
+def window_tool(directory, nodes_raw, lowerT, upperT, layout):
     """
     Given a list of nodes, this tool will create a 2 x 2 grid containing 4
     windows of equal size. We will iterate over each node, looking at it's x &
@@ -45,6 +46,7 @@ def window_tool(directory, nodes_raw, lowerT, upperT, layoutIndex):
     print timestamp(), 'Windowing starting...'
     sys.stdout.flush()
 
+
     # Define the iterative function for drawing the adaptive grid
     def window_level(minX, minY, windowWidth, gridId):
         """
@@ -59,9 +61,9 @@ def window_tool(directory, nodes_raw, lowerT, upperT, layoutIndex):
         midX = minX + W
         midY = minY + W
         row = [minX, midY, minX + W * 2, midY]
-        fOut.writerow(row)
+        f.writerow(row)
         row = [midX, minY, midX, minY + W * 2]
-        fOut.writerow(row)
+        f.writerow(row)
 
         # Initialize windows as a grid that will contain up to 4 windows,
         # each containing nodes whose coordinates are within that window. These
@@ -149,121 +151,42 @@ def window_tool(directory, nodes_raw, lowerT, upperT, layoutIndex):
 
     hex_count = len(nodes.keys())
 
-    # Open the file for the grid to be written
-    filename = os.path.join(directory, 'grid_' + str(layoutIndex) + '.tab')
-    fOutFile = open(filename, 'w')
-    fOut = csv.writer(fOutFile, delimiter='\t')
+    # Write the grid to a file for display in the visualizer
+    filename = os.path.join(directory, 'grid_' + str(layout) + '.tab')
+    with open(filename, 'w') as f:
+        f = csv.writer(f, delimiter='\t')
 
-    # Write the bounds of the outer-most grid, adding a bit to the window
-    # width so no node will be on the South or West borders
-    G = max((maxX - minX), (maxY - minY))
-    #W = G / 2
-    W = G / 2 + TINY_BIT
-    fOut.writerow([0, 0, G, 0])
-    fOut.writerow([0, 0, 0, G])
-    fOut.writerow([G, G, G, 0])
-    fOut.writerow([G, G, 0, G])
+        # Write the bounds of the outer-most grid, adding a bit to the window
+        # width so no node will be on the South or West borders
+        G = max((maxX - minX), (maxY - minY))
+        W = G / 2 + TINY_BIT
+        f.writerow([0, 0, G, 0])
+        f.writerow([0, 0, 0, G])
+        f.writerow([G, G, G, 0])
+        f.writerow([G, G, 0, G])
 
-    # Initialize the array where we store windows with node counts
-    # between the lower and upper thresholds
-    curated = []
+        # Initialize the array where we store windows with node counts
+        # between the lower and upper thresholds
+        curated = []
 
-    # Start up the adaptive windowing by passing the origin and window width to
-    # the recursive routine
-    window_level(0, 0, W, '1')
-
-    fOutFile.close()
+        # Start up the adaptive windowing by passing the origin and window width to
+        # the recursive routine
+        window_level(0, 0, W, '1')
 
     if len(nodes.keys()) > 0:
         print 'ERROR: nodes that were not assigned to a window:', nodes
 
-        # writed these orphans to a file for debugging
-        filename = os.path.join(directory, 'gridOrphans_' + str(layoutIndex) + '.tab')
-        fOutFile = open(filename, 'w')
-        fOut = csv.writer(fOutFile, delimiter='\t')
-        for name, coord in nodes.iteritems():
-            fOut.writerow([name])
-        fOutFile.close()
+        # Write these orphans to a file for debugging
+        filename = os.path.join(directory, 'gridOrphans_' + str(layout) + '.tab')
+        with open(filename, 'w') as f:
+            f = csv.writer(f, delimiter='\t')
+            for name, coord in nodes.iteritems():
+                f.writerow([name])
 
     print timestamp(), 'Windowing complete'
     sys.stdout.flush()
 
     return curated
-
-class ForEachLayer(object):
-
-    def __init__(s, statsLayers, layers, C, C2, layerA, layerIndices, directory, layout):
-
-        import traceback
-
-        # Build the filename
-        layer = str(layerIndices[layerA])
-        s.file = os.path.join(directory, 'layer_' + layer + '_' + layout + '_rstats.tab')
-
-        # Store the rest of the parameters
-        s.statsLayers = statsLayers
-        s.layers = layers
-        s.C = C
-        s.C2 = C2
-        s.layerA = layerA
-
-    @staticmethod
-    def significantDigits(x, sig=6):
-
-        if sig < 1:
-            raise ValueError("number of significant digits must be >= 1")
-        # Use %e format to get the n most significant digits, as a string.
-        format = "%." + str(sig-1) + "e"
-        return float(format % x)
-
-    @staticmethod
-    def pearsonOnePair(pair):
-
-        # Compute the pearson value for this layer pair.
-        # This gets done each way, since order matters here.
-
-        # Compute R Coefficient & P-Value. We want a sign, and we want the
-        # p-value, so apply the sign of the R Coefficient to the P-Value
-        pearson_val = scipy.stats.pearsonr(pair[0], pair[1])
-        r_val = pearson_val[0]
-        val = p_val = pearson_val[1]
-        if r_val < 0:
-            val = -1 * p_val
-        return val
-
-    def __call__(s):
-
-        # Open a csv writer for this layer's correlations w/all other layers
-        with open(s.file, 'w') as fOut:
-            fOut = csv.writer(fOut, delimiter='\t')
-
-            for layerB in s.statsLayers:
-                if s.layerA == layerB:
-                    continue
-
-                # Initialize the counts for the layers to the additives in C2
-                A = copy.copy(s.C2)
-                B = copy.copy(s.C2)
-
-                # Find nodes with an attribute value of one
-                for i, nodes in enumerate(s.C):
-                    for node in nodes:
-
-                        # Does this node have a value of one in layer A or B?
-                        a = (s.layers[s.layerA].has_key(node) and s.layers[s.layerA][node] == 1)
-                        b = (s.layers[layerB].has_key(node) and s.layers[layerB][node] == 1)
-
-                        # Only increment the count if both a and b are not one
-                        if not (a and b):
-                            if a:
-                                A[i] += 1
-                            if b:
-                                B[i] += 1
-
-                val = s.pearsonOnePair([A, B])
-
-                # Make a line for the stat result with this other layer
-                fOut.writerow([layerB, s.significantDigits(val)])
 
 def normalized_pearson_statistics(layers, layerNames, nodes_multiple, ctx, options):
 
@@ -325,83 +248,69 @@ def normalized_pearson_statistics(layers, layerNames, nodes_multiple, ctx, optio
         print 'No binary layers for region-based stats to process'
         return True
 
-    for layoutIndex in ctx.all_hexagons.iterkeys():
+    FIRST = True
+    for layout in ctx.all_hexagons.iterkeys():
         # We look at all layouts for this.
-        # We assume layout doesn't somehow change layer types.
-
-        # We're going to need a mapping from layer name to layer index.
-        layerIndices = {name: i for i, name in enumerate(layerNames)}
 
         # Create the windows containing lists of node names in each window.
         # Following our naming scheme above, assign C to the curated windows
         C = window_tool(
             options.directory,
-            nodes_multiple[layoutIndex],
+            nodes_multiple[layout],
             options.mi_window_threshold,
             options.mi_window_threshold_upper,
-            layoutIndex,
+            layout,
         )
 
         # Transform the nodes lists in C to a list of node counts
         C1 = map(lambda x: len(x), C)
 
-        # Normalize the node counts: divide by the sum of the counts and
-        # multiply by the pseudocount.
+        # Normalize the node counts to create the windows addtives:
+        # divide by the sum of the counts and multiply by the pseudocount.
         Sum = sum(C1)
         C2 = map(lambda x: float(x) * PSEUDOCOUNT / Sum, C1)
+
+        # Write the window node counts and additives to a file for use in
+        # dynamic stats initiated by the client
+        filename = os.path.join(options.directory,
+            'windows_' + str(layout) + '.tab')
+        with open(filename, 'w') as f:
+            f = csv.writer(f, delimiter='\t')
+            i = 0
+            for nodes in C:
+                line = [C2[i]]
+                for node in nodes:
+                    line.append(node)
+                f.writerow(line)
+                i += 1
 
         pairCount = len(ctx.binary_layers) ** 2 - len(ctx.binary_layers)  # without compare to self
 
         print 'Starting to build', pairCount, 'layer pairs...'
 
-        # Build a vector for each attribute containing a count of nodes per window
-        allLayers = [ForEachLayer(ctx.binary_layers, layers, C, C2, layerA, layerIndices, options.directory, str(layoutIndex)) for layerA in ctx.binary_layers]
+        # Create the stats options
+        sOpts = {
+            'alg': 'layoutBinaryPearson',
+            'directory': options.directory,
+            'layout': str(layout),
+            'precomputed': 'yes',
+        }
+
+        # Handle the stats for each layer, in parallel
+        allLayers = [ForEachLayer(
+            layerA,   layerNames.index(layerA), ctx.binary_layers, layers, C,           C2,              sOpts)
+            #for layerA in ['TP53_mutated']]
+            for layerA in ctx.binary_layers]
+
+        print pool.hostProcessorMsg()
+        print len(ctx.binary_layers), 'subprocesses to run.'
+
         pool.runSubProcesses(allLayers)
 
-        print timestamp(), 'Stats complete for layout:', layoutIndex
-
-# TODO unused so far but may want this to restart in the middle of a run
-def load_context_and_run(directory):
-    filename = os.path.join(directory, 'stats_context.tab')
-    with open(filename, 'r') as fIn:
-        layers = json.loads(fIn.readline())
-        layerNames = json.loads(fIn.readline())
-        nodes_multiple = json.loads(fIn.readline())
-        ctx = json.loads(fIn.readline())
-        options = json.loads(fIn.readline())
-    normalized_pearson_statistics(layers, layerNames, nodes_multiple, ctx, options)
-
-# TODO unused so far but may want this to restart in the middle of a run
-def save_context(directory, layers, layerNames, nodes_multiple, ctx, options):
-    filename = os.path.join(directory, 'stats_context.tab')
-    print 'all_hexagons', ctx.all_hexagons
-    shortCtx = {
-        'binary_layers': ctx.binary_layers,
-    }
-    shortOptions = {
-        'directory': options.directory,
-        'mi_window_threshold': options.mi_window_threshold,
-        'mi_window_threshold_upper': options.mi_window_threshold_upper,
-    }
-    with open(filename, 'w') as fOut:
-        fOut.write(json.dumps(layers) + '\n')
-        fOut.write(json.dumps(layerNames) + '\n')
-        fOut.write(json.dumps(nodes_multiple) + '\n')
-        fOut.write(json.dumps(shortCtx) + '\n')
-        fOut.write(json.dumps(shortOptions) + '\n')
+        print timestamp(), 'Stats complete for layout:', layout
 
 def region_based_statistics(directory, layers, layerNames, nodes_multiple, ctx, options):
-#def region_based_statistics(directory, layers=None, layerNames=None, nodes_multiple=None, ctx=None, options=None):
-
     print timestamp(), "Running region-based statistics..."
     normalized_pearson_statistics(layers, layerNames, nodes_multiple, ctx, options)
     print timestamp(), "Region-based statistics complete"
-
-    """
-    # TODO unused so far but may want this to restart in the middle of a run
-    if layers == None:
-        c = load_context_and_run(directory)
-    else:
-        save_context(directory, layers, layerNames, nodes_multiple, ctx, options)
-    """
 

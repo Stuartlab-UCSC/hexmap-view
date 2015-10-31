@@ -9,6 +9,7 @@ PAGE = 'homePage';
     //'use strict';
 
     var DEFAULT_PROJECT = 'data/pancan12/first/',
+        DEFAULT_SORT_TEXT = 'Density of attributes',
         urlProject = null,
         proxPre,
         localStorageName;
@@ -82,16 +83,22 @@ PAGE = 'homePage';
         }
         s.alreadySaved = false;
 
+        // Variables maintained in the meteor session
         Session.setDefault('page', PAGE);
         Session.setDefault('background', 'black');  // Visualization background color
         Session.setDefault('proxPre', proxPre);  // Prefix for images and other such files
+        Session.setDefault('sortText', DEFAULT_SORT_TEXT); // Default sort message
 
         // Variables maintained in this state object, with defaults.
         s.project = DEFAULT_PROJECT;  // The project data to load
     }
 
-    State.prototype.getDefaultProject = function () {
+    State.prototype.defaultProject = function () {
         return DEFAULT_PROJECT;
+    };
+
+    State.prototype.defaultSortText = function () {
+        return DEFAULT_SORT_TEXT;
     };
 
     State.prototype.setProjectDefaults = function () {

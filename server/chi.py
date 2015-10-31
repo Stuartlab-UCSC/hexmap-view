@@ -9,6 +9,14 @@ import scipy.stats
 import os.path
 import tsv, csv
 
+def significantDigits(x, sig=6):
+
+    if sig < 1:
+        raise ValueError("number of significant digits must be >= 1")
+    # Use %e format to get the n most significant digits, as a string.
+    format = "%." + str(sig-1) + "e"
+    return float(format % x)
+
 def chi (args):
     """
     This tool will create contingency tables depending on the layer counts
@@ -46,6 +54,8 @@ def chi (args):
     comparison_indices_separated = []
     for i in comparisons:
         comparison_indices_separated.append(i.split(","))
+
+    #print 'comparison_indices_separated', comparison_indices_separated
 
     # Determine the stats layer indices and global layer indices, building a
     # list of stats layer indices and a look-up dictionary of global layer
@@ -85,7 +95,7 @@ def chi (args):
             unreadable_files.add(glx)
 
     if len(list(unreadable_files)) > 0:
-        print 'Could not find these layer_*.tab files, continuing without them:', list(unreadable_files)
+        print 'Could not find these layer_*.tab files, probably due to no values:', list(unreadable_files)
 
     # Parse the file containing all the hexagon names as a list.
     hex_names = []
@@ -165,7 +175,7 @@ def chi (args):
             # See <http://stats.stackexchange.com/q/73708>. Chi-squared can't be
             # done in this case, so we make p NaN.
             p = float("NaN")
-        p_writer.line (lx1, lx2, p)
+        p_writer.line (lx1, lx2, significantDigits(p))
 
     p_writer.close()
 

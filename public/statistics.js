@@ -180,7 +180,7 @@ function statistics_for_matrix(matrix_url, in_list, out_list, all_list) {
     
     // Now we've parsed the matrix.
     // Go do stats for each layer.
-    // This holds our calculated p valued by layer name.
+    // This holds our calculated p value by layer name.
     var p_values = {};
     
     print("Running statistics for (up to) " + layer_names.length + 

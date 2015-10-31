@@ -1320,7 +1320,7 @@ def hexIt(options):
        
     # Now we need to write layer files.
         
-    # Generate some filenames for layers that we can look up by layer name.
+    # Generate some filenames for layers that we can look up by layer index.
     # We do this because layer names may not be valid filenames.
     layer_files = {name: os.path.join(options.directory, 
         "layer_{}.tab".format(number)) for (name, number) in itertools.izip(

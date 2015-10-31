@@ -14,13 +14,14 @@ else:
     if MAX_JOB_COUNT < 1:
         MAX_JOB_COUNT = 8
 
-print 'hostname, MAX_JOB_COUNT', hostname, MAX_JOB_COUNT
-
 def timestamp():
     return str(datetime.datetime.now())[8:-7]
 
 def max_job_count():
     return MAX_JOB_COUNT
+
+def hostProcessorMsg():
+    return 'Using host: ' + hostname + ' with ' + str(MAX_JOB_COUNT) + ' processors for parallel jobs.'
 
 def runFunctor(functor):
     """
@@ -39,8 +40,6 @@ def runFunctor(functor):
 def runSubProcesses(jobs):
     # Create the pool and run the subprocesses under it.
     # @param job: the subprocess function and its parameters to the function
-
-    print len(jobs), 'subprocesses to run.'
 
     # This holds a multiprocessing pool for parallelization
     pool = multiprocessing.Pool(MAX_JOB_COUNT)

@@ -19,10 +19,11 @@ var app = app || {}; // jshint ignore:line
 
     Project.prototype._getProjects = function () {
         Project.prototype._populate({
-            'pancan12': ['first', 'top6', 'top10', 'woutGiovanni'],
+            'pancan12': ['woutGiovanni', 'wGiovanni', 'top6', 'top10', 'first'],
+            'ynewton': ['gliomas-paper'],
             'sokolov': ['stemness'],
             'swat': ['tiny'],
-            'ynewton': ['gliomas-paper'],
+            'mcrchopra': ['first'],
         });
     };
 
@@ -74,7 +75,7 @@ var app = app || {}; // jshint ignore:line
             $('#project').select2("val", ctx.project);
         } else {
             alert('Sorry, "' + ctx.project + '" is not a valid project, loading the default instead.');
-            ctx.project = ctx.getDefaultProject();
+            ctx.project = ctx.defaultProject();
             queryFreeReload();
         }
 

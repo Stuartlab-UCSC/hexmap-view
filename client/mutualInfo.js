@@ -132,8 +132,8 @@ var app = app || {}; // jshint ignore:line
                 type = 'region-based-negative';
             }
 
-            Session.set('sortText',
-                'Stats w/layout by ' + corr + ' with: ' + compare_layer_name);
+            //Session.set('sortText',
+            //    'Stats w/layout by ' + corr + ' with: ' + compare_layer_name);
             update_browse_ui(type);
             
             // Save the parameters we were called with, so we can be called
@@ -148,7 +148,7 @@ var app = app || {}; // jshint ignore:line
     function rank_query(layer_names, parsed, anticorrelated) {
         get_stats(layer_names, parsed, anticorrelated);
         /*
-        // TODO this is older code that used p-values from sample-based stats
+        // TODO this is older code that used p-values from layout-aware stats
             
         if (anticorrelated) {
             // Restrict to anticorrelated layers (of the same type). Go
@@ -183,6 +183,37 @@ var app = app || {}; // jshint ignore:line
         // anticorrelated with the focus attribute, and the same type as the
         // focus attribute. Focus attribute may not have category or label (yes/no) values.
 
+
+
+
+
+        // For testing, lets assume this is a user-created attribute
+        //if (layers[layer_name].selection) {
+
+            // This is a user-created attribute
+            Meteor.call('statsSortLayoutLayer',
+                focus_attr,
+                ctx.layer_names_by_index.indexOf(focus_attr),
+                layout_index,
+                ctx.project,
+                function (err, response) {
+                    console.log(response);
+                    // TODO handle error
+                }
+            );
+            /*
+            Meteor.call('callPython', layer_name, function (err, response) {
+                console.log(response);
+                // TODO handle error
+            });
+            */
+        //}
+        return;
+        
+
+
+
+
         if (ctx.bin_layers.indexOf(focus_attr) === -1) {
             return
         }
@@ -194,6 +225,11 @@ var app = app || {}; // jshint ignore:line
         // What file should we get?
         var filename = ctx.project + "layer_"+ layer_index + "_" + layout_index + "_rstats.tab";
         print("Fetching " + filename);
+
+        // Set the message here where we know the focus attribute
+        var corr = anticorrelated ? 'anticorrelation' : 'correlation';
+        Session.set('sortText',
+            'Stats w/layout by ' + corr + ' with: ' + focus_attr);
 
         // query_type = 'rank' indicates a rank query
         // Column 1 is a list of layer/attribute names
@@ -209,6 +245,7 @@ var app = app || {}; // jshint ignore:line
             if (fileNotFound(parsed[0][0])) {
                 if (query_type === 'rank') {
                     complain("Layout Aware (region-based) Stats Were Not Pre-Computed!");
+                    Session.set('sortText', ctx.defaultSortText());
                 }
                 return;
             }

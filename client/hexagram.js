@@ -1585,8 +1585,6 @@ function sort_layers(layer_array, type_value) {
     // We should sort by p value, with NaNs at the end. But selections should be
     // first.
 
-    // Define the default sort message
-    Session.setDefault('sortText', 'Density of attributes')
     if (layer_array.length === 0) return;
 
 	if (type_value == "region-based-positive") {

@@ -5,21 +5,7 @@ import sys, os, numpy, subprocess, shutil, tempfile, pprint
 import tsv, csv, datetime, time, math, multiprocessing
 import pool, traceback
 
-def pearson (subprocess_string, optionsDirectory, total_processes, sctx):
-    """
-    The subprocess call to pearson.py takes the following arguments
-    args[] = 'python'
-    args[0] = 'pearson.py'
-    args[1] = 'temp_directory' - temporary directory to print files to
-    args[2] = 'subprocess_string' - string containing sets of four values.
-               The four value are "layer1 index, layer 2 index, cont layer 1
-               index, cont layer 2 index;..."
-    args[3] = 'total_processes'- current number of processes which is used
-               by the subprocess as the index for the printed file
-    """ 
-    return subprocess.Popen(['python', 'pearson.py', sctx['temp_dir'], subprocess_string, str(total_processes)])
-
-def chi2 (subprocess_string, optionsDirectory, total_processes, sctx):
+def chi2 (subprocess_string, optionsDirectory, fileIndex, temp_dir):
     """
     The subprocess call to chi.py takes the following arguments
     args[] = 'python'
@@ -28,15 +14,15 @@ def chi2 (subprocess_string, optionsDirectory, total_processes, sctx):
     args[2] = 'subprocess_string' - string containing sets of four indices:
                layer1, layer 2, chi layer 1 chi layer 2
     args[3] = 'working_directory' - directory to which main process writes files
-    args[4] = 'total_processes' - index for names of the output file
+    args[4] = 'fileIndex' - index for names of the output file
     """
-    return subprocess.Popen(['python', 'chi.py', sctx['temp_dir'], subprocess_string, optionsDirectory, total_processes])
+    return subprocess.Popen(['python', 'chi.py', temp_dir, subprocess_string, optionsDirectory, fileIndex])
 
 def timestamp():
     return str(datetime.datetime.now())[8:-7]
 
-def wait_for_free_process(procs, max_processes):
-    # Loop while the number of current processes is greater then the allowed
+def wait_for_free_process (procs, max_processes):
+    # Loop while the number of current processes is greater than the allowed
     # number. Poll each process until current process count is >= allowed count.
     # Remove successfully completed processes
 
@@ -59,28 +45,72 @@ def wait_for_free_process(procs, max_processes):
             del procs[success_index]
     return procs
 
-def stats_looper (
-    layer_names, # args RO
-    num_processes, # args max_processes RO
-    num_pairs, # args max_pairs  RO
-    sctx, # stats context
-    ctx, # hexagram context
-    options): # statistical function  RO
+def oneLayer(layerA, statsLayers, layerNames, layers, sctx):
+
+    fileIndex = sctx['fileIndex']
+    procs = sctx['procs']
+    num_processes = sctx['num_processes']
+    stats_fx = sctx['stats_fx']
+    directory = sctx['directory']
+    temp_dir = sctx['temp_dir']
+
+    slx1 = statsLayers.index(layerA)
+    slx2 = slx1 - 1
 
     # Counter to chain together a variable number of layer combinations
     # for subprocesses
-    current_pairs = 0
+    first_layer2 = True
 
-    # Sum of pairs processed for this test type
-    sum_pairs = 0
-    pair_message_count = 1
+    # Loop through the remainder of the layers to form pairs to compare
+    for layerB in statsLayers[slx1:]:
+
+        # Increase the inner loop index by 1
+        slx2 += 1
+
+        # Index according to layerNames (all layers). This is needed
+        # to look up the appropriate raw data file.
+        lx1 = str(layerNames.index(layerA))
+        lx2 = str(layerNames.index(layerB))
+
+        # Join layer indices & stats layer indices (used to place the p-values
+        # returned by the subprocess into the numpy matrix) by commas.
+        current_string = ",".join([lx1, lx2, str(slx1), str(slx2)])
+
+        # Initialize new subprocess string or add to the existing one
+        # chaining current strings with semi-colons.
+        if first_layer2:
+            subprocess_string = current_string
+            first_layer2 = False
+        else :
+            subprocess_string = ";".join([subprocess_string, current_string])
+
+
+
+    # Submit the job when we've reach the end of the layer-1's data
+    procs = wait_for_free_process(procs, num_processes)
+    procs.append(stats_fx(
+                    subprocess_string, directory,
+                    str(fileIndex), temp_dir
+                ))
+
+def stats_looper(
+    layer_names, # args RO
+    layers,
+    num_processes, # args max_processes RO
+    num_layers, # args max_pairs  RO
+    sctx, # stats context
+    options): # statistical function  RO
+
+    # Sum of layers processed for this test type
+    sum_layers = 0
+    message_count = 1
 
     # List of process handles
     procs = []
 
     # Counter for total processes. This will index the output files
     # from the stats function.
-    total_processes = 0
+    fileIndex = 0
 
     # Loop through the layers for the data types of interest, creating strings
     # that will be passed to the stats subprocess. First group layer indices of
@@ -88,55 +118,32 @@ def stats_looper (
     # index groups, separated by semi-colons.
     # slx = stats layer index, lx = global layer index
     for slx1, layer_name1 in enumerate (sctx['stats_layers']):
-        slx2 = slx1 - 1
 
-        # Loop through the remainder of the layers to form pairs to compare
-        for layer_name2 in sctx['stats_layers'][slx1:]:
+        ssctx = {
+            'alg': 'binaryChi2',
+            'temp_dir': sctx['temp_dir'],
+            'fileIndex': fileIndex,
+            'directory': options.directory,
+            # TODO assimulate these
+            'procs': procs,
+            'num_processes': num_processes,
+            'stats_fx': sctx['stats_fx'],
+        }
+        oneLayer(layer_name1, sctx['stats_layers'], layer_names, layers, ssctx)
 
-            # Increase the current pairs-counter
-            current_pairs += 1
+        fileIndex += 1
+        sum_layers += 1
+        first_layer2 = True
 
-            # Increase the inner loop index by 1
-            slx2 += 1
-
-            # Index according to layer_names (all layers). This is needed
-            # to look up the appropriate raw data file.
-            lx1 = str(layer_names.index(layer_name1))
-            lx2 = str(layer_names.index(layer_name2))
-
-            # Join layer indices & stats layer indices (used to place the p-values
-            # returned by the subprocess into the numpy matrix) by commas.
-            current_string = ",".join([lx1, lx2, str(slx1), str(slx2)])
-
-            # Initialize new subprocess string or add to the existing one
-            # chaining current strings with semi-colons.
-            if (current_pairs == 1):
-                subprocess_string = current_string
-            else:
-                subprocess_string = ";".join([subprocess_string, current_string])
-
-            # Submit the job if we've reach our max pairs-per-process
-            # or the end of the layer-1's data
-            if (current_pairs >= num_pairs) or (layer_name2 == sctx['stats_layers'][-1]):
-                procs = wait_for_free_process(procs, num_processes)
-
-                procs.append(sctx['stats_fx'](
-                                subprocess_string, options.directory,
-                                str(total_processes), sctx
-                            ))
-                total_processes += 1
-                sum_pairs += current_pairs
-                current_pairs = 0
-
-        # Log a progress message for every ~1/30th of pairs processed
-        if sum_pairs >= sctx['total_pairs'] * pair_message_count / 30:
-            print timestamp(), str(pair_message_count) + '/30 of', sctx['total_pairs'], 'pairs'
+        # Log a progress message for every ~1/30th of layers processed
+        if sum_layers >= num_layers * message_count / 30:
+            print timestamp(), str(message_count) + '/30 of', num_layers, 'layers'
             sys.stdout.flush()
-            pair_message_count += 1
+            message_count += 1
 
     return procs
 
-def per_stats_type (layers, layer_names, num_processes, num_pairs, sctx, ctx, options):
+def per_stats_type (layers, layer_names, num_processes, num_layers, sctx, options):
     """
     This tool will launch a variable number of independent threads, each of which
     will calculate a variable number of correlations for pairs of attributes.
@@ -151,10 +158,10 @@ def per_stats_type (layers, layer_names, num_processes, num_pairs, sctx, ctx, op
 
     procs = stats_looper (
         layer_names,
+        layers,
         num_processes,
-        num_pairs,
+        num_layers,
         sctx,
-        ctx,
         options)
 
     # When we reach here, all processes have been submitted and we're just
@@ -166,7 +173,6 @@ def per_stats_type (layers, layer_names, num_processes, num_pairs, sctx, ctx, op
     # Fill matrix with stat_layers and their values
     print timestamp(), 'Populating the value matrix for sample-based stats'
     sys.stdout.flush()
-    num_layers = len(sctx['stats_layers'])
     vals = numpy.zeros(shape=(num_layers, num_layers))
 
     dir_elements = os.listdir(sctx['temp_dir'])
@@ -303,8 +309,7 @@ def sample_based_statistics(layers, layer_names, ctx, options):
     writer.close()
 
     MAX_JOB_COUNT = pool.max_job_count()
-
-    print 'Using', MAX_JOB_COUNT, 'processors for parallel jobs'
+    pool.hostProcessorMsg()
 
     """ 
     Ignore these stats for now
@@ -334,7 +339,7 @@ def sample_based_statistics(layers, layer_names, ctx, options):
         return True
 
     # Create the statistics context.
-    total_pairs = reduce(lambda x, y: x+y, range(len(ctx.binary_layers) + 1))
+    num_layers = len(ctx.binary_layers)
     sctx = {
         'type': 'chi2',
         'stats_fx': chi2, # the stats to be run on this data
@@ -342,12 +347,11 @@ def sample_based_statistics(layers, layer_names, ctx, options):
         # TODO 'stats_layers': ctx.binary_layers + ctx.categorical_layers, # data types for these stats
         'temp_dir': temp_dir, # the dir to store temporary working files
         'ref_file': hex_names_file, # a temporary reference file of hexagon names for these stats
-        'total_pairs': total_pairs,
      }
 
-    print timestamp(), "Processing the", total_pairs, "binary pairs"
+    print timestamp(), "Processing", num_layers, "layers"
 
-    per_stats_type(layers, layer_names, MAX_JOB_COUNT, 3600, sctx, ctx, options)
+    per_stats_type(layers, layer_names, MAX_JOB_COUNT, num_layers, sctx, options)
 
     print timestamp(), "Sample-based statistics complete"
 

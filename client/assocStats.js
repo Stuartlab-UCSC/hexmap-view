@@ -12,15 +12,33 @@ var app = app || {}; // jshint ignore:line
         // @param categorical: true: compare focus attr against categorical attrs, false:not
         // @ returns: nothing
 
+
+
+        // For testing, lets assume this is a user-created attribute
+        //if (layers[layer_name].selection) {
+
+            // This is a user-created attribute
+            Meteor.call('callPython', layer_name, function (err, response) {
+                console.log(response);
+                // TODO handle error
+            });
+
+        //}
+        return;
+        
+
+
+
         // So far we only support combinations of binary and categorical values,
         // which use the chi-squared method.
-        var layer_index = ctx.layer_names_by_index.indexOf(layer_name),
-            file = ctx.project + "layer_" + layer_index + "_sstats.tab";
+        var layer_index = ctx.layer_names_by_index.indexOf(layer_name);
+        var file = ctx.project + "layer_" + layer_index + "_sstats.tab";
         $.get(file, function(tsv_data) {
-            // This is an array of rows, which are arrays of values:
+        
+            // This is two rows, of this form:
             //
-            //	Layer1	Layer2	Layer 3...
-            //	value	value	value
+            //	Layer1	Layer2	Layer 3 ...
+            //	value	value	value   ...
 
             // Parse the file
             var parsed = $.tsv.parseRows(tsv_data);
