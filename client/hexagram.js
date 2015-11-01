@@ -754,12 +754,7 @@ function make_shortlist_ui(layer_name) {
 			}
 		
 			// Update the browse UI with the new layer.
-			if (ctx.mutual_information_ranked == true) {
-		    	update_browse_ui("mutual_information");
-			}
-			else {
-				update_browse_ui();
-			}
+            update_browse_ui();
 		});
     }
 
@@ -1579,11 +1574,13 @@ function layer_sort_order_mutual_information_negative(a, b) {
     return layer_sort_order_common(a, b);
 }
 
-function sort_layers(layer_array, type_value) {
+function sort_layers(layer_array) {
     // Given an array of layer names, sort the array in place as we want layers
     // to appear to the user.
     // We should sort by p value, with NaNs at the end. But selections should be
     // first.
+
+    var type_value = Session.get('sort').type;
 
     if (layer_array.length === 0) return;
 
@@ -1694,12 +1691,12 @@ function make_toggle_layout_ui(layout_name) {
     return root;
 }
 
-update_browse_ui = function(type_value) {
+update_browse_ui = function() {
     // Make the layer browse UI reflect the current list of layers in sorted
     // order.
     
     // Re-sort the sorted list that we maintain
-    sort_layers(ctx.layer_names_sorted, type_value);
+    sort_layers(ctx.layer_names_sorted);
 
     // Close the select if it was open, forcing the data to refresh when it
     // opens again.
@@ -2079,12 +2076,7 @@ select_list = function (to_select, function_type, layer_names, new_layer_name, s
         });
         
         // Update the browse UI with the new layer.
-		if (ctx.mutual_information_ranked == true) {
-        	update_browse_ui("mutual_information");
-		}
-		else {
-			update_browse_ui();
-		}
+        update_browse_ui();
         		
 		if (shortlist_push != false) {
 		    // Immediately shortlist it if the attribute is being created for
@@ -2171,7 +2163,7 @@ clear_current_stats_values = function  () {
         delete layers[layer_name].p_value;
         delete layers[layer_name].mutual_information;
      }
-	Session.set('sortText', "Density of attributes");
+	Session.set('sort', state.defaultSort());
 	update_browse_ui();	
 }
 
@@ -2366,8 +2358,9 @@ function recalculate_statistics_for_layer(layer_name, in_list, out_list, all) {
             // TODO: Unify this code with similar callback below.
             // Re-sort everything and draw all the new p values.
 
-			Session.set('sortText',
-                "Contrast between " + comparison_stats_l1 + " & " + comparison_stats_l2);
+			Session.set('sort', {
+                text: "Contrast between " + comparison_stats_l1 + " & " + comparison_stats_l2,
+                type: 'default'});
             update_browse_ui();
             update_shortlist_ui();
             
@@ -2422,8 +2415,9 @@ function recalculate_statistics_for_matrix(matrix_url, in_list, out_list, all) {
             // TODO: Unify this code with similar callback above.
             // Re-sort everything and draw all the new p values.
 
-			Session.set('sortText',
-                "Contrast between " + comparison_stats_l1 + " & " + comparison_stats_l2);
+			Session.set('sort', {
+                text: "Contrast between " + comparison_stats_l1 + " & " + comparison_stats_l2,
+                type: 'default'});
             update_browse_ui();
             update_shortlist_ui();
 

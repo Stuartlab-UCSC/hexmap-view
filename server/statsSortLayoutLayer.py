@@ -88,11 +88,13 @@ class ForEachLayer(object):
 
             val = s.pearsonOnePair(A, B)
 
-            # Make a line for the stat result with this other layer
-            if s.opts['precomputed'] == 'yes':
-                fOut.writerow([layerB, s.significantDigits(val)])
+            # Make a line for the stats results with this other layer
+            line = [layerB, s.significantDigits(val)]
+            if s.opts['writeFile'] == 'yes':
+                fOut.writerow(line)
             else:
-                print layerB, s.significantDigits(val)
+                #print line
+                s.response.append(line)
 
     def __call__(s):
 
@@ -100,17 +102,21 @@ class ForEachLayer(object):
 
         # Open a csv writer for stats of this layer against all other layers,
         # if a filename was provided
-        if s.opts['precomputed'] == 'yes':
+        if s.opts['writeFile'] == 'yes':
             fOutFile = open(s.file, 'w')
             fOut = csv.writer(fOutFile, delimiter='\t')
         else:
             fOut = ''
+            s.response = []
 
         # Call the stats algorithm given
         eval('s.' + s.opts['alg'])(
             s, s.layerA, s.statsLayers, s.layers, s.windowNodes, s.windowAdditives, s.opts, fOut)
 
-        if s.opts['precomputed'] == 'yes': fOutFile.close()
+        if s.opts['writeFile'] == 'yes':
+            fOutFile.close()
+        else:
+            print json.dumps(s.response, sort_keys=True)
 
 if __name__ == '__main__':
 
@@ -173,14 +179,14 @@ if __name__ == '__main__':
 
     # Build the stats context
     opts = {
-        'precomputed': 'no',
+        'writeFile': 'no',
         'layout': args.layout,
         'alg': 'layoutBinaryPearson',
         'directory': directory,
         'layerFiles': layerFiles,
     }
-
-    precomputed = 'no'
+    # TODO we shouldn't have to use the for statement since this is only one call
+    # We also should not need another process spawned
     allLayers = [ForEachLayer(
         layerA, args.layerIndex, statsLayers, layers, windowNodes, windowAdditives, opts)
         for layerA in [args.layerA]]

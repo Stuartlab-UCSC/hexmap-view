@@ -133,8 +133,8 @@ layers = {}; // contains almost all information about attributes
     });
 
     Template.headerT.helpers({
-        sortText: function () {
-            return Session.get('sortText');
+        sort: function () {
+            return Session.get('sort');
         },
     });
 

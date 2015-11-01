@@ -284,7 +284,8 @@ def normalized_pearson_statistics(layers, layerNames, nodes_multiple, ctx, optio
                 f.writerow(line)
                 i += 1
 
-        pairCount = len(ctx.binary_layers) ** 2 - len(ctx.binary_layers)  # without compare to self
+        # The number of pairs to compare without compare to self
+        pairCount = len(ctx.binary_layers) ** 2 - len(ctx.binary_layers)
 
         print 'Starting to build', pairCount, 'layer pairs...'
 
@@ -293,12 +294,12 @@ def normalized_pearson_statistics(layers, layerNames, nodes_multiple, ctx, optio
             'alg': 'layoutBinaryPearson',
             'directory': options.directory,
             'layout': str(layout),
-            'precomputed': 'yes',
+            'writeFile': 'yes',
         }
 
         # Handle the stats for each layer, in parallel
         allLayers = [ForEachLayer(
-            layerA,   layerNames.index(layerA), ctx.binary_layers, layers, C,           C2,              sOpts)
+            layerA, layerNames.index(layerA), ctx.binary_layers, layers, C, C2, sOpts)
             #for layerA in ['TP53_mutated']]
             for layerA in ctx.binary_layers]
 

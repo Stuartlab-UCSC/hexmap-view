@@ -122,7 +122,7 @@ var app = app || {}; // jshint ignore:line
             get_association_stats_values(focus_attr, bin, cat);
 
 		} else { // region-based requested
-			get_mutual_information_statistics (current_layout_index, focus_attr, 'rank', corr_neg);
+			get_layout_aware_stats(current_layout_index, focus_attr, corr_neg);
         }
 /*
 		// Check to see which radio label is selected. 

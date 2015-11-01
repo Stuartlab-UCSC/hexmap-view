@@ -62,8 +62,8 @@ var app = app || {}; // jshint ignore:line
                     layers[compare_layer].p_value = value;
                 }
             }
-            Session.set('sortText',
-                "Stats w/out layout by: " + layer_name);
+            Session.set('sort',
+                {text: "Stats w/out layout by: " + layer_name, type: 'default'})
             update_browse_ui();
             update_shortlist_ui();
             ctx.mutual_information_ranked = false;
@@ -127,9 +127,10 @@ var app = app || {}; // jshint ignore:line
 
                 }, "text")
                 .done(function() {
-                    Session.set('sortText', 
-                        "Stats w/layout in terms of: " + layer_name);
-                    update_browse_ui("r_value");
+                    Session.set('sort',
+                    {text: "Stats w/layout in terms of: " + layer_name, 
+                    type: "r_value"})
+                    update_browse_ui();
                     ctx.mutual_information_ranked = false;
 
                 })
