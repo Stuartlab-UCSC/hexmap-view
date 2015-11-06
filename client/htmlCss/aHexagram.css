@@ -49,12 +49,13 @@ The visualization element needs to take up all available space.
 #gridMap .gm-style {
     background-color: #fff;
 }
-
+/*
 .select2-results .select2-highlighted {
     background-image: url("right.svg");
     background-repeat: no-repeat;
     background-position: right center;
 }
+*/
 
 .dialog {
     font-size: 0.9em;

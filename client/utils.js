@@ -23,5 +23,90 @@ var app = app || {}; // jshint ignore:line
         }
         return $.tsv.parseRows(tsv_data);
     }
+
+    removeFromDataTypeList = function (layer_name) {
+
+        // Remove this layer from the appropriate data type list
+        var index = ctx.bin_layers.indexOf(layer_name);
+        if (index > -1) {
+            ctx.bin_layers.splice(index, 1);
+        } else {
+            index = ctx.cat_layers.indexOf(layer_name);
+            if (index > -1) {
+                ctx.cat_layers.splice(index, 1);
+            } else {
+                index = ctx.cont_layers.indexOf(layer_name);
+                if (index > -1) {
+                    ctx.cont_layers.splice(index, 1);
+                }
+            }
+        }
+    }
+
+    addToDataTypeList = function (name, data) {
+        //
+        // @param name: the name of the layer
+        // @param data: an array of values for the layer
+
+        // Skip any layers with no values.
+        if (data.length < 1) return;
+
+        // Initialize our process-of-elimination vars
+        var can_be_binary = true,
+            can_be_categorical = true;
+
+        // Loop through the data until we have determined the data type
+        _.find(data, function (value) {
+            if (value % 1 !== 0) {
+
+                // It is continuous (fractional)
+                can_be_binary = false;
+                can_be_categorical = false;
+                return true;
+
+            } else if (value > 1 || value < 0) {
+
+                // It's not binary, but it could still be either continuous
+                // or categorical.
+                can_be_binary = false;
+                return true;
+            } else {
+                return false;
+            }
+        });
+        
+        if (can_be_binary) {
+
+            // We're done, and nothing rules out it being binary
+            // TODO this is capturing layers with NaN?
+            ctx.bin_layers.push(name);
+
+        } else if (can_be_categorical) {
+
+            // It's not binary and we didn't hit a continuous float value
+            // TODO we could have continous values which happen to be integers.
+            // For now those types will be misplaced as categorical
+            ctx.cat_layers.push(name);
+        } else {
+            // It is not binary or categorical, so it is continuous
+            ctx.cont_layers.push(name);
+        }
+    }
+
+    createOurSelect2 = function ($el, opts, defaultSelection) {
+    
+        // Create a select2 drop-down, including our favorite options
+        opts.dropdownAutoWidth = true;
+        $el.select2(opts);
+
+        // Set the default selection
+        $el.select2('val', defaultSelection);
+
+        // Make the bottom of the list no longer than the main window
+        $el.parent().on('select2-open', function () {
+            var results = $('#select2-drop .select2-results');
+            results.css('max-height', $(window).height() - results.offset().top - 15);
+        });
+    }
 })(app);
 

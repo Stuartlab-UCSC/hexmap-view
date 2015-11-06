@@ -4,29 +4,40 @@ statsSortLayoutLayer.py
 Object for generating one layer's stats for layout-aware sort stats
 """
 
-# TODO not all of these are needed
-import sys, os, argparse, json, pool, copy, csv
+import sys, os, argparse, json, pool, copy, csv, traceback, pprint
 import scipy.stats
-
 from math import log10, floor
 
 class ForEachLayer(object):
 
-    def __init__(s, layerA,     layerAindex, statsLayers, layers, windowNodes, windowAdditives, opts):
-
-        #print ('__ init __')
+    def __init__(s, parm):
 
         # Build the filename for precomputed stats
-        suffix = '_' + opts['layout'] + '_rstats.tab'
-        s.file = os.path.join(opts['directory'], 'layer_' + str(layerAindex) + suffix)
+        if parm['writeFile'] == 'yes':
+            suffix = '_' + parm['layout'] + '_rstats.tab'
+            filename = 'layer_' + str(layerAindex) + suffix
+            s.file = os.path.join(parm['directory'], filename)
 
-        # Store the rest of the parameters
-        s.layerA = layerA
-        s.statsLayers = statsLayers
-        s.layers = layers
-        s.windowNodes = windowNodes
-        s.windowAdditives = windowAdditives
-        s.opts = opts
+        # Required parameters
+        s.alg = parm['alg']
+        s.directory = parm['directory']
+        s.layerA = parm['layerA']
+        s.layers = parm['layers']
+        s.statsLayers = parm['statsLayers']
+
+        # Layout options:
+        if 'windowAdditives' in parm:
+            s.windowAdditives = parm['windowAdditives']
+        if 'windowNodes' in parm:
+            s.windowNodes = parm['windowNodes']
+
+        # Dynamic options
+        if 'layerFiles' in parm:
+            s.layerFiles = parm['layerFiles']
+
+        # Pre-computed options
+        if 'writeFile' in parm:
+            s.writeFile = parm['writeFile']
 
     @staticmethod
     def significantDigits(x, sig=6):
@@ -40,8 +51,6 @@ class ForEachLayer(object):
 
     @staticmethod
     def pearsonOnePair(A, B):
-
-        #print ('__ pearsonOnePair __')
 
         # Compute the pearson value for this layer pair.
         # This gets done each way, since order matters here.
@@ -58,20 +67,20 @@ class ForEachLayer(object):
         return val
 
     @staticmethod
-    def layoutBinaryPearson(s, layerA,   statsLayers,   layers,   windowNodes,   windowAdditives,   opts,   fOut):
+    def layoutBinaryPearson(s, layerA, statsLayers, layers, sigDig, writeFile,
+        fOut):
 
-        #print ('__ layoutBinaryPearson __')
-
+        response = []
         for layerB in statsLayers:
             if layerA == layerB: continue
 
             # Initialize the counts for the layers to the additives in C2
-            A = copy.copy(windowAdditives)
+            A = copy.copy(s.windowAdditives)
             B = copy.copy(A)
 
             # Find nodes with an attribute value of one.
             # Nodes are the x,y coordinates of hexagons before squiggling
-            for i, nodes in enumerate(windowNodes):
+            for i, nodes in enumerate(s.windowNodes):
                 for node in nodes:
 
                     # Does this node have a value of one in layer A or B?
@@ -80,8 +89,8 @@ class ForEachLayer(object):
                     b = (layers[layerB].has_key(node)
                         and layers[layerB][node] == 1)
 
-                    # Only increment the count if both a and b are not one
-                    # essentially to avoid counting this twice
+                    # Only increment the count if both a and b are not one,
+                    # essentially to avoid counting this value twice
                     if not (a and b):
                         if a: A[i] += 1
                         if b: B[i] += 1
@@ -89,83 +98,80 @@ class ForEachLayer(object):
             val = s.pearsonOnePair(A, B)
 
             # Make a line for the stats results with this other layer
-            line = [layerB, s.significantDigits(val)]
-            if s.opts['writeFile'] == 'yes':
+            line = [layerB, sigDig(val)]
+            #if writeFile:
+            if writeFile == 'yes':
                 fOut.writerow(line)
             else:
                 #print line
-                s.response.append(line)
+                response.append(line)
+
+        return response
 
     def __call__(s):
 
-        #print ('__ call __')
-
         # Open a csv writer for stats of this layer against all other layers,
         # if a filename was provided
-        if s.opts['writeFile'] == 'yes':
+        fOut = ''
+        if s.writeFile == 'yes':
             fOutFile = open(s.file, 'w')
             fOut = csv.writer(fOutFile, delimiter='\t')
-        else:
-            fOut = ''
-            s.response = []
 
         # Call the stats algorithm given
-        eval('s.' + s.opts['alg'])(
-            s, s.layerA, s.statsLayers, s.layers, s.windowNodes, s.windowAdditives, s.opts, fOut)
+        response = eval('s.' + s.alg)(s, s.layerA, s.statsLayers, s.layers,
+            s.significantDigits, s.writeFile, fOut)
 
-        if s.opts['writeFile'] == 'yes':
+        if s.writeFile == 'yes':
             fOutFile.close()
         else:
-            print json.dumps(s.response, sort_keys=True)
+            print json.dumps(response, sort_keys=True)
 
-if __name__ == '__main__':
+def dynamicStats(parm):
 
-    # For dynamic stats initiated by the client
+    # This handles dynamic stats initiated by the client
 
-    # Parms passed from the client
-    parser = argparse.ArgumentParser(description='Calc layout-aware sort stats for one layer.')
-    parser.add_argument('layerA', metavar='Focus attribute name\n') # layerA
-    parser.add_argument('layerIndex', metavar='Focus attribute index\n')
-    parser.add_argument('layout', metavar='Layout index\n') # opts['layout']
-    parser.add_argument('directory', metavar='directory\n') # opts['directory']
-    args = parser.parse_args()
-
-    # TODO where do we get the directory from?
     # Adjust the directory from that received from the client
-    directory = args.directory[:-1]
-    directory = '/Users/swat/dev/hexagram/public/' + directory
+    # TODO where do we get the directory from?
+    # TODO rename directory to project
+    directory = '/Users/swat/dev/hexagram/public/' + parm['directory'][:-1]
+    parm['directory'] = directory
 
-    # Create the statsLayers array from the binary layers
-    # pulled from Layer_Data_Types.tab
-    with open(os.path.join(directory, "Layer_Data_Types.tab"), 'rU') as f:
-        f = csv.reader(f, delimiter='\t')
-        statsLayers = []
-        for i, line in enumerate(f.__iter__()):
-            if line[0] == 'Binary':
-                for attr in line[1:]:
-                    statsLayers.append(attr)
-                break
-
-    # Generate the layerFiles by pulling the
+    # Dynamic options #############
+    # Populate the layer to file names dict by pulling the
     # layernames and filenames from layers.tab
     with open(os.path.join(directory, "layers.tab"), 'rU') as f:
         f = csv.reader(f, delimiter='\t')
         layerFiles = {}
         for i, line in enumerate(f.__iter__()):
             layerFiles[line[0]] = line[1]
+    parm['layerFiles'] = layerFiles
 
-    # Create a layers dict by pulling from all the layer_*.tab files
+    # Populate a minimal layers dict with the layers values
     layers = {}
-    for layerName in statsLayers:
-        filename = layerFiles[layerName]
-        with open(os.path.join(directory, filename), 'rU') as f:
-            f = csv.reader(f, delimiter='\t')
-            layers[layerName] = {}
-            for i, line in enumerate(f.__iter__()):
-                layers[layerName][line[0]] = float(line[1])
+    for layerName in parm['statsLayers']:
 
-    # Create a window nodes array and window additives array from windows_*.tab
-    with open(os.path.join(directory, "windows_" + str(args.layout) + ".tab"), 'rU') as f:
+        if layerName in parm['dynamicData']:
+
+            # dynamicData means this attribute is dynamic with no data file
+            # so pull its data from the dynamicData given
+            layers[layerName] = parm['dynamicData'][layerName]
+        else:
+
+            # Pull the data for this layer from the file
+            filename = layerFiles[layerName]
+            with open(os.path.join(directory, filename), 'rU') as f:
+                f = csv.reader(f, delimiter='\t')
+                layers[layerName] = {}
+                for i, line in enumerate(f.__iter__()):
+                    layers[layerName][line[0]] = float(line[1])
+    parm['layers'] = layers
+
+    #print 'layers:'
+    #pprint.pprint(layers)
+
+    # Layout options ############
+    # Populate a window node and additives arrays from windows_*.tab
+    with open(os.path.join(directory, "windows_" + str(parm['layout']) + ".tab"), 'rU') as f:
         f = csv.reader(f, delimiter='\t')
         windowNodes = []
         windowAdditives = []
@@ -175,19 +181,32 @@ if __name__ == '__main__':
                 if j == 0:
                     windowAdditives.append(float(val))
                 else:
-                    windowNodes[i].append(val)
+                     windowNodes[i].append(val)
+    parm['windowAdditives'] = windowAdditives
+    parm['windowNodes'] = windowNodes
 
-    # Build the stats context
-    opts = {
-        'writeFile': 'no',
-        'layout': args.layout,
-        'alg': 'layoutBinaryPearson',
-        'directory': directory,
-        'layerFiles': layerFiles,
-    }
-    # TODO we shouldn't have to use the for statement since this is only one call
-    # We also should not need another process spawned
-    allLayers = [ForEachLayer(
-        layerA, args.layerIndex, statsLayers, layers, windowNodes, windowAdditives, opts)
-        for layerA in [args.layerA]]
-    pool.runSubProcesses(allLayers)
+    # A required parameter
+    parm['alg'] = 'layoutBinaryPearson'
+
+    # Pre-computed options
+    # TODO this should just be or not be and not used here in dynamic only land
+    parm['writeFile'] = 'no'
+
+    # Create a ForEachLayer instance and call it
+    oneLayer = ForEachLayer(parm)
+    oneLayer()
+
+    return 0
+
+if __name__ == "__main__" :
+    try:
+        # Get the return code to return
+        # Don't just exit with it because sys.exit works by exceptions.
+        parmWrapper = json.loads(sys.argv[1]);
+        return_code = dynamicStats(parmWrapper['parm'])
+    except:
+        traceback.print_exc()
+        # Return a definite number and not some unspecified error code.
+        return_code = 1
+        
+    sys.exit(return_code)

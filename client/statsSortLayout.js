@@ -1,5 +1,5 @@
-// mutualInfo.js
-// This contains the logic for retrieving the mutual information stats
+// statsSortlayout.js
+// This contains the logic for retrieving the layout-aware sort attribute stats
 
 var app = app || {}; // jshint ignore:line
 
@@ -13,10 +13,10 @@ var app = app || {}; // jshint ignore:line
                 var compare_layer_name = parsed[i][0];
                 // Extract the value - 2nd element of each row 
                 var value = parseFloat(parsed[i][1]);
-
+                
                 // Set the mutual information for this layer against the 
                 // focus layer.
-                layers[compare_layer_name].mutual_information = value;
+                layers[compare_layer_name].correlation = value;
             }
 
             // Now we're done getting the MIs, update the UI
@@ -30,6 +30,10 @@ var app = app || {}; // jshint ignore:line
         var text = 'Stats w/layout by ' + corr + ' with: ' + focus_attr
         Session.set('sort', {text: text, type: type});
         update_browse_ui();
+        update_shortlist_ui();
+    }
+
+    function getNonPrecomputedStats () {
     }
 
     get_layout_aware_stats = function (layout_index, focus_attr, anticorrelated) {
@@ -41,22 +45,38 @@ var app = app || {}; // jshint ignore:line
         // All layout-aware stats values are stored in files of the format
         // "layer_<layer_index>_<layout_index>_rstats.tab".
 
-        // For testing, lets assume this is a user-created attribute
-        //if (layers[focus_attr].selection) {
+        if (layers[focus_attr].selection) {
 
-        var layer_names = ctx.bin_layers;
+            // This is a user-created attribute or a request because
+            // the stats were not precomputed
 
-        if (true) {
-            // This is a user-created attribute
-            Meteor.call('statsSortLayoutLayer',
-                focus_attr,
-                ctx.layer_names_by_index.indexOf(focus_attr),
-                layout_index,
-                ctx.project,
+            // Set up the parameters
+            var parm = {
+                layerA: focus_attr,
+                layerIndex: ctx.layer_names_by_index.indexOf(focus_attr),
+                layout: layout_index,
+                directory: ctx.project,
+                statsLayers: ctx.bin_layers,
+            };
+
+            // Set up the dynamic attr data parameters
+            parm.dynamicData = {};
+            for (var i = 0; i < ctx.bin_layers.length; i++) {
+                layer = ctx.bin_layers[i];
+                if (layers[layer].selection) {
+                    parm.dynamicData[layer] = layers[layer].data;
+                }
+            }
+
+            var layer_names = ctx.bin_layers;
+
+            Meteor.call('pythonCall', 'statsSortLayoutLayer', parm,
                 function (err, response) {
                     // TODO handle error
-                    rank_query(layer_names, JSON.parse(response), focus_attr,
-                        anticorrelated);
+
+                    // Handle the response
+                    rank_query(layer_names, JSON.parse(response), focus_attr, anticorrelated);
+                    //console.log(response)
                 }
             );
         } else {
@@ -73,7 +93,7 @@ var app = app || {}; // jshint ignore:line
 
                 if (fileNotFound(parsed[0][0])) {
                     if (query_type === 'rank') {
-                        complain("Layout Aware (region-based) Stats Were Not Pre-Computed!");
+                        complain("Layout Aware Stats Were Not Pre-Computed, computing stats for this layer now.");
                     }
                     return;
                 }

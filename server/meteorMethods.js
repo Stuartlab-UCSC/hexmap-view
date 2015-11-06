@@ -4,14 +4,17 @@ var Future = Npm.require('fibers/future');
 
 Meteor.methods({
 
-    statsSortLayoutLayer: function (layer_name, layerIndex, layout, directory) {
+    pythonCall: function (pythonCallName, parms) {
         this.unblock();
         var future = new Future();
-        var command = 'python /Users/swat/dev/hexagram/server/statsSortLayoutLayer.py '
-            + layer_name + ' '
-            + layerIndex + ' '
-            + layout + ' '
-            + directory;
+
+        var command =
+            'python /Users/swat/dev/hexagram/server/'
+            + pythonCallName
+            + ".py '"
+            + JSON.stringify({parm: parms})
+            + "'";
+
         exec(command, function(error, stdout, stderr) {
             if (error){
                 console.log(error);

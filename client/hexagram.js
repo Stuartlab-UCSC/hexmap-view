@@ -27,16 +27,6 @@ var shortlist_ui = {};
 // Records number of comparison-stats clicks
 var comparison_stats_clicks = 0;
 
-// Records the Mutual Information Value from Query
-var mutual_information_value = 0;
-
-// Records Layer by which Mutual Information is ranked
-var mutual_information_sorted_against = [];
-
-// Records whether mutual information is filtered. TODO: We need a better way to
-// keep track of stats state for recomputing on layout change!
-//var mutual_information_filtered = undefined; // unused
-
 // Records Stats Value from Query
 var stats_value = 0;
 
@@ -402,11 +392,20 @@ function add_layer_data(layer_name, data, attributes) {
         // Copy over each specified attribute
         layers[layer_name][name] = attributes[name];
     }
+
+    if (replacing) {
+
+        // We want to remove it from the appropriate data type list
+        removeFromDataTypeList(layer_name);
+        Session.set('sort', ctx.defaultSort());
+    } else {
     
-    if(!replacing) {
         // Add it to the sorted layer list, since it's not there yet.
         ctx.layer_names_sorted.push(layer_name);
     }
+
+    // Add this layer to the appropriate data type list
+    addToDataTypeList(layer_name, data);
 
     // Don't sort because our caller does that when they're done adding layers.
 }
@@ -741,9 +740,11 @@ function make_shortlist_ui(layer_name) {
 		        refresh();
 		    }
 
-			// Remove from layers list as well
+			// Remove from layers lists and data type list
 			ctx.layer_names_sorted.splice(ctx.layer_names_sorted.indexOf(layer_name), 1);
 			delete layers[layer_name];
+            removeFromDataTypeList(layer_name);
+            Session.set('sort', ctx.defaultSort());
 
 			// Alter "keep" property of the created attribute
 			for (var i = 0; i < ctx.created_attr.length; i++) {
@@ -1496,14 +1497,14 @@ function layer_sort_order_common(a, b) {
     // on the name.
     return a.localeCompare(b);
 }
-function layer_sort_order_mutual_information(a, b) {
+function layer_sort_order_stats_layout(a, b) {
     // A sort function defined on layer names.
     // Return <0 if a belongs before b, >0 if a belongs after
     // b, and 0 if their order doesn't matter.
     
-    // Sort by selection status, then mutual information, then clumpiness, then (for binary
-    // layers that are not selections) the frequency of the less common value,
-    // then alphabetically by name if all else fails.
+    // Sort by selection status, then correlation, then clumpiness, then
+    // (for binary layers that are not selections) the frequency of the less
+    // common value, then alphabetically by name if all else fails.
 
     // Note that we can consult the layer metadata "n" and "positives" fields to
     // calculate the frequency of the least common value in binary layers,
@@ -1517,16 +1518,16 @@ function layer_sort_order_mutual_information(a, b) {
         return 1;
     }
 
-    if(layers[a]["mutual_information"] > layers[b]["mutual_information"]) {
+    if(layers[a]["correlation"] > layers[b]["correlation"]) {
         // a has a greater mutual info value, so put it first.
         return -1;
-    } else if(layers[b]["mutual_information"] > layers[a]["mutual_information"]) {
+    } else if(layers[b]["correlation"] > layers[a]["correlation"]) {
         // b has a greater mutual info value. Put it first instead.
         return 1;
-    } else if(isNaN(layers[b]["mutual_information"]) && !isNaN(layers[a]["mutual_information"])) {
+    } else if(isNaN(layers[b]["correlation"]) && !isNaN(layers[a]["correlation"])) {
         // a has a mutual info value and b doesn't, so put a first
         return -1;
-    } else if(!isNaN(layers[b]["mutual_information"]) && isNaN(layers[a]["mutual_information"])) {
+    } else if(!isNaN(layers[b]["correlation"]) && isNaN(layers[a]["correlation"])) {
         // b has a mutual info value and a doesn't, so put b first.
         return 1;
     }
@@ -1534,14 +1535,14 @@ function layer_sort_order_mutual_information(a, b) {
     return layer_sort_order_common(a, b);
 }
 
-function layer_sort_order_mutual_information_negative(a, b) {
+function layer_sort_order_stats_layout_negative(a, b) {
     // A sort function defined on layer names.
     // Return <0 if a belongs before b, >0 if a belongs after
     // b, and 0 if their order doesn't matter.
     
-    // Sort by selection status, then mutual information, then clumpiness, then (for binary
-    // layers that are not selections) the frequency of the less common value,
-    // then alphabetically by name if all else fails.
+    // Sort by selection status, then correlation, then clumpiness, then
+    // (for binary layers that are not selections) the frequency of the less
+    // common value, then alphabetically by name if all else fails.
 
     // Note that we can consult the layer metadata "n" and "positives" fields to
     // calculate the frequency of the least common value in binary layers,
@@ -1557,16 +1558,16 @@ function layer_sort_order_mutual_information_negative(a, b) {
     }
 
     // By mutual information
-    if(layers[a]["mutual_information"] > layers[b]["mutual_information"]) {
+    if(layers[a]["correlation"] > layers[b]["correlation"]) {
         // a has a lesser mutual info value, so put it first.
         return 1;
-    } else if(layers[b]["mutual_information"] > layers[a]["mutual_information"]) {
+    } else if(layers[b]["correlation"] > layers[a]["correlation"]) {
         // b has a lesser mutual info value. Put it first instead.
         return -1;
-    } else if(isNaN(layers[b]["mutual_information"]) && !isNaN(layers[a]["mutual_information"])) {
+    } else if(isNaN(layers[b]["correlation"]) && !isNaN(layers[a]["correlation"])) {
         // a has a mutual info value and b doesn't, so put a first
         return -1;
-    } else if(!isNaN(layers[b]["mutual_information"]) && isNaN(layers[a]["mutual_information"])) {
+    } else if(!isNaN(layers[b]["correlation"]) && isNaN(layers[a]["correlation"])) {
         // b has a mutual info value and a doesn't, so put b first.
         return 1;
     }
@@ -1585,10 +1586,10 @@ function sort_layers(layer_array) {
     if (layer_array.length === 0) return;
 
 	if (type_value == "region-based-positive") {
-    	layer_array.sort(layer_sort_order_mutual_information);
+    	layer_array.sort(layer_sort_order_stats_layout);
 
     } else if (type_value == "region-based-negative") {
-        layer_array.sort(layer_sort_order_mutual_information_negative);
+        layer_array.sort(layer_sort_order_stats_layout_negative);
 
 	} else {
         // The default sort
@@ -1659,7 +1660,7 @@ fill_layer_metadata = function (container, layer_name) {
             outside_yes: "Ones in background",
             clumpiness: "Density score",
             p_value: "P-value",
-            mutual_information: "Correlation",
+            correlation: "Correlation",
         }
         
         if(lookup[attribute]) {
@@ -2095,8 +2096,6 @@ select_list = function (to_select, function_type, layer_names, new_layer_name, s
     });
 	return (new_layer_name);
 }
-// TODO use find_polygons_in_rectangle & select_rectangle
-// in coords.js & select.js
 
 find_polygons_in_rectangle = function (start, end) {
     // Given two Google Maps LatLng objects (denoting arbitrary rectangle 
@@ -2145,35 +2144,24 @@ find_polygons_in_rectangle = function (start, end) {
     return in_box;
 }
 
-select_rectangle = function (start, end) {
-    // Now we have an array of the signatures that ought to be in the selection
-    // (if they pass filters). Hand it off to select_list.
-    var in_box = find_polygons_in_rectangle(start, end),
-        select_function_type = "user selection";
-    select_list(in_box, select_function_type);
-    
-}
-
 clear_current_stats_values = function  () {
 	// For a specific layer, delete all stats values:
-	// density, p_value, r_value, mutual_information.
+	// density, p_value, r_value, correlation.
     for(var layer_name in layers) {
 		delete layers[layer_name].clumpiness;
     	delete layers[layer_name].r_value;
         delete layers[layer_name].p_value;
-        delete layers[layer_name].mutual_information;
+        delete layers[layer_name].correlation;
      }
-	Session.set('sort', state.defaultSort());
-	update_browse_ui();	
+	Session.set('sort', ctx.defaultSort());
+	update_browse_ui();
+    update_shortlist_ui();
 }
 
-function get_current_layout_index (layout_name, recompute_stats) {
+function get_current_layout_index (layout_name) {
 	// Parse the File "matrixnames.tab". Each layout is listed in the file's
 	// first column. Extract these in an array and search for the 
 	// layout_name. Return the index at which this layout name sits.
-
-	// recompute_stats is a boolean variable, when true the function
-	// will call the get_mutual_information_statisics function
 
 	var layout_index;
 	$.get(ctx.project + "matrixnames.tab", function(tsv_data) {
@@ -2187,12 +2175,7 @@ function get_current_layout_index (layout_name, recompute_stats) {
 	}, "text")
 	.done(function() {
 		current_layout_index = layout_index;
-		if (recompute_stats == true) {
-		    // We need to re-run stats given this new layout. Go grab our global variables where we kept what stats we ran.
-		    // TODO: Fix this to not be terrible.
-			// TODO mutual_information_sorted_against is always an empty array
-			//get_mutual_information_statistics (current_layout_index, mutual_information_sorted_against, 'rank', mutual_information_filtered);
-		}
+        // TODO recompute any stats sort that was in effect for the last layout
 	})
  	.fail(function() {
 		alert("Error Determining Selected Layout Index");
@@ -3453,7 +3436,7 @@ initHex = function () {
 		// If currently sorted by mutual information, the mutual information
 		// values must be added for the specific layout and must be resorted.
 		// Function will update current_layout_index & reextract stats if needed
-		get_current_layout_index (layout_name, ctx.mutual_information_ranked);
+		get_current_layout_index (layout_name);
         
 		re_initialize_view();
     });

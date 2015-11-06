@@ -9,8 +9,11 @@ PAGE = 'homePage';
     //'use strict';
 
     var DEFAULT_PROJECT = 'data/pancan12/first/',
-        DEFAULT_SORT_TEXT = 'Density of attributes',
-        DEFAULT_SORT = {text: 'Density of attributes', type: 'default'},
+        DEFAULT_SORT = {
+            text: 'Density of attributes',
+            type: 'default',
+            focus_attr: null,
+        },
         urlProject = null,
         proxPre,
         localStorageName;

@@ -2,58 +2,70 @@
     <form id="sort-attributes-dialog" style='display:none'>
         <table>
             <tr>
-                <td class='dialog-label'>
-                    Focus attribute:
-                </td>
-                <td class='dialog-value'>
-                    <select class="list"></select>
-                </td>
-            </tr>
-            <tr>
                 <td class='dialog-label' style='vertical-align:top'>
-                    Sort attributes as:
+                    Sort by:
                 </td>
                 <td class='dialog-value'>
-                    <label>
-                        <input type='radio' name='region-sample-based' id='sample-based' value='sample-based' checked='checked'/>
-                        Layout independent (sample-based)
-                    </label><br>
                      <label>
-                        <input type='radio' name='region-sample-based' id='region-based' value='region-based' />
-                        Layout aware (region-based)
+                        <input type='radio' name='sortBy' id='sortByFocus' value='sortByFocus' checked='checked' />
+                        Focus attribute
+                    </label>
+                    <br>
+                    <label>
+                        <input type='radio' name='sortBy' id='sortByDensity' value='sortByDensity' />
+                        Density of attributes
                     </label>
                 </td>
             </tr>
-            <tr style='display:none'>
-                <td class='dialog-label' style='vertical-align:top'>
-                    Include attributes that are:
+            <tr>
+                <td class='dialog-label based' style='vertical-align:top'>
+                    Layout:
+                </td>
+                <td class='dialog-value'>
+                    <input type="radio" class='based' name="region-sample-based" id="sample-based" value="sample-based" checked='checked' />
+                    <label for="sample-based" class='based'>Ignore layout</label><br/>
+                    <input type="radio" class='based'  name="region-sample-based" id="region-based" value="region-based" />
+                    <label for="region-based" class='based'>Layout aware</label>
+                </td>
+            </tr>
+            <tr>
+                <td class='dialog-label corr' style='vertical-align:top'>
+                    Correlation:
+                </td>
+                <td class='dialog-value'>
+                    <input type="radio" class='corr' name="corr" id="corr-pos" value="positive" />
+                    <label for="corr-pos" class='corr'>Positive</label><br/>
+                    <input type="radio" class='corr' name="corr" id="corr-neg" value="negative" />
+                    <label for="corr-neg" class='corr'>Negative</label>
+                </td>
+            </tr>
+            <tr>
+                <td class='dialog-label bin' style='vertical-align:top'>
+                    Include attributes:
                 </td>
                 <td class='dialog-value'>
                     <input class='bin' type="checkbox" />
-                    <label for='bin' class='bin-label'>
+                    <label for='bin' class='bin-label bin'>
                         Labels (yes/no)
                     </label>
                     <br>
                     <input class='cat' type="checkbox" />
-                    <label for='cat' class='cat-label'>
+                    <label for='cat' class='cat-label cat'>
                         Categories
                     </label>
                     <br>
                     <input class='cont' type="checkbox" />
-                    <label for='cont' class='cont-label'>
+                    <label for='cont' class='cont-label cont'>
                         Numeric
                     </label>
                </td>
             </tr>
             <tr>
-                <td class='dialog-label corr-label' style='vertical-align:top'>
-                    Correlation:
+                <td class='dialog-label focus_attr'>
+                    Focus attribute:
                 </td>
                 <td class='dialog-value'>
-                    <input type="radio" name="corr" id="corr-pos" value="positive" />
-                    <label for="corr-pos" class='corr-pos-label'>Positive</label><br/>
-                    <input type="radio" name="corr" id="corr-neg" value="negative" />
-                    <label for="corr-neg" class='corr-neg-label'>Negative</label>
+                    <div class='list focus_attr'></div>
                 </td>
             </tr>
         </table>

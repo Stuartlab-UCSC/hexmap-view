@@ -161,6 +161,7 @@ var app = app || {}; // jshint ignore:line
         // Because we have a wrap-around map, the lng bounds
         // are always -180:180 for getBounds().
         return find_polygons_in_rectangle(rect.getSouthWest(), rect.getNorthEast());
+        // TODO replace this call with the better one in select.js
     }
 
     findPolygonExtents = function (googlePolygonKeys, xyMapSize) {

@@ -1,12 +1,12 @@
-// assocStats.js
-// This contains the logic for retrieving the association stats
+// statsSort.js
+// The logic for retrieving the sort attribute stats ignoring layout.
 
 var app = app || {}; // jshint ignore:line
 
 (function (hex) { // jshint ignore:line
     //'use strict';
 
-    get_association_stats_values = function (layer_name, binary, categorical) {
+    getSortStats = function (layer_name, binary, categorical) {
         // @param layer_name: the focus attribute
         // @param binary: true: compare focus attr against binary attrs, false: not
         // @param categorical: true: compare focus attr against categorical attrs, false:not
@@ -45,7 +45,6 @@ var app = app || {}; // jshint ignore:line
 
             if (fileNotFound(parsed[0][0])) {
                 complain("Layout independent (Sample-based) stats were not precomputed!");
-                ctx.mutual_information_ranked = false;
                 return;
             }
 
@@ -66,12 +65,11 @@ var app = app || {}; // jshint ignore:line
                 {text: "Stats w/out layout by: " + layer_name, type: 'default'})
             update_browse_ui();
             update_shortlist_ui();
-            ctx.mutual_information_ranked = false;
         }, "text");
     }
 })(app);
 
-    //function get_association_stats_values(layer_name, single_stat, drop_down_val, layer_names) {
+    //function getSortStats(layer_name, single_stat, drop_down_val, layer_names) {
         // @param layer_name: the focus attribute name
         // @param single_stat: true: requesting only one value from the query, false: more values
         //                     Currently unused.
@@ -131,7 +129,6 @@ var app = app || {}; // jshint ignore:line
                     {text: "Stats w/layout in terms of: " + layer_name, 
                     type: "r_value"})
                     update_browse_ui();
-                    ctx.mutual_information_ranked = false;
 
                 })
                 .fail(function() {

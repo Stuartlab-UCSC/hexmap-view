@@ -23,8 +23,8 @@ import time, socket
 from types import *
 import os.path
 import tsv, csv, json
-from sampleBaseStats import sample_based_statistics
-from regionBaseStats import region_based_statistics
+from statsSort import statsSort
+from statsSortLayout import statsSortLayout
 import pool
 
 def timestamp():
@@ -580,7 +580,9 @@ def determine_layer_data_types (layers, layer_names, options):
     data type. For the moment, there will only be arrays for binary,
     continuous, and categorical variables. 
     """
-    # For the moment, we are only going to worry about single layouts. 
+    # For the moment, we are only going to worry about single layouts.
+    # TODO do other layouts matter? Will the data type be the same attributes
+    # across layouts?
     hex_dict_num = 0
 
     # Retrieve the hexagon names from the appropriate hexagon dictionary
@@ -1641,15 +1643,15 @@ def hexIt(options):
     
     # Run sample-based stats
     if options.associations == True:
-        sample_based_statistics(layers, layer_names, ctx, options)
+        statsSort(layers, layer_names, ctx, options)
     else:
-        print 'Skipping association (sample-based) stats'
+        print 'Skipping sort stats withou layout (sample-based)'
 
     # Run region-based stats
     if options.mutualinfo == True:
-        region_based_statistics(options.directory, layers, layer_names, nodes_multiple, ctx, options)
+        statsSortLayout(options.directory, layers, layer_names, nodes_multiple, ctx, options)
     else:
-        print 'Skipping mutual information (region-based) stats'
+        print 'Skipping sort stats with layout (region-based)'
 
     print timestamp(), "Visualization generation complete!"
 

@@ -282,7 +282,7 @@ def find_means (layers, stats_layers, hex_names, sctx):
 
     return False
 
-def sample_based_statistics(layers, layer_names, ctx, options):
+def statsSort(layers, layer_names, ctx, options):
     """
     The tool will deploy the appropriate association stat test on each
     array of layers. These tools will compute the correlation values between pairs

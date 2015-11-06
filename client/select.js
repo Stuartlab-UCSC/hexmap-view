@@ -71,7 +71,9 @@ var app = app || {}; // jshint ignore:line
         });
     }
 
-    function findHexagonsInSelection () {
+    function findHexagonsInPolygon () {
+        // TODO use this routine instead of find_polygons_in_rectangle
+        // everywhere else
 
         // Select the hexagons that are contained within the given polygon.
         var inSelection = _.filter(get_polygons(), function(hex) {
@@ -158,7 +160,7 @@ var app = app || {}; // jshint ignore:line
 
          // Create a selection polygon & find the hexagons in it
          setCursor(savedCursor);
-         findHexagonsInSelection();
+         findHexagonsInPolygon();
 
         // Remove the bounding polygons and reset the hover curser for hexagons
         shape.setMap(null);

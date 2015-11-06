@@ -289,19 +289,24 @@ def normalized_pearson_statistics(layers, layerNames, nodes_multiple, ctx, optio
 
         print 'Starting to build', pairCount, 'layer pairs...'
 
-        # Create the stats options
-        sOpts = {
+        # Create the stats parameters
+        parm = {
             'alg': 'layoutBinaryPearson',
             'directory': options.directory,
+            'layers': layers,
             'layout': str(layout),
-            'writeFile': 'yes',
+            'statsLayers': ctx.binary_layers,
+            'windowAdditives': C2,
+            'windowNodes': C,
+            'writeFile': True,
         }
 
         # Handle the stats for each layer, in parallel
-        allLayers = [ForEachLayer(
-            layerA, layerNames.index(layerA), ctx.binary_layers, layers, C, C2, sOpts)
-            #for layerA in ['TP53_mutated']]
-            for layerA in ctx.binary_layers]
+        allLayers = []
+        for layer in parm['statsLayers']:
+            parm['layerA'] = layer
+            parm['layerIndex'] = layerNames.index(layer)
+            allLayers.append(ForEachLayer(parm))
 
         print pool.hostProcessorMsg()
         print len(ctx.binary_layers), 'subprocesses to run.'
@@ -310,7 +315,7 @@ def normalized_pearson_statistics(layers, layerNames, nodes_multiple, ctx, optio
 
         print timestamp(), 'Stats complete for layout:', layout
 
-def region_based_statistics(directory, layers, layerNames, nodes_multiple, ctx, options):
+def statsSortLayout(directory, layers, layerNames, nodes_multiple, ctx, options):
     print timestamp(), "Running region-based statistics..."
     normalized_pearson_statistics(layers, layerNames, nodes_multiple, ctx, options)
     print timestamp(), "Region-based statistics complete"
