@@ -669,7 +669,7 @@ def open_matrices(names):
     # For each file name, open the file and add it to the matrices list
     # 'r' is the argument stating that the file will be read-only
     for i, similarity_filename in enumerate(names):
-        print "Opening Matrix {}...".format(i)
+        print 'Opening Matrix', i, similarity_filename
         matrix_file = tsv.TsvReader(open(similarity_filename, "r"))
         ctx.matrices.append(matrix_file)
 

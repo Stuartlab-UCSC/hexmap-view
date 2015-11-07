@@ -76,14 +76,6 @@ Read as "The content row", distinct from whatever else that element might be.
     z-index: 1;
 }
 
-.error.row{
-    height: 2em;
-    top: 0;
-    border-bottom: 1px solid black;
-    background: #F7EFAD;
-    z-index: 101;
-    display: none;
-}
 .dialog-label,
 .dialog-value {
 	text-align: right;

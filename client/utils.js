@@ -6,6 +6,30 @@ var app = app || {}; // jshint ignore:line
 (function (hex) { // jshint ignore:line
     //'use strict';
 
+    banner = function (type, text) {
+
+        if (type === 'error') {
+            // Let's do a more obnoxious alert for real errors
+            $("#banner").hide();
+            alert(text);
+        } else {
+
+            // Display a temporary message to the user on a banner.
+            $("#banner")
+                .removeClass('info warn error')
+                .addClass(type)
+                .text(text)
+                .show()
+                .delay(1250)
+                .fadeOut(1500);
+        }
+        if (console) {
+
+            // Also inform the browser console of this issue.
+            console.log(text);
+        }
+    }
+
     tsvParseRows = function (tsv_data) {
 
         // Even though the retrieved file has no new line or carriage return,

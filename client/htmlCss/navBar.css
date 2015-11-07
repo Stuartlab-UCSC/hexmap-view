@@ -38,12 +38,30 @@
     line-height: 24px;
 }
 
-#error-notification {
-    color: red;
+#banner.row {
+    position: fixed;
+    top: 0;
+    height: 2.5em;
+    line-height: 2.5em;
     font-weight: bold;
     text-align: center;
     margin-left: 0.5em;
-    line-height: 2em;
-    height: 2em;
+    z-index: 101;
+    display: none;
+}
+
+#banner.info.row {
+    background: #D8EECE;
+    color: #2E662C;
+}
+
+#banner.warn.row {
+    background: #F9F5D9;
+    color: #775B2A;
+}
+
+#banner.error.row {
+    background: #EDD4D5;
+    color: #993031;
 }
 

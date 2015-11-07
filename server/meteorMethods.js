@@ -15,10 +15,9 @@ Meteor.methods({
             + JSON.stringify({parm: parms})
             + "'";
 
-        exec(command, function(error, stdout, stderr) {
-            if (error){
-                console.log(error);
-                throw new Meteor.Error(500, command + " failed");
+        exec(command, function (error, stdout, stderr) {
+            if (error !== null) {
+                console.log('exec error: ' + error);
             }
             future.return(stdout.toString());
         });

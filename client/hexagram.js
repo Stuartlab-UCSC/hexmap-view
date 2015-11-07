@@ -109,17 +109,6 @@ print = function (text) {
     }
 }
 
-complain = function (text) {
-    // Display a temporary error message to the user.
-    $("#error-notification").text(text);
-    $(".error").show().delay(1250).fadeOut(1500);
-
-    if(console && console.error) {
-        // Inform the browser console of this problem.
-        console.error(text);
-    }
-}
-
 function make_hexagon(row, column, hex_side_length, grid_offset) {
     // Make a new hexagon representing the hexagon at the given grid coordinates.
     // hex_side_length is the side length of hexagons in Google Maps world 
@@ -2223,7 +2212,7 @@ function recalculate_statistics(passed_filters) {
         layer_b_name);
     
     if(!layer_a_name) {
-        complain("Can't run statistics without an \"A\" group.");
+        banner("error", "Can't run statistics without an \"A\" group.");
         
         // Get rid of the throbber
         // TODO: Move this UI code out of the backend code.
@@ -2249,7 +2238,7 @@ function recalculate_statistics(passed_filters) {
     }
     
     if(in_list.length == 0) {
-        complain("Can't run statistics with an empty \"A\" group.");
+        banner("error", "Can't run statistics with an empty \"A\" group.");
         
         // Get rid of the throbber
         // TODO: Move this UI code out of the backend code.
@@ -2367,7 +2356,7 @@ function recalculate_statistics_for_layer(layer_name, in_list, out_list, all) {
         // Skip it here.
     } else {
         // Layer has no data and no way to get data. Should never happen.
-        complain("Layer " + layer_name + " has no data and no url.");
+        banner("error", "Layer " + layer_name + " has no data and no url.");
     }
 }
 

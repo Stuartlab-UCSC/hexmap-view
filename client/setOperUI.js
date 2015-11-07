@@ -417,7 +417,7 @@ var app = app || {}; // jshint ignore:line
                     compute_absolute_complement(layer_values, layer_names);
                     break
                 default:
-                    complain ("Set Theory Error");
+                    banner ("Set Theory Error");
             }
             
             print (ctx.created_attr);

@@ -44,7 +44,7 @@ var app = app || {}; // jshint ignore:line
             var parsed = $.tsv.parseRows(tsv_data);
 
             if (fileNotFound(parsed[0][0])) {
-                complain("Layout independent (Sample-based) stats were not precomputed!");
+                banner("error", "Layout independent (Sample-based) stats were not precomputed!");
                 return;
             }
 
@@ -132,7 +132,7 @@ var app = app || {}; // jshint ignore:line
 
                 })
                 .fail(function() {
-                    complain("Association Stats Weren't Precomputed!");
+                    banner("error", "Association Stats Weren't Precomputed!");
                 });
             }
         }
@@ -178,7 +178,7 @@ var app = app || {}; // jshint ignore:line
 
                 })
                 .fail(function() {
-                    complain("Association Stats Weren't Precomputed!");
+                    banner("error", "Association Stats Weren't Precomputed!");
                 });
 
                 var type = "R-Coefficient: ";
@@ -208,7 +208,7 @@ var app = app || {}; // jshint ignore:line
 
                 })
                 .fail(function() {
-                    complain("Association Stats Weren't Precomputed!");
+                    banner("error", "Association Stats Weren't Precomputed!");
                 });
 
                 var type = "P-Value: ";

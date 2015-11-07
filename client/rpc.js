@@ -1,7 +1,7 @@
 // rpc.js
 // Remote procedure calls / web workers.
 
-/* global $, complain, print, Worker */
+/* global $, banner, print, Worker */
 
 var app = app || {}; // jshint ignore:line
 
@@ -244,7 +244,7 @@ initRpc = null; // jshint ignore:line
         // See http://www.whatwg.org/specs/web-apps/current-work/multipage/workers.h
         // tml#errorevent
 
-        complain("Web Worker error: " + error.message); // TODO
+        banner("error", "Web Worker error: " + error.message); // TODO
         print(error.message + "\n at" + error.filename + " line " + error.lineno +
                 " column " + error.column); // TODO
     };
