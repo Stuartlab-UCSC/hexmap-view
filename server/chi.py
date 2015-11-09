@@ -17,7 +17,7 @@ def significantDigits(x, sig=6):
     format = "%." + str(sig-1) + "e"
     return float(format % x)
 
-def chi (args):
+def innerChi (args):
     """
     This tool will create contingency tables depending on the layer counts
     and then utilize these contingency tables to compute a chi-squared p-value.
@@ -37,14 +37,12 @@ def chi (args):
     args[4] = 'file_index' - index to assign to file for writing purposes
     """
 
-    #print 'chi subprocess_string:', args[2]
-    
     # Parse the directory to which files will be written
     temp_dir = args[1]
     working_dir = args[3]
     file_index = args[4]
 
-    # Split string into array of array of values, where each element in the 
+    # Split string into array of array of values, where each element in the
     # array list is a string of four values, separated by commas
     # comparison_values_separated is an array of arrays such that:
     # [ [layer1, layer2, chi2_layer1, chi2_layer2],
@@ -54,8 +52,6 @@ def chi (args):
     comparison_indices_separated = []
     for i in comparisons:
         comparison_indices_separated.append(i.split(","))
-
-    #print 'comparison_indices_separated', comparison_indices_separated
 
     # Determine the stats layer indices and global layer indices, building a
     # list of stats layer indices and a look-up dictionary of global layer
@@ -91,7 +87,7 @@ def chi (args):
                 layers[lx][data_row[0]] = int(float(data_row[1]))
             l_reader.close()
         except:
-            # There may not be a layer if TODO
+            # There may not be a layer if it has not values
             unreadable_files.add(glx)
 
     if len(list(unreadable_files)) > 0:
@@ -188,8 +184,11 @@ def chi (args):
 
     return 0
 
+def chi(temp_dir, subprocess_string, optionsDirectory, fileIndex): # TODO
+    return innerChi(['chi.py', temp_dir, subprocess_string, optionsDirectory, fileIndex])
+
 def main(args):
-    return chi(args)
+    return innerChi(args)
 
 if __name__ == "__main__" :
     try:

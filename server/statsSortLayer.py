@@ -1,7 +1,7 @@
 #!/usr/bin/env python2.7
 """
-statsSortLayoutLayer.py
-Object for generating one layer's stats for layout-aware sort stats
+statsSortLayer.py
+Object for generating one layer's sort stats for layout-aware & layout-ignore
 """
 
 import sys, os, argparse, json, pool, copy, csv, traceback, pprint
@@ -24,7 +24,7 @@ class ForEachLayer(object):
         # Build the output filename for precomputed stats
         if 'writeFile' in parm:
             suffix = '_' + parm['layout'] + '_rstats.tab'
-            filename = 'layer_' + str(layerAindex) + suffix
+            filename = 'layer_' + str(parm['layerIndex']) + suffix
             s.file = os.path.join(parm['directory'], filename)
 
         # Required parameters
@@ -99,10 +99,16 @@ class ForEachLayer(object):
         # Compare each layer against the given layer
         response = []
         for layerB in s.statsLayers:
-            if s.layerA == layerB: continue
+            if s.layerA == layerB: continue  # TODO may not work with layout-ignore
 
-            # Call the appropriate function depending on layout-aware or not
+
+
+
+            # Call the appropriate function
             val = eval('s.' + s.alg)(s, layerB)
+
+
+
 
             # Add a line for the stats result with this other layer
             line = [layerB, significantDigits(val)]
@@ -188,12 +194,9 @@ def dynamicStats(parm):
                 for i, line in enumerate(f.__iter__()):
                     layers[layerName][line[0]] = float(line[1])
 
-    parm['layers'] = layers
-
-    # Complete the ppoulating the parms for layout-aware
+    # Complete populating the parms for layout-aware
     if 'layout' in parm:
         layoutStats(parm)
-        #parm = layoutStats(parm)
 
     # Create an instance of ForEachLayer and call it
     oneLayer = ForEachLayer(parm)

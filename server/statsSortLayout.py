@@ -12,7 +12,7 @@ import os.path
 import tsv, csv, json
 import pool
 from math import log10, floor
-from statsSortLayoutLayer import ForEachLayer
+from statsSortLayer import ForEachLayer
 
 
 PSEUDOCOUNT = 5

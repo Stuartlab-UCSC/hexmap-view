@@ -83,7 +83,7 @@ var app = app || {}; // jshint ignore:line
 
         var layer_names = ctx.bin_layers; // TODO handle more when ignoring layout
 
-        Meteor.call('pythonCall', 'statsSortLayoutLayer', parm,
+        Meteor.call('pythonCall', 'statsSortLayer', parm,
             function (error, result) {
                 if (result.slice(0,5) === 'Error') {
                     banner('error', result);
@@ -104,7 +104,7 @@ var app = app || {}; // jshint ignore:line
 
             if (fileNotFound(parsed[0][0])) {
                 banner('info', 'Statistics were not pre-computed for '
-                    + focus_attr + ' computing now...');
+                    + focus_attr + '. Just a moment...');
                 getNonPrecomputedStats(focus_attr, opts);
                 return;
             }
