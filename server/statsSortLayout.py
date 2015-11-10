@@ -286,7 +286,6 @@ def normalized_pearson_statistics(layers, layerNames, nodes_multiple, ctx, optio
 
         # The number of pairs to compare without compare to self
         pairCount = len(ctx.binary_layers) ** 2 - len(ctx.binary_layers)
-
         print 'Starting to build', pairCount, 'layer pairs...'
 
         # Create the stats parameters
@@ -309,7 +308,7 @@ def normalized_pearson_statistics(layers, layerNames, nodes_multiple, ctx, optio
             allLayers.append(ForEachLayer(parm))
 
         print pool.hostProcessorMsg()
-        print len(ctx.binary_layers), 'subprocesses to run.'
+        print len(ctx.binary_layers), 'subprocesses to run, one per layer.'
 
         pool.runSubProcesses(allLayers)
 

@@ -4,9 +4,10 @@ statsSortLayer.py
 Object for generating one layer's sort stats for layout-aware & layout-ignore
 """
 
-import sys, os, argparse, json, pool, copy, csv, traceback, pprint
+import sys, os, json, copy, csv, numpy, traceback
 import scipy.stats
-from math import log10, floor
+import tsv
+from chi import chi2onePair
 
 def significantDigits(x, sig=6):
 
@@ -21,12 +22,6 @@ class ForEachLayer(object):
 
     def __init__(s, parm):
 
-        # Build the output filename for precomputed stats
-        if 'writeFile' in parm:
-            suffix = '_' + parm['layout'] + '_rstats.tab'
-            filename = 'layer_' + str(parm['layerIndex']) + suffix
-            s.file = os.path.join(parm['directory'], filename)
-
         # Required parameters
         s.alg = parm['alg']
         s.directory = parm['directory']
@@ -34,15 +29,32 @@ class ForEachLayer(object):
         s.layers = parm['layers']
         s.statsLayers = parm['statsLayers']
 
-        # Dynamic focus attribute options
-        if 'layerFiles' in parm:
-            s.layerFiles = parm['layerFiles']
+        if 'layout' in parm:
 
-        # Layout-aware options:
-        if 'windowAdditives' in parm:
-            s.windowAdditives = parm['windowAdditives']
-        if 'windowNodes' in parm:
-            s.windowNodes = parm['windowNodes']
+            # Layout-aware options:
+            if 'windowAdditives' in parm:
+                s.windowAdditives = parm['windowAdditives']
+            if 'windowNodes' in parm:
+                s.windowNodes = parm['windowNodes']
+            if 'writeFile' in parm:
+                suffix = '_' + parm['layout'] + '_rstats.tab'
+                filename = 'layer_' + str(parm['layerIndex']) + suffix
+                s.file = os.path.join(parm['directory'], filename)
+        else:
+            # Layout-ignore options:
+            s.hexNames = parm['hexNames']
+            s.layerNames = parm['layerNames']
+            s.temp_dir = parm['temp_dir']
+            if 'writeFile' in parm:
+
+                # Pre-computed stats only need to look at stats layers after
+                # layerA, so set the layerB layers to show that
+                index = s.statsLayers.index(s.layerA)
+                s.bLayers = s.statsLayers[index:]
+                s.file = os.path.join(s.temp_dir, "p_val" + str(index) + ".tab")
+            else:
+                # dynamic stats, so we always want to look at all stats layers
+                s.bLayers = s.statsLayers
 
     @staticmethod
     def pearsonOnePair(A, B):
@@ -85,7 +97,11 @@ class ForEachLayer(object):
                     if a: A[i] += 1
                     if b: B[i] += 1
 
-        return s.pearsonOnePair(A, B)
+        return [layerB, significantDigits(s.pearsonOnePair(A, B))]
+
+    @staticmethod
+    def chi2(s, layerB):
+        return chi2onePair(s.layerA, layerB, s.layers, s.hexNames)
 
     def __call__(s):
 
@@ -99,19 +115,14 @@ class ForEachLayer(object):
         # Compare each layer against the given layer
         response = []
         for layerB in s.statsLayers:
-            if s.layerA == layerB: continue  # TODO may not work with layout-ignore
 
+            # We don't want to compare a layer to itself for layout-aware stats
+            if s.layerA == layerB and hasattr(s, 'windowNodes'): continue
 
+            # Call the appropriate function to compare layerA to layerB
+            line = eval('s.' + s.alg)(s, layerB)
 
-
-            # Call the appropriate function
-            val = eval('s.' + s.alg)(s, layerB)
-
-
-
-
-            # Add a line for the stats result with this other layer
-            line = [layerB, significantDigits(val)]
+            # Add the line for the stats result with this other layer
             if fOut is None:
 
                 # Add this line to the response array
@@ -155,6 +166,16 @@ def layoutStats(parm):
 
     #return parm
 
+def nonLayoutStats(parm):
+
+    """
+    # Parse the file containing all the hexagon names as a list.
+    h_reader = tsv.TsvReader(open(os.path.join(temp_dir, "hex_names.tab"), "r"))
+    hex_iterator = h_reader.__iter__()
+    hex_names = hex_iterator.next()
+    h_reader.close()
+    """
+
 def dynamicStats(parm):
 
     # This handles dynamic stats initiated by the client
@@ -163,6 +184,12 @@ def dynamicStats(parm):
     # TODO where do we get the directory from? rename directory to project?
     directory = '/Users/swat/dev/hexagram/public/' + parm['directory'][:-1]
     parm['directory'] = directory
+
+    # TODO? Build a layer_names list in the form:
+    # [name0, name1, name2...]
+    # So it emulates the layer_names built during viz-pre-processing.
+    # fill missing array elements with 'none' so the indexes match those of
+    # the layer_*.tab file names.
 
     # Populate the layer to file names dict by pulling the
     # layernames and base layer filenames from layers.tab
