@@ -10,34 +10,18 @@ var app = app || {}; // jshint ignore:line
     function Project() {
     };
 
-    //Project.prototype.getProjects = function () {
-        // Download Information on project directories
-    //    $.get("./getProjDirs", function(json_data) {
-    //        Project.prototype.populate(JSON.parse(json_data));
-    //    });
-    //}
-
-    Project.prototype._getProjects = function () {
-        Project.prototype._populate({
-            'pancan12': ['woutGiovanni', 'wGiovanni', 'top6', 'top10', 'first'],
-            'ynewton': ['gliomas-paper'],
-            'sokolov': ['stemness'],
-            'swat': ['tiny'],
-            'mcrchopra': ['first'],
-        });
-    };
-
-    Project.prototype._populate = function (parsed) {
+    Project.prototype._populate = function () {
         // Populate the project list.
-
-        // The data is of the form:
-        //{
-		//	public:	[proj1, proj2 ...],
-		//	dir2:	[proj3, proj4 ...],
-		//	dir2:	[proj5, proj6 ...],
-        //}
+        // The projects object is of the form:
+        //  {
+		//      user1:	[proj1, proj2 ...],
+		//      user2:	[proj3, proj4 ...],
+        //      ...
+        //  }
 		//
-        data = _.map(parsed, function (userProjs, user) {
+        var self = this;
+
+        data = _.map(self.projects, function (userProjs, user) {
             return {
                 text: user,
                 children: _.map(userProjs, function (proj) {
@@ -61,22 +45,18 @@ var app = app || {}; // jshint ignore:line
                 queryFreeReload();
        });
 
-        // Is the context project a valid project?
-        var validProject = _.find(data, function (user) {
+        // Is the context project on our list?
+        var projectOnList = _.find(data, function (user) {
             var projectMatch = _.find(user.children, function (proj) {
                 var idMatch = (proj.id === ctx.project);
                 return idMatch;
             });
             return !_.isUndefined(projectMatch);
         });
-        if (validProject) {
+        if (projectOnList) {
 
             // Set the value in the select to the current project
             $('#project').select2("val", ctx.project);
-        } else {
-            alert('Sorry, "' + ctx.project + '" is not a valid project, loading the default instead.');
-            ctx.project = ctx.defaultProject();
-            queryFreeReload();
         }
 
         // Make the bottom of the list within the main window
@@ -86,15 +66,67 @@ var app = app || {}; // jshint ignore:line
         });
 	};
 
-    Project.prototype._initialize = function () {
-        // Set up the project widgets.
-        Project.prototype._getProjects();
+    Project.prototype._removeHiddenDirs = function (dirs) {
+        return _.filter(dirs, function (dir) {
+            return (dir.indexOf('.') !== 0);
+        });
+    };
+
+    var users, projects;
+
+    Project.prototype._getProjects = function (userIndex) {
+
+        // Get one user's project directory names
+        var self = this;
+
+        Meteor.call('getDataDirs', self.users[userIndex], function (error, projects) {
+            if (error) {
+                console.log('_getProjects error', error);
+                banner("error", "Unable to retrieve user's project data.\n" + error);
+            } else {
+
+                // Save the user's projects
+                var projects = self._removeHiddenDirs(projects);
+                if (projects.length > 0) {
+                    self.projects[self.users[userIndex]] = projects;
+                }
+                if (userIndex < self.users.length - 1) {
+
+                    // Go get the next user's projects
+                    self._getProjects(userIndex + 1);
+                } else {
+
+                    // Populate the project list
+                    self._populate();
+                }
+            }
+        });
+    };
+
+    Project.prototype._getUsers = function () {
+
+        // Get the user directory names
+        var self = this;
+
+        Meteor.call('getDataDirs', function (error, users) {
+            if (error) {
+                console.log('_getUsers error', error);
+                banner("error", "Unable to retrieve project data.\n" + error);
+            } else {
+
+                // Save the user array & go get her projects
+                self.users = self._removeHiddenDirs(users);
+                self.projects = {};
+                if (self.users.length > 0)
+                    self._getProjects(0);
+            }
+        });
     };
 
     initProject = function () { // jshint ignore:line
         if (DEV) {
             var project = new Project();
-            project._initialize();
+            project._getUsers();
         } else {
             $('#project')
                 .text(ctx.project.split('/').slice(-2,-1))

@@ -235,6 +235,8 @@ PAGE = 'homePage';
             page = 'mapPage';
         }
 
+        s.projectNotFoundNotified = false;
+
         Session.set('page', page);
     };
 

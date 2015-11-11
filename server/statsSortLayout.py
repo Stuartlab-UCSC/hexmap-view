@@ -248,7 +248,6 @@ def normalized_pearson_statistics(layers, layerNames, nodes_multiple, ctx, optio
         print 'No binary layers for region-based stats to process'
         return True
 
-    FIRST = True
     for layout in ctx.all_hexagons.iterkeys():
         # We look at all layouts for this.
 

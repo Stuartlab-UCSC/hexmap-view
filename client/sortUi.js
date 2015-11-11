@@ -92,7 +92,9 @@ var app = app || {}; // jshint ignore:line
         $dialog.find('.bin').attr('disabled', disabled);
         $dialog.find('.bin').css('color', color);
 
-        if (!sample_based) {
+        // TODO disable cat and cont values until they work
+        if (true) {
+        //if (!sample_based) {
 
             // Disable categorical and continuous for region-based
             disabled = true;
@@ -172,25 +174,15 @@ var app = app || {}; // jshint ignore:line
             if (!bin && !cat) {
                 alert('At least one of these must be selected:\n\n\t- '
                     + $('.bin-label').text().trim() + '\n\t- '
-                    + $('.cat-label').text().trim());
+                    + $('.cat-label').text().trim() + '\n\t- '
+                    + $('.cont-label').text().trim());
                 return;
             }
-            getSortStats(focus_attr, bin, cat);
+            get_layout_ignore_stats(focus_attr, bin, cat, cont);
 
 		} else { // region-based requested
 			get_layout_aware_stats(current_layout_index, focus_attr, corr_neg);
         }
-/*
-		// TODO give a message Check to see which radio label is selected.
-		if($("#region-based").is(":checked")) {
-			print("The Mutual Information Stats Should Load Now...");
-			clear_current_stats_values ();
-			// The function to set the mututal information stats takes
-			// the current layout index (global), the array containing
-			// the name of the focus attribute and 1 for pair ranking 
-			// (we don't want this) and 2 for sorting attributes (we want).
-		}
-*/
         destroy_dialog();
 	}
 
@@ -245,17 +237,9 @@ var app = app || {}; // jshint ignore:line
         });
 
         // Create the select2 drop-down
-        // TODO recreate the select2 or just change data?
-        // _.has(x, 'key');
         focus_attr = (focusList.indexOf(focus_attr) > -1) ? focus_attr : focusList[0];
         var opts = {data: data, minimumResultsForSearch: -1};
         createOurSelect2($list, opts, focus_attr);
-
-        /* TODO
-        $list.on("select2-selecting", function(event) {
-            focus_attr = event.val;
-        });
-        */
     }
 
     function destroy_dialog() {

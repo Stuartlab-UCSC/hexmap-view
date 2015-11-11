@@ -9,7 +9,7 @@ from statsSortLayer import ForEachLayer
 def timestamp():
     return str(datetime.datetime.now())[8:-7]
 
-def subprocessPerLayer( layers, sctx, options):
+def subprocessPerLayer(layers, layer_names, sctx, options):
 
     # Spawn the subprocesses to calculate stats for each layer
     parm = {
@@ -17,7 +17,6 @@ def subprocessPerLayer( layers, sctx, options):
         'directory': options.directory,
         'hexNames': sctx['hexNames'],
         'layers': layers,
-        'layerNames': sctx['layerNames'],
         'statsLayers': sctx['statsLayers'],
         'temp_dir': sctx['temp_dir'],
         'writeFile': True,
@@ -31,14 +30,14 @@ def subprocessPerLayer( layers, sctx, options):
     allLayers = []
     for layerA in parm['statsLayers']:
         parm['layerA'] = layerA
-        parm['layerIndex'] = parm['layerNames'].index(layerA)
+        parm['layerIndex'] = layer_names.index(layerA)
         allLayers.append(ForEachLayer(parm))
 
     print pool.hostProcessorMsg()
     print len(parm['statsLayers']), 'subprocesses to run, one per layer.'
     pool.runSubProcesses(allLayers)
 
-def per_stats_type (layers, num_layers, sctx, options):
+def per_stats_type (layers, layer_names, num_layers, sctx, options):
     """
     This tool will launch a variable number of independent threads, each of which
     will calculate a variable number of correlations for pairs of attributes.
@@ -51,7 +50,7 @@ def per_stats_type (layers, num_layers, sctx, options):
     association stats file for the client to access.
     """
 
-    subprocessPerLayer(layers, sctx, options)
+    subprocessPerLayer(layers, layer_names, sctx, options)
 
     # Fill matrix with stat_layers and their values
     print timestamp(), 'Populating the value matrix for sample-based stats'
@@ -75,11 +74,11 @@ def per_stats_type (layers, num_layers, sctx, options):
 
     for i, row in enumerate(vals):
         name = sctx['statsLayers'][i]
-        layer_index = str(sctx['layerNames'].index(name))
+        layer_index = str(layer_names.index(name))
         
         # File names are like: layer_9_sstat.tab
         writer = tsv.TsvWriter(open(os.path.join(options.directory,
-            'layer_' + layer_index + '_sstats.tab'), 'w'))
+            'stats_' + layer_index + '.tab'), 'w'))
         writer.line(*sctx['statsLayers'])
         writer.line(*row)
         writer.close()
@@ -163,7 +162,7 @@ def statsSort(layers, layer_names, ctx, options):
     separate files. On the clientside the user will be asked to select what type
     of value they want to correlate their selected attribute against.
     """
-
+    
     print timestamp(), "Running sample-based statistics..."
 
     # Create the hex names file accessed by the subprocesses
@@ -186,7 +185,6 @@ def statsSort(layers, layer_names, ctx, options):
     num_layers = len(ctx.binary_layers)
     sctx = {
         'type': 'chi2',
-        'layerNames': layer_names,
         'statsLayers': ctx.binary_layers, # data types for these stats
         # TODO 'statsLayers': ctx.binary_layers + ctx.categorical_layers, # data types for these stats
         'temp_dir': tempfile.mkdtemp(), # the dir to store temporary working files
@@ -195,7 +193,7 @@ def statsSort(layers, layer_names, ctx, options):
 
     print timestamp(), "Processing", num_layers, "layers"
 
-    per_stats_type(layers, num_layers, sctx, options)
+    per_stats_type(layers, layer_names, num_layers, sctx, options)
 
     print timestamp(), "Sample-based statistics complete"
 

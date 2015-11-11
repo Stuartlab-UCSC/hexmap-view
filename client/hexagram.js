@@ -420,7 +420,9 @@ with_layer = function (layer_name, callback) {
 		        // This is the TSV as parsed by our TSV-parsing plugin
 		        var layer_parsed = $.tsv.parseRows(layer_tsv_data);
 
-		        // This is the layer we'll be passing out. Maps from 
+                if (projectNotFound(layer_parsed)) return;
+
+		        // This is the layer we'll be passing out. Maps from
 		        // signatures to floats on -1 to 1.
 		        var layer_data = {};
 
@@ -2133,20 +2135,6 @@ find_polygons_in_rectangle = function (start, end) {
     return in_box;
 }
 
-clear_current_stats_values = function  () {
-	// For a specific layer, delete all stats values:
-	// density, p_value, r_value, correlation.
-    for(var layer_name in layers) {
-		delete layers[layer_name].clumpiness;
-    	delete layers[layer_name].r_value;
-        delete layers[layer_name].p_value;
-        delete layers[layer_name].correlation;
-     }
-	Session.set('sort', ctx.defaultSort());
-	update_browse_ui();
-    update_shortlist_ui();
-}
-
 function get_current_layout_index (layout_name) {
 	// Parse the File "matrixnames.tab". Each layout is listed in the file's
 	// first column. Extract these in an array and search for the 
@@ -2156,6 +2144,8 @@ function get_current_layout_index (layout_name) {
 	$.get(ctx.project + "matrixnames.tab", function(tsv_data) {
 		var parsed = $.tsv.parseRows(tsv_data);
 		
+        if (projectNotFound(parsed)) return;
+
 		for (var i = 0; i < parsed.length; i++){
 			if (parsed[i][0] == layout_name) {
 				layout_index = i;
@@ -2875,6 +2865,8 @@ assignment_values = function (layout_index) {
         // id, x, y
         var parsed = $.tsv.parseRows(tsv_data);
 
+        if (projectNotFound(parsed)) return;
+
         // This holds the maximum observed x
         var max_x = 0;
         // And y
@@ -3028,6 +3020,9 @@ function create_indexed_layers_array () {
 		// Create a list of layer names ordered by their indices
 		ctx.layer_names_by_index = new Array (ctx.layer_names_sorted.length);
 		parsed = $.tsv.parseRows(tsv_data);
+
+        if (projectNotFound(parsed)) return;
+
 		for (var i = 0; i < parsed.length; i++) {
 		    if(parsed[i].length < 2) {
 		        // Skip blank lines
@@ -3080,6 +3075,9 @@ initHex = function () {
 
 		// Parse the file
         var parsed = $.tsv.parseRows(tsv_data);
+
+        if (projectNotFound(parsed)) return;
+
         _.each(parsed, function (line) {
             if (line[0] === 'Binary') {
                 ctx.bin_layers = line.slice(1);
@@ -3172,6 +3170,8 @@ initHex = function () {
         // 1>\t...
         var parsed = $.tsv.parseRows(tsv_data);
         
+        if (projectNotFound(parsed)) return;
+
         for(var i = 0; i < parsed.length; i++) {
             // Pull out the parts of the TSV entry
             // This is the name of the layer.
@@ -3247,6 +3247,8 @@ initHex = function () {
         // Matrix index is just <filename>
         var parsed = $.tsv.parseRows(tsv_data);
         
+        if (projectNotFound(parsed)) return;
+
         for(var i = 0; i < parsed.length; i++) {
             // Pull out the parts of the TSV entry
             // This is the filename of the matrix.
@@ -3268,6 +3270,8 @@ initHex = function () {
         // \t<value>\t<category name>\t<color>...
         var parsed = $.tsv.parseRows(tsv_data);
         
+        if (projectNotFound(parsed)) return;
+
         for(var i = 0; i < parsed.length; i++) {
             // Get the name of the layer
             var layer_name = parsed[i][0];
@@ -3316,7 +3320,9 @@ initHex = function () {
 	$.get(ctx.project + "matrixnames.tab", function(tsv_data) {
         // This is an array of rows, which are strings of matrix names
         var parsed = $.tsv.parseRows(tsv_data);
-        
+
+        if (projectNotFound(parsed)) return;
+
         for(var i = 0; i < parsed.length; i++) {
             // Pull out the parts of the TSV entry
             var label = parsed[i][0];

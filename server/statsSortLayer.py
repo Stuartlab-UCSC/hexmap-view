@@ -2,12 +2,13 @@
 """
 statsSortLayer.py
 Object for generating one layer's sort stats for layout-aware & layout-ignore
+and for both pre-computed and dynamic stats
 """
 
 import sys, os, json, copy, csv, numpy, traceback
 import scipy.stats
 import tsv
-from chi import chi2onePair
+from chi2 import chi2onePair
 
 def significantDigits(x, sig=6):
 
@@ -32,46 +33,45 @@ class ForEachLayer(object):
         if 'layout' in parm:
 
             # Layout-aware options:
-            if 'windowAdditives' in parm:
-                s.windowAdditives = parm['windowAdditives']
-            if 'windowNodes' in parm:
-                s.windowNodes = parm['windowNodes']
+            s.windowAdditives = parm['windowAdditives']
+            s.windowNodes = parm['windowNodes']
             if 'writeFile' in parm:
-                suffix = '_' + parm['layout'] + '_rstats.tab'
-                filename = 'layer_' + str(parm['layerIndex']) + suffix
+                suffix = '_' + parm['layout'] + '.tab'
+                filename = 'statsL_' + str(parm['layerIndex']) + suffix
                 s.file = os.path.join(parm['directory'], filename)
         else:
             # Layout-ignore options:
             s.hexNames = parm['hexNames']
-            s.layerNames = parm['layerNames']
-            s.temp_dir = parm['temp_dir']
             if 'writeFile' in parm:
+                s.temp_dir = parm['temp_dir']
+                index = s.statsLayers.index(s.layerA)
+                s.file = os.path.join(s.temp_dir, "p_val" + str(index) + ".tab")
 
                 # Pre-computed stats only need to look at stats layers after
                 # layerA, so set the layerB layers to show that
-                index = s.statsLayers.index(s.layerA)
                 s.bLayers = s.statsLayers[index:]
-                s.file = os.path.join(s.temp_dir, "p_val" + str(index) + ".tab")
             else:
-                # dynamic stats, so we always want to look at all stats layers
+                # Dynamic stats, so we always want to look at all stats layers
                 s.bLayers = s.statsLayers
 
     @staticmethod
     def pearsonOnePair(A, B):
 
         # Compute the pearson value for this layer pair.
-        # This gets done each way, since order matters here.
+        # This eventually gets done both ways, since order matters here.
 
+        pearson_val = scipy.stats.pearsonr(A, B)
+        return {'r_val': pearson_val[0], 'p_val': pearson_val[1]}
+
+        """
         # Compute R Coefficient & P-Value. We want a sign, and we want the
         # p-value, so apply the sign of the R Coefficient to the P-Value
-        pearson_val = scipy.stats.pearsonr(A, B)
-
         r_val = pearson_val[0]
         val = p_val = pearson_val[1]
         if r_val < 0:
             val = -1 * p_val
-
         return val
+        """
 
     @staticmethod
     def layoutBinaryPearson(s, layerB):
@@ -97,7 +97,11 @@ class ForEachLayer(object):
                     if a: A[i] += 1
                     if b: B[i] += 1
 
-        return [layerB, significantDigits(s.pearsonOnePair(A, B))]
+        vals = s.pearsonOnePair(A, B)
+        return [layerB,
+            significantDigits(vals['r_val']),
+            significantDigits(vals['p_val'])]
+        #return [layerB, significantDigits(s.pearsonOnePair(A, B))]
 
     @staticmethod
     def chi2(s, layerB):
@@ -147,6 +151,7 @@ def layoutStats(parm):
     if not os.path.isfile(fpath):
         print "Error:", fname, "not found, so statistics could not be computed\n"
         return 0;
+
     with open(fpath, 'rU') as f:
         f = csv.reader(f, delimiter='\t')
         windowNodes = []
@@ -164,17 +169,20 @@ def layoutStats(parm):
     # Set the pair compare stats algorithm
     parm['alg'] = 'layoutBinaryPearson'
 
-    #return parm
-
 def nonLayoutStats(parm):
 
-    """
-    # Parse the file containing all the hexagon names as a list.
-    h_reader = tsv.TsvReader(open(os.path.join(temp_dir, "hex_names.tab"), "r"))
-    hex_iterator = h_reader.__iter__()
-    hex_names = hex_iterator.next()
-    h_reader.close()
-    """
+    # Retrieve the hexagon names from the hexNames.tab file
+    fpath = os.path.join(parm['directory'], "hexNames.tab")
+    if not os.path.isfile(fpath):
+        print "Error:", fname, "not found, so statistics could not be computed\n"
+        return 0;
+
+    hexNames = []
+    with open(fpath, 'rU') as f:
+        for i, line in enumerate(f.__iter__()):
+            hexNames.append(line)
+
+    parm['hexNames'] = hexNames
 
 def dynamicStats(parm):
 
@@ -221,9 +229,11 @@ def dynamicStats(parm):
                 for i, line in enumerate(f.__iter__()):
                     layers[layerName][line[0]] = float(line[1])
 
-    # Complete populating the parms for layout-aware
+    # Complete populating the parms for layout-aware or layout-ignore
     if 'layout' in parm:
         layoutStats(parm)
+    else:
+        nonLayoutStats(parm)
 
     # Create an instance of ForEachLayer and call it
     oneLayer = ForEachLayer(parm)
