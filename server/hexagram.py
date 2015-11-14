@@ -601,47 +601,53 @@ def determine_layer_data_types (layers, layer_names, options):
         if len(layer) < 0:
             continue
 
-        # Does this layer meet the requirements of a binary layer?
-        can_be_binary = True
-    
-        # Does this layer meet the requirements of a categorical (not
-        # continuous) layer?
-        can_be_categorical = True
+        # Assume this layer meets the requirements of a binary or
+        # categorical layer until proven otherwise
+        can_be_binary = can_be_categorical = True
 
         for value in layer.itervalues():
             if value % 1 != 0:
-                # It's continuous (fractional)
+
+                # This is not binary or categorial due to its fractional
+                # component, so it must be continuous and we're done checking
+                # this layer's values
                 can_be_binary = False
                 can_be_categorical = False
                 break
             
             if value > 1 or value < 0:
-                # It's not binary, but it could still be either continuous
-                # or categorical.
+
+                # This is not binary due to a value other than zero or one. The
+                # layer may still have a continuous value so we continue to
+                # check more of its values.
+                # TODO we could have continuous values which happen to be
+                # integers. For now those will be mis-placed as categorical.
+                # TODO we could have categorical values with only two categories
+                # of zero and one, so would fail this test. For now those will
+                # be mis-placed as binary.
                 can_be_binary = False
-                break
 
         if can_be_binary:
 
-            # We're done, and nothing rules out it being binary
-            # TODO this is capturing layers with no values
+            # Nothing rules out this layer being binary, so call it such.
+            # Again, this is improperly capturing categorical layers with
+            # values of only zero and one.
+            # TODO is this capturing layers with nan values ?
             ctx.binary_layers.append(layer_name)
 
         elif can_be_categorical:
 
-            # It's not binary and we didn't hit a continuous float value
-
-            # TODO we could have continous values which happen to be integers.
-            # For now those types will be mis-placed as categorical
-
+            # Nothing rules out this layer being categorical, so call it such.
+            # TODO Again, this is improperly capturing integer continuous layers.
             ctx.categorical_layers.append(layer_name)
         else:
+
             # It is not binary or categorical, so it is continuous
             ctx.continuous_layers.append(layer_name)
 
     # Write the lists of continuous, binary, and categorical layers to files
-    # The Clientside will use these to determine what values to diplay
-    # (what file to open).
+    # The client side will use these to determine how to display values and
+    # which layers to include when the user filters by data type.
     type_writer = tsv.TsvWriter(open(os.path.join(options.directory, 
     "Layer_Data_Types.tab"), "w"))
 

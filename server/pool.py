@@ -17,9 +17,6 @@ else:
 def timestamp():
     return str(datetime.datetime.now())[8:-7]
 
-def max_job_count():
-    return MAX_JOB_COUNT
-
 def hostProcessorMsg():
     return 'Using host: ' + hostname + ' with ' + str(MAX_JOB_COUNT) + ' processors for parallel jobs.'
 

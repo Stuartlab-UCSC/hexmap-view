@@ -3,17 +3,8 @@
 regionBasedStats.py: Calculate the region-based-stats
 
 """
-# TODO not all of these are needed
-import sys, os, math, numpy, shutil, tempfile
-import collections, multiprocessing, traceback, numpy, time, datetime, pprint
-import scipy.stats, scipy.linalg, scipy.misc
-import time, copy
-import os.path
-import tsv, csv, json
-import pool
-from math import log10, floor
+import sys, os,traceback, time, datetime, pprint, csv, pool
 from statsSortLayer import ForEachLayer
-
 
 PSEUDOCOUNT = 5
 
@@ -289,7 +280,6 @@ def normalized_pearson_statistics(layers, layerNames, nodes_multiple, ctx, optio
 
         # Create the stats parameters
         parm = {
-            'alg': 'layoutBinaryPearson',
             'directory': options.directory,
             'layers': layers,
             'layout': str(layout),
@@ -299,6 +289,15 @@ def normalized_pearson_statistics(layers, layerNames, nodes_multiple, ctx, optio
             'writeFile': True,
         }
 
+        """
+        # TODO easy testing without subprocesses
+        for layerA in parm['statsLayers']:
+            parm['layerA'] = layerA
+            parm['layerIndex'] = layerNames.index(layerA)
+            oneLayer = ForEachLayer(parm)
+            oneLayer()
+        """
+        
         # Handle the stats for each layer, in parallel
         allLayers = []
         for layer in parm['statsLayers']:
@@ -312,6 +311,7 @@ def normalized_pearson_statistics(layers, layerNames, nodes_multiple, ctx, optio
         pool.runSubProcesses(allLayers)
 
         print timestamp(), 'Stats complete for layout:', layout
+        
 
 def statsSortLayout(directory, layers, layerNames, nodes_multiple, ctx, options):
     print timestamp(), "Running region-based statistics..."

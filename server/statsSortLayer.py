@@ -5,10 +5,8 @@ Object for generating one layer's sort stats for layout-aware & layout-ignore
 and for both pre-computed and dynamic stats
 """
 
-import sys, os, json, copy, csv, numpy, traceback
+import sys, os, json, copy, csv, traceback
 import scipy.stats
-import tsv
-from chi2 import chi2onePair
 
 def significantDigits(x, sig=6):
 
@@ -24,7 +22,6 @@ class ForEachLayer(object):
     def __init__(s, parm):
 
         # Required parameters
-        s.alg = parm['alg']
         s.directory = parm['directory']
         s.layerA = parm['layerA']
         s.layers = parm['layers']
@@ -40,8 +37,24 @@ class ForEachLayer(object):
                 filename = 'statsL_' + str(parm['layerIndex']) + suffix
                 s.file = os.path.join(parm['directory'], filename)
         else:
+
             # Layout-ignore options:
             s.hexNames = parm['hexNames']
+
+            # Save the data type lists and determine layerA's data type
+            if 'binLayers' in parm:
+                s.binLayers = parm['binLayers']
+                if s.layerA in s.binLayers:
+                    s.layerAtype = 'bin'
+            if 'catLayers' in parm:
+                s.catLayers = parm['catLayers']
+                if s.layerA in s.catLayers:
+                    s.layerAtype = 'cat'
+            if 'contLayers' in parm:
+                s.contLayers = parm['contLayers']
+                if s.layerA in s.contLayers:
+                    s.layerAtype = 'cont'
+
             if 'writeFile' in parm:
                 s.temp_dir = parm['temp_dir']
                 index = s.statsLayers.index(s.layerA)
@@ -50,31 +63,122 @@ class ForEachLayer(object):
                 # Pre-computed stats only need to look at stats layers after
                 # layerA, so set the layerB layers to show that
                 s.bLayers = s.statsLayers[index:]
+
             else:
-                # Dynamic stats, so we always want to look at all stats layers
+                # Dynamic stats, so we want layerB to start with the first layer
                 s.bLayers = s.statsLayers
 
     @staticmethod
-    def pearsonOnePair(A, B):
+    def chi2onePair(layerA, layerB, layers, hexNames):
 
-        # Compute the pearson value for this layer pair.
-        # This eventually gets done both ways, since order matters here.
+        def reportEmptyLayer(layer):
+            # For pre-computed stats, write any layer name
+            # who has no values to a file, to report later
+            if hasattr(s, 'file'):
+                with open(os.path.join(s.directory, 'empty_layers.tab'), 'w+') as f:
+                    f.writerow(layer + ' \n')
 
-        pearson_val = scipy.stats.pearsonr(A, B)
-        return {'r_val': pearson_val[0], 'p_val': pearson_val[1]}
+        # Find the ranges of layer A & B
+        # This is silly for binary data, but good for categorical data
+        vals = layers[layerB].values()
+        if len(vals) < 1:
+            reportEmptyLayer(layerB)
+            return 0
+        bMax = int(max(vals))
+        bMin = int(min(vals))
 
-        """
-        # Compute R Coefficient & P-Value. We want a sign, and we want the
-        # p-value, so apply the sign of the R Coefficient to the P-Value
-        r_val = pearson_val[0]
-        val = p_val = pearson_val[1]
-        if r_val < 0:
-            val = -1 * p_val
-        return val
-        """
+        vals = layers[layerA].values()
+        aMax = int(max(vals))
+        aMin = int(min(vals))
+
+        # Initialize the contingency table
+        table = [[0 for i in range(bMax - bMin + 1)] for j in range(aMax - aMin + 1)]
+
+        # Count the number of each value in each of the two layers. If the
+        # hexagon is found in both layers, increment the contingency table count.
+        for hexagon in hexNames:
+
+            has_data = True
+            try:
+                aVal = int(layers[layerA][hexagon])
+            except KeyError:
+                # this means this hexagon has no value in this layer
+                has_data = False
+
+            try:
+                bVal = int(layers[layerB][hexagon])
+            except KeyError:
+                # this means this hexagon has no value in this layer
+                has_data = False
+
+            if has_data == True:
+                table[aVal - aMin][bVal - bMin] += 1
+
+        # Call the chi-squared function
+        try:
+            _, p, _, _ = scipy.stats.chi2_contingency(table)
+
+        except ValueError:
+            # We probably had all zeros for a column in the contingency table.
+            # See <http://stats.stackexchange.com/q/73708>. Chi-squared can't be
+            # done in this case, so we make p NaN.
+            p = float("NaN")
+
+        return [layerA, layerB, significantDigits(p)]
 
     @staticmethod
-    def layoutBinaryPearson(s, layerB):
+    def layoutIgnore(s, layerB):
+
+        # Determine layerB's data type
+        types = [s.layerAtype]
+        if hasattr(s, 'binLayers') and layerB in s.binLayers:
+            types.append('bin')
+        elif hasattr(s, 'catLayers') and layerB in s.catLayers:
+            types.append('cat')
+        elif hasattr(s, 'contLayers') and layerB in s.contLayers:
+            types.append('cont')
+
+        else:
+            # LayerB is not in any of the lists of desired data types, so bail
+            return 'continue'
+
+        # Call the appropriate stats algorithm based on both layers' data types
+
+        # Is there any combination of binary and categorical?
+        if types.count('bin') == 2 \
+            or types.count('cat') == 2 \
+            or (types.count('bin') == 1 and types.count('cat') == 1):
+            return s.chi2onePair(s.layerA, layerB, s.layers, s.hexNames)
+            # return form: [layerA, layerB, p-value]
+
+        # Are both layers continuous?
+        elif types.count('cont') == 2:
+
+            # Return the p-value from the pearson calculation.
+            # Pearson call returns with the form [r-value, p-value]
+            pearson = scipy.stats.pearsonr(
+                s.layers[s.layerA].values(),
+                s.layers[layerB].values()
+            )
+            return [s.layerA, layerB, significantDigits(pearson[1])]
+
+        # Is one layer continuous with the other being binary or categorical?
+        elif types.count('cont') == 1 \
+            and (types.count('bin') == 1 or types.count('cat') == 1):
+
+            # Return the p-value from the anova calcluation.
+            # Anova call returns like so: [F-value, p-value-of-F-distribution]
+            anova = scipy.stats.f_oneway(
+                s.layers[s.layerA].values(),
+                s.layers[layerB].values()
+            )
+            return [s.layerA, layerB, significantDigits(anova[1])]
+
+        # We should never get here TODO log an error?
+        return 'continue'
+
+    @staticmethod
+    def layoutAware(s, layerB):
 
         # Initialize the counts for the layers to the additives in C2
         A = copy.copy(s.windowAdditives)
@@ -97,15 +201,8 @@ class ForEachLayer(object):
                     if a: A[i] += 1
                     if b: B[i] += 1
 
-        vals = s.pearsonOnePair(A, B)
-        return [layerB,
-            significantDigits(vals['r_val']),
-            significantDigits(vals['p_val'])]
-        #return [layerB, significantDigits(s.pearsonOnePair(A, B))]
-
-    @staticmethod
-    def chi2(s, layerB):
-        return chi2onePair(s.layerA, layerB, s.layers, s.hexNames)
+        vals = scipy.stats.pearsonr(A, B)
+        return [layerB, significantDigits(vals[0]), significantDigits(vals[1])]
 
     def __call__(s):
 
@@ -123,10 +220,16 @@ class ForEachLayer(object):
             # We don't want to compare a layer to itself for layout-aware stats
             if s.layerA == layerB and hasattr(s, 'windowNodes'): continue
 
-            # Call the appropriate function to compare layerA to layerB
-            line = eval('s.' + s.alg)(s, layerB)
+            # Based on layout-aware or not, call a
+            # function to compare layers A & B
+            if hasattr(s,'windowNodes'):
+                line = s.layoutAware(s, layerB)
+            else:
+                line = s.layoutIgnore(s, layerB)
+            if line == 'continue':
+                continue
 
-            # Add the line for the stats result with this other layer
+            # Add the result to either an array or a file
             if fOut is None:
 
                 # Add this line to the response array
@@ -141,7 +244,11 @@ class ForEachLayer(object):
         else:
             print json.dumps(response, sort_keys=True)
 
-def layoutStats(parm):
+        return 0
+
+# Class end ###################################################
+
+def dynamicLayoutAwareStats(parm):
 
     # This handles the creation of parameters specific to layout-aware stats
 
@@ -166,10 +273,7 @@ def layoutStats(parm):
     parm['windowAdditives'] = windowAdditives
     parm['windowNodes'] = windowNodes
 
-    # Set the pair compare stats algorithm
-    parm['alg'] = 'layoutBinaryPearson'
-
-def nonLayoutStats(parm):
+def dynamicIgnoreLayoutStats(parm):
 
     # Retrieve the hexagon names from the hexNames.tab file
     fpath = os.path.join(parm['directory'], "hexNames.tab")
@@ -231,9 +335,9 @@ def dynamicStats(parm):
 
     # Complete populating the parms for layout-aware or layout-ignore
     if 'layout' in parm:
-        layoutStats(parm)
+        dynamicLayoutAwareStats(parm)
     else:
-        nonLayoutStats(parm)
+        dynamicIgnoreLayoutStats(parm)
 
     # Create an instance of ForEachLayer and call it
     oneLayer = ForEachLayer(parm)
