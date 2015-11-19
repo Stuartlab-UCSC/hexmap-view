@@ -5,7 +5,7 @@ Object for generating one layer's sort stats for layout-aware & layout-ignore
 and for both pre-computed and dynamic stats
 """
 
-import sys, os, json, copy, csv, traceback
+import sys, os, json, copy, csv, math, traceback, pprint
 import scipy.stats
 
 def significantDigits(x, sig=6):
@@ -69,21 +69,14 @@ class ForEachLayer(object):
                 s.bLayers = s.statsLayers
 
     @staticmethod
-    def chi2onePair(layerA, layerB, layers, hexNames):
+    def bothDiscreteOnePair(layerA, layerB, layers, hexNames):
 
-        def reportEmptyLayer(layer):
-            # For pre-computed stats, write any layer name
-            # who has no values to a file, to report later
-            if hasattr(s, 'file'):
-                with open(os.path.join(s.directory, 'empty_layers.tab'), 'w+') as f:
-                    f.writerow(layer + ' \n')
+        # This handles one attribute pair for ignore-layout stats when both
+        # attributes have any combination of binary and categorical values
 
         # Find the ranges of layer A & B
         # This is silly for binary data, but good for categorical data
         vals = layers[layerB].values()
-        if len(vals) < 1:
-            reportEmptyLayer(layerB)
-            return 0
         bMax = int(max(vals))
         bMin = int(min(vals))
 
@@ -91,40 +84,105 @@ class ForEachLayer(object):
         aMax = int(max(vals))
         aMin = int(min(vals))
 
-        # Initialize the contingency table
-        table = [[0 for i in range(bMax - bMin + 1)] for j in range(aMax - aMin + 1)]
+        # Initialize the contingency table that will contain counts for each
+        # combination of values between the two attributes. So for a binary
+        # attribute vs. a categorical attribute of 3 possible values, we will
+        # have a 2 x 3 contingency table initialized to all zeroes.
+        table = [[0 for i in range(bMax - bMin + 1)] \
+            for j in range(aMax - aMin + 1)]
 
-        # Count the number of each value in each of the two layers. If the
-        # hexagon is found in both layers, increment the contingency table count.
+        # Loop through all the hexagons incrementing the count in the
+        # appropriate contingency table cell. Ignore those hexagons that do not
+        # have a value in one or both of the attributes.
         for hexagon in hexNames:
 
-            has_data = True
             try:
                 aVal = int(layers[layerA][hexagon])
             except KeyError:
                 # this means this hexagon has no value in this layer
-                has_data = False
+                continue
 
             try:
                 bVal = int(layers[layerB][hexagon])
             except KeyError:
-                # this means this hexagon has no value in this layer
-                has_data = False
+                continue
 
-            if has_data == True:
-                table[aVal - aMin][bVal - bMin] += 1
+            table[aVal - aMin][bVal - bMin] += 1
 
         # Call the chi-squared function
         try:
             _, p, _, _ = scipy.stats.chi2_contingency(table)
 
-        except ValueError:
+        except Exception:
             # We probably had all zeros for a column in the contingency table.
             # See <http://stats.stackexchange.com/q/73708>. Chi-squared can't be
-            # done in this case, so we make p NaN.
-            p = float("NaN")
+            # done in this case.
+            p = float('NaN')
+            #p = float(None)
 
         return [layerA, layerB, significantDigits(p)]
+
+    @staticmethod
+    def anyContinuousOnePair(layerA, layerB, layers, hexNames, bothContinuous=False):
+
+        # This handles one attribute pair for ignore-layout stats when either
+        # or both attributes have continuous values.
+
+        # Loop through all the hexagons building a vector for each of the
+        # attributes in the pair. If the hexagon has a value in both
+        # attributes, add the values to the vectors. Otherwise ignore this
+        # hexagon in calculating this attribute-pair statistics.
+        A = B = []
+
+        for hexagon in hexNames:
+            try:
+                aVal = int(layers[layerA][hexagon])
+            except KeyError:
+                # this means this hexagon has no value in this layer
+                continue
+            try:
+                bVal = int(layers[layerB][hexagon])
+            except KeyError:
+                continue
+
+            A.append(aVal)
+            B.append(bVal)
+
+        # Call the stats library function
+        try:
+            if bothContinuous:
+                # Pearson call returns like so:
+                #   [Pearsons-correlation-coefficient, 2-tailed-p-value]
+                r, p = scipy.stats.pearsonr(
+                    layers[layerA].values(),
+                    layers[layerB].values()
+                )
+            else:
+                # Anova call returns like so: [F-value, p-value-of-F-distribution]
+                f, p = scipy.stats.f_oneway(
+                    layers[layerA].values(),
+                    layers[layerB].values()
+                )
+
+        except Exception:
+            # We make p None.
+            p = float('NaN')
+            #p = float(None)
+
+        return [layerA, layerB, significantDigits(p)]
+
+    @staticmethod
+    def isEmptyLayer(s, layer):
+
+        if len(s.layers[layer].values()) < 1:
+            # For pre-computed stats, write any layer name
+            # who has no values to a file, to report later
+            if hasattr(s, 'file'):
+                with open(os.path.join(s.directory, 'empty_layers.tab'), 'a') as f:
+                    f.write(layer + '\n')
+            return True
+        else:
+            return False
 
     @staticmethod
     def layoutIgnore(s, layerB):
@@ -142,39 +200,24 @@ class ForEachLayer(object):
             # LayerB is not in any of the lists of desired data types, so bail
             return 'continue'
 
+        # Skip any layers with no values at all
+        if s.isEmptyLayer(s, layerB):
+            return 'continue'
+
         # Call the appropriate stats algorithm based on both layers' data types
 
+        # Is one attribute continuous?
+        if types.count('cont') > 0:
+            return s.anyContinuousOnePair(s.layerA, layerB, s.layers, s.hexNames,
+                types.count('cont') == 2)
+
         # Is there any combination of binary and categorical?
-        if types.count('bin') == 2 \
+        elif types.count('bin') == 2 \
             or types.count('cat') == 2 \
             or (types.count('bin') == 1 and types.count('cat') == 1):
-            return s.chi2onePair(s.layerA, layerB, s.layers, s.hexNames)
-            # return form: [layerA, layerB, p-value]
+            return s.bothDiscreteOnePair(s.layerA, layerB, s.layers, s.hexNames)
 
-        # Are both layers continuous?
-        elif types.count('cont') == 2:
-
-            # Return the p-value from the pearson calculation.
-            # Pearson call returns with the form [r-value, p-value]
-            pearson = scipy.stats.pearsonr(
-                s.layers[s.layerA].values(),
-                s.layers[layerB].values()
-            )
-            return [s.layerA, layerB, significantDigits(pearson[1])]
-
-        # Is one layer continuous with the other being binary or categorical?
-        elif types.count('cont') == 1 \
-            and (types.count('bin') == 1 or types.count('cat') == 1):
-
-            # Return the p-value from the anova calcluation.
-            # Anova call returns like so: [F-value, p-value-of-F-distribution]
-            anova = scipy.stats.f_oneway(
-                s.layers[s.layerA].values(),
-                s.layers[layerB].values()
-            )
-            return [s.layerA, layerB, significantDigits(anova[1])]
-
-        # We should never get here TODO log an error?
+        # We should never get here. TODO log an error?
         return 'continue'
 
     @staticmethod
@@ -204,7 +247,20 @@ class ForEachLayer(object):
         vals = scipy.stats.pearsonr(A, B)
         return [layerB, significantDigits(vals[0]), significantDigits(vals[1])]
 
+    @staticmethod
+    def is_number(x):
+        try:
+            float(x)
+            return True
+        except ValueError:
+            return False
+
     def __call__(s):
+
+        # Skip any layers with no values at all
+        if s.isEmptyLayer(s, s.layerA):
+            print "Info: Attribute", s.layerA, "has no values, so no statistics to calculate for it.\n"
+            return 0;
 
         # Open a csv writer for stats of this layer against all other layers,
         # if a filename was provided
@@ -215,6 +271,7 @@ class ForEachLayer(object):
 
         # Compare each layer against the given layer
         response = []
+        error = False
         for layerB in s.statsLayers:
 
             # We don't want to compare a layer to itself for layout-aware stats
@@ -226,8 +283,8 @@ class ForEachLayer(object):
                 line = s.layoutAware(s, layerB)
             else:
                 line = s.layoutIgnore(s, layerB)
-            if line == 'continue':
-                continue
+
+            if line == 'continue': continue
 
             # Add the result to either an array or a file
             if fOut is None:
@@ -242,6 +299,14 @@ class ForEachLayer(object):
         if hasattr(s, 'file'):
             fOutFile.close()
         else:
+
+            # Replace any nan's with a string 'nan' because json doesn't know
+            # what to do with those
+            for i, line in enumerate(response):
+                for j, val in enumerate(line):
+                    if s.is_number(val) and math.isnan(val):
+                        response[i][j] = 'nan'
+
             print json.dumps(response, sort_keys=True)
 
         return 0
@@ -284,7 +349,7 @@ def dynamicIgnoreLayoutStats(parm):
     hexNames = []
     with open(fpath, 'rU') as f:
         for i, line in enumerate(f.__iter__()):
-            hexNames.append(line)
+            hexNames.append(line[:-1]) # with new-line removed
 
     parm['hexNames'] = hexNames
 
@@ -293,8 +358,8 @@ def dynamicStats(parm):
     # This handles dynamic stats initiated by the client
 
     # Adjust the directory from that received from the client
-    # TODO where do we get the directory from? rename directory to project?
-    directory = '/Users/swat/dev/hexagram/public/' + parm['directory'][:-1]
+    # TODO where do we get the directory prefix from?
+    directory = '../../../../../public/' + parm['directory'][index:-1]
     parm['directory'] = directory
 
     # TODO? Build a layer_names list in the form:
@@ -332,6 +397,7 @@ def dynamicStats(parm):
                 layers[layerName] = {}
                 for i, line in enumerate(f.__iter__()):
                     layers[layerName][line[0]] = float(line[1])
+    parm['layers'] = layers
 
     # Complete populating the parms for layout-aware or layout-ignore
     if 'layout' in parm:

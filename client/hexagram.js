@@ -1582,9 +1582,12 @@ function sort_layers(layer_array) {
     } else if (type_value == "region-based-negative") {
         layer_array.sort(layer_sort_order_stats_layout_negative);
 
-	} else {
-        // The default sort
+    } else if (type_value == "p-value") {
 		layer_array.sort(layer_sort_order_p_value);
+
+	} else {
+        // The default sort, by density/clumpiness
+		layer_array.sort(layer_sort_order_clumpiness_value);
         if (!_.isUndefined(ctx.first_layer)) {
             // move the 'First' attribute to the top
             layer_array.splice(layer_array.indexOf(ctx.first_layer), 1);

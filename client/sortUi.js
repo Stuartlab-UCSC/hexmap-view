@@ -9,21 +9,28 @@ var app = app || {}; // jshint ignore:line
     var title = 'Sort Attributes',
         disabled_color = '#aaaaaa',
         $dialog,
-        $focus,
         $sample_based,
         $corr_neg,
-        $bin,
-        $cat,
-        $cont,
         $list,
         $help_dialog,
-        focus,
         sample_based,
         corr_neg,
-        bin,
-        cat,
-        cont,
         focus_attr;
+
+    Template.sortUiT.helpers({
+        focusSort: function () {
+            return Session.get('focusSort');
+        },
+        bin: function () {
+            return Session.get('bin');
+        },
+        cat: function () {
+            return Session.get('cat');
+        },
+        cont: function () {
+            return Session.get('cont');
+        },
+    });
 
     function destroy_help() {
         $help_dialog.dialog('destroy');
@@ -50,65 +57,76 @@ var app = app || {}; // jshint ignore:line
         var disabled = false,
             color = 'inherit';
 
-        if (!focus) {
+        if (Session.equals('focusSort', false)) {
 
             // Disable correlation options for focus sort
             disabled = true;
             color = disabled_color;
         }
-        $dialog.find('.based').attr('disabled', disabled);
-        //$dialog.find('#sample-based, #region-based').attr('disabled', disabled);
-        $dialog.find('.based').css('color', color);
+        $dialog.find('.based')
+            .attr('disabled', disabled)
+            .css('color', color);
     }
+
     function enable_corr() {
         var disabled = false,
             color = 'inherit';
 
-        if (!focus || sample_based) {
+        if (Session.equals('focusSort', false) || sample_based) {
 
             // Disable correlation options for sample-based
             disabled = true;
             color = disabled_color;
         }
-        $dialog.find('.corr').attr('disabled', disabled);
-        $dialog.find('.corr').css('color', color);
+        $dialog.find('.corr')
+            .attr('disabled', disabled)
+            .css('color', color);
     }
 
     function enable_value_types() {
+    /* TODO may not want value types
         var disabled = false,
             color = 'inherit';
 
-        if (!focus) {
+        if (Session.equals('focusSort', false)) {
 
             // Disable all value types for density sort
             disabled = true;
             color = disabled_color;
-            $dialog.find('.bin, .cat, .cont').attr('disabled', disabled);
-            $dialog.find('.bin, .cat, .cont').css('color', color);
+            $dialog.find('.bin, .cat, .cont')
+                .attr('disabled', disabled)
+                .css('color', color);
             return;
         }
 
-        // Enable binary with and without layout
-        $dialog.find('.bin').attr('disabled', disabled);
-        $dialog.find('.bin').css('color', color);
+        // Enable binary with or without layout
+        $dialog.find('.bin')
+            .attr('disabled', disabled)
+            .css('color', color);
 
-        // TODO disable cat and cont values until they work
-        if (true) {
-        //if (!sample_based) {
+        if (!sample_based) {
+
+            // Force selection of binary values
+            Session.set('bin', true);
 
             // Disable categorical and continuous for region-based
             disabled = true;
             color = disabled_color;
         }
-        $dialog.find('.cat, .cont').attr('disabled', disabled);
-        $dialog.find('.cat, .cont').css('color', color);
+        $dialog.find('.cat, .cont')
+            .attr('disabled', disabled)
+            .css('color', color);
+    */
     }
 
     function enable_list() {
         var disabled = false,
             color = 'inherit';
 
-        if (focus) {
+        if (Session.equals('focusSort', true) && (
+                Session.equals('bin', true)
+                || Session.equals('cat', true)
+                || Session.equals('cont', true))) {
             populate_list();
         } else {
 
@@ -116,8 +134,9 @@ var app = app || {}; // jshint ignore:line
             disabled = true;
             color = disabled_color;
         }
-        $dialog.find('.focus_attr').attr('disabled', disabled);
-        $dialog.find('.focus_attr').css('color', color);
+        $dialog.find('.focus_attr, .focus_attr .select2-choice')
+            .attr('disabled', disabled)
+            .css('color', color);
     }
 
     function enable_all(except_base) {
@@ -129,33 +148,17 @@ var app = app || {}; // jshint ignore:line
         enable_list();
     }
 
-    function focus_density_change(ev) {
-
-        // Change handler for focus vs. density sort
-        focus = $focus.prop('checked');
-        enable_all();
-    }
-
     function base_change(ev) {
 
         // Change handler for either of the sample-based or region-based
         sample_based = $sample_based.prop('checked');
         enable_all(true)
-
     }
+
     function corr_change(ev) {
 
         // Change handler for either of the positive or negative correlation
         corr_neg = $corr_neg.prop('checked');
-    }
-
-    function value_type_change(ev) {
-
-        // Change handler for any of the value types
-        bin = $bin.prop('checked');
-        cat = $cat.prop('checked');
-        cont = $cont.prop('checked');
-        enable_list();
     }
 
     function list_option_change(ev) {
@@ -165,24 +168,36 @@ var app = app || {}; // jshint ignore:line
     }
 
 	function sortIt() {
-        if (!focus) {
-            Session.set('sort', ctx.defaultSort());
-            update_browse_ui();
-            update_shortlist_ui();
+        if (Session.equals('focusSort', false)) {
 
-        } else if (sample_based) {
-            if (!bin && !cat) {
-                alert('At least one of these must be selected:\n\n\t- '
-                    + $('.bin-label').text().trim() + '\n\t- '
-                    + $('.cat-label').text().trim() + '\n\t- '
-                    + $('.cont-label').text().trim());
+            // Reset the sort to the default
+            clearStats();
+            updateUi('default');
+
+        } else {
+
+            // A sort on a focus attribute has been requested
+            if (focus_attr === '') {
+                alert('Please add the focus attribute to the short list.');
                 return;
             }
-            get_layout_ignore_stats(focus_attr, bin, cat, cont);
+            if (sample_based) {
+                if (Session.equals('bin', false)
+                        && Session.equals('cat', false)
+                        && Session.equals('cont', false)) {
+                    alert('At least one of these must be selected:\n\n\t- '
+                        + $('.bin-label').text().trim() + '\n\t- '
+                        + $('.cat-label').text().trim() + '\n\t- '
+                        + $('.cont-label').text().trim());
+                    return;
+                }
+                get_layout_ignore_stats(focus_attr, Session.get('bin'),
+                    Session.get('cat'), Session.get('cont'));
 
-		} else { // region-based requested
-			get_layout_aware_stats(current_layout_index, focus_attr, corr_neg);
-        }
+            } else { // region-based requested
+                get_layout_aware_stats(current_layout_index, focus_attr, corr_neg);
+            }
+         }
         destroy_dialog();
 	}
 
@@ -192,54 +207,75 @@ var app = app || {}; // jshint ignore:line
         // appropriate layers in the shortlist.
 
         // Reset the list
-        $list.empty(); // TODO recreate or just change data?
+        try {
+            $list.select2('destroy');
+        }
+        catch (error) {
+            $.noop();
+        }
 
-        // Find the appropriate layers to put in the selection list
+        // Get all of the attributes in the short list
         var shortList = _.map($("#shortlist").children(),
                 function (element, index) {
                     return $(element).data("layer");
                 }
             ),
+
+            // Find the appropriate attributes inf the short list
+            // to put in the selection list
             focusList = _.filter(shortList,
                 function (layer_name) {
-                    if (ctx.bin_layers.indexOf(layer_name) > -1) {
+
+                    // For layout-ignore, select all attributes from the short list
+                    if (sample_based) {
                         return true;
-                    } else if (sample_based) {
-                        if (ctx.cat_layers.indexOf(layer_name) > -1
-                            || ctx.cont_layers.indexOf(layer_name) > -1) {
-                            return true;
-                        }
+
+                    // For layout-aware, select only binary data types
+                    } else if (ctx.bin_layers.indexOf(layer_name) > -1) {
+                        return true;
                     } else {
                         return false;
                     }
+
+                    /* TODO for data type selection
+                    // Is the attribute in the binary layers list?
+                    if (Session.equals('bin', true)
+                        && ctx.bin_layers.indexOf(layer_name) > -1) {
+                        return true;
+                    }
+                    if (sample_based) {
+
+                        // Is the attribute in the categorical or continuous list?
+                        if ((Session.equals('cat', true)
+                            && ctx.cat_layers.indexOf(layer_name) > -1)
+                            ||  (Session.equals('cont', true)
+                            && ctx.cont_layers.indexOf(layer_name) > -1)) {
+                            return true;
+                        }
+                    }
+                    return false;
+                    */
                 }
             );
 
         // At least one attribute must be in the list.
         if (focusList.length < 1) {
 
-            if (sample_based) {
+            // Reset the focus attribute
+            focus_attr = '';
 
-                // Any value type is allowed when ignoring layout
-                alert('To sort, add at least one attribute to the short list.');
-            } else {
+        } else {
 
-                // Region-based sort allows only binary value types
-                alert('To sort, add at least one Label (yes/no) attribute to the short list.');
-            }
-            destroy_dialog();
-            return;
+            // Transform the focus layer list into the form wanted by select2
+            var data = _.map(focusList, function (layer) {
+                return { id: layer, text: layer }
+            });
+
+            // Create the select2 drop-down
+            focus_attr = (focusList.indexOf(focus_attr) > -1) ? focus_attr : focusList[0];
+            var opts = {data: data, minimumResultsForSearch: -1};
+            createOurSelect2($list, opts, focus_attr);
         }
-
-        // Transform the focus layer list into the form wanted by select2
-        var data = _.map(focusList, function (layer) {
-            return { id: layer, text: layer }
-        });
-
-        // Create the select2 drop-down
-        focus_attr = (focusList.indexOf(focus_attr) > -1) ? focus_attr : focusList[0];
-        var opts = {data: data, minimumResultsForSearch: -1};
-        createOurSelect2($list, opts, focus_attr);
     }
 
     function destroy_dialog() {
@@ -260,11 +296,7 @@ var app = app || {}; // jshint ignore:line
     function init_dialog () {
 
         // Initialize elements to current operating values
-        $focus.prop('checked', focus);
         $sample_based.prop('checked', sample_based);
-        $bin.prop("checked", bin);
-        $cat.prop("checked", cat);
-        $cont.prop("checked", cont);
         $corr_neg.prop('checked', corr_neg);
 
         // Enable the appropriate UI elements
@@ -274,12 +306,30 @@ var app = app || {}; // jshint ignore:line
             .css('display', 'inline');
         $('.ui-dialog-buttonpane').append($help);
 
-        // Action handlers
+        // Event handlers
         $dialog
-            .on('change', '#sortByFocus, #sortByDensity', focus_density_change)
+            .on('change', '#sortByFocus', function (ev) {
+                Session.set('focusSort', ev.target.checked);
+                enable_all();
+            })
+            .on('change', '#sortByDensity', function (ev) {
+                Session.set('focusSort', !ev.target.checked);
+                enable_all();
+            })
             .on('change', '#sample-based, #region-based', base_change)
             .on('change', '.list', list_option_change)
-            .on('change', '.bin, .cat, .cont', value_type_change)
+            .on('change', '.bin', function (ev) {
+                Session.set('bin', ev.target.checked);
+                enable_list();
+            })
+            .on('change', '.cat', function (ev) {
+                Session.set('cat', ev.target.checked);
+                enable_list();
+            })
+            .on('change', '.cont', function (ev) {
+                Session.set('cont', ev.target.checked);
+                enable_list();
+            })
             .on('change', '#corr-pos, #corr-neg', corr_change);
         $help.on('click', show_help);
     }
@@ -305,22 +355,18 @@ var app = app || {}; // jshint ignore:line
     init_sort_attrs = function () {
 
         // Initialize the session values
-        focus = true; // Sort is by focus attribute rather than by density
+        Session.set('focusSort', true); // Sort is by focus attribute rather than by density
         sample_based = true; // sort is sample-based rather than region-based
         corr_neg = false; // sort by positive correlation
         $('#corr-pos').prop('checked', true);
-        bin = true; // binary values included
-        cat = false; // categorical values included
-        cont = false; // continuous values included
+        Session.set('bin', true); // binary values included
+        Session.set('cat', true); // categorical values included
+        Session.set('cont', true); // continuous values included
         focus_attr = '';
 
         // Set jquery element names
         $dialog = $('#sort-attributes-dialog');
-        $focus = $('#sortByFocus');
         $sample_based = $('#sample-based');
-        $bin = $dialog.find('.bin');
-        $cat = $dialog.find('.cat');
-        $cont = $dialog.find('.cont');
         $corr_neg = $('#corr-neg');
         $list = $("#sort-attributes-dialog .list");
         $help = $('.help-button');
@@ -340,4 +386,3 @@ var app = app || {}; // jshint ignore:line
             });
     }
 })(app);
-

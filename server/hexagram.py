@@ -638,7 +638,7 @@ def determine_layer_data_types (layers, layer_names, options):
         elif can_be_categorical:
 
             # Nothing rules out this layer being categorical, so call it such.
-            # TODO Again, this is improperly capturing integer continuous layers.
+            # TODO this is improperly capturing integer continuous layers.
             ctx.categorical_layers.append(layer_name)
         else:
 
@@ -1654,11 +1654,10 @@ def hexIt(options):
         print 'Skipping sort stats withou layout (sample-based)'
 
     # Run region-based stats
-    if options.mutualinfo == True:
-        statsSortLayout(options.directory, layers, layer_names, nodes_multiple, ctx, options)
-    else:
-        print 'Skipping sort stats with layout (region-based)'
-
+    # Call this no matter if these stats were requested or not so that the
+    # Sampling windows are built in case the user requests a dynamic stats
+    # from the viz UI.
+    statsSortLayout(options.directory, layers, layer_names, nodes_multiple, ctx, options)
     print timestamp(), "Visualization generation complete!"
 
 def main(args):

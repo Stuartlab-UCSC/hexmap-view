@@ -1,4 +1,4 @@
-<template name='sortAttrs'>
+<template name='sortUiT'>
     <form id="sort-attributes-dialog" style='display:none'>
         <table>
             <tr>
@@ -7,12 +7,12 @@
                 </td>
                 <td class='dialog-value'>
                      <label>
-                        <input type='radio' name='sortBy' id='sortByFocus' value='sortByFocus' checked='checked' />
+                        <input type='radio' name='sortBy' class='sortByFocus' id='sortByFocus' checked='{{focusSort}}' />
                         Focus attribute
                     </label>
                     <br>
                     <label>
-                        <input type='radio' name='sortBy' id='sortByDensity' value='sortByDensity' />
+                        <input type='radio' name='sortBy' class='sortByDensity' id='sortByDensity' />
                         Density of attributes
                     </label>
                 </td>
@@ -39,27 +39,27 @@
                     <label for="corr-neg" class='corr'>Negative</label>
                 </td>
             </tr>
-            <tr>
+            <tr style='display:none'>
                 <td class='dialog-label bin' style='vertical-align:top'>
                     Include attributes:
                 </td>
                 <td class='dialog-value'>
-                    <input class='bin' type="checkbox" />
-                    <label for='bin' class='bin-label bin'>
+                    <label class='bin-label bin'>
+                        <input class='bin' type="checkbox" checked='{{bin}}'/>
                         Labels (yes/no)
                     </label>
                     <br>
-                    <input class='cat' type="checkbox" />
-                    <label for='cat' class='cat-label cat'>
+                    <label class='cat-label cat'>
+                        <input class='cat' type="checkbox" checked='{{cat}}' />
                         Categories
                     </label>
                     <br>
-                    <input class='cont' type="checkbox" />
-                    <label for='cont' class='cont-label cont'>
+                    <label class='cont-label cont'>
+                        <input class='cont' type="checkbox" checked='{{cont}}' />
                         Numeric
                     </label>
-               </td>
-            </tr>
+                </td>
+             </tr>
             <tr>
                 <td class='dialog-label focus_attr'>
                     Focus attribute:

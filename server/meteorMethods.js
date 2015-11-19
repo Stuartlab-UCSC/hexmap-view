@@ -2,8 +2,11 @@ var exec = Npm.require('child_process').exec;
 var Fiber = Npm.require('fibers');
 var Future = Npm.require('fibers/future');
 var fs = Npm.require('fs');
+var path = Npm.require('path');
 
-// TODO this dir may need to be different with built meteor
+// TODO these dirs may need to be different with built meteor
+// There is a better way to do this for dev and built
+var serverDir = '../../../../../server/';
 var dataDir = '../../../../../public/data/';
 
 Meteor.methods({
@@ -14,8 +17,7 @@ Meteor.methods({
         this.unblock();
         var future = new Future(),
             dir = dataDir + ((_.isUndefined(user)) ? '' : user);
-        fs.readdir(dir, function (error, results)
-        {
+        fs.readdir(dir, function (error, results) {
             if (error) {
                 future.throw(error);
             } else {
@@ -32,7 +34,8 @@ Meteor.methods({
         var future = new Future();
 
         var command =
-            'python /Users/swat/dev/hexagram/server/'
+            'python '
+            + serverDir
             + pythonCallName
             + ".py '"
             + JSON.stringify({parm: parms})

@@ -235,15 +235,13 @@ def normalized_pearson_statistics(layers, layerNames, nodes_multiple, ctx, optio
     #     e. Correlate vectors A and B with the Pearson method which returns an
     #        R correlation and a P value.
 
-    if ctx.binary_layers == 0:
-        print 'No binary layers for region-based stats to process'
-        return True
-
     for layout in ctx.all_hexagons.iterkeys():
         # We look at all layouts for this.
 
         # Create the windows containing lists of node names in each window.
         # Following our naming scheme above, assign C to the curated windows
+        # Note we find the windows even if we are not computing layout-aware
+        # stats so we can use the windowing later for dynamic stats.
         C = window_tool(
             options.directory,
             nodes_multiple[layout],
@@ -273,6 +271,14 @@ def normalized_pearson_statistics(layers, layerNames, nodes_multiple, ctx, optio
                     line.append(node)
                 f.writerow(line)
                 i += 1
+
+        if not options.mutualinfo:
+            print 'Skipping sort stats for layout-aware'
+            continue
+
+        if ctx.binary_layers == 0:
+            print 'No binary layers for layout-aware stats to process'
+            continue
 
         # The number of pairs to compare without compare to self
         pairCount = len(ctx.binary_layers) ** 2 - len(ctx.binary_layers)

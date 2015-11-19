@@ -13,34 +13,7 @@ PAGE = 'homePage';
             text: 'Density of attributes',
             type: 'default',
             focus_attr: null,
-        },
-        urlProject = null,
-        proxPre,
-        localStorageName;
-
-    // Prefix for images and other such files
-    if (location.host === 'localhost:3000') {
-        proxPre = '';
-    } else if (location.host === 'medbook.ucsc.edu') {
-        proxPre = '/hex/';
-        DEFAULT_PROJECT = 'data/ynewton/gliomas-paper/';
-    } else if (DEV) {
-        proxPre = '/hexmap/'; // su2c-dev:DEV
-    } else {
-        proxPre = '/hex/'; // su2c-dev:notDEV
-    }
-    DEFAULT_PROJECT = proxPre + DEFAULT_PROJECT;
-
-    // Keep localStore of different development versions separate
-    storeName = proxPre + '-hexMapState';
-
-    // Find the project if one was included in the URL, replacing every '.' with '/'
-    if ( window.location.search.indexOf( '?p=' ) > -1 ) {
-        urlProject = proxPre
-            + 'data/'
-            + window.location.search.slice(3).replace(/\./g, '/')
-            + '/';
-    }
+        };
 
     State = function() {
 
@@ -64,7 +37,35 @@ PAGE = 'homePage';
         //          initialized here, but in their respective file
         //          initialization functions
 
-        var s = this;
+        var s = this,
+            proxPre;
+
+        // Prefix for images and other such files
+        s.defaultProject = DEFAULT_PROJECT;
+        if (location.host === 'localhost:3000') {
+            proxPre = '';
+        } else if (location.host === 'medbook.ucsc.edu') {
+            proxPre = '/hex/';
+            s.defaultProject = 'data/ynewton/gliomas-paper/';
+        } else if (DEV) {
+            proxPre = '/hexmap/'; // su2c-dev:DEV
+        } else {
+            proxPre = '/hex/'; // su2c-dev:notDEV
+        }
+        s.defaultProject = proxPre + s.defaultProject;
+
+        // Keep localStore of different development versions separate
+        s.storeName = proxPre + '-hexMapState';
+
+        // Find the project if one was included in the URL, replacing every '.' with '/'
+        if ( window.location.search.indexOf( '?p=' ) > -1 ) {
+            s.urlProject = proxPre
+                + 'data/'
+                + window.location.search.slice(3).replace(/\./g, '/')
+                + '/';
+        }
+
+
 
         s.localStorage = {
             all: [
@@ -98,7 +99,7 @@ PAGE = 'homePage';
     }
 
     State.prototype.defaultProject = function () {
-        return DEFAULT_PROJECT;
+        return s.defaultProject;
     };
 
     State.prototype.defaultSort = function () {
@@ -183,8 +184,8 @@ PAGE = 'homePage';
         });
 
         // Overwrite the previous state in localStorage
-        window['localStorage'].removeItem(storeName);
-        window['localStorage'].setItem(storeName, JSON.stringify(store));
+        window['localStorage'].removeItem(s.storeName);
+        window['localStorage'].setItem(s.storeName, JSON.stringify(store));
     };
 
     State.prototype.load = function () {
@@ -192,7 +193,7 @@ PAGE = 'homePage';
         // Load state from local store
         var s = this,
             page = Session.get('page'),
-            store = JSON.parse(window['localStorage'].getItem(storeName));
+            store = JSON.parse(window['localStorage'].getItem(s.storeName));
 
         // Reset the already saved flag
         s.alreadySaved = false;
@@ -224,12 +225,12 @@ PAGE = 'homePage';
             });
         }
 
-        if (urlProject) {
+        if (s.urlProject) {
 
             // Override the project if one was passed in the URL and different
             // from the current project. Go to the map page
-            if (s.project != urlProject) {
-                s.project = urlProject;
+            if (s.project != s.urlProject) {
+                s.project = s.urlProject;
                 s.clearProjectData();
             }
             page = 'mapPage';

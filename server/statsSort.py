@@ -46,14 +46,14 @@ def writeValues (layers, layer_names, num_layers, parm, options):
         writer.close()
 
     # Gather any empty layer indices and log them
-    filePath = os.path.join(options.directory, 'empty_layers.tab')
-    if os.path.exists(filePath):
+    file = os.path.join(options.directory, 'empty_layers.tab')
+    if os.path.exists(file):
         empty_layers = set()
-        with open(filePath, 'rU') as f:
+        with open(file, 'rU') as f:
             value_iterator = f.__iter__()
             for j, layer in enumerate(value_iterator):
-                empty_layers.add(layer)
-        os.remove(file)
+                empty_layers.add(layer[:-1]) # drop the newline
+        os.remove(file) # TODO not being removed
         print 'WARNING: No values in these layers:', list(empty_layers)
 
     return True
@@ -104,9 +104,10 @@ def statsSort(layers, layer_names, ctx, options):
 
     # Create the hex names file accessed by the subprocesses
     hexNames = ctx.all_hexagons[0].values()
-    writer = tsv.TsvWriter(open(os.path.join(options.directory, 'hexNames.tab'), 'w'))
-    writer.line(*hexNames)
-    writer.close()
+    with open(os.path.join(options.directory, 'hexNames.tab'), 'w') as f:
+        f = csv.writer(f, delimiter='\t')
+        for name in hexNames:
+            f.writerow([name])
 
     # Consider all data types for pre-computed stats
     statsLayers = ctx.binary_layers \
