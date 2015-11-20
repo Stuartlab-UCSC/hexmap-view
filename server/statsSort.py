@@ -45,17 +45,6 @@ def writeValues (layers, layer_names, num_layers, parm, options):
         writer.line(*row)
         writer.close()
 
-    # Gather any empty layer indices and log them
-    file = os.path.join(options.directory, 'empty_layers.tab')
-    if os.path.exists(file):
-        empty_layers = set()
-        with open(file, 'rU') as f:
-            value_iterator = f.__iter__()
-            for j, layer in enumerate(value_iterator):
-                empty_layers.add(layer[:-1]) # drop the newline
-        os.remove(file) # TODO not being removed
-        print 'WARNING: No values in these layers:', list(empty_layers)
-
     return True
 
 def subprocessPerLayer(layer_names, parm):
@@ -74,7 +63,7 @@ def subprocessPerLayer(layer_names, parm):
         oneLayer = ForEachLayer(parm)
         oneLayer()
     """
-
+    
     # Handle the stats for each layer, in parallel
     allLayers = []
     for layerA in parm['statsLayers']:

@@ -250,7 +250,7 @@ PAGE = 'homePage';
         try {
             "localStorage" in window && window["localStorage"] !== null;
         } catch (e) {
-            banner("error", "Browser does not support local storage.");
+            banner('warn', "Browser does not support local storage.");
             return false;
         }
         return true;

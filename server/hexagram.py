@@ -223,8 +223,6 @@ def hexagon_pick(x, y, scale=1.0):
         else:
             corner_y_offset = 0
             
-        # TODO: verify this for correctness. It seems to be right, but I want a
-        # unit test to be sure.
         # This is the row (y) of the picked hexagon
         hexagon_y = tile_y - tile_x % 2 + corner_y_offset
         
@@ -581,8 +579,6 @@ def determine_layer_data_types (layers, layer_names, options):
     continuous, and categorical variables. 
     """
     # For the moment, we are only going to worry about single layouts.
-    # TODO do other layouts matter? Will the data type be the same attributes
-    # across layouts?
     hex_dict_num = 0
 
     # Retrieve the hexagon names from the appropriate hexagon dictionary
@@ -966,7 +962,6 @@ def drl_similarity_functions(matrix, index, options):
     # Now our input for DrL is prepared!
     
     # Do DrL truncate.
-    # TODO: pass a truncation level
     print timestamp(), "DrL: Truncating..."
     sys.stdout.flush()
     if options.drlpath:
@@ -1086,7 +1081,6 @@ def compute_hexagram_assignments(nodes, index, options):
    
     # The hexagons have been assigned. Make hexagons be a dict instead of a 
     # defaultdict, so it pickles.
-    # TODO: I should change it so I don't need to do this.
     hexagons = dict(hexagons) 
 
     # Add this dict of hexagons to all_hexagons dict, so it can be used later
@@ -1158,7 +1152,7 @@ def run_clumpiness_statistics(layers, layer_names, window_size, layout_index):
 
     # Return a dict from layer name to clumpiness score (negative log 10 of best
     # p value).
-    # TODO We hope the order of the dict items has not changed.
+    # TODO YIKES: We hope the order of the dict items has not changed.
     # We max the
     # actual p value together with the min float, in case the p value is too
     # good (i.e. 0).
@@ -1326,8 +1320,26 @@ def hexIt(options):
         layer_names.append("Placement Badness")
         layers["Placement Badness"] = placement_badnesses_multiple[0]
        
-    # Now we need to write layer files.
-        
+    # Now we need to write layer files. First remove any empty layers from
+    # layer_names and the layer dict. This means there will never be a break
+    # in sequential indices when naming files, and following code will not have
+    # to handle the case of an empty layer file
+    # TODO For some reason a layer_names may not be in layers, and a layers name
+    # may not be in layer_names. Fix it to avoid issues down the line
+    empty_layers = set()
+    for name in layer_names:
+        if len(layers[name]) == 0:
+            del layers[name]
+            layer_names.remove(name)
+            empty_layers.add(name)
+    for name in layers.keys():
+        if len(layers[name]) == 0:
+            del layers[name]
+            layer_names.remove(name)
+            empty_layers.add(name)
+    if len(empty_layers) > 0:
+        print 'WARNING: No values in these layers:', list(empty_layers)
+
     # Generate some filenames for layers that we can look up by layer index.
     # We do this because layer names may not be valid filenames.
     layer_files = {name: os.path.join(options.directory, 
@@ -1403,7 +1415,7 @@ def hexIt(options):
     # This is the writer to use.
     index_writer = tsv.TsvWriter(open(os.path.join(options.directory, 
         "layers.tab"), "w"))
-    
+
     print "Writing layer index..."
         
     for layer_name, layer_file in layer_files.iteritems():

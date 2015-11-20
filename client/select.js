@@ -305,11 +305,11 @@ var app = app || {}; // jshint ignore:line
     initSelect = function () {
     
         // Add the button for the rectangular select to the toolbar
-        add_tool("Select", "Select", addRectSelectTool,
+        add_tool("SelectRectangle", "Select Rectangle", addRectSelectTool,
             'Select hexagons using a rectangular region', 'mapOnly');
     
         // Add the button for the polygon select to the toolbar
-        add_tool("SelectwPolygon", "SelectwPolygon", addPolySelectTool,
+        add_tool("SelectPolygon", "Select Polygon", addPolySelectTool,
             'Select hexagons using a polygonal region', 'mapOnly');
     }
 })(app);

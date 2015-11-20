@@ -82,7 +82,7 @@ var app = app || {}; // jshint ignore:line
         Meteor.call('getDataDirs', self.users[userIndex], function (error, projects) {
             if (error) {
                 console.log('_getProjects error', error);
-                banner("error", "Unable to retrieve user's project data.\n" + error);
+                banner('warn', "Unable to retrieve user's project data.\n" + error);
             } else {
 
                 // Save the user's projects
@@ -111,7 +111,7 @@ var app = app || {}; // jshint ignore:line
         Meteor.call('getDataDirs', function (error, users) {
             if (error) {
                 console.log('_getUsers error', error);
-                banner("error", "Unable to retrieve project data.\n" + error);
+                banner('warn', "Unable to retrieve project data.\n" + error);
             } else {
 
                 // Save the user array & go get her projects

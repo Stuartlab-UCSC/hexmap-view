@@ -30,6 +30,7 @@ var app = app || {}; // jshint ignore:line
     }
 
     banner = function (type, text) {
+        // The type should be one of: info, error, warn, stay
 
         if (type === 'error') {
             // Let's do a more obnoxious alert for real errors
@@ -48,7 +49,7 @@ var app = app || {}; // jshint ignore:line
             }
         }
         // Also inform the browser console of this issue.
-        console.log(text);
+        console.log(type + ':', text);
     }
 
     tsvParseRows = function (tsv_data) {

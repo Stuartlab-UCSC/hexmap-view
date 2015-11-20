@@ -172,8 +172,7 @@ var app = app || {}; // jshint ignore:line
             var parsed = tsvParseRows(tsv_data);
 
             if (fileNotFound(parsed[0][0])) {
-                banner('stay', 'Statistics were not pre-computed for '
-                    + focus_attr + '. Computing those now...');
+                banner('stay', 'Computing statistics now... ');
                 getDynamicStats(focus_attr, opts);
                 return;
             }
@@ -205,7 +204,7 @@ var app = app || {}; // jshint ignore:line
         if (layers[focus_attr].selection) {
 
             // This is a user-selection attribute
-            banner('stay', 'Computing statistics for ' + focus_attr + '...');
+            banner('stay', 'Computing statistics now...');
             getDynamicStats(focus_attr, opts);
 
         } else {

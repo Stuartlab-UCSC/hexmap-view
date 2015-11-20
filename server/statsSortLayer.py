@@ -8,7 +8,7 @@ and for both pre-computed and dynamic stats
 import sys, os, json, copy, csv, math, traceback, pprint
 import scipy.stats
 
-def significantDigits(x, sig=6):
+def sigDigs(x, sig=6):
 
     if sig < 1:
         raise ValueError("number of significant digits must be >= 1")
@@ -16,6 +16,13 @@ def significantDigits(x, sig=6):
     # Use %e format to get the n most significant digits, as a string.
     format = "%." + str(sig-1) + "e"
     return float(format % x)
+
+def is_number(x):
+    try:
+        float(x)
+        return True
+    except ValueError:
+        return False
 
 class ForEachLayer(object):
 
@@ -111,22 +118,21 @@ class ForEachLayer(object):
 
         # Call the chi-squared function
         try:
-            _, p, _, _ = scipy.stats.chi2_contingency(table)
-
+            chi2, pValue, dof, expectedFreq = scipy.stats.chi2_contingency(table)
         except Exception:
             # We probably had all zeros for a column in the contingency table.
             # See <http://stats.stackexchange.com/q/73708>. Chi-squared can't be
             # done in this case.
-            p = float('NaN')
-            #p = float(None)
+            # http://docs.scipy.org/doc/scipy-0.16.0/reference/generated/scipy.stats.chi2_contingency.html#scipy.stats.chi2_contingency
+            chi2 = pValue = dof = expectedFreq = float('NaN')
 
-        return [layerA, layerB, significantDigits(p)]
+        return [layerA, layerB, sigDigs(pValue)]
 
     @staticmethod
-    def anyContinuousOnePair(layerA, layerB, layers, hexNames, bothContinuous=False):
+    def bothContinuousOnePair(layerA, layerB, layers, hexNames):
 
-        # This handles one attribute pair for ignore-layout stats when either
-        # or both attributes have continuous values.
+        # This handles one attribute pair for ignore-layout stats when
+        # both attributes have continuous values.
 
         # Loop through all the hexagons building a vector for each of the
         # attributes in the pair. If the hexagon has a value in both
@@ -150,42 +156,75 @@ class ForEachLayer(object):
 
         # Call the stats library function
         try:
-            if bothContinuous:
-                # Pearson call returns like so:
-                #   [Pearsons-correlation-coefficient, 2-tailed-p-value]
-                r, p = scipy.stats.pearsonr(
-                    layers[layerA].values(),
-                    layers[layerB].values()
-                )
-            else:
-                # Anova call returns like so: [F-value, p-value-of-F-distribution]
-                f, p = scipy.stats.f_oneway(
-                    layers[layerA].values(),
-                    layers[layerB].values()
-                )
-
+            # Pearson call returns like so:
+            #   [Pearsons-correlation-coefficient, 2-tailed-p-value]
+            # http://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.pearsonr.html
+            correlation, pValue = scipy.stats.pearsonr(layers[layerA].values(),
+                layers[layerB].values())
         except Exception:
-            # We make p None.
-            p = float('NaN')
-            #p = float(None)
+            correlation = pValue = float('NaN')
 
-        return [layerA, layerB, significantDigits(p)]
+        return [layerA, layerB, sigDigs(pValue)]
 
     @staticmethod
-    def isEmptyLayer(s, layer):
+    def oneContinuousOnePair(layerA, layerB, layers, hexNames, layerAtype):
 
-        if len(s.layers[layer].values()) < 1:
-            # For pre-computed stats, write any layer name
-            # who has no values to a file, to report later
-            if hasattr(s, 'file'):
-                with open(os.path.join(s.directory, 'empty_layers.tab'), 'a') as f:
-                    f.write(layer + '\n')
-            return True
+        # This handles one attribute pair for ignore-layout stats when only one
+        # of the attributes has continuous values. Binary attributes are treated
+        # as if they are categorical with two values.
+
+        # Assign new names to the layers depending on which is continuous
+        if layerAtype == 'cont':
+            contL = layerA
+            catL = layerB
         else:
-            return False
+            contL = layerB
+            catL = layerA
+
+        # Build a vector for each category of the categorical attribute.
+        # For each hexagon store its continuous value in the category vector to
+        # which it belongs. If the hexagon does not have a value in either of
+        # the attributes, ignore it.
+        vals = {}
+        for hexagon in hexNames:
+            try:
+                catVal = str(int(layers[catL][hexagon]))
+            except KeyError:
+                # The hexagon has no value in the categorical layer
+                continue
+            try:
+                contVal = layers[contL][hexagon]
+            except KeyError:
+                # The hexagon has no value in the continuous layer
+                continue
+
+            if catVal in vals:
+                vals[catVal].append(contVal)
+            else:
+                vals[catVal] = [contVal]
+
+        lists = vals.values()
+
+        # Call the stats library function
+        try:
+            # Anova call returns like so: [F-value, p-value-of-F-distribution]
+            # http://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.f_oneway.html
+
+            # Create a string to evaluate to make the call because we have
+            # a variable number of lists to pass in
+            fValue, pValue = eval('scipy.stats.f_oneway(' + str(lists)[1:-1] + ')')
+        except Exception:
+            fValue = pValue = float('NaN')
+
+        return [layerA, layerB, sigDigs(pValue)]
 
     @staticmethod
     def layoutIgnore(s, layerB):
+
+        # If layerA is layerB, we want to write a value of nan at the p-value
+        # so it will not be included in the sort in visualization
+        if s.layerA == layerB:
+            return [s.layerA, layerB, float('NaN')]
 
         # Determine layerB's data type
         types = [s.layerAtype]
@@ -197,19 +236,23 @@ class ForEachLayer(object):
             types.append('cont')
 
         else:
-            # LayerB is not in any of the lists of desired data types, so bail
-            return 'continue'
-
-        # Skip any layers with no values at all
-        if s.isEmptyLayer(s, layerB):
+            # We should never get here. TODO log an error?
             return 'continue'
 
         # Call the appropriate stats algorithm based on both layers' data types
 
         # Is one attribute continuous?
         if types.count('cont') > 0:
-            return s.anyContinuousOnePair(s.layerA, layerB, s.layers, s.hexNames,
-                types.count('cont') == 2)
+
+            # Are both attributes continuous?
+            if types.count('cont') == 2:
+                return s.bothContinuousOnePair(s.layerA, layerB, s.layers,
+                    s.hexNames)
+
+            # Handle the case where only one attribute is continuous
+            else:
+                return s.oneContinuousOnePair(s.layerA, layerB, s.layers,
+                    s.hexNames, s.layerAtype)
 
         # Is there any combination of binary and categorical?
         elif types.count('bin') == 2 \
@@ -244,23 +287,18 @@ class ForEachLayer(object):
                     if a: A[i] += 1
                     if b: B[i] += 1
 
-        vals = scipy.stats.pearsonr(A, B)
-        return [layerB, significantDigits(vals[0]), significantDigits(vals[1])]
-
-    @staticmethod
-    def is_number(x):
+        # Call the stats library function
         try:
-            float(x)
-            return True
-        except ValueError:
-            return False
+            # Pearson call returns like so:
+            #   [Pearsons-correlation-coefficient, 2-tailed-p-value]
+            # http://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.pearsonr.html
+            correlation, pValue = scipy.stats.pearsonr(A, B)
+        except Exception:
+            correlation = pValue = float('NaN')
+
+        return [layerB, sigDigs(correlation), sigDigs(pValue)]
 
     def __call__(s):
-
-        # Skip any layers with no values at all
-        if s.isEmptyLayer(s, s.layerA):
-            print "Info: Attribute", s.layerA, "has no values, so no statistics to calculate for it.\n"
-            return 0;
 
         # Open a csv writer for stats of this layer against all other layers,
         # if a filename was provided

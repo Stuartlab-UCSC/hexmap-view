@@ -15,7 +15,8 @@ var app = app || {}; // jshint ignore:line
         $help_dialog,
         sample_based,
         corr_neg,
-        focus_attr;
+        focus_attr,
+        shortlist;
 
     Template.sortUiT.helpers({
         focusSort: function () {
@@ -29,6 +30,12 @@ var app = app || {}; // jshint ignore:line
         },
         cont: function () {
             return Session.get('cont');
+        },
+        listMessage: function () {
+            return Session.get('listMessage');
+        },
+        listMessageDisplay: function () {
+            return Session.get('listMessageDisplay');
         },
     });
 
@@ -178,7 +185,6 @@ var app = app || {}; // jshint ignore:line
 
             // A sort on a focus attribute has been requested
             if (focus_attr === '') {
-                alert('Please add the focus attribute to the short list.');
                 return;
             }
             if (sample_based) {
@@ -201,6 +207,15 @@ var app = app || {}; // jshint ignore:line
         destroy_dialog();
 	}
 
+    function listMessage (msg) {
+        if (msg === 'clear') {
+            Session.set('listMessageDisplay', 'none');
+        } else {
+            Session.set('listMessage', msg)
+            Session.set('listMessageDisplay', 'inline')
+        }
+    }
+
     populate_list = function () {
 
         // This creates and populates the drop down with the
@@ -214,67 +229,63 @@ var app = app || {}; // jshint ignore:line
             $.noop();
         }
 
-        // Get all of the attributes in the short list
-        var shortList = _.map($("#shortlist").children(),
-                function (element, index) {
-                    return $(element).data("layer");
-                }
-            ),
+        var focusList = _.filter(shortlist,
+            function (layer_name) {
 
-            // Find the appropriate attributes inf the short list
-            // to put in the selection list
-            focusList = _.filter(shortList,
-                function (layer_name) {
+                // For layout-ignore, select all attributes from the short list
+                if (sample_based) {
+                    return true;
 
-                    // For layout-ignore, select all attributes from the short list
-                    if (sample_based) {
-                        return true;
-
-                    // For layout-aware, select only binary data types
-                    } else if (ctx.bin_layers.indexOf(layer_name) > -1) {
-                        return true;
-                    } else {
-                        return false;
-                    }
-
-                    /* TODO for data type selection
-                    // Is the attribute in the binary layers list?
-                    if (Session.equals('bin', true)
-                        && ctx.bin_layers.indexOf(layer_name) > -1) {
-                        return true;
-                    }
-                    if (sample_based) {
-
-                        // Is the attribute in the categorical or continuous list?
-                        if ((Session.equals('cat', true)
-                            && ctx.cat_layers.indexOf(layer_name) > -1)
-                            ||  (Session.equals('cont', true)
-                            && ctx.cont_layers.indexOf(layer_name) > -1)) {
-                            return true;
-                        }
-                    }
+                // For layout-aware, select only binary data types
+                } else if (ctx.bin_layers.indexOf(layer_name) > -1) {
+                    return true;
+                } else {
                     return false;
-                    */
                 }
-            );
+
+                /* TODO for data type selection
+                // Is the attribute in the binary layers list?
+                if (Session.equals('bin', true)
+                    && ctx.bin_layers.indexOf(layer_name) > -1) {
+                    return true;
+                }
+                if (sample_based) {
+
+                    // Is the attribute in the categorical or continuous list?
+                    if ((Session.equals('cat', true)
+                        && ctx.cat_layers.indexOf(layer_name) > -1)
+                        ||  (Session.equals('cont', true)
+                        && ctx.cont_layers.indexOf(layer_name) > -1)) {
+                        return true;
+                    }
+                }
+                return false;
+                */
+            }
+        );
 
         // At least one attribute must be in the list.
         if (focusList.length < 1) {
 
             // Reset the focus attribute
             focus_attr = '';
+            listMessage('No candidates in shortlist');
 
         } else {
+            listMessage('clear');
 
-            // Transform the focus layer list into the form wanted by select2
-            var data = _.map(focusList, function (layer) {
-                return { id: layer, text: layer }
-            });
+            setTimeout(function () { // Flush UI to let the list message disappear
 
-            // Create the select2 drop-down
-            focus_attr = (focusList.indexOf(focus_attr) > -1) ? focus_attr : focusList[0];
-            var opts = {data: data, minimumResultsForSearch: -1};
-            createOurSelect2($list, opts, focus_attr);
+                // Transform the focus layer list into the form wanted by select2
+                var data = _.map(focusList, function (layer) {
+                    return { id: layer, text: layer }
+                });
+
+                // Create the select2 drop-down
+                focus_attr = (focusList.indexOf(focus_attr) > -1) ? focus_attr : focusList[0];
+                var opts = {data: data, minimumResultsForSearch: -1};
+                createOurSelect2($list, opts, focus_attr);
+            }, 0);
         }
     }
 
@@ -342,13 +353,16 @@ var app = app || {}; // jshint ignore:line
             minHeight: '10em',
             width: '25em',
             close: destroy_dialog,
-            buttons: [
-                {
-                    text: 'Sort',
-                    click: sortIt
-                },
-            ],
+            buttons: [{ text: 'Sort', click: sortIt }],
         });
+
+        // Get all of the attributes in the shortlist
+        shortlist = _.map($("#shortlist").children(),
+            function (element, index) {
+                return $(element).data("layer");
+            }
+        )
+
         setTimeout(init_dialog, 0); // give the dialog DOM a chance to load
     }
 
@@ -362,6 +376,8 @@ var app = app || {}; // jshint ignore:line
         Session.set('bin', true); // binary values included
         Session.set('cat', true); // categorical values included
         Session.set('cont', true); // continuous values included
+        Session.set('listMessageDisplay', 'none'); // set the list message display to none
+        Session.set('listMessage', ''); // empty the list message
         focus_attr = '';
 
         // Set jquery element names
