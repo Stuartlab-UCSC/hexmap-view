@@ -1,4 +1,4 @@
-// statsSortlayout.js
+// sort.js
 // This contains the logic for retrieving the layout-aware and layout-ignore
 // sort attribute stats
 
@@ -7,16 +7,30 @@ var app = app || {}; // jshint ignore:line
 (function (hex) { // jshint ignore:line
     //'use strict';
 
+    var computingText = 'Computing statistics now...';
+
     clearStats = function () {
 
         // Clear stats for each layer before updating with the new stats
         for (var layer_name in layers) {
+            delete layers[layer_name].clumpiness;
             delete layers[layer_name].p_value;
             delete layers[layer_name].correlation;
          }
     }
 
-    updateUi = function (type, text, focus_attr) {
+    updateUi = function (type, text, focus_attr, opts) {
+
+        // If we were computing dynamic stats,
+        // include the elapsed time in the banner
+        var elapsed = '';
+        if (opts && opts.hasOwnProperty('startDate')
+            && $("#banner").text() === computingText) {
+            var endDate = new Date;
+            elapsed = ' ('
+                + Math.ceil((endDate.getTime() - opts.startDate.getTime()) / 1000)
+                + ' seconds)';
+        }
 
         // Set the sort properties and update the UI to sort them
         if (type === 'default') {
@@ -27,7 +41,16 @@ var app = app || {}; // jshint ignore:line
         }
         update_browse_ui();
         update_shortlist_ui();
-        banner('info', 'Now sorted by ' + text);
+        banner('info', 'Now sorted by ' + text + elapsed);
+    }
+
+    function updateLayerPvalue (focus_attr, layer, p_value) {
+
+        // We don't want to load the p-value if it is the focus layer.
+        // This will keep the focus attribute out of the sort.
+        if (layer !== focus_attr && !isNaN(p_value)) {
+            layers[layer].p_value = parseFloat(p_value);
+        }
     }
 
     function receive_ignore_layout_stats (parsed, focus_attr, opts) {
@@ -42,9 +65,7 @@ var app = app || {}; // jshint ignore:line
             //      [value1, value2, ...]
             // ]
             for (var i = 0; i < parsed[0].length; i++) {
-
-                // Extract the layer name and value
-                layers[parsed[0][i]].p_value = parseFloat(parsed[1][i]);
+                updateLayerPvalue(focus_attr, parsed[0][i], parsed[1][i]);
             }
         } else {
 
@@ -63,15 +84,20 @@ var app = app || {}; // jshint ignore:line
                 var compare_layer_name = parsed[i][1];
 
                 // Extract the value
-                layers[compare_layer_name].p_value = parseFloat(parsed[i][2]);
+                updateLayerPvalue(compare_layer_name, parsed[i][2]);
             }
 
         }
         // Now we're done loading the stats, update the sort properties
-        var type = 'p_value',
+        var type = 'p-value',
             text = 'P-value by: ' + focus_attr + ' (ignoring layout)';
+        if (Session.get('sort').text === computingText) {
+            var endDate = new Date,
+                elapsed = (endDate.getTime() - opts.startDate.getTime()) / 1000;
+            text += '(' + elapsed + ' seconds)';
+        }
 
-        updateUi(type, text, focus_attr);
+        updateUi(type, text, focus_attr, opts);
     }
 
     function receive_layout_aware_stats (parsed, focus_attr, opts) {
@@ -88,29 +114,27 @@ var app = app || {}; // jshint ignore:line
 
             // First element of each row is the layer name
             // to which the selected layer is being compared against.
-            var compare_layer_name = parsed[i][0];
+            var compare_layer_name = parsed[i][0],
+                r_value = parseFloat(parsed[i][1]),
+                p_value = parseFloat(parsed[i][2]);
 
-            // Extract the r-value, 2nd element of each row
-            var r_value = parseFloat(parsed[i][1]);
-            
-            // Extract the p-value, 3rd element of each row
-            var p_value = parseFloat(parsed[i][2]);
-            
-            // Set the value for this layer against the focus layer.
-            layers[compare_layer_name].correlation = r_value;
-            layers[compare_layer_name].p_value = p_value;
+            // Save the stats for this layer against the focus layer.
+            if (!isNaN(r_value) && !isNaN(p_value)) {
+                layers[compare_layer_name].correlation = r_value;
+                layers[compare_layer_name].p_value = p_value;
+            }
         }
 
         // Now we're done loading the stats, update the sort properties
         var corr = 'correlation',
-            type = 'region-based-positive';
+            type = 'layout-aware-positive';
         if (opts.anticorrelated) {
             corr = 'anticorrelation';
-            type = 'region-based-negative';
+            type = 'layout-aware-negative';
         }
         var text = 'Layout-aware ' + corr + ' with: ' + focus_attr;
 
-        updateUi(type, text, focus_attr);
+        updateUi(type, text, focus_attr, opts);
     }
 
     function receive_data (parsed, focus_attr, opts) {
@@ -125,6 +149,32 @@ var app = app || {}; // jshint ignore:line
         } else {
             receive_ignore_layout_stats (parsed, focus_attr, opts)
         }
+    }
+
+    find_clumpiness_stats = function (layout) {
+
+        // Reset the sort to the default of density
+        clearStats();
+
+        // Set the clumpiness scores for all layers to the appropriate values for
+        // the given layout index. Just pulls from each layer's clumpiness_array
+        // field.
+        var layer;
+        for (var i = 0; i < ctx.layer_names_sorted.length; i++) {
+            // For each layer
+            
+            // Get the layer object
+            layer = layers[ctx.layer_names_sorted[i]];
+            
+            if (!_.isUndefined(layer.clumpiness_array)) {
+
+                // We have a set of clumpiness scores for this layer.
+                // Switch the layer to the appropriate clumpiness score.
+                layer.clumpiness = layer.clumpiness_array[layout];
+            }
+        }
+
+        updateUi('default');
     }
 
     getDynamicStats = function (focus_attr, opts) {
@@ -147,6 +197,7 @@ var app = app || {}; // jshint ignore:line
             }
         }
 
+        opts.startDate = new Date();
         Meteor.call('pythonCall', 'statsSortLayer', opts,
             function (error, result) {
                 if (error) {
@@ -172,7 +223,7 @@ var app = app || {}; // jshint ignore:line
             var parsed = tsvParseRows(tsv_data);
 
             if (fileNotFound(parsed[0][0])) {
-                banner('stay', 'Computing statistics now... ');
+                banner('stay', computingText);
                 getDynamicStats(focus_attr, opts);
                 return;
             }
@@ -204,7 +255,7 @@ var app = app || {}; // jshint ignore:line
         if (layers[focus_attr].selection) {
 
             // This is a user-selection attribute
-            banner('stay', 'Computing statistics now...');
+            banner('stay', computingText);
             getDynamicStats(focus_attr, opts);
 
         } else {
@@ -225,12 +276,13 @@ var app = app || {}; // jshint ignore:line
             statsLayers: ctx.bin_layers,
             layout: layout_index,
             anticorrelated: anticorrelated,
+
         };
 
         if (layers[focus_attr].selection) {
 
             // This is a user-selection attribute
-            banner('stay', 'Computing statistics for ' + focus_attr + '...');
+            banner('stay', computingText);
             getDynamicStats(focus_attr, opts);
 
         } else {

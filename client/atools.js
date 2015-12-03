@@ -404,30 +404,6 @@ var app = app || {}; // jshint ignore:line
          
         });
     */
-            /* TODO disable until it works
-        // Set up the reset sort order to clumpiness scores, if present. Clears all
-        // computed statistics p-values and r-values.
-        add_tool("reset-sort", "Density Sort", function() {
-            
-            for(var layer_name in layers) {
-                // Remove all stats values.
-                delete layers[layer_name].r_value;
-                delete layers[layer_name].p_value;
-                delete layers[layer_name].mutual_information;
-            }
-            
-            // Bring Back Clumpiness Statistics
-            clumpiness_values(current_layout_index);
-
-            // Re-sort and force the browse list to refresh.
-            update_browse_ui();
-            
-            // Hide any "ranked against" caption
-            $("#sortText").hide();
-            
-                tool_activity(false);
-        });
-            */
     }
 })(app);
 

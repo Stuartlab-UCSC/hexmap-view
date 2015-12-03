@@ -1319,7 +1319,17 @@ def hexIt(options):
         # Stick our placement badness layer on the end
         layer_names.append("Placement Badness")
         layers["Placement Badness"] = placement_badnesses_multiple[0]
-       
+
+    # Report multiple attribute name instances in layer_names list
+    dupAttrs = []
+    for name in layers.keys():
+        count = layer_names.count(name)
+        if count > 1:
+            dupAttrs.append([name, count])
+    if len(dupAttrs) > 0:
+        print 'ERROR: multiple instances of attributes:', dupAttrs
+        raise Exception('ERROR: multiple instances of attributes!')
+
     # Now we need to write layer files. First remove any empty layers from
     # layer_names and the layer dict. This means there will never be a break
     # in sequential indices when naming files, and following code will not have
@@ -1327,11 +1337,6 @@ def hexIt(options):
     # TODO For some reason a layer_names may not be in layers, and a layers name
     # may not be in layer_names. Fix it to avoid issues down the line
     empty_layers = set()
-    for name in layer_names:
-        if len(layers[name]) == 0:
-            del layers[name]
-            layer_names.remove(name)
-            empty_layers.add(name)
     for name in layers.keys():
         if len(layers[name]) == 0:
             del layers[name]

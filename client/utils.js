@@ -1,4 +1,4 @@
-// mutualInfo.js
+// utils.js
 // This contains the logic for retrieving the mutual information stats
 
 var app = app || {}; // jshint ignore:line

@@ -342,7 +342,7 @@ class ForEachLayer(object):
             # what to do with those
             for i, line in enumerate(response):
                 for j, val in enumerate(line):
-                    if s.is_number(val) and math.isnan(val):
+                    if is_number(val) and math.isnan(val):
                         response[i][j] = 'nan'
 
             print json.dumps(response, sort_keys=True)
@@ -360,12 +360,13 @@ def dynamicLayoutAwareStats(parm):
     fpath = os.path.join(parm['directory'], fname)
     if not os.path.isfile(fpath):
         print "Error:", fname, "not found, so statistics could not be computed\n"
-        return 0;
+        return 1;
+
+    windowNodes = []
+    windowAdditives = []
 
     with open(fpath, 'rU') as f:
         f = csv.reader(f, delimiter='\t')
-        windowNodes = []
-        windowAdditives = []
         for i, line in enumerate(f.__iter__()):
             windowNodes.append([])
             for j, val in enumerate(line):
@@ -382,7 +383,7 @@ def dynamicIgnoreLayoutStats(parm):
     fpath = os.path.join(parm['directory'], "hexNames.tab")
     if not os.path.isfile(fpath):
         print "Error:", fname, "not found, so statistics could not be computed\n"
-        return 0;
+        return 1;
 
     hexNames = []
     with open(fpath, 'rU') as f:
@@ -397,7 +398,7 @@ def dynamicStats(parm):
 
     # Adjust the directory from that received from the client
     # TODO where do we get the directory prefix from?
-    directory = '../../../../../public/' + parm['directory'][index:-1]
+    directory = '../../../../../public/' + parm['directory'][:-1]
     parm['directory'] = directory
 
     # TODO? Build a layer_names list in the form:
@@ -439,9 +440,10 @@ def dynamicStats(parm):
 
     # Complete populating the parms for layout-aware or layout-ignore
     if 'layout' in parm:
-        dynamicLayoutAwareStats(parm)
+        ret = dynamicLayoutAwareStats(parm)
     else:
-        dynamicIgnoreLayoutStats(parm)
+        ret = dynamicIgnoreLayoutStats(parm)
+    if ret == 1: return 0
 
     # Create an instance of ForEachLayer and call it
     oneLayer = ForEachLayer(parm)

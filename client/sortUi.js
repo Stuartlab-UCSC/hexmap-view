@@ -1,4 +1,4 @@
-// sortAttrs.js
+// sortUi.js
 // This contains the logic for handling the sort attribute function.
 
 var app = app || {}; // jshint ignore:line
@@ -158,8 +158,11 @@ var app = app || {}; // jshint ignore:line
     function base_change(ev) {
 
         // Change handler for either of the sample-based or region-based
-        sample_based = $sample_based.prop('checked');
-        enable_all(true)
+        var newVal = $sample_based.prop('checked');
+        if (sample_based !== newVal) {
+            sample_based = newVal;
+            enable_all(true)
+        }
     }
 
     function corr_change(ev) {
@@ -177,9 +180,7 @@ var app = app || {}; // jshint ignore:line
 	function sortIt() {
         if (Session.equals('focusSort', false)) {
 
-            // Reset the sort to the default
-            clearStats();
-            updateUi('default');
+            find_clumpiness_stats(current_layout_index);
 
         } else {
 
