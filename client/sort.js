@@ -84,7 +84,7 @@ var app = app || {}; // jshint ignore:line
                 var compare_layer_name = parsed[i][1];
 
                 // Extract the value
-                updateLayerPvalue(compare_layer_name, parsed[i][2]);
+                updateLayerPvalue(focus_attr, compare_layer_name, parsed[i][2]);
             }
 
         }
@@ -186,6 +186,7 @@ var app = app || {}; // jshint ignore:line
         opts.layerA = focus_attr;
         opts.layerIndex = ctx.layer_names_by_index.indexOf(focus_attr);
         opts.directory = ctx.project;
+        opts.proxPre = Session.get('proxPre');
 
         // Gather the data for user-selection attributes
         opts.dynamicData = {};

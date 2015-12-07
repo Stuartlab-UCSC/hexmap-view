@@ -7,3 +7,5 @@
 meteor-platform
 insecure
 mrt:googlemaps
+reactive-var
+reactive-dict

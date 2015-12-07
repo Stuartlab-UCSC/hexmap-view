@@ -2,12 +2,22 @@ var exec = Npm.require('child_process').exec;
 var Fiber = Npm.require('fibers');
 var Future = Npm.require('fibers/future');
 var fs = Npm.require('fs');
+var os = Npm.require('os');
+var crypto = Npm.require('crypto');
 var path = Npm.require('path');
 
 // TODO these dirs may need to be different with built meteor
-// There is a better way to do this for dev and built
-var serverDir = '../../../../../server/';
-var dataDir = '../../../../../public/data/';
+// There must be a better way to do this for dev and built
+var dirPrefix = '../../../../../';
+var serverDir = dirPrefix + 'server/';
+var publicDir = dirPrefix + 'public/';
+var dataDir = publicDir + 'data/';
+
+function writeToTempFile (data) {
+    var filename = os.tmpdir() + '/' + crypto.randomBytes(4).readUInt32LE(0);
+    fs.writeFileSync(filename, data);
+    return filename;
+}
 
 Meteor.methods({
 
@@ -33,12 +43,26 @@ Meteor.methods({
         this.unblock();
         var future = new Future();
 
+        // Make a project data directory string usable by the server code.
+        // This is needed due to a prefix required on http calls to proxy
+        // servers.
+        console.log('parms.directory:', parms.directory);
+        console.log('publicDir:', publicDir);
+        console.log('parms.proxPre:', parms.proxPre);
+        parms.directory = publicDir + parms.directory.replace(parms.proxPre, '');
+        console.log('parms.directory:', parms.directory);
+        //return 'Error: directory error';
+
+        // Write the parms to a temporary file so the OS doesn't error on
+        // paramters too long.
+        filename = writeToTempFile(JSON.stringify({parm: parms}));
+
         var command =
             'python '
             + serverDir
             + pythonCallName
             + ".py '"
-            + JSON.stringify({parm: parms})
+            + filename
             + "'";
 
         exec(command, function (error, stdout, stderr) {

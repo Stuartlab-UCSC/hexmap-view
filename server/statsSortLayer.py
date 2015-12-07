@@ -236,7 +236,7 @@ class ForEachLayer(object):
             types.append('cont')
 
         else:
-            # We should never get here. TODO log an error?
+            # We should never get here.
             return 'continue'
 
         # Call the appropriate stats algorithm based on both layers' data types
@@ -260,7 +260,7 @@ class ForEachLayer(object):
             or (types.count('bin') == 1 and types.count('cat') == 1):
             return s.bothDiscreteOnePair(s.layerA, layerB, s.layers, s.hexNames)
 
-        # We should never get here. TODO log an error?
+        # We should never get here.
         return 'continue'
 
     @staticmethod
@@ -382,7 +382,7 @@ def dynamicIgnoreLayoutStats(parm):
     # Retrieve the hexagon names from the hexNames.tab file
     fpath = os.path.join(parm['directory'], "hexNames.tab")
     if not os.path.isfile(fpath):
-        print "Error:", fname, "not found, so statistics could not be computed\n"
+        print "Error:", fpath, "not found, so statistics could not be computed\n"
         return 1;
 
     hexNames = []
@@ -392,25 +392,22 @@ def dynamicIgnoreLayoutStats(parm):
 
     parm['hexNames'] = hexNames
 
-def dynamicStats(parm):
+def dynamicStats(parmFile):
 
     # This handles dynamic stats initiated by the client
 
-    # Adjust the directory from that received from the client
-    # TODO where do we get the directory prefix from?
-    directory = '../../../../../public/' + parm['directory'][:-1]
-    parm['directory'] = directory
+    if not os.path.isfile(parmFile):
+        print "Error: temporary parm file,", parmFile, "not found, so statistics could not be computed\n"
+        return 1;
 
-    # TODO? Build a layer_names list in the form:
-    # [name0, name1, name2...]
-    # So it emulates the layer_names built during viz-pre-processing.
-    # fill missing array elements with 'none' so the indexes match those of
-    # the layer_*.tab file names.
+    # Read the parms from the temp file
+    with open(parmFile, 'rU') as f:
+        parm = json.loads(f.read())['parm'];
 
     # Populate the layer to file names dict by pulling the
     # layernames and base layer filenames from layers.tab
     fOut = None
-    with open(os.path.join(directory, "layers.tab"), 'rU') as f:
+    with open(os.path.join(parm['directory'], "layers.tab"), 'rU') as f:
         f = csv.reader(f, delimiter='\t')
         layerFiles = {}
         for i, line in enumerate(f.__iter__()):
@@ -431,7 +428,7 @@ def dynamicStats(parm):
 
             # Pull the data for this layer from the file
             filename = layerFiles[layerName]
-            with open(os.path.join(directory, filename), 'rU') as f:
+            with open(os.path.join(parm['directory'], filename), 'rU') as f:
                 f = csv.reader(f, delimiter='\t')
                 layers[layerName] = {}
                 for i, line in enumerate(f.__iter__()):
@@ -455,8 +452,7 @@ if __name__ == "__main__" :
     try:
         # Get the return code to return
         # Don't just exit with it because sys.exit works by exceptions.
-        parmWrapper = json.loads(sys.argv[1]);
-        return_code = dynamicStats(parmWrapper['parm'])
+        return_code = dynamicStats(sys.argv[1])
     except:
         traceback.print_exc()
         # Return a definite number and not some unspecified error code.
