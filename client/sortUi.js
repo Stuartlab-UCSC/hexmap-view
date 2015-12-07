@@ -126,9 +126,21 @@ var app = app || {}; // jshint ignore:line
     */
     }
 
+    function listMessage (msg) {
+        if (msg === 'clear') {
+            Session.set('listMessageDisplay', 'none');
+        } else {
+            Session.set('listMessage', msg)
+            Session.set('listMessageDisplay', 'inline')
+        }
+    }
+
     function enable_list() {
         var disabled = false,
             color = 'inherit';
+
+        // Disable any list message up front
+        listMessage('clear');
 
         if (Session.equals('focusSort', true) && (
                 Session.equals('bin', true)
@@ -208,15 +220,6 @@ var app = app || {}; // jshint ignore:line
         destroy_dialog();
 	}
 
-    function listMessage (msg) {
-        if (msg === 'clear') {
-            Session.set('listMessageDisplay', 'none');
-        } else {
-            Session.set('listMessage', msg)
-            Session.set('listMessageDisplay', 'inline')
-        }
-    }
-
     populate_list = function () {
 
         // This creates and populates the drop down with the
@@ -273,8 +276,6 @@ var app = app || {}; // jshint ignore:line
             listMessage('No candidates in shortlist');
 
         } else {
-            listMessage('clear');
-
             setTimeout(function () { // Flush UI to let the list message disappear
 
                 // Transform the focus layer list into the form wanted by select2

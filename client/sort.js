@@ -9,6 +9,144 @@ var app = app || {}; // jshint ignore:line
 
     var computingText = 'Computing statistics now...';
 
+    function finalCompare(a, b) {
+
+        // After the other compares, do these last compares for all sorts.
+        // Compare clumpiness,
+        // then alphabetically by name if all else fails.
+
+        // By clumpiness
+        if(layers[a].clumpiness > layers[b].clumpiness) {
+            // a has a higher clumpiness score, so put it first.
+            return -1;
+        } else if(layers[b].clumpiness > layers[a].clumpiness) {
+            // b has a higher clumpiness score. Put it first instead.
+            return 1;
+        } else if(isNaN(layers[b].clumpiness) && !isNaN(layers[a].clumpiness)) {
+            // a has a clumpiness score and b doesn't, so put a first
+            return -1;
+        } else if(!isNaN(layers[b].clumpiness) && isNaN(layers[a].clumpiness)) {
+            // b has a clumpiness score and a doesn't, so put b first.
+            return 1;
+        }			
+
+        // Use lexicographic ordering on the name
+        return a.localeCompare(b);
+    }
+
+    function variableCompare(a, b, v) {
+
+        // Compare the variable: 'v'
+
+        if(layers[a][v] < layers[b][v]) {
+            // a has a lower value, so put it first.
+            return -1;
+        } else if(layers[b][v] < layers[a][v]) {
+            // b has a lower value. Put it first instead.
+            return 1;
+        } else if(isNaN(layers[b][v]) && !isNaN(layers[a][v])) {
+            // a has a value and b doesn't, so put a first
+            return -1;
+        } else if(!isNaN(layers[b][v]) && isNaN(layers[a][v])) {
+            // b has a value and a doesn't, so put b first.
+            return 1;
+        }
+        return 0
+    }
+
+    function pValueFullCompare(a, b) {
+
+        // Compare p_values, then do the final compare
+        
+        var result = variableCompare(a, b, 'p_value');
+        if (result !== 0) return result;
+
+        return finalCompare(a, b);
+    }
+
+    function correlationCompare(a, b, pos) {
+
+        // Compare correlation sign, then p-value, then do the final compare
+
+        // Compare correlation signs with positives first or negatives first,
+        // depending on pos, where true indicates positive, false negative
+        var aSign = layers[a].correlation < 0 ? -1 : 1,
+            bSign = layers[b].correlation < 0 ? -1 : 1;
+
+        if (aSign < bSign && pos) {
+            return 1;
+        } else if (bSign < aSign && pos) {
+            return -1
+        } else if (aSign < bSign && !pos) {
+            return -1;
+        } else if (bSign < aSign && !pos) {
+            return 1
+        }
+
+        // Compare p_values
+        result = variableCompare(a, b, 'p_value');
+        if (result !== 0) return result;
+
+        // The final compare
+        return finalCompare(a, b);
+    }
+
+    function correlationFullCompare(a, b) {
+
+        return correlationCompare(a, b, true);
+    }
+
+    function anticorrelationCompare(a, b) {
+
+        return correlationCompare(a, b, false);
+    }
+
+    sort_layers = function (layer_array) {
+
+        // Given an array of layer names, sort the array in place as we want
+        // layers to appear to the user.
+
+        /*
+        The compare order of sorts:
+        - sort options are optional and one of:
+            - ignore layout: by p-value in ascending order
+            - layout-aware positive: by positive correlation sign first, then p-value
+            - layout-aware negative: by negative correlation sign first, then p-value
+        - by clumpiness/density
+        - alphabetically
+
+        The compare functions return the usual values:
+            <0 if A belongs before B
+            >0 if A belongs after B
+            0 if equal or their order doesn't matter
+        */
+
+        var type_value = Session.get('sort').type;
+
+        if (layer_array.length === 0) return;
+
+        if (type_value == "layout-aware-positive") {
+            layer_array.sort(correlationFullCompare);
+
+        } else if (type_value == "layout-aware-negative") {
+            layer_array.sort(anticorrelationCompare);
+
+        } else if (type_value == "p-value") {
+            layer_array.sort(pValueFullCompare);
+
+        } else {
+            // The default sort, by density/clumpiness
+            layer_array.sort(finalCompare);
+            
+            if (!_.isUndefined(ctx.first_layer)) {
+
+                // move the 'First' attribute to the top
+                layer_array.splice(layer_array.indexOf(ctx.first_layer), 1);
+                layer_array.unshift(ctx.first_layer);
+            }
+        }
+    }
+
     clearStats = function () {
 
         // Clear stats for each layer before updating with the new stats
