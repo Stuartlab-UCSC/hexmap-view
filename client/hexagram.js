@@ -1393,6 +1393,7 @@ select_list = function (to_select, function_type, layer_names, new_layer_name, s
 	// function_type is an optional parameter. If no variable is passed for the 
 	// function_type undefined then the value will be undefined and the
 	// default "selection + #" title will be assigned to the shortlist element.
+
 	// If layer_names is undefined, the "selection + #" will also apply as a
 	// default. However, if a value i.e. "intersection" is passed 
 	// for function_type, the layer_names will be used along with the 
@@ -1403,6 +1404,11 @@ select_list = function (to_select, function_type, layer_names, new_layer_name, s
     // otherwise.
     var wanted = {};
     
+    if (to_select.length < 1) {
+        banner('warn', "No hexagons were selected. Maybe part of your selection area wrapped around googlemap's world");
+        return;
+    }
+
     for(var i = 0; i < to_select.length; i++) {
         wanted[to_select[i]] = true;
     }
@@ -1413,7 +1419,7 @@ select_list = function (to_select, function_type, layer_names, new_layer_name, s
     // How many signatures will we have any mention of in this layer
     var signatures_available = 0;
     
-    // Start it out with 0 for each signature. Otherwise we wil have missing 
+    // Start it out with 0 for each signature. Otherwise we will have missing
     // data for signatures not passing the filters.
     for(var signature in polygons) {
         data[signature] = 0;
@@ -1440,12 +1446,17 @@ select_list = function (to_select, function_type, layer_names, new_layer_name, s
             }
         }
 
+        // Complain if no hexagons were selected after applying the filters
+        if (signatures_selected < 1) {
+            banner('warn', 'No hexagons are selected after applying the filters.');
+            return;
+        }
+
 		// Default Values for Optional Parameters
 		if (function_type == undefined && layer_names == undefined){		
         	layer_name = "Selection " + selection_next_id;
         	selection_next_id++;
 		}
-
 
 		if (new_layer_name == undefined) {
 			// If a name hasn't already been prescribed through a previous
@@ -2698,7 +2709,9 @@ initHex = function () {
         // Now we have added layer downloaders for all the layers in the 
         // index. Update the UI
         update_browse_ui();
-        
+
+        // Sort attributes by the default sort
+        find_clumpiness_stats(current_layout_index);
          
     }, "text");
     
@@ -2898,10 +2911,5 @@ initHex = function () {
     });
 
 	create_indexed_layers_array ();
-
-
-    // Set Default Values for Clumpiness Stats (Layout Indexed at 0)
-	// Update Dropdown to reflect appropriately
-    find_clumpiness_stats(get_current_layout_index(ctx.current_layout_name));
 };
 })(app);

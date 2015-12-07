@@ -50,13 +50,15 @@ var app = app || {}; // jshint ignore:line
         // This will keep the focus attribute out of the sort.
         if (layer !== focus_attr && !isNaN(p_value)) {
             layers[layer].p_value = parseFloat(p_value);
+            return 1; // To increment the count
         }
+        return 0; // Don't increment the count
     }
 
     function receive_ignore_layout_stats (parsed, focus_attr, opts) {
 
         // Handle the response from the server for ignore-layout sort statistics
-
+        var count = 0;
         if (parsed.length === 2 && parsed[0].length > 3) {
 
             // This is from a pre-computed file, so it is of the form:
@@ -65,7 +67,7 @@ var app = app || {}; // jshint ignore:line
             //      [value1, value2, ...]
             // ]
             for (var i = 0; i < parsed[0].length; i++) {
-                updateLayerPvalue(focus_attr, parsed[0][i], parsed[1][i]);
+                count += updateLayerPvalue(focus_attr, parsed[0][i], parsed[1][i]);
             }
         } else {
 
@@ -84,7 +86,7 @@ var app = app || {}; // jshint ignore:line
                 var compare_layer_name = parsed[i][1];
 
                 // Extract the value
-                updateLayerPvalue(focus_attr, compare_layer_name, parsed[i][2]);
+                count += updateLayerPvalue(focus_attr, compare_layer_name, parsed[i][2]);
             }
 
         }
@@ -97,7 +99,11 @@ var app = app || {}; // jshint ignore:line
             text += '(' + elapsed + ' seconds)';
         }
 
-        updateUi(type, text, focus_attr, opts);
+        if (count > 0) {
+            updateUi(type, text, focus_attr, opts);
+        } else {
+            updateUi('none', 'None, due to no stats (ignoring layout)', 'none');
+        }
     }
 
     function receive_layout_aware_stats (parsed, focus_attr, opts) {
@@ -110,6 +116,7 @@ var app = app || {}; // jshint ignore:line
         //      [layerName2, r-value2, p-value2],
         //      ...
         // ]
+        var count = 0;
         for (var i = 0; i < parsed.length; i++) {
 
             // First element of each row is the layer name
@@ -122,19 +129,24 @@ var app = app || {}; // jshint ignore:line
             if (!isNaN(r_value) && !isNaN(p_value)) {
                 layers[compare_layer_name].correlation = r_value;
                 layers[compare_layer_name].p_value = p_value;
+                count += 1;
             }
         }
 
-        // Now we're done loading the stats, update the sort properties
-        var corr = 'correlation',
-            type = 'layout-aware-positive';
-        if (opts.anticorrelated) {
-            corr = 'anticorrelation';
-            type = 'layout-aware-negative';
-        }
-        var text = 'Layout-aware ' + corr + ' with: ' + focus_attr;
+        if (count > 0) {
+            // Now we're done loading the stats, update the sort properties
+            var corr = 'correlation',
+                type = 'layout-aware-positive';
+            if (opts.anticorrelated) {
+                corr = 'anticorrelation';
+                type = 'layout-aware-negative';
+            }
+            var text = 'Layout-aware ' + corr + ' with: ' + focus_attr;
 
-        updateUi(type, text, focus_attr, opts);
+            updateUi(type, text, focus_attr, opts);
+        } else {
+            updateUi('none', 'None, due to no layout-aware stats', 'none');
+        }
     }
 
     function receive_data (parsed, focus_attr, opts) {
@@ -160,21 +172,29 @@ var app = app || {}; // jshint ignore:line
         // the given layout index. Just pulls from each layer's clumpiness_array
         // field.
         var layer;
+        var count = 0;
         for (var i = 0; i < ctx.layer_names_sorted.length; i++) {
             // For each layer
             
             // Get the layer object
             layer = layers[ctx.layer_names_sorted[i]];
-            
+
             if (!_.isUndefined(layer.clumpiness_array)) {
 
                 // We have a set of clumpiness scores for this layer.
                 // Switch the layer to the appropriate clumpiness score.
-                layer.clumpiness = layer.clumpiness_array[layout];
+                if (!_.isNaN(layer.clumpiness_array[layout])) {
+                    layer.clumpiness = layer.clumpiness_array[layout];
+                    count += 1;
+                }
             }
         }
 
-        updateUi('default');
+        if (count > 0) {
+            updateUi('default');
+        } else {
+            updateUi('none', 'None, due to no density stats', 'none');
+        }
     }
 
     getDynamicStats = function (focus_attr, opts) {
