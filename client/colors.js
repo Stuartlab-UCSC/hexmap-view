@@ -27,6 +27,7 @@ var app = app || {}; // jshint ignore:line
 
         // Use the Session version of the colormap
         colorArray: function () {
+            // TODO this should be a local reactiveVar rather than a global session var
             var colorArray = Session.get('colorArray')
             return colorArray;
         }
@@ -146,12 +147,40 @@ var app = app || {}; // jshint ignore:line
             re_initialize_view();
         };
 
-        Template.colormapT.events({
+        // Convert an rgb array, [66, 77, 88], to an object, {r:66, b:77, g:88}
+        rgbArrayToObj = function (arr) {
+            return new Color({r: arr[0], g: arr[1], b: arr[2]});
+        };
 
-            // Fires when a row is clicked.
-            // Highlights the clicked row to make it easier for the user
-            // to follow across all of the categories for this layer.
-            'click tr': function (ev) {
+        add_tool("change-foreground", "ColorMap", function () {
+
+            // A tool to change the colorMap
+            var $form = $('#colorMapDiv'),
+                $link = $('#colorMapDiv a');
+
+            function makeTsv($link) {
+                var tsv = '';
+
+                Object.keys(colormaps).forEach(function (layer) {
+                    tsv += layer;
+                    colormaps[layer].forEach(function (cat, catIndex) {
+                        tsv += '\t' + catIndex + '\t' + cat.name + '\t' + cat.color.hexString();
+                    });
+                    tsv += '\n';
+                });
+
+                // Fill in the data URI for saving. We use the handy
+                // window.bota encoding function.
+                $link.attr("href", "data:text/plain;base64," + window.btoa(tsv));
+
+                $link[0].click();
+            }
+
+            function rowClick(ev) {
+
+                // Fires when a row is clicked.
+                // Highlights the clicked row to make it easier for the user
+                // to follow across all of the categories for this layer.
                 var $t = $(ev.currentTarget),
 
                     // Clear the 'selected' attribute of all layers
@@ -164,11 +193,12 @@ var app = app || {}; // jshint ignore:line
                     selected = findRowLayer($t, colorArray);
                 selected.selected = 'selected';
                 Session.set('colorArray', colorArray);
-            },
+            }
 
-            // Fires when a color input field loses focus.
-            // Update its properties & the map
-            'blur input': function (ev) {
+            function inputBlur (ev) {
+
+                // Fires when a color input field loses focus.
+                // Update its properties & the map
                 var $t = $(ev.currentTarget),
                     $row = $t.parents('tr'),
                     colorArray = Session.get('colorArray'),
@@ -204,10 +234,11 @@ var app = app || {}; // jshint ignore:line
                     Meteor.flush();
                     updateColormap(cat);
                 }
-            },
-            
-            // Fires when a key is released in a color input field
-            'keyup input': function (ev, otherKeyup) {
+            }
+
+            function inputKeyup (ev) {
+
+                // Fires when a key is released in a color input field
                 var $t = $(ev.currentTarget),
                     newVal = $t.prop('value').trim(),
                     colorArray,
@@ -226,40 +257,9 @@ var app = app || {}; // jshint ignore:line
                     // This is the return key, so trigger a blur event
                     $t.parent().next().next().find('input').focus();
                 }
-            },
-        });
-
-        // A tool to change the colorMap
-
-        // Convert an rgb array, [66, 77, 88], to an object, {r:66, b:77, g:88}
-        rgbArrayToObj = function (arr) {
-            return new Color({r: arr[0], g: arr[1], b: arr[2]});
-        };
-/* BROKEN TODO
-        add_tool("change-foreground", "ColorMap", function () {
-
-            var $form = $('#colorMapDiv'),
-                $link = $('#colorMapDiv a');
-
-            function makeTsv($link) {
-                var tsv = '';
-
-                Object.keys(colormaps).forEach(function (layer) {
-                    tsv += layer;
-                    colormaps[layer].forEach(function (cat, catIndex) {
-                        tsv += '\t' + catIndex + '\t' + cat.name + '\t' + cat.color.hexString();
-                    });
-                    tsv += '\n';
-                });
-
-                // Fill in the data URI for saving. We use the handy
-                // window.bota encoding function.
-                $link.attr("href", "data:text/plain;base64," + window.btoa(tsv));
-
-                $link[0].click();
             }
 
-           function render() {
+            function render() {
                 $form
                     .append($link)
                     .dialog({
@@ -286,7 +286,10 @@ var app = app || {}; // jshint ignore:line
                         close: function () {
                             tool_activity(false);
                         }
-                    });
+                    })
+                    .on('click', 'tr', rowClick)
+                    .on('blur', 'input', inputBlur)
+                    .on('keyup', 'input', inputKeyup);
             }
 
             function colormapToColorArray() {
@@ -313,7 +316,6 @@ var app = app || {}; // jshint ignore:line
             // Deselect the tool.
             tool_activity(false);
         }, 'Change colors of attributes', 'mapOnly');
-*/
     }
 })(app);
 

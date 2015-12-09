@@ -45,7 +45,8 @@ var app = app || {}; // jshint ignore:line
                 .text(text)
                 .show();
             if (type !== 'stay') {
-                $("#banner").delay(1250).fadeOut(1500);
+                $("#banner").delay(2500).fadeOut(1500);
+                //$("#banner").delay(1250).fadeOut(1500);
             }
         }
         // Also inform the browser console of this issue.
