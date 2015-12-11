@@ -32,23 +32,19 @@ var app = app || {}; // jshint ignore:line
     banner = function (type, text) {
         // The type should be one of: info, error, warn, stay
 
-        if (type === 'error') {
-            // Let's do a more obnoxious alert for real errors
-            $("#banner").hide();
-            alert(text);
-        } else {
+        // Display a temporary message to the user on a banner.
+        $("#banner")
+            .removeClass('info warn error stay')
+            .addClass(type)
+            .text(text)
+            .show();
 
-            // Display a temporary message to the user on a banner.
-            $("#banner")
-                .removeClass('info warn error stay')
-                .addClass(type)
-                .text(text)
-                .show();
-            if (type !== 'stay') {
-                $("#banner").delay(2500).fadeOut(1500);
-                //$("#banner").delay(1250).fadeOut(1500);
-            }
+        if (type === 'warn' || type === 'info') {
+            $("#banner").delay(1250).fadeOut(1500);
+        } else if (type === 'error') {
+            $("#banner").delay(2500).fadeOut(1500);
         }
+
         // Also inform the browser console of this issue.
         console.log(type + ':', text);
     }

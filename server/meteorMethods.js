@@ -46,12 +46,7 @@ Meteor.methods({
         // Make a project data directory string usable by the server code.
         // This is needed due to a prefix required on http calls to proxy
         // servers.
-        console.log('parms.directory:', parms.directory);
-        console.log('publicDir:', publicDir);
-        console.log('parms.proxPre:', parms.proxPre);
         parms.directory = publicDir + parms.directory.replace(parms.proxPre, '');
-        console.log('parms.directory:', parms.directory);
-        //return 'Error: directory error';
 
         // Write the parms to a temporary file so the OS doesn't error on
         // paramters too long.

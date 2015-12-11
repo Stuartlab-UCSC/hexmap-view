@@ -12,7 +12,12 @@
                     </label>
                     <br>
                     <label>
-                        <input type='radio' name='sortBy' class='sortByDensity' id='sortByDensity' />
+                        <input type='radio' name='sortBy' class='sortByDiff' id='sortByDiff' checked='{{diffSort}}' />
+                        Differential attributes
+                    </label>
+                    <br>
+                    <label>
+                        <input type='radio' name='sortBy' class='sortByDensity' id='sortByDensity' checked='{{densitySort}}' />
                         Density of attributes
                     </label>
                 </td>
@@ -22,9 +27,9 @@
                     Layout:
                 </td>
                 <td class='dialog-value'>
-                    <input type="radio" class='based' name="region-sample-based" id="sample-based" value="sample-based" checked='checked' />
+                    <input type="radio" class='based' name="region-sample-based" id="sample-based" value="sample-based" checked={{layoutIgnore}} />
                     <label for="sample-based" class='based'>Ignore layout</label><br/>
-                    <input type="radio" class='based'  name="region-sample-based" id="region-based" value="region-based" />
+                    <input type="radio" class='based'  name="region-sample-based" id="region-based" value="region-based" checked={{layoutAware}} />
                     <label for="region-based" class='based'>Layout aware</label>
                 </td>
             </tr>
@@ -33,48 +38,37 @@
                     Correlation:
                 </td>
                 <td class='dialog-value'>
-                    <input type="radio" class='corr' name="corr" id="corr-pos" value="positive" />
-                    <label for="corr-pos" class='corr'>Positive</label><br/>
-                    <input type="radio" class='corr' name="corr" id="corr-neg" value="negative" />
-                    <label for="corr-neg" class='corr'>Negative</label>
+                    <input type="radio" class='corr' name="corr" id="corrPos" value="positive" checked={{corrPos}} />
+                    <label for="corrPos" class='corr'>Positive</label><br/>
+                    <input type="radio" class='corr' name="corr" id="corrNeg" value="negative" checked={{corrNeg}} />
+                    <label for="corrNeg" class='corr'>Negative</label>
                 </td>
             </tr>
-            <tr style='display:none'>
-                <td class='dialog-label bin' style='vertical-align:top'>
-                    Include attributes:
-                </td>
-                <td class='dialog-value'>
-                    <label class='bin-label bin'>
-                        <input class='bin' type="checkbox" checked='{{bin}}'/>
-                        Labels (yes/no)
-                    </label>
-                    <br>
-                    <label class='cat-label cat'>
-                        <input class='cat' type="checkbox" checked='{{cat}}' />
-                        Categories
-                    </label>
-                    <br>
-                    <label class='cont-label cont'>
-                        <input class='cont' type="checkbox" checked='{{cont}}' />
-                        Numeric
-                    </label>
-                </td>
-             </tr>
             <tr>
                 <td class='dialog-label focus_attr' style='line-height:36px'>
-                    Focus attribute:
+                    {{listLabel}}
                 </td>
                 <td class='dialog-value'>
                     <div class='list focus_attr'></div>
-                    <span class='listMessage focus_attr' style='display:{{listMessageDisplay}};color:red'>
+                    <span class='listMessage focus_attr redMessage' style='display:{{listMessageDisplay}};color:{{messageColor}}'>
                         {{listMessage}}
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class='dialog-label focus_attr2' style='line-height:36px'>
+                    Attribute B:
+                </td>
+                <td class='dialog-value'>
+                    <div class='list2 focus_attr2'></div>
+                    <span class='listMessage2 focus_attr2 redMessage' style='display:{{listMessageDisplay2}};color:{{messageColor2}}'>
+                        {{listMessage2}}
                     </span>
                 </td>
             </tr>
         </table>
         <img class="help-button help question-sign" style='display:none'>
     </form> <!-- sort-attributes-dialog -->
-
 
     <div id='sort-attributes-help-dialog' title="Sort Help" style='display:none'>
         <div>

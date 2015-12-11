@@ -8,34 +8,71 @@ var app = app || {}; // jshint ignore:line
 
     var title = 'Sort Attributes',
         disabled_color = '#aaaaaa',
+        FOCUS_LIST_LABEL = 'Attribute A:', //'Focus attribute:',
+        DIFF_LIST_LABEL = 'Attribute A:',
         $dialog,
-        $sample_based,
-        $corr_neg,
         $list,
+        $list2,
         $help_dialog,
-        sample_based,
-        corr_neg,
-        focus_attr,
-        shortlist;
+        focusAttr,
+        focusAttr2,
+        shortlist,
+        ui = new ReactiveDict(),
+        dialogActive = false; // TODO this should use a reactive global var
 
+    // Make the variables in the html templates under our dynamic control here.
     Template.sortUiT.helpers({
         focusSort: function () {
-            return Session.get('focusSort');
+            return (ui.get('sortBy') === 'focus');
         },
-        bin: function () {
-            return Session.get('bin');
+        diffSort: function () {
+            return (ui.get('sortBy') === 'diff');
         },
-        cat: function () {
-            return Session.get('cat');
+        densitySort: function () {
+            return (ui.get('sortBy') === 'density');
         },
-        cont: function () {
-            return Session.get('cont');
+        layoutIgnore: function () {
+            return !(ui.get('layoutAware'));
+        },
+        layoutAware: function () {
+            return ui.get('layoutAware');
+        },
+        corrPos: function () {
+            return !(ui.get('corrNeg'));
+        },
+        corrNeg: function () {
+            return ui.get('corrNeg');
+        },
+        listLabel: function () {
+            return ui.get('listLabel');
         },
         listMessage: function () {
-            return Session.get('listMessage');
+            return ui.get('listMessage');
+        },
+        messageColor: function () {
+            var x = ui.get('listMessage');
+            return 'red';
         },
         listMessageDisplay: function () {
-            return Session.get('listMessageDisplay');
+            if (ui.get('listMessage') === '') {
+                return 'none';
+            } else {
+                return 'inline';
+            }
+        },
+        listMessage2: function () {
+            return ui.get('listMessage2');
+        },
+        messageColor2: function () {
+            var x = ui.get('listMessage2');
+            return 'red';
+        },
+        listMessageDisplay2: function () {
+            if (ui.get('listMessage2') === '') {
+                return 'none';
+            } else {
+                return 'inline';
+            }
         },
     });
 
@@ -64,9 +101,9 @@ var app = app || {}; // jshint ignore:line
         var disabled = false,
             color = 'inherit';
 
-        if (Session.equals('focusSort', false)) {
+        if (!ui.equals('sortBy', 'focus')) {
 
-            // Disable correlation options for focus sort
+            // Disable base options of focus sort
             disabled = true;
             color = disabled_color;
         }
@@ -79,7 +116,8 @@ var app = app || {}; // jshint ignore:line
         var disabled = false,
             color = 'inherit';
 
-        if (Session.equals('focusSort', false) || sample_based) {
+        if (!ui.equals('sortBy', 'focus') ||
+            (ui.equals('sortBy', 'focus') && !ui.equals('layoutAware', true))) {
 
             // Disable correlation options for sample-based
             disabled = true;
@@ -90,72 +128,57 @@ var app = app || {}; // jshint ignore:line
             .css('color', color);
     }
 
-    function enable_value_types() {
-    /* TODO may not want value types
-        var disabled = false,
-            color = 'inherit';
-
-        if (Session.equals('focusSort', false)) {
-
-            // Disable all value types for density sort
-            disabled = true;
-            color = disabled_color;
-            $dialog.find('.bin, .cat, .cont')
-                .attr('disabled', disabled)
-                .css('color', color);
-            return;
-        }
-
-        // Enable binary with or without layout
-        $dialog.find('.bin')
-            .attr('disabled', disabled)
-            .css('color', color);
-
-        if (!sample_based) {
-
-            // Force selection of binary values
-            Session.set('bin', true);
-
-            // Disable categorical and continuous for region-based
-            disabled = true;
-            color = disabled_color;
-        }
-        $dialog.find('.cat, .cont')
-            .attr('disabled', disabled)
-            .css('color', color);
-    */
-    }
-
-    function listMessage (msg) {
-        if (msg === 'clear') {
-            Session.set('listMessageDisplay', 'none');
-        } else {
-            Session.set('listMessage', msg)
-            Session.set('listMessageDisplay', 'inline')
-        }
-    }
-
     function enable_list() {
+        var disabled = false,
+            color = 'inherit',
+            msgColor = 'red';
+
+        // Disable any list message up front
+        ui.set('listMessage', '');
+        $dialog.find('.listMessage').css('color', 'red');
+
+        if (ui.equals('sortBy', 'density')) {
+
+            // Disable the list
+            disabled = true;
+            color = disabled_color;
+        } else {
+            if (ui.equals('sortBy', 'focus')) {
+                ui.set('listLabel', FOCUS_LIST_LABEL);
+            } else {
+                ui.set('listLabel', DIFF_LIST_LABEL);
+            }
+            populate_list();
+        }
+        $dialog.find('.focus_attr, .focus_attr .select2-choice')
+            .attr('disabled', disabled)
+            .css('color', color);
+
+        // Stupid override
+        $('.redMessage').css('color', 'red');
+    }
+
+    function enable_list2() {
         var disabled = false,
             color = 'inherit';
 
         // Disable any list message up front
-        listMessage('clear');
+        ui.set('listMessage2', '');
 
-        if (Session.equals('focusSort', true) && (
-                Session.equals('bin', true)
-                || Session.equals('cat', true)
-                || Session.equals('cont', true))) {
-            populate_list();
+        if (ui.equals('sortBy', 'diff')) {
+            populate_list2();
         } else {
 
             // Disable the list
             disabled = true;
             color = disabled_color;
         }
-        $dialog.find('.focus_attr, .focus_attr .select2-choice')
+        $dialog.find('.focus_attr2, .focus_attr2 .select2-choice')
             .attr('disabled', disabled)
             .css('color', color);
+
+        // Stupid override
+        $('.redMessage').css('color', 'red');
     }
 
     function enable_all(except_base) {
@@ -163,62 +186,75 @@ var app = app || {}; // jshint ignore:line
             enable_base();
         }
         enable_corr();
-        enable_value_types();
         enable_list();
-    }
-
-    function base_change(ev) {
-
-        // Change handler for either of the sample-based or region-based
-        var newVal = $sample_based.prop('checked');
-        if (sample_based !== newVal) {
-            sample_based = newVal;
-            enable_all(true)
-        }
-    }
-
-    function corr_change(ev) {
-
-        // Change handler for either of the positive or negative correlation
-        corr_neg = $corr_neg.prop('checked');
-    }
-
-    function list_option_change(ev) {
-
-        // Change handler for the selected focus attribute
-        focus_attr = $list.select2('val');
+        enable_list2();
     }
 
 	function sortIt() {
-        if (Session.equals('focusSort', false)) {
+        var returnMessage;
+        if (ui.equals('sortBy', 'density')) {
 
+            // Density sort has been requested
             find_clumpiness_stats(current_layout_index);
 
-        } else {
+        } else if (ui.equals('sortBy', 'focus')) {
 
-            // A sort on a focus attribute has been requested
-            if (focus_attr === '') {
+            // Focus attribute sort has been requested
+            if (focusAttr === '') return;
+
+            if (ui.equals('layoutAware', true)) {
+                get_layout_aware_stats(current_layout_index, focusAttr,
+                    ui.equals('corrNeg', true));
+
+            } else { // ignore layout requested
+                get_layout_ignore_stats(focusAttr, Session.get('bin'),
+                    Session.get('cat'), Session.get('cont'));
+            }
+         } else {
+
+            // Differential attribute sort has been requested
+            if (focusAttr === '' || focusAttr2 === '') return;
+            if (focusAttr === focusAttr2) {
+                banner('error', 'Select two different attributes for differential sort');
                 return;
             }
-            if (sample_based) {
-                if (Session.equals('bin', false)
-                        && Session.equals('cat', false)
-                        && Session.equals('cont', false)) {
-                    alert('At least one of these must be selected:\n\n\t- '
-                        + $('.bin-label').text().trim() + '\n\t- '
-                        + $('.cat-label').text().trim() + '\n\t- '
-                        + $('.cont-label').text().trim());
-                    return;
-                }
-                get_layout_ignore_stats(focus_attr, Session.get('bin'),
-                    Session.get('cat'), Session.get('cont'));
+            returnMessage = get_diff_stats(focusAttr, focusAttr2);
 
-            } else { // region-based requested
-                get_layout_aware_stats(current_layout_index, focus_attr, corr_neg);
-            }
          }
-        destroy_dialog();
+        if (_.isUndefined(returnMessage)) {
+            destroy_dialog();
+        } else {
+            banner('error', returnMessage);
+        }
 	}
+
+     function findBinaryFocuslist () {
+        var focusList = _.filter(shortlist,
+            function (layer_name) {
+                return (ctx.bin_layers.indexOf(layer_name) > -1);
+            }
+        );
+        return focusList;
+	}
+
+    function findUserGeneratedList () {
+        var focusList = _.filter(shortlist,
+            function (layer_name) {
+                return (layers[layer_name].hasOwnProperty('selection'));
+            }
+        );
+        return focusList;
+    }
+
+    function findShortlist() {
+
+        // Get all of the attributes in the shortlist
+        shortlist = _.map($("#shortlist").children(),
+            function (element, index) {
+                return $(element).data("layer");
+            }
+        )
+    }
 
     populate_list = function () {
 
@@ -233,47 +269,30 @@ var app = app || {}; // jshint ignore:line
             $.noop();
         }
 
-        var focusList = _.filter(shortlist,
-            function (layer_name) {
+        findShortlist();
+        var focusList = shortlist;
+        if (ui.equals('sortBy', 'focus') && ui.equals('layoutAware', true)) {
+            focusList = findBinaryFocuslist();
+        } else if (ui.equals('sortBy', 'diff')) {
+            focusList = findUserGeneratedList();
+        }
 
-                // For layout-ignore, select all attributes from the short list
-                if (sample_based) {
-                    return true;
-
-                // For layout-aware, select only binary data types
-                } else if (ctx.bin_layers.indexOf(layer_name) > -1) {
-                    return true;
-                } else {
-                    return false;
-                }
-
-                /* TODO for data type selection
-                // Is the attribute in the binary layers list?
-                if (Session.equals('bin', true)
-                    && ctx.bin_layers.indexOf(layer_name) > -1) {
-                    return true;
-                }
-                if (sample_based) {
-
-                    // Is the attribute in the categorical or continuous list?
-                    if ((Session.equals('cat', true)
-                        && ctx.cat_layers.indexOf(layer_name) > -1)
-                        ||  (Session.equals('cont', true)
-                        && ctx.cont_layers.indexOf(layer_name) > -1)) {
-                        return true;
-                    }
-                }
-                return false;
-                */
-            }
-        );
-
-        // At least one attribute must be in the list.
-        if (focusList.length < 1) {
+        // At least two attributes must be in the list for differential stats
+        if (ui.equals('sortBy', 'diff') && focusList.length < 2) {
 
             // Reset the focus attribute
-            focus_attr = '';
-            listMessage('No candidates in shortlist');
+            focusAttr = '';
+            ui.set('listMessage', 'Select two groups of hexagons');
+
+        // At least one attribute must be in the list for focus sort
+        } else if (focusList.length < 1) {
+
+            focusAttr = '';
+            if (ui.equals('layoutAware', true)) {
+                ui.set('listMessage', 'Add label attribute to shortlist');
+            } else {
+                ui.set('listMessage', 'Add an attribute to shortlist');
+            }
 
         } else {
             setTimeout(function () { // Flush UI to let the list message disappear
@@ -284,9 +303,49 @@ var app = app || {}; // jshint ignore:line
                 });
 
                 // Create the select2 drop-down
-                focus_attr = (focusList.indexOf(focus_attr) > -1) ? focus_attr : focusList[0];
+                focusAttr = (focusList.indexOf(focusAttr) > -1)
+                    ? focusAttr : focusList[0];
                 var opts = {data: data, minimumResultsForSearch: -1};
-                createOurSelect2($list, opts, focus_attr);
+                createOurSelect2($list, opts, focusAttr);
+            }, 0);
+        }
+    }
+
+    populate_list2 = function () {
+
+        // This creates and populates the drop down with the
+        // appropriate layers in the shortlist.
+
+        // Reset the list
+        try {
+            $list2.select2('destroy');
+        }
+        catch (error) {
+            $.noop();
+        }
+
+        var focusList = findUserGeneratedList();
+
+        // At least two attributes must be in the list for differential stats
+        if (focusList.length < 2) {
+
+            // Reset the focus attribute
+            focusAttr2 = '';
+            ui.set('listMessage2', 'Select two groups of hexagons');
+
+        } else {
+            setTimeout(function () { // Flush UI to let the list message disappear
+
+                // Transform the focus layer list into the form wanted by select2
+                var data = _.map(focusList, function (layer) {
+                    return { id: layer, text: layer }
+                });
+
+                // Create the select2 drop-down
+                focusAttr2 = (focusList.indexOf(focusAttr2) > -1)
+                    ? focusAttr2 : focusList[1];
+                var opts = {data: data, minimumResultsForSearch: -1};
+                createOurSelect2($list2, opts, focusAttr2);
             }, 0);
         }
     }
@@ -299,18 +358,21 @@ var app = app || {}; // jshint ignore:line
             $.noop();
         }
         try {
+            $list2.select2('destroy');
+        }
+        catch (error) {
+            $.noop();
+        }
+        try {
             $dialog.dialog('destroy');
         }
         catch (error) {
             $.noop();
         }
+        dialogActive = false;
     }
 
     function init_dialog () {
-
-        // Initialize elements to current operating values
-        $sample_based.prop('checked', sample_based);
-        $corr_neg.prop('checked', corr_neg);
 
         // Enable the appropriate UI elements
         enable_all();
@@ -322,71 +384,83 @@ var app = app || {}; // jshint ignore:line
         // Event handlers
         $dialog
             .on('change', '#sortByFocus', function (ev) {
-                Session.set('focusSort', ev.target.checked);
+                if (ev.target.checked) ui.set('sortBy', 'focus');
+                enable_all();
+            })
+            .on('change', '#sortByDiff', function (ev) {
+                if (ev.target.checked) ui.set('sortBy', 'diff');
                 enable_all();
             })
             .on('change', '#sortByDensity', function (ev) {
-                Session.set('focusSort', !ev.target.checked);
+                if (ev.target.checked) ui.set('sortBy', 'density');
                 enable_all();
             })
-            .on('change', '#sample-based, #region-based', base_change)
-            .on('change', '.list', list_option_change)
-            .on('change', '.bin', function (ev) {
-                Session.set('bin', ev.target.checked);
-                enable_list();
+            .on('change', '#sample-based', function (ev) {
+                if (ev.target.checked) ui.set('layoutAware', false);
+                enable_all(true);
             })
-            .on('change', '.cat', function (ev) {
-                Session.set('cat', ev.target.checked);
-                enable_list();
+            .on('change', '#region-based', function (ev) {
+                if (ev.target.checked) ui.set('layoutAware', true);
+                enable_all(true);
             })
-            .on('change', '.cont', function (ev) {
-                Session.set('cont', ev.target.checked);
-                enable_list();
+            .on('change', '#corrPos', function (ev) {
+                if (ev.target.checked) ui.set('corrNeg', false);
             })
-            .on('change', '#corr-pos, #corr-neg', corr_change);
+            .on('change', '#corrNeg', function (ev) {
+                if (ev.target.checked) ui.set('corrNeg', true);
+            })
+            .on('change', '.list', function (ev) {
+                focusAttr = $list.val();
+            })
+            .on('change', '.list2', function (ev) {
+                focusAttr2 = $list2.val();
+            });
         $help.on('click', show_help);
+        dialogActive = true;
     }
 
     function show_dialog () {
         $dialog.dialog({
             title: title,
             dialogClass: 'dialog',
-            modal: true,
+            //modal: true,
             minHeight: '10em',
             width: '25em',
             close: destroy_dialog,
             buttons: [{ text: 'Sort', click: sortIt }],
         });
 
-        // Get all of the attributes in the shortlist
-        shortlist = _.map($("#shortlist").children(),
-            function (element, index) {
-                return $(element).data("layer");
-            }
-        )
-
         setTimeout(init_dialog, 0); // give the dialog DOM a chance to load
+    }
+
+    shortlistChangedForSort = function () {
+        if (dialogActive) {
+            enable_list();
+            enable_list2()
+        }
     }
 
     init_sort_attrs = function () {
 
-        // Initialize the session values
-        Session.set('focusSort', true); // Sort is by focus attribute rather than by density
-        sample_based = true; // sort is sample-based rather than region-based
-        corr_neg = false; // sort by positive correlation
-        $('#corr-pos').prop('checked', true);
+        // Initialize the reactive variables
+        ui.set({
+            'sortBy': 'focus',  // Sort by focus attribute rather than differential or density
+            'layoutAware': false, // layout aware rather than ignore layout
+            'listLabel': FOCUS_LIST_LABEL,  // set the list label
+            'corrNeg': false,  // sort by positive correlation rather than anticorrelation
+            'listMessage': '', // empty the list message
+            'listMessage2': '', // empty the list message2
+        });
         Session.set('bin', true); // binary values included
         Session.set('cat', true); // categorical values included
         Session.set('cont', true); // continuous values included
-        Session.set('listMessageDisplay', 'none'); // set the list message display to none
-        Session.set('listMessage', ''); // empty the list message
-        focus_attr = '';
+        focusAttr = '';
+        focusAttr2 = '';
 
         // Set jquery element names
         $dialog = $('#sort-attributes-dialog');
-        $sample_based = $('#sample-based');
-        $corr_neg = $('#corr-neg');
         $list = $("#sort-attributes-dialog .list");
+        $list2 = $("#sort-attributes-dialog .list2");
         $help = $('.help-button');
 
         // Handler for clicking the button on the toolbar

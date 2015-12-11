@@ -601,6 +601,10 @@ function make_shortlist_ui(layer_name) {
     
     root.append(controls);
 
+    /* TODO we no longer want to remove selections without also removing them 
+            from the long list, use this logic for selections for the normal 
+            remove button, and remove this section
+    */
 	// If this a selection, add a special delete attribute link
 	// This will remove the attribute from the shortlist and list of layers
 	// This is important for saving/loading so that the user is not constantly
@@ -1073,6 +1077,8 @@ update_shortlist_ui = function () {
 
 	// Update Values for GUI Dropdowns
 	update_comparison_stats_selections ();
+
+    shortlistChangedForSort();
 }	
 
 fill_layer_metadata = function (container, layer_name) {
@@ -1453,12 +1459,12 @@ select_list = function (to_select, function_type, layer_names, new_layer_name, s
         }
 
 		// Default Values for Optional Parameters
-		if (function_type == undefined && layer_names == undefined){		
+		if (function_type === undefined && layer_names === undefined){
         	layer_name = "Selection " + selection_next_id;
         	selection_next_id++;
 		}
 
-		if (new_layer_name == undefined) {
+		if (new_layer_name === undefined) {
 			// If a name hasn't already been prescribed through a previous
 			// session.
 			if (function_type == "user selection"){
@@ -1552,29 +1558,29 @@ select_list = function (to_select, function_type, layer_names, new_layer_name, s
 			// Layer name already exists. User is loading a previous session.
 			layer_name = new_layer_name;
 		}
-		
-        // Add the layer. Say it is a selection
-        add_layer_data(layer_name, data, {
-            selection: true,
-            selected: signatures_selected, // Display how many hexes are in
-            n: signatures_available // And how many have a value at all
-        });
-        
-        // Update the browse UI with the new layer.
-        update_browse_ui();
-        		
-		if (shortlist_push != false) {
-		    // Immediately shortlist it if the attribute is being created for
-			// the first time.
-		    ctx.shortlist.push(layer_name);
-		    update_shortlist_ui();
-		}
 
-		if (shortlist_push == false && ctx.shortlist.indexOf(layer_name)>=0) {
-		    // Immediately update shortlist it if the attribute is being loaded
-			// and has been declared as part of the shortlist.
-		    update_shortlist_ui();
-		}
+    // Add the layer. Say it is a selection
+    add_layer_data(layer_name, data, {
+        selection: true,
+            selected: signatures_selected, // Display how many hexes are in
+        n: signatures_available // And how many have a value at all
+    });
+    
+    // Update the browse UI with the new layer.
+    update_browse_ui();
+            
+    if (shortlist_push != false) {
+        // Immediately shortlist it if the attribute is being created for
+        // the first time.
+        ctx.shortlist.push(layer_name);
+        update_shortlist_ui();
+    }
+
+    if (shortlist_push == false && ctx.shortlist.indexOf(layer_name)>=0) {
+        // Immediately update shortlist it if the attribute is being loaded
+        // and has been declared as part of the shortlist.
+        update_shortlist_ui();
+    }
 
 		new_layer_name = layer_name;
     });

@@ -54,11 +54,21 @@ var app = app || {}; // jshint ignore:line
         return 0
     }
 
-    function pValueFullCompare(a, b) {
+    function pValueCompare(a, b) {
 
         // Compare p_values, then do the final compare
         
         var result = variableCompare(a, b, 'p_value');
+        if (result !== 0) return result;
+
+        return finalCompare(a, b);
+    }
+
+    function differentialCompare(a, b) {
+
+        // Compare  differential values, then do the final compare
+        
+        var result = variableCompare(a, b, 'Differential');
         if (result !== 0) return result;
 
         return finalCompare(a, b);
@@ -91,17 +101,17 @@ var app = app || {}; // jshint ignore:line
         return finalCompare(a, b);
     }
 
-    function correlationFullCompare(a, b) {
+    function positiveCorrelationCompare(a, b) {
 
         return correlationCompare(a, b, true);
     }
 
-    function anticorrelationCompare(a, b) {
+    function negativeCorrelationCompare(a, b) {
 
         return correlationCompare(a, b, false);
     }
 
-    sort_layers = function (layer_array) {
+    sort_layers = function  (layer_array) {
 
         // Given an array of layer names, sort the array in place as we want
         // layers to appear to the user.
@@ -126,13 +136,16 @@ var app = app || {}; // jshint ignore:line
         if (layer_array.length === 0) return;
 
         if (type_value == "layout-aware-positive") {
-            layer_array.sort(correlationFullCompare);
+            layer_array.sort(positiveCorrelationCompare);
 
         } else if (type_value == "layout-aware-negative") {
-            layer_array.sort(anticorrelationCompare);
+            layer_array.sort(negativeCorrelationCompare);
 
-        } else if (type_value == "p-value") {
-            layer_array.sort(pValueFullCompare);
+        } else if (type_value == "p_value") {
+            layer_array.sort(pValueCompare);
+
+        } else if (type_value == "Differential") {
+            layer_array.sort(differentialCompare);
 
         } else {
             // The default sort, by density/clumpiness
@@ -167,27 +180,34 @@ var app = app || {}; // jshint ignore:line
             var endDate = new Date;
             elapsed = ' ('
                 + Math.ceil((endDate.getTime() - opts.startDate.getTime()) / 1000)
-                + ' seconds)';
+                + ' secs)';
         }
 
         // Set the sort properties and update the UI to sort them
         if (type === 'default') {
             Session.set('sort', ctx.defaultSort());
             text = Session.get('sort').text;
+
+        } else if (type === 'noStats') {
+            text = 'None, due to no statistical results';
+            Session.set('sort', {text: text, type: 'noStats',
+                focus_attr: focus_attr});
         } else {
-            Session.set('sort', {text: text, type: type, focus_attr: focus_attr});
+
+            Session.set('sort', {text: text, type: type,
+                focus_attr: focus_attr});
         }
         update_browse_ui();
         update_shortlist_ui();
         banner('info', 'Now sorted by ' + text + elapsed);
     }
 
-    function updateLayerPvalue (focus_attr, layer, p_value) {
+    function updateLayerStat (focus_attr, layer, value, statType) {
 
-        // We don't want to load the p-value if it is the focus layer.
+        // We don't want to load the value if it is the focus layer.
         // This will keep the focus attribute out of the sort.
-        if (layer !== focus_attr && !isNaN(p_value)) {
-            layers[layer].p_value = parseFloat(p_value);
+        if (layer !== focus_attr && !isNaN(value)) {
+            layers[layer][statType] = parseFloat(value);
             return 1; // To increment the count
         }
         return 0; // Don't increment the count
@@ -196,7 +216,8 @@ var app = app || {}; // jshint ignore:line
     function receive_ignore_layout_stats (parsed, focus_attr, opts) {
 
         // Handle the response from the server for ignore-layout sort statistics
-        var count = 0;
+        var count = 0,
+            type = (opts.hasOwnProperty('isDiffStats')) ? 'Differential' : 'p_value' ;
         if (parsed.length === 2 && parsed[0].length > 3) {
 
             // This is from a pre-computed file, so it is of the form:
@@ -205,7 +226,8 @@ var app = app || {}; // jshint ignore:line
             //      [value1, value2, ...]
             // ]
             for (var i = 0; i < parsed[0].length; i++) {
-                count += updateLayerPvalue(focus_attr, parsed[0][i], parsed[1][i]);
+                count += updateLayerStat(focus_attr, parsed[0][i], parsed[1][i],
+                    type);
             }
         } else {
 
@@ -224,23 +246,19 @@ var app = app || {}; // jshint ignore:line
                 var compare_layer_name = parsed[i][1];
 
                 // Extract the value
-                count += updateLayerPvalue(focus_attr, compare_layer_name, parsed[i][2]);
+                count += updateLayerStat(focus_attr, compare_layer_name,
+                    parsed[i][2], type);
             }
 
         }
         // Now we're done loading the stats, update the sort properties
-        var type = 'p-value',
-            text = 'P-value by: ' + focus_attr + ' (ignoring layout)';
-        if (Session.get('sort').text === computingText) {
-            var endDate = new Date,
-                elapsed = (endDate.getTime() - opts.startDate.getTime()) / 1000;
-            text += '(' + elapsed + ' seconds)';
-        }
-
-        if (count > 0) {
-            updateUi(type, text, focus_attr, opts);
+        if (count < 1) {
+            updateUi('noStats');
         } else {
-            updateUi('none', 'None, due to no stats (ignoring layout)', 'none');
+            var text = (type === 'p_value')
+                ? 'P-value by: ' + focus_attr + ' (ignoring layout)'
+                : 'Differential by: ' + focus_attr;
+            updateUi(type, text, focus_attr, opts);
         }
     }
 
@@ -283,7 +301,7 @@ var app = app || {}; // jshint ignore:line
 
             updateUi(type, text, focus_attr, opts);
         } else {
-            updateUi('none', 'None, due to no layout-aware stats', 'none');
+            updateUi('noStats');
         }
     }
 
@@ -295,8 +313,13 @@ var app = app || {}; // jshint ignore:line
         clearStats();
 
         if (opts.hasOwnProperty('layout')) {
+
+            // Layout-aware stats
             receive_layout_aware_stats (parsed, focus_attr, opts)
+
         } else {
+
+            // Layout-ignore stats or diff stats
             receive_ignore_layout_stats (parsed, focus_attr, opts)
         }
     }
@@ -347,11 +370,11 @@ var app = app || {}; // jshint ignore:line
         opts.proxPre = Session.get('proxPre');
 
         // Gather the data for user-selection attributes
-        opts.dynamicData = {};
+        if (!opts.hasOwnProperty('dynamicData')) opts.dynamicData = {};
         var layer;
         for (var i = 0; i < ctx.bin_layers.length; i++) {
             layer = ctx.bin_layers[i];
-            if (layers[layer].selection) {
+            if (layers[layer].hasOwnProperty('selection')) {
                 opts.dynamicData[layer] = layers[layer].data;
             }
         }
@@ -390,28 +413,19 @@ var app = app || {}; // jshint ignore:line
         }, "text");
     }
 
-    get_layout_ignore_stats = function (focus_attr, bin, cat, cont) {
+    get_layout_ignore_stats = function (focus_attr) {
 
         // Retrieve the layer's layout-ignore values
 
         // Save the data types lists to the options
         opts = {
-            statsLayers: [],
-        }
-        if (bin) {
-            opts.binLayers = ctx.bin_layers;
-            opts.statsLayers = opts.statsLayers.concat(ctx.bin_layers);
-        }
-        if (cat) {
-            opts.catLayers = ctx.cat_layers;
-            opts.statsLayers = opts.statsLayers.concat(ctx.cat_layers);
-        }
-        if (cont) {
-            opts.contLayers = ctx.cont_layers;
-            opts.statsLayers = opts.statsLayers.concat(ctx.cont_layers);
+            statsLayers: ctx.bin_layers.concat(ctx.cat_layers.concat(ctx.cont_layers)),
+            binLayers: ctx.bin_layers,
+            catLayers: ctx.cat_layers,
+            contLayers: ctx.cont_layers,
         }
 
-        if (layers[focus_attr].selection) {
+        if (layers[focus_attr].hasOwnProperty('selection')) {
 
             // This is a user-selection attribute
             banner('stay', computingText);
@@ -426,6 +440,75 @@ var app = app || {}; // jshint ignore:line
         }
     }
 
+    get_diff_stats = function (focus_attr, focus_attr2) {
+
+        // Calc the differential stats on the server
+        var first = true,
+            hexnames1,
+            hexnames2,
+            vals,
+            fill,
+            obj = {}
+            diffData = {};
+
+        // Create a new selection attribute from the one values of each layer
+        _.each([focus_attr, focus_attr2], function (attr) {
+
+            // Create an array which contains hexagon names where the value is
+            //      one, and zero where the value is zero
+            hexnames2 = _.map(layers[attr].data, function(val, name) {
+                return (val > 0) ? name : 0;
+            });
+
+            // Filter out the zeros from the array to get an array of
+            // hexagon names
+            hexnames2 = _.filter(hexnames2, function (name) {
+                return name !== 0;
+            });
+
+            // Create a zero- or one-filled array.
+            if (first) {
+                hexnames1 = [].concat(hexnames2); // a copy
+                fill = 0;
+                first = false;
+            } else {
+                fill = 1;
+            }
+            vals = Array.apply(null,
+                Array(hexnames2.length)).map(Number.prototype.valueOf, fill);
+
+            // Create an object of hexagon names as properties with the value
+            // representing this user selection
+            obj = _.object(hexnames2, vals);
+
+            // Add these hexagons names and their values to a new object
+            for (var name in obj) { diffData[name] = obj[name]; }
+        });
+
+        // If there are any overlapping hexagons between the two layers
+        // we can't do this stat
+        if (_.intersection(hexnames1, hexnames2).length > 0) {
+            return 'Stats cannot be computed due to overlap of '
+                + 'hexagons between the two attributes';
+        }
+
+        // Treat this as a selection layer and run the stats
+        banner('stay', computingText);
+        var diffLayer = focus_attr + ' & ' + focus_attr2;
+        opts = {
+            isDiffStats: 'yes',
+            statsLayers: ctx.bin_layers.concat(ctx.cat_layers.concat(ctx.cont_layers.concat(diffLayer))),
+            binLayers: ctx.bin_layers.concat(diffLayer),
+            catLayers: ctx.cat_layers,
+            contLayers: ctx.cont_layers,
+            dynamicData: {},
+        }
+        opts.dynamicData[diffLayer] = diffData;
+        getDynamicStats(diffLayer, opts);
+
+        return undefined;
+    }
+
     get_layout_aware_stats = function (layout_index, focus_attr, anticorrelated) {
 
         // Retrieve the layer's layout-aware values
@@ -435,10 +518,9 @@ var app = app || {}; // jshint ignore:line
             statsLayers: ctx.bin_layers,
             layout: layout_index,
             anticorrelated: anticorrelated,
-
         };
 
-        if (layers[focus_attr].selection) {
+        if (layers[focus_attr].hasOwnProperty('selection')) {
 
             // This is a user-selection attribute
             banner('stay', computingText);
