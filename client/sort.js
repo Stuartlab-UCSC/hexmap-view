@@ -380,7 +380,7 @@ var app = app || {}; // jshint ignore:line
         }
 
         opts.startDate = new Date();
-        Meteor.call('pythonCall', 'statsSortLayer', opts,
+        Meteor.call('pythonCall', 'statsSortDynamic', opts,
             function (error, result) {
                 if (error) {
                     banner('error', error);
