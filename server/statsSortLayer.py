@@ -167,11 +167,14 @@ class ForEachLayer(object):
         return [layerA, layerB, sigDigs(pValue)]
 
     @staticmethod
-    def oneContinuousOnePair(layerA, layerB, layers, hexNames, layerAtype):
+    def oneContinuousOnePair(layerA, layerB, layers, hexNames, layerAtype,
+        binary=False):
 
         # This handles one attribute pair for ignore-layout stats when only one
         # of the attributes has continuous values. Binary attributes are treated
-        # as if they are categorical with two values.
+        # as if they are categorical with two values when building the vectors.
+        # Binary attributes may use a different stats library function than
+        # categorical.
 
         # Assign new names to the layers depending on which is continuous
         if layerAtype == 'cont':
@@ -205,16 +208,28 @@ class ForEachLayer(object):
 
         lists = vals.values()
 
-        # Call the stats library function
-        try:
-            # Anova call returns like so: [F-value, p-value-of-F-distribution]
-            # http://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.f_oneway.html
+        if binary:
 
-            # Create a string to evaluate to make the call because we have
-            # a variable number of lists to pass in
-            fValue, pValue = eval('scipy.stats.f_oneway(' + str(lists)[1:-1] + ')')
-        except Exception:
-            fValue = pValue = float('NaN')
+            # Call the binary-continuous stats library function
+            try:
+                # (Welch's?) t-test call returns like so: [t-value, p-value]
+                # http://docs.scipy.org/doc/scipy-0.14.0/reference/generated/scipy.stats.ttest_ind.html
+
+                tValue, pValue = scipy.stats.ttest_ind(lists[0], lists[1], 0, True)
+            except Exception:
+                tValue = pValue = float('NaN')
+
+        else:
+            # Call the categorical-continuous stats library function
+            try:
+                # Anova call returns like so: [F-value, p-value]
+                # http://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.f_oneway.html
+
+                # Create a string to evaluate to make the call because we have
+                # a variable number of lists to pass in
+                fValue, pValue = eval('scipy.stats.f_oneway(' + str(lists)[1:-1] + ')')
+            except Exception:
+                fValue = pValue = float('NaN')
 
         return [layerA, layerB, sigDigs(pValue)]
 
@@ -245,14 +260,19 @@ class ForEachLayer(object):
         if types.count('cont') > 0:
 
             # Are both attributes continuous?
-            if types.count('cont') == 2:
+            if types.count('cont') > 1:
                 return s.bothContinuousOnePair(s.layerA, layerB, s.layers,
                     s.hexNames)
 
             # Handle the case where only one attribute is continuous
             else:
+                if types.count('bin') > 0:
+                    binary = True
+                else:
+                    binary = False
+                sys.stdout.flush()
                 return s.oneContinuousOnePair(s.layerA, layerB, s.layers,
-                    s.hexNames, s.layerAtype)
+                    s.hexNames, s.layerAtype, (types.count('bin') > 0))
 
         # Is there any combination of binary and categorical?
         elif types.count('bin') == 2 \

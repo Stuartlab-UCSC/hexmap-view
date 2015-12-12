@@ -1,4 +1,5 @@
 public/data
 server/run_*
+analyze
 *.save
 *.pyc
