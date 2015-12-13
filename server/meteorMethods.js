@@ -92,6 +92,7 @@ Meteor.methods({
 
                 // Return any known errors to the client
                 if (result.slice(0,5) === 'Error' || result.slice(0,4) === 'Info') {
+                    fs.unlinkSync(parmFile);
                     future.return(result);
                 } else {
 
@@ -101,7 +102,10 @@ Meteor.methods({
                     // TODO This is a total abuse of Meteor and should be change
                     // to what is best for meteor. This is reading the file on
                     // the server, then passing the long array to the client.
-                    future.return(readFromFile(result));
+                    var data = readFromFile(result);
+                    fs.unlinkSync(parmFile);
+                    fs.unlinkSync(result);
+                    future.return(data);
                 }
             }
         });
