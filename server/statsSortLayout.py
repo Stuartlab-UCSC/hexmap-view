@@ -292,7 +292,6 @@ def normalized_pearson_statistics(layers, layerNames, nodes_multiple, ctx, optio
             'statsLayers': ctx.binary_layers,
             'windowAdditives': C2,
             'windowNodes': C,
-            'writeFile': True,
         }
 
         """

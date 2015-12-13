@@ -113,7 +113,6 @@ def statsSort(layers, layer_names, ctx, options):
         'catLayers': ctx.categorical_layers,
         'contLayers': ctx.continuous_layers,
         'temp_dir': tempfile.mkdtemp(), # the dir to store temporary working files,
-        'writeFile': True,
     }
 
     # Spawn the layer processes

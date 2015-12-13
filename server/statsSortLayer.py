@@ -39,14 +39,20 @@ class ForEachLayer(object):
             # Layout-aware options:
             s.windowAdditives = parm['windowAdditives']
             s.windowNodes = parm['windowNodes']
-            if 'writeFile' in parm:
+
+            # Create the filename to write results.
+            # One of either tempFile or layerIndex should be provided
+            if 'tempFile' in parm:
+               s.file = parm['tempFile']
+            else:
+
+                # layerIndex was provided, probably from the precomputed stats
                 suffix = '_' + parm['layout'] + '.tab'
                 filename = 'statsL_' + str(parm['layerIndex']) + suffix
                 s.file = os.path.join(parm['directory'], filename)
         else:
 
             # Layout-ignore options:
-            s.hexNames = parm['hexNames']
 
             # Save the data type lists and determine layerA's data type
             if 'binLayers' in parm:
@@ -62,18 +68,29 @@ class ForEachLayer(object):
                 if s.layerA in s.contLayers:
                     s.layerAtype = 'cont'
 
-            if 'writeFile' in parm:
-                s.temp_dir = parm['temp_dir']
+            s.hexNames = parm['hexNames']
+
+            # Create the filename to write results.
+            # One of either temp_dir or tempFile should be provided
+            if 'tempFile' in parm:
+
+               s.file = parm['tempFile']
+            else:
+
+                # temp_dir was provided, probably from the precomputed stats
                 index = s.statsLayers.index(s.layerA)
-                s.file = os.path.join(s.temp_dir, "p_val" + str(index) + ".tab")
+                s.file = os.path.join(parm['temp_dir'], "p_val" + str(index) + ".tab")
+
+            if 'dynamicData' in parm:
+
+                # Dynamic stats, so we want layerB to start with the first layer
+                s.bLayers = s.statsLayers
+            else:
 
                 # Pre-computed stats only need to look at stats layers after
                 # layerA, so set the layerB layers to show that
                 s.bLayers = s.statsLayers[index:]
 
-            else:
-                # Dynamic stats, so we want layerB to start with the first layer
-                s.bLayers = s.statsLayers
 
     @staticmethod
     def bothDiscreteOnePair(layerA, layerB, layers, hexNames):
@@ -320,51 +337,27 @@ class ForEachLayer(object):
 
     def __call__(s):
 
-        # Open a csv writer for stats of this layer against all other layers,
-        # if a filename was provided
-        fOut = None
-        if hasattr(s, 'file'):
-            fOutFile = open(s.file, 'w')
-            fOut = csv.writer(fOutFile, delimiter='\t')
-
         # Compare each layer against the given layer
-        response = []
         error = False
-        for layerB in s.statsLayers:
+        with open(s.file, 'w') as fOut:
+            fOut = csv.writer(fOut, delimiter='\t')
+            for layerB in s.statsLayers:
 
-            # We don't want to compare a layer to itself for layout-aware stats
-            if s.layerA == layerB and hasattr(s, 'windowNodes'): continue
+                # We don't want to compare a layer to itself for layout-aware stats
+                if s.layerA == layerB and hasattr(s, 'windowNodes'): continue
 
-            # Based on layout-aware or not, call a
-            # function to compare layers A & B
-            if hasattr(s,'windowNodes'):
-                line = s.layoutAware(s, layerB)
-            else:
-                line = s.layoutIgnore(s, layerB)
+                # Based on layout-aware or not, call a
+                # function to compare layers A & B
+                if hasattr(s,'windowNodes'):
+                    line = s.layoutAware(s, layerB)
+                else:
+                    line = s.layoutIgnore(s, layerB)
 
-            if line == 'continue': continue
+                if line == 'continue': continue
 
-            # Add the result to either an array or a file
-            if fOut is None:
-
-                # Add this line to the response array
-                response.append(line)
-            else:
-
-                # Write this line to the stats file
+                # Write this result line to the stats file
                 fOut.writerow(line)
 
-        if hasattr(s, 'file'):
-            fOutFile.close()
-        else:
-
-            # Replace any nan's with a string 'nan' because json doesn't know
-            # what to do with those
-            for i, line in enumerate(response):
-                for j, val in enumerate(line):
-                    if is_number(val) and math.isnan(val):
-                        response[i][j] = 'nan'
-
-            print json.dumps(response, sort_keys=True)
+        print json.dumps(s.file)
 
         return 0

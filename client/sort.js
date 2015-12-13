@@ -368,6 +368,7 @@ var app = app || {}; // jshint ignore:line
         opts.layerIndex = ctx.layer_names_by_index.indexOf(focus_attr);
         opts.directory = ctx.project;
         opts.proxPre = Session.get('proxPre');
+        opts.tempFile=  'yes';
 
         // Gather the data for user-selection attributes
         if (!opts.hasOwnProperty('dynamicData')) opts.dynamicData = {};
@@ -389,7 +390,7 @@ var app = app || {}; // jshint ignore:line
                 } else if (result.slice(0,4) === 'Info') {
                     banner('info', result);
                 } else {
-                    receive_data(JSON.parse(result), focus_attr, opts);
+                    receive_data(result, focus_attr, opts);
                 }
             }
         );
@@ -492,7 +493,7 @@ var app = app || {}; // jshint ignore:line
                 + 'hexagons between the two attributes';
         }
 
-        // Treat this as a selection layer and run the stats
+        // Treat this as a selection layer and run it as layout-ignore stats
         banner('stay', computingText);
         var diffLayer = focus_attr + ' & ' + focus_attr2;
         opts = {
