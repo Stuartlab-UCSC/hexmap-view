@@ -65,8 +65,6 @@ PAGE = 'homePage';
                 + '/';
         }
 
-
-
         s.localStorage = {
             all: [
                 'background',
@@ -83,6 +81,7 @@ PAGE = 'homePage';
                 'center',
                 'current_layout_name',
                 'gridZoom',
+                'layout_names',
                 'zoom',
             ],
         }
@@ -110,30 +109,12 @@ PAGE = 'homePage';
         var s = this;
 
         // Project variables maintained in this state object, with defaults.
+        Session.set('current_layout_name', null);
+        s.center = null;
         s.gridZoom = 1;  // Zoom level of the grid
         s.layout_names = [];  // Map layout names maintained in order of entry
         s.zoom = 1;  // Map zoom level where 1 is one level above most zoomed out
-        s.center = null;
     }
-
-    State.prototype.clearProjectData = function () {
-        var s = this;
-
-        // Clear any old project data from the state
-        _.each(s.localStorage.project, function (key) {
-
-            // If this is a Session var remove it from there
-            if (!Session.equals(key, undefined)) {
-                Session.set(key, undefined);
-                delete Session.keys[key];
-
-            // If this var belongs to this state object, remove it from here
-            } else if (!_.isUndefined(s[key]) && !_.isNull(s[key])) {
-                delete s[key];
-            }
-        });
-        s.setProjectDefaults();
-    };
 
     State.prototype.save = function (newProject) {
         // Save state by writing it to local browser store.
@@ -151,7 +132,7 @@ PAGE = 'homePage';
         // If we have a new project, clear any state related to the old project
         if (isNewProject && newProject !== s.project) {
             s.project = newProject;
-            s.clearProjectData();
+            s.setProjectDefaults();
         }
 
         // Find all of the vars to be saved by walking though our localStorage list
@@ -231,7 +212,7 @@ PAGE = 'homePage';
             // from the current project. Go to the map page
             if (s.project != s.urlProject) {
                 s.project = s.urlProject;
-                s.clearProjectData();
+                s.setProjectDefaults();
             }
             page = 'mapPage';
         }

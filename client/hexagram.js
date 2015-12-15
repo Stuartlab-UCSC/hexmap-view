@@ -12,10 +12,6 @@ var map_size_pix = 256;
 
 var rpc; // holds the remote procedure call object
 
-// This is a mapping from coordinates [x][y] in initHthe global hex grid to signature
-// name
-var signature_grid = [];
-
 // This holds a global list of layer pickers in layer order. It is also the
 // authority on what layers are currently selected.
 var layer_pickers = [];
@@ -63,6 +59,10 @@ var info_window = null;
 // This holds the signature name of the hex that the info window is currently
 // about.
 var selected_signature = undefined;
+
+// This is a mapping from coordinates [x][y] in in the global hex grid to signature
+// name
+var signature_grid = [];
 
 // This holds the grid of hexagon polygons on that Google Map.
 var polygon_grid = [];
@@ -821,6 +821,7 @@ function make_shortlist_ui(layer_name) {
 						select_list (signatures, "user selection");	
 						created = true;
 					}
+                    // TODO the below is negating the above
 					created = false;			
 				}); 	
 			    
@@ -1988,7 +1989,7 @@ re_initialize_view = function () { // swat
     ctx.zoom = googlemap.getZoom();
 
     initialize_view ();
-    recreate_map(ctx.current_layout_name);
+    recreate_map();
     refresh ();
 }
 
@@ -2370,7 +2371,9 @@ assignment_values = function (layout_index) {
         var max_x = 0;
         // And y
         var max_y = 0;
-        
+        polygons = {};
+        polygon_grid = signature_grid = [];
+
         // Fill in the global signature grid and polygon grid arrays.
         for(var i = 0; i < parsed.length; i++) {
             // Get the label
@@ -2485,12 +2488,11 @@ assignment_values = function (layout_index) {
 // function as these files are indexed according to the appropriate layout.
 // Also pass it to the set clumpiness function to swap to the appropriate set
 // of clumpiness scores.
-function recreate_map(layout_name) {
+function recreate_map() {
 
-	var layout_index = ctx.layout_names.indexOf(layout_name);
+	var layout_index = ctx.layout_names.indexOf(Session.get('current_layout_name'));
 	assignment_values(layout_index);
 	find_clumpiness_stats(layout_index);
-
 }
 
 function create_indexed_layers_array () {
@@ -2796,6 +2798,19 @@ initHex = function () {
             
     }, "text");
 
+    function layoutChange(changeToLayout) {
+
+        if (changeToLayout) {
+            Session.set('current_layout_name', changeToLayout);
+        }
+        $("#current-layout").text("Current Layout: " + Session.get('current_layout_name'));
+
+        console.log("Session.get('current_layout_name') matrixnames.tab'", Session.get('current_layout_name'));
+
+        re_initialize_view ();
+    }
+
+
     // Download the Matrix Names and pass it to the layout_names array
 	$.get(ctx.project + "matrixnames.tab", function(tsv_data) {
         // This is an array of rows, which are strings of matrix names
@@ -2813,20 +2828,13 @@ initHex = function () {
             }
             // Add layout names to global array of names
             ctx.layout_names.push(label);
-            
-            if (ctx.layout_names.length == 1) {
-                // This is the very first layout. Pull it up.
-                    
-                // TODO: We don't go through the normal change event since we
-                // never change the dropdown value actually. But we duplicate
-                // user selection hode here.
-                var current_layout = "Current Layout: " + ctx.layout_names[0];         
-	 
-		        $("#current-layout").text(current_layout);
-		        ctx.current_layout_name = ctx.layout_names[0];
-		        re_initialize_view ();
-            }
-        }     
+        }
+        if (Session.equals('current_layout_name', null)) {
+            layoutChange(ctx.layout_names[0]);
+        } else {
+            layoutChange();
+        }
+
     }, "text");
 
 	$("#layout-search").select2({
@@ -2906,14 +2914,12 @@ initHex = function () {
         //      keep the dropdown open
         event.preventDefault();
 
-		ctx.current_layout_name = layout_name;
-
 		// If currently sorted by mutual information, the mutual information
 		// values must be added for the specific layout and must be resorted.
 		// Function will update current_layout_index & reextract stats if needed
 		get_current_layout_index (layout_name);
-        
-		re_initialize_view();
+
+        layoutChange(layout_name);
     });
 
 	create_indexed_layers_array ();

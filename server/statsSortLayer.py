@@ -43,7 +43,7 @@ class ForEachLayer(object):
             # Create the filename to write results.
             # One of either tempFile or layerIndex should be provided
             if 'tempFile' in parm:
-               s.file = parm['tempFile']
+                s.file = parm['tempFile']
             else:
 
                 # layerIndex was provided, probably from the precomputed stats
@@ -229,10 +229,12 @@ class ForEachLayer(object):
 
             # Call the binary-continuous stats library function
             try:
-                # (Welch's?) t-test call returns like so: [t-value, p-value]
+                # (Welch's) t-test call returns like so: [t-value, p-value]
+                # Including equal variance argument being False makes this a
+                # Welch's t-test.
                 # http://docs.scipy.org/doc/scipy-0.14.0/reference/generated/scipy.stats.ttest_ind.html
 
-                tValue, pValue = scipy.stats.ttest_ind(lists[0], lists[1], 0, True)
+                tValue, pValue = scipy.stats.ttest_ind(lists[0], lists[1], 0, False)
             except Exception:
                 tValue = pValue = float('NaN')
 
@@ -358,6 +360,8 @@ class ForEachLayer(object):
                 # Write this result line to the stats file
                 fOut.writerow(line)
 
-        print json.dumps(s.file)
+        # For dynamic stats, pass the results file name to the caller via stdout
+        if hasattr(s, 'dynamicData'):
+            print json.dumps(s.file)
 
         return 0

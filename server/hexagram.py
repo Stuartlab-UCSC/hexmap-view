@@ -376,14 +376,16 @@ class ClusterFinder(object):
         raises a ValueError if the statistical test cannot be run for some
         reason.
         
-        Uses the Mann-Whitney U test.
+        Uses the Welch's t-test.
         """
-    
-        # Do a Mann-Whitney U test to see how different the data  
-        # sets are.
-        u_statistic, p_value = scipy.stats.mannwhitneyu(in_values, 
-            out_values)
-            
+
+        # (Welch's) t-test call returns like so: [t-value, p-value]
+        # Including equal variance argument being False makes this a
+        # Welch's t-test.
+        # http://docs.scipy.org/doc/scipy-0.14.0/reference/generated/scipy.stats.ttest_ind.html
+
+        t_value, p_value = scipy.stats.ttest_ind(in_values, out_values, 0, False)
+
         return p_value
     
     @staticmethod    
