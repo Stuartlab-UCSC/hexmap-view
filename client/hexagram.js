@@ -2598,7 +2598,7 @@ initHex = function () {
 	});
 
     initSetOperations();
-    init_sort_attrs();
+    initSortAttrs();
 
 	// Computation of Comparison Statistics
 	var comparison_stats_button = document.getElementsByClassName ("comparison-stats-button");

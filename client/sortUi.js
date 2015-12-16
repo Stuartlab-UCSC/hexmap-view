@@ -7,18 +7,17 @@ var app = app || {}; // jshint ignore:line
     //'use strict';
 
     var title = 'Sort Attributes',
-        disabled_color = '#aaaaaa',
-        FOCUS_LIST_LABEL = 'Attribute A:', //'Focus attribute:',
+        disabledColor = '#aaaaaa',
+        FOCUS_LIST_LABEL = 'Attribute A:', //was 'Focus attribute:',
         DIFF_LIST_LABEL = 'Attribute A:',
+        dialogHex,
         $dialog,
         $list,
         $list2,
-        $help_dialog,
         focusAttr,
         focusAttr2,
         shortlist,
-        ui = new ReactiveDict(),
-        dialogActive = false; // TODO this should use a reactive global var
+        ui = new ReactiveDict();
 
     // Make the variables in the html templates under our dynamic control here.
     Template.sortUiT.helpers({
@@ -76,28 +75,7 @@ var app = app || {}; // jshint ignore:line
         },
     });
 
-    function destroy_help() {
-        $help_dialog.dialog('destroy');
-    }
-
-    function show_help() {
-
-        // Make the help dialog no taller than the main window
-        var height = $(window).height() - 15;
-
-        $help_dialog = $('#sort-attributes-help-dialog');
-        $help_dialog.dialog({
-            title: 'Help: ' + title,
-            dialogClass: 'dialog',
-            width: '35em',
-            maxHeight: height,
-            close: destroy_help,
-            position: { my: "right", at: "left-10", of: '#sort-attributes-dialog'},
-        });
-        $help_dialog.parent().find('button').blur();
-    }
-
-    function enable_base() {
+    function enableBase() {
         var disabled = false,
             color = 'inherit';
 
@@ -105,14 +83,14 @@ var app = app || {}; // jshint ignore:line
 
             // Disable base options of focus sort
             disabled = true;
-            color = disabled_color;
+            color = disabledColor;
         }
         $dialog.find('.based')
             .attr('disabled', disabled)
             .css('color', color);
     }
 
-    function enable_corr() {
+    function enableCorr() {
         var disabled = false,
             color = 'inherit';
 
@@ -121,14 +99,14 @@ var app = app || {}; // jshint ignore:line
 
             // Disable correlation options for sample-based
             disabled = true;
-            color = disabled_color;
+            color = disabledColor;
         }
         $dialog.find('.corr')
             .attr('disabled', disabled)
             .css('color', color);
     }
 
-    function enable_list() {
+    function enableList() {
         var disabled = false,
             color = 'inherit',
             msgColor = 'red';
@@ -141,14 +119,14 @@ var app = app || {}; // jshint ignore:line
 
             // Disable the list
             disabled = true;
-            color = disabled_color;
+            color = disabledColor;
         } else {
             if (ui.equals('sortBy', 'focus')) {
                 ui.set('listLabel', FOCUS_LIST_LABEL);
             } else {
                 ui.set('listLabel', DIFF_LIST_LABEL);
             }
-            populate_list();
+            populateList();
         }
         $dialog.find('.focus_attr, .focus_attr .select2-choice')
             .attr('disabled', disabled)
@@ -158,7 +136,7 @@ var app = app || {}; // jshint ignore:line
         $('.redMessage').css('color', 'red');
     }
 
-    function enable_list2() {
+    function enableList2() {
         var disabled = false,
             color = 'inherit';
 
@@ -166,12 +144,12 @@ var app = app || {}; // jshint ignore:line
         ui.set('listMessage2', '');
 
         if (ui.equals('sortBy', 'diff')) {
-            populate_list2();
+            populateList2();
         } else {
 
             // Disable the list
             disabled = true;
-            color = disabled_color;
+            color = disabledColor;
         }
         $dialog.find('.focus_attr2, .focus_attr2 .select2-choice')
             .attr('disabled', disabled)
@@ -181,16 +159,16 @@ var app = app || {}; // jshint ignore:line
         $('.redMessage').css('color', 'red');
     }
 
-    function enable_all(except_base) {
+    function enableAll(except_base) {
         if (!except_base) {
-            enable_base();
+            enableBase();
         }
-        enable_corr();
-        enable_list();
-        enable_list2();
+        enableCorr();
+        enableList();
+        enableList2();
     }
 
-	function sortIt() {
+	sortIt = function () {
         var returnMessage;
         if (ui.equals('sortBy', 'density')) {
 
@@ -222,7 +200,7 @@ var app = app || {}; // jshint ignore:line
 
          }
         if (_.isUndefined(returnMessage)) {
-            destroy_dialog();
+            dialogHex.destroyDialog();
         } else {
             banner('error', returnMessage);
         }
@@ -256,7 +234,7 @@ var app = app || {}; // jshint ignore:line
         )
     }
 
-    populate_list = function () {
+    populateList = function () {
 
         // This creates and populates the drop down with the
         // appropriate layers in the shortlist.
@@ -311,7 +289,7 @@ var app = app || {}; // jshint ignore:line
         }
     }
 
-    populate_list2 = function () {
+    populateList2 = function () {
 
         // This creates and populates the drop down with the
         // appropriate layers in the shortlist.
@@ -350,7 +328,7 @@ var app = app || {}; // jshint ignore:line
         }
     }
 
-    function destroy_dialog() {
+    function justBeforeDestroy() {
         try {
             $list.select2('destroy');
         }
@@ -363,84 +341,19 @@ var app = app || {}; // jshint ignore:line
         catch (error) {
             $.noop();
         }
-        try {
-            $dialog.dialog('destroy');
-        }
-        catch (error) {
-            $.noop();
-        }
-        dialogActive = false;
-    }
-
-    function init_dialog () {
-
-        // Enable the appropriate UI elements
-        enable_all();
-
-        $help.detach()
-            .css('display', 'inline');
-        $('.ui-dialog-buttonpane').append($help);
-
-        // Event handlers
-        $dialog
-            .on('change', '#sortByFocus', function (ev) {
-                if (ev.target.checked) ui.set('sortBy', 'focus');
-                enable_all();
-            })
-            .on('change', '#sortByDiff', function (ev) {
-                if (ev.target.checked) ui.set('sortBy', 'diff');
-                enable_all();
-            })
-            .on('change', '#sortByDensity', function (ev) {
-                if (ev.target.checked) ui.set('sortBy', 'density');
-                enable_all();
-            })
-            .on('change', '#sample-based', function (ev) {
-                if (ev.target.checked) ui.set('layoutAware', false);
-                enable_all(true);
-            })
-            .on('change', '#region-based', function (ev) {
-                if (ev.target.checked) ui.set('layoutAware', true);
-                enable_all(true);
-            })
-            .on('change', '#corrPos', function (ev) {
-                if (ev.target.checked) ui.set('corrNeg', false);
-            })
-            .on('change', '#corrNeg', function (ev) {
-                if (ev.target.checked) ui.set('corrNeg', true);
-            })
-            .on('change', '.list', function (ev) {
-                focusAttr = $list.val();
-            })
-            .on('change', '.list2', function (ev) {
-                focusAttr2 = $list2.val();
-            });
-        $help.on('click', show_help);
-        dialogActive = true;
-    }
-
-    function show_dialog () {
-        $dialog.dialog({
-            title: title,
-            dialogClass: 'dialog',
-            //modal: true,
-            minHeight: '10em',
-            width: '25em',
-            close: destroy_dialog,
-            buttons: [{ text: 'Sort', click: sortIt }],
-        });
-
-        setTimeout(init_dialog, 0); // give the dialog DOM a chance to load
     }
 
     shortlistChangedForSort = function () {
-        if (dialogActive) {
-            enable_list();
-            enable_list2()
+
+        // If the shortlist changes and the dialog is open,
+        // update the attribute lists
+        if ($dialog.parent().hasClass('ui-dialog')) {
+            enableList();
+            enableList2()
         }
     }
 
-    init_sort_attrs = function () {
+    initSortAttrs = function () {
 
         // Initialize the reactive variables
         ui.set({
@@ -461,20 +374,53 @@ var app = app || {}; // jshint ignore:line
         $dialog = $('#sort-attributes-dialog');
         $list = $("#sort-attributes-dialog .list");
         $list2 = $("#sort-attributes-dialog .list2");
-        $help = $('.help-button');
 
-        // Handler for clicking the button on the toolbar
-        $("#sort-attributes-button")
-            .prop('title', title)
-            .button()
-            .click(function() {
-
-                // Hide other functions so that if a dialog is visible,
-                // it disappears from sight.
-                reset_set_operations();
-                reset_comparison_stats();
-
-                show_dialog();
+        // Define some delegated event handlers. Being 'delegated' means the
+        // child elements to do not have to exist yet, so we can define them
+        // once and not worry about freeing or re-creating them.
+        $dialog
+            .on('change', '#sortByFocus', function (ev) {
+                if (ev.target.checked) ui.set('sortBy', 'focus');
+                enableAll();
+            })
+            .on('change', '#sortByDiff', function (ev) {
+                if (ev.target.checked) ui.set('sortBy', 'diff');
+                enableAll();
+            })
+            .on('change', '#sortByDensity', function (ev) {
+                if (ev.target.checked) ui.set('sortBy', 'density');
+                enableAll();
+            })
+            .on('change', '#sample-based', function (ev) {
+                if (ev.target.checked) ui.set('layoutAware', false);
+                enableAll(true);
+            })
+            .on('change', '#region-based', function (ev) {
+                if (ev.target.checked) ui.set('layoutAware', true);
+                enableAll(true);
+            })
+            .on('change', '#corrPos', function (ev) {
+                if (ev.target.checked) ui.set('corrNeg', false);
+            })
+            .on('change', '#corrNeg', function (ev) {
+                if (ev.target.checked) ui.set('corrNeg', true);
+            })
+            .on('change', '.list', function (ev) {
+                focusAttr = $list.val();
+            })
+            .on('change', '.list2', function (ev) {
+                focusAttr2 = $list2.val();
             });
+
+        // Define the dialog options
+        var opts = {
+            title: title,
+            width: '25em',
+            buttons: [{ text: 'Sort', click: sortIt }],
+        };
+
+        // Create an instance of DialogHex
+        dialogHex = createDialogHex($('#sort-attributes-button'), $dialog, opts,
+            enableAll, justBeforeDestroy);
     }
 })(app);
