@@ -44,6 +44,7 @@ var app = app || {}; // jshint ignore:line
             // Enable the appropriate UI elements
             self.$dialog.find('.clear').button()
 
+            /* TODO disable help button until we fix the css
             self.$help.detach()
                 .css('display', 'inline');
             $('.ui-dialog-titlebar-close').before(self.$help);
@@ -52,7 +53,8 @@ var app = app || {}; // jshint ignore:line
             // Remove any old help handlers from other dialogs using it
             self.$help.off('click')
                 .on('click', self.showHelp);
-
+            */
+            
             self.initFx(); // Call the instance init function
         }
 
@@ -102,7 +104,6 @@ var app = app || {}; // jshint ignore:line
                     // jquery-ui modal dialogs
                     // or maybe we don't want modals anywhere?
                     reset_set_operations();
-                    reset_comparison_stats();
 
                     self.show();
                 });

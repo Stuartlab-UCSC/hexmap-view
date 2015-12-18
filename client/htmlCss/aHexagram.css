@@ -94,10 +94,6 @@ Read as "The content row", distinct from whatever else that element might be.
 	margin-left: 10px;
 }
 
-#comparison-stats {
-    padding: 0.2em;
-}
-
 .recalculate-throbber {
     display: none;
 }
@@ -165,11 +161,6 @@ Read as "The content row", distinct from whatever else that element might be.
     width: 30em;
     max-height: 30em;
     overflow: auto;
-}
-
-.comparison-stats-value {
-    width: 20em;
-	margin-bottom: 10px;
 }
 
 .checkbox-labels {

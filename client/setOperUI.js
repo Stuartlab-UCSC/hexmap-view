@@ -358,9 +358,6 @@ var app = app || {}; // jshint ignore:line
             // Hide other functions so that if one is visible, 
             // it disappears from sight. Reset the set operation counter so that 
             // if the user clicks on the function icon it will open immediately
-            hide_comparison_stats_drop_down ();
-            comparison_stats_clicks = 0;
-
             if (set_operation_clicks % 2 != 0){
                     show_set_operation_drop_down ();
                     // Update so that there are no repeated "Select" Attrributes

@@ -20,9 +20,6 @@ var layer_pickers = [];
 // elements, so we can efficiently tell if e.g. one is selected.
 var shortlist_ui = {};
 
-// Records number of comparison-stats clicks
-var comparison_stats_clicks = 0;
-
 // Records Stats Value from Query
 var stats_value = 0;
 
@@ -30,7 +27,6 @@ var stats_value = 0;
 // has been created so that "Select Layer" Default is added only once
 var first_opening = true;
 var first_opening_stats = true;
-var first_opening_comparison_stats = true;
 
 // Boolean for Creating Layer from Filter
 var created = false;
@@ -38,11 +34,7 @@ var created = false;
 // Stores the Index of the Current Layout Selected. Default is 0 for default layout.
 current_layout_index = 0;
 
-// Comparison Stats Layers
-comparison_stats_l1 = "";
-comparison_stats_l2 = "";
-
-// This holds colormaps (objects from layer values to category objects with a 
+// This holds colormaps (objects from layer values to category objects with a
 // name and color). They are stored under the name of the layer they apply to.
 colormaps = {}
 
@@ -723,7 +715,7 @@ function make_shortlist_ui(layer_name) {
 		delete_link.click(function() {
 		    // Remove this layer from the shortlist
 		    ctx.shortlist.splice(ctx.shortlist.indexOf(layer_name), 1);
-		    
+
 		    // Remove this from the DOM
 		    root.remove();
 
@@ -880,163 +872,19 @@ function make_shortlist_ui(layer_name) {
     return root;
 }
 
-
-// Create GUI for Comparison Statistics 
-function create_comparison_stats_ui () {
-	// Returns a Jquery element that is then prepended to the existing 
-	// set theory drop-down menu	
-
-    // This holds the root element for this set operation UI 
-    var root = $("<div/>").addClass("comparison-stats-entry");
-	
-	// Add Drop Downs to hold the selected layers and and selected data values 
-    var comparison_stats_A = $("<select/>").addClass("comparison-stats-value");
-	var comparison_stats_B = $("<select/>").addClass("comparison-stats-value");	
-
-	// Compute Button
-	var comparison_stats_button = $("<input/>").attr("type", "button");
-	comparison_stats_button.addClass ("comparison-stats-button");
-	comparison_stats_button.prop('value','Sort Attributes');
-
-	// Append to Root
-	root.append (comparison_stats_A);
-	root.append (comparison_stats_B);
-	root.append (comparison_stats_button);
-
-	return root;
-}
-
-function show_comparison_stats_drop_down () {
-	// Show Comparison Stats Drop Down Menu
-	$(".comparison-stats.dropdown").show();
-}
-
-hide_comparison_stats_drop_down = function () {
-	// Hide Comparison Stats Drop Down Menu
-	$(".comparison-stats.dropdown").hide();
-}
-
-reset_comparison_stats = function() {
-    hide_comparison_stats_drop_down();
-    comparison_stats_clicks = 0;
-}
-
-
-reset_comparison_stats_counter = function () {
-	comparison_stats_clicks++;
-}
-
-
-update_comparison_stats_drop_down = function  () {
-
-	// This is the onchange command for the drop down displaying the 
-	// different stats query  functions. It is called whenever the user changes
-	// the stats query operation.
-
-	// Check if the selection value is that of one of set operation functions
-
-	if (first_opening_comparison_stats == true) {
-		var drop_downs = document.getElementsByClassName("comparison-stats-value");
-		// Set the default value for the drop down, holding the selected layers
-		var default_value = document.createElement("option");
-		default_value.text = "All Tumors";
-		default_value.value = 0;
-		drop_downs[0].add(default_value);
-
-		var default_value2 = document.createElement("option");
-		default_value2.text = "All Tumors";
-		default_value2.value = 0;
-		drop_downs[1].add(default_value2);
-				
-		// Prevent from adding the default value again
-		first_opening_comparison_stats = false;
-	}
-	
-	// Make the drop downs that hold layer names and data values visible
-	var drop_downs = document.getElementsByClassName("comparison-stats-value");
-	drop_downs[0].style.visibility="visible";
-	drop_downs[1].style.visibility="visible";
-
-	var comparison_stats_button = document.getElementsByClassName("comparison-stats-button");
-	comparison_stats_button[0].style.visibility = "visible";
-
-}	
-
-
-
-function update_comparison_stats_selections () {
-	// This function is called when the shortlist is changed.
-	// It appropriately updates the drop down containing the list of layers
-	// to match the layers found in the shortlist.
-
-	// Get the list of all layers
-	var shortlist_layers = [];
-	$("#shortlist").children().each(function(index, element) {
-	 	// Get the layer name
-        var layer_name = $(element).data("layer");
-		shortlist_layers.push(layer_name);
-	});
-
-	// Get a list of all drop downs that contain layer names
-	var drop_downs = document.getElementsByClassName("comparison-stats-value");
-
-	// Remove all existing layer names from both dropdowns
-	var length = drop_downs[0].options.length;
-	do{
-		drop_downs[0].remove(0);
-		length--;		
-	}
-	while (length > 0);
-	var length = drop_downs[1].options.length;
-	do{
-		drop_downs[1].remove(0);
-		length--;		
-	}
-	while (length > 0);
-
-	// Add the default values that were stripped in the last step.
-	var default_value = document.createElement("option");
-	default_value.text = "All Tumors";
-	default_value.value = 0;
-	drop_downs[0].add(default_value);
-
-	var default_value2 = document.createElement("option");
-	default_value2.text = "All Tumors";
-	default_value2.value = 0;
-	drop_downs[1].add(default_value2);
-
-	// Prevent from adding the default value again
-	first_opening_comparison_stats = false;
-	
-	// Add the layer names from the shortlist to the drop downs that store
-	// layer names.		
-	for (var i = 0; i < drop_downs.length; i++){
-		for (var j = 0; j < shortlist_layers.length; j++) {
-			var option = document.createElement("option");
-			option.text = shortlist_layers[j];
-			option.value = j+1;
-			drop_downs[i].add(option);
-		}
-	}
-
-}
-
-// Replacement Code for New Consolidated Association Stats GUI
-
-
 update_shortlist_ui = function () {
     // Go through the shortlist and make sure each layer there has an entry in 
     // the shortlist UI, and that each UI element has an entry in the shortlist.
     // Also make sure the metadata for all existing layers is up to date.
-    
+
     // Clear the existing UI lookup table
     shortlist_ui = {};
-    
+
     for(var i = 0; i < ctx.shortlist.length; i++) {
         // For each shortlist entry, put a false in the lookup table
         shortlist_ui[ctx.shortlist[i]] = false;
     }
-    
+
     
     $("#shortlist").children().each(function(index, element) {
         if(shortlist_ui[$(element).data("layer")] === false) {
@@ -1075,9 +923,6 @@ update_shortlist_ui = function () {
         // Sort by the part with the lines icon, so we can still select text.
         handle: ".shortlist-controls" 
     });
-
-	// Update Values for GUI Dropdowns
-	update_comparison_stats_selections ();
 
     shortlistChangedForSort();
 }	
@@ -1560,30 +1405,30 @@ select_list = function (to_select, function_type, layer_names, new_layer_name, s
 			layer_name = new_layer_name;
 		}
 
-    // Add the layer. Say it is a selection
-    add_layer_data(layer_name, data, {
-        selection: true,
-            selected: signatures_selected, // Display how many hexes are in
-        n: signatures_available // And how many have a value at all
-    });
-    
-    // Update the browse UI with the new layer.
-    update_browse_ui();
+        // Add the layer. Say it is a selection
+        add_layer_data(layer_name, data, {
+            selection: true,
+                selected: signatures_selected, // Display how many hexes are in
+            n: signatures_available // And how many have a value at all
+        });
+        
+        // Update the browse UI with the new layer.
+        update_browse_ui();
             
     if (shortlist_push != false) {
-        // Immediately shortlist it if the attribute is being created for
-        // the first time.
+            // Immediately shortlist it if the attribute is being created for
+            // the first time.
         ctx.shortlist.push(layer_name);
-        update_shortlist_ui();
+            update_shortlist_ui();
     }
 
     if (shortlist_push == false && ctx.shortlist.indexOf(layer_name)>=0) {
-        // Immediately update shortlist it if the attribute is being loaded
-        // and has been declared as part of the shortlist.
-        update_shortlist_ui();
-    }
+            // Immediately update shortlist it if the attribute is being loaded
+            // and has been declared as part of the shortlist.
+            update_shortlist_ui();
+        }
 
-		new_layer_name = layer_name;
+        new_layer_name = layer_name;
     });
 	return (new_layer_name);
 }
@@ -1659,247 +1504,6 @@ function get_current_layout_index (layout_name) {
  	.fail(function() {
 		alert("Error Determining Selected Layout Index");
 	});
-}
-
-function recalculate_statistics(passed_filters) {
-    // Recalculate the compare-stats, using the given filters.
-    // Interrogate the UI to determine signatures that are "in" and "out", and
-    // run an appropriate statisical test for each layer between the "in" and
-    // "out" signatures, and update all the "p_value" fields for all the layers
-    // with the p values. Takes in a list of signatures that passed the filters,
-    // and ignores any signatures not on that list.
-    
-    // Build an efficient index of filter-passing signatures
-    var passed = {};
-    for(var i = 0; i < passed_filters.length; i++) {
-        passed[passed_filters[i]] = true;
-    }
-
-    // Figure out what the in-list should be (statistics group A) using new GUI
-	var drop_down_data_values = document.getElementsByClassName(
-	    "comparison-stats-value");
-
-	var layer_a_name;
-
-	var selected_index1 = drop_down_data_values[0].selectedIndex;	
-	if (selected_index1 != 0) {
-		layer_a_name = drop_down_data_values[0].options[selected_index1].text;
-		comparison_stats_l1 = layer_a_name;
-	}
-
-	var layer_b_name;
-	var selected_index2 = drop_down_data_values[1].selectedIndex;	
-	if (selected_index2 != 0) {
-		layer_b_name = drop_down_data_values[1].options[selected_index2].text;
-		comparison_stats_l2 = layer_b_name;
-	}
-
-	// Hide Drop Down From User
-	comparison_stats_clicks = 0;
-	hide_comparison_stats_drop_down ();	
-
-    print("Running statistics between " + layer_a_name + " and " + 
-        layer_b_name);
-    
-    if(!layer_a_name) {
-        banner("error", "Can't run statistics without an \"A\" group.");
-        
-        // Get rid of the throbber
-        // TODO: Move this UI code out of the backend code.
-        $(".recalculate-throbber").hide();
-        $(".recalculate-progress").hide();
-
-        $("#comparison-stats").show();
-        
-        return;
-    }
-    
-    // We know the layers have data since they're selections, so we can just go
-    // look at them.
-    
-    // This holds the "in" list: hexes from the "A" group.
-    var in_list = [];
-    
-    for(var signature in layers[layer_a_name].data) {
-        if(passed[signature] && layers[layer_a_name].data[signature]) {
-            // Add all the signatures in the "A" layer to the in list.
-            in_list.push(signature);
-        }
-    }
-    
-    if(in_list.length == 0) {
-        banner("error", "Can't run statistics with an empty \"A\" group.");
-        
-        // Get rid of the throbber
-        // TODO: Move this UI code out of the backend code.
-        $(".recalculate-throbber").hide();
-        $(".recalculate-progress").hide();
-        
-        $("#comparison-stats").show();
-        
-        return;
-    }
-    
-    // This holds the "out" list: hexes in the "B" group, or, if that's not
-    // defined, all hexes. It's a little odd to run A vs. a set that includes
-    // some members of A, but Prof. Stuart wants that and it's not too insane
-    // for a Binomial test (which is the only currently implemented test
-    // anyway).
-    var out_list = [];
-    
-    if(layer_b_name) {
-        // We have a layer B, so take everything that's on in it.
-        for(var signature in layers[layer_b_name].data) {
-            if(passed[signature] && layers[layer_b_name].data[signature]) {
-                // Add all the signatures in the "B" layer to the out list.
-                out_list.push(signature);
-            }
-        }
-    } else {
-        // The out list is all hexes
-        for(var signature in polygons) {
-            if(passed[signature]) {
-                // Put it on the out list.
-                out_list.push(signature);
-            }
-        }
-    }
-    
-    // So now we have our in_list and our out_list
-    
-    // Say we're about to launch an RPC batch of statistics jobs. Cancel any
-    // running jobs from the last batch.
-    rpc.new_batch();
-    
-    for(var layer_name in layers) {
-        // Do the stats on each layer between those lists. This only processes
-        // layers that don't have URLs. Layers with URLs are assumed to be part
-        // of the available matrices.
-        recalculate_statistics_for_layer(layer_name, in_list, out_list,
-            passed_filters);
-    }
-    
-    // Now do all the layers with URLs. They are in the available score
-    // matrices.
-    for(var i = 0; i < available_matrices.length; i++) {
-        recalculate_statistics_for_matrix(available_matrices[i], in_list, 
-            out_list, passed_filters);
-    }
-    
-    print("Statistics jobs launched.");
-	alert ("The Differential Contrast Statistics Tool has been launched. This test may take up to 40 minutes, depending on the number of attributes present. The attributes will automatically be resorted, and you will be notified when the computation is complete.");
-    
-}
-
-function recalculate_statistics_for_layer(layer_name, in_list, out_list, all) {
-    // Re-calculate the stats for the layer with the given name, between the
-    // given in and out arrays of signatures. Store the re-calculated statistics
-    // in the layer. all is a list of "all" signatures, from which we can
-    // calculate pseudocounts.
-    
-    // All we do is send the layer data or URL (whichever is more convenient) to
-    // the workers. They independently identify the data type and run the
-    // appropriate test, returning a p value or NaN by callback.
-    
-    // This holds a callback for setting the layer's p_value to the result of
-    // the statistics.
-    var callback = function(reply) {
-    //var callback = function(results) {
-
-        var results = reply.results,
-            jobs_running = reply.jobs_running; // TODO replace with pub-sub or something meteor
-        
-        // The statistics code really sends back a dict of updated metadata for
-        // each layer. Copy it over.
-        for(var metadata in results) {
-            layers[layer_name][metadata] = results[metadata];
-        }
-        
-        if(jobs_running == 0) {
-            // All statistics are done!
-            // TODO: Unify this code with similar callback below.
-            // Re-sort everything and draw all the new p values.
-
-			Session.set('sort', {
-                text: "Contrast between " + comparison_stats_l1 + " & " + comparison_stats_l2,
-                type: 'default'});
-            update_browse_ui();
-            update_shortlist_ui();
-            
-            // Get rid of the throbber and progress bar, and put the button
-            // back.
-            $(".recalculate-throbber").hide();
-            $(".recalculate-progress").hide();
-            $(".recalculate-finished").show();
-            $("#comparison-stats").show();
-        }
-    };
-    
-    if(layers[layer_name].data != undefined) {
-        // Already have this downloaded. A local copy to the web worker is
-        // simplest, and a URL may not exist anyway.
-        
-        rpc.call("statistics_for_layer", [layers[layer_name].data, in_list,
-            out_list, all], callback);
-    } else if(layers[layer_name].url != undefined) {
-        // We have a URL, so the layer must be in a matrix, too.
-        // Skip it here.
-    } else {
-        // Layer has no data and no way to get data. Should never happen.
-        banner("error", "Layer " + layer_name + " has no data and no url.");
-    }
-}
-
-function recalculate_statistics_for_matrix(matrix_url, in_list, out_list, all) {
-    // Given the URL of one of the visualizer generator's input score matrices,
-    // download the matrix, calculate statistics for each layer in the matrix
-    // between the given in and out lists, and update the layer p values. all is
-    // a list of "all" signatures, from which we can calculate pseudocounts.
-
-    rpc.call("statistics_for_matrix", [matrix_url, in_list, out_list, all],
-        function(reply) {
-        //function(result) {
-
-        var results = reply.results,
-            jobs_running = reply.jobs_running; // TODO replace with pub-sub or something meteor
-
-        // The return value is p values by layer name
-        for(var layer_name in results) {
-            // The statistics code really sends back a dict of updated metadata
-            // for each layer. Copy it over.
-            for(var metadata in results[layer_name]) {
-                layers[layer_name][metadata] = results[layer_name][metadata];
-            }
-        }
-        
-        if(jobs_running == 0) {
-            // All statistics are done!
-            // TODO: Unify this code with similar callback above.
-            // Re-sort everything and draw all the new p values.
-
-			Session.set('sort', {
-                text: "Contrast between " + comparison_stats_l1 + " & " + comparison_stats_l2,
-                type: 'default'});
-            update_browse_ui();
-            update_shortlist_ui();
-
-            
-            // Get rid of the throbber and progress bar, and put the button
-            // back.
-            $(".recalculate-throbber").hide();
-            $(".recalculate-progress").hide();
-            $(".recalculate-finished").show();
-            $("#comparison-stats").show();
-
-        }
-    }, function(progress) {
-        // The progress value is a float progress bar position to display. Show
-        // the progress bar as being that full.
-        $("#recalculate-progress").progressbar({
-            max: 1.0,
-            value: progress
-        });
-    });    
 }
 
 initialize_view = function () {
@@ -2577,50 +2181,8 @@ initHex = function () {
     
     initLayerLists();
 
-	// Create Pop-Up UI for Comparison Statistics 
-	$("#comparison-statistics").prepend(create_comparison_stats_ui ());
-
-	// Action handler for display of comparison statistics query pop-up
-	$("#comparison-stats").button().click(function() {
-
-		comparison_stats_clicks++;
-
-		// Hide other functions so that if one is visible, 
-		// it disappears from sight.
-		if (comparison_stats_clicks % 2 != 0){
-				show_comparison_stats_drop_down ();	
-				// Update so that there are no repeated "All Tumor" Attrributes
-				update_comparison_stats_selections (); 	
-			}
-		else {
-			hide_comparison_stats_drop_down ();
-		}
-	});
-
     initSetOperations();
     initSortAttrs();
-
-	// Computation of Comparison Statistics
-	var comparison_stats_button = document.getElementsByClassName ("comparison-stats-button");
-	comparison_stats_button[0].onclick = function () {
-        // Re-calculate the statistics between the currently filtered hexes and
-        // everything else.
-        
-        // Put up the throbber instead of us.
-        $("#comparison-stats").hide();
-        $(".recalculate-finished").hide();
-        $(".recalculate-progress").show();
-        
-        // This holds the currently enabled filters.
-        var filters = get_current_filters();
-    
-        with_filtered_signatures(filters, function(signatures) {
-            // Find everything passing the filters and run the statistics.
-            recalculate_statistics(signatures);
-        });
-        
-		
-	};
 
 	// Set up help buttons to open their sibling help dialogs.
 	$(".help-button").each(function() {
@@ -2645,9 +2207,8 @@ initHex = function () {
 
     // Download the layer index
     $.get(ctx.project + "layers.tab", function(tsv_data) {
-        // Layer index is <name>\t<filename>\t<hexes with values>\t<ones in
-        // binary layers>\t<clumpiness for layout 0>\t<clumpiness for layout
-        // 1>\t...
+        // Layer index is tab-separated like so:
+        // name  file  N-hex-value  binary-ones  layout0-clumpiness  layout1-clumpiness  ...
         var parsed = $.tsv.parseRows(tsv_data);
         
         if (projectNotFound(parsed)) return;
@@ -2698,7 +2259,7 @@ initHex = function () {
             });
 
         }
-        
+
 		// Add Tissue or 1st Attribute as Default Select
         if (layers["tissue"] != undefined){
 			with_layer("tissue", function(layer) {
@@ -2710,7 +2271,7 @@ initHex = function () {
         else if (ctx.layer_names_sorted.length > 0){
 			with_layer(ctx.layer_names_sorted[0], function(layer) {
     	    	ctx.shortlist.push(ctx.layer_names_sorted[0]);
-				update_shortlist_ui();
+        update_shortlist_ui();
 
 			});
 	    }

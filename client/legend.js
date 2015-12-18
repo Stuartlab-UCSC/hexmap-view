@@ -1,5 +1,5 @@
-// hexagram.js
-// Run the hexagram visualizer client.
+// legend.js
+// Handle the legend.
 
 var app = app || {}; // jshint ignore:line
 
