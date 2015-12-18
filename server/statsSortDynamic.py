@@ -8,7 +8,7 @@ to dynamic and pre-computed stats: statsSortLayer.
 import sys, os, json, copy, csv, math, traceback, pprint
 import scipy.stats
 
-from statsSortLayout import ForEachLayer
+from statsSortLayer import ForEachLayer
 
 def dynamicLayoutAwareStats(parm):
 

@@ -44,6 +44,7 @@ class ForEachLayer(object):
             # One of either tempFile or layerIndex should be provided
             if 'tempFile' in parm:
                 s.file = parm['tempFile']
+                s.dynamic = True
             else:
 
                 # layerIndex was provided, probably from the precomputed stats
@@ -75,6 +76,7 @@ class ForEachLayer(object):
             if 'tempFile' in parm:
 
                s.file = parm['tempFile']
+               s.dynamic = True
             else:
 
                 # temp_dir was provided, probably from the precomputed stats
@@ -361,7 +363,7 @@ class ForEachLayer(object):
                 fOut.writerow(line)
 
         # For dynamic stats, pass the results file name to the caller via stdout
-        if hasattr(s, 'dynamicData'):
+        if hasattr(s, 'dynamic'):
             print json.dumps(s.file)
 
         return 0
