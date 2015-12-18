@@ -112,9 +112,10 @@ var app = app || {}; // jshint ignore:line
             
             // Only add to the shortlist if it isn't already there
             // Was it already there?
-            var found = false;
-            for(var j = 0; j < ctx.shortlist.length; j++) {
-                if(ctx.shortlist[j] == layer_name) {
+            var found = false,
+                shortlist = Session.get('shortlist');
+            for (var j = 0; j < shortlist.length; j++) {
+                if (shortlist[j] === layer_name) {
                     found = true;
                     break;
                 }
@@ -122,7 +123,8 @@ var app = app || {}; // jshint ignore:line
             
             if(!found) {
                 // It's new. Add it to the shortlist
-                ctx.shortlist.push(layer_name);
+                shortlist.push(layer_name);
+                Session.set('shortlist', shortlist);
                 
                 // Update the UI to reflect this. This may redraw the view.
                 update_shortlist_ui();

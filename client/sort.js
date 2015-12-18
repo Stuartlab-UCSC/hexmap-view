@@ -150,12 +150,17 @@ var app = app || {}; // jshint ignore:line
         } else {
             // The default sort, by density/clumpiness
             layer_array.sort(finalCompare);
-            
-            if (!_.isUndefined(ctx.first_layer)) {
 
+            // If we don't have a first layer by now assign the one with the
+            // highest density score as the first layer.
+            if (_.isUndefined(Session.get('first_layer'))) {
+                Session.set('first_layer', layer_array[0]);
+            } else {
+            
                 // move the 'First' attribute to the top
-                layer_array.splice(layer_array.indexOf(ctx.first_layer), 1);
-                layer_array.unshift(ctx.first_layer);
+                var first = Session.get('first_layer');
+                layer_array.splice(layer_array.indexOf(first), 1);
+                layer_array.unshift(first);
             }
         }
     }
@@ -167,6 +172,7 @@ var app = app || {}; // jshint ignore:line
             delete layers[layer_name].clumpiness;
             delete layers[layer_name].p_value;
             delete layers[layer_name].correlation;
+            delete layers[layer_name].Differential;
          }
     }
 

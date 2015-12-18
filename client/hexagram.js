@@ -283,7 +283,7 @@ function with_infocard(signature, callback) {
     // This holds a list of the string names of the currently selected layers,
     // in order.
     // Just use everything on the shortlist.
-    var current_layers = ctx.shortlist;
+    var current_layers = Session.get('shortlist');
     
     // Obtain the layer objects (mapping from signatures/hex labels to colors)
     with_layers(current_layers, function(retrieved_layers) { 
@@ -692,8 +692,11 @@ function make_shortlist_ui(layer_name) {
     
     // Run the removal process
     remove_link.click(function() {
+
         // Remove this layer from the shortlist
-        ctx.shortlist.splice(ctx.shortlist.indexOf(layer_name), 1);
+        var short = Session.get('shortlist');
+        short.splice(short.indexOf(layer_name), 1);
+        Session.set('shortlist', short);
         
         // Remove this from the DOM
         root.remove();
@@ -714,7 +717,9 @@ function make_shortlist_ui(layer_name) {
 		// Run the deletion process
 		delete_link.click(function() {
 		    // Remove this layer from the shortlist
-		    ctx.shortlist.splice(ctx.shortlist.indexOf(layer_name), 1);
+            var short = Session.get('shortlist');
+            short.splice(short.indexOf(layer_name), 1);
+            Session.set('shortlist', short);
 
 		    // Remove this from the DOM
 		    root.remove();
@@ -872,6 +877,19 @@ function make_shortlist_ui(layer_name) {
     return root;
 }
 
+Tracker.autorun(function (thisAutorun) {
+
+    // Whenever the first_layer is set, add it to the shortlist
+    if (_.isUndefined(Session.get('first_layer'))) {
+        return;
+    }
+    Session.set('shortlist', [Session.get('first_layer')]);
+    update_shortlist_ui();
+
+    // Kill this after the first layer has been identified
+    thisAutorun.stop();
+});
+
 update_shortlist_ui = function () {
     // Go through the shortlist and make sure each layer there has an entry in 
     // the shortlist UI, and that each UI element has an entry in the shortlist.
@@ -880,11 +898,11 @@ update_shortlist_ui = function () {
     // Clear the existing UI lookup table
     shortlist_ui = {};
 
-    for(var i = 0; i < ctx.shortlist.length; i++) {
+    var shortlist = Session.get('shortlist');
+    for(var i = 0; i < shortlist.length; i++) {
         // For each shortlist entry, put a false in the lookup table
-        shortlist_ui[ctx.shortlist[i]] = false;
+        shortlist_ui[shortlist[i]] = false;
     }
-
     
     $("#shortlist").children().each(function(index, element) {
         if(shortlist_ui[$(element).data("layer")] === false) {
@@ -984,8 +1002,9 @@ fill_layer_metadata = function (container, layer_name) {
             inside_yes: "Ones in A",
             outside_yes: "Ones in background",
             clumpiness: "Density score",
-            p_value: "P-value",
+            p_value: "Single test p-value",
             correlation: "Correlation",
+            adjusted_p_value: "BH FDR",
         }
         
         if(lookup[attribute]) {
@@ -1414,20 +1433,18 @@ select_list = function (to_select, function_type, layer_names, new_layer_name, s
         
         // Update the browse UI with the new layer.
         update_browse_ui();
-            
-    if (shortlist_push != false) {
+        var shortlist = Session.get('shortlist');
+        if (shortlist_push !== false) {
             // Immediately shortlist it if the attribute is being created for
             // the first time.
-        ctx.shortlist.push(layer_name);
+            shortlist.push(layer_name);
+            Session.set('shortlist', shortlist);
             update_shortlist_ui();
-    }
-
-    if (shortlist_push == false && ctx.shortlist.indexOf(layer_name)>=0) {
+        } else if (shortlist.indexOf(layer_name) >= 0) {
             // Immediately update shortlist it if the attribute is being loaded
             // and has been declared as part of the shortlist.
             update_shortlist_ui();
         }
-
         new_layer_name = layer_name;
     });
 	return (new_layer_name);
@@ -2142,7 +2159,7 @@ initHex = function () {
 
     // This holds an array of layer names that the user has added to the "shortlist"
     // They can be quickly selected for display.
-    ctx.shortlist = [];
+    Session.set('shortlist', []);
 
     // TODO we need to get this from the server before the attribute sort the
     // user sees on startup. We're lucky now. We need to guarantee this is done
@@ -2170,7 +2187,7 @@ initHex = function () {
             } else if (line[0] === 'Categorical') {
                 ctx.cat_layers = line.slice(1);
             } else if (line[0] === 'FirstAttribute') {
-                ctx.first_layer = line.slice(1).join();
+                Session.set('first_layer', line.slice(1).join());
             } // skip any lines we don't know about
         });
 	}, "text");  
@@ -2260,21 +2277,17 @@ initHex = function () {
 
         }
 
-		// Add Tissue or 1st Attribute as Default Select
-        if (layers["tissue"] != undefined){
-			with_layer("tissue", function(layer) {
-    	    	ctx.shortlist.push("tissue");
-				update_shortlist_ui();
-
-			});
+		// Find the best 1st Attribute for sorts and initializing the shortlist
+        // By now we assume the layers.tab file has been processed, which may
+        // specify a first layer/attribute. If one was not supplied there, and
+        // we find the standard sort layer, use that as first.
+        if (_.isUndefined(Session.get('first_layer'))
+                && (layers.hasOwnProperty('Tissue')
+                || layers.hasOwnProperty('tissue'))) {
+            Session.set('first_layer', layer_name);
         }
-        else if (ctx.layer_names_sorted.length > 0){
-			with_layer(ctx.layer_names_sorted[0], function(layer) {
-    	    	ctx.shortlist.push(ctx.layer_names_sorted[0]);
         update_shortlist_ui();
 
-			});
-	    }
         // Now we have added layer downloaders for all the layers in the 
         // index. Update the UI
         update_browse_ui();
