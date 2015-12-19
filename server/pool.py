@@ -3,7 +3,7 @@
 pool.py: Use a multiprocessing pool to handle spawning of subprocesses to 
 multiple processors
 """
-import multiprocessing, socket, datetime, pprint
+import multiprocessing, socket, datetime, pprint, traceback
 
 # For sub-processes, use all the processors available, or 32 on juggernaut
 hostname = socket.gethostname()

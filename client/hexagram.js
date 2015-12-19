@@ -877,7 +877,7 @@ function make_shortlist_ui(layer_name) {
     return root;
 }
 
-Tracker.autorun(function (thisAutorun) {
+var autorunFirstLayer = Tracker.autorun(function () {
 
     // Whenever the first_layer is set, add it to the shortlist
     if (_.isUndefined(Session.get('first_layer'))) {
@@ -887,7 +887,7 @@ Tracker.autorun(function (thisAutorun) {
     update_shortlist_ui();
 
     // Kill this after the first layer has been identified
-    thisAutorun.stop();
+    autorunFirstLayer.stop();
 });
 
 update_shortlist_ui = function () {
