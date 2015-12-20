@@ -226,13 +226,25 @@ var app = app || {}; // jshint ignore:line
             type = (opts.hasOwnProperty('isDiffStats')) ? 'Differential' : 'p_value' ;
         if (parsed.length === 2 && parsed[0].length > 3) {
 
-            // This is from a pre-computed file, so it is of the form:
+            // This is from an old format pre-computed file, so it is of the form:
             // [
             //      [layerName1, layerName2, ...],
             //      [value1, value2, ...]
             // ]
             for (var i = 0; i < parsed[0].length; i++) {
                 count += updateLayerStat(focus_attr, parsed[0][i], parsed[1][i],
+                    type);
+            }
+        } else if ($.isNumeric(parsed[0][1]) || parsed[0][1] === 'nan') {
+
+            // This is from a new format pre-computed file, so it is of the form:
+            // [
+            //      [layerName, p-value, adjusted-p-value],
+            //      [layerName, p-value, adjusted-p-value],
+            //      ...
+            // ]
+            for (var i = 0; i < parsed[0].length; i++) {
+                count += updateLayerStat(focus_attr, parsed[i][0], parsed[i][1],
                     type);
             }
         } else {
@@ -247,12 +259,8 @@ var app = app || {}; // jshint ignore:line
             // which we already know, so ignore it.
             for (var i = 0; i < parsed.length; i++) {
 
-                // Extract the layer name
-                // to which the selected layer is being compared against.
-                var compare_layer_name = parsed[i][1];
-
                 // Extract the value
-                count += updateLayerStat(focus_attr, compare_layer_name,
+                count += updateLayerStat(focus_attr, parsed[i][1],
                     parsed[i][2], type);
             }
 

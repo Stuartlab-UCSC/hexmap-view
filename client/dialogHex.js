@@ -8,9 +8,9 @@ var app = app || {}; // jshint ignore:line
 
 (function (hex) {
 
-    DialogHex = function($dialog, opts, initFx, destroyFx) {
+    DialogHex = function ($el, opts, initFx, destroyFx) {
 
-        this.$dialog = $dialog;
+        this.$el = $el;
         this.opts = opts;
         this.initFx = initFx;
         this.destroyFx = destroyFx;
@@ -32,7 +32,7 @@ var app = app || {}; // jshint ignore:line
             }
 
             try {
-                this.$dialog.dialog('destroy');
+                this.$el.dialog('destroy');
             }
             catch (error) {
                 $.noop();
@@ -42,9 +42,10 @@ var app = app || {}; // jshint ignore:line
         DialogHex.prototype.init = function  (self) {
 
             // Enable the appropriate UI elements
-            self.$dialog.find('.clear').button()
+            //self.$el.find('.clear').button() // TODO is this being used?
 
-            /* TODO disable help button until we fix the css
+
+            /* TODO disable this until we have some help
             self.$help.detach()
                 .css('display', 'inline');
             $('.ui-dialog-titlebar-close').before(self.$help);
@@ -54,7 +55,7 @@ var app = app || {}; // jshint ignore:line
             self.$help.off('click')
                 .on('click', self.showHelp);
             */
-            
+
             self.initFx(); // Call the instance init function
         }
 
@@ -79,7 +80,7 @@ var app = app || {}; // jshint ignore:line
                     opts[key] = this.opts[key];
                 }
             };
-            this.$dialog.dialog(opts);
+            this.$el.dialog(opts);
 
             // Give the DOM a chance to load so we can find the elements in init
             var self = this
@@ -110,20 +111,20 @@ var app = app || {}; // jshint ignore:line
         }
     }
 
-    createDialogHex = function ($button, $dialog, opts, initFx, destroyFx) {
+    createDialogHex = function ($button, $el, opts, initFx, destroyFx) {
 
         /* Creates an instance of our dialog.
          *
          * @param $button: jquery DOM element of the dialog activator
-         * @param $dialogIn: jquery DOM element of the dialog anchor
+         * @param $el: jquery DOM element of the dialog anchor
          * @param opts: overrides of this class' jquery-ui dialog options
          * @param initFx: called after the init function of this class
          * @param destroyFx: called before the destroy function of this class, 
          *                      optional
          */
-        dialog = new DialogHex($dialog, opts, initFx, destroyFx);
-        dialog.initButton($button);
-        return dialog;
+        var instance = new DialogHex($el, opts, initFx, destroyFx);
+        instance.initButton($button);
+        return instance;
     }
 })(app);
 

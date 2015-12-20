@@ -45,25 +45,19 @@
                 </td>
             </tr>
             <tr>
-                <td class='dialog-label focus_attr' style='line-height:36px'>
+                <td class='dialog-label listLabel' style='line-height:36px'>
                     {{listLabel}}
                 </td>
-                <td class='dialog-value'>
-                    <div class='list focus_attr'></div>
-                    <span class='listMessage focus_attr redMessage' style='display:{{listMessageDisplay}};color:{{messageColor}}'>
-                        {{listMessage}}
-                    </span>
+                <td class='dialog-value listAnchor'>
+                    {{>layerNameList}}
                 </td>
             </tr>
             <tr>
-                <td class='dialog-label focus_attr2' style='line-height:36px'>
+                <td class='dialog-label listLabel2' style='line-height:36px'>
                     Attribute B:
                 </td>
-                <td class='dialog-value'>
-                    <div class='list2 focus_attr2'></div>
-                    <span class='listMessage2 focus_attr2 redMessage' style='display:{{listMessageDisplay2}};color:{{messageColor2}}'>
-                        {{listMessage2}}
-                    </span>
+                <td class='dialog-value listAnchor2'>
+                    {{>layerNameList}}
                 </td>
             </tr>
         </table>

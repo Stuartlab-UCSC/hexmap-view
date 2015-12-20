@@ -12,11 +12,11 @@ var app = app || {}; // jshint ignore:line
         DIFF_LIST_LABEL = 'Attribute A:',
         dialogHex,
         $dialog,
-        $list,
-        $list2,
-        focusAttr,
+        list,
+        list2,
         focusAttr2,
         shortlist,
+        reactFocusAttr = new ReactiveVar(),
         ui = new ReactiveDict();
 
     // Make the variables in the html templates under our dynamic control here.
@@ -44,34 +44,6 @@ var app = app || {}; // jshint ignore:line
         },
         listLabel: function () {
             return ui.get('listLabel');
-        },
-        listMessage: function () {
-            return ui.get('listMessage');
-        },
-        messageColor: function () {
-            var x = ui.get('listMessage');
-            return 'red';
-        },
-        listMessageDisplay: function () {
-            if (ui.get('listMessage') === '') {
-                return 'none';
-            } else {
-                return 'inline';
-            }
-        },
-        listMessage2: function () {
-            return ui.get('listMessage2');
-        },
-        messageColor2: function () {
-            var x = ui.get('listMessage2');
-            return 'red';
-        },
-        listMessageDisplay2: function () {
-            if (ui.get('listMessage2') === '') {
-                return 'none';
-            } else {
-                return 'inline';
-            }
         },
     });
 
@@ -107,56 +79,32 @@ var app = app || {}; // jshint ignore:line
     }
 
     function enableList() {
-        var disabled = false,
-            color = 'inherit',
-            msgColor = 'red';
-
-        // Disable any list message up front
-        ui.set('listMessage', '');
-        $dialog.find('.listMessage').css('color', 'red');
 
         if (ui.equals('sortBy', 'density')) {
-
-            // Disable the list
-            disabled = true;
-            color = disabledColor;
+            list.enable(false);
         } else {
-            if (ui.equals('sortBy', 'focus')) {
-                ui.set('listLabel', FOCUS_LIST_LABEL);
-            } else {
-                ui.set('listLabel', DIFF_LIST_LABEL);
+            var filter = {};
+            if (ui.equals('sortBy', 'focus') && ui.equals('layoutAware', true)) {
+                filter.binary = true;
+            } else if (ui.equals('sortBy', 'diff')) {
+                filter.selection = true;
+                filter.twoLayersRequired = true;
             }
-            populateList();
+            list.enable(true, filter);
         }
-        $dialog.find('.focus_attr, .focus_attr .select2-choice')
-            .attr('disabled', disabled)
-            .css('color', color);
-
-        // Stupid override
-        $('.redMessage').css('color', 'red');
     }
 
     function enableList2() {
-        var disabled = false,
-            color = 'inherit';
-
-        // Disable any list message up front
-        ui.set('listMessage2', '');
 
         if (ui.equals('sortBy', 'diff')) {
-            populateList2();
+            var filter = {
+                selection: true,
+                twoLayersRequired: true,
+            };
+            list2.enable(true, filter);
         } else {
-
-            // Disable the list
-            disabled = true;
-            color = disabledColor;
+            list2.enable(false);
         }
-        $dialog.find('.focus_attr2, .focus_attr2 .select2-choice')
-            .attr('disabled', disabled)
-            .css('color', color);
-
-        // Stupid override
-        $('.redMessage').css('color', 'red');
     }
 
     function enableAll(except_base) {
@@ -168,8 +116,23 @@ var app = app || {}; // jshint ignore:line
         enableList2();
     }
 
+    function show () {
+
+        // Show the contents of the dialog, once per opening button click
+        list = createLayerNameList($('#sort-attributes-dialog .listAnchor'),
+                                   $('#sort-attributes-dialog .listLabel'));
+        list2 = createLayerNameList($('#sort-attributes-dialog .listAnchor2'),
+                                    $('#sort-attributes-dialog .listLabel2'));
+        enableAll();
+
+        // TODO disable the button that displays the dialog, maybe with a progress wheel
+
+    }
+
 	sortIt = function () {
-        var returnMessage;
+        var returnMessage,
+            focusAttr = list.selected,
+            focusAttr2 = list2.selected;
         if (ui.equals('sortBy', 'density')) {
 
             // Density sort has been requested
@@ -178,9 +141,11 @@ var app = app || {}; // jshint ignore:line
         } else if (ui.equals('sortBy', 'focus')) {
 
             // Focus attribute sort has been requested
-            if (focusAttr === '') return;
+            if (focusAttr === '') {
+                // We should not be able to get here
+                returnMessage = 'For some reason an attribute is not selected';
 
-            if (ui.equals('layoutAware', true)) {
+            } else if (ui.equals('layoutAware', true)) {
                 get_layout_aware_stats(current_layout_index, focusAttr,
                     ui.equals('corrNeg', true));
 
@@ -191,14 +156,17 @@ var app = app || {}; // jshint ignore:line
          } else {
 
             // Differential attribute sort has been requested
-            if (focusAttr === '' || focusAttr2 === '') return;
-            if (focusAttr === focusAttr2) {
-                banner('error', 'Select two different attributes for differential sort');
-                return;
-            }
-            returnMessage = get_diff_stats(focusAttr, focusAttr2);
+            if (focusAttr === '' || focusAttr2 === '') {
+                // We should not be able to get here
+                returnMessage = 'For some reason an attribute is not selected';
 
-         }
+            } else if (focusAttr === focusAttr2) {
+                returnMessage = 'Select two different attributes for differential sort';
+
+            } else { // Go get those differential stats
+                returnMessage = get_diff_stats(focusAttr, focusAttr2);
+            }
+        }
         if (_.isUndefined(returnMessage)) {
             dialogHex.destroyDialog();
         } else {
@@ -206,154 +174,15 @@ var app = app || {}; // jshint ignore:line
         }
 	}
 
-     function findBinaryFocuslist () {
-        var focusList = _.filter(shortlist,
-            function (layer_name) {
-                return (ctx.bin_layers.indexOf(layer_name) > -1);
-            }
-        );
-        return focusList;
-	}
-
-    function findUserGeneratedList () {
-        var focusList = _.filter(shortlist,
-            function (layer_name) {
-                return (layers[layer_name].hasOwnProperty('selection'));
-            }
-        );
-        return focusList;
-    }
-
-    function findShortlist() {
-
-        // Get all of the attributes in the shortlist
-        shortlist = _.map($("#shortlist").children(),
-            function (element, index) {
-                return $(element).data("layer");
-            }
-        )
-    }
-
-    populateList = function () {
-
-        // This creates and populates the drop down with the
-        // appropriate layers in the shortlist.
-
-        // Reset the list
-        try {
-            $list.select2('destroy');
-        }
-        catch (error) {
-            $.noop();
-        }
-
-        findShortlist();
-        var focusList = shortlist;
-        if (ui.equals('sortBy', 'focus') && ui.equals('layoutAware', true)) {
-            focusList = findBinaryFocuslist();
-        } else if (ui.equals('sortBy', 'diff')) {
-            focusList = findUserGeneratedList();
-        }
-
-        // At least two attributes must be in the list for differential stats
-        if (ui.equals('sortBy', 'diff') && focusList.length < 2) {
-
-            // Reset the focus attribute
-            focusAttr = '';
-            ui.set('listMessage', 'Select two groups of hexagons');
-
-        // At least one attribute must be in the list for focus sort
-        } else if (focusList.length < 1) {
-
-            focusAttr = '';
-            if (ui.equals('layoutAware', true)) {
-                ui.set('listMessage', 'Add label attribute to shortlist');
-            } else {
-                ui.set('listMessage', 'Add an attribute to shortlist');
-            }
-
-        } else {
-            setTimeout(function () { // Flush UI to let the list message disappear
-
-                // Transform the focus layer list into the form wanted by select2
-                var data = _.map(focusList, function (layer) {
-                    return { id: layer, text: layer }
-                });
-
-                // Create the select2 drop-down
-                focusAttr = (focusList.indexOf(focusAttr) > -1)
-                    ? focusAttr : focusList[0];
-                var opts = {data: data, minimumResultsForSearch: -1};
-                createOurSelect2($list, opts, focusAttr);
-            }, 0);
-        }
-    }
-
-    populateList2 = function () {
-
-        // This creates and populates the drop down with the
-        // appropriate layers in the shortlist.
-
-        // Reset the list
-        try {
-            $list2.select2('destroy');
-        }
-        catch (error) {
-            $.noop();
-        }
-
-        var focusList = findUserGeneratedList();
-
-        // At least two attributes must be in the list for differential stats
-        if (focusList.length < 2) {
-
-            // Reset the focus attribute
-            focusAttr2 = '';
-            ui.set('listMessage2', 'Select two groups of hexagons');
-
-        } else {
-            setTimeout(function () { // Flush UI to let the list message disappear
-
-                // Transform the focus layer list into the form wanted by select2
-                var data = _.map(focusList, function (layer) {
-                    return { id: layer, text: layer }
-                });
-
-                // Create the select2 drop-down
-                focusAttr2 = (focusList.indexOf(focusAttr2) > -1)
-                    ? focusAttr2 : focusList[1];
-                var opts = {data: data, minimumResultsForSearch: -1};
-                createOurSelect2($list2, opts, focusAttr2);
-            }, 0);
-        }
-    }
-
     function justBeforeDestroy() {
-        try {
-            $list.select2('destroy');
-        }
-        catch (error) {
-            $.noop();
-        }
-        try {
-            $list2.select2('destroy');
-        }
-        catch (error) {
-            $.noop();
-        }
-    }
-
-    shortlistChangedForSort = function () {
-
-        // If the shortlist changes and the dialog is open,
-        // update the attribute lists
-        if ($dialog.parent().hasClass('ui-dialog')) {
-            enableList();
-            enableList2()
-        }
+        list.destroy();
+        list2.destroy();
+        // TODO enable the button that displays the dialog
     }
 
     initSortAttrs = function () {
+
+        // Initialize the sort functions, happens once per app reload
 
         // Initialize the reactive variables
         ui.set({
@@ -361,23 +190,19 @@ var app = app || {}; // jshint ignore:line
             'layoutAware': false, // layout aware rather than ignore layout
             'listLabel': FOCUS_LIST_LABEL,  // set the list label
             'corrNeg': false,  // sort by positive correlation rather than anticorrelation
-            'listMessage': '', // empty the list message
-            'listMessage2': '', // empty the list message2
         });
         Session.set('bin', true); // binary values included
         Session.set('cat', true); // categorical values included
         Session.set('cont', true); // continuous values included
-        focusAttr = '';
+        reactFocusAttr.set('');
         focusAttr2 = '';
 
         // Set jquery element names
         $dialog = $('#sort-attributes-dialog');
-        $list = $("#sort-attributes-dialog .list");
-        $list2 = $("#sort-attributes-dialog .list2");
 
-        // Define some delegated event handlers. Being 'delegated' means the
-        // child elements to do not have to exist yet, so we can define them
-        // once and not worry about freeing or re-creating them.
+        // Define some 'delegated' event handlers. Child elements to do not need
+        // to exist yet, so we can define handlers once with no worries of
+        // freeing or recreating them.
         $dialog
             .on('change', '#sortByFocus', function (ev) {
                 if (ev.target.checked) ui.set('sortBy', 'focus');
@@ -404,12 +229,6 @@ var app = app || {}; // jshint ignore:line
             })
             .on('change', '#corrNeg', function (ev) {
                 if (ev.target.checked) ui.set('corrNeg', true);
-            })
-            .on('change', '.list', function (ev) {
-                focusAttr = $list.val();
-            })
-            .on('change', '.list2', function (ev) {
-                focusAttr2 = $list2.val();
             });
 
         // Define the dialog options
@@ -421,6 +240,6 @@ var app = app || {}; // jshint ignore:line
 
         // Create an instance of DialogHex
         dialogHex = createDialogHex($('#sort-attributes-button'), $dialog, opts,
-            enableAll, justBeforeDestroy);
+            show, justBeforeDestroy);
     }
 })(app);

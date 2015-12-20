@@ -8,6 +8,9 @@ PAGE = 'homePage';
 (function (hex) { // jshint ignore:line
     //'use strict';
 
+    // Globals across this app
+    DISABLED_COLOR = '#aaaaaa';
+
     var DEFAULT_PROJECT = 'data/pancan12/first/',
         DEFAULT_SORT = {
             text: 'Density of attributes',

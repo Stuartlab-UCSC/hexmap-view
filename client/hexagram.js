@@ -880,14 +880,22 @@ function make_shortlist_ui(layer_name) {
 var autorunFirstLayer = Tracker.autorun(function () {
 
     // Whenever the first_layer is set, add it to the shortlist
-    if (_.isUndefined(Session.get('first_layer'))) {
+    var first = Session.get('first_layer');
+    if (_.isUndefined(first)) {
+        console.log('autorunFirstLayer: first_layer undefined');
         return;
     }
-    Session.set('shortlist', [Session.get('first_layer')]);
+    console.log('autorunFirstLayer: about to set session-shortlist to [first]');
+    Session.set('shortlist', [first]);
+    console.log('autorunFirstLayer: set session-shortlist to [first]');
+    console.log('autorunFirstLayer: about to update_shortlist_ui');
     update_shortlist_ui();
+    console.log('autorunFirstLayer: completed update_shortlist_ui');
 
     // Kill this after the first layer has been identified
+    console.log('autorunFirstLayer: about to stop');
     autorunFirstLayer.stop();
+    console.log('autorunFirstLayer: stopped');
 });
 
 update_shortlist_ui = function () {
@@ -941,8 +949,6 @@ update_shortlist_ui = function () {
         // Sort by the part with the lines icon, so we can still select text.
         handle: ".shortlist-controls" 
     });
-
-    shortlistChangedForSort();
 }	
 
 fill_layer_metadata = function (container, layer_name) {
