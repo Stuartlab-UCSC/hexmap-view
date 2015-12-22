@@ -877,28 +877,7 @@ function make_shortlist_ui(layer_name) {
     return root;
 }
 
-var autorunFirstLayer = Tracker.autorun(function () {
-
-    // Whenever the first_layer is set, add it to the shortlist
-    var first = Session.get('first_layer');
-    if (_.isUndefined(first)) {
-        console.log('autorunFirstLayer: first_layer undefined');
-        return;
-    }
-    console.log('autorunFirstLayer: about to set session-shortlist to [first]');
-    Session.set('shortlist', [first]);
-    console.log('autorunFirstLayer: set session-shortlist to [first]');
-    console.log('autorunFirstLayer: about to update_shortlist_ui');
-    update_shortlist_ui();
-    console.log('autorunFirstLayer: completed update_shortlist_ui');
-
-    // Kill this after the first layer has been identified
-    console.log('autorunFirstLayer: about to stop');
-    autorunFirstLayer.stop();
-    console.log('autorunFirstLayer: stopped');
-});
-
-update_shortlist_ui = function () {
+update_shortlist_ui = function (layersJustLoaded) {
     // Go through the shortlist and make sure each layer there has an entry in 
     // the shortlist UI, and that each UI element has an entry in the shortlist.
     // Also make sure the metadata for all existing layers is up to date.
@@ -907,6 +886,11 @@ update_shortlist_ui = function () {
     shortlist_ui = {};
 
     var shortlist = Session.get('shortlist');
+
+    if (layersJustLoaded && shortlist.length < 1) {
+        Session.set('shortlist', [Session.get('first_layer')]);
+    }
+
     for(var i = 0; i < shortlist.length; i++) {
         // For each shortlist entry, put a false in the lookup table
         shortlist_ui[shortlist[i]] = false;
@@ -2213,7 +2197,7 @@ initHex = function () {
 
     initSetOperations();
     initSortAttrs();
-    //initDiffAnalysis();
+    initDiffAnalysis();
 
 	// Set up help buttons to open their sibling help dialogs.
 	$(".help-button").each(function() {
@@ -2300,7 +2284,7 @@ initHex = function () {
                 || layers.hasOwnProperty('tissue'))) {
             Session.set('first_layer', layer_name);
         }
-        update_shortlist_ui();
+        update_shortlist_ui(true);
 
         // Now we have added layer downloaders for all the layers in the 
         // index. Update the UI
