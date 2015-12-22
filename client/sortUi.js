@@ -7,17 +7,16 @@ var app = app || {}; // jshint ignore:line
     //'use strict';
 
     var title = 'Sort Attributes',
-        disabledColor = '#aaaaaa',
         FOCUS_LIST_LABEL = 'Attribute A:', //was 'Focus attribute:',
         DIFF_LIST_LABEL = 'Attribute A:',
         dialogHex,
         $dialog,
         list,
         list2,
-        focusAttr2,
-        shortlist,
-        reactFocusAttr = new ReactiveVar(),
-        ui = new ReactiveDict();
+        listSelected,
+        listSelected2,
+        ui = new ReactiveDict(),
+        enableAutorun;
 
     // Make the variables in the html templates under our dynamic control here.
     Template.sortUiT.helpers({
@@ -55,7 +54,7 @@ var app = app || {}; // jshint ignore:line
 
             // Disable base options of focus sort
             disabled = true;
-            color = disabledColor;
+            color = DISABLED_COLOR;
         }
         $dialog.find('.based')
             .attr('disabled', disabled)
@@ -71,7 +70,7 @@ var app = app || {}; // jshint ignore:line
 
             // Disable correlation options for sample-based
             disabled = true;
-            color = disabledColor;
+            color = DISABLED_COLOR;
         }
         $dialog.find('.corr')
             .attr('disabled', disabled)
@@ -79,6 +78,8 @@ var app = app || {}; // jshint ignore:line
     }
 
     function enableList() {
+
+        if (_.isUndefined(list)) return;
 
         if (ui.equals('sortBy', 'density')) {
             list.enable(false);
@@ -88,7 +89,6 @@ var app = app || {}; // jshint ignore:line
                 filter.binary = true;
             } else if (ui.equals('sortBy', 'diff')) {
                 filter.selection = true;
-                filter.twoLayersRequired = true;
             }
             list.enable(true, filter);
         }
@@ -96,21 +96,21 @@ var app = app || {}; // jshint ignore:line
 
     function enableList2() {
 
+        if (_.isUndefined(list2)) return;
+
         if (ui.equals('sortBy', 'diff')) {
             var filter = {
                 selection: true,
-                twoLayersRequired: true,
+                secondList: true,
             };
-            list2.enable(true, filter);
+            list2.enable(true, filter, list.selected);
         } else {
             list2.enable(false);
         }
     }
 
-    function enableAll(except_base) {
-        if (!except_base) {
-            enableBase();
-        }
+    function enableAll() {
+        enableBase();
         enableCorr();
         enableList();
         enableList2();
@@ -118,18 +118,20 @@ var app = app || {}; // jshint ignore:line
 
     function show () {
 
-        // Show the contents of the dialog, once per opening button click
+        // Show the contents of the dialog, once per trigger button click
         list = createLayerNameList($('#sort-attributes-dialog .listAnchor'),
-                                   $('#sort-attributes-dialog .listLabel'));
+                                   $('#sort-attributes-dialog .listLabel'),
+                                   listSelected);
         list2 = createLayerNameList($('#sort-attributes-dialog .listAnchor2'),
-                                    $('#sort-attributes-dialog .listLabel2'));
+                                    $('#sort-attributes-dialog .listLabel2'),
+                                    listSelected2,
+                                    list);
         enableAll();
 
         // TODO disable the button that displays the dialog, maybe with a progress wheel
-
     }
 
-	sortIt = function () {
+	 function sortIt () {
         var returnMessage,
             focusAttr = list.selected,
             focusAttr2 = list2.selected;
@@ -175,9 +177,15 @@ var app = app || {}; // jshint ignore:line
 	}
 
     function justBeforeDestroy() {
+
+        // Destroy some things just before the dialog destroy
+        listSelected = list.selected;
         list.destroy();
+        list = undefined;
+        listSelected2 = list2.selected;
         list2.destroy();
-        // TODO enable the button that displays the dialog
+        list2 = undefined;
+        // TODO enable the button that displays the dialog?
     }
 
     initSortAttrs = function () {
@@ -194,35 +202,37 @@ var app = app || {}; // jshint ignore:line
         Session.set('bin', true); // binary values included
         Session.set('cat', true); // categorical values included
         Session.set('cont', true); // continuous values included
-        reactFocusAttr.set('');
-        focusAttr2 = '';
 
         // Set jquery element names
         $dialog = $('#sort-attributes-dialog');
 
+        // Define some autoruns for when reactive variables change
+        enableAutorun = Tracker.autorun(function () {
+            ui.get('sortBy');
+            ui.get('layoutAware');
+            enableAll();
+        });
+
         // Define some 'delegated' event handlers. Child elements to do not need
         // to exist yet, so we can define handlers once with no worries of
-        // freeing or recreating them.
+        // freeing or recreating them. Meteor template event handles should be
+        // able to do this, but they are broken in the latest meteor version
+        // (1.1.0.3) that runs under our python version (2.6) on su2c-dev/su2c.
         $dialog
             .on('change', '#sortByFocus', function (ev) {
                 if (ev.target.checked) ui.set('sortBy', 'focus');
-                enableAll();
             })
             .on('change', '#sortByDiff', function (ev) {
                 if (ev.target.checked) ui.set('sortBy', 'diff');
-                enableAll();
             })
             .on('change', '#sortByDensity', function (ev) {
                 if (ev.target.checked) ui.set('sortBy', 'density');
-                enableAll();
             })
             .on('change', '#sample-based', function (ev) {
                 if (ev.target.checked) ui.set('layoutAware', false);
-                enableAll(true);
             })
             .on('change', '#region-based', function (ev) {
                 if (ev.target.checked) ui.set('layoutAware', true);
-                enableAll(true);
             })
             .on('change', '#corrPos', function (ev) {
                 if (ev.target.checked) ui.set('corrNeg', false);

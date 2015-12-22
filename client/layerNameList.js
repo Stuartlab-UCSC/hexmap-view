@@ -6,35 +6,41 @@ var app = app || {}; // jshint ignore:line
 (function (hex) { // jshint ignore:line
     //'use strict';
 
-    var instance;
-
-    LayerNameList = function ($anchor, $label) {
+    LayerNameList = function ($anchor, $label, selected, firstList) {
 
         this.$anchor = $anchor;
         this.$label = $label;
-        this.selected = '';
+        this.selected = selected;
+        this.firstList = firstList;
         this.message = new ReactiveVar();
-        this.filter = {};
-        var self = this;
+        this.filter = {},
+        this.shortListUpdateCount;
 
-        LayerNameList.prototype.filterBinary = function (shortlist) {
+        LayerNameList.prototype.filterer = function (filter) {
 
-            // Finds layer names in the shortlist that are binary
-            return _.filter(shortlist,
-                function (layerName) {
-                    return (ctx.bin_layers.indexOf(layerName) > -1);
-                }
-            );
-        }
+            // Find the layer names in the short list
+            var list = Session.get('shortlist');
 
-        LayerNameList.prototype.filterSelection = function (shortlist) {
+            if (filter.binary) {
 
-            // Finds layer names in the shortlist that are selections
-            return _.filter(shortlist,
-                function (layerName) {
-                    return (layers[layerName].hasOwnProperty('selection'));
-                }
-            );
+                // Filter on binary layers
+                list = _.filter(list,
+                    function (layerName) {
+                        return (ctx.bin_layers.indexOf(layerName) > -1);
+                    }
+                );
+            }
+
+             // Filter on selection layers
+            if (filter.selection) {
+                list = _.filter(list,
+                    function (layerName) {
+                        return (layers[layerName].hasOwnProperty('selection'));
+                    }
+                );
+            }
+
+            return list;
         }
 
         LayerNameList.prototype.populate = function (filter) {
@@ -50,19 +56,14 @@ var app = app || {}; // jshint ignore:line
                 $.noop();
             }
 
-            // Find the layer names in the short list, and filter if requested
-            var shortlist = Session.get('shortlist'),
-                list = shortlist;
-            if (filter.binary) {
-                list = this.filterBinary(shortlist);
-            } else if (filter.selection) {
-                list = this.filterSelection(shortlist);
-            }
+            // Apply the filters to the shortlist
+            var list = this.filterer(filter);
 
             // If at least 2 attributes must be in the list
             // and there are less than 2, give a message rather than a list
-            if (filter.twoLayersRequired && list.length < 2) {
-                this.message.set('Select two groups of hexagons');
+            if (this.firstList && list.length < 2) {
+                // We assume 2 lists means they are both filtered by selections
+                this.message.set('Select another group of hexagons');
 
             // Give a message rather than a list if there are no layers in the list
             } else if (list.length < 1) {
@@ -73,6 +74,7 @@ var app = app || {}; // jshint ignore:line
                 } else {
                     this.message.set('Add an attribute to shortlist');
                 }
+                this.selected = undefined;
 
             } else {
                 // Flush UI to let the list message disappear
@@ -84,10 +86,16 @@ var app = app || {}; // jshint ignore:line
                         return { id: layer, text: layer }
                     });
 
-                    // Create the select2 drop-down
+                    // Determine the selected item on the list
                     if (list.indexOf(self.selected) < 0) {
                         self.selected = list[0];
+                        if (self.firstList
+                            && self.firstList.selected === self.selected) {
+                            self.selected = list[1];
+                        }
                     }
+
+                    // Create the select2 list
                     var opts = {data: data, minimumResultsForSearch: -1};
                     createOurSelect2(self.$el, opts, self.selected);
                 }, 0);
@@ -97,14 +105,18 @@ var app = app || {}; // jshint ignore:line
         LayerNameList.prototype.enable = function (enabled, filter) {
 
             // Enable or disable this list. If enabling, also populate the list
+            // Valid filters are:
+            //      binary: true: only include binary layers
+            //      selection: true: only include selection layers
 
-            // Undefined enable comes from an update of the shortlist
             if (_.isUndefined(enabled)) {
 
+                // Undefined enable comes from an update of the shortlist
                 // This means we should use our stored values to re-populate
                 if (_.isUndefined(this.enabled)) {
 
-                    // We have no stored values so just return
+                    // We've not yet been enabled by the caller, so we
+                    // have no stored values so just return
                     return;
 
                 }
@@ -133,7 +145,7 @@ var app = app || {}; // jshint ignore:line
                 .attr('disabled', !this.enabled)
                 .css('color', color);
 
-            // Stupid override to make it red
+            // Stupid override to make the message red
             this.message.set(this.message.get());
         }
 
@@ -160,6 +172,7 @@ var app = app || {}; // jshint ignore:line
             // Whenever the message is set, display it with red
             // TODO Emulate meteor tracker's helper because we don't know how
             // to access this instance's reactive vars from the class
+            var self = this;
             this.messageAutorun = Tracker.autorun(function () {
                 var message = self.message.get(),
                     $message = self.$anchor.find('.message');
@@ -181,9 +194,19 @@ var app = app || {}; // jshint ignore:line
 
             this.emulateTrackerForClass();
             this.shortlistAutorun = Tracker.autorun(function () {
-                Session.get('shortlist');
-                self.enable();
-            })
+                // TODO an abuse of meteor session vars, because this is called
+                // at times when the session var is not updated
+                var count = Session.get('shortlistUiUpdated');
+                if (_.isUndefined(self.shortListUpdateCount)) {
+                    self.shortListUpdateCount = count;
+                    self.enable();
+                } else {
+                    if (count !== self.shortListUpdateCount) {
+                        self.shortListUpdateCount = count;
+                        self.enable();
+                    }
+                }
+            });
 
             this.$el = $anchor.find('.list');
 
@@ -194,10 +217,10 @@ var app = app || {}; // jshint ignore:line
         }
     }
 
-    createLayerNameList = function ($anchor, $label) {
+    createLayerNameList = function ($anchor, $label, selected, firstList) {
 
         // Creates an instance of the LayerNameList.
-        instance = new LayerNameList($anchor, $label);
+        var instance = new LayerNameList($anchor, $label, selected, firstList);
         instance.init($anchor);
         return instance;
     }

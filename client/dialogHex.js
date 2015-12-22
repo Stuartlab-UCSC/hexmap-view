@@ -39,24 +39,21 @@ var app = app || {}; // jshint ignore:line
             }
         }
 
-        DialogHex.prototype.init = function  (self) {
+        DialogHex.prototype.init = function () {
 
-            // Enable the appropriate UI elements
-            //self.$el.find('.clear').button() // TODO is this being used?
-
-
+            var self = this;
             /* TODO disable this until we have some help
-            self.$help.detach()
+            this.$help.detach()
                 .css('display', 'inline');
             $('.ui-dialog-titlebar-close').before(self.$help);
 
             // Event handlers
             // Remove any old help handlers from other dialogs using it
-            self.$help.off('click')
+            this.$help.off('click')
                 .on('click', self.showHelp);
             */
-
-            self.initFx(); // Call the instance init function
+            
+            this.initFx(); // Call the instance init function
         }
 
         DialogHex.prototype.show = function () {
@@ -64,9 +61,7 @@ var app = app || {}; // jshint ignore:line
             // Initialize the dialog options to our favorite defaults
             var self = this,
                 opts = {
-                    //title: title,
                     dialogClass: 'dialog',
-                    //modal: true,
                     minHeight: '10em',
                     width: '30em',
                     close: function () {
@@ -83,16 +78,15 @@ var app = app || {}; // jshint ignore:line
             this.$el.dialog(opts);
 
             // Give the DOM a chance to load so we can find the elements in init
-            var self = this
             setTimeout(function () {
-                self.init(self);
+                self.init();
             }, 0);
         }
 
         DialogHex.prototype.initButton = function ($button) {
 
             // Give the button jquery-ui style and create a click handler for it
-            self = this;
+            var self = this;
             $button
                 .prop('title', this.opts.title)
                 .button()
@@ -113,7 +107,8 @@ var app = app || {}; // jshint ignore:line
 
     createDialogHex = function ($button, $el, opts, initFx, destroyFx) {
 
-        /* Creates an instance of our dialog.
+        /* Creates an instance of our dialog, which contains a button to open
+         * the dialog in addition to a dialog
          *
          * @param $button: jquery DOM element of the dialog activator
          * @param $el: jquery DOM element of the dialog anchor

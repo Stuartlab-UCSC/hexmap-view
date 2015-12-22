@@ -949,6 +949,9 @@ update_shortlist_ui = function () {
         // Sort by the part with the lines icon, so we can still select text.
         handle: ".shortlist-controls" 
     });
+
+    // We use a count here so the value always changes
+    Session.set('shortlistUiUpdated', 1 + Session.get('shortlistUiUpdated'));
 }	
 
 fill_layer_metadata = function (container, layer_name) {
@@ -2163,9 +2166,13 @@ initHex = function () {
     // A list of layer names maintained in sorted order.
     ctx.layer_names_sorted = [];
 
-    // This holds an array of layer names that the user has added to the "shortlist"
-    // They can be quickly selected for display.
+    // This holds an array of layer names that the user has added to the
+    // "shortlist" so they can be quickly selected for display.
     Session.set('shortlist', []);
+    // This is a count which is incremented every time the shortlist UI is
+    // updated. We would rather use 'shortlist', but that produces an infinite
+    // loop at times.
+    Session.set('shortlistUiUpdated', 0);
 
     // TODO we need to get this from the server before the attribute sort the
     // user sees on startup. We're lucky now. We need to guarantee this is done
@@ -2206,6 +2213,7 @@ initHex = function () {
 
     initSetOperations();
     initSortAttrs();
+    //initDiffAnalysis();
 
 	// Set up help buttons to open their sibling help dialogs.
 	$(".help-button").each(function() {

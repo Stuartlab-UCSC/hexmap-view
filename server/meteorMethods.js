@@ -104,7 +104,7 @@ Meteor.methods({
                     // the server, then passing the long array to the client.
                     var data = readFromFile(result);
                     fs.unlinkSync(parmFile);
-                    fs.unlinkSync(result);
+                    //fs.unlinkSync(result); // TODO is this always a temp file?
                     future.return(data);
                 }
             }

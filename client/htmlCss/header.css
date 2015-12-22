@@ -35,13 +35,17 @@
     font-size: 0.65em;
 }
 
-#set-operation,
-#sort-attributes-button {
+.headerButton {
     height: 24px;
     width: 24px;
     padding: 3px;
     margin: 0.3em;
     border: 1px solid #aaaaaa;
+}
+#diffAnalysisButton {
+    height: 28px;
+    width: 28px;
+    padding: 1px;
 }
 
 #sortText {

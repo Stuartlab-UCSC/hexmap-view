@@ -57,15 +57,6 @@ The visualization element needs to take up all available space.
 }
 */
 
-.dialog {
-    font-size: 0.9em;
-}
-
-
-.dialogDiv {
-    min-height: 3em;
-    padding: 0.5em;
-}
 /*
 Read as "The content row", distinct from whatever else that element might be.
 */
@@ -74,6 +65,18 @@ Read as "The content row", distinct from whatever else that element might be.
     top: 0px;
     height: 300px;
     z-index: 1;
+}
+
+.listAnchor {
+    width: 20em;
+}
+.dialog {
+    font-size: 0.9em;
+}
+
+.dialogDiv {
+    min-height: 3em;
+    padding: 0.5em;
 }
 
 .dialog-label,
