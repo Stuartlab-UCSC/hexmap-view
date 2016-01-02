@@ -152,8 +152,7 @@ var app = app || {}; // jshint ignore:line
                     ui.equals('corrNeg', true));
 
             } else { // ignore layout requested
-                get_layout_ignore_stats(focusAttr, Session.get('bin'),
-                    Session.get('cat'), Session.get('cont'));
+                get_layout_ignore_stats(focusAttr, true, true, true);
             }
          } else {
 
@@ -199,9 +198,6 @@ var app = app || {}; // jshint ignore:line
             'listLabel': FOCUS_LIST_LABEL,  // set the list label
             'corrNeg': false,  // sort by positive correlation rather than anticorrelation
         });
-        Session.set('bin', true); // binary values included
-        Session.set('cat', true); // categorical values included
-        Session.set('cont', true); // continuous values included
 
         // Set jquery element names
         $dialog = $('#sort-attributes-dialog');
@@ -215,7 +211,7 @@ var app = app || {}; // jshint ignore:line
 
         // Define some 'delegated' event handlers. Child elements to do not need
         // to exist yet, so we can define handlers once with no worries of
-        // freeing or recreating them. Meteor template event handles should be
+        // freeing or recreating them. Meteor template event handlers should be
         // able to do this, but they are broken in the latest meteor version
         // (1.1.0.3) that runs under our python version (2.6) on su2c-dev/su2c.
         $dialog
@@ -244,7 +240,6 @@ var app = app || {}; // jshint ignore:line
         // Define the dialog options
         var opts = {
             title: title,
-            width: '25em',
             buttons: [{ text: 'Sort', click: sortIt }],
         };
 

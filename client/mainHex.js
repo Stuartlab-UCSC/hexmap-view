@@ -24,6 +24,8 @@ layers = {}; // contains almost all information about attributes
         mapPageSrcs = [
             {pre: 'cyber-slug', suf: '.svg'},
             {pre: 'question-sign', suf: '.svg'},
+            {pre: 'filter', suf: '.svg'},
+            {pre: 'filterCaution', suf: '.svg'},
             {pre: 'throbber', suf: '.svg'},
             {pre: 'yin-yang', suf: '.svg'},
             {pre: 'set', suf: '.svg'},

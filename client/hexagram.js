@@ -346,8 +346,10 @@ function add_layer_url(layer_name, layer_url, attributes) {
     }
     
     // Add it to the sorted layer list.
-    ctx.layer_names_sorted.push(layer_name);
-    
+    var sorted = Session.get('sortedLayers').slice();
+    sorted.push(layer_name);
+    Session.set('sortedLayers', sorted);
+
     // Don't sort because our caller does that when they're done adding layers.
 
 }
@@ -382,7 +384,9 @@ function add_layer_data(layer_name, data, attributes) {
     } else {
     
         // Add it to the sorted layer list, since it's not there yet.
-        ctx.layer_names_sorted.push(layer_name);
+        var sorted = Session.get('sortedLayers').slice();
+        sorted.push(layer_name);
+        Session.set('sortedLayers', sorted);
     }
 
     // Add this layer to the appropriate data type list
@@ -625,7 +629,7 @@ function make_shortlist_ui(layer_name) {
     
     // Add an image label for the filter control.
     // TODO: put this in a label
-	var filter_image = $("<img/>").attr("src", Session.get('proxPre') + "filter.svg");
+	var filter_image = $("<img class='headerButton'/>").attr("src", Session.get('proxPre') + "filter.svg");
     filter_image.addClass("control-icon");
 	filter_image.addClass("filter-image");
     filter_image.attr("title", "Filter on Layer");
@@ -694,7 +698,7 @@ function make_shortlist_ui(layer_name) {
     remove_link.click(function() {
 
         // Remove this layer from the shortlist
-        var short = Session.get('shortlist');
+        var short = Session.get('shortlist').slice();
         short.splice(short.indexOf(layer_name), 1);
         Session.set('shortlist', short);
         
@@ -717,7 +721,7 @@ function make_shortlist_ui(layer_name) {
 		// Run the deletion process
 		delete_link.click(function() {
 		    // Remove this layer from the shortlist
-            var short = Session.get('shortlist');
+            var short = Session.get('shortlist').slice(); // var b = a.slice();
             short.splice(short.indexOf(layer_name), 1);
             Session.set('shortlist', short);
 
@@ -733,7 +737,10 @@ function make_shortlist_ui(layer_name) {
 		    }
 
 			// Remove from layers lists and data type list
-			ctx.layer_names_sorted.splice(ctx.layer_names_sorted.indexOf(layer_name), 1);
+            var sorted = Session.get('sortedLayers').slice();
+			sorted.splice(sorted.indexOf(layer_name), 1);
+            Session.set('sortedLayers', sorted);
+
 			delete layers[layer_name];
             removeFromDataTypeList(layer_name);
             Session.set('sort', ctx.defaultSort());
@@ -877,6 +884,14 @@ function make_shortlist_ui(layer_name) {
     return root;
 }
 
+var firstLayerAutorun = Tracker.autorun(function () {
+    var first = Session.get('first_layer');
+    if (!_.isUndefined(first) && Session.get('shortlist').length < 1) {
+        Session.set('shortlist', [first]);
+        update_shortlist_ui();
+    }
+});
+
 update_shortlist_ui = function (layersJustLoaded) {
     // Go through the shortlist and make sure each layer there has an entry in 
     // the shortlist UI, and that each UI element has an entry in the shortlist.
@@ -886,10 +901,6 @@ update_shortlist_ui = function (layersJustLoaded) {
     shortlist_ui = {};
 
     var shortlist = Session.get('shortlist');
-
-    if (layersJustLoaded && shortlist.length < 1) {
-        Session.set('shortlist', [Session.get('first_layer')]);
-    }
 
     for(var i = 0; i < shortlist.length; i++) {
         // For each shortlist entry, put a false in the lookup table
@@ -1034,7 +1045,7 @@ update_browse_ui = function() {
     // order.
     
     // Re-sort the sorted list that we maintain
-    sort_layers(ctx.layer_names_sorted);
+    sort_layers();
 
     // Close the select if it was open, forcing the data to refresh when it
     // opens again.
@@ -1426,7 +1437,7 @@ select_list = function (to_select, function_type, layer_names, new_layer_name, s
         
         // Update the browse UI with the new layer.
         update_browse_ui();
-        var shortlist = Session.get('shortlist');
+        var shortlist = Session.get('shortlist').slice();
         if (shortlist_push !== false) {
             // Immediately shortlist it if the attribute is being created for
             // the first time.
@@ -2112,7 +2123,7 @@ function recreate_map() {
 function create_indexed_layers_array () {
 	$.get(ctx.project + "layers.tab", function(tsv_data) {
 		// Create a list of layer names ordered by their indices
-		ctx.layer_names_by_index = new Array (ctx.layer_names_sorted.length);
+		ctx.layer_names_by_index = new Array (Session.get('sortedLayers').length);
 		parsed = $.tsv.parseRows(tsv_data);
 
         if (projectNotFound(parsed)) return;
@@ -2148,7 +2159,7 @@ initHex = function () {
     // Initialize some operating values
 
     // A list of layer names maintained in sorted order.
-    ctx.layer_names_sorted = [];
+    Session.set('sortedLayers', []);
 
     // This holds an array of layer names that the user has added to the
     // "shortlist" so they can be quickly selected for display.
@@ -2195,9 +2206,10 @@ initHex = function () {
     
     initLayerLists();
 
+    initFilter();
     initSetOperations();
     initSortAttrs();
-    initDiffAnalysis();
+    //initDiffAnalysis(); // TODO shelf this feature for now.
 
 	// Set up help buttons to open their sibling help dialogs.
 	$(".help-button").each(function() {
@@ -2284,7 +2296,7 @@ initHex = function () {
                 || layers.hasOwnProperty('tissue'))) {
             Session.set('first_layer', layer_name);
         }
-        update_shortlist_ui(true);
+        update_shortlist_ui();
 
         // Now we have added layer downloaders for all the layers in the 
         // index. Update the UI
@@ -2292,7 +2304,9 @@ initHex = function () {
 
         // Sort attributes by the default sort
         find_clumpiness_stats(current_layout_index);
-         
+
+        // Announce that the initial layers have loaded.
+        Session.set('initialLayersLoaded', true);
     }, "text");
     
     // Download full score matrix index, which we later use for statistics. Note
@@ -2376,8 +2390,6 @@ initHex = function () {
             Session.set('current_layout_name', changeToLayout);
         }
         $("#current-layout").text("Current Layout: " + Session.get('current_layout_name'));
-
-        console.log("Session.get('current_layout_name') matrixnames.tab'", Session.get('current_layout_name'));
 
         re_initialize_view ();
     }

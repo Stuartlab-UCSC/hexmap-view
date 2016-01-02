@@ -57,8 +57,6 @@ var app = app || {}; // jshint ignore:line
         //      [layerName1, layerName3, value3],
         //      ...
         // ]
-        // The first element of each row is the focus layer name
-        // which we already know, so ignore it.
         for (var i = 0; i < parsed.length; i++) {
 
             // Extract the value
@@ -83,8 +81,6 @@ var app = app || {}; // jshint ignore:line
 
         banner('info', computingText);
 
-        // TODO build the vectors for each selection as in sort.js
-
         // Prepare the parameters for the server call
         var opts = {
             attr1: attr,
@@ -94,6 +90,8 @@ var app = app || {}; // jshint ignore:line
             tempFile: 'yes',
             startDate: new Date(),
         };
+
+        opts.dynamicData = gatherSelectionData();
 
         // A stub for the python call
         receive_data(result, attr, attr2, opts);
@@ -160,8 +158,7 @@ var app = app || {}; // jshint ignore:line
         // Define the dialog options & create an instance of DialogHex
         var opts = {
             title: title,
-            width: '25em',
-            buttons: [{ text: 'Run Analysis', click: runCheck }],
+            buttons: [{ text: 'Run', click: runCheck }],
         };
         dialogHex = createDialogHex($('#diffAnalysisButton'), $dialog, opts,
             show, justBeforeDestroy);

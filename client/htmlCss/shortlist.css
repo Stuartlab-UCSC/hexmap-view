@@ -5,6 +5,10 @@
     width: 21em;
     overflow: visible;
 }
+.shortlistSpacer {
+    width: 21em;
+    height: 1px;
+}
 
 .panel-holder {
     overflow: hidden;

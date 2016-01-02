@@ -52,8 +52,10 @@ var app = app || {}; // jshint ignore:line
             this.$help.off('click')
                 .on('click', self.showHelp);
             */
-            
-            this.initFx(); // Call the instance init function
+
+            if (this.initFx) {
+                this.initFx(); // Call the instance init function
+            }
         }
 
         DialogHex.prototype.show = function () {
@@ -63,7 +65,7 @@ var app = app || {}; // jshint ignore:line
                 opts = {
                     dialogClass: 'dialog',
                     minHeight: '10em',
-                    width: '30em',
+                    width: 'resolve',
                     close: function () {
                         self.destroyDialog();
                     },

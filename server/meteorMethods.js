@@ -6,44 +6,92 @@ var os = Npm.require('os');
 var crypto = Npm.require('crypto');
 var path = Npm.require('path');
 
+// Find the path for the data directory
+
 // TODO these dirs may need to be different with built meteor
 // There must be a better way to do this for dev and built
 var dirPrefix = '../../../../../';
 var serverDir = dirPrefix + 'server/';
 var publicDir = dirPrefix + 'public/';
-var dataDir = publicDir + 'data/';
+var dataDirObsolete = publicDir + 'data/'; // TODO make use of dataDir instead
+var url = Meteor.absoluteUrl();
+var dataDir;
+if (url === 'http://localhost:3000/') {
+    dataDir = '/Users/swat/'
+}
 
 function writeToTempFile (data, fileExtension) {
+
+    // Write arbitrary data to a file, blocking until the write is complete
     var filename = os.tmpdir() + '/' + crypto.randomBytes(4).readUInt32LE(0);
     if (!_.isUndefined(fileExtension)) {
         filename += fileExtension;
     }
     fs.writeFileSync(filename, data);
-    // TODO: close this file!?
     return filename;
 }
 
-function readFromFile (filename) {
-    var data = fs.readFileSync(filename, 'utf8');
+function readFromTsvFileSync (filename) {
+
+    // Read from a tab-separated file, blocking until the read is complete
+    var data1,
+        data = fs.readFileSync(filename, 'utf8');
 
     // separate the data in to an array of rows
-    data = data.split('\n');
+    data1 = data.split('\n');
 
     // Separate each row into an array of values
-    data = _.map(data, function(row) {
+    data = _.map(data1, function(row) {
         return row.split('\t');
     });
     return data;
 }
 
+function fixUpProjectDir (parms) {
+
+    // Make a project data directory string usable by the server code.
+    // This is needed due to a prefix required on http calls to proxy
+    // servers. This prefix needs to be removed for the server's use.
+    // We may not need proxPre after having all file retrievals go through
+    // meteor methods.
+    parms.directory = publicDir + parms.directory.replace(parms.proxPre, '');
+}
+
 Meteor.methods({
+
+    getTsvFile: function (project, filename) {
+
+        console.log('dataPrefix + project + filename:', dataDir + project + filename);
+
+        // Retrieve data from a tab-separated file
+        this.unblock();
+        var future = new Future();
+        var file =
+        fs.readFile(dataDir + project + filename, 'utf8', function (error, results) {
+            if (error) {
+                future.throw(error);
+            } else {
+
+                // separate the data in to an array of rows
+                var data = results.split('\n');
+
+                // Separate each row into an array of values
+                data = _.map(data, function(row) {
+                    return row.split('\t');
+                });
+
+                future.return(data);
+            }
+        });
+        return future.wait();
+    },
 
     getDataDirs: function (user) {
 
         // Retrieve data directories
         this.unblock();
         var future = new Future(),
-            dir = dataDir + ((_.isUndefined(user)) ? '' : user);
+            dir = dataDirObsolete + ((_.isUndefined(user)) ? '' : user);
         fs.readdir(dir, function (error, results) {
             if (error) {
                 future.throw(error);
@@ -65,15 +113,11 @@ Meteor.methods({
             parms.tempFile = writeToTempFile('junk');
         }
 
-        // Make a project data directory string usable by the server code.
-        // This is needed due to a prefix required on http calls to proxy
-        // servers. This prefix needs to be removed for the server's use.
-        parms.directory = publicDir + parms.directory.replace(parms.proxPre, '');
+        fixUpProjectDir(parms);
 
         // Write the parms to a temporary file so we don't overflow the stdout
         // buffer.
         parmFile = writeToTempFile(JSON.stringify({parm: parms}));
-        // TODO remove this file?
 
         var command =
             'python '
@@ -102,9 +146,9 @@ Meteor.methods({
                     // TODO This is a total abuse of Meteor and should be change
                     // to what is best for meteor. This is reading the file on
                     // the server, then passing the long array to the client.
-                    var data = readFromFile(result);
+                    var data = readFromTsvFileSync(result);
                     fs.unlinkSync(parmFile);
-                    //fs.unlinkSync(result); // TODO is this always a temp file?
+                    //fs.unlinkSync(result); // TODO may not always be a temp file?
                     future.return(data);
                 }
             }

@@ -110,7 +110,6 @@ var app = app || {}; // jshint ignore:line
 
         Meteor.call('getDataDirs', function (error, users) {
             if (error) {
-                console.log('_getUsers error', error);
                 banner('warn', "Unable to retrieve project data.\n" + error);
             } else {
 

@@ -19,7 +19,7 @@ var app = app || {}; // jshint ignore:line
         LayerNameList.prototype.filterer = function (filter) {
 
             // Find the layer names in the short list
-            var list = Session.get('shortlist');
+            var list = Session.get('shortlist').slice();
 
             if (filter.binary) {
 
@@ -96,8 +96,7 @@ var app = app || {}; // jshint ignore:line
                     }
 
                     // Create the select2 list
-                    var opts = {data: data, minimumResultsForSearch: -1};
-                    createOurSelect2(self.$el, opts, self.selected);
+                    createOurSelect2(self.$el, {data: data}, self.selected);
                 }, 0);
             }
         }

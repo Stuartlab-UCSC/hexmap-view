@@ -3,10 +3,17 @@
         <div class='layer-row row'>
             <input id="search" class='stacker' type="hidden"/>
             <img class="recalculate-throbber throbber headerButton stacker" title="Recalculating..." />
-            <img class="set headerButton stacker" id="set-operation" title="Calculate Set Operation"/>
-            <img class="sort_attributes headerButton stacker" id="sort-attributes-button" title="Sort attributes by association with a focus attribute"/>
-            <img style='display:none' class="yin-yang headerButton stacker" id="diffAnalysisButton" title="Run differential analysis"/>
-            <div id="sortText" class='stacker' title='{{sortText}}'>Sort: {{sort.text}}</div>
+            <img class="filter headerButton stacker" title="Filter attributes"/>
+            <img class="filterCaution headerButton stacker" title="Attributes are being filtered"/>
+            <div class="passFilters stacker" title="Filtered of total attributes" style='margin-left:0'>
+                {{>filterMessage}}
+            </div>
+
+            <div class='shortlistSpacer stacker right'></div>
+            <img style='display:none' class="yin-yang headerButton stacker right" id="diffAnalysisButton" title="Run differential analysis"/>
+            <img class="set headerButton stacker right" id="set-operation" title="Calculate set operation"/>
+            <img class="sort_attributes headerButton stacker right" id="sort-attributes-button" title="Sort attributes by association with a focus attribute"/>
+            <div id="sortText" class='stacker right' title='{{sortText}}'>Sort: {{sort.text}}</div>
         </div>
         <div id="layout-row" class='row'>
             <input id="layout-search" class='stacker' type="hidden"/>
@@ -16,9 +23,16 @@
 
         </div>
 
+        {{> filterT}}
         {{> setOper }}
         {{> sortUiT}}
         {{> diffAnalysisDialog}}
         {{> shortlist}}
     </div>
+</template>
+
+<template name='filterMessage'>
+    <span> {{ display }} </span>
+    <span> of </span>
+    <span> {{ total }} </span>
 </template>

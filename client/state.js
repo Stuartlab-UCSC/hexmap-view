@@ -83,6 +83,7 @@ PAGE = 'homePage';
             project: [
                 'center',
                 'current_layout_name',
+                'first_layer',
                 'gridZoom',
                 'layout_names',
                 'zoom',
@@ -112,8 +113,9 @@ PAGE = 'homePage';
         var s = this;
 
         // Project variables maintained in this state object, with defaults.
+        s.center = null; // google map center
         Session.set('current_layout_name', null);
-        s.center = null;
+        Session.set('first_layer', undefined); // first to be displayed in shortlist
         s.gridZoom = 1;  // Zoom level of the grid
         s.layout_names = [];  // Map layout names maintained in order of entry
         s.zoom = 1;  // Map zoom level where 1 is one level above most zoomed out

@@ -35,7 +35,7 @@ var app = app || {}; // jshint ignore:line
 
         // Position the short list to be against the right side of the window
         // and the bottom of the toolbar.
-        $('#shortlist-holder').css('top', $('#toolbar').height());
+        //$('#shortlist-holder').css('top', $('#toolbar').height());
 
         $search = $("#search");
 
@@ -56,18 +56,22 @@ var app = app || {}; // jshint ignore:line
                 if(query.context != undefined) {
                     start_position = query.context;
                 }
-            
-                for(var i = start_position; i < ctx.layer_names_sorted.length; i++) {
-                    // For each possible result
-                    if(ctx.layer_names_sorted[i].toLowerCase().indexOf(
-                        query.term.toLowerCase()) != -1) {
+                var displayLayers = Session.get('displayLayers'),
+                    sortedLayers = Session.get('sortedLayers');
+                for (var i = start_position; i < sortedLayers.length; i++) {
+
+                    // Check for the sort layer being in the display layers
+                    // and the sort term in the layer name
+                    if (displayLayers.indexOf(sortedLayers[i]) > -1
+                        && sortedLayers[i].toLowerCase().indexOf(
+                        query.term.toLowerCase()) > -1) {
                         
                         // Query search term is in this layer's name. Add a select2
                         // record to our results. Don't specify text: our custom
                         // formatter looks up by ID and makes UI elements
                         // dynamically.
                         results.push({
-                            id: ctx.layer_names_sorted[i]
+                            id: sortedLayers[i]
                         });
                         
                         if(results.length >= SEARCH_PAGE_SIZE) {
@@ -82,7 +86,7 @@ var app = app || {}; // jshint ignore:line
                 query.callback({
                     results: results,
                     // Say there's more if we broke out of the loop.
-                    more: i < ctx.layer_names_sorted.length,
+                    more: i < Session.get('sortedLayers').length,
                     // If there are more results, start after where we left off.
                     context: i + 1
                 });
@@ -113,7 +117,7 @@ var app = app || {}; // jshint ignore:line
             // Only add to the shortlist if it isn't already there
             // Was it already there?
             var found = false,
-                shortlist = Session.get('shortlist');
+                shortlist = Session.get('shortlist').slice();
             for (var j = 0; j < shortlist.length; j++) {
                 if (shortlist[j] === layer_name) {
                     found = true;

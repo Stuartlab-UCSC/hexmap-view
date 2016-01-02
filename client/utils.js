@@ -136,14 +136,30 @@ var app = app || {}; // jshint ignore:line
         }
     }
 
-    createOurSelect2 = function ($el, opts, defaultSelection) {
+    createOurSelect2 = function ($el, optsIn, defaultSelection) {
     
-        // Create a select2 drop-down, including our favorite options
-        opts.dropdownAutoWidth = true;
+        // Create a select2 drop-down.
+
+        // Including our favorite options
+        var opts = {
+            dropdownAutoWidth: true,
+            minimumResultsForSearch: -1,
+        }
+
+        // The caller's options override our favorite options
+        for (var key in optsIn) {
+            if (optsIn.hasOwnProperty(key)) {
+                opts[key] = optsIn[key];
+            }
+        };
+
+        // Createe the select2 object
         $el.select2(opts);
 
         // Set the default selection
-        $el.select2('val', defaultSelection);
+        if (defaultSelection) {
+            $el.select2('val', defaultSelection);
+        }
 
         // Make the bottom of the list no longer than the main window
         $el.parent().on('select2-open', function () {

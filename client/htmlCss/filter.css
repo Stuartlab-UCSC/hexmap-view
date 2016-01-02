@@ -1,0 +1,23 @@
+
+.passFilters {
+    color: inherit;
+}
+.passFilters.red {
+    color: red;
+}
+.filterDialog .bar {
+    min-width: 13em;
+    /* maybe a bar graphic here someday...
+    background: url(images/ui-bg_glass_75_dadada_1x400.png);
+    background-repeat: no-repeat;
+    background-position: right center;
+    */
+}
+
+.filterDialog label {
+     float: left;
+}
+.filterDialog .count {
+     font-size: 0.9em;
+     float: right;
+}

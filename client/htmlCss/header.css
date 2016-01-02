@@ -8,6 +8,10 @@
     background-color: #fefefe;
 }
 
+.header .layer-row {
+    position: relative;
+}
+
 .layer-row .stacker {
     line-height: 2.9em;
 }
@@ -46,6 +50,17 @@
     height: 28px;
     width: 28px;
     padding: 1px;
+}
+.headerButton.filter,
+.headerButton.filterCaution {
+    height: 20px;
+    width: 20px;
+    padding: 5px;
+    display: none;
+}
+.headerButton.filter.active,
+.headerButton.filterCaution.active {
+    display: block;
 }
 
 #sortText {

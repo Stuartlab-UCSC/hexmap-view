@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<!-- Generator: IcoMoon.io -->
 
 <svg
    xmlns:dc="http://purl.org/dc/elements/1.1/"
@@ -7,79 +7,41 @@
    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
    xmlns:svg="http://www.w3.org/2000/svg"
    xmlns="http://www.w3.org/2000/svg"
-   xmlns:xlink="http://www.w3.org/1999/xlink"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="20"
-   height="20"
    id="svg2"
    version="1.1"
-   inkscape:version="0.48.3.1 r9886"
+   data-tags="remove-circle, cancel, close, remove, delete"
+   height="1200"
+   width="1200"
+   data-du=""
+   viewBox="0 0 1200 1200"
+   inkscape:version="0.48.4 r9939"
    sodipodi:docname="filter.svg">
   <defs
-     id="defs4">
-    <linearGradient
-       id="linearGradient3837">
-      <stop
-         style="stop-color:#000000;stop-opacity:0;"
-         offset="0"
-         id="stop3839" />
-      <stop
-         style="stop-color:#000000;stop-opacity:1;"
-         offset="1"
-         id="stop3841" />
-    </linearGradient>
-    <radialGradient
-       inkscape:collect="always"
-       xlink:href="#linearGradient3837"
-       id="radialGradient3845"
-       gradientUnits="userSpaceOnUse"
-       cx="7.1428571"
-       cy="7.3214283"
-       fx="7.1428571"
-       fy="7.3214283"
-       r="4.875" />
-    <radialGradient
-       inkscape:collect="always"
-       xlink:href="#linearGradient3837"
-       id="radialGradient2989"
-       gradientUnits="userSpaceOnUse"
-       cx="7.1428571"
-       cy="7.3214283"
-       fx="7.1428571"
-       fy="7.3214283"
-       r="4.875" />
-    <radialGradient
-       inkscape:collect="always"
-       xlink:href="#linearGradient3837"
-       id="radialGradient2993"
-       gradientUnits="userSpaceOnUse"
-       cx="7.1428571"
-       cy="7.3214283"
-       fx="7.1428571"
-       fy="7.3214283"
-       r="4.875" />
-  </defs>
+     id="defs32" />
   <sodipodi:namedview
-     id="base"
      pagecolor="#ffffff"
      bordercolor="#666666"
-     borderopacity="1.0"
-     inkscape:pageopacity="0.0"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:zoom="11.2"
-     inkscape:cx="-13.482143"
-     inkscape:cy="25.721374"
-     inkscape:document-units="px"
-     inkscape:current-layer="layer1"
+     inkscape:window-width="1535"
+     inkscape:window-height="876"
+     id="namedview30"
      showgrid="false"
-     inkscape:window-width="1215"
-     inkscape:window-height="1000"
+     inkscape:zoom="0.25"
+     inkscape:cx="1087.1178"
+     inkscape:cy="371.70137"
      inkscape:window-x="65"
      inkscape:window-y="24"
-     inkscape:window-maximized="1" />
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg2" />
   <metadata
-     id="metadata7">
+     id="metadata62">
     <rdf:RDF>
       <cc:Work
          rdf:about="">
@@ -90,24 +52,8 @@
       </cc:Work>
     </rdf:RDF>
   </metadata>
-  <g
-     inkscape:label="Layer 1"
-     inkscape:groupmode="layer"
-     id="layer1"
-     transform="translate(0,-1032.3622)">
-    <g
-       id="g2995"
-       transform="translate(-0.10218065,-0.25515)">
-      <path
-         inkscape:connector-curvature="0"
-         id="path2991"
-         d="m 1.7857143,1035.4618 6.6329331,6.8148 0,7.4963"
-         style="fill:none;stroke:#000000;stroke-width:1.29905522px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
-      <path
-         style="fill:none;stroke:#000000;stroke-width:1.29905522px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-         d="m 18.418647,1035.4618 -6.632933,6.8148 0,7.4963"
-         id="path2993"
-         inkscape:connector-curvature="0" />
-    </g>
-  </g>
+  <path
+     id="path7938"
+     d="m 0,0 415.86914,415.86914 0,784.13086 368.26172,-301.31836 0,-482.8125 L 1200,0 0,0 z"
+     inkscape:connector-curvature="0" />
 </svg>

@@ -111,7 +111,7 @@ var app = app || {}; // jshint ignore:line
         return correlationCompare(a, b, false);
     }
 
-    sort_layers = function  (layer_array) {
+    sort_layers = function  () {
 
         // Given an array of layer names, sort the array in place as we want
         // layers to appear to the user.
@@ -131,7 +131,8 @@ var app = app || {}; // jshint ignore:line
             0 if equal or their order doesn't matter
         */
 
-        var type_value = Session.get('sort').type;
+        var type_value = Session.get('sort').type,
+            layer_array = Session.get('sortedLayers');
 
         if (layer_array.length === 0) return;
 
@@ -153,7 +154,8 @@ var app = app || {}; // jshint ignore:line
 
             // If we don't have a first layer by now assign the one with the
             // highest density score as the first layer.
-            if (_.isUndefined(Session.get('first_layer'))) {
+            if (_.isUndefined(Session.get('first_layer'))
+                && !_.isNull(layer_array[0])) {
                 Session.set('first_layer', layer_array[0]);
             } else {
             
@@ -346,13 +348,14 @@ var app = app || {}; // jshint ignore:line
         // Set the clumpiness scores for all layers to the appropriate values for
         // the given layout index. Just pulls from each layer's clumpiness_array
         // field.
-        var layer;
-        var count = 0;
-        for (var i = 0; i < ctx.layer_names_sorted.length; i++) {
+        var layer,
+            count = 0,
+            sortedLayers = Session.get('sortedLayers');
+        for (var i = 0; i < sortedLayers.length; i += 1) {
             // For each layer
             
             // Get the layer object
-            layer = layers[ctx.layer_names_sorted[i]];
+            layer = layers[sortedLayers[i]];
 
             if (!_.isUndefined(layer.clumpiness_array)) {
 
@@ -372,6 +375,23 @@ var app = app || {}; // jshint ignore:line
         }
     }
 
+    gatherSelectionData = function (dynamicDataIn) {
+
+        // Gather the data for user-selection attributes
+        var dynamicData = {};
+        if (!_.isUndefined(dynamicDataIn)) {
+            dynamicData = dynamicDataIn;
+        }
+        var layer;
+        for (var i = 0; i < ctx.bin_layers.length; i++) {
+            layer = ctx.bin_layers[i];
+            if (layers[layer].hasOwnProperty('selection')) {
+                dynamicData[layer] = layers[layer].data;
+            }
+        }
+        return dynamicData;
+    }
+
     getDynamicStats = function (focus_attr, opts) {
 
         // This is a dynamically-generated attribute or a request because
@@ -385,14 +405,7 @@ var app = app || {}; // jshint ignore:line
         opts.tempFile=  'yes';
 
         // Gather the data for user-selection attributes
-        if (!opts.hasOwnProperty('dynamicData')) opts.dynamicData = {};
-        var layer;
-        for (var i = 0; i < ctx.bin_layers.length; i++) {
-            layer = ctx.bin_layers[i];
-            if (layers[layer].hasOwnProperty('selection')) {
-                opts.dynamicData[layer] = layers[layer].data;
-            }
-        }
+        opts.dynamicData = gatherSelectionData(opts.dynamicData);
 
         opts.startDate = new Date();
         Meteor.call('pythonCall', 'statsSortDynamic', opts,
@@ -410,7 +423,7 @@ var app = app || {}; // jshint ignore:line
         );
     }
 
-    getPreComputedStats = function (filename, focus_attr, opts) {
+    function getPreComputedStats (filename, focus_attr, opts) {
 
         // Retrieve the precomputed stats file from the server
         print("Fetching " + filename);
