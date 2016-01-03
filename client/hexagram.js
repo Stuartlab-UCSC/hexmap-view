@@ -92,9 +92,6 @@ var KEY_SIZE = 100;
 // The google elements obtained to transform to svg
 var googleElements;
 
-// A place to store the scroll position for the shortlist
-var shortlistScrollTop = 0;
-
 print = function (text) {
     // Print some logging text to the browser console
 
@@ -399,12 +396,12 @@ function add_layer_data(layer_name, data, attributes) {
 }
 
 with_layer = function (layer_name, callback) {
-    // Run the callback, passing it the layer (object from hex label/signature
-    // to float) with the given name.
-    // This is how you get layers, and allows for layers to be downloaded 
+    // This is how you get layers, and allows for layers to be downloaded
     // dynamically. 
     // have_layer must return true for the given name.
-    
+    // Run the callback, passing it the layer (object from hex label/signature
+    // to float) with the given name.
+
     // First get what we have stored for the layer
     var layer = layers[layer_name];
     
@@ -567,10 +564,53 @@ have_layer = function (layer_name) {
     return layers.hasOwnProperty(layer_name);
 }
 
+/********************* SHORTLIST BEGIN ****************************************/
+
+var shortlistScrollTop = 0; // Save scroll position while select from filter
+var shortlistFilter = new ReactiveDict(); // Discrete data-type filter value
+var shortlistFilterElement = new ReactiveDict(); // DOM element
+
+function createValueFilter (layer_name, layer, filter_value) {
+
+    // Create the value filter dropdown for descrete values
+    var option,
+        selData = [];
+    for (var i = 0; i < layer.magnitude + 1; i++) {
+
+        // Make an option for each value.
+        option = {id: String(i), text: String(i)};
+
+        if (colormaps[layer_name].hasOwnProperty(i)) {
+
+            // We have a real name for this value
+            option.text = colormaps[layer_name][i].name;
+        }
+        selData.push(option);
+    }
+    
+    // Select the last option, so that 1 on 0/1 layers will 
+    // be selected by default.
+    shortlistFilter.set(layer_name, String(i-1));
+    createOurSelect2(filter_value, {data: selData},
+        shortlistFilter.get(layer_name));
+
+    // Define the event handler for selecting an item
+    filter_value.on('change', function (ev) {
+        shortlistFilter.set(layer_name, parseInt(ev.target.value));
+        $('#shortlist').scrollTop(shortlistScrollTop);
+        refresh();
+    });
+
+    // On opening the drop-down save the scroll position
+    filter_value.parent().on('select2-open', function () {
+        shortlistScrollTop = $('#shortlist').scrollTop();
+    });
+}
+
 function make_shortlist_ui(layer_name) {
+
     // Return a jQuery element representing the layer with the given name in the
     // shortlist UI.
-    
 
     // This holds the root element for this shortlist UI entry
     var root = $("<div/>").addClass("shortlist-entry");
@@ -777,38 +817,7 @@ function make_shortlist_ui(layer_name) {
 
                     // If the select2 has not been created yet, create it
                     if (!filter_value.hasClass('select2-offscreen')) {
-                        var option,
-                            selData = [];
-                        for (var i = 0; i < layer.magnitude + 1; i++) {
-
-                            // Make an option for each value.
-                            option = {id: String(i), text: String(i)};
-
-                            if (colormaps[layer_name].hasOwnProperty(i)) {
-
-                                // We have a real name for this value
-                                option.text = colormaps[layer_name][i].name;
-                            }
-                            selData.push(option);
-                        }
-                        
-                        // Select the last option, so that 1 on 0/1 layers will 
-                        // be selected by default.
-                        Session.set('filterValue', String(i-1));
-                        createOurSelect2(filter_value, {data: selData},
-                            Session.get('filterValue'));
-
-                        // Define the event handler for selecting an item
-                        filter_value.on('change', function (ev) {
-                            Session.set('filterValue', parseInt(ev.target.value));
-                            $('#shortlist').scrollTop(shortlistScrollTop);
-                            refresh();
-                        });
-
-                        // On opening the drop-down save the scroll position
-                        filter_value.parent().on('select2-open', function () {
-                            shortlistScrollTop = $('#shortlist').scrollTop();
-                        });
+                        createValueFilter(layer_name, layer, filter_value);
                     }
                     filter_value.select2("container").show();
                     filter_threshold.hide();
@@ -826,7 +835,7 @@ function make_shortlist_ui(layer_name) {
                     // Configure Save Filter Buttons
 
 					// Get selected value
-					var value = Session.get('filterValue');
+					var value = shortlistFilter.get(layer_name);
 					var signatures = [];
 
 					// Gather Tumor-ID Signatures with value and push to "signatures"
@@ -958,7 +967,7 @@ update_shortlist_ui = function (layersJustLoaded) {
     });
 
     // We use a count here so the value always changes
-    Session.set('shortlistUiUpdated', 1 + Session.get('shortlistUiUpdated'));
+    Session.set('shortlistFilterUpdated', 1 + Session.get('shortlistFilterUpdated'));
 }	
 
 fill_layer_metadata = function (container, layer_name) {
@@ -1203,7 +1212,7 @@ function get_current_filters() {
             if(filter_value.is(":visible")) {
                 // Use a discrete value match instead. This hodls the value we
                 // want to match.
-                var desired = Session.get('filterValue');
+                var desired = shortlistFilter.get(layer_name);
                 
                 filter_function = function(value) {
                     return value == desired;
@@ -2174,13 +2183,10 @@ initHex = function () {
     // A list of layer names maintained in sorted order.
     Session.set('sortedLayers', []);
 
-    // This holds an array of layer names that the user has added to the
-    // "shortlist" so they can be quickly selected for display.
-    Session.set('shortlist', []);
     // This is a count which is incremented every time the shortlist UI is
     // updated. We would rather use 'shortlist', but that produces an infinite
     // loop at times.
-    Session.set('shortlistUiUpdated', 0);
+    Session.set('shortlistFilterUpdated', 0);
 
     // TODO we need to get this from the server before the attribute sort the
     // user sees on startup. We're lucky now. We need to guarantee this is done

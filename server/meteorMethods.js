@@ -61,8 +61,6 @@ Meteor.methods({
 
     getTsvFile: function (project, filename) {
 
-        console.log('dataPrefix + project + filename:', dataDir + project + filename);
-
         // Retrieve data from a tab-separated file
         this.unblock();
         var future = new Future();

@@ -2,7 +2,7 @@
     <form>
     <table class='filterDialog' style='display:none'>
         <tr>
-            <td class='dialog-label'>Passing filters:</td>
+            <td class='dialog-label'>Passing:</td>
             <td class='dialog-value passFilters'>
                 <span> {{ display }} </span>
                 <span> of </span>
@@ -17,7 +17,7 @@
          </tr>
          <tr>
             <td class='dialog-label' style='vertical-align:top'>
-                Value types:
+                Values:
             </td>
             <td class='dialog-value'>
                 {{#each dataTypeList}}
@@ -41,6 +41,7 @@
                 <span>of the following tags:</span>
             </td>
          </tr>
+         
          <tr style='display:{{tagDisplay}}'>
             <td class='dialog-label' style='vertical-align:top'>
                 Tags:

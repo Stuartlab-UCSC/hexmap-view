@@ -69,6 +69,7 @@ PAGE = 'homePage';
         }
 
         s.localStorage = {
+            // Contains all of the state we want to save
             all: [
                 'background',
                 'center',
@@ -76,6 +77,7 @@ PAGE = 'homePage';
                 'gridZoom',
                 'page',
                 'project',
+                'shortlist',
                 'zoom',
             ],
 
@@ -86,12 +88,13 @@ PAGE = 'homePage';
                 'first_layer',
                 'gridZoom',
                 'layout_names',
+                'shortlist',
                 'zoom',
             ],
         }
         s.alreadySaved = false;
 
-        // Variables maintained in the meteor session
+        // Non-project variables maintained in the meteor session
         Session.setDefault('page', PAGE);
         Session.setDefault('background', 'black');  // Visualization background color
         Session.setDefault('proxPre', proxPre);  // Prefix for images and other such files
@@ -118,6 +121,7 @@ PAGE = 'homePage';
         Session.set('first_layer', undefined); // first to be displayed in shortlist
         s.gridZoom = 1;  // Zoom level of the grid
         s.layout_names = [];  // Map layout names maintained in order of entry
+        Session.set('shortlist', []); // Array of layer names in the shortlist
         s.zoom = 1;  // Map zoom level where 1 is one level above most zoomed out
     }
 
