@@ -92,6 +92,9 @@ var KEY_SIZE = 100;
 // The google elements obtained to transform to svg
 var googleElements;
 
+// A place to store the scroll position for the shortlist
+var shortlistScrollTop = 0;
+
 print = function (text) {
     // Print some logging text to the browser console
 
@@ -629,9 +632,8 @@ function make_shortlist_ui(layer_name) {
     
     // Add an image label for the filter control.
     // TODO: put this in a label
-	var filter_image = $("<img class='headerButton'/>").attr("src", Session.get('proxPre') + "filter.svg");
-    filter_image.addClass("control-icon");
-	filter_image.addClass("filter-image");
+	var filter_image = $("<img/>").attr("src", Session.get('proxPre') + "filter.svg");
+	//var filter_image = $("<img class='headerButton'/>").attr("src", Session.get('proxPre') + "filter.svg");
     filter_image.attr("title", "Filter on Layer");
     filter_image.addClass("filter");
     
@@ -647,19 +649,23 @@ function make_shortlist_ui(layer_name) {
     // Initialize to a reasonable value.
     filter_threshold.val(0);
     filter_holder.append(filter_threshold);
+    filter_threshold.hide();
     
     // Add a select input to pick from a discrete list of values to filter on
-    var filter_value = $("<select/>").addClass("filter-value");
+    filter_value = $("<div/>").addClass("filter-value");
 	filter_holder.append(filter_value);
+    filter_value.hide();
 
 	// Add a image for the save function
-	var save_filter = $("<img/>").attr("src", Session.get('proxPre') + "save.svg");
+	var save_filter = $("<img/>").attr("src", Session.get('proxPre') + "file-new.svg");
 	save_filter.addClass("save-filter");
+	save_filter.addClass("file-new");
 	save_filter.attr("title", "Save Filter as Layer");
+	filter_holder.append(save_filter);
 
 	// Add all holders to the shortlist content pane
 	contents.append(filter_holder);
-	contents.append(save_filter);
+	//contents.append(save_filter);
    
     // Add a div to contain layer settings
     var settings = $("<div/>").addClass("settings");
@@ -761,56 +767,66 @@ function make_shortlist_ui(layer_name) {
     // Functionality for turning filtering on and off
     filter_control.change(function() {
         if(filter_control.is(":checked")) {
+
             // First, figure out what kind of filter settings we take based on 
             // what kind of layer we are.
             with_layer(layer_name, function(layer) {
                 if(have_colormap(layer_name)) {
-                    // A discrete layer.
-                    // Show the value picker.
-                    filter_value.show();
-                    
-                    // Make sure we have all our options
-                    if(filter_value.children().length == 0) {
-                        // No options available. We have to add them.
-                        // TODO: Is there a better way to do this than asking 
-                        // the DOM?
-                        
-                        for(var i = 0; i < layer.magnitude + 1; i++) {
+
+                    // A discrete layer so show the value picker.
+
+                    // If the select2 has not been created yet, create it
+                    if (!filter_value.hasClass('select2-offscreen')) {
+                        var option,
+                            selData = [];
+                        for (var i = 0; i < layer.magnitude + 1; i++) {
+
                             // Make an option for each value.
-                            var option = $("<option/>").attr("value", i);
-                            
-                            if(colormaps[layer_name].hasOwnProperty(i)) {
+                            option = {id: String(i), text: String(i)};
+
+                            if (colormaps[layer_name].hasOwnProperty(i)) {
+
                                 // We have a real name for this value
-                                option.text(colormaps[layer_name][i].name);
-                            } else {
-                                // No name. Use the number.
-                                option.text(i);
+                                option.text = colormaps[layer_name][i].name;
                             }
-                            
-                            filter_value.append(option);
-                            
+                            selData.push(option);
                         }
                         
                         // Select the last option, so that 1 on 0/1 layers will 
                         // be selected by default.
-                        filter_value.val(
-                            filter_value.children().last().attr("value"));
-                        
+                        Session.set('filterValue', String(i-1));
+                        createOurSelect2(filter_value, {data: selData},
+                            Session.get('filterValue'));
+
+                        // Define the event handler for selecting an item
+                        filter_value.on('change', function (ev) {
+                            Session.set('filterValue', parseInt(ev.target.value));
+                            $('#shortlist').scrollTop(shortlistScrollTop);
+                            refresh();
+                        });
+
+                        // On opening the drop-down save the scroll position
+                        filter_value.parent().on('select2-open', function () {
+                            shortlistScrollTop = $('#shortlist').scrollTop();
+                        });
                     }
+                    filter_value.select2("container").show();
+                    filter_threshold.hide();
                 } else {
+
                     // Not a discrete layer, so we take a threshold.
                     filter_threshold.show();
+                    filter_value.select2("container").hide();
                 }
                 
-				save_filter.show ();
+				save_filter.show();
 						
 				save_filter.button().click(function() {
-				// Configure Save Filter Buttons
+
+                    // Configure Save Filter Buttons
 
 					// Get selected value
-					var selected = filter_value.prop("selectedIndex");
-					var value = filter_value.val();
-
+					var value = Session.get('filterValue');
 					var signatures = [];
 
 					// Gather Tumor-ID Signatures with value and push to "signatures"
@@ -827,26 +843,22 @@ function make_shortlist_ui(layer_name) {
 					}
                     // TODO the below is negating the above
 					created = false;			
-				}); 	
-			    
+				});
 	
 				// Now that the right controls are there, assume they have 
                 refresh();
-
             });
         } else {
 			created = false;
             // Hide the filtering settings
-            filter_value.hide();
+            filter_value.select2("container").hide();
             filter_threshold.hide();
             save_filter.hide();
+
             // Draw view since we're no longer filtering on this layer.
             refresh();
         }
     });
-    
-    // Respond to changes to filter configuration
-    filter_value.change(refresh);
     
     // TODO: Add a longer delay before refreshing here so the user can type more
     // interactively.
@@ -1009,6 +1021,7 @@ fill_layer_metadata = function (container, layer_name) {
             p_value: "Single test p-value",
             correlation: "Correlation",
             adjusted_p_value: "BH FDR",
+            tags: "Tags",
         }
         
         if(lookup[attribute]) {
@@ -1190,7 +1203,7 @@ function get_current_filters() {
             if(filter_value.is(":visible")) {
                 // Use a discrete value match instead. This hodls the value we
                 // want to match.
-                var desired = filter_value.val();
+                var desired = Session.get('filterValue');
                 
                 filter_function = function(value) {
                     return value == desired;

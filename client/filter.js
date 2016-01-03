@@ -30,7 +30,7 @@ var app = app || {}; // jshint ignore:line
         tagData;
 
     // Meteor HTML template values
-
+    
     Template.filterMessage.helpers ({
         display: function () {
             var display = Session.get('displayLayers');
@@ -97,6 +97,9 @@ var app = app || {}; // jshint ignore:line
         },
         tagList: function () {
             return tagList.get();
+        },
+        savechecked: function () {
+            return chk.get('save');
         },
     });
 
@@ -183,9 +186,10 @@ var app = app || {}; // jshint ignore:line
 
         count.set('untagged', sorted.length - taggedCount);
 
-        // Create the 'allTags' and 'untagged' values
+        // Create the one-off tag values
         chk.set('allTags', true);
         chk.set('untagged', true);
+        chk.set('save', false);
 
         // Add the tag elements to the UI
         uniqTags.sort();
@@ -196,7 +200,7 @@ var app = app || {}; // jshint ignore:line
 
         // Retrieve the layer tags data from the server
         Meteor.call('getTsvFile', ctx.project, 'attribute_tags.tab',
-                callParms(), function (error, data) {
+                function (error, data) {
             if (error) {
                 console.log('info', 'There are no filter attribute tags for this project. ' + error);
 
@@ -242,8 +246,7 @@ var app = app || {}; // jshint ignore:line
     }
 
     function whenCheckboxesChange () {
-        var list = tagList.get();
-        _.each(list, function (tag, i) {
+        _.each(tagList.get(), function (tag, i) {
             if (tag !== 'all') {
                 chk.get(tag);
             }
@@ -297,10 +300,21 @@ var app = app || {}; // jshint ignore:line
         }
     }
 
+    clearAllFilters = function () {
+
+        // Set all the filters to the defaults
+        if (chk.equals('save', true)) return;
+
+        var filters = dataTypeList.concat(tagList.get(), 'untagged', 'allTags');
+        _.each(filters, function (filter) {
+            chk.set(filter, true);
+        });
+    }
+
     initFilter = function () {
 
         // Initialize the attribute filtering function, happens once per app load
-        
+
         // Initialize some reactive vars
         Session.set('displayLayers', Session.get('sortedLayers'));
 

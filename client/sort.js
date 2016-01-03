@@ -205,6 +205,7 @@ var app = app || {}; // jshint ignore:line
             Session.set('sort', {text: text, type: type,
                 focus_attr: focus_attr});
         }
+        clearAllFilters();
         update_browse_ui();
         update_shortlist_ui();
         banner('info', 'Now sorted by ' + text + elapsed);

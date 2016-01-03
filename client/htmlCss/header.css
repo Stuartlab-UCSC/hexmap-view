@@ -63,6 +63,11 @@
     display: block;
 }
 
+.passFilters.stacker {
+    margin-left: 0;
+    min-width: 7em;
+}
+
 #sortText {
     line-height: 2.6em;
 }

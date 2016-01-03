@@ -6,15 +6,15 @@
     overflow: visible;
 }
 .shortlistSpacer {
-    width: 21em;
+    width: 20em;
     height: 1px;
 }
 
-.panel-holder {
+.shortlist .panel-holder {
     overflow: hidden;
     height: 4.75em;
     max-height: 6em;
-    top: 2.1em;
+    top: 2.2em;
     right: 0;
     width: 20em;
     position: fixed;
@@ -23,13 +23,13 @@
 }
 
 /* When a holder gets moused over, open it up to 100% window height */
-.panel-holder:hover {
+.shortlist .panel-holder:hover {
     height: auto;
     max-height: 100%;
     bottom: 0;
 }
 
-.panel {
+.shortlist .panel {
     position: relative;
     top: 0;
     left: 0;
@@ -40,7 +40,7 @@
     z-index: 100;
 }
 
-.panel-contents {
+.shortlist .panel-contents {
     overflow-y: auto;
     overflow-x: hidden;
     position: absolute;
@@ -50,13 +50,11 @@
     top: 1em;
 }
 
-.panel-title {
+.shortlist .panel-title {
     text-align: center;
     font-weight: bold;
     height: 1em;
 }
-
-/* Shortlist UI stuff */
 
 .shortlist-controls {
     position: absolute;
@@ -64,9 +62,10 @@
     top: 0;
     bottom: 0;
     width: 2em;
-    background-image: url("drag.svg");
+    background-image: url("resize-vertical.svg");
+    background-size: 32px 32px;
     background-repeat: no-repeat;
-    background-position: 50% 70%; 
+    background-position: 50% 30px;
     border-radius: 5px;
     padding: 5px;
 }
@@ -107,26 +106,53 @@
 
 /* Filtering stuff */
 
-.filter {
+.shortlist .filter,
+.shortlist .file-new {
+    height: 20px;
+    width: 20px;
+    padding: 3px;
     line-height: 1em;
-    vertical-align: center;
+    vertical-align: middle;
 }
-.filter-threshold, .filter-value {
-    display: none;
+.shortlist .filter {
+    padding: 4px;
+    padding-right: 0;
+}
+.shortlist .file-new {
+    margin-left: 0.3em;
+}
+.shortlist .filter-threshold {
     width: 5em;
+    padding-left: 0.5em;
+    border: 1px solid #aaa;
 }
-.filter-holder {
-	float: left;
+.shortlist .filter-value {
+    width: 10em;
+    font-size: 0.8em;
+    padding-left: 0.5em;
+}
+.shortlist .select2-container .select2-choice {
+	height: 1.4em;
+	line-height: 1.4em;
+}
+.shortlist .select2-container .select2-choice b {
+	margin-top: -4px;
+	height: 16px;
+}
+.shortlist .filter-holder {
+    vertical-align: middle;
+    float: left;
 	text-align: left;
-	width: 120px;
+	width: 14.5em;
 }
 
-.save-filter {
+.shortlist .save-filter {
 	display: none;
+    border: 1px solid #888;
 }
 
 /* These are the layer scaling sliders */
-.range-slider {
+.shortlist .range-slider {
     width: 10em;
     margin-left: 0.3em;
     margin-right: 0.3em;
