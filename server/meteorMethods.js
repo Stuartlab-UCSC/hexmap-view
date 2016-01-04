@@ -17,7 +17,9 @@ var dataDirObsolete = publicDir + 'data/'; // TODO make use of dataDir instead
 var url = Meteor.absoluteUrl();
 var dataDir;
 if (url === 'http://localhost:3000/') {
-    dataDir = '/Users/swat/'
+    dataDir = '/Users/swat/';
+} else {
+    dataDir = '/data/home/swat/dataHexmap/';
 }
 
 function writeToTempFile (data, fileExtension) {
@@ -59,7 +61,7 @@ function fixUpProjectDir (parms) {
 
 Meteor.methods({
 
-    getTsvFile: function (project, filename) {
+    getTsvFile: function (filename, parms) {
 
         // Retrieve data from a tab-separated file
         this.unblock();
