@@ -69,19 +69,14 @@ PAGE = 'homePage';
         }
 
         s.localStorage = {
-            // Contains all of the state we want to save
+            // Contains all of the non-project state we want to save
             all: [
                 'background',
-                'center',
-                'current_layout_name',
-                'gridZoom',
                 'page',
                 'project',
-                'shortlist',
-                'zoom',
             ],
 
-            // These are cleared when the project changes
+            // Contains all of the project state we want to save
             project: [
                 'center',
                 'current_layout_name',
@@ -92,6 +87,7 @@ PAGE = 'homePage';
                 'zoom',
             ],
         }
+        s.localStorage.known = s.localStorage.all.concat(s.localStorage.project);
         s.alreadySaved = false;
 
         // Non-project variables maintained in the meteor session
@@ -145,7 +141,7 @@ PAGE = 'homePage';
         }
 
         // Find all of the vars to be saved by walking though our localStorage list
-        _.each(s.localStorage.all, function (key) {
+        _.each(s.localStorage.known, function (key) {
 
             // If this is a Session var we want to store it there
             if (!Session.equals(key, undefined)) {
@@ -201,7 +197,7 @@ PAGE = 'homePage';
                     return;
                 }
                 // Skip those we don't know
-                if (s.localStorage.all.indexOf(key) < 0) {
+                if (s.localStorage.known.indexOf(key) < 0) {
                     return;
                 }
                 // Load this object's vars into this state if maintained in this state

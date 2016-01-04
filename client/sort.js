@@ -372,7 +372,7 @@ var app = app || {}; // jshint ignore:line
         if (count > 0) {
             updateUi('default');
         } else {
-            updateUi('none', 'None, due to no density stats', 'none');
+            updateUi('none', 'No sort due to no density stats', 'none');
         }
     }
 

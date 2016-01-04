@@ -234,17 +234,6 @@ var app = app || {}; // jshint ignore:line
         }
     }
 
-    function whenInitialLayersAreLoaded () {
-
-        // Whenever the initial layers are loaded, process the tags data
-        // TODO We assume this only happens once per app load for now, but it should
-        // change to once per project for dynamic layer, once per layer load.
-        var layersLoaded =  Session.get('initialLayersLoaded');
-        if (!layersLoaded || !tagData) return;
-
-        processTags(layers);
-    }
-
     function whenCheckboxesChange () {
         _.each(tagList.get(), function (tag, i) {
             if (tag !== 'all') {
@@ -344,7 +333,7 @@ var app = app || {}; // jshint ignore:line
             });
 
         // Define functions to run when reactive vars change
-        tagsAutorun = Tracker.autorun(whenInitialLayersAreLoaded);
+        tagsAutorun = Tracker.autorun(processTags);
         Tracker.autorun(whenDisplayLayersChange);
         Tracker.autorun(whenSortedLayersChange);
         Tracker.autorun(whenAllChanges);
