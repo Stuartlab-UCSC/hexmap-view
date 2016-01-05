@@ -61,13 +61,14 @@ function fixUpProjectDir (parms) {
 
 Meteor.methods({
 
-    getTsvFile: function (filename, parms) {
+    getTsvFile: function (filename, project, proxPre) {
 
         // Retrieve data from a tab-separated file
         this.unblock();
         var future = new Future();
-        var file =
-        fs.readFile(dataDir + project + filename, 'utf8', function (error, results) {
+        var path = dataDir + project.replace(proxPre, '') + filename;
+
+        fs.readFile(path, 'utf8', function (error, results) {
             if (error) {
                 future.throw(error);
             } else {

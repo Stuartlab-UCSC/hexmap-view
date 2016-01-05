@@ -199,7 +199,7 @@ var app = app || {}; // jshint ignore:line
     function requestLayerTags () {
 
         // Retrieve the layer tags data from the server
-        Meteor.call('getTsvFile', ctx.project, 'attribute_tags.tab',
+        Meteor.call('getTsvFile', 'attribute_tags.tab', ctx.project, Session.get('proxPre'),
                 function (error, data) {
             if (error) {
                 console.log('info', 'There are no filter attribute tags for this project. ' + error);
