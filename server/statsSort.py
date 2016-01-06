@@ -9,23 +9,26 @@ from statsSortLayer import ForEachLayer
 def timestamp():
     return str(datetime.datetime.now())[8:-7]
 
-def writeValues (layers, layer_names, num_layers, parm, options):
+def writeValues (layers, TODO_unused, num_layers, parm, options):
 
     # Aggregate the data into a matrix and write the values to files.
-
-    # Aggregate the data into a matrix of statsLayers by statsLayers
     print timestamp(), 'Populating the value matrix for sample-based stats'
     sys.stdout.flush()
-    vals = numpy.zeros(shape=(num_layers, num_layers))
+
+    # Aggregate the data into a matrix of statsLayers by statsLayers by 2
+    # The '2' contains the p-value and adjusted p-value
+    dimRange = range(len(parm['statsLayers']))
+    vals = [[[0 for i in range(2)] for j in dimRange ] for k in dimRange]
+
     for file_name in iter(os.listdir(parm['temp_dir'])):
         reader = tsv.TsvReader(open(os.path.join(parm['temp_dir'], file_name), "r"))
         for line in reader.__iter__():
             slx1 = parm['statsLayers'].index(line[0])
             slx2 = parm['statsLayers'].index(line[1])
-            val = float(line[2])
+            tuple = [float(line[2]), float(line[3])]
 
-            vals[slx1, slx2] = val
-            vals[slx2, slx1] = val
+            vals[slx1][slx2] = tuple
+            vals[slx2][slx1] = tuple
 
     # Delete our temporary directory.
     shutil.rmtree(parm['temp_dir'])
@@ -35,15 +38,14 @@ def writeValues (layers, layer_names, num_layers, parm, options):
     sys.stdout.flush()
     
     for i, row in enumerate(vals):
-        name = parm['statsLayers'][i]
-        layer_index = str(layer_names.index(name))
-        
-        # File names are like: layer_9_sstat.tab
-        writer = tsv.TsvWriter(open(os.path.join(options.directory,
-            'stats_' + layer_index + '.tab'), 'w'))
-        writer.line(*parm['statsLayers'])
-        writer.line(*row)
-        writer.close()
+
+        # File names are like: stats_9.tab
+        f = os.path.join(options.directory, 'stats_' + str(i) + '.tab')
+        with open(f, 'w') as f:
+            f = csv.writer(f, delimiter='\t')
+
+            for j, col in enumerate(row):
+                f.writerow([parm['statsLayers'][j]] + col)
 
     return True
 

@@ -64,6 +64,16 @@ var app = app || {}; // jshint ignore:line
         return finalCompare(a, b);
     }
 
+    function adjPvalueCompare(a, b) {
+
+        // Compare adjusted_p_values, then do the final compare
+        
+        var result = variableCompare(a, b, 'adjusted_p_value');
+        if (result !== 0) return result;
+
+        return finalCompare(a, b);
+    }
+
     function differentialCompare(a, b) {
 
         // Compare  differential values, then do the final compare
@@ -145,6 +155,9 @@ var app = app || {}; // jshint ignore:line
         } else if (type_value == "p_value") {
             layer_array.sort(pValueCompare);
 
+        } else if (type_value == "adjusted_p_value") {
+            layer_array.sort(adjPvalueCompare);
+
         } else if (type_value == "Differential") {
             layer_array.sort(differentialCompare);
 
@@ -174,6 +187,7 @@ var app = app || {}; // jshint ignore:line
         for (var layer_name in layers) {
             delete layers[layer_name].clumpiness;
             delete layers[layer_name].p_value;
+            delete layers[layer_name].adjusted_p_value;
             delete layers[layer_name].correlation;
             delete layers[layer_name].Differential;
          }
@@ -212,71 +226,89 @@ var app = app || {}; // jshint ignore:line
         banner('info', 'Now sorted by ' + text + elapsed);
     }
 
-    function updateLayerStat (focus_attr, layer, value, statType) {
+    function updateIgnoreLayout (focus_attr, layer, p_value, adjusted_p_value) {
 
-        // We don't want to load the value if it is the focus layer.
-        // This will keep the focus attribute out of the sort.
-        if (layer !== focus_attr && !isNaN(value)) {
-            layers[layer][statType] = parseFloat(value);
-            return 1; // To increment the count
+        // Don't load if it is the focus layer so it won't show up in sort
+        if (layer !== focus_attr && !isNaN(p_value)) {
+            layers[layer].p_value = parseFloat(p_value);
+
+            if (adjusted_p_value && !isNaN(adjusted_p_value)) {
+                layers[layer].adjusted_p_value = parseFloat(adjusted_p_value);
+            }
+            return 1
         }
-        return 0; // Don't increment the count
+        return 0;
     }
 
     function receive_ignore_layout_stats (parsed, focus_attr, opts) {
 
         // Handle the response from the server for ignore-layout sort statistics
         var count = 0,
-            type = (opts.hasOwnProperty('isDiffStats')) ? 'Differential' : 'p_value' ;
-        if (parsed.length === 2 && parsed[0].length > 3) {
+            type = 'adjusted_p_value';
 
-            // This is from an old format pre-computed file, so it is of the form:
-            // [
-            //      [layerName1, layerName2, ...],
-            //      [value1, value2, ...]
-            // ]
-            for (var i = 0; i < parsed[0].length; i++) {
-                count += updateLayerStat(focus_attr, parsed[0][i], parsed[1][i],
-                    type);
-            }
-        } else if ($.isNumeric(parsed[0][1]) || parsed[0][1] === 'nan') {
+        if (parsed[0].length === 4) {
 
-            // This is from a new format pre-computed file, so it is of the form:
+            // This is dynamic stats, so is of the form:
             // [
-            //      [layerName, p-value, adjusted-p-value],
-            //      [layerName, p-value, adjusted-p-value],
-            //      ...
-            // ]
-            for (var i = 0; i < parsed[0].length; i++) {
-                count += updateLayerStat(focus_attr, parsed[i][0], parsed[i][1],
-                    type);
-            }
-        } else {
-
-            // These stats were not pre-computed, so it is of the form:
-            // [
-            //      [layerName1, layerName2, value2],
-            //      [layerName1, layerName3, value3],
+            //      [layerName, layerName, p-value, adjusted-p-value],
+            //      [layerName, layerName, p-value, adjusted-p-value],
             //      ...
             // ]
             // The first element of each row is the focus layer name
             // which we already know, so ignore it.
+
             for (var i = 0; i < parsed.length; i++) {
-
-                // Extract the value
-                count += updateLayerStat(focus_attr, parsed[i][1],
-                    parsed[i][2], type);
+                count += updateIgnoreLayout(focus_attr, parsed[i][1],
+                    parsed[i][2], parsed[i][3]);
             }
+        } else if (parsed[0].length === 3) {
+            if ($.isNumeric(parsed[0][1]) || parsed[0][1] === 'nan') {
 
+                // This is pre-computed stats, so it is of the form:
+                // [
+                //      [layerName, p-value, adjusted-p-value],
+                //      [layerName, p-value, adjusted-p-value],
+                //      ...
+                // ]
+                for (var i = 0; i < parsed[0].length; i++) {
+                    count += updateIgnoreLayout(focus_attr, parsed[i][0],
+                        parsed[i][1], parsed[i][2]);
+                }
+            } else {
+                // This is dynamic stats, old format, so is of the form:
+                // [
+                //      [layerName, layerName, p-value],
+                //      [layerName, layerName, p-value],
+                //      ...
+                // ]
+                // The first element of each row is the focus layer name
+                // which we already know, so ignore it.
+                type = 'p_value';
+                for (var i = 0; i < parsed.length; i++) {
+                    count += updateIgnoreLayout(focus_attr, parsed[i][1],
+                        parsed[i][2]);
+                }
+            }
+        } else if ($.isNumeric(parsed[0][1]) || parsed[0][1] === 'nan') {
+
+
+            // This is pre-computed, old format, so it is of the form:
+            // [
+            //      [layerName1, layerName2, ...],
+            //      [value1, value2, ...]
+            // ]
+            type = 'p_value';
+            for (var i = 0; i < parsed[0].length; i++) {
+                count += updateIgnoreLayout(focus_attr, parsed[0][i],
+                    parsed[1][i], type);
+            }
         }
         // Now we're done loading the stats, update the sort properties
         if (count < 1) {
             updateUi('noStats');
         } else {
-            var text = (type === 'p_value')
-                ? 'P-value by: ' + focus_attr + ' (ignoring layout)'
-                : 'Differential by: ' + focus_attr;
-            updateUi(type, text, focus_attr, opts);
+            var text = 'BH FDR by: ' + focus_attr + ' (ignoring layout)';
+            updateUi('p_value', text, focus_attr, opts);
         }
     }
 
@@ -295,14 +327,20 @@ var app = app || {}; // jshint ignore:line
 
             // First element of each row is the layer name
             // to which the selected layer is being compared against.
+            //
             var compare_layer_name = parsed[i][0],
                 r_value = parseFloat(parsed[i][1]),
-                p_value = parseFloat(parsed[i][2]);
+                p_value = parseFloat(parsed[i][2]),
+                adjusted_p_value = parseFloat(parsed[i][3]);
 
             // Save the stats for this layer against the focus layer.
             if (!isNaN(r_value) && !isNaN(p_value)) {
                 layers[compare_layer_name].correlation = r_value;
                 layers[compare_layer_name].p_value = p_value;
+
+                if (!isNaN(adjusted_p_value)) {
+                    layers[compare_layer_name].adjusted_p_value = adjusted_p_value;
+                }
                 count += 1;
             }
         }

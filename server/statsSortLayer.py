@@ -93,7 +93,6 @@ class ForEachLayer(object):
                 # layerA, so set the layerB layers to show that
                 s.bLayers = s.statsLayers[index:]
 
-
     @staticmethod
     def bothDiscreteOnePair(layerA, layerB, layers, hexNames):
 
@@ -339,28 +338,76 @@ class ForEachLayer(object):
 
         return [layerB, sigDigs(correlation), sigDigs(pValue)]
 
+    @staticmethod
+    def adjustPvalue(s, preAdjusted):
+
+        try:
+            # Some hosts do not have this sort of obscure library. If not
+            # we don't adjust
+            from statsmodels.sandbox.stats.multicomp import multipletests
+            adjust = True
+        except Exception:
+            adjust = False
+
+        with open(s.file, 'w') as f:
+            f = csv.writer(f, delimiter='\t')
+
+            for i, row in enumerate(preAdjusted):
+
+                if adjust:
+                    # Extract the p-values from the data.
+                    # Layout-aware and -ignore store their p-values in
+                    # the same position. Translate NaNs to zeros so the stats
+                    # routine will take it. TODO what is the right value here?
+                    def handleNaN(row):
+                        if math.isnan(row[2]):
+                            return 0
+                        else:
+                            return row[2]
+
+                    preAdjVals = map(handleNaN, preAdjusted)
+
+                    try:
+                        # Benjamini-Hochberg FDR correction for p-values returns:
+                        #   [reject, p_vals_corrected]
+                        # http://statsmodels.sourceforge.net/devel/generated/statsmodels.sandbox.stats.multicomp.multipletests.html#statsmodels.sandbox.stats.multicomp.multipletests
+                        reject, adjPval = multicomp.multipletests(preAdjVals, 0.05, 'fdr_bh')
+                        print 'no-exception'
+                        f.writerow(row + [sigDigs(adjPval)])
+
+                    except Exception:
+                        adjPval = float('NaN')
+                        f.writerow(row + [float('NaN')])
+                else:
+                    f.writerow(row)
+
     def __call__(s):
 
         # Compare each layer against the given layer
-        error = False
-        with open(s.file, 'w') as fOut:
-            fOut = csv.writer(fOut, delimiter='\t')
+        preAdjusted = []
+
+        if hasattr(s, 'windowNodes'):
+
+            # for layout-aware stats
             for layerB in s.statsLayers:
 
-                # We don't want to compare a layer to itself for layout-aware stats
-                if s.layerA == layerB and hasattr(s, 'windowNodes'): continue
+                # We don't want to compare a layer to itself
+                if s.layerA == layerB: continue
 
-                # Based on layout-aware or not, call a
-                # function to compare layers A & B
-                if hasattr(s,'windowNodes'):
-                    line = s.layoutAware(s, layerB)
-                else:
-                    line = s.layoutIgnore(s, layerB)
-
+                line = s.layoutAware(s, layerB)
                 if line == 'continue': continue
+                preAdjusted.append(line)
 
-                # Write this result line to the stats file
-                fOut.writerow(line)
+        else:
+
+            # for ignore layout stats
+            for layerB in s.statsLayers:
+
+                line = s.layoutIgnore(s, layerB)
+                if line == 'continue': continue
+                preAdjusted.append(line)
+
+        s.adjustPvalue(s, preAdjusted)
 
         # For dynamic stats, pass the results file name to the caller via stdout
         if hasattr(s, 'dynamic'):
