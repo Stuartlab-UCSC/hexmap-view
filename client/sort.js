@@ -164,6 +164,7 @@ var app = app || {}; // jshint ignore:line
                 layer_array.splice(layer_array.indexOf(first), 1);
                 layer_array.unshift(first);
             }
+            Session.set('sortedLayers', layer_array);
         }
     }
 
