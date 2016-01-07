@@ -65,10 +65,6 @@ var hex_size;
 // This holds a handle for the currently enqueued view redrawing timeout.
 var redraw_handle;
 
-// This holds the next selection number to use. Start at 1 since the user sees 
-// these.
-var selection_next_id = 1;
-
 // What's the minimum number of pixels that hex_size must represent at the
 // current zoom level before we start drawing hex borders?
 var MIN_BORDER_SIZE = 10;
@@ -345,47 +341,6 @@ function add_layer_url(layer_name, layer_url, attributes) {
 
     // Don't sort because our caller does that when they're done adding layers.
 
-}
-
-function add_layer_data(layer_name, data, attributes) {
-    // Add a layer with the given name, with the given data to the list of 
-    // available layers.
-    // Attributes is an object of attributes to copy into the layer.
-    // May also be used to replace layers.
-    
-    // This holds a boolean for if we're replacing an existing layer.
-    var replacing = (layers[layer_name] != undefined);
-    
-    // Store the layer. Just put in the data. with_layer knows what to do if the
-    // magnitude isn't filled in.
-    layers[layer_name] = {
-        url: undefined,
-        data: data,
-        magnitude: undefined
-    };
-	
-    for(var name in attributes) {
-        // Copy over each specified attribute
-        layers[layer_name][name] = attributes[name];
-    }
-
-    if (replacing) {
-
-        // We want to remove it from the appropriate data type list
-        removeFromDataTypeList(layer_name);
-        Session.set('sort', ctx.defaultSort());
-    } else {
-    
-        // Add it to the sorted layer list, since it's not there yet.
-        var sorted = Session.get('sortedLayers').slice();
-        sorted.push(layer_name);
-        Session.set('sortedLayers', sorted);
-    }
-
-    // Add this layer to the appropriate data type list
-    addToDataTypeList(layer_name, data);
-
-    // Don't sort because our caller does that when they're done adding layers.
 }
 
 with_layer = function (layer_name, callback) {

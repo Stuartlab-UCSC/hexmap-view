@@ -14,6 +14,10 @@ var app = app || {}; // jshint ignore:line
     var MAX_DISPLAYED_LAYERS = 2;
     var initialized = false;
 
+    // This holds the next selection number to use. Start at 1 since the user
+    // sees these.
+    var selection_next_id = 1;
+
     var scrollTop = 0; // Save scroll position while select from filter
     var filter = new ReactiveDict(); // Discrete data-type filter value
 
@@ -112,7 +116,51 @@ var app = app || {}; // jshint ignore:line
         });
     }
 
+    function add_layer_data(layer_name, data, attributes) {
+        // Add a layer with the given name, with the given data to the list of 
+        // available layers.
+        // Attributes is an object of attributes to copy into the layer.
+        // May also be used to replace layers.
+        
+        // This holds a boolean for if we're replacing an existing layer.
+        var replacing = (layers[layer_name] != undefined);
+        
+        // Store the layer. Just put in the data. with_layer knows what to do if the
+        // magnitude isn't filled in.
+        layers[layer_name] = {
+            url: undefined,
+            data: data,
+            magnitude: undefined
+        };
+        
+        for(var name in attributes) {
+            // Copy over each specified attribute
+            layers[layer_name][name] = attributes[name];
+        }
+
+        if (replacing) {
+
+            // We want to remove it from the appropriate data type list
+            removeFromDataTypeList(layer_name);
+            Session.set('sort', ctx.defaultSort());
+        } else {
+        
+            // Add it to the sorted layer list, since it's not there yet.
+            var sorted = Session.get('sortedLayers').slice();
+            sorted.push(layer_name);
+            Session.set('sortedLayers', sorted);
+        }
+
+        // Add this layer to the appropriate data type list
+        addToDataTypeList(layer_name, data);
+
+        // Don't sort because our caller does that when they're done adding layers.
+    }
+
     function make_shortlist_ui (layer_name) {
+
+        // Skip this if the layers data does not yet exist for this layer
+        if (!layers[layer_name]) return;
 
         // Return a jQuery element representing the layer with the given name in the
         // shortlist UI.
@@ -450,8 +498,10 @@ var app = app || {}; // jshint ignore:line
                  $("#shortlist").prepend(shortlist_ui[layer_name]);
                  
                  // Check it's box if possible
+                if (shortlist_ui[layer_name]) {
                  shortlist_ui[layer_name].find(".layer-on").click();
             }
+        }
         }
         
         // Make things re-orderable

@@ -68,6 +68,8 @@ Meteor.methods({
         var future = new Future();
         var path = dataDir + project.replace(proxPre, '') + filename;
 
+        // TODO check for existence first so we don't throw an error into
+        // the server log
         fs.readFile(path, 'utf8', function (error, results) {
             if (error) {
                 future.throw(error);

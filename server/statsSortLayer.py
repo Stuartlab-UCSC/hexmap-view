@@ -357,11 +357,11 @@ class ForEachLayer(object):
                 if adjust:
                     # Extract the p-values from the data.
                     # Layout-aware and -ignore store their p-values in
-                    # the same position. Translate NaNs to zeros so the stats
+                    # the same position. Translate NaNs to one so the stats
                     # routine will take it. TODO what is the right value here?
                     def handleNaN(row):
                         if math.isnan(row[2]):
-                            return 0
+                            return 1
                         else:
                             return row[2]
 
