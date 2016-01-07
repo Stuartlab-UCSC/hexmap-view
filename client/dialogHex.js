@@ -77,7 +77,6 @@ var app = app || {}; // jshint ignore:line
                     dialogClass: 'dialog',
                     minHeight: '10em',
                     width: 'resolve',
-                    create: self.init,
                     close: self.destroyDialog,
             };
 
@@ -88,6 +87,11 @@ var app = app || {}; // jshint ignore:line
                 }
             };
             this.$el.dialog(opts);
+
+            // Give the DOM a chance to load so we can find the elements in init
+            setTimeout(function () {
+                self.init();
+            }, 0);
         }
 
         DialogHex.prototype.initButton = function ($button) {
