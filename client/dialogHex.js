@@ -42,6 +42,17 @@ var app = app || {}; // jshint ignore:line
         DialogHex.prototype.init = function () {
 
             var self = this;
+
+            // Replace jqueryUI's sad close icon
+            $('.ui-dialog-titlebar-close').css({
+                'background-color': 'inherit',
+                'background-image': 'url(close.svg)',
+                'border-size': '0',
+                'width': '14',
+                'height': '14',
+            })
+            .find('span').hide();
+
             /* TODO disable this until we have some help
             this.$help.detach()
                 .css('display', 'inline');
@@ -66,9 +77,8 @@ var app = app || {}; // jshint ignore:line
                     dialogClass: 'dialog',
                     minHeight: '10em',
                     width: 'resolve',
-                    close: function () {
-                        self.destroyDialog();
-                    },
+                    create: self.init,
+                    close: self.destroyDialog,
             };
 
             // Override the defaults or add options from the caller
@@ -78,11 +88,6 @@ var app = app || {}; // jshint ignore:line
                 }
             };
             this.$el.dialog(opts);
-
-            // Give the DOM a chance to load so we can find the elements in init
-            setTimeout(function () {
-                self.init();
-            }, 0);
         }
 
         DialogHex.prototype.initButton = function ($button) {

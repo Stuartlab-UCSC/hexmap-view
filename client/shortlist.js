@@ -226,7 +226,6 @@ var app = app || {}; // jshint ignore:line
         // Add an image label for the filter control.
         // TODO: put this in a label
         var filter_image = $("<img/>").attr("src", Session.get('proxPre') + "filter.svg");
-        //var filter_image = $("<img class='headerButton'/>").attr("src", Session.get('proxPre') + "filter.svg");
         filter_image.attr("title", "Filter on Layer");
         filter_image.addClass("filter");
         
@@ -493,6 +492,7 @@ var app = app || {}; // jshint ignore:line
         for(var layer_name in shortlist_ui) {
             // For each entry in the lookup table
             if(shortlist_ui[layer_name] === false) {
+
                  // If it's still false, make a UI element for it.
                  shortlist_ui[layer_name] = make_shortlist_ui(layer_name);
                  $("#shortlist").prepend(shortlist_ui[layer_name]);
@@ -500,8 +500,8 @@ var app = app || {}; // jshint ignore:line
                  // Check it's box if possible
                 if (shortlist_ui[layer_name]) {
                  shortlist_ui[layer_name].find(".layer-on").click();
+                }
             }
-        }
         }
         
         // Make things re-orderable

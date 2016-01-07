@@ -304,11 +304,15 @@ var app = app || {}; // jshint ignore:line
             }
         }
         // Now we're done loading the stats, update the sort properties
+        var text = 'BH FDR by: ';
         if (count < 1) {
             updateUi('noStats');
         } else {
-            var text = 'BH FDR by: ' + focus_attr + ' (ignoring layout)';
-            updateUi('p_value', text, focus_attr, opts);
+            if (type === 'p_value ') {
+                text = 'Single test p-value by: ';
+            }
+            text += focus_attr + ' (ignoring layout)';
+            updateUi('type', text, focus_attr, opts);
         }
     }
 
