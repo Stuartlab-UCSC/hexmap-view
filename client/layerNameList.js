@@ -35,7 +35,13 @@ var app = app || {}; // jshint ignore:line
             if (filter.selection) {
                 list = _.filter(list,
                     function (layerName) {
-                        return (layers[layerName].hasOwnProperty('selection'));
+                        try {
+                            return (layers[layerName].hasOwnProperty('selection'));
+                        }
+                        catch (error) {
+                            console.log('lllllllllll layerName:', layerName);
+                            return false;
+                        }
                     }
                 );
             }

@@ -177,8 +177,8 @@ var app = app || {}; // jshint ignore:line
                 layer_array.splice(layer_array.indexOf(first), 1);
                 layer_array.unshift(first);
             }
-            Session.set('sortedLayers', layer_array);
         }
+        Session.set('sortedLayers', layer_array);
     }
 
     clearStats = function () {
@@ -226,29 +226,57 @@ var app = app || {}; // jshint ignore:line
         banner('info', 'Now sorted by ' + text + elapsed);
     }
 
-    function updateIgnoreLayout (focus_attr, layer, p_value, adjusted_p_value) {
+    function updateIgnoreLayout (parsed, focus_attr, lI, pI, apI) {
+
+        // See if all of the adjusted p-values are NaN
+        // where lI, pI, and apI are the indices of the layer, p-value, adjusted p-value
+
+        var count = 0,
+            isOldFormat = _.isUndefined(apI),
+            layer,
+            p_value,
+            adjusted_p_value;
+
+        // If this is not the old format, so look to see if there are any
+        // adjusted p-values with actual values
+        if (!isOldFormat) {
+            var hasAny = _.find(parsed, function (line) {
+                return !_.isNaN(Number(line[apI]));
+            });
+
+            // If there are no real values, treat this like a p-value sort
+            isOldFormat =_.isUndefined(hasAny);
+        }
+
+        // Update each layer's p-value and maybe adjusted p-value
+        for (var i = 0; i < parsed[0].length; i++) {
+            layer = parsed[i][lI];
+            p_value = Number(parsed[i][pI]);
+            adjusted_p_value = Number(parsed[i][apI]);
 
         // Don't load if it is the focus layer so it won't show up in sort
         if (layer !== focus_attr && !isNaN(p_value)) {
-            layers[layer].p_value = parseFloat(p_value);
+                layers[layer].p_value = p_value;
 
             if (adjusted_p_value && !isNaN(adjusted_p_value)) {
-                layers[layer].adjusted_p_value = parseFloat(adjusted_p_value);
+                    layers[layer].adjusted_p_value = adjusted_p_value;
             }
-            return 1
+                count += 1;
         }
-        return 0;
+    }
+        return {count: count,
+                type: isOldFormat ? 'p_value' : 'adjusted_p_value'};
     }
 
     function receive_ignore_layout_stats (parsed, focus_attr, opts) {
 
         // Handle the response from the server for ignore-layout sort statistics
-        var count = 0,
-            type = 'adjusted_p_value';
+
+        var r = {};  // the object return containting type and count
 
         if (parsed[0].length === 4) {
 
-            // This is dynamic stats, so is of the form:
+            // This is dynamic stats, new format, so is of the form:
             // [
             //      [layerName, layerName, p-value, adjusted-p-value],
             //      [layerName, layerName, p-value, adjusted-p-value],
@@ -257,24 +285,23 @@ var app = app || {}; // jshint ignore:line
             // The first element of each row is the focus layer name
             // which we already know, so ignore it.
 
-            for (var i = 0; i < parsed.length; i++) {
-                count += updateIgnoreLayout(focus_attr, parsed[i][1],
-                    parsed[i][2], parsed[i][3]);
-            }
-        } else if (parsed[0].length === 3) {
-            if ($.isNumeric(parsed[0][1]) || parsed[0][1] === 'nan') {
+            r = updateIgnoreLayout(parsed, focus_attr, 1, 2, 3);
 
-                // This is pre-computed stats, so it is of the form:
+        } else if (parsed[0].length === 3) {
+            second = parsed[0][1];
+            if ($.isNumeric(second) || second === 'nan') {
+
+                // This is pre-computed stats, new format, so it is of the form:
                 // [
                 //      [layerName, p-value, adjusted-p-value],
                 //      [layerName, p-value, adjusted-p-value],
                 //      ...
                 // ]
-                for (var i = 0; i < parsed[0].length; i++) {
-                    count += updateIgnoreLayout(focus_attr, parsed[i][0],
-                        parsed[i][1], parsed[i][2]);
-                }
+
+                r = updateIgnoreLayout(parsed, focus_attr, 0, 1, 2);
+
             } else {
+
                 // This is dynamic stats, old format, so is of the form:
                 // [
                 //      [layerName, layerName, p-value],
@@ -283,36 +310,40 @@ var app = app || {}; // jshint ignore:line
                 // ]
                 // The first element of each row is the focus layer name
                 // which we already know, so ignore it.
-                type = 'p_value';
-                for (var i = 0; i < parsed.length; i++) {
-                    count += updateIgnoreLayout(focus_attr, parsed[i][1],
-                        parsed[i][2]);
-                }
-            }
-        } else if ($.isNumeric(parsed[0][1]) || parsed[0][1] === 'nan') {
 
+                r = updateIgnoreLayout(parsed, focus_attr, 1, 2);
+                }
+        } else {
 
             // This is pre-computed, old format, so it is of the form:
             // [
             //      [layerName1, layerName2, ...],
             //      [value1, value2, ...]
             // ]
-            type = 'p_value';
+            r.type = 'p_value';
+            r.count = 0;
             for (var i = 0; i < parsed[0].length; i++) {
-                count += updateIgnoreLayout(focus_attr, parsed[0][i],
-                    parsed[1][i], type);
+                layer = parsed[0][i];
+                p_value = Number(parsed[1][i]);
+
+                // Don't load if it is the focus layer so it won't show up in sort
+                if (layer !== focus_attr && !isNaN(p_value)) {
+                    layers[layer].p_value = p_value;
+                    r.count += 1;
             }
         }
+        }
+
         // Now we're done loading the stats, update the sort properties
         var text = 'BH FDR by: ';
-        if (count < 1) {
+        if (r.count < 1) {
             updateUi('noStats');
         } else {
-            if (type === 'p_value ') {
+            if (r.type === 'p_value') {
                 text = 'Single test p-value by: ';
             }
             text += focus_attr + ' (ignoring layout)';
-            updateUi('type', text, focus_attr, opts);
+            updateUi(r.type, text, focus_attr, opts);
         }
     }
 
@@ -333,9 +364,9 @@ var app = app || {}; // jshint ignore:line
             // to which the selected layer is being compared against.
             //
             var compare_layer_name = parsed[i][0],
-                r_value = parseFloat(parsed[i][1]),
-                p_value = parseFloat(parsed[i][2]),
-                adjusted_p_value = parseFloat(parsed[i][3]);
+                r_value = Number(parsed[i][1]),
+                p_value = Number(parsed[i][2]),
+                adjusted_p_value = Number(parsed[i][3]);
 
             // Save the stats for this layer against the focus layer.
             if (!isNaN(r_value) && !isNaN(p_value)) {

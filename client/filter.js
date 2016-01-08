@@ -186,10 +186,10 @@ var app = app || {}; // jshint ignore:line
 
         count.set('untagged', sorted.length - taggedCount);
 
-        // Create the one-off tag values
+        // Create the special tag values
         chk.set('allTags', true);
         chk.set('untagged', true);
-        chk.set('save', false);
+        //chk.set('save', false);
 
         // Add the tag elements to the UI
         uniqTags.sort();
@@ -298,6 +298,22 @@ var app = app || {}; // jshint ignore:line
         _.each(filters, function (filter) {
             chk.set(filter, true);
         });
+
+
+/*
+        if (chk.equals('save', true)) return;
+
+        var filters = dataTypeList;
+
+        // If we have any tags, add those to the reset list
+        if (!_.isUndefined(chk.get('allTags'))) {
+            filters = filters.concat(tagList.get(), 'untagged', 'allTags');
+        }
+        _.each(filters, function (filter) {
+            chk.set(filter, true);
+        });
+*/
+
     }
 
     initFilter = function () {
@@ -312,6 +328,7 @@ var app = app || {}; // jshint ignore:line
             chk.set(type, true);
             count.set(type, 0);
         });
+        chk.set('save', false); // To retain the filters on sort
         label.bin = BIN_LABEL;
         label.cat = CAT_LABEL;
         label.cont = CONT_LABEL;
