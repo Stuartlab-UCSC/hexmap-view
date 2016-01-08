@@ -1364,7 +1364,7 @@ initHex = function () {
 
     initialize_view();
     initLayerLists();
-    initFilter();
+    //initFilter();
     initSetOperations();
     initSortAttrs();
     //initDiffAnalysis(); // TODO shelf this feature for now.

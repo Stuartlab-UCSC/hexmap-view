@@ -118,7 +118,7 @@ var app = app || {}; // jshint ignore:line
 
         // If the layer has no tags...
         if (!layers[layer].tags) {
-            return (chk.equals('untagged', true));
+            return (chk.equals('untagged', false));
         }
 
         // The layer has tags, so find the first matching checked tag
@@ -291,28 +291,21 @@ var app = app || {}; // jshint ignore:line
 
     clearAllFilters = function () {
 
-        // Set all the filters to the defaults
+        // Set all the filters to the defaults, unless 'save' is checked
         if (chk.equals('save', true)) return;
 
-        var filters = dataTypeList.concat(tagList.get(), 'untagged', 'allTags');
-        _.each(filters, function (filter) {
-            chk.set(filter, true);
-        });
-
-
-/*
-        if (chk.equals('save', true)) return;
-
+        // Initialize the filter list to the data types
         var filters = dataTypeList;
 
         // If we have any tags, add those to the reset list
         if (!_.isUndefined(chk.get('allTags'))) {
             filters = filters.concat(tagList.get(), 'untagged', 'allTags');
         }
+
+        // Set all of the filters to include everything
         _.each(filters, function (filter) {
             chk.set(filter, true);
         });
-*/
 
     }
 

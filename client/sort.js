@@ -226,6 +226,15 @@ var app = app || {}; // jshint ignore:line
         banner('info', 'Now sorted by ' + text + elapsed);
     }
 
+    function cleanPvalue (val) {
+        var clean = Number(val);
+        if (_.isNaN(clean) || clean > 1 || clean < 0) {
+            return 1;
+        } else {
+            return clean;
+        }
+    }
+
     function updateIgnoreLayout (parsed, focus_attr, lI, pI, apI) {
 
         // See if all of the adjusted p-values are NaN
@@ -251,19 +260,21 @@ var app = app || {}; // jshint ignore:line
         // Update each layer's p-value and maybe adjusted p-value
         for (var i = 0; i < parsed[0].length; i++) {
             layer = parsed[i][lI];
-            p_value = Number(parsed[i][pI]);
-            adjusted_p_value = Number(parsed[i][apI]);
+            p_value = parsed[i][pI];
+            adjusted_p_value;
 
-        // Don't load if it is the focus layer so it won't show up in sort
-        if (layer !== focus_attr && !isNaN(p_value)) {
-                layers[layer].p_value = p_value;
+            // Don't load if it is the focus layer so it won't show up in sort
+            // Replace any NaNs with 1
+            if (layer !== focus_attr) {
+                layers[layer].p_value = cleanPvalue(p_value);
 
-            if (adjusted_p_value && !isNaN(adjusted_p_value)) {
-                    layers[layer].adjusted_p_value = adjusted_p_value;
-            }
+                if (apI) {
+                    adjusted_p_value = parsed[i][apI];
+                    //layers[layer].adjusted_p_value = cleanPvalue(adjusted_p_value);
+                }
                 count += 1;
+            }
         }
-    }
         return {count: count,
                 type: isOldFormat ? 'p_value' : 'adjusted_p_value'};
     }
@@ -322,16 +333,18 @@ var app = app || {}; // jshint ignore:line
             // ]
             r.type = 'p_value';
             r.count = 0;
+            var layer, p_value;
             for (var i = 0; i < parsed[0].length; i++) {
-                layer = parsed[0][i];
-                p_value = Number(parsed[1][i]);
+                layer = parsed[0][i],
+                p_value = parsed[1][i];
 
                 // Don't load if it is the focus layer so it won't show up in sort
-                if (layer !== focus_attr && !isNaN(p_value)) {
-                    layers[layer].p_value = p_value;
+                // Replace any NaNs with 1
+                if (layer !== focus_attr) {
+                    layers[layer].p_value = cleanPvalue(p_value);
                     r.count += 1;
+                }
             }
-        }
         }
 
         // Now we're done loading the stats, update the sort properties
@@ -353,8 +366,8 @@ var app = app || {}; // jshint ignore:line
 
         // We have layout-aware stats parsed in the form:
         // [
-        //      [layerName1, r-value1, p-value1],
-        //      [layerName2, r-value2, p-value2],
+        //      [layerName, r-value, p-value, adjusted-p-value],
+        //      [layerName, r-value, p-value, adjusted-p-value],
         //      ...
         // ]
         var count = 0;
@@ -365,19 +378,25 @@ var app = app || {}; // jshint ignore:line
             //
             var compare_layer_name = parsed[i][0],
                 r_value = Number(parsed[i][1]),
-                p_value = Number(parsed[i][2]),
-                adjusted_p_value = Number(parsed[i][3]);
+                p_value = cleanPvalue(parsed[i][2]),
+                adjusted_p_value;
+
+            // If there is an adjusted p-value, set it
+            if (!_.isUndefined(parsed[i][3])) {
+                adjusted_p_value = cleanPvalue(parsed[i][3]);
+            }
 
             // Save the stats for this layer against the focus layer.
-            if (!isNaN(r_value) && !isNaN(p_value)) {
-                layers[compare_layer_name].correlation = r_value;
-                layers[compare_layer_name].p_value = p_value;
-
-                if (!isNaN(adjusted_p_value)) {
-                    layers[compare_layer_name].adjusted_p_value = adjusted_p_value;
-                }
-                count += 1;
+            if (p_value === 1) {
+                r_value = 'NA';
             }
+            layers[compare_layer_name].correlation = r_value;
+            layers[compare_layer_name].p_value = p_value;
+
+            if (!_.isUndefined(adjusted_p_value)) {
+                //layers[compare_layer_name].adjusted_p_value = adjusted_p_value;
+            }
+            count += 1;
         }
 
         if (count > 0) {
