@@ -57,10 +57,9 @@ var app = app || {}; // jshint ignore:line
                     start_position = query.context;
                 }
 
-                // TODO FILTERS! enable displayLayers when filtering is turned
-                // back on
-                //var displayLayers = Session.get('displayLayers'),
-                var displayLayers = Session.get('sortedLayers'),
+                var displayLayers = ATTR_FILTERS
+                    ? Session.get('displayLayers')
+                    : Session.get('sortedLayers'),
                     sortedLayers = Session.get('sortedLayers');
                 for (var i = start_position; i < sortedLayers.length; i++) {
 

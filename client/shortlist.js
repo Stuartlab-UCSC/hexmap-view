@@ -19,9 +19,13 @@ var app = app || {}; // jshint ignore:line
     var selection_next_id = 1;
 
     var scrollTop = 0; // Save scroll position while select from filter
-    var filter = new ReactiveDict(); // Discrete data-type filter value
+    var filterSelector = new ReactiveDict(); // Discrete data-type filter value
+    var filterControl = new ReactiveDict(); // To show or hide the filter area
 
     var firstLayerAutorun; // Runs when the first layer is set or shortlist layers changes
+
+    // Boolean for Creating Layer from Filter
+    var created = false;
 
     function reset_slider(layer_name, shortlist_entry) {
         // Given a layer name and a shortlist UI entry jQuery element, reset the 
@@ -99,13 +103,12 @@ var app = app || {}; // jshint ignore:line
         
         // Select the last option, so that 1 on 0/1 layers will 
         // be selected by default.
-        filter.set(layer_name, String(i-1));
-        createOurSelect2(filter_value, {data: selData},
-            filter.get(layer_name));
+        filterSelector.set(layer_name, String(i-1));
+        createOurSelect2(filter_value, {data: selData}, filterSelector.get(layer_name));
 
         // Define the event handler for selecting an item
         filter_value.on('change', function (ev) {
-            filter.set(layer_name, parseInt(ev.target.value));
+            filterSelector.set(layer_name, parseInt(ev.target.value));
             $('#shortlist').scrollTop(scrollTop);
             refresh();
         });
@@ -157,13 +160,60 @@ var app = app || {}; // jshint ignore:line
         // Don't sort because our caller does that when they're done adding layers.
     }
 
+    function createFilterUi (layer_name) {
+        // Add a div to hold the filtering stuff so it wraps together.
+        var filter_holder = $("<div/>").addClass("filter-holder");
+        
+        // Add an image label for the filter control.
+        // TODO: put this in a label
+        var filter_image = $("<img/>").attr("src", Session.get('proxPre') + "filter.svg");
+        filter_image.attr("title", "Filter on Layer");
+        filter_image.addClass("filter");
+        
+        // Add a control for filtering
+        var filter_control = $("<input/>").attr("type", "checkbox");
+        filter_control.addClass("filter-on");
+        filter_control.data('layer_name', layer_name);
+        filterControl.set(layer_name, false);
+
+        filter_holder.append(filter_image);
+        filter_holder.append(filter_control);
+        
+        // Add a text input to specify a filtering threshold for continuous layers
+        var filter_threshold = $("<input/>").addClass("filter-threshold");
+        // Initialize to a reasonable value.
+        filter_threshold.val(0);
+        filter_holder.append(filter_threshold);
+        filter_threshold.hide();
+        
+        // Add a select input to pick from a discrete list of values to filter on
+        filter_value = $("<div/>").addClass("filter-value");
+        filter_holder.append(filter_value);
+        filter_value.hide();
+
+        // Add a image for the save function
+        var save_filter = $("<img/>").attr("src", Session.get('proxPre') + "file-new.svg");
+        save_filter.addClass("save-filter");
+        save_filter.addClass("file-new");
+        save_filter.attr("title", "Save Filter as Layer");
+        filter_holder.append(save_filter);
+
+        return {
+            filter_holder: filter_holder,
+            filter_control: filter_control,
+            filter_threshold: filter_threshold,
+            filter_value: filter_value,
+            save_filter: save_filter,
+        };
+    }
+
     function make_shortlist_ui (layer_name) {
 
         // Skip this if the layers data does not yet exist for this layer
         if (!layers[layer_name]) return;
 
-        // Return a jQuery element representing the layer with the given name in the
-        // shortlist UI.
+        // Return a jQuery element representing the layer with the given name in
+        // the shortlist UI.
 
         // This holds the root element for this shortlist UI entry
         var root = $("<div/>").addClass("shortlist-entry");
@@ -220,44 +270,15 @@ var app = app || {}; // jshint ignore:line
 
         contents.append(metadata_holder);
 
-        // Add a div to hold the filtering stuff so it wraps together.
-        var filter_holder = $("<div/>").addClass("filter-holder");
-        
-        // Add an image label for the filter control.
-        // TODO: put this in a label
-        var filter_image = $("<img/>").attr("src", Session.get('proxPre') + "filter.svg");
-        filter_image.attr("title", "Filter on Layer");
-        filter_image.addClass("filter");
-        
-        // Add a control for filtering
-        var filter_control = $("<input/>").attr("type", "checkbox");
-        filter_control.addClass("filter-on");
-        
-        filter_holder.append(filter_image);
-        filter_holder.append(filter_control);
-        
-        // Add a text input to specify a filtering threshold for continuous layers
-        var filter_threshold = $("<input/>").addClass("filter-threshold");
-        // Initialize to a reasonable value.
-        filter_threshold.val(0);
-        filter_holder.append(filter_threshold);
-        filter_threshold.hide();
-        
-        // Add a select input to pick from a discrete list of values to filter on
-        filter_value = $("<div/>").addClass("filter-value");
-        filter_holder.append(filter_value);
-        filter_value.hide();
-
-        // Add a image for the save function
-        var save_filter = $("<img/>").attr("src", Session.get('proxPre') + "file-new.svg");
-        save_filter.addClass("save-filter");
-        save_filter.addClass("file-new");
-        save_filter.attr("title", "Save Filter as Layer");
-        filter_holder.append(save_filter);
+        var r = createFilterUi(layer_name),
+            filter_holder = r.filter_holder,
+            filter_control = r.filter_control,
+            filter_threshold = r.filter_threshold,
+            filter_value = r.filter_value,
+            save_filter = r.save_filter;
 
         // Add all holders to the shortlist content pane
         contents.append(filter_holder);
-        //contents.append(save_filter);
        
         // Add a div to contain layer settings
         var settings = $("<div/>").addClass("settings");
@@ -305,7 +326,7 @@ var app = app || {}; // jshint ignore:line
 
             // Make the UI match the list.
             update_shortlist_ui();
-            if(checkbox.is(":checked") || filter_control.is(":checked")) {
+            if(checkbox.is(":checked") || filterControl.equals(layer_name, true)) {
                 // Re-draw the view since we were selected (as coloring or filter) 
                 // before removal.
                 refresh();
@@ -328,7 +349,7 @@ var app = app || {}; // jshint ignore:line
 
                 // Make the UI match the list.
                 update_shortlist_ui();
-                if(checkbox.is(":checked") || filter_control.is(":checked")) {
+                if(checkbox.is(":checked") || filterControl.equals(layer_name, true)) {
                     // Re-draw the view since we were selected (as coloring or filter) 
                     // before removal.
                     refresh();
@@ -357,8 +378,10 @@ var app = app || {}; // jshint ignore:line
         }
 
         // Functionality for turning filtering on and off
-        filter_control.change(function() {
-            if(filter_control.is(":checked")) {
+        filter_control.change(function(ev) {
+            var layer_name = $(ev.target).data().layer_name;
+            filterControl.set(layer_name, ev.target.checked);
+            if(filterControl.equals(layer_name, true)) {
 
                 // First, figure out what kind of filter settings we take based on 
                 // what kind of layer we are.
@@ -387,7 +410,7 @@ var app = app || {}; // jshint ignore:line
                         // Configure Save Filter Buttons
 
                         // Get selected value
-                        var value = filter.get(layer_name);
+                        var value = filterSelector.get(layer_name);
                         var signatures = [];
 
                         // Gather Tumor-ID Signatures with value and push to "signatures"
@@ -410,6 +433,7 @@ var app = app || {}; // jshint ignore:line
                     refresh();
                 });
             } else {
+
                 created = false;
                 // Hide the filtering settings
                 filter_value.select2("container").hide();
@@ -839,7 +863,7 @@ var app = app || {}; // jshint ignore:line
                 if(filter_value.is(":visible")) {
                     // Use a discrete value match instead. This holds the value we
                     // want to match.
-                    var desired = filter.get(layer_name);
+                    var desired = filterSelector.get(layer_name);
                     
                     filter_function = function(value) {
                         return value == desired;

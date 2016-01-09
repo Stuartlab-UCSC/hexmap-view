@@ -24,9 +24,6 @@ var stats_value = 0;
 var first_opening = true;
 var first_opening_stats = true;
 
-// Boolean for Creating Layer from Filter
-var created = false;
-
 // Stores the Index of the Current Layout Selected. Default is 0 for default layout.
 current_layout_index = 0;
 
@@ -1364,7 +1361,7 @@ initHex = function () {
 
     initialize_view();
     initLayerLists();
-    //initFilter();
+    if (ATTR_FILTERS) initFilter();
     initSetOperations();
     initSortAttrs();
     //initDiffAnalysis(); // TODO shelf this feature for now.
