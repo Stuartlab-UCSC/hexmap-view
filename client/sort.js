@@ -353,7 +353,7 @@ var app = app || {}; // jshint ignore:line
             updateUi('noStats');
         } else {
             if (r.type === 'p_value') {
-                text = 'Single test p-value by: ';
+                text = ' ';
             }
             text += focus_attr + ' (ignoring layout)';
             updateUi(r.type, text, focus_attr, opts);
