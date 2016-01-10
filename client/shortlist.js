@@ -19,8 +19,9 @@ var app = app || {}; // jshint ignore:line
     var selection_next_id = 1;
 
     var scrollTop = 0; // Save scroll position while select from filter
-    var filterSelector = new ReactiveDict(); // Discrete data-type filter value
     var filterControl = new ReactiveDict(); // To show or hide the filter area
+    var filterSelector = new ReactiveDict(); // Discrete data-type filter value
+    var filterThreshold = new ReactiveDict(); // Continuous data-type filter value
 
     var firstLayerAutorun; // Runs when the first layer is set or shortlist layers changes
 
@@ -83,7 +84,7 @@ var app = app || {}; // jshint ignore:line
         });
     }
 
-    function createValueFilter (layer_name, layer, filter_value) {
+    function createFilterSelector (layer_name, layer, filter_value) {
 
         // Create the value filter dropdown for descrete values
         var option,
@@ -160,6 +161,75 @@ var app = app || {}; // jshint ignore:line
         // Don't sort because our caller does that when they're done adding layers.
     }
 
+     function filterControlChanged (ev, filter_value, filter_threshold, save_filter) {
+
+        // Functionality for turning filtering on and off
+        var layer_name = $(ev.target).data().layer_name;
+        filterControl.set(layer_name, ev.target.checked);
+        if(filterControl.equals(layer_name, true)) {
+
+            // First, figure out what kind of filter settings we take based on 
+            // what kind of layer we are.
+            with_layer(layer_name, function(layer) {
+                if(have_colormap(layer_name)) {
+
+                    // A discrete layer so show the value picker.
+
+                    // If the select2 has not been created yet, create it
+                    if (!filter_value.hasClass('select2-offscreen')) {
+                        createFilterSelector(layer_name, layer, filter_value);
+                    }
+                    filter_value.select2("container").show();
+                    filter_threshold.hide();
+                } else {
+
+                    // Not a discrete layer, so we take a threshold.
+                    filter_threshold.show();
+                    filter_value.select2("container").hide();
+                }
+                
+                save_filter.show();
+                        
+                save_filter.button().click(function() {
+
+                    // Configure Save Filter Buttons
+
+                    // Get selected value
+                    var value = filterSelector.get(layer_name);
+                    var signatures = [];
+
+                    // Gather Tumor-ID Signatures with value and push to "signatures"
+                    for (hex in polygons){
+                        if (layer.data[hex] == value){
+                                signatures.push(hex);
+                        }		
+                    }
+
+                    // Create Layer
+                    if (created == false) {
+                        select_list (signatures, "user selection");	
+                        created = true;
+                    }
+                    // TODO the below is negating the above
+                    created = false;			
+                });
+    
+                // Now that the right controls are there, assume they have 
+                refresh();
+            });
+        } else {
+
+            created = false;
+            // Hide the filtering settings
+            filter_value.select2("container").hide();
+            filter_threshold.hide();
+            save_filter.hide();
+
+            // Draw view since we're no longer filtering on this layer.
+            refresh();
+        }
+    }
+
     function createFilterUi (layer_name) {
         // Add a div to hold the filtering stuff so it wraps together.
         var filter_holder = $("<div/>").addClass("filter-holder");
@@ -174,22 +244,33 @@ var app = app || {}; // jshint ignore:line
         var filter_control = $("<input/>").attr("type", "checkbox");
         filter_control.addClass("filter-on");
         filter_control.data('layer_name', layer_name);
-        filterControl.set(layer_name, false);
-
         filter_holder.append(filter_image);
         filter_holder.append(filter_control);
-        
+        filterControl.set(layer_name, false);
+
         // Add a text input to specify a filtering threshold for continuous layers
         var filter_threshold = $("<input/>").addClass("filter-threshold");
         // Initialize to a reasonable value.
         filter_threshold.val(0);
         filter_holder.append(filter_threshold);
         filter_threshold.hide();
-        
+
+        // TODO: Add a longer delay before refreshing here so the user can type more
+        // interactively.
+        filter_threshold.keyup(function (ev) {
+            filterThreshold.set(layer_name, parseInt(ev.target.value));
+            refresh();
+        });
+
         // Add a select input to pick from a discrete list of values to filter on
-        filter_value = $("<div/>").addClass("filter-value");
+        var filter_value = $("<div/>").addClass("filter-value");
         filter_holder.append(filter_value);
         filter_value.hide();
+
+        // Create a handler for the filter control being turned on and off
+        filter_control.change(function (ev) {
+            filterControlChanged(ev, filter_value, filter_threshold, save_filter);
+        });
 
         // Add a image for the save function
         var save_filter = $("<img/>").attr("src", Session.get('proxPre') + "file-new.svg");
@@ -198,13 +279,7 @@ var app = app || {}; // jshint ignore:line
         save_filter.attr("title", "Save Filter as Layer");
         filter_holder.append(save_filter);
 
-        return {
-            filter_holder: filter_holder,
-            filter_control: filter_control,
-            filter_threshold: filter_threshold,
-            filter_value: filter_value,
-            save_filter: save_filter,
-        };
+        return filter_holder;
     }
 
     function make_shortlist_ui (layer_name) {
@@ -229,13 +304,14 @@ var app = app || {}; // jshint ignore:line
         // We have some configuration stuff and then the div from the dropdown
         // This holds all the config stuff
         var controls = $("<div/>").addClass("shortlist-controls");
+        var moveIcon = Session.get('proxPre') + 'resize-vertical.svg';
+        controls.css('background-image', 'url(' + moveIcon + ')');
         
         // Add a remove link
         var remove_link = $("<a/>").addClass("remove").attr("href", "#").text("X");
         remove_link.attr("title", "Remove from Shortlist");
         controls.append(remove_link);
 
-        
         // Add a checkbox for whether this is enabled or not
         var checkbox = $("<input/>").attr("type", "checkbox").addClass("layer-on");
         
@@ -270,16 +346,9 @@ var app = app || {}; // jshint ignore:line
 
         contents.append(metadata_holder);
 
-        var r = createFilterUi(layer_name),
-            filter_holder = r.filter_holder,
-            filter_control = r.filter_control,
-            filter_threshold = r.filter_threshold,
-            filter_value = r.filter_value,
-            save_filter = r.save_filter;
+        // Create and add the filter holder to the shortlist content pane
+        contents.append(createFilterUi(layer_name));
 
-        // Add all holders to the shortlist content pane
-        contents.append(filter_holder);
-       
         // Add a div to contain layer settings
         var settings = $("<div/>").addClass("settings");
         
@@ -377,78 +446,6 @@ var app = app || {}; // jshint ignore:line
             });
         }
 
-        // Functionality for turning filtering on and off
-        filter_control.change(function(ev) {
-            var layer_name = $(ev.target).data().layer_name;
-            filterControl.set(layer_name, ev.target.checked);
-            if(filterControl.equals(layer_name, true)) {
-
-                // First, figure out what kind of filter settings we take based on 
-                // what kind of layer we are.
-                with_layer(layer_name, function(layer) {
-                    if(have_colormap(layer_name)) {
-
-                        // A discrete layer so show the value picker.
-
-                        // If the select2 has not been created yet, create it
-                        if (!filter_value.hasClass('select2-offscreen')) {
-                            createValueFilter(layer_name, layer, filter_value);
-                        }
-                        filter_value.select2("container").show();
-                        filter_threshold.hide();
-                    } else {
-
-                        // Not a discrete layer, so we take a threshold.
-                        filter_threshold.show();
-                        filter_value.select2("container").hide();
-                    }
-                    
-                    save_filter.show();
-                            
-                    save_filter.button().click(function() {
-
-                        // Configure Save Filter Buttons
-
-                        // Get selected value
-                        var value = filterSelector.get(layer_name);
-                        var signatures = [];
-
-                        // Gather Tumor-ID Signatures with value and push to "signatures"
-                        for (hex in polygons){
-                            if (layer.data[hex] == value){
-                                    signatures.push(hex);
-                            }		
-                        }
-
-                        // Create Layer
-                        if (created == false) {
-                            select_list (signatures, "user selection");	
-                            created = true;
-                        }
-                        // TODO the below is negating the above
-                        created = false;			
-                    });
-        
-                    // Now that the right controls are there, assume they have 
-                    refresh();
-                });
-            } else {
-
-                created = false;
-                // Hide the filtering settings
-                filter_value.select2("container").hide();
-                filter_threshold.hide();
-                save_filter.hide();
-
-                // Draw view since we're no longer filtering on this layer.
-                refresh();
-            }
-        });
-        
-        // TODO: Add a longer delay before refreshing here so the user can type more
-        // interactively.
-        filter_threshold.keyup(refresh);
-        
         // Configure the range slider
         
         // First we need a function to update the range display, which we will run 
@@ -536,10 +533,7 @@ var app = app || {}; // jshint ignore:line
             // Sort by the part with the lines icon, so we can still select text.
             handle: ".shortlist-controls" 
         });
-
-        // We use a count here so the value always changes
-        Session.set('filterUpdated', 1 + Session.get('filterUpdated'));
-    }	
+    }
 
     select_list = function (to_select, function_type, layer_names, new_layer_name,
         shortlist_push) {
@@ -826,50 +820,40 @@ var app = app || {}; // jshint ignore:line
             // Go through all the shortlist entries.
             // This function is also the scope used for filtering function config 
             // variables.
-        
-            // This holds the checkbox that determines if we use this layer
-            var checkbox = $(element).find(".filter-on");
-            if(checkbox.is(":checked")) {
+
+            // Get the layer name
+            var layer_name = $(element).data("layer");
+
+            // This is the checkbox value that determines if we use this layer
+            if (filterControl.equals(layer_name, true)) {
+
                 // Put the layer in if its checkbox is checked.
-                
-                // Get the layer name
-                var layer_name = $(element).data("layer");
                 
                 // This will hold our filter function. Start with a no-op filter.
                 var filter_function = function(value) {
                     return true;
                 }
-                
-                // Get the filter parameters
-                // This holds the input that specifies a filter threshold
-                var filter_threshold = $(element).find(".filter-threshold");
-                // And this the element that specifies a filter match value for 
-                // discrete layers
-                var filter_value = $(element).find(".filter-value");
-                
-                // We want to figure out which of these to use without going and 
-                // downloading the layer.
-                // So, we check to see which was left visible by the filter config
-                // setup code.
-                if(filter_threshold.is(":visible")) {
-                    // Use a threshold. This holds the threshold.
-                    var threshold = parseInt(filter_threshold.val());
-                    
-                    filter_function = function(value) {
-                        return value > threshold;
-                    }
-                }
-                
-                if(filter_value.is(":visible")) {
-                    // Use a discrete value match instead. This holds the value we
-                    // want to match.
+
+                // Define the functions and values to use for filtering
+                // If this layer has a colormap it has discrete values
+                if (have_colormap(layer_name)) {
+
+                    // Use a discrete value match.
                     var desired = filterSelector.get(layer_name);
                     
                     filter_function = function(value) {
                         return value == desired;
                     }
+                } else {
+
+                     // Use a threshold for continuous values.
+                    var threshold = filterThreshold.get(layer_name);
+
+                    filter_function = function(value) {
+                        return value > threshold;
+                    }
                 }
-                
+
                 // Add a filter on this layer, with the function we've prepared.
                 current_filters.push({
                     layer_name: layer_name,
