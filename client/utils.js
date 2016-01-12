@@ -6,27 +6,15 @@ var app = app || {}; // jshint ignore:line
 (function (hex) { // jshint ignore:line
     //'use strict';
 
+    projectNotFound = function () {
+        if (!ctx.projectNotFoundNotified) {
 
-    fileNotFound = function (firstLine) {
-        // TODO this is a hacky way to find there is no file.
-        // However, until meteor fixes it:
-        // https://github.com/iron-meteor/iron-router/issues/1055
-        return (firstLine === '<!DOCTYPE html>');
-    }
-
-    projectNotFound = function (parsed) {
-        if (fileNotFound(parsed[0][0])) {
-            if (!ctx.projectNotFoundNotified) {
-
-                // make the project name look it would in the URL & alert the user
-                var proj = ctx.project.slice(5, -1).replace('/', '.');
-                alert('"' + proj
-                    + '" does not seem to be a valid project.\nPlease select another.');
-                ctx.projectNotFoundNotified = true;
-            }
-            return true;
+            // make the project name look it would in the URL & alert the user
+            var proj = ctx.project.slice(5, -1).replace('/', '.');
+            alert('"' + proj
+                + '" does not seem to be a valid project.\nPlease select another.');
+            ctx.projectNotFoundNotified = true;
         }
-        return false;
     }
 
     banner = function (type, text) {

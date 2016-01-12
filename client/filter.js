@@ -27,7 +27,8 @@ var app = app || {}; // jshint ignore:line
         $dialog,
         $passFilters,
         tagsAutorun,
-        tagData;
+        tagData,
+        hasTagInfo = false;
 
     // Meteor HTML template values
     
@@ -116,7 +117,11 @@ var app = app || {}; // jshint ignore:line
             return false;
         }
 
-        // If the layer has no tags...
+        // If there is no tag information we're done with filters
+        if (!hasTagInfo) {
+            return true;
+        }
+
         if (!layers[layer].tags) {
             return (chk.equals('untagged', true));
         }
@@ -207,6 +212,9 @@ var app = app || {}; // jshint ignore:line
                 tagsAutorun.stop();
 
             } else {
+                // Save the fact there is tag information for this project
+                hasTagInfo = true;
+
                 tagData = data;
                 processTags();
             }

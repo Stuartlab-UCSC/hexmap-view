@@ -160,13 +160,6 @@ layers = {}; // contains almost all information about attributes
         });
     }
 
-    fileNotFound = function (firstLine) {
-        // TODO this is a hacky way to find there is no file.
-        // However, until meteor fixes it:
-        // https://github.com/iron-meteor/iron-router/issues/1055
-        return (firstLine === '<!DOCTYPE html>');
-    }
-
     function resizeMap () {
 
         // Capture a resize window event to resize the map.

@@ -22,8 +22,9 @@ var app = app || {}; // jshint ignore:line
         hexes = [];
 
     function buildGrid(layout) {
-        var file = ctx.project + 'grid_' + layout + '.tab';
-        $.get(file, function(tsv_data) {
+        var file = 'grid_' + layout + '.tab';
+        Meteor.call('getTsvFile', file, ctx.project,
+            Session.get('proxPre'), function (error, parsed) {
 
             // This is an array of lines, with two points each:
             //
@@ -31,10 +32,9 @@ var app = app || {}; // jshint ignore:line
             //  x3  y3  x4  y4
             //  ...
 
-            var parsed = $.tsv.parseRows(tsv_data),
-                xyLines;
+            var xyLines;
 
-            if (fileNotFound(parsed[0][0])) {
+            if (error) {
                 alert('Sorry, the file containing the grid points was not found ' +
                     'so only the pre-squiggle hexagons will be displayed. (grid_*.tab)')
                 return;
@@ -74,21 +74,22 @@ var app = app || {}; // jshint ignore:line
 
         // Find those points, pre-hexagon assignment,
         // that were not mapped to this layer's grid
-        var file = ctx.project + 'gridOrphans_' + layout + '.tab';
-        $.get(file, function(tsv_data) {
+        var file = 'gridOrphans_' + layout + '.tab';
+        Meteor.call('getTsvFile', file, ctx.project,
+            Session.get('proxPre'), function (error, parsed) {;
 
             // This is an array of points names.
-
-            var orphans = _.map($.tsv.parseRows(tsv_data), function (row) {
-                return row[0];
-            });
-
-            if (fileNotFound(orphans[0])) {
+            var orphans;
+            if (error) {
                 orphans = [];
+            } else {
+                orphans = _.map(parsed, function (row) {
+                    return row[0];
+                });
             }
 
             buildScatter(layout, orphans);
-        }, "text");
+        });
     }
 
     function adjustForZoom () {
@@ -158,21 +159,21 @@ var app = app || {}; // jshint ignore:line
     function buildScatter(layout, orphans) {
 
         // Render the points before they were assigned to hexagons
-        var file = ctx.project + 'xyPreSquiggle_' + layout + '.tab';
-        $.get(file, function(tsv_data) {
-        
+        var file = 'xyPreSquiggle_' + layout + '.tab';
+        Meteor.call('getTsvFile', file, ctx.project,
+            Session.get('proxPre'), function (error, parsed) {;
+
             // This is an array of point locations, in the form:
             //  s1  x1  y1
             //  s2  x2  y2
             //  ...
 
             // Parse the file
-            var parsed = $.tsv.parseRows(tsv_data),
-                xyPointsRaw,
+            var xyPointsRaw,
                 pointNames,
                 xyPointsMap;
 
-            if (fileNotFound(parsed[0][0])) {
+            if (error) {
                 alert('Sorry, the file of pre-squiggle hexagons was not found so '
                     + 'there is nothing to display. (xyPreSquiggle_*.tab)')
                 return;

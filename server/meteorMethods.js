@@ -10,16 +10,13 @@ var path = Npm.require('path');
 
 // TODO these dirs may need to be different with built meteor
 // There must be a better way to do this for dev and built
-var dirPrefix = '../../../../../';
-var serverDir = dirPrefix + 'server/';
-var publicDir = dirPrefix + 'public/';
-var dataDirObsolete = publicDir + 'data/'; // TODO make use of dataDir instead
+var serverDir = dirPrefix + '../../../../../server/'; // TODO move server python files out of meteor
 var url = Meteor.absoluteUrl();
 var dataDir;
 if (url === 'http://localhost:3000/') {
     dataDir = '/Users/swat/';
 } else {
-    dataDir = '/data/home/swat/dataHexmap/';
+    dataDir = '/data/home/swat/';
 }
 
 function writeToTempFile (data, fileExtension) {
@@ -56,7 +53,7 @@ function fixUpProjectDir (parms) {
     // servers. This prefix needs to be removed for the server's use.
     // We may not need proxPre after having all file retrievals go through
     // meteor methods.
-    parms.directory = publicDir + parms.directory.replace(parms.proxPre, '');
+    parms.directory = dataDir + parms.directory.replace(parms.proxPre, '');
 }
 
 Meteor.methods({
@@ -66,7 +63,12 @@ Meteor.methods({
         // Retrieve data from a tab-separated file
         this.unblock();
         var future = new Future();
-        var path = dataDir + project.replace(proxPre, '') + filename;
+        var path;
+            if (filename.indexOf('layer_') > -1 || filename.indexOf('stats') > -1) {
+                path = dataDir + filename;
+            } else {
+                path = dataDir + project.replace(proxPre, '') + filename;
+            }
 
         // TODO check for existence first so we don't throw an error into
         // the server log
@@ -83,6 +85,11 @@ Meteor.methods({
                     return row.split('\t');
                 });
 
+                // Remove any empty row left from the new-line split
+                if (data[data.length-1].length === 1 && data[data.length-1][0] === '') {
+                    data.pop();
+                }
+
                 future.return(data);
             }
         });
@@ -94,7 +101,7 @@ Meteor.methods({
         // Retrieve data directories
         this.unblock();
         var future = new Future(),
-            dir = dataDirObsolete + ((_.isUndefined(user)) ? '' : user);
+            dir = dataDir + 'data/' + ((_.isUndefined(user)) ? '' : user);
         fs.readdir(dir, function (error, results) {
             if (error) {
                 future.throw(error);

@@ -129,7 +129,7 @@ var app = app || {}; // jshint ignore:line
         /*
         The compare order of sorts:
         - sort options are optional and one of:
-            - ignore layout: by p-value in ascending order
+            - ignore layout: by p-value in ascending order: lesser value first
             - layout-aware positive: by positive correlation sign first, then p-value
             - layout-aware negative: by negative correlation sign first, then p-value
         - by clumpiness/density
@@ -521,18 +521,16 @@ var app = app || {}; // jshint ignore:line
 
         // Retrieve the precomputed stats file from the server
         print("Fetching " + filename);
+        Meteor.call('getTsvFile', filename, ctx.project,
+            Session.get('proxPre'), function (error, parsed) {;
 
-        $.get(filename, function(tsv_data) {
-
-            var parsed = tsvParseRows(tsv_data);
-
-            if (fileNotFound(parsed[0][0])) {
+            if (error) {
                 banner('stay', computingText);
                 getDynamicStats(focus_attr, opts);
                 return;
             }
             receive_data(parsed, focus_attr, opts);
-        }, "text");
+        });
     }
 
     get_layout_ignore_stats = function (focus_attr) {

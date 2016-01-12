@@ -356,12 +356,13 @@ with_layer = function (layer_name, callback) {
 		    print("Downloading \"" + layer.url + "\"");
 		    
 		    // Go get it (as text!)
-		    $.get(layer.url, function(layer_tsv_data) {
+            Meteor.call('getTsvFile', layer.url, ctx.project,
+                Session.get('proxPre'), function (error, layer_parsed) {
 
-		        // This is the TSV as parsed by our TSV-parsing plugin
-		        var layer_parsed = $.tsv.parseRows(layer_tsv_data);
-
-                if (projectNotFound(layer_parsed)) return;
+                if (error) {
+                    projectNotFound();
+                    return;
+                }
 
 		        // This is the layer we'll be passing out. Maps from
 		        // signatures to floats on -1 to 1.
@@ -389,7 +390,7 @@ with_layer = function (layer_name, callback) {
 		        // Now the layer has been properly downloaded, but it may not have
 		        // metadata. Recurse with the same callback to get metadata.
 		        with_layer(layer_name, callback);
-		    }, "text");
+		    });
 		} else if(layer.magnitude == undefined || layer.minimum == undefined || 
 		    layer.maximum == undefined) {
 		    // We've downloaded it already, or generated it locally, but we don't
@@ -666,23 +667,21 @@ function get_current_layout_index (layout_name) {
 	// layout_name. Return the index at which this layout name sits.
 
 	var layout_index;
-	$.get(ctx.project + "matrixnames.tab", function(tsv_data) {
-		var parsed = $.tsv.parseRows(tsv_data);
-		
-        if (projectNotFound(parsed)) return;
+    Meteor.call('getTsvFile', "matrixnames.tab", ctx.project,
+        Session.get('proxPre'), function (error, parsed) {;
+
+        if (error) {
+            projectNotFound();
+            return;
+        }
 
 		for (var i = 0; i < parsed.length; i++){
 			if (parsed[i][0] == layout_name) {
 				layout_index = i;
 			}
 		}
-	}, "text")
-	.done(function() {
 		current_layout_index = layout_index;
         // TODO recompute any stats sort that was in effect for the last layout
-	})
- 	.fail(function() {
-		alert("Error Determining Selected Layout Index");
 	});
 }
 
@@ -1143,13 +1142,16 @@ function mix2 (a, b, c, d, amount1, amount2) {
 assignment_values = function (layout_index) {
 	// Download the signature assignments to hexagons and fill in the global
     // hexagon assignment grid.
-    $.get(ctx.project + "assignments" + layout_index +".tab", function(tsv_data) {
-    
+    Meteor.call('getTsvFile', "assignments" + layout_index +".tab",
+        ctx.project, Session.get('proxPre'), function (error, parsed) {;
+
         // This is an array of rows, which are arrays of values:
         // id, x, y
-        var parsed = $.tsv.parseRows(tsv_data);
 
-        if (projectNotFound(parsed)) return;
+        if (error) {
+            projectNotFound();
+            return;
+        }
 
         // This holds the maximum observed x
         var max_x = 0;
@@ -1264,7 +1266,7 @@ assignment_values = function (layout_index) {
             center.lng() + .000000001));
         google.maps.event.addListener(googlemap, 'idle', initMapDrawn);
 
-    }, "text");
+    });
 }
 
 // Function to create a new map based upon the the layout_name argument Find the
@@ -1280,12 +1282,16 @@ function recreate_map() {
 }
 
 function create_indexed_layers_array () {
-	$.get(ctx.project + "layers.tab", function(tsv_data) {
+    Meteor.call('getTsvFile', "layers.tab", ctx.project,
+        Session.get('proxPre'), function (error, parsed) {;
+
 		// Create a list of layer names ordered by their indices
 		ctx.layer_names_by_index = new Array (Session.get('sortedLayers').length);
-		parsed = $.tsv.parseRows(tsv_data);
 
-        if (projectNotFound(parsed)) return;
+        if (error) {
+            projectNotFound();
+            return;
+        }
 
 		for (var i = 0; i < parsed.length; i++) {
 		    if(parsed[i].length < 2) {
@@ -1303,7 +1309,7 @@ function create_indexed_layers_array () {
 			var index_value = file_name.substring(underscore_index+1, period_index);
 			ctx.layer_names_by_index [index_value] = parsed[i][0];
 		 }			     
-    }, "text");
+    });
 
 }
 initHex = function () {
@@ -1329,7 +1335,9 @@ initHex = function () {
     // user sees on startup. We're lucky now. We need to guarantee this is done
     // first.
 	// Download Information on what layers are continuous and which are binary
-	$.get(ctx.project + "Layer_Data_Types.tab", function(tsv_data) {
+    Meteor.call('getTsvFile', "Layer_Data_Types.tab", ctx.project,
+        Session.get('proxPre'), function (error, parsed) {;
+
         // This is an array of rows with the following content:
         //
 		//	FirstAttribute		Layer6
@@ -1338,10 +1346,10 @@ initHex = function () {
 		//	Categorical	Layer7	Layer8	Layer9 ...
 		//
 
-		// Parse the file
-        var parsed = $.tsv.parseRows(tsv_data);
-
-        if (projectNotFound(parsed)) return;
+        if (error) {
+            projectNotFound();
+            return;
+        }
 
         _.each(parsed, function (line) {
             if (line[0] === 'Binary') {
@@ -1354,7 +1362,7 @@ initHex = function () {
                 Session.set('first_layer', line.slice(1).join());
             } // skip any lines we don't know about
         });
-	}, "text");  
+	});
 
     // Set up the Google Map type and projection
     mapTypeDef();
@@ -1388,12 +1396,16 @@ initHex = function () {
 	});
 
     // Download the layer index
-    $.get(ctx.project + "layers.tab", function(tsv_data) {
+    Meteor.call('getTsvFile', "layers.tab", ctx.project,
+        Session.get('proxPre'), function (error, parsed) {;
+
         // Layer index is tab-separated like so:
         // name  file  N-hex-value  binary-ones  layout0-clumpiness  layout1-clumpiness  ...
-        var parsed = $.tsv.parseRows(tsv_data);
-        
-        if (projectNotFound(parsed)) return;
+
+        if (error) {
+            projectNotFound();
+            return;
+        }
 
         for(var i = 0; i < parsed.length; i++) {
             // Pull out the parts of the TSV entry
@@ -1462,15 +1474,19 @@ initHex = function () {
 
         // Announce that the initial layers have loaded.
         Session.set('initialLayersLoaded', true);
-    }, "text");
+    });
     
     // Download full score matrix index, which we later use for statistics. Note
     // that stats won't work unless this finishes first. TODO: enforce this.
-    $.get(ctx.project + "matrices.tab", function(tsv_data) {
+    Meteor.call('getTsvFile', "matrices.tab", ctx.project,
+        Session.get('proxPre'), function (error, parsed) {;
+
         // Matrix index is just <filename>
-        var parsed = $.tsv.parseRows(tsv_data);
-        
-        if (projectNotFound(parsed)) return;
+
+        if (error) {
+            projectNotFound();
+            return;
+        }
 
         for(var i = 0; i < parsed.length; i++) {
             // Pull out the parts of the TSV entry
@@ -1485,15 +1501,19 @@ initHex = function () {
             // Add it to the global list
             available_matrices.push(ctx.project + matrix_name);
         }
-    }, "text");
+    });
     
     // Download color map information
-    $.get(ctx.project + "colormaps.tab", function(tsv_data) {
+    Meteor.call('getTsvFile', "colormaps.tab", ctx.project,
+        Session.get('proxPre'), function (error, parsed) {;
+
         // Colormap data is <layer name>\t<value>\t<category name>\t<color>
         // \t<value>\t<category name>\t<color>...
-        var parsed = $.tsv.parseRows(tsv_data);
-        
-        if (projectNotFound(parsed)) return;
+
+        if (error) {
+            projectNotFound();
+            return;
+        }
 
         for(var i = 0; i < parsed.length; i++) {
             // Get the name of the layer
@@ -1537,7 +1557,7 @@ initHex = function () {
         // info, if it came particularly late.
         refresh();
             
-    }, "text");
+    });
 
     function layoutChange(changeToLayout) {
 
@@ -1551,11 +1571,15 @@ initHex = function () {
 
 
     // Download the Matrix Names and pass it to the layout_names array
-	$.get(ctx.project + "matrixnames.tab", function(tsv_data) {
-        // This is an array of rows, which are strings of matrix names
-        var parsed = $.tsv.parseRows(tsv_data);
+    Meteor.call('getTsvFile', "matrixnames.tab", ctx.project,
+        Session.get('proxPre'), function (error, parsed) {;
 
-        if (projectNotFound(parsed)) return;
+        // This is an array of rows, which are strings of matrix names
+
+        if (error) {
+            projectNotFound();
+            return;
+        }
 
         for(var i = 0; i < parsed.length; i++) {
             // Pull out the parts of the TSV entry
@@ -1574,7 +1598,7 @@ initHex = function () {
             layoutChange();
         }
 
-    }, "text");
+    });
 
 	$("#layout-search").select2({
         placeholder: "Select a Layout...",
