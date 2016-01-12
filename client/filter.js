@@ -19,7 +19,7 @@ var app = app || {}; // jshint ignore:line
         tagList = new ReactiveVar(),
         taggedCount, // Number of attributes with tags, assumed fixed per project
 
-        // TODO for checked and count we could have collisions on tags of:
+        // TODO for checked and count we could have name collisions on tags of:
         // bin, cat, cont, untagged
         chk = new ReactiveDict(),
         count = new ReactiveDict(),
@@ -118,7 +118,7 @@ var app = app || {}; // jshint ignore:line
 
         // If the layer has no tags...
         if (!layers[layer].tags) {
-            return (chk.equals('untagged', false));
+            return (chk.equals('untagged', true));
         }
 
         // The layer has tags, so find the first matching checked tag
@@ -189,7 +189,6 @@ var app = app || {}; // jshint ignore:line
         // Create the special tag values
         chk.set('allTags', true);
         chk.set('untagged', true);
-        //chk.set('save', false);
 
         // Add the tag elements to the UI
         uniqTags.sort();
@@ -224,13 +223,13 @@ var app = app || {}; // jshint ignore:line
             _.each(tags, function (tag) {
                 chk.set(tag, true);
             });
-            chk.set('untagged', true);
+            //chk.set('untagged', true);
 
         } else {
             _.each(tags, function (tag) {
                 chk.set(tag, false);
             });
-            chk.set('untagged', false);
+            //chk.set('untagged', false);
         }
     }
 

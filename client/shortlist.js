@@ -6,6 +6,8 @@ var app = app || {}; // jshint ignore:line
 
 (function (hex) { // jshint ignore:line
 
+    var USE_SELECT2_FOR_FILTER = false;
+
     // This holds an object form shortlisted layer names to jQuery shortlist UI
     // elements, so we can efficiently tell if e.g. one is selected.
     shortlist_ui = {};
@@ -86,38 +88,74 @@ var app = app || {}; // jshint ignore:line
 
     function createFilterSelector (layer_name, layer, filter_value) {
 
-        // Create the value filter dropdown for descrete values
-        var option,
-            selData = [];
-        for (var i = 0; i < layer.magnitude + 1; i++) {
+        // Create the value filter dropdown for discrete values
+        if (USE_SELECT2_FOR_FILTER) {
+            var option,
+                selData = [];
+            for (var i = 0; i < layer.magnitude + 1; i++) {
 
-            // Make an option for each value.
-            option = {id: String(i), text: String(i)};
+                // Make an option for each value.
+                option = {id: String(i), text: String(i)};
 
-            if (colormaps[layer_name].hasOwnProperty(i)) {
+                if (colormaps[layer_name].hasOwnProperty(i)) {
 
-                // We have a real name for this value
-                option.text = colormaps[layer_name][i].name;
+                    // We have a real name for this value
+                    option.text = colormaps[layer_name][i].name;
+                }
+                selData.push(option);
             }
-            selData.push(option);
+            
+            // Select the last option, so that 1 on 0/1 layers will 
+            // be selected by default.
+            filterSelector.set(layer_name, String(i-1));
+            createOurSelect2(filter_value, {data: selData}, filterSelector.get(layer_name));
+
+            // Define the event handler for selecting an item
+            filter_value.on('change', function (ev) {
+                filterSelector.set(layer_name, parseInt(ev.target.value));
+                $('#shortlist').scrollTop(scrollTop);
+                refresh();
+            });
+
+            // On opening the drop-down save the scroll position
+            filter_value.parent().on('select2-open', function () {
+                scrollTop = $('#shortlist').scrollTop();
+            });
+
+        } else {
+
+            // Make sure we have all our options
+            if (filter_value.children().length == 0) {
+
+                // No options available. We have to add them.
+                for (var i = 0; i < layer.magnitude + 1; i++) {
+
+                    // Make an option for each value.
+                    var option = $("<option/>").attr("value", i);
+                    if (colormaps[layer_name].hasOwnProperty(i)) {
+
+                        // We have a real name for this value
+                        option.text(colormaps[layer_name][i].name);
+                    } else {
+
+                        // No name. Use the number.
+                        option.text(i);
+                    }
+                    filter_value.append(option);
+                }
+
+                // Select the last option, so that 1 on 0/1 layers will
+                // be selected by default.
+                filter_value.val(
+                    filter_value.children().last().attr("value"));
+
+                // Define the event handler for selecting an item
+                filter_value.on('change', function (ev) {
+                    filterSelector.set(layer_name, parseInt(ev.target.value));
+                    refresh();
+                });
+            }
         }
-        
-        // Select the last option, so that 1 on 0/1 layers will 
-        // be selected by default.
-        filterSelector.set(layer_name, String(i-1));
-        createOurSelect2(filter_value, {data: selData}, filterSelector.get(layer_name));
-
-        // Define the event handler for selecting an item
-        filter_value.on('change', function (ev) {
-            filterSelector.set(layer_name, parseInt(ev.target.value));
-            $('#shortlist').scrollTop(scrollTop);
-            refresh();
-        });
-
-        // On opening the drop-down save the scroll position
-        filter_value.parent().on('select2-open', function () {
-            scrollTop = $('#shortlist').scrollTop();
-        });
     }
 
     function add_layer_data(layer_name, data, attributes) {
@@ -179,13 +217,21 @@ var app = app || {}; // jshint ignore:line
                     if (!filter_value.hasClass('select2-offscreen')) {
                         createFilterSelector(layer_name, layer, filter_value);
                     }
-                    filter_value.select2("container").show();
+                    if (USE_SELECT2_FOR_FILTER) {
+                        filter_value.select2("container").show();
+                    } else {
+                        filter_value.show();
+                    }
                     filter_threshold.hide();
                 } else {
 
                     // Not a discrete layer, so we take a threshold.
                     filter_threshold.show();
-                    filter_value.select2("container").hide();
+                    if (USE_SELECT2_FOR_FILTER) {
+                        filter_value.select2("container").hide();
+                    } else {
+                        filter_value.hide();
+                    }
                 }
                 
                 save_filter.show();
@@ -221,7 +267,11 @@ var app = app || {}; // jshint ignore:line
 
             created = false;
             // Hide the filtering settings
-            filter_value.select2("container").hide();
+            if (USE_SELECT2_FOR_FILTER) {
+                filter_value.select2("container").hide();
+            } else {
+                filter_value.hide();
+            }
             filter_threshold.hide();
             save_filter.hide();
 
@@ -263,7 +313,12 @@ var app = app || {}; // jshint ignore:line
         });
 
         // Add a select input to pick from a discrete list of values to filter on
-        var filter_value = $("<div/>").addClass("filter-value");
+        if (USE_SELECT2_FOR_FILTER) {
+            var filter_value = $("<div/>").addClass("filter-value");
+        } else {
+            var filter_value = $("<select/>").addClass("filter-value");
+        }
+
         filter_holder.append(filter_value);
         filter_value.hide();
 
