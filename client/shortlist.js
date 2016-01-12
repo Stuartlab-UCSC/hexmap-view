@@ -535,6 +535,50 @@ var app = app || {}; // jshint ignore:line
         });
     }
 
+    function selectSetOperList(to_select, function_type, new_layer_name) {
+
+        // Prepare the set operation selection for adding to the long & shortlists
+        var layer_name,
+            default_name = {
+                "intersection": "L1 ∩ L2",
+                "union": "L1 U L2",
+                "set difference": "L1 \\ L2",
+                "symmetric difference": "L1 ∆ L2",
+                "absolute complement": "Not: L1",
+            };
+
+        // Give the user a chance to name the layer
+        if (new_layer_name === undefined) {
+            var text = prompt('Please provide a label for your ' + function_type,
+                default_name[function_type]);
+             if (text != null) {
+                layer_name = text;
+             }
+             if (!text) {
+                return undefined;
+             }
+        } else {
+            layer_name = new_layer_name;
+        }
+
+        // Build the data for this layer with ones for those hexes in to_select
+        // and zeros in the rest
+        var data = {},
+            signatures_available = 0;
+        _.each(polygons, function (val, hex) {
+            if (to_select.indexOf(hex) > -1) {
+                data[hex] = 1;
+            } else {
+                data[hex] = 0;
+            }
+            signatures_available += 1;
+        });
+
+        return {layer_name: layer_name,
+                data: data,
+                signatures_available: signatures_available};
+    }
+
     select_list = function (to_select, function_type, layer_names, new_layer_name,
         shortlist_push) {
         // Given an array of signature names, add a new selection layer containing
@@ -550,183 +594,141 @@ var app = app || {}; // jshint ignore:line
         // for function_type, the layer_names will be used along with the 
         // function_type to assign the correct title. 
         
-        // Make the requested signature list into an object for quick membership
-        // checking. This holds true if a signature was requested, undefined
-        // otherwise.
-        var wanted = {};
-        
+        // Is this selection the result of a set operation?
+        var setOperation = function_type === 'intersection'
+            || function_type === 'union'
+            || function_type === 'set difference'
+            || function_type === 'symmetric difference'
+            || function_type === 'absolute complement';
+
         if (to_select.length < 1) {
-            banner('warn', "No hexagons were selected. Maybe part of your selection area wrapped around googlemap's world");
+            banner('warn', setOperation
+                ? "No hexagons were selected as a result of the set operation"
+                : "No hexagons were selected. Maybe part of your selection area wrapped around googlemap's world"
+                );
             return;
         }
 
-        for(var i = 0; i < to_select.length; i++) {
-            wanted[to_select[i]] = true;
-        }
-        
-        // This is the data object for the layer: from signature names to 1/0
-        var data = {};
-        
-        // How many signatures will we have any mention of in this layer
-        var signatures_available = 0;
-        
-        // Start it out with 0 for each signature. Otherwise we will have missing
-        // data for signatures not passing the filters.
-        for(var signature in polygons) {
-            data[signature] = 0;
-            signatures_available += 1;
-        }
-        
-        // This holds the filters we're going to use to restrict our selection
-        var filters = get_current_filters();
+        var layer_name;
+        // How many signatures get selected?
+        var signatures_selected = 0;
 
-        // Go get the list of signatures passing the filters and come back.
-        with_filtered_signatures(filters, function(signatures) { 
+        // If this is the result of a set operation...
+        if (setOperation) {
 
-            // Make up a name for the layer
-            var layer_name;
-      
-            // How many signatures get selected?
-            var signatures_selected = 0;
-         
-            for(var i = 0; i < signatures.length; i++) {
-                if(wanted[signatures[i]]) {
-                    // This signature is both allowed by the filters and requested.
-                    data[signatures[i]] = 1;
-                    signatures_selected++;           
-                }
+            // Exclude filters for set operation results
+            var r = selectSetOperList(to_select, function_type, new_layer_name);
+            if (_.isUndefined(r) || r.layer_name === null) return;
+
+            layer_name = r.layer_name;
+            data = r.data;
+            signatures_available = r.signatures_available;
+            signatures_selected = to_select.length;
+
+        } else {
+            // Make the requested signature list into an object for quick membership
+            // checking. This holds true if a signature was requested, undefined
+            // otherwise.
+            var wanted = {};
+            for(var i = 0; i < to_select.length; i++) {
+                wanted[to_select[i]] = true;
             }
-
-            // Complain if no hexagons were selected after applying the filters
-            if (signatures_selected < 1) {
-                banner('warn', 'No hexagons are selected after applying the filters.');
-                return;
-            }
-
-            // Default Values for Optional Parameters
-            if (function_type === undefined && layer_names === undefined){
-                layer_name = "Selection " + selection_next_id;
-                selection_next_id++;
-            }
-
-            if (new_layer_name === undefined) {
-                // If a name hasn't already been prescribed through a previous
-                // session.
-                if (function_type == "user selection"){
-                     var text = prompt("Please provide a label for your selection",
-                     "Selection " + selection_next_id);
-                     // Give a different suggested name each time.
-                     // TODO: what if they start naming their things the same on
-                     // purpose? Validate layer names.
-                     selection_next_id++;
-                     if (text != null){
-                        layer_name = text;
-                     }
-                     if (!text)
-                     {
-                        return;
-                     }
-                }
-                
-                // intersection for layer name
-                if (function_type == "intersection"){
-
-                     var text = prompt("Please provide a label for your Intersection",
-                     "L1 ∩ L2");
-                     if (text != null){
-                        layer_name = text;
-                     }
-                     if (!text)
-                     {
-                        return;
-                     }
-                }
-
-                // union for layer name
-                if (function_type == "union"){
-                     var text = prompt("Please provide a label for your Union",
-                     "L1 U L2");
-                     if (text != null){
-                        layer_name = text;
-                     }
-                     if (!text)
-                     {
-                        return;
-                     }
-                }
-
-                // set difference for layer name
-                if (function_type == "set difference"){
-                     var text = prompt("Please provide a label for your Intersection",
-                     "L1 \\ L2");
-                     if (text != null){
-                        layer_name = text;
-                     }
-                     if (!text)
-                     {
-                        return;
-                     }
-                }
-
-                // symmetric difference for layer name
-                if (function_type == "symmetric difference"){
-                     var text = prompt("Please provide a label for your Symmetric Difference",
-                     "L1 ∆ L2");
-                     if (text != null){
-                        layer_name = text;
-                     }
-                     if (!text)
-                     {
-                        return;
-                     }
-                }
-                
-                // absolute complement for layer name
-                if (function_type == "absolute complement"){
-                     var text = prompt("Please provide a label for your Absolute Complement",
-                     "Not: L1");
-                     if (text != null){
-                        layer_name = text;
-                     }
-                     if (!text)
-                     {
-                        return;
-                     }
-                }
-
-                // saved filter for layer name
-                if (function_type == "save"){
-                    layer_name =  "(" + layer_names[0] + ")";
-                }
-            }
-            else {
-                // Layer name already exists. User is loading a previous session.
-                layer_name = new_layer_name;
-            }
-
-            // Add the layer. Say it is a selection
-            add_layer_data(layer_name, data, {
-                selection: true,
-                    selected: signatures_selected, // Display how many hexes are in
-                n: signatures_available // And how many have a value at all
-            });
             
-            // Update the browse UI with the new layer.
-            update_browse_ui();
-            var shortlist = Session.get('shortlist').slice();
-            if (shortlist_push !== false) {
-                // Immediately shortlist it if the attribute is being created for
-                // the first time.
-                shortlist.push(layer_name);
-                Session.set('shortlist', shortlist);
-                update_shortlist_ui();
-            } else if (shortlist.indexOf(layer_name) >= 0) {
-                // Immediately update shortlist it if the attribute is being loaded
-                // and has been declared as part of the shortlist.
-                update_shortlist_ui();
+            // This is the data object for the layer: from signature names to 1/0
+            var data = {};
+            
+            // How many signatures will we have any mention of in this layer
+            var signatures_available = 0;
+            
+            // Start it out with 0 for each signature. Otherwise we will have missing
+            // data for signatures not passing the filters.
+            for(var signature in polygons) {
+                data[signature] = 0;
+                signatures_available += 1;
             }
-            new_layer_name = layer_name;
+
+            // This holds the filters we're going to use to restrict our selection
+            var filters = get_current_filters();
+
+            // Go get the list of signatures passing the filters and come back.
+            with_filtered_signatures(filters, function(signatures) { 
+
+                // How many signatures get selected?
+                signatures_selected = 0;
+             
+                for(var i = 0; i < signatures.length; i++) {
+                    if(wanted[signatures[i]]) {
+                        // This signature is both allowed by the filters and requested.
+                        data[signatures[i]] = 1;
+                        signatures_selected++;           
+                    }
+                }
+
+                // Complain if no hexagons were selected after applying the filters
+                if (signatures_selected < 1) {
+                    banner('warn', 'No hexagons are selected after applying the filters.');
+                    return;
+                }
+
+                // Default Values for Optional Parameters
+                if (function_type === undefined && layer_names === undefined){
+                    layer_name = "Selection " + selection_next_id;
+                    selection_next_id++;
+                }
+
+                if (new_layer_name === undefined) {
+                    // If a name hasn't already been prescribed through a previous
+                    // session.
+                    if (function_type == "user selection"){
+                         var text = prompt("Please provide a label for your selection",
+                         "Selection " + selection_next_id);
+                         // Give a different suggested name each time.
+                         // TODO: what if they start naming their things the same on
+                         // purpose? Validate layer names.
+                         selection_next_id++;
+                         if (text != null){
+                            layer_name = text;
+                         }
+                         if (!text)
+                         {
+                            return;
+                         }
+                    }
+
+                    // saved filter for layer name
+                    if (function_type == "save") {
+                        layer_name =  "(" + layer_names[0] + ")";
+                    }
+                } else {
+                    // Layer name already exists. User is loading a previous session.
+                    layer_name = new_layer_name;
+                }
+            });
+        }
+
+        // Add the layer. Say it is a selection
+        add_layer_data(layer_name, data, {
+            selection: true,
+                selected: signatures_selected, // Display how many hexes are in
+            n: signatures_available // And how many have a value at all
         });
+        
+        // Update the browse UI with the new layer.
+        update_browse_ui();
+        var shortlist = Session.get('shortlist').slice();
+        if (shortlist_push !== false) {
+            // Immediately shortlist it if the attribute is being created for
+            // the first time.
+            shortlist.push(layer_name);
+            Session.set('shortlist', shortlist);
+            update_shortlist_ui();
+        } else if (shortlist.indexOf(layer_name) >= 0) {
+            // Immediately update shortlist it if the attribute is being loaded
+            // and has been declared as part of the shortlist.
+            update_shortlist_ui();
+        }
+        new_layer_name = layer_name;
+
         return (new_layer_name);
     }
 
@@ -787,6 +789,7 @@ var app = app || {}; // jshint ignore:line
                 var pass = true;
                 
                 for(var i = 0; i < filter_layers.length; i++) {
+
                     // For each filtering layer
                     if(!filters[i].filter_function(
                         filter_layers[i].data[signature])) {
@@ -797,8 +800,8 @@ var app = app || {}; // jshint ignore:line
                         break;
                     }
                 }
-                
                 if(pass) {
+
                     // Record that the signature passes all filters
                     passing_signatures.push(signature);
                 }
@@ -811,12 +814,14 @@ var app = app || {}; // jshint ignore:line
     }
 
     get_current_filters = function () {
+
         // Returns an array of filter objects, according to the shortlist UI.
         // Filter objects have a layer name and a boolean-valued filter function 
         // that returns true or false, given a value from that layer.
         var current_filters = [];
         
         $("#shortlist").children().each(function(index, element) {
+
             // Go through all the shortlist entries.
             // This function is also the scope used for filtering function config 
             // variables.
@@ -824,7 +829,8 @@ var app = app || {}; // jshint ignore:line
             // Get the layer name
             var layer_name = $(element).data("layer");
 
-            // This is the checkbox value that determines if we use this layer
+            // This is the checkbox value that determines if we use this layer's
+            // filter
             if (filterControl.equals(layer_name, true)) {
 
                 // Put the layer in if its checkbox is checked.

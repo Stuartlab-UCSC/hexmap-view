@@ -376,9 +376,11 @@ var app = app || {}; // jshint ignore:line
             var layer_values = [];
             var layer_values_text = [];
 
+            // First layer name and values
             var drop_down_layers = document.getElementsByClassName("set-operation-value");
             var drop_down_data_values = document.getElementsByClassName("set-operation-layer-value");
 
+            // Set operation
             var function_type = document.getElementById("set-operations-list");
             var selected_function = function_type.selectedIndex;
 
@@ -389,6 +391,7 @@ var app = app || {}; // jshint ignore:line
             layer_values.push(drop_down_data_values[0].options[selected_index].value);	
             layer_values_text.push(drop_down_data_values[0].options[selected_index].text);
 
+            // Second layer name and values
             if (selected_function != 5) {
                 var selected_index = drop_down_data_values[1].selectedIndex;
                 layer_values.push(drop_down_data_values[1].options[selected_index].value);	
