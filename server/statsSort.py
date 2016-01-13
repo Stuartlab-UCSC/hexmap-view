@@ -25,7 +25,17 @@ def writeValues (layers, TODO_unused, num_layers, parm, options):
         for line in reader.__iter__():
             slx1 = parm['statsLayers'].index(line[0])
             slx2 = parm['statsLayers'].index(line[1])
-            tuple = [float(line[2]), float(line[3])]
+            try:
+                line[3]
+            except NameError:
+                line[3] = float('NaN')
+            try:
+                tuple = [float(line[2]), float(line[3])]
+            except:
+                print 'file:', os.path.join(parm['temp_dir'], file_name)
+                print 'line:', line
+                print "parm['statsLayers'].index(line[0]):", parm['statsLayers'].index(line[0])
+                print "parm['statsLayers'].index(line[1]):", parm['statsLayers'].index(line[1])
 
             vals[slx1][slx2] = tuple
             vals[slx2][slx1] = tuple

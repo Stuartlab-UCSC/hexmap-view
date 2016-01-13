@@ -10,7 +10,7 @@ var path = Npm.require('path');
 
 // TODO these dirs may need to be different with built meteor
 // There must be a better way to do this for dev and built
-var serverDir = dirPrefix + '../../../../../server/'; // TODO move server python files out of meteor
+var serverDir = '../../../../../server/'; // TODO move server python files out of meteor
 var url = Meteor.absoluteUrl();
 var dataDir;
 if (url === 'http://localhost:3000/') {

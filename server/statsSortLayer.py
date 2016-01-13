@@ -358,7 +358,7 @@ class ForEachLayer(object):
                     # Extract the p-values from the data.
                     # Layout-aware and -ignore store their p-values in
                     # the same position. Translate NaNs to one so the stats
-                    # routine will take it. TODO what is the right value here?
+                    # routine will take it.
                     def handleNaN(row):
                         if math.isnan(row[2]):
                             return 1
@@ -376,10 +376,9 @@ class ForEachLayer(object):
                         f.writerow(row + [sigDigs(adjPval)])
 
                     except Exception:
-                        adjPval = float('NaN')
                         f.writerow(row + [float('NaN')])
                 else:
-                    f.writerow(row)
+                    f.writerow(row + [float('NaN')])
 
     def __call__(s):
 

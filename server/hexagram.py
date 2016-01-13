@@ -358,9 +358,10 @@ class ClusterFinder(object):
         # TODO: This should probably all operate on numpy arrays that we can 
         # slice efficiently.
         
-        # Store the layer
-        self.hexagons = hexagons
         # Store the hexagon assignments
+        self.hexagons = hexagons
+
+        # Store the layer
         self.layer = layer
         
         # Store the window size
@@ -1146,6 +1147,14 @@ def run_clumpiness_statistics(layers, layer_names, window_size, layout_index):
 
     # This holds an iterator that makes ClusterFinders for all our layers. These
     # ClusterFinders are passed to the pool for parallel subprocessing
+    """
+    # Skip the pool of subprocesses for debugging
+    import pdb; pdb.set_trace()
+    best_p_values = []
+    for layer_name in layer_names:
+        best_p_values.append(
+            ClusterFinder(hexagons, layers[layer_name], window_size)
+    """
     cluster_finders = [ClusterFinder(hexagons, layers[layer_name],
         window_size=window_size) for layer_name in layer_names]
 
@@ -1445,11 +1454,16 @@ def hexIt(options):
     # Sort Layers According to Data Type
     determine_layer_data_types (layers, layer_names, options)
 
+    # Copy over the tags file if one exists
+    if os.path.exists('attribute_tags.tab'):
+        shutil.copy2('attribute_tags.tab', os.path.join(options.directory,
+            'attribute_tags.tab'))
+
     # Copy over the user-specified colormaps file, or make an empty TSV if it's
     # not specified.
     
     # This holds a writer for the sim file. Creating it creates the file.
-    colormaps_writer = tsv.TsvWriter(open(os.path.join(options.directory, 
+    colormaps_writer = tsv.TsvWriter(open(os.path.join(options.directory,
         "colormaps.tab"), "w"))
     
     if options.colormaps is not None:

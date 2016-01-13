@@ -182,6 +182,7 @@ layers = {}; // contains almost all information about attributes
                 initProject();
                 if (DEV) initSelect();
                 initTools();
+                //initDownload();
                 initColors();
                 convertStoredCenterToLatLng();
                 initShortlist();

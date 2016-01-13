@@ -14,7 +14,8 @@ var app = app || {}; // jshint ignore:line
 
     // The color to use as hexagon fill, depending on the background color
     var NO_DATA_LIGHT_BG = '#ccc',
-        NO_DATA_DARK_BG = '#555';
+        NO_DATA_DARK_BG = '#555',
+        badValue = false; // The current category input has a bad value
 
     noDataColor = function () {
         return (Session.equals('background', 'white'))
@@ -216,6 +217,7 @@ var app = app || {}; // jshint ignore:line
                     // set the Session to not shake and put the focus back to this
                     cat.shaking = 'shaking';
                     Session.set('colorArray', colorArray);
+                    badValue = true;
                     $t.effect('shake', null, null, function () {
                         cat.shaking = '';
                         Session.set('colorArray', colorArray);
@@ -233,6 +235,7 @@ var app = app || {}; // jshint ignore:line
                     Session.set('colorArray', colorArray);
                     Meteor.flush();
                     updateColormap(cat);
+                    badValue = false;
                 }
             }
 
@@ -270,16 +273,12 @@ var app = app || {}; // jshint ignore:line
                         position: {my: 'left top', at: 'left top', of: window},
                         buttons: [
                             {
-                                text: 'Done',
-                                click: function () {
-                                    $(this).dialog('close');
-                                }
-                            },
-                            {
                                 text: 'Download',
                                 click: function () {
-                                    makeTsv($link);
-                                    $(this).dialog('close');
+                                    if (!badValue) {
+                                        makeTsv($link);
+                                        $(this).dialog('close');
+                                    }
                                 }
                             }
                         ],
