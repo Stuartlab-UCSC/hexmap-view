@@ -73,7 +73,7 @@ Meteor.methods({
         var future = new Future();
         var path;
             if (filename.indexOf('layer_') > -1 || filename.indexOf('stats') > -1) {
-                path = dataDir + filename;
+                path = dataDir + filename.replace(proxPre, '');
             } else {
                 path = dataDir + project.replace(proxPre, '') + filename;
             }
