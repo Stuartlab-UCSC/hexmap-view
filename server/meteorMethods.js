@@ -30,20 +30,28 @@ function writeToTempFile (data, fileExtension) {
     return filename;
 }
 
-function readFromTsvFileSync (filename) {
-
-    // Read from a tab-separated file, blocking until the read is complete
-    var data1,
-        data = fs.readFileSync(filename, 'utf8');
+function parseTsv (data) {
 
     // separate the data in to an array of rows
-    data1 = data.split('\n');
+    var data1 = data.split('\n'),
 
-    // Separate each row into an array of values
-    data = _.map(data1, function(row) {
-        return row.split('\t');
-    });
-    return data;
+        // Separate each row into an array of values
+        parsed = _.map(data1, function(row) {
+            return row.split('\t');
+        });
+
+    // Remove any empty row left from the new-line split
+    if (parsed[parsed.length-1].length === 1
+            && parsed[parsed.length-1][0] === '') {
+        parsed.pop();
+    }
+    return parsed;
+}
+
+function readFromTsvFileSync (filename) {
+
+    // Parse the data after reading the file
+    return parseTsv(fs.readFileSync(filename, 'utf8'));
 }
 
 function fixUpProjectDir (parms) {
@@ -77,20 +85,7 @@ Meteor.methods({
                 future.throw(error);
             } else {
 
-                // separate the data in to an array of rows
-                var data = results.split('\n');
-
-                // Separate each row into an array of values
-                data = _.map(data, function(row) {
-                    return row.split('\t');
-                });
-
-                // Remove any empty row left from the new-line split
-                if (data[data.length-1].length === 1 && data[data.length-1][0] === '') {
-                    data.pop();
-                }
-
-                future.return(data);
+                future.return(parseTsv(results));
             }
         });
         return future.wait();

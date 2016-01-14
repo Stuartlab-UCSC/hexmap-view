@@ -39,7 +39,7 @@ var app = app || {}; // jshint ignore:line
                             return (layers[layerName].hasOwnProperty('selection'));
                         }
                         catch (error) {
-                            console.log('lllllllllll layerName:', layerName);
+                            console.log('TODO layerName is in some list, but not in layers:', layerName);
                             return false;
                         }
                     }

@@ -258,7 +258,7 @@ var app = app || {}; // jshint ignore:line
         }
 
         // Update each layer's p-value and maybe adjusted p-value
-        for (var i = 0; i < parsed[0].length; i++) {
+        for (var i = 0; i < parsed.length; i++) {
             layer = parsed[i][lI];
             p_value = parsed[i][pI];
             adjusted_p_value;
@@ -268,9 +268,9 @@ var app = app || {}; // jshint ignore:line
             if (layer !== focus_attr) {
                 layers[layer].p_value = cleanPvalue(p_value);
 
-                if (apI) {
+                if (!isOldFormat) {
                     adjusted_p_value = parsed[i][apI];
-                    //layers[layer].adjusted_p_value = cleanPvalue(adjusted_p_value);
+                    layers[layer].adjusted_p_value = cleanPvalue(adjusted_p_value);
                 }
                 count += 1;
             }
