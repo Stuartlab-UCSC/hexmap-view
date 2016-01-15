@@ -255,6 +255,10 @@ var app = app || {}; // jshint ignore:line
 
             // If there are no real values, treat this like a p-value sort
             isOldFormat =_.isUndefined(hasAny);
+
+            if (isOldFormat) {
+                banner('warn', 'All adjusted p-values were NaN, so displaying and sorting by the single test p-value instead');
+            }
         }
 
         // Update each layer's p-value and maybe adjusted p-value
