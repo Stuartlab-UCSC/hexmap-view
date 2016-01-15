@@ -522,9 +522,9 @@ fill_layer_metadata = function (container, layer_name) {
         if(attribute == "data" || attribute == "url" || 
             attribute == "magnitude" || attribute == "minimum" || 
             attribute == "maximum" || attribute == "selection" || 
-            attribute == "clumpiness_array") {
+            attribute == "clumpiness_array" || attribute == "tags") {
             
-            // Skip built-in things
+            // Skip things we don't want to display
             // TODO: Ought to maybe have all metadata in its own object?
             continue;
         }
@@ -570,7 +570,6 @@ fill_layer_metadata = function (container, layer_name) {
             p_value: "Single test p-value",
             correlation: "Correlation",
             adjusted_p_value: "BH FDR",
-            tags: "Tags",
         }
         
         if(lookup[attribute]) {

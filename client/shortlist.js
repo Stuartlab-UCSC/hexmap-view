@@ -146,8 +146,10 @@ var app = app || {}; // jshint ignore:line
 
                 // Select the last option, so that 1 on 0/1 layers will
                 // be selected by default.
-                filter_value.val(
-                    filter_value.children().last().attr("value"));
+                var val = filter_value.children().last().attr("value");
+                filter_value.val(val);
+                filterSelector.set(layer_name, parseInt(val));
+                refresh();
 
                 // Define the event handler for selecting an item
                 filter_value.on('change', function (ev) {
