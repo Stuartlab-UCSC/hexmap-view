@@ -16,6 +16,8 @@ PAGE = 'homePage';
             text: 'Density of attributes',
             type: 'default',
             focus_attr: null,
+            color: 'inherit',
+            background: 'inherit',
         };
 
     State = function() {

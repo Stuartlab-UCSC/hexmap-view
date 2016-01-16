@@ -214,11 +214,11 @@ var app = app || {}; // jshint ignore:line
         } else if (type === 'noStats') {
             text = 'None, due to no statistical results';
             Session.set('sort', {text: text, type: 'noStats',
-                focus_attr: focus_attr});
+                focus_attr: focus_attr, color: 'inherit', background: 'inherit'});
         } else {
 
             Session.set('sort', {text: text, type: type,
-                focus_attr: focus_attr});
+                focus_attr: focus_attr, color: 'inherit', background: 'inherit'});
         }
         clearAllFilters();
         update_browse_ui();
@@ -423,9 +423,6 @@ var app = app || {}; // jshint ignore:line
 
         // Handle the response from the server for sort statistics
 
-        // Clear the stats in the layers before loading new ones
-        clearStats();
-
         if (opts.hasOwnProperty('layout')) {
 
             // Layout-aware stats
@@ -441,6 +438,8 @@ var app = app || {}; // jshint ignore:line
     find_clumpiness_stats = function (layout) {
 
         // Reset the sort to the default of density
+
+        // Clear the stats in the layers before loading new ones
         clearStats();
 
         // Set the clumpiness scores for all layers to the appropriate values for
@@ -524,12 +523,16 @@ var app = app || {}; // jshint ignore:line
     function getPreComputedStats (filename, focus_attr, opts) {
 
         // Retrieve the precomputed stats file from the server
+
+        // Clear the stats in the layers before loading new ones
+        clearStats();
+
         print("Fetching " + filename);
         Meteor.call('getTsvFile', filename, ctx.project,
             Session.get('proxPre'), function (error, parsed) {;
 
             if (error) {
-                banner('stay', computingText);
+                computingTextDisplay();
                 getDynamicStats(focus_attr, opts);
                 return;
             }
@@ -537,9 +540,19 @@ var app = app || {}; // jshint ignore:line
         });
     }
 
+    computingTextDisplay = function () {
+
+        banner('warn', computingText);
+        Session.set('sort', {
+            text: computingText, color: '#2E662C', background: '#D8EECE'});
+    }
+
     get_layout_ignore_stats = function (focus_attr) {
 
         // Retrieve the layer's layout-ignore values
+
+        // Clear the stats in the layers before loading new ones
+        clearStats();
 
         // Save the data types lists to the options
         opts = {
@@ -552,7 +565,7 @@ var app = app || {}; // jshint ignore:line
         if (layers[focus_attr].hasOwnProperty('selection')) {
 
             // This is a user-selection attribute
-            banner('stay', computingText);
+            computingTextDisplay();
             getDynamicStats(focus_attr, opts);
 
         } else {
@@ -567,6 +580,10 @@ var app = app || {}; // jshint ignore:line
     get_diff_stats = function (focus_attr, focus_attr2) {
 
         // Calc the differential stats on the server
+
+        // Clear the stats in the layers before loading new ones
+        clearStats();
+
         var first = true,
             hexnames1,
             hexnames2,
@@ -617,7 +634,7 @@ var app = app || {}; // jshint ignore:line
         }
 
         // Treat this as a selection layer and run it as layout-ignore stats
-        banner('stay', computingText);
+        computingTextDisplay();
         var diffLayer = focus_attr + ' & ' + focus_attr2;
         opts = {
             isDiffStats: 'yes',
@@ -637,7 +654,10 @@ var app = app || {}; // jshint ignore:line
 
         // Retrieve the layer's layout-aware values
 
-        // Save the layout index and anticorrelated flag to the options
+        // Clear the stats in the layers before loading new ones
+        clearStats();
+
+       // Save the layout index and anticorrelated flag to the options
         var opts = {
             statsLayers: ctx.bin_layers,
             layout: layout_index,
@@ -647,7 +667,7 @@ var app = app || {}; // jshint ignore:line
         if (layers[focus_attr].hasOwnProperty('selection')) {
 
             // This is a user-selection attribute
-            banner('stay', computingText);
+            computingTextDisplay();
             getDynamicStats(focus_attr, opts);
 
         } else {
