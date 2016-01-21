@@ -157,21 +157,20 @@ class ForEachLayer(object):
 
             table[aVal - aMin][bVal - bMin] += 1
 
-        enoughCounts = s.diffStatsDiscreteFilter(table, diffStat10percent)
-        if not enoughCounts:
-            pValue = 1
+        if hasattr(s, 'diffStats'):
+            enoughCounts = s.diffStatsDiscreteFilter(table, diffStat10percent)
+            if not enoughCounts:
+                return [layerA, layerB, 1]
 
-        else:
-
-            # Call the chi-squared function
-            try:
-                chi2, pValue, dof, expectedFreq = scipy.stats.chi2_contingency(table)
-            except Exception:
-                # We probably had all zeros for a column in the contingency table.
-                # See <http://stats.stackexchange.com/q/73708>. Chi-squared can't be
-                # done in this case.
-                # http://docs.scipy.org/doc/scipy-0.16.0/reference/generated/scipy.stats.chi2_contingency.html#scipy.stats.chi2_contingency
-                chi2 = pValue = dof = expectedFreq = 1
+        # Call the chi-squared function
+        try:
+            chi2, pValue, dof, expectedFreq = scipy.stats.chi2_contingency(table)
+        except Exception:
+            # We probably had all zeros for a column in the contingency table.
+            # See <http://stats.stackexchange.com/q/73708>. Chi-squared can't be
+            # done in this case.
+            # http://docs.scipy.org/doc/scipy-0.16.0/reference/generated/scipy.stats.chi2_contingency.html#scipy.stats.chi2_contingency
+            chi2 = pValue = dof = expectedFreq = 1
 
         return [layerA, layerB, sigDigs(pValue)]
 
@@ -398,42 +397,48 @@ class ForEachLayer(object):
     def adjustPvalue(s, preAdjusted):
 
         try:
-            # Some hosts do not have this sort of obscure library. If not
-            # we don't adjust
-            from statsmodels.sandbox.stats.multicomp import multipletests
+            # Some hosts do not have this library. If not we don't adjust
+            import statsmodels.sandbox.stats.multicomp as multicomp
             adjust = True
+
         except Exception:
             adjust = False
 
         with open(s.file, 'w') as f:
             f = csv.writer(f, delimiter='\t')
 
+            preAdjVals = []
             for i, row in enumerate(preAdjusted):
 
-                if adjust:
-                    # Extract the p-values from the data.
-                    # Layout-aware and -ignore store their p-values in
-                    # the same position. Translate NaNs to one so the stats
-                    # routine will take it.
-                    def handleNaN(row):
-                        if math.isnan(row[2]):
-                            return 1
-                        else:
-                            return row[2]
+                if not adjust:
 
-                    preAdjVals = numpy.array(map(handleNaN, preAdjusted))
-
-                    try:
-                        # Benjamini-Hochberg FDR correction for p-values returns:
-                        #   [reject, p_vals_corrected]
-                        # http://statsmodels.sourceforge.net/devel/generated/statsmodels.sandbox.stats.multicomp.multipletests.html#statsmodels.sandbox.stats.multicomp.multipletests
-                        reject, adjPval = multicomp.multipletests(preAdjVals, alpha=0.05, method='fdr_bh')
-                        f.writerow(row + [sigDigs(adjPval)])
-
-                    except Exception:
-                        f.writerow(row + [float('NaN')])
-                else:
+                    # No adjustment will happen so just write to the file
                     f.writerow(row + [float('NaN')])
+                    continue
+
+                # Extract the p-values from the data.
+                # Layout-aware and -ignore store their p-values in
+                # the same position. Translate NaNs to one so the stats
+                # routine will take it.
+                if math.isnan(row[2]):
+                    preAdjVals.append(1)
+                else:
+                    preAdjVals.append(row[2])
+
+            if not adjust:
+                return
+
+            try:
+                # Benjamini-Hochberg FDR correction for p-values returns:
+                #   [reject, p_vals_corrected]
+                # http://statsmodels.sourceforge.net/devel/generated/statsmodels.sandbox.stats.multicomp.multipletests.html#statsmodels.sandbox.stats.multicomp.multipletests
+                reject, adjPvals, alphacSidak, alphacBonf = multicomp.multipletests(preAdjVals, alpha=0.05, method='fdr_bh')
+
+            except Exception:
+                adjPvals = [float('NaN') for x in preAdjVals]
+
+            for i, row in enumerate(preAdjusted):
+                f.writerow(row + [sigDigs(adjPvals[i])])
 
     def __call__(s):
 

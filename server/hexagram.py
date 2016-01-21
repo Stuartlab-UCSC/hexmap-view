@@ -348,7 +348,7 @@ class ClusterFinder(object):
     layer. Instances are pickleable.
     """
     
-    def __init__(self, hexagons, layer, window_size=5):
+    def __init__(self, hexagons, layer, layer_name, layout, window_size=5):
         """
         Keep the given hexagons dict (from (x, y) to signature name) and the 
         given layer (a dict from signature name to a value), and the given 
@@ -366,6 +366,10 @@ class ClusterFinder(object):
         
         # Store the window size
         self.window_size = window_size
+    
+        self.layer_name = layer_name
+
+        self.layout = layout
     
     @staticmethod
     def continuous_p(in_values, out_values):
@@ -495,6 +499,7 @@ class ClusterFinder(object):
             # There is actually no data in this layer at all.
             # nditer complains if we try to iterate over an empty thing.
             # So quit early and say we couldn't find anything.
+            print 'No data in this layer, so no density stats:', self.layer_name
             return best_p
  
         for value in numpy.nditer(layer_data_masked[~layer_data_masked.mask]):
@@ -517,10 +522,10 @@ class ClusterFinder(object):
                 
                 # This is the least specific test, so we can stop now
                 break
-        
-                
+        badVals = 0
+        windowCount = self.window_size  ** 2
         for i in xrange(min_x, max_x, self.window_size):
-            for j in xrange(min_y, max_y, self.window_size):            
+            for j in xrange(min_y, max_y, self.window_size):
                 # Look at tiling windows. We're allowed to go a bit beyond the
                 # edge of the space on the high edges; it will be fine.
 
@@ -546,11 +551,13 @@ class ClusterFinder(object):
                     
                 if len(in_values) == 0 or len(out_values) == 0:
                     # Can't do any stats on this window
+                    badVals += 1
                     continue
                     
                 if len(in_values) < 0.5 * self.window_size ** 2:
                     # The window is less than half full. Skip it.
                     # TODO: Make this threshold configurable.
+                    badVals += 1
                     continue
                 
                 try:    
@@ -566,12 +573,14 @@ class ClusterFinder(object):
                     # can't handle.
                     # But let's try all the other windows to be safe. 
                     # Maybe one will work.
+                    badVals += 1
                     pass
-                    
-                
-                
-        # We have now found the best p for any window for this layer.
 
+        if badVals > 0:
+            print 'Clumpiness stats had bad p-values in windows for layout, layer:', \
+                badVals, '/', windowCount, self.layout, self.layer_name
+
+        # We have now found the best p for any window for this layer.
         return best_p                
 
 def determine_layer_data_types (layers, layer_names, options):
@@ -1153,9 +1162,9 @@ def run_clumpiness_statistics(layers, layer_names, window_size, layout_index):
     best_p_values = []
     for layer_name in layer_names:
         best_p_values.append(
-            ClusterFinder(hexagons, layers[layer_name], window_size)
+            ClusterFinder(hexagons, layers[layer_name], layer_name, layout_index, window_size)
     """
-    cluster_finders = [ClusterFinder(hexagons, layers[layer_name],
+    cluster_finders = [ClusterFinder(hexagons, layers[layer_name], layer_name, layout_index,
         window_size=window_size) for layer_name in layer_names]
 
     # Use a multiprocessing pool to manage and execute subprocesses
