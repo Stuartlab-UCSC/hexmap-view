@@ -80,14 +80,18 @@ Meteor.methods({
 
         // TODO check for existence first so we don't throw an error into
         // the server log
-        fs.readFile(path, 'utf8', function (error, results) {
-            if (error) {
-                future.throw(error);
-            } else {
+        if (fs.existsSync(path)) {
+            fs.readFile(path, 'utf8', function (error, results) {
+                if (error) {
+                    future.throw(error);
+                } else {
 
-                future.return(parseTsv(results));
-            }
-        });
+                    future.return(parseTsv(results));
+                }
+            });
+        } else {
+            future.return('Error: file not found on server: ' + path);
+        }
         return future.wait();
     },
 

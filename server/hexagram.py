@@ -576,9 +576,9 @@ class ClusterFinder(object):
                     badVals += 1
                     pass
 
-        if badVals > 0:
-            print 'Clumpiness stats had bad p-values in windows for layout, layer:', \
-                badVals, '/', windowCount, self.layout, self.layer_name
+        #if badVals > 0:
+        #    print 'Clumpiness stats had bad p-values in windows for layout, layer:', \
+        #        badVals, '/', windowCount, self.layout, self.layer_name
 
         # We have now found the best p for any window for this layer.
         return best_p                
@@ -1171,14 +1171,19 @@ def run_clumpiness_statistics(layers, layer_names, window_size, layout_index):
     best_p_values = pool.runSubProcesses(cluster_finders)
 
     # Return a dict from layer name to clumpiness score (negative log 10 of best
-    # p value).
-    # TODO YIKES: We hope the order of the dict items has not changed.
-    # We max the
-    # actual p value together with the min float, in case the p value is too
-    # good (i.e. 0).
-    return {layer_name: -math.log10(max(best_p_value, sys.float_info.min)) 
+    # p value). We max the actual p value together with the min float, in case
+    # the p value is too good (i.e. 0).
+    dict = {layer_name: -math.log10(max(best_p_value, sys.float_info.min))
         for layer_name, best_p_value in itertools.izip(layer_names, 
         best_p_values)}
+
+    infs = filter(lambda x: numpy.isinf(x), dict.values())
+    #nans = filter(lambda x: math.isnan(x), dict.values())
+    print "Layout's number of infinite clumpiness p-values of total:", \
+        layout_index, len(infs), '/', len(best_p_values)
+    #    layout_index, len(nans), '/', len(best_p_values)
+
+    return dict
 
 def hexIt(options):
 

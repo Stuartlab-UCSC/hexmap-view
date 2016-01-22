@@ -19,6 +19,7 @@ layers = {}; // contains almost all information about attributes
             {pre: 'cyber-slug', suf: '.svg'},
             {pre: 'gliomas-paper', suf: '.png'},
             {pre: 'pancan12', suf: '.png'},
+            {pre: 'stemness', suf: '.png'},
             {pre: 'question-sign', suf: '.svg'},
             {pre: 'ucscgi_clear', suf: '.png'},
         ],
@@ -93,18 +94,14 @@ layers = {}; // contains almost all information about attributes
             pageReload('homePage');
         },
         "click .mapPage": function() {
+            ctx.project = Session.get('proxPre') + 'data/pancan12/latest/';
             pageReload('mapPage');
         },
 
-        // TODO we shouldn't have to make one of these foreach project!
-        "click .public-pancan12": function() {
-            ctx.project = Session.get('proxPre') + 'data/pancan12/first/';
+        "click .thumbnail": function (ev){
+            var project = $(ev.currentTarget).data('project');
+            ctx.project = Session.get('proxPre') + 'data/' + project + '/';
             pageReload('mapPage');
-        },
-        "click .ynewton-gliomas-paper": function() {
-            ctx.project = Session.get('proxPre') + 'data/ynewton/gliomas-paper/';
-            pageReload('mapPage');
-            
         },
         "click .gridPage": function() {
             pageReload('gridPage');
@@ -182,7 +179,7 @@ layers = {}; // contains almost all information about attributes
                 initProject();
                 if (DEV) initSelect();
                 initTools();
-                //initDownload();
+                initDownload();
                 initColors();
                 convertStoredCenterToLatLng();
                 initShortlist();
