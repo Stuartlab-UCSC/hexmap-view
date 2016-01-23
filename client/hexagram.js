@@ -720,6 +720,14 @@ initialize_view = function () {
         content: "No Signature Selected",
         position: get_LatLng(0, 0)
     });
+
+    // Attach a listener for the ESC key to close the info_window
+    google.maps.event.addDomListener(document, 'keyup', function (e) {
+        var code = (e.keyCode ? e.keyCode : e.which);
+        if (code === 27) {
+            info_window.close();
+        }
+    });
     
     // Add an event to close the info window when the user clicks outside of any
     // hexagon
@@ -1580,6 +1588,7 @@ initHex = function () {
             return;
         }
 
+        ctx.layout_names = [];
         for(var i = 0; i < parsed.length; i++) {
             // Pull out the parts of the TSV entry
             var label = parsed[i][0];

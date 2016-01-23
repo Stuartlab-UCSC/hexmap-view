@@ -84,7 +84,7 @@ PAGE = 'homePage';
                 'current_layout_name',
                 'first_layer',
                 'gridZoom',
-                'layout_names',
+                //'layout_names', // We use this for a project, but don' save it
                 'shortlist',
                 'zoom',
             ],
