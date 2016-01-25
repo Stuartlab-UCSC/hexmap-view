@@ -47,13 +47,10 @@ var app = app || {}; // jshint ignore:line
             if(background_color.light()) {
                 fontColor = 'black';
             }
-
-
             context.fillStyle = fontColor;
 
             // Draw the name on the canvas
             context.fillText(colormap[i].name, 2, y_position);
-            
         }
     }
 
@@ -64,68 +61,84 @@ var app = app || {}; // jshint ignore:line
 
             // No color key to draw
             $(".key").hide();
-        } else {
-            // We do actually want the color key
-            $(".key").show();
+            return;
+        }
+
+        // We do actually want the color key
+        $(".key").show();
         
-            // This holds the canvas that the key gets drawn in
-            var canvas = $("#color-key")[0];
-            
-            // This holds the 2d rendering context
-            var context = canvas.getContext("2d");
-            
-            for(var i = 0; i < KEY_SIZE; i++) {
+        // Get the colormaps
+        var colormap0, colormap1, colorCount0;
+        if (have_colormap(current_layers[0])) {
+            colormap0 = colormaps[current_layers[0]];
+            if (colormap0.length > 0) {
+                colorCount0 = colormap0.length;
+            } else {
+                colorCount0 = 0;
+            }
+        }
+        if (have_colormap(current_layers[1])) {
+            colormap1 = colormaps[current_layers[1]];
+            if (colormap1.length > 0) {
+                colorCount1 = colormap1.length;
+            } else {
+                colorCount1 = 0;
+            }
+        }
 
-                // We'll use i for the v coordinate (-1 to 1) (left to right)
-                var v = 0;
-                if(retrieved_layers.length >= 2) {
-                    v = i / (KEY_SIZE / 2) - 1;
-                    if(have_colormap(current_layers[1])) {
+        // This holds the canvas that the key gets drawn in
+        var canvas = $("#color-key")[0];
+        
+        // This holds the 2d rendering context
+        var context = canvas.getContext("2d");
+        
+        for(var i = 0; i < KEY_SIZE; i++) {
 
-                        // This is a color map, so do bands instead. Make sure
-                        // there are at least 2 bands.
-                        v = Math.floor(i / KEY_SIZE * 
-                            Math.max(retrieved_layers[1].magnitude + 1, 2));
-                    }
-                    
+            // We'll use i for the v coordinate (-1 to 1) (left to right)
+            var v = 0;
+            if(retrieved_layers.length >= 2) {
+                v = i / (KEY_SIZE / 2) - 1;
+                if(have_colormap(current_layers[1])) {
+
+                    // This is a color map, so do bands instead. Make sure
+                    // there are at least 2 bands.
+                    v = Math.floor(i / KEY_SIZE * 
+                        Math.max(colorCount1, 2));
                 }
                 
-                for(var j = 0; j < KEY_SIZE; j++) {
-
-                    // And j specifies the u coordinate (bottom to top)
-                    var u = 0;
-                    if(retrieved_layers.length >= 1) {
-                        u = 1 - j / (KEY_SIZE / 2);
-                        if(have_colormap(current_layers[0])) {
-
-                            // This is a color map, so do bands instead. Make
-                            // sure there are at least 2 bands. Also make sure
-                            // to flip sign, and have a -1 for the 0-based
-                            // indexing.
-                            u = Math.floor((KEY_SIZE - j - 1) / KEY_SIZE * 
-                                Math.max(retrieved_layers[0].magnitude + 1, 2));
-                        }
-                    }
-                    
-                    // Set the pixel color to the right thing for this u, v
-                    // It's OK to pass undefined names here for layers.
-                    context.fillStyle = get_color(current_layers[0], u, 
-                        current_layers[1], v);
-                    
-                    // Fill the pixel
-                    context.fillRect(i, j, 1, 1);
-                }
             }
-        
+            
+            for(var j = 0; j < KEY_SIZE; j++) {
+
+                // And j specifies the u coordinate (bottom to top)
+                var u = 0;
+                if(retrieved_layers.length >= 1) {
+                    u = 1 - j / (KEY_SIZE / 2);
+                    if(have_colormap(current_layers[0])) {
+
+                        // This is a color map, so do bands instead. Make
+                        // sure there are at least 2 bands. Also make sure
+                        // to flip sign, and have a -1 for the 0-based
+                        // indexing.
+                        u = Math.floor((KEY_SIZE - j - 1) / KEY_SIZE * 
+                            Math.max(colorCount0, 2));
+                    }
+                }
+                
+                // Set the pixel color to the right thing for this u, v
+                // It's OK to pass undefined names here for layers.
+                context.fillStyle = get_color(current_layers[0], u, 
+                    current_layers[1], v);
+                
+                // Fill the pixel
+                context.fillRect(i, j, 1, 1);
+            }
         }
         
         if (have_colormap(current_layers[0])) {
 
-            // Get the colormap
-            var colormap = colormaps[current_layers[0]]
-        
-            if (colormap.length > 0) {
-                horizontalBandLabels(colormap, context);
+            if (colorCount0 > 0) {
+                horizontalBandLabels(colormap0, context);
             }
         }
         
