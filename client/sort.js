@@ -454,7 +454,7 @@ var app = app || {}; // jshint ignore:line
             // Get the layer object
             layer = layers[sortedLayers[i]];
 
-            if (!_.isUndefined(layer.clumpiness_array)) {
+            if (!_.isUndefined(layer) && !_.isUndefined(layer.clumpiness_array)) {
 
                 // We have a set of clumpiness scores for this layer.
                 // Switch the layer to the appropriate clumpiness score.

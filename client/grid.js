@@ -179,19 +179,21 @@ var app = app || {}; // jshint ignore:line
                 return;
             }
 
-            xyPointsRaw = _.filter(parsed, function (row) {
-                return (row.length === 3);
+            // Strip out any comment lines or lines that are too short
+            var cleaned = _.filter(parsed, function (row) {
+                return (row[0].indexOf('#') < 0 && (row.length === 3));
             });
-            pointNames = _.map(xyPointsRaw, function (row) {
+
+            // Find the IDs of the points and the x,y positions
+            pointNames = _.map(cleaned, function (row) {
                 return row[0];
             });
-
-
-
-            xyPointsRaw = _.map(xyPointsRaw, function (row) {
+            xyPointsRaw = _.map(cleaned, function (row) {
                 return [row[1], row[2]]
             });
 
+            // Find the extennts of the map so we and normalize it to our
+            // standard size.
             dims = findGridExtents(xyMapSize-TINY_BIT, xyPointsRaw);
             buildGrid(layout);
 

@@ -1470,14 +1470,16 @@ initHex = function () {
                 || layers.hasOwnProperty('tissue'))) {
             Session.set('first_layer', layer_name);
         }
-        update_shortlist_ui();
 
-        // Now we have added layer downloaders for all the layers in the 
-        // index. Update the UI
-        update_browse_ui();
 
         // Sort attributes by the default sort
         find_clumpiness_stats(current_layout_index);
+
+        //update_shortlist_ui(); // TODO redundant with find_clumpiness_stats() call
+
+        // Now we have added layer downloaders for all the layers in the 
+        // index. Update the UI
+        //update_browse_ui();  // TODO redundant with find_clumpiness_stats() call
 
         // Announce that the initial layers have loaded.
         Session.set('initialLayersLoaded', true);

@@ -1051,9 +1051,12 @@ def compute_hexagram_assignments(nodes, index, options):
             min_x = min(min_x, coords[0])
             min_y = min(min_y, coords[1])
     node_writer = tsv.TsvWriter(open(os.path.join(options.directory, "xyPreSquiggle_"+ str(index) + ".tab"), "w"))
-    for name, coords in nodes.iteritems():
 
-        # Write this node, converted to all-positive coordinates.
+    # Write this file header.
+    node_writer.line('#ID', 'x', 'y')
+
+    # Write the node names with coordinates converted to all-positive.
+    for name, coords in nodes.iteritems():
         node_writer.line(name, coords[0] - min_x, coords[1] - min_y)
     node_writer.close()
 
