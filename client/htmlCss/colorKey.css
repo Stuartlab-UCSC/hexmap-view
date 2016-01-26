@@ -4,9 +4,8 @@
     overflow: visible;
     position: absolute;
     z-index: 3;
-    top: 2em;
-    right: 2em;
-    height: 175px;
+    top: 28px;
+    right: 28px;
     width: 175px;
     display: none;
     pointer-events: none;
@@ -14,7 +13,6 @@
 
 #color-key {
     width: 125px;
-    height: 125px;
     position: absolute;
     display: block;
     left:25px;

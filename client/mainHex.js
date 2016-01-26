@@ -182,6 +182,7 @@ layers = {}; // contains almost all information about attributes
                 initDownload();
                 initColors();
                 convertStoredCenterToLatLng();
+                initLegend();
                 initShortlist();
                 initHex();
                 $.get("maplabel.js");

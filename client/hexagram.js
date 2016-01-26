@@ -72,9 +72,6 @@ var HEX_STROKE_WEIGHT = 2;
 // How many layer search results should we display at once?
 var SEARCH_PAGE_SIZE = 10;
 
-// How big is our color key in pixels?
-var KEY_SIZE = 100;
-
 // The google elements obtained to transform to svg
 var googleElements;
 
