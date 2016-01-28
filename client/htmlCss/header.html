@@ -2,20 +2,20 @@
     <div class="header mapOnly" id="header">
         <div class='layer-row row'>
             <input id="search" class='stacker' type="hidden"/>
-            <img class="recalculate-throbber throbber headerButton stacker" title="Recalculating..." />
-            <img class="filter headerButton stacker" title="Filter attributes"/>
-            <img class="filterCaution headerButton stacker" title="Attributes are being filtered"/>
+            <img class="recalculate-throbber throbber headerButton stacker" src='{{absoluteUrl}}throbber.svg' title="Recalculating..." />
+            <img class="filter headerButton stacker" src='{{absoluteUrl}}filter.svg' title="Filter attributes"/>
+            <img class="filterCaution headerButton stacker" src='{{absoluteUrl}}filterCaution.svg' title="Attributes are being filtered"/>
             <div class="passFilters stacker" title="Filtered of total attributes">
 
                 {{>filterMessage}}
 
             </div>
-            <img class="sort_attributes headerButton stacker" id="sort-attributes-button" title="Sort attributes by association with a focus attribute"/>
+            <img class="sort_attributes headerButton stacker" src='{{absoluteUrl}}sort_attributes.svg' id="sort-attributes-button" title="Sort attributes by association with a focus attribute"/>
             <div id="sortText" class='stacker' title='{{sortText}}'>Sorted by: <span style='color:{{sort.color}};background:{{sort.background}}'>{{sort.text}}</span></div>
 
             <div class='shortlistSpacer stacker right'></div>
-            <img style='display:none' class="yin-yang headerButton stacker right" id="diffAnalysisButton" title="Run differential analysis"/>
-            <img class="set headerButton stacker right" id="set-operation" title="Calculate set operation"/>
+            <img style='display:none' class="yin-yang headerButton stacker right" src='{{absoluteUrl}}yin-yang.svg' id="diffAnalysisButton" title="Run differential analysis"/>
+            <img class="set headerButton stacker right" src='{{absoluteUrl}}set.svg' id="set-operation" title="Calculate set operation"/>
         </div>
 
         <div id="layout-row" class='row'>
@@ -29,6 +29,8 @@
         {{> sortUiT}}
         {{> diffAnalysisDialog}}
         {{> shortlist}}
+<!--        <div id="loadingMap" style="background: url('{{absoluteUrl}}/spin.gif') no-repeat center center;"></div>-->
+<!--        <div id="loadingMap" src='{{absoluteUrl}}/spin.gif'></div>-->
     </div>
 </template>
 

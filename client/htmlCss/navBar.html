@@ -1,13 +1,14 @@
 <template name='navBarT'>
     <div class="tools row" id="toolbar">
-        <img class='cyber-slug stacker'>
+        <img src="{{absoluteUrl}}/cyber-slug.svg" class="stacker cyber-slug"/>
+
         <div class="title stacker">
              UCSC Tumor Map:
         </div>
         <div id='project' class='mapOnly stacker'>
         </div>
         <a href='https://medbook.ucsc.edu/hex/help.pdf'  class='mapOnly stacker right' target='_blank'>
-            <img class="helpNav question-sign">
+            <img class="helpNav question-sign" src='{{absoluteUrl}}/question-sign.svg'>
         </a>
         <div class="mapOnly stacker right">
             <img class="recalculate-throbber throbber" title="Recalculating..." />

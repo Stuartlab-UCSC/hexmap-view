@@ -11,42 +11,17 @@ layers = {}; // contains almost all information about attributes
 (function (hex) { // jshint ignore:line
     //'use strict';
 
-    // Define the sources for images
-    var navBarSrcs = [
-            {pre: 'question-sign', suf: '.svg'},
-        ],
-        homePageSrcs = [
-            {pre: 'cyber-slug', suf: '.svg'},
-            {pre: 'gliomas-paper', suf: '.png'},
-            {pre: 'pancan12', suf: '.png'},
-            {pre: 'stemness', suf: '.png'},
-            {pre: 'question-sign', suf: '.svg'},
-            {pre: 'ucscgi_clear', suf: '.png'},
-        ],
-        mapPageSrcs = [
-            {pre: 'cyber-slug', suf: '.svg'},
-            //{pre: 'file-new', suf: '.svg'},
-            {pre: 'filter', suf: '.svg'},
-            {pre: 'filterCaution', suf: '.svg'},
-            {pre: 'question-sign', suf: '.svg'},
-            {pre: 'set', suf: '.svg'},
-            {pre: 'sort_attributes', suf: '.svg'},
-            {pre: 'throbber', suf: '.svg'},
-            {pre: 'yin-yang', suf: '.svg'},
-        ],
-        gridPageSrcs = [
-            {pre: 'cyber-slug', suf: '.svg'},
-        ],
-        googlemapsInitialized = false;
+    var googlemapsInitialized = false;
 
+    Template.registerHelper("absoluteUrl", function () {
+        return Meteor.absoluteUrl();
+    });
+    
     // Prefix for image URLs may be different on different servers.
-    // There must be a better way to do this
     function fixProxies (templateName) {
-        var url = Meteor.absoluteUrl(),
-            srcs = eval(templateName + 'Srcs');
-        _.each(srcs, function (src) {
-            $('img.' + src.pre).prop('src', url + src.pre + src.suf);
-        });
+        var url = Meteor.absoluteUrl();
+        $('#loadingMap').css('background',
+            "url(" + url + "'spin.gif') no-repeat center center");
     }
 
     function convertStoredCenterToLatLng() {
@@ -108,10 +83,6 @@ layers = {}; // contains almost all information about attributes
         },
     });
 
-    Template.homePage.onRendered(function () {
-        fixProxies('homePage');
-    });
-
     Template.mapPage.onRendered(function () {
 
         // TODO this may be removed when we are not
@@ -119,15 +90,13 @@ layers = {}; // contains almost all information about attributes
         if (!Session.equals('page', 'mapPage')) return;
 
         // We want to show these early on
+        //$('#loadingMap').show();
         if (DEV) $('.sort_attributes, .statistics').show()
 
-        fixProxies ('navBar');
-        fixProxies ('mapPage');
         initMrtGooglemapsForMap();
     });
 
     Template.gridPage.onRendered(function () {
-        fixProxies ('gridPage');
         initMrtGooglemapsForGrid();
     });
 
@@ -142,6 +111,7 @@ layers = {}; // contains almost all information about attributes
         if (Session.equals('page', 'mapPage')) initSvg();
         if (DEV) initGrid();
         initCoords();
+        //$('#loadingMap').hide();
     }
 
     initGridDrawn = function () {
