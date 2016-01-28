@@ -21,6 +21,7 @@
         <div id="layout-row" class='row'>
             <input id="layout-search" class='stacker' type="hidden"/>
             <div id="current-layout" class='stacker'>Current Layout:</div>
+            <div id="loadingMap" class='stacker' style="display:{{loadingMap}};background: url('{{absoluteUrl}}spin.gif') no-repeat center center;"></div>
             {{> coords }}
         </div>
 
@@ -29,8 +30,6 @@
         {{> sortUiT}}
         {{> diffAnalysisDialog}}
         {{> shortlist}}
-<!--        <div id="loadingMap" style="background: url('{{absoluteUrl}}/spin.gif') no-repeat center center;"></div>-->
-<!--        <div id="loadingMap" src='{{absoluteUrl}}/spin.gif'></div>-->
     </div>
 </template>
 

@@ -50,12 +50,6 @@ The visualization element needs to take up all available space.
     background-color: #fff;
 }
 
-#loadingMap {
-    position: absolute;
-    width: 100%;
-    height: 120px;
-    z-index: 1000;
-}
 /*
 .select2-results .select2-highlighted {
     background-image: url("right.svg");

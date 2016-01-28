@@ -13,17 +13,6 @@ layers = {}; // contains almost all information about attributes
 
     var googlemapsInitialized = false;
 
-    Template.registerHelper("absoluteUrl", function () {
-        return Meteor.absoluteUrl();
-    });
-    
-    // Prefix for image URLs may be different on different servers.
-    function fixProxies (templateName) {
-        var url = Meteor.absoluteUrl();
-        $('#loadingMap').css('background',
-            "url(" + url + "'spin.gif') no-repeat center center");
-    }
-
     function convertStoredCenterToLatLng() {
         if (_.isNull(ctx.center)) {
             ctx.center = [0, 0];
@@ -90,7 +79,6 @@ layers = {}; // contains almost all information about attributes
         if (!Session.equals('page', 'mapPage')) return;
 
         // We want to show these early on
-        //$('#loadingMap').show();
         if (DEV) $('.sort_attributes, .statistics').show()
 
         initMrtGooglemapsForMap();
@@ -104,6 +92,9 @@ layers = {}; // contains almost all information about attributes
         sort: function () {
             return Session.get('sort');
         },
+        loadingMap: function () {
+            return Session.get('loadingMap');
+        },
     });
 
     initMapDrawn = function () {
@@ -111,7 +102,7 @@ layers = {}; // contains almost all information about attributes
         if (Session.equals('page', 'mapPage')) initSvg();
         if (DEV) initGrid();
         initCoords();
-        //$('#loadingMap').hide();
+        setTimeout(function () { Session.set('loadingMap', 'none')}, 0);
     }
 
     initGridDrawn = function () {

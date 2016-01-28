@@ -101,10 +101,11 @@ layout-name {
     word-wrap: break-word;
 }
 
-
-
-
-
+#loadingMap {
+    z-index: 1000;
+    width: 32px;
+    height: 32px;
+}
 
 #coords {
     display: none;
