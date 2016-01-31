@@ -946,20 +946,23 @@ get_color = function (u_name, u, v_name, v) {
         
         return get_color(v_name, v, u_name, u);
     }
-    
+
     if(isNaN(u) || isNaN(v) || u == undefined || v == undefined) {
         // At least one of our layers has no data for this hex.
         return noDataColor();
     }
     
-    if(have_colormap(u_name) && have_colormap(v_name) && 
+    // Find the color counts  for each of the layers
+    var colorCountU = findColorCount(u_name),
+        colorCountV = findColorCount(v_name);
+    
+    if(colorCountU > 0 && colorCountV > 0 &&
         !colormaps[u_name].hasOwnProperty(u) && 
         !colormaps[v_name].hasOwnProperty(v) &&
-        layers[u_name].magnitude <= 1 && layers[v_name].magnitude <= 1) {
+        colorCountU === 2  && colorCountV === 2) {
         
         // Special case: two binary or unary auto-generated colormaps.
-        // Use dark grey/yellow/blue/white color scheme
-    
+        // Use dark grey/yellow/blue/green color scheme
         if(u == 1) {
             if(v == 1) {    
                 // Both are on
@@ -979,8 +982,8 @@ get_color = function (u_name, u, v_name, v) {
         }
     }
     
-    if(have_colormap(u_name) && !colormaps[u_name].hasOwnProperty(u) && 
-        layers[u_name].magnitude <= 1 && v_name == undefined) {
+    if(colorCountU > 0 && !colormaps[u_name].hasOwnProperty(u) &&
+        colorCountU <= 2 && v_name == undefined) {
         
         // Special case: a single binary or unary auto-generated colormap.
         // Use dark grey/yellow to make 1s stand out.
@@ -992,7 +995,7 @@ get_color = function (u_name, u, v_name, v) {
         }
     }
    
-    if(have_colormap(u_name)) {
+    if(colorCountU > 0) {
         // u is a colormap
         if(colormaps[u_name].hasOwnProperty(u)) {
             // And the colormap has an entry here. Use it as the base color.
@@ -1003,7 +1006,7 @@ get_color = function (u_name, u, v_name, v) {
                 saturation: to_clone.saturationv(),
                 value: to_clone.value()
             });
-        } else if(layers[u_name].magnitude <= 1) {
+        } else if(colorCountU <= 2) {
             // The colormap has no entry, but there are only two options (i.e.
             // we're doing a binary layer against a continuous one.)
             
@@ -1041,15 +1044,9 @@ get_color = function (u_name, u, v_name, v) {
             // The colormap has no entry, and there are more than two options.
             // Assume we're calculating all the entries. We do this by splitting
             // the color circle evenly.
-            
-            // This holds the number of colors, which is 1 more than the largest
-            // value used (since we start at color 0), which is the magnitude.
-            // It's OK to go ask for the magnitude of this layer since it must 
-            // have already been downloaded.
-            var num_colors = layers[u_name].magnitude + 1;
-            
+
             // Calculate the hue for this number.
-            var hsv_hue = u / (num_colors + 1) * 360;
+            var hsv_hue = u / colorCountU * 360;
     
             // The base color is a color at that hue, with max saturation and 
             // value
@@ -1066,22 +1063,18 @@ get_color = function (u_name, u, v_name, v) {
             // color
             // TODO: This code path is silly, clean it up.
             var hsv_value = base_color.value();
-        } else if(have_colormap(v_name)) {
+        } else if(colorCountV > 0) {
             // Do discrete shades in v
             // This holds the number of shades we need.
-            // It's OK to go ask for the magnitude of this layer since it must 
-            // have already been downloaded.
-            var num_shades = layers[v_name].magnitude + 1;
-            
+
             // Calculate what shade we need from the nonnegative integer v
             // We want 100 to be included (since that's full brightness), but we
             // want to skip 0 (since no color can be seen at 0), so we add 1 to 
             // v.
-            var hsv_value = (v + 1) / num_shades * 100;
+            var hsv_value = (v + 1) / colorCountV * 100;
         } else {
             // Calculate what shade we need from v on -1 to 1, with a minimum
             // value of 20 to avoid blacks.
-            // TODO should we also have a max value? & how does 30 min translate to the below? swat
             var hsv_value = 60 + v * 40;
         }
         
