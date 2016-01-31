@@ -994,6 +994,8 @@ get_color = function (u_name, u, v_name, v) {
             return COLOR_BINARY_OFF;
         }
     }
+
+    var base_color;
    
     if(colorCountU > 0) {
         // u is a colormap
@@ -1001,12 +1003,14 @@ get_color = function (u_name, u, v_name, v) {
             // And the colormap has an entry here. Use it as the base color.
             var to_clone = colormaps[u_name][u].color;
             
-            var base_color = Color({
+            base_color = Color({
                 hue: to_clone.hue(),
                 saturation: to_clone.saturationv(),
                 value: to_clone.value()
             });
         } else if(colorCountU <= 2) {
+
+            // Binary values with default colormap
             // The colormap has no entry, but there are only two options (i.e.
             // we're doing a binary layer against a continuous one.)
             
@@ -1035,10 +1039,11 @@ get_color = function (u_name, u, v_name, v) {
                 var blue = mix(0xFF, 0x00, -v).toFixed(0);
             }
             
-             // Produce the color string
-            var color = "rgb(" + red + "," + green + "," + blue + ")";
-            
-            return color;
+            base_color = Color({
+                'red': red,
+                'green': green,
+                'blue': blue
+            });
             
         } else {
             // The colormap has no entry, and there are more than two options.
@@ -1050,7 +1055,7 @@ get_color = function (u_name, u, v_name, v) {
     
             // The base color is a color at that hue, with max saturation and 
             // value
-            var base_color = Color({
+            base_color = Color({
                 hue: hsv_hue, 
                 saturation: 100,
                 value: 100
@@ -1064,8 +1069,9 @@ get_color = function (u_name, u, v_name, v) {
             // TODO: This code path is silly, clean it up.
             var hsv_value = base_color.value();
         } else if(colorCountV > 0) {
+
+            // Binary or categorical values.
             // Do discrete shades in v
-            // This holds the number of shades we need.
 
             // Calculate what shade we need from the nonnegative integer v
             // We want 100 to be included (since that's full brightness), but we
@@ -1073,6 +1079,8 @@ get_color = function (u_name, u, v_name, v) {
             // v.
             var hsv_value = (v + 1) / colorCountV * 100;
         } else {
+
+            // Continuous values.
             // Calculate what shade we need from v on -1 to 1, with a minimum
             // value of 20 to avoid blacks.
             var hsv_value = 60 + v * 40;
