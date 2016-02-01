@@ -22,6 +22,7 @@ var app = app || {}; // jshint ignore:line
         "dblclick",
         "mousemove",
     ];
+    var callbacks = {}; // The callbacks for each tool
     
     // This holds all the currently active tool event listeners.
     // They are indexed by handle, and are objects with a "handler" and an "event".
@@ -115,39 +116,26 @@ var app = app || {}; // jshint ignore:line
         }
     }
 
-    add_tool = function (tool_name, tool_menu_option, callback, hover_text, klass) {
-        // Given a programmatic unique name for a tool, some text for the tool's
-        // button, and a callback for when the user clicks that button, add a tool
-        // to the tool menu.
-        
-        // This holds a button to activate the tool.
-        var tool_button = $("<a/>").attr({"id": "tool_" + tool_name, "href": "#"}).addClass("stacker");
-        tool_button.text(tool_menu_option);
-        tool_button.click(function() {
-            // New tool. Remove all current tool listeners
-            clear_tool_listeners();
-            
-            // Say that the tool is in use
-            tool_activity(true);
+    add_tool = function (tool_name, callback, hover_text, klass) {
 
-            callback();
+        // Register a name for a tool that matches the select data in a
+        // navigation bar option, and a callback for when the user selects that
+        // menu option.
 
-            // End of tool workflow must set current_tool to undefined.
-        });
-        if (hover_text) {
-            tool_button.prop('title', hover_text);
-        }
-        if (klass) {
-            tool_button.addClass(klass);
-        }
-        
-        $("#toolbar").append(tool_button);
+        // Add the hover text and class to the menu option belonging to this tool
+        $('#menus').find('[data-sel="tool_name"]')
+            .attr('title', hover_text)
+            .addClass(klass);
+        // $('*[data-customerID="22"]');
+
+        // Save the callback
+        callbacks[tool_name] = callback;
     }
 
-    initTools = function () {
+    function initTheseTools () {
 
         // A tool for importing a list of hexes as a selection
-        add_tool("import", "Import", function() {
+        add_tool("selectImport", function() {
             // Make the import form
             var import_form = $("<form/>").attr("title", 
                 "Enter a List As a Selection");
@@ -232,9 +220,9 @@ var app = app || {}; // jshint ignore:line
             // pass the current filters.
             select_list(to_select);
         }
-            
+
         // Set up the add text control
-        add_tool("add-text", "Add Text", function() {
+        add_tool("addText", function() {
             
             // We'll prompt the user for some text, and then put a label where they 
             // next click.
@@ -274,6 +262,30 @@ var app = app || {}; // jshint ignore:line
                     tool_activity(false);
             });
         }, 'Add text to the map', 'mapOnly');
+
+    }
+    function selected (ev, ui) {
+        var tool = ui.item.data('sel');
+        if (callbacks[tool]) {
+            callbacks[tool](ev);
+        }
+    }
+
+    initTools = function () {
+        var nav = $('#menus');
+        nav.menu({
+            position: { my: "left top", at: "left bottom-2" },
+            icons: { submenu: "ui-icon-blank" }, // "ui-icon-triangle-1-s"
+            select: selected,
+        });
+
+        if (Session.equals('page', 'mapPage')) {
+            nav.find('.hexMap').hide();
+        }
+
+        nav.show();
+
+        initTheseTools();
     }
 })(app);
 

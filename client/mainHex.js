@@ -112,7 +112,7 @@ layers = {}; // contains almost all information about attributes
 
     function initHomeLink() {
         // Set up the link to the home page
-        add_tool("to-home", "Home", function() {
+        add_tool("home", function() {
             $('.homePage').click();
             tool_activity(false);
         });
@@ -138,7 +138,7 @@ layers = {}; // contains almost all information about attributes
                 // Initialize everything else
                 initHomeLink();
                 initProject();
-                if (DEV) initSelect();
+                initSelect();
                 initTools();
                 initDownload();
                 initColors();
@@ -157,6 +157,7 @@ layers = {}; // contains almost all information about attributes
             $(window).resize(resizeMap);
             GoogleMaps.init({}, function () {
                 initHomeLink();
+                initTools();
                 convertStoredCenterToLatLng();
                 initHex();
                 initGrid();

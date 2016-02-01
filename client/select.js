@@ -303,13 +303,13 @@ var app = app || {}; // jshint ignore:line
     }
 
     initSelect = function () {
-    
+
         // Add the button for the rectangular select to the toolbar
-        add_tool("SelectRectangle", "Select Rectangle", addRectSelectTool,
+        add_tool("selectRectangle", addRectSelectTool,
             'Select hexagons using a rectangular region', 'mapOnly');
     
         // Add the button for the polygon select to the toolbar
-        add_tool("SelectPolygon", "Select Polygon", addPolySelectTool,
+        add_tool("selectPolygon", addPolySelectTool,
             'Select hexagons using a polygonal region', 'mapOnly');
     }
 })(app);

@@ -5,7 +5,7 @@
 
 .cyber-slug {
     height: 30px;
-    margin-top: 0.25em;
+    margin-top: 0.1em;
     margin-right:0.5em;
 }
 
@@ -20,7 +20,7 @@
 
 #project,
 #s2id_project {
-    padding-top: 0.3em;
+    padding-top: 0.2em;
     width: 15em;
 }
 
@@ -29,6 +29,52 @@
     margin-top: -0.4em;
     padding-right: 0.5em;
     width: auto;
+}
+
+#menus.ui-widget.ui-menu {
+    height: 100%;
+    font-color: black;
+    font-size: 0.9em;
+    background: transparent;
+    border: none;
+}
+
+#menus .ui-widget.ui-menu {
+    border: none;
+    background: #eeeeee;
+    padding: 0;
+    margin: 0;
+    z-index: 200;
+    box-shadow: 4px 4px 4px #aaaaaa;
+}
+
+.ui-widget .ui-menu-item {
+    border: none;
+    cursor: pointer;
+}
+
+.ui-widget .ui-menu-item.primary {
+    display: inline;
+    padding: 0.65em;
+}
+
+.ui-widget .ui-menu-item.primary.ui-state-focus,
+.ui-widget .ui-menu-item.primary.ui-state-active {
+    color: black;
+    background: #D8D6FF;
+}
+
+.ui-widget .ui-menu-item.ui-state-focus:not(.primary) {
+    background: #cccccc;
+}
+
+.menu-more.ui-icon.ui-icon-triangle-1-s {
+    display: inline-block;
+    /* margin-top: 0.4em; */
+}
+
+.ui-menu .ui-icon.vertical {
+    position: static;
 }
 
 .helpNav {

@@ -294,7 +294,7 @@ var app = app || {}; // jshint ignore:line
         if (Session.equals('page', 'mapPage')) {
 
             // Create a link to the grid page from the map page
-            add_tool("to-grid", "Methods", function() {
+            add_tool("methods", function() {
                 $('.gridPage').click();
                 tool_activity(false);
             });
@@ -305,7 +305,8 @@ var app = app || {}; // jshint ignore:line
         $('.mapOnly').hide();
         createMap();
         findOrphans(current_layout_index);
-        add_tool("to-map", "Hex Map", function() {
+
+        add_tool("hexMap", function() {
             $('.mapPage').click();
             tool_activity(false);
         });

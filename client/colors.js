@@ -36,8 +36,8 @@ var app = app || {}; // jshint ignore:line
 
     initColors = function () {
 
-    // A tool to change the background color
-        add_tool("change-background", "Background", function () {
+        // A tool to change the background color
+        add_tool("background", function () {
 
             var $form = $('#backgroundDiv');
 
@@ -153,7 +153,7 @@ var app = app || {}; // jshint ignore:line
             return new Color({r: arr[0], g: arr[1], b: arr[2]});
         };
 
-        add_tool("change-foreground", "ColorMap", function () {
+        add_tool("colormap", function () {
 
             // A tool to change the colorMap
             var $form = $('#colorMapDiv'),

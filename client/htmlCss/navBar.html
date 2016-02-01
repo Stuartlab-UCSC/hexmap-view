@@ -3,10 +3,57 @@
         <img src="{{absoluteUrl}}/cyber-slug.svg" class="stacker cyber-slug"/>
 
         <div class="title stacker">
-             UCSC Tumor Map:
+             UCSC Tumor Map
         </div>
         <div id='project' class='mapOnly stacker'>
         </div>
+
+        <!-- main menu -->
+        <ul id='menus' class='stacker' style='display:none'>
+            <li class='primary' data-sel='home'>Home</li>
+            <li class='primary mapOnly'>
+                Download
+                <div class='menu-more vertical ui-icon ui-icon-triangle-1-s'></div>
+                <ul>
+                    <li data-sel='hexagonNames'>&nbsp;&nbsp;Hexagon names&nbsp;&nbsp;</li>
+                    <li>
+                        <a id='svgDownload' download='hexmap.svg'
+                            href='data:text/plain;base64'
+                            title = 'Download the map in SVG format'>
+                            &nbsp;SVG image
+                        </a>
+                    </li>
+                    <li>
+                        <a id='xyPreSquiggle'
+                            download='xyPreSquiggle_....tab'
+                            href='...xyPositions.tab'
+                            title = 'Download xy coordinates of nodes before squiggling into hexagons'>
+                            &nbsp;XY positions
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            <li class='primary mapOnly'>
+                Select
+                <ul>
+                    <li data-sel='selectRectangle'>&nbsp;&nbsp;with Rectangle&nbsp;&nbsp;</li>
+                    <li data-sel='selectPolygon'>&nbsp;&nbsp;with Polygon</li>
+                    <li data-sel='selectImport'>&nbsp;&nbsp;with Import</li>
+                </ul>
+            </li>
+            <li class='primary mapOnly' data-sel='addText'>Add Text</li>
+            <li class='primary mapOnly'>
+                Colors
+                <div class='menu-more vertical ui-icon ui-icon-triangle-1-s'></div>
+                <ul style='top:0px;left:0px'>
+                    <li data-sel='background'>&nbsp;&nbsp;Background&nbsp;&nbsp;</li>
+                    <li data-sel='colormap'>&nbsp;&nbsp;Colormap</li>
+                </ul>
+            </li>
+            <li class='primary mapOnly' data-sel='methods'>Methods</li>
+            <li class='primary hexMap' data-sel='hexMap'>Back to HexMap</li>
+        </ul>
+
         <a href='https://medbook.ucsc.edu/hex/help.pdf'  class='mapOnly stacker right' target='_blank'>
             <img class="helpNav question-sign" src='{{absoluteUrl}}/question-sign.svg'>
         </a>

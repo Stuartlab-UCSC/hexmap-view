@@ -15,16 +15,12 @@ var app = app || {}; // jshint ignore:line
 (function (hex) {
     //'use strict';
 
-    initDownload = function () {
+    add_export_tool = function () {
 
-        $('#downloadMenu').menu({
-        });
-
-
-       // And a tool for exporting selections as lists of hexes
-       // TODO this doesn't need to be modal, only tools mousing on the screen
-       // need to be modal
-        add_tool("export", "Export", function() {
+        // And a tool for exporting selections as lists of hexes
+        // TODO this doesn't need to be modal, only tools mousing on the screen
+        // need to be modal
+        add_tool("hexagonNames", function() {
             // Make the export form
             var export_form = $("<form/>").attr("title", 
                 "Export Selection As List");
@@ -129,5 +125,25 @@ var app = app || {}; // jshint ignore:line
             });
         }, 'Export the selection as a list of hexagons', 'mapOnly');
     }
+
+    function xyPreSquiggle_click(event) {
+
+        // Initialize for the xy pre-squiggle positions file
+        var layout = ctx.layout_names.indexOf(
+                Session.get('current_layout_name'))
+            defaultFileName = 'xyPreSquiggle_' + layout +'.tab'
+            url = Meteor.absoluteUrl() + ctx.project + defaultFileName;
+
+        $(event.target).attr({
+            'href': url,
+            'download': defaultFileName,
+        });
+    }
+
+    initDownload = function () {
+        add_export_tool();
+        $('#xyPreSquiggle').on('click', xyPreSquiggle_click);
+    }
+
 })(app);
 
