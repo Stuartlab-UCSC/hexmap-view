@@ -36,7 +36,6 @@
     height: 100%;
     border-radius: 10px;
     border: 1px solid gray;
-    background: white;
     z-index: 100;
 }
 
@@ -74,16 +73,11 @@
     position: relative;
     height: auto;
     width: auto;
-    background: #E0E0FF;
     border-radius: 5px;
     padding: 5px;
     padding-left: 3em;
     margin: 0.5em;
     word-wrap: break-word;
-}
-
-.shortlist-entry.selection {
-    background: #FFE0FF;
 }
 
 .shortlist-controls {

@@ -430,7 +430,7 @@ class ForEachLayer(object):
 
             try:
                 # Benjamini-Hochberg FDR correction for p-values returns:
-                #   [reject, p_vals_corrected]
+                #   [reject, p_vals_corrected, alphacSidak, alphacBonf]
                 # http://statsmodels.sourceforge.net/devel/generated/statsmodels.sandbox.stats.multicomp.multipletests.html#statsmodels.sandbox.stats.multicomp.multipletests
                 reject, adjPvals, alphacSidak, alphacBonf = multicomp.multipletests(preAdjVals, alpha=0.05, method='fdr_bh')
 

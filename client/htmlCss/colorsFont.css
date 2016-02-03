@@ -1,0 +1,82 @@
+
+/* BACKGROUND COLORS */
+/*
+#E7E5D7, rgb(231,229,215)  ucsc pages tan
+#05366B  ucsc pages blue font
+#E0E0FF  shortlist lavender
+#FFE0FF  shortlist pink
+*/
+
+body {
+    background-color: #E7E5D7;
+}
+
+#menus,
+#selectMenu {
+    background-color: transparent;
+    background-image: none;
+}
+
+.ui-widget .ui-menu-item.ui-state-focus,
+.ui-widget .ui-menu-item.primary.ui-state-focus,
+.ui-widget .ui-menu-item.primary.ui-state-active {
+    background: rgba(255,255,255,0.8);
+}
+
+#layout-row,
+.select2-container .select2-choice,
+.shortlist .panel {
+    background: rgba(255,255,255,0.8);
+}
+
+.shortlist-entry {
+    background: #E0E0FF;
+}
+
+.shortlist-entry.selection {
+    background: #FFE0FF;
+}
+
+.ui-widget .ui-menu-item.ui-state-focus:not(.primary) {
+    background: #cccccc;
+}
+
+.info-value {
+    background: #F0F0F0;
+}
+
+
+/* FOREGROUND COLORS */
+#menus.ui-widget.ui-menu,
+#selectMenu.ui-widget.ui-menu {
+    color: black;
+}
+.ui-widget .ui-menu-item.primary.ui-state-focus,
+.ui-widget .ui-menu-item.primary.ui-state-active {
+    color: black;
+}
+
+
+/* FONTS */
+body {
+    font-family: sans-serif;
+}
+
+/* BANNER BOOTSTRAP COLORS */
+#banner.info.row,
+#banner.stay.row {
+    background: #D8EECE;
+    color: #2E662C;
+}
+
+#banner.warn.row {
+    background: #F9F5D9;
+    color: #775B2A;
+}
+
+#banner.error.row {
+    background: #EDD4D5;
+    color: #993031;
+}
+
+

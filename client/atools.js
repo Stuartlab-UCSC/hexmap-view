@@ -126,100 +126,12 @@ var app = app || {}; // jshint ignore:line
         $('#menus').find('[data-sel="tool_name"]')
             .attr('title', hover_text)
             .addClass(klass);
-        // $('*[data-customerID="22"]');
 
         // Save the callback
         callbacks[tool_name] = callback;
     }
 
     function initTheseTools () {
-
-        // A tool for importing a list of hexes as a selection
-        add_tool("selectImport", function() {
-            // Make the import form
-            var import_form = $("<form/>").attr("title", 
-                "Enter a List As a Selection");
-
-            import_form.append($("<div/>").text("Enter hexagon names to be selected on the map with one per line:"));
-
-            // A big text box
-            var text_area = $("<textarea/>").addClass("import");
-                import_form.append(text_area);
-            
-                import_form.append($("<div/>").text(
-                    "Open a file:"));
-                
-            // This holds a file form element
-            var file_picker = $("<input/>").attr("type", "file").addClass("import");
-            
-            import_form.append(file_picker);
-            
-            file_picker.change(function(event) {
-                // When a file is selected, read it in and populate the text box.
-                
-                // What file do we really want to read?
-                var file = event.target.files[0];
-                
-                // Make a FileReader to read the file
-                var reader = new FileReader();
-                
-                reader.onload = function(read_event) {  
-                    // When we read with readAsText, we get a string. Just stuff it
-                    // in the text box for the user to see.
-                    text_area.text(reader.result);
-                };
-                
-                // Read the file, and, when it comes in, stick it in the textbox.
-                reader.readAsText(file);
-            });
-            
-            import_form.dialog({
-                dialogClass: 'dialog',
-                modal: true,
-                width: '20em',
-                buttons: {
-                    "Import": function() {
-                        // Do the import of the data. The data in question is always
-                        // in the textbox.
-                        
-                        // Select all the entered hexes
-                        select_string(text_area.val());
-                        
-                        // Finally, close the dialog
-                        $(this).dialog("close");
-                        
-                        // Done with the tool
-                            tool_activity(false);
-                    }   
-                },
-                close: function() {
-                    // They didn't want to use this tool.
-                        tool_activity(false);
-                }
-            });
-        }, 'Enter a List As a Selection', 'mapOnly');
-
-        // The actual text to selection import function used by that tool
-        function select_string(string) {
-            // Given a string of hex names, one per line, make a selection of all those
-            // hexes.
-            
-            // This is an array of signature names entered.
-            var to_select = [];
-            
-            // This holds the array of lines. Split on newlines (as seen in
-            // jQuery.tsv.js)
-            var lines = string.split(/\r?\n/);
-            
-            for(var i = 0; i < lines.length; i++) {
-                // Trim and add to our requested selection
-                to_select.push(lines[i].trim());
-            }
-            
-            // Add a selection with as many of the requested hexes as actually exist and
-            // pass the current filters.
-            select_list(to_select);
-        }
 
         // Set up the add text control
         add_tool("addText", function() {
@@ -273,18 +185,17 @@ var app = app || {}; // jshint ignore:line
 
     initTools = function () {
         var nav = $('#menus');
+
         nav.menu({
             position: { my: "left top", at: "left bottom-2" },
-            icons: { submenu: "ui-icon-blank" }, // "ui-icon-triangle-1-s"
+            icons: { submenu: "ui-icon-blank" },
             select: selected,
         });
 
         if (Session.equals('page', 'mapPage')) {
             nav.find('.hexMap').hide();
         }
-
         nav.show();
-
         initTheseTools();
     }
 })(app);

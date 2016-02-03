@@ -1,6 +1,6 @@
 
-.tools {
-    background: #E7E5D7;
+.gridPage .stacker {
+    line-height: 2.1em;
 }
 
 .cyber-slug {
@@ -31,21 +31,28 @@
     width: auto;
 }
 
-#menus.ui-widget.ui-menu {
+#menus {
+    margin-left: 1em;
+}
+
+#menus.ui-widget.ui-menu,
+#selectMenu.ui-widget.ui-menu {
     height: 100%;
-    font-color: black;
-    font-size: 0.9em;
-    background: transparent;
+    font-size: 0.8em;
     border: none;
 }
 
-#menus .ui-widget.ui-menu {
+#menus .ui-widget.ui-menu,
+#selectMenu .ui-widget.ui-menu {
     border: none;
-    background: #eeeeee;
     padding: 0;
     margin: 0;
     z-index: 200;
     box-shadow: 4px 4px 4px #aaaaaa;
+}
+
+#menus .ui-menu-item a {
+    padding-left: 0.7em;
 }
 
 .ui-widget .ui-menu-item {
@@ -58,23 +65,27 @@
     padding: 0.65em;
 }
 
-.ui-widget .ui-menu-item.primary.ui-state-focus,
-.ui-widget .ui-menu-item.primary.ui-state-active {
-    color: black;
-    background: #D8D6FF;
-}
-
 .ui-widget .ui-menu-item.ui-state-focus:not(.primary) {
     background: #cccccc;
 }
 
 .menu-more.ui-icon.ui-icon-triangle-1-s {
     display: inline-block;
-    /* margin-top: 0.4em; */
+    vertical-align: middle;
+    margin-left: -0.3em;
+}
+
+#menus .primary .ui-icon-blank {
+    display: none;
 }
 
 .ui-menu .ui-icon.vertical {
     position: static;
+}
+
+.selectMenuLabel {
+    font-weight: bold;
+    padding-left: 2em;
 }
 
 .helpNav {
@@ -93,21 +104,5 @@
     text-align: center;
     z-index: 101;
     display: none;
-}
-
-#banner.info.row,
-#banner.stay.row {
-    background: #D8EECE;
-    color: #2E662C;
-}
-
-#banner.warn.row {
-    background: #F9F5D9;
-    color: #775B2A;
-}
-
-#banner.error.row {
-    background: #EDD4D5;
-    color: #993031;
 }
 

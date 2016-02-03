@@ -288,28 +288,120 @@ var app = app || {}; // jshint ignore:line
         hexagonCursor(false);
     }
 
-    function addRectSelectTool() {
+    function select_string(string) {
 
-        // This executes when the toolbar button is pressed.
-        isRectangle = true;
-        setUp();
+        // The actual text to selection import function used by that tool
+        // Given a string of hex names, one per line, make a selection of all those
+        // hexes.
+        
+        // This is an array of signature names entered.
+        var to_select = [];
+        
+        // This holds the array of lines. Split on newlines (as seen in
+        // jQuery.tsv.js)
+        var lines = string.split(/\r?\n/);
+        
+        for(var i = 0; i < lines.length; i++) {
+            // Trim and add to our requested selection
+            to_select.push(lines[i].trim());
+        }
+        
+        // Add a selection with as many of the requested hexes as actually exist and
+        // pass the current filters.
+        select_list(to_select);
     }
 
-    function addPolySelectTool() {
+    function selectImport() {
 
-        // This executes when the toolbar button is pressed.
-        isRectangle = false;
-        setUp();
+        // A tool for importing a list of hexes as a selection
+        // Make the import form
+        var import_form = $("<form/>").attr("title", 
+            "Enter a List As a Selection");
+
+        import_form.append($("<div/>").text("Enter hexagon names to be selected on the map with one per line:"));
+
+        // A big text box
+        var text_area = $("<textarea/>").addClass("import");
+            import_form.append(text_area);
+        
+            import_form.append($("<div/>").text(
+                "Open a file:"));
+            
+        // This holds a file form element
+        var file_picker = $("<input/>").attr("type", "file").addClass("import");
+        
+        import_form.append(file_picker);
+        
+        file_picker.change(function(event) {
+            // When a file is selected, read it in and populate the text box.
+            
+            // What file do we really want to read?
+            var file = event.target.files[0];
+            
+            // Make a FileReader to read the file
+            var reader = new FileReader();
+            
+            reader.onload = function(read_event) {  
+                // When we read with readAsText, we get a string. Just stuff it
+                // in the text box for the user to see.
+                text_area.text(reader.result);
+            };
+            
+            // Read the file, and, when it comes in, stick it in the textbox.
+            reader.readAsText(file);
+        });
+        
+        import_form.dialog({
+            dialogClass: 'dialog',
+            modal: true,
+            width: '20em',
+            buttons: {
+                "Import": function() {
+                    // Do the import of the data. The data in question is always
+                    // in the textbox.
+                    
+                    // Select all the entered hexes
+                    select_string(text_area.val());
+                    
+                    // Finally, close the dialog
+                    $(this).dialog("close");
+                    
+                    // Done with the tool
+                        tool_activity(false);
+                }   
+            },
+            close: function() {
+                // They didn't want to use this tool.
+                    tool_activity(false);
+            }
+        });
+    }
+
+    function selected (ev, ui) {
+
+        // This executes when one of the select toolbar buttons is pressed.
+        var tool = ui.item.data('sel');
+
+        if (tool === 'rectangle') {
+            isRectangle = true;
+            setUp();
+
+        } else if (tool === 'polygon') {
+            isRectangle = false;
+            setUp();
+
+        } else { // The import function must have been selected
+            selectImport();
+        }
     }
 
     initSelect = function () {
 
-        // Add the button for the rectangular select to the toolbar
-        add_tool("selectRectangle", addRectSelectTool,
-            'Select hexagons using a rectangular region', 'mapOnly');
-    
-        // Add the button for the polygon select to the toolbar
-        add_tool("selectPolygon", addPolySelectTool,
-            'Select hexagons using a polygonal region', 'mapOnly');
+        var $menu = $('#selectMenu');
+        $menu.menu({
+            select: selected,
+        });
+
+        $menu.show();
     }
 })(app);

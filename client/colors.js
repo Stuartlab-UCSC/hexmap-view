@@ -36,59 +36,19 @@ var app = app || {}; // jshint ignore:line
 
     initColors = function () {
 
-        // A tool to change the background color
-        add_tool("background", function () {
-
-            var $form = $('#backgroundDiv');
-
-            Template.background.helpers ({
-                whiteChecked: function () {
-                    return (Session.equals('background', 'white'))
-                        ? 'checked'
-                        : '';
-                }
-            });
-
-            function render() {
-
-                // The modal dialog
-                $form.dialog({
-                    dialogClass: 'dialog',
-                    modal: true,
-                    minHeight: '10em',
-                    width: '10em',
-                    close: function () {
-                        tool_activity(false);
-                    }
-                });
+        $('#blackBackground').on('click', function () {
+            if (Session.equals('background', 'white')) {
+                Session.set('background', 'black');
+                re_initialize_view();
             }
+        });
 
-            render();
-
-            // Set the proper radio button according to state
+        $('#whiteBackground').on('click', function () {
             if (Session.equals('background', 'black')) {
-                $('#backgroundBlack').prop('checked', true);
-            } else {
-                $('#backgroundWhite').prop('checked', true);
+                Session.set('background', 'white');
+                re_initialize_view();
             }
-
-            // When a radio button is clicked, change background and exit dialog
-            // TODO meteorize?
-            $form.on('click', 'input', function (event) {
-                Meteor.setTimeout(function () { // Let the ui catch up
-                    var val = $(event.target).attr('value');
-                    if (!Session.equals('background', val)) {
-                        Session.set('background', val);
-                        re_initialize_view();
-                    }
-                    $form.dialog('close');
-                }, 0);
-            });
-
-            // Deselect the tool.
-            tool_activity(false);
-        }, 'Change the background color', 'mapOnly');
-
+        });
         // Prepare a tool to change the colorMap
 
         findRowLayer = function ($row, colorArray) {

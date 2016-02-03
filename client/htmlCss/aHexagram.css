@@ -8,8 +8,6 @@ alphabetical order, hence the file name.
 body {
     margin: 0;
     padding: 0;
-    background-color: #E7E5D7;
-    font-family: sans-serif;
 }
 
 .row {
@@ -43,7 +41,6 @@ The visualization element needs to take up all available space.
     bottom: 0;
     width: 100%;
     overflow: hidden;
-    background-color: rbg(229,227,223);
 }
 
 #gridMap .gm-style {
@@ -187,7 +184,6 @@ Read as "The content row", distinct from whatever else that element might be.
 
 .info-key {
     background: green;
-    color: white;
     text-align: center;
     font-weight: bold;
 }

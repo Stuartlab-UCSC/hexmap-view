@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.6
+#!/usr/bin/env python2.7
 """
 diffAnalysis.py
 A stub file to be sure the client code is calling and receiving properly.
