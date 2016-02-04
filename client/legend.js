@@ -180,9 +180,11 @@ var app = app || {}; // jshint ignore:line
         
         // We should also set up axis labels on the color key.
 
-        // Hide all the labels
+        // Hide all the labels and set their color
         $(".label").hide();
-        
+        $(".label").css('color',
+            Session.equals('background', 'black') ? 'white' : 'black');
+
         if (current_layers.length > 0) {
 
             // Show the y axis label

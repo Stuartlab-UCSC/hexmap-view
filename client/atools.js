@@ -187,7 +187,7 @@ var app = app || {}; // jshint ignore:line
         var nav = $('#menus');
 
         nav.menu({
-            position: { my: "left top", at: "left bottom-2" },
+            position: { my: "left top", at: "left bottom-7" },
             icons: { submenu: "ui-icon-blank" },
             select: selected,
         });
