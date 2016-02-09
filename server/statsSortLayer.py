@@ -1,8 +1,8 @@
 #!/usr/bin/env python2.7
 """
 statsSortLayer.py
-Object for generating one layer's sort stats for layout-aware & layout-ignore
-and for both pre-computed and dynamic stats
+Object for generating one layer's sort stats for layout-aware & 
+layout-independent and for both pre-computed and dynamic stats
 """
 
 import sys, os, json, copy, csv, math, traceback, pprint
@@ -54,7 +54,7 @@ class ForEachLayer(object):
                 s.file = os.path.join(parm['directory'], filename)
         else:
 
-            # Layout-ignore options:
+            # Layout-independent options:
 
             if 'diffStats' in parm:
                 s.diffStats = parm['diffStats']
@@ -117,9 +117,9 @@ class ForEachLayer(object):
         return (biggest > diffStat10percent)
 
     @staticmethod
-    def bothPairsDiscrete(s, layerA, layerB, layers, hexNames, diffStat10percent):
+    def bothDiscrete(s, layerA, layerB, layers, hexNames, diffStat10percent):
 
-        # This handles one attribute pair for ignore-layout stats when both
+        # This handles one attribute pair for layout-independent stats when both
         # attributes have any combination of binary and categorical values
 
         # Find the ranges of layer A & B
@@ -175,9 +175,9 @@ class ForEachLayer(object):
         return [layerA, layerB, sigDigs(pValue)]
 
     @staticmethod
-    def bothPairsContinuous(layerA, layerB, layers, hexNames):
+    def bothContinuous(layerA, layerB, layers, hexNames):
 
-        # This handles one attribute pair for ignore-layout stats when
+        # This handles one attribute pair for layout-independent stats when
         # both attributes have continuous values.
 
         # Loop through all the hexagons building a vector for each of the
@@ -211,7 +211,6 @@ class ForEachLayer(object):
             correlation = pValue = float('NaN')
 
         return [layerA, layerB, sigDigs(pValue)]
-
 
     @staticmethod
     def diffStatsContinuousFilter(layerA, layerB, layers):
@@ -309,7 +308,7 @@ class ForEachLayer(object):
         return [layerA, layerB, sigDigs(pValue)]
 
     @staticmethod
-    def layoutIgnore(s, layerB, diffStat10percent):
+    def layoutIndependent(s, layerB, diffStat10percent):
 
         # If layerA is layerB, we want to write a value of nan at the p-value
         # so it will not be included in the sort in visualization
@@ -336,7 +335,7 @@ class ForEachLayer(object):
 
             # Are both attributes continuous?
             if types.count('cont') > 1:
-                return s.bothPairsContinuous(s.layerA, layerB, s.layers,
+                return s.bothContinuous(s.layerA, layerB, s.layers,
                     s.hexNames)
 
             # Handle the case where only one attribute is continuous
@@ -353,13 +352,17 @@ class ForEachLayer(object):
         elif types.count('bin') == 2 \
             or types.count('cat') == 2 \
             or (types.count('bin') == 1 and types.count('cat') == 1):
-            return s.bothPairsDiscrete(s, s.layerA, layerB, s.layers, s.hexNames, diffStat10percent)
+            return s.bothDiscrete(
+                s, s.layerA, layerB, s.layers, s.hexNames, diffStat10percent)
 
         # We should never get here.
         return 'continue'
 
     @staticmethod
     def layoutAware(s, layerB):
+
+        # Note that all other downstream methods in this class are only for
+        # layout-independent layers.
 
         # Initialize the counts for the layers to the additives in C2
         A = copy.copy(s.windowAdditives)
@@ -417,7 +420,7 @@ class ForEachLayer(object):
                     continue
 
                 # Extract the p-values from the data.
-                # Layout-aware and -ignore store their p-values in
+                # Layout-aware and -independent store their p-values in
                 # the same position. Translate NaNs to one so the stats
                 # routine will take it.
                 if math.isnan(row[2]):
@@ -455,11 +458,12 @@ class ForEachLayer(object):
 
                 line = s.layoutAware(s, layerB)
                 if line == 'continue': continue
+                
                 preAdjusted.append(line)
 
         else:
 
-            # for ignore layout stats
+            # for layout-independent stats
 
             if hasattr(s, 'diffStats'):
 
@@ -473,8 +477,9 @@ class ForEachLayer(object):
 
             for layerB in s.statsLayers:
 
-                line = s.layoutIgnore(s, layerB, diffStat10percent)
+                line = s.layoutIndependent(s, layerB, diffStat10percent)
                 if line == 'continue': continue
+
                 preAdjusted.append(line)
 
         s.adjustPvalue(s, preAdjusted)
