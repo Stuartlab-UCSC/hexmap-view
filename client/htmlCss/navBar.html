@@ -17,12 +17,14 @@
                 Download
                 <img src='{{absoluteUrl}}/caret-down.svg' style='height:8px'>
                 <ul>
-                    <li data-sel='hexagonNames'>&nbsp;&nbsp;Hexagon names&nbsp;&nbsp;</li>
+                    <li data-sel='hexagonNames' title = 'Download the hexagon identifiers'>&nbsp;
+                        Identifiers&nbsp;&nbsp;
+                    </li>
                     <li>
                         <a id='svgDownload' download='hexmap.svg'
                             href='data:text/plain;base64'
                             title = 'Download the map in SVG format'>
-                            SVG image
+                            SVG map
                         </a>
                     </li>
                     <li>
@@ -35,7 +37,7 @@
                     </li>
                 </ul>
             </li>
-            <li class='primary mapOnly' data-sel='addText'>Labels</li>
+            <li class='primary mapOnly' data-sel='addText'>Label</li>
             <li class='primary mapOnly'>
                 Colors
                 <img src='{{absoluteUrl}}/caret-down.svg' style='height:8px'>
@@ -58,8 +60,8 @@
             <li data-sel='polygon' class='primary' title='Select hexagons using a polygonal region'>
                 Polygon
             </li>
-            <li data-sel='import' class='primary' title='Enter a list to create a selection of hexagons'>
-                Name
+            <li data-sel='import' class='primary' title='Enter identifiers to create a selection of hexagons'>
+                Identifier
             </li>
         </ul>
 

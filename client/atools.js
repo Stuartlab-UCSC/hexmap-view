@@ -140,7 +140,7 @@ var app = app || {}; // jshint ignore:line
             // next click.
             
             var text = prompt("Enter some text, and click anywhere on the " +
-                "visualization to place it there", "Label Text");
+                "map to place it there", "Label Text");
                 
             if(!text) {
                 // They don't want to put a label

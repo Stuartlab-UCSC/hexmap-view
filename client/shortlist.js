@@ -88,75 +88,60 @@ var app = app || {}; // jshint ignore:line
 
     function createFilterSelector (layer_name, layer, filter_value) {
 
-        // Create the value filter dropdown for discrete values
-        if (USE_SELECT2_FOR_FILTER) {
-            var option,
-                selData = [];
-            for (var i = 0; i < layer.magnitude + 1; i++) {
+        // Create the value filter dropdown for discrete values,
+        // If we have not yet created it.
+        // Note that binary values without entries in the input colormap file
+        // DO have a colormap entry in the code.
+        if (filter_value.children().length == 0) {
 
-                // Make an option for each value.
-                option = {id: String(i), text: String(i)};
+            // Find the option codes and text
+            var first = 0,
+                preSort,
+                data = [];
+            if (layer_name in colormaps) {
+                if (colormaps[layer_name].length > 0) {
 
-                if (colormaps[layer_name].hasOwnProperty(i)) {
+                    // Categorical or binary with colors assigned by input file
+                    preSort = _.map(colormaps[layer_name], function (cat, code) {
+                        return {text: cat.name, code: code};
+                    });
+                    data = _.sortBy(preSort, function (cat) {
+                        return cat.text;
+                    });
+                } else {
 
-                    // We have a real name for this value
-                    option.text = colormaps[layer_name][i].name;
+                    // Binary without colors assigned my input file
+                    first = 1;
+                    data = [
+                        {text: 1, code: 1},
+                        {text: 0, code: 0},
+                    ];
                 }
-                selData.push(option);
+            } else { // No colormap categorical
+
+                for (var i = 0; i < layer.magnitude + 1; i++) {
+                    data.push({text: i, code: i});
+                }
             }
-            
-            // Select the last option, so that 1 on 0/1 layers will 
-            // be selected by default.
-            filterSelector.set(layer_name, String(i-1));
-            createOurSelect2(filter_value, {data: selData}, filterSelector.get(layer_name));
+
+            // Create the option elements
+            _.each(data, function (cat) {
+                var option = $("<option/>")
+                    .attr('value', cat.code)
+                    .text(cat.text);
+                filter_value.append(option);
+            });
+
+            // Select the appropriate option on first opening and update the UI
+            filter_value.val(first);
+            filterSelector.set(layer_name, parseInt(first));
+            refresh();
 
             // Define the event handler for selecting an item
             filter_value.on('change', function (ev) {
                 filterSelector.set(layer_name, parseInt(ev.target.value));
-                $('#shortlist').scrollTop(scrollTop);
                 refresh();
             });
-
-            // On opening the drop-down save the scroll position
-            filter_value.parent().on('select2-open', function () {
-                scrollTop = $('#shortlist').scrollTop();
-            });
-
-        } else {
-
-            // Make sure we have all our options
-            if (filter_value.children().length == 0) {
-
-                // No options available. We have to add them.
-                for (var i = 0; i < layer.magnitude + 1; i++) {
-
-                    // Make an option for each value.
-                    var option = $("<option/>").attr("value", i);
-                    if (colormaps[layer_name].hasOwnProperty(i)) {
-
-                        // We have a real name for this value
-                        option.text(colormaps[layer_name][i].name);
-                    } else {
-
-                        // No name. Use the number.
-                        option.text(i);
-                    }
-                    filter_value.append(option);
-                }
-
-                // Select the last option, so that 1 on 0/1 layers will
-                // be selected by default.
-                var val = filter_value.children().last().attr("value");
-                filter_value.val(val);
-                filterSelector.set(layer_name, parseInt(val));
-                refresh();
-
-                // Define the event handler for selecting an item
-                filter_value.on('change', function (ev) {
-                    filterSelector.set(layer_name, parseInt(ev.target.value));
-                    refresh();
-                });
-            }
         }
     }
 
