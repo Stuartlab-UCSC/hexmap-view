@@ -1,6 +1,6 @@
 #!/usr/bin/env python2.7
 """
-statsSortLayer.py
+statsLayer.py
 Object for generating one layer's sort stats for layout-aware & 
 layout-independent and for both pre-computed and dynamic stats
 """

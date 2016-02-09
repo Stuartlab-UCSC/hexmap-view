@@ -1,6 +1,6 @@
 #!/usr/bin/env python2.7
 """
-statsSortDynamic.py
+statsDynamic.py
 This prepares dynamic stats data for calculation of stats by the module common
 to dynamic and pre-computed stats: statsSortLayer.
 """
@@ -8,7 +8,7 @@ to dynamic and pre-computed stats: statsSortLayer.
 import sys, os, json, copy, csv, math, traceback, pprint
 import scipy.stats
 
-from statsSortLayer import ForEachLayer
+from statsLayer import ForEachLayer
 
 def dynamicLayoutAwareStats(parm):
 

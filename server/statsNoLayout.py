@@ -87,7 +87,7 @@ def subprocessPerLayer(layer_names, parm):
     print len(parm['statsLayers']), 'subprocesses to run, one per layer.'
     pool.runSubProcesses(allLayers)
 
-def statsSort(layers, layer_names, ctx, options):
+def statsNoLayout(layers, layer_names, ctx, options):
     """
     The tool will deploy the appropriate association stat test on each
     array of layers, computing the p-value between pairs of attributes.

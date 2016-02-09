@@ -1,10 +1,10 @@
 #!/usr/bin/env python2.7
 """
-regionBasedStats.py: Calculate the region-based-stats
+statsLayout.py: Calculate the region-based-stats
 
 """
 import sys, os,traceback, time, datetime, pprint, csv, pool
-from statsSortLayer import ForEachLayer
+from statsLayer import ForEachLayer
 
 PSEUDOCOUNT = 5
 
@@ -318,7 +318,7 @@ def normalized_pearson_statistics(layers, layerNames, nodes_multiple, ctx, optio
         print timestamp(), 'Stats complete for layout:', layout
         
 
-def statsSortLayout(directory, layers, layerNames, nodes_multiple, ctx, options):
+def statsLayout(directory, layers, layerNames, nodes_multiple, ctx, options):
     print timestamp(), "Running region-based statistics..."
     normalized_pearson_statistics(layers, layerNames, nodes_multiple, ctx, options)
     print timestamp(), "Region-based statistics complete"

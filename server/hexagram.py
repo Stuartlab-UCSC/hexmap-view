@@ -23,8 +23,8 @@ import time, socket
 from types import *
 import os.path
 import tsv, csv, json
-from statsSort import statsSort
-from statsSortLayout import statsSortLayout
+from statsNoLayout import statsNoLayout
+from statsLayout import statsLayout
 import pool
 
 def timestamp():
@@ -1699,7 +1699,7 @@ def hexIt(options):
     
     # Run sample-based stats
     if options.associations == True:
-        statsSort(layers, layer_names, ctx, options)
+        statsNoLayout(layers, layer_names, ctx, options)
     else:
         print 'Skipping sort stats withou layout (sample-based)'
 
@@ -1707,7 +1707,7 @@ def hexIt(options):
     # Call this no matter if these stats were requested or not so that the
     # Sampling windows are built in case the user requests a dynamic stats
     # from the viz UI.
-    statsSortLayout(options.directory, layers, layer_names, nodes_multiple, ctx, options)
+    statsLayout(options.directory, layers, layer_names, nodes_multiple, ctx, options)
     print timestamp(), "Visualization generation complete!"
 
 def main(args):
