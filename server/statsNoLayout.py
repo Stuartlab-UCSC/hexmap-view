@@ -1,10 +1,10 @@
 """
-statsSort.py: Run the sample-based statistics.
+statsNoLayout.py: Run the sample-based statistics.
 """
 import sys, os, numpy, subprocess, shutil, tempfile, pprint
 import tsv, csv, datetime, time, math, multiprocessing
 import pool, traceback
-from statsSortLayer import ForEachLayer
+from statsLayer import ForEachLayer
 
 def timestamp():
     return str(datetime.datetime.now())[8:-7]
