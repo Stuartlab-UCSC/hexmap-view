@@ -505,7 +505,7 @@ var app = app || {}; // jshint ignore:line
         opts.dynamicData = gatherSelectionData(opts.dynamicData);
 
         opts.startDate = new Date();
-        Meteor.call('pythonCall', 'statsSortDynamic', opts,
+        Meteor.call('pythonCall', 'statsDynamic', opts,
             function (error, result) {
                 if (error) {
                     banner('error', error);

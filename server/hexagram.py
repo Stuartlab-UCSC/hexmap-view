@@ -86,7 +86,10 @@ def parse_args(args):
     parser.add_argument("--colormaps", type=str,
         default=None,
         help="a TSV defining coloring and value names for discrete scores")
-    parser.add_argument("--html", "-H", type=str, 
+    parser.add_argument("--attributeTags", type=str,
+        default=None,
+        help="a TSV defining attribute filtering tags")
+    parser.add_argument("--html", "-H", type=str,
         default="index.html",
         help="where to write HTML report")
     parser.add_argument("--directory", "-d", type=str, default=".",
@@ -596,6 +599,16 @@ def determine_layer_data_types (layers, layer_names, options):
     # Retrieve the hexagon names from the appropriate hexagon dictionary
     hex_values = ctx.all_hexagons[hex_dict_num].values()
 
+    if options.colormaps is not None:
+
+        # Read the colormap file because we need this to tell the difference
+        # between two-category layers and binary layers
+        colormaps_reader = tsv.TsvReader(open(options.colormaps, 'r'))
+        colormap_entry = []
+        for row in colormaps_reader:
+            colormap_entry.append(row[0])
+        colormaps_reader.close()
+
     # For each layer name, scan through all its values. If you find a non-integer
     # value, it's continuous. Otherwise, if you find a value greater than 1 or
     # less than 0, it's categorical Otherwise, it's binary.
@@ -630,16 +643,18 @@ def determine_layer_data_types (layers, layer_names, options):
                 # check more of its values.
                 # TODO we could have continuous values which happen to be
                 # integers. For now those will be mis-placed as categorical.
-                # TODO we could have categorical values with only two categories
-                # of zero and one, so would fail this test. For now those will
-                # be mis-placed as binary.
+                can_be_binary = False
+                break
+
+            if layer_name in colormap_entry:
+
+                # This is not binary because it is assumed
+                # to be categorical due to an entry in the colormap
                 can_be_binary = False
 
         if can_be_binary:
 
             # Nothing rules out this layer being binary, so call it such.
-            # Again, this is improperly capturing categorical layers with
-            # values of only zero and one.
             # TODO is this capturing layers with nan values ?
             ctx.binary_layers.append(layer_name)
 
@@ -1472,9 +1487,10 @@ def hexIt(options):
     determine_layer_data_types (layers, layer_names, options)
 
     # Copy over the tags file if one exists
-    if os.path.exists('attribute_tags.tab'):
-        shutil.copy2('attribute_tags.tab', os.path.join(options.directory,
-            'attribute_tags.tab'))
+    if options.attributeTags is not None:
+        tagsPath = os.path.join(options.directory, 'attribute_tags.tab')
+        print 'Tags file copied to', tagsPath
+        shutil.copy2(options.attributeTags, tagsPath)
 
     # Copy over the user-specified colormaps file, or make an empty TSV if it's
     # not specified.
@@ -1484,6 +1500,7 @@ def hexIt(options):
         "colormaps.tab"), "w"))
     
     if options.colormaps is not None:
+
         # The user specified colormap data, so copy it over
         # This holds a reader for the colormaps file
         colormaps_reader = tsv.TsvReader(open(options.colormaps, 'r'))
