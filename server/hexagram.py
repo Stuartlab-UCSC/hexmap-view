@@ -644,7 +644,6 @@ def determine_layer_data_types (layers, layer_names, options):
                 # TODO we could have continuous values which happen to be
                 # integers. For now those will be mis-placed as categorical.
                 can_be_binary = False
-                break
 
             if layer_name in colormap_entry:
 
