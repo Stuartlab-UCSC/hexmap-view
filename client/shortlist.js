@@ -494,8 +494,10 @@ var app = app || {}; // jshint ignore:line
         // on change and while sliding (to catch both user-initiated and 
         //programmatic changes).
         var update_range_display = function(event, ui) {
-            range_display.find(".low").text(ui.values[0].toFixed(3));
-            range_display.find(".high").text(ui.values[1].toFixed(3));
+            range_display.find(".low").text(ui.values[0].toExponential(1));
+            range_display.find(".high").text(ui.values[1].toExponential(1));
+            //range_display.find(".low").text(ui.values[0].toFixed(3));
+            //range_display.find(".high").text(ui.values[1].toFixed(3));
         }
         
         range_slider.slider({

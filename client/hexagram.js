@@ -550,7 +550,7 @@ fill_layer_metadata = function (container, layer_name) {
             } else {
                 // It's a float!
                 // Format the number for easy viewing
-                value_formatted = value.toExponential(2);
+                value_formatted = value.toExponential(1);
             }
         } else {
             // Just put the thing in as a string

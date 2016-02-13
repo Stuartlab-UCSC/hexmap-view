@@ -9,7 +9,7 @@ import sys, os, json, copy, csv, math, operator, traceback, pprint
 import scipy.stats
 import numpy
 
-def sigDigs(x, sig=2):
+def sigDigs(x, sig=3):
 
     if sig < 1:
         raise ValueError("number of significant digits must be >= 1")
