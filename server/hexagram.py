@@ -655,6 +655,7 @@ def determine_layer_data_types (layers, layer_names, options):
 
             # Nothing rules out this layer being binary, so call it such.
             # TODO is this capturing layers with nan values ?
+            # Or do we never write nan values?
             ctx.binary_layers.append(layer_name)
 
         elif can_be_categorical:
@@ -662,6 +663,16 @@ def determine_layer_data_types (layers, layer_names, options):
             # Nothing rules out this layer being categorical, so call it such.
             # TODO this is improperly capturing integer continuous layers.
             ctx.categorical_layers.append(layer_name)
+
+            # TODO this is improperly capturing integer continuous layers.
+            # TODO later:
+            # One last check: if this integer-only attribute has an entry in the
+            # colormap, consider it categorical.
+            #if layer_name in colormap_entry:
+            #    ctx.categorical_layers.append(layer_name)
+            #else:
+            #    # Otherwise this is an integer-only continuous attribute
+            #    ctx.continuous_layers.append(layer_name)
         else:
 
             # It is not binary or categorical, so it is continuous
