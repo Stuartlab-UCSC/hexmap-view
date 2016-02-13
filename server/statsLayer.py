@@ -76,26 +76,16 @@ class ForEachLayer(object):
             s.hexNames = parm['hexNames']
 
             # Create the filename to write results.
-            # One of either temp_dir or tempFile should be provided
+            # One of either temp_dir or layerIndex should be provided
             if 'tempFile' in parm:
 
                s.file = parm['tempFile']
                s.dynamic = True
             else:
 
-                # temp_dir was provided, probably from the precomputed stats
-                index = s.statsLayers.index(s.layerA)
-                s.file = os.path.join(parm['temp_dir'], "p_val" + str(index) + ".tab")
-
-            if 'dynamicData' in parm:
-
-                # Dynamic stats, so we want layerB to start with the first layer
-                s.bLayers = s.statsLayers
-            else:
-
-                # Pre-computed stats only need to look at stats layers after
-                # layerA, so set the layerB layers to show that
-                s.bLayers = s.statsLayers[index:]
+                # layerIndex was provided, probably from the precomputed stats
+                filename = 'stats_' + str(parm['layerIndex']) + '.tab'
+                s.file = os.path.join(parm['directory'], filename)
 
     @staticmethod
     def diffStatsDiscreteFilter(table, diffStat10percent):
@@ -172,7 +162,7 @@ class ForEachLayer(object):
             # http://docs.scipy.org/doc/scipy-0.16.0/reference/generated/scipy.stats.chi2_contingency.html#scipy.stats.chi2_contingency
             chi2 = pValue = dof = expectedFreq = 1
 
-        return [layerA, layerB, sigDigs(pValue)]
+        return [layerB, sigDigs(pValue)]
 
     @staticmethod
     def bothContinuous(layerA, layerB, layers, hexNames):
@@ -210,7 +200,7 @@ class ForEachLayer(object):
         except Exception:
             correlation = pValue = float('NaN')
 
-        return [layerA, layerB, sigDigs(pValue)]
+        return [layerB, sigDigs(pValue)]
 
     @staticmethod
     def diffStatsContinuousFilter(layerA, layerB, layers):
@@ -305,7 +295,7 @@ class ForEachLayer(object):
             except Exception:
                 fValue = pValue = float('NaN')
 
-        return [layerA, layerB, sigDigs(pValue)]
+        return [layerB, sigDigs(pValue)]
 
     @staticmethod
     def layoutIndependent(s, layerB, diffStat10percent):
@@ -313,7 +303,7 @@ class ForEachLayer(object):
         # If layerA is layerB, we want to write a value of nan at the p-value
         # so it will not be included in the sort in visualization
         if s.layerA == layerB:
-            return [s.layerA, layerB, float('NaN')]
+            return [layerB, float('NaN')]
 
         # Determine layerB's data type
         types = [s.layerAtype]
@@ -397,7 +387,7 @@ class ForEachLayer(object):
         return [layerB, sigDigs(correlation), sigDigs(pValue)]
 
     @staticmethod
-    def adjustPvalue(s, preAdjusted):
+    def adjustPvalue(s, preAdjusted, idx):
 
         try:
             # Some hosts do not have this library. If not we don't adjust
@@ -420,13 +410,11 @@ class ForEachLayer(object):
                     continue
 
                 # Extract the p-values from the data.
-                # Layout-aware and -independent store their p-values in
-                # the same position. Translate NaNs to one so the stats
-                # routine will take it.
-                if math.isnan(row[2]):
+                # Translate NaNs to one so the stats routine will take it.
+                if math.isnan(row[idx]):
                     preAdjVals.append(1)
                 else:
-                    preAdjVals.append(row[2])
+                    preAdjVals.append(row[idx])
 
             if not adjust:
                 return
@@ -461,6 +449,8 @@ class ForEachLayer(object):
                 
                 preAdjusted.append(line)
 
+            s.adjustPvalue(s, preAdjusted, 2)
+
         else:
 
             # for layout-independent stats
@@ -482,7 +472,7 @@ class ForEachLayer(object):
 
                 preAdjusted.append(line)
 
-        s.adjustPvalue(s, preAdjusted)
+            s.adjustPvalue(s, preAdjusted, 1)
 
         # For dynamic stats, pass the results file name to the caller via stdout
         if hasattr(s, 'dynamic'):
