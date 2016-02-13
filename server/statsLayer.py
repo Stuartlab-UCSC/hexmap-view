@@ -5,11 +5,11 @@ Object for generating one layer's sort stats for layout-aware &
 layout-independent and for both pre-computed and dynamic stats
 """
 
-import sys, os, json, copy, csv, math, traceback, pprint
+import sys, os, json, copy, csv, math, operator, traceback, pprint
 import scipy.stats
 import numpy
 
-def sigDigs(x, sig=6):
+def sigDigs(x, sig=2):
 
     if sig < 1:
         raise ValueError("number of significant digits must be >= 1")
@@ -56,9 +56,6 @@ class ForEachLayer(object):
 
             # Layout-independent options:
 
-            if 'diffStats' in parm:
-                s.diffStats = parm['diffStats']
-
             # Save the data type lists and determine layerA's data type
             if 'binLayers' in parm:
                 s.binLayers = parm['binLayers']
@@ -88,32 +85,50 @@ class ForEachLayer(object):
                 s.file = os.path.join(parm['directory'], filename)
 
     @staticmethod
-    def diffStatsDiscreteFilter(table, diffStat10percent):
+    def findSignificancyCutoff(s, layerName):
 
-        # We want to prevent finding high statistical significance when there
-        # are only a few counts of an attribute in both of the groups. When we
-        # build a contingency table, if the biggest count of the cells is less
-        # than 10% of the sample count of the smaller of the two attribute
-        # counts we don't want to compute differential for that attribute.
+        # For a binary layer, find the lowest count of hexagons in a category
+        # and return 10% of that. For a categorial or continuous return infinity
+        if layerName in s.binLayers:
+            ones = filter(lambda x: x == 1, s.layers[layerName].values())
+            zeros = filter(lambda x: x == 0, s.layers[layerName].values())
+            return min(len(ones), len(zeros)) / 10
+        else:
+            return float('inf')
 
-        # Find the biggest count of all the cells in the table
+    @staticmethod
+    def hasEnoughCounts(s, table, layerB):
+
+        # For binary-binary pairs we want to prevent finding high statistical
+        # significance when there are only a few counts of an attribute value.
+        # In the contingency table, if the biggest count of the cells is less
+        # than 10% of the sample count of the smallest of the attribute values
+        # we don't want to compute stats for that attribute pair.
+
+        # Any pair combination outside of binary-binary always returns true
+        if not (s.layerA in s.binLayers and layerB in s.binLayers):
+            return True
+
+        # Include both attributes when looking for the smallest value count
+        significancyCutoffB = s.findSignificancyCutoff(s, layerB)
+        cutoff = min(s.significancyCutoffA, significancyCutoffB)
+
+        # Find the biggest count of nodes in a single cell in the table.
         biggest = 0;
         for row in table:
             for cell in row:
                 biggest = max(biggest, cell)
 
-        # Return true if the biggest cell count is greater than 10% of the
-        # sample count of the smaller of the two diff attribute counts
-        return (biggest > diffStat10percent)
+        # Return true if the biggest cell count is greater than the cutoff
+        return (biggest > cutoff)
 
     @staticmethod
-    def bothDiscrete(s, layerA, layerB, layers, hexNames, diffStat10percent):
+    def bothDiscrete(s, layerA, layerB, layers, hexNames):
 
         # This handles one attribute pair for layout-independent stats when both
         # attributes have any combination of binary and categorical values
 
-        # Find the ranges of layer A & B
-        # This is silly for binary data, but good for categorical data
+        # Find the ranges of layer A & B.
         vals = layers[layerB].values()
         bMax = int(max(vals))
         bMin = int(min(vals))
@@ -147,10 +162,8 @@ class ForEachLayer(object):
 
             table[aVal - aMin][bVal - bMin] += 1
 
-        if hasattr(s, 'diffStats'):
-            enoughCounts = s.diffStatsDiscreteFilter(table, diffStat10percent)
-            if not enoughCounts:
-                return [layerA, layerB, 1]
+        if not s.hasEnoughCounts(s, table, layerB):
+            return [layerB, 1]
 
         # Call the chi-squared function
         try:
@@ -160,7 +173,7 @@ class ForEachLayer(object):
             # See <http://stats.stackexchange.com/q/73708>. Chi-squared can't be
             # done in this case.
             # http://docs.scipy.org/doc/scipy-0.16.0/reference/generated/scipy.stats.chi2_contingency.html#scipy.stats.chi2_contingency
-            chi2 = pValue = dof = expectedFreq = 1
+            pValue = 1
 
         return [layerB, sigDigs(pValue)]
 
@@ -198,48 +211,18 @@ class ForEachLayer(object):
             correlation, pValue = scipy.stats.pearsonr(layers[layerA].values(),
                 layers[layerB].values())
         except Exception:
-            correlation = pValue = float('NaN')
+            pValue = 1
 
         return [layerB, sigDigs(pValue)]
 
     @staticmethod
-    def diffStatsContinuousFilter(layerA, layerB, layers):
+    def oneContinuousOneCategorical(s, layerA, layerB, layers, hexNames):
 
-        # Drop the lower and upper quartiles of continuous values to avoid
-        # statistical significance in cases where most values are not actually
-        # different between the two groups
+        # This handles one attribute pair for layout-independent stats when one
+        # of the attributes is continuous and the other categorical.
 
-        # Build a vector of hex names, sorted by their values
-        dict = layers[layerB]
-        hexes = sorted(dict, key=dict.get)
-
-        # Drop the lower and upper quartiles from our list of hexes
-        length = len(hexes)
-        quartile = int(round(length / 4))
-        upper = list(hexes)
-        del upper[:length - quartile]
-        lower = list(hexes)
-        del lower[quartile:]
-
-        # Remove the dropped hexes from the layers dict
-        for hex in lower + upper:
-            del layers[layerB][hex]
-
-    @staticmethod
-    def oneContinuousOneDiscrete(s, layerA, layerB, layers, hexNames, layerAtype,
-        binary=False):
-
-        # This handles one attribute pair for ignore-layout stats when only one
-        # of the attributes has continuous values. Binary attributes are treated
-        # as if they are categorical with two values when building the vectors.
-        # Binary attributes may use a different stats library function than
-        # categorical.
-
-        if hasattr(s, 'diffStats'):
-            s.diffStatsContinuousFilter(layerA, layerB, layers)
-
-        # Assign new names to the layers depending on which is continuous
-        if layerAtype == 'cont':
+        # Assign new names to the layers depending on which is continuous.
+        if layerA in s.contLayers:
             contL = layerA
             catL = layerB
         else:
@@ -270,35 +253,88 @@ class ForEachLayer(object):
 
         lists = vals.values()
 
-        if binary:
+        try:
+            # Anova call returns like so: [F-value, p-value]
+            # http://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.f_oneway.html
 
-            # Call the binary-continuous stats library function
-            try:
-                # (Welch's) t-test call returns like so: [t-value, p-value]
-                # Including equal variance argument being False makes this a
-                # Welch's t-test.
-                # http://docs.scipy.org/doc/scipy-0.14.0/reference/generated/scipy.stats.ttest_ind.html
-
-                tValue, pValue = scipy.stats.ttest_ind(lists[0], lists[1], 0, False)
-            except Exception:
-                tValue = pValue = float('NaN')
-
-        else:
-            # Call the categorical-continuous stats library function
-            try:
-                # Anova call returns like so: [F-value, p-value]
-                # http://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.f_oneway.html
-
-                # Create a string to evaluate to make the call because we have
-                # a variable number of lists to pass in
-                fValue, pValue = eval('scipy.stats.f_oneway(' + str(lists)[1:-1] + ')')
-            except Exception:
-                fValue = pValue = float('NaN')
+            # Create a string to evaluate to make the call because we have
+            # a variable number of lists to pass in
+            fValue, pValue = eval('scipy.stats.f_oneway(' + str(lists)[1:-1] + ')')
+        except Exception:
+            pValue = 1
 
         return [layerB, sigDigs(pValue)]
 
     @staticmethod
-    def layoutIndependent(s, layerB, diffStat10percent):
+    def oneContinuousOneBinary(s, layerA, layerB, layers, hexNames):
+
+        # This handles one attribute pair for layout-independent stats when one
+        # of the attributes is continuous and the other binary.
+
+        # Assign the new variable names to the layers depending on which is
+        # continuous
+        if layerA in s.contLayers:
+            contL = layerA
+            binL = layerB
+        else:
+            contL = layerB
+            binL = layerA
+
+        # Generate a list of lists that contains only values present in both of
+        # the attributes for each of the hexagons. This list looks like the
+        # below, where each hexagon's list contains the binary value, then the
+        # continuous value.
+        #   [
+        #       [0, 4.3452],
+        #       [1, 5.73453],
+        #       ...
+        #   ]
+        hexVals = []
+        for hexagon in hexNames:
+
+            # Look for this hexagon's value in the binary layer
+            try:
+                binVal = int(layers[binL][hexagon])
+            except KeyError:
+                # No value in the binary layer, so ignore this hexagon
+                continue
+
+            # Look for this hexagon's value in the continuous layer
+            try:
+                contVal = layers[contL][hexagon]
+            except KeyError:
+                # No value in the continuous layer, so ignore this hexagon
+                continue
+
+            hexVals.append([binVal, contVal])
+
+        # Find the lower and upper quartiles of the continuous values
+        # and remove them from the major list
+        hexes = sorted(hexVals, key=operator.itemgetter(1))
+        length = len(hexes)
+        quartile = int(round(length / 4))
+        del hexes[quartile:length - quartile]
+
+        # Build two vectors. Each vector will contain the continuous values
+        # associated with one binary value.
+        lists = [[], []]
+        for hex in hexes:
+            lists[hex[0]].append(hex[1])
+
+        try:
+            # (Welch's) t-test call returns like so: [t-value, p-value]
+            # Including equal variance argument being False makes this a
+            # Welch's t-test.
+            # http://docs.scipy.org/doc/scipy-0.14.0/reference/generated/scipy.stats.ttest_ind.html
+
+            tValue, pValue = scipy.stats.ttest_ind(lists[0], lists[1], 0, False)
+        except Exception:
+            pValue = 1
+
+        return [layerB, sigDigs(pValue)]
+
+    @staticmethod
+    def layoutIndependent(s, layerB):
 
         # If layerA is layerB, we want to write a value of nan at the p-value
         # so it will not be included in the sort in visualization
@@ -325,34 +361,23 @@ class ForEachLayer(object):
 
             # Are both attributes continuous?
             if types.count('cont') > 1:
-                return s.bothContinuous(s.layerA, layerB, s.layers,
-                    s.hexNames)
+                return s.bothContinuous(s.layerA, layerB, s.layers, s.hexNames)
 
-            # Handle the case where only one attribute is continuous
-            else:
-                if types.count('bin') > 0:
-                    binary = True
-                else:
-                    binary = False
-                sys.stdout.flush()
-                return s.oneContinuousOneDiscrete(s, s.layerA, layerB, s.layers,
-                    s.hexNames, s.layerAtype, (types.count('bin') > 0))
+            # Is one continuous and one binary?
+            elif types.count('bin') > 0:
+                return s.oneContinuousOneBinary(
+                    s, s.layerA, layerB, s.layers, s.hexNames)
 
-        # Is there any combination of binary and categorical?
-        elif types.count('bin') == 2 \
-            or types.count('cat') == 2 \
-            or (types.count('bin') == 1 and types.count('cat') == 1):
-            return s.bothDiscrete(
-                s, s.layerA, layerB, s.layers, s.hexNames, diffStat10percent)
+            else: # One is continous and one categorical
+                return s.oneContinuousOneCategorical(
+                    s, s.layerA, layerB, s.layers, s.hexNames)
+        else:
 
-        # We should never get here.
-        return 'continue'
+            # This must be some combination of binary and categorical
+            return s.bothDiscrete(s, s.layerA, layerB, s.layers, s.hexNames)
 
     @staticmethod
     def layoutAware(s, layerB):
-
-        # Note that all other downstream methods in this class are only for
-        # layout-independent layers.
 
         # Initialize the counts for the layers to the additives in C2
         A = copy.copy(s.windowAdditives)
@@ -382,7 +407,8 @@ class ForEachLayer(object):
             # http://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.pearsonr.html
             correlation, pValue = scipy.stats.pearsonr(A, B)
         except Exception:
-            correlation = pValue = float('NaN')
+            correlation = float('NaN')
+            pValue = 1
 
         return [layerB, sigDigs(correlation), sigDigs(pValue)]
 
@@ -416,9 +442,6 @@ class ForEachLayer(object):
                 else:
                     preAdjVals.append(row[idx])
 
-            if not adjust:
-                return
-
             try:
                 # Benjamini-Hochberg FDR correction for p-values returns:
                 #   [reject, p_vals_corrected, alphacSidak, alphacBonf]
@@ -426,7 +449,7 @@ class ForEachLayer(object):
                 reject, adjPvals, alphacSidak, alphacBonf = multicomp.multipletests(preAdjVals, alpha=0.05, method='fdr_bh')
 
             except Exception:
-                adjPvals = [float('NaN') for x in preAdjVals]
+                adjPvals = [1 for x in preAdjVals]
 
             for i, row in enumerate(preAdjusted):
                 f.writerow(row + [sigDigs(adjPvals[i])])
@@ -455,19 +478,11 @@ class ForEachLayer(object):
 
             # for layout-independent stats
 
-            if hasattr(s, 'diffStats'):
-
-                # Find the group with the lowest count of hexagons
-                # & save 10% of that for later comparisons
-                ones = filter(lambda x: x == 1, s.layers[s.layerA].values())
-                zeros = filter(lambda x: x == 0, s.layers[s.layerA].values())
-                diffStat10percent = min(len(ones), len(zeros)) / 10
-            else:
-                diffStat10percent = 'na'
+            s.significancyCutoffA = s.findSignificancyCutoff(s, s.layerA)
 
             for layerB in s.statsLayers:
 
-                line = s.layoutIndependent(s, layerB, diffStat10percent)
+                line = s.layoutIndependent(s, layerB)
                 if line == 'continue': continue
 
                 preAdjusted.append(line)
