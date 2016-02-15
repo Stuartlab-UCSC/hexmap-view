@@ -183,13 +183,12 @@ Read as "The content row", distinct from whatever else that element might be.
 }
 
 .info-key {
-    background: green;
-    text-align: center;
+    text-align: left;
     font-weight: bold;
 }
 
 .info-value {
-    background: #F0F0F0;
+    text-align: left;
 }
 
 /* Tool stuff */

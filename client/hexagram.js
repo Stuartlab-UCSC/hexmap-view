@@ -37,14 +37,6 @@ var available_matrices = [];
 // This holds the Google Map that we use for visualization
 googlemap = null;
 
-// This is the global Google Maps info window. We only want one hex to have its
-// info open at a time.
-var info_window = null;
-
-// This holds the signature name of the hex that the info window is currently
-// about.
-var selected_signature = undefined;
-
 // This is a mapping from coordinates [x][y] in in the global hex grid to signature
 // name
 var signature_grid = [];
@@ -155,25 +147,11 @@ function make_hexagon(row, column, hex_side_length, grid_offset) {
     
     // Set up the click listener to move the global info window to this hexagon
     // and display the hexagon's information
-    google.maps.event.addListener(hexagon, "click", function(event) {
-        if(!tool_activity()) {
-            // The user isn't trying to use a tool currently, so we can use
-            // their clicks for the infowindow.
-            
-            // Remove the window from where it currently is
-            info_window.close();
-
-            // Place the window in the center of this hexagon.
-            info_window.setPosition(get_LatLng(x, y));
-            
-            // Record that this signature is selected now
-            selected_signature = hexagon.signature;
-            
-            // Calculate the window's contents and make it display them.
-            redraw_info_window();
-        }
+    // TODO use a session var
+    google.maps.event.addListener(hexagon, "click", function (event) {
+        showInfoWindow(event, hexagon, x, y);
     });
-    
+
     // Subscribe the tool listeners to events on this hexagon
     subscribe_tool_listeners(hexagon);
     
@@ -210,104 +188,6 @@ function set_hexagon_stroke(hexagon) {
         strokeWeight: weight,
         strokeColor: Session.get('background'),
     });
-}
-
-function redraw_info_window() {
-    // Set the contents of the global info window to reflect the currently 
-    // visible information about the global selected signature. 
-    
-    if(selected_signature == undefined) {
-        // No need to update anything
-        return;
-    }
-
-    // Go get the infocard that goes in the info_window and, when it's 
-    // prepared, display it.
-    with_infocard(selected_signature, function(infocard) {
-        // The [0] is supposed to get the DOM element from the jQuery 
-        // element.
-        info_window.setContent(infocard[0]);
-        
-        // Open the window. It may already be open, or it may be closed but 
-        // properly positioned and waiting for its initial contents before 
-        // opening.
-        info_window.open(googlemap);
-    });
-}
-
-function with_infocard(signature, callback) {
-    // Given a signature, call the callback with a jQuery element representing 
-    // an "info card" about that signature. It's the contents of the infowindow 
-    // that we want to appear when the user clicks on the hex representing this 
-    // signature, and it includes things like the signature name and its values
-    // under any displayed layers (with category names if applicable).
-    // We return by callback because preparing the infocard requires reading 
-    // from the layers, which are retrieved by callback.
-    // TODO: Can we say that we will never have to download a layer here and 
-    // just directly access them? Is that neater or less neat?
-    
-    // Using jQuery to build this saves us from HTML injection by making jQuery
-    // do all the escaping work (we only ever set text).
-    
-    function row(key, value) {
-        // Small helper function that returns a jQuery element that displays the
-        // given key being the given value.
-        
-        // This holds the root element of the row
-        var root = $("<div/>").addClass("info-row");
-        
-        // Add the key and value elements
-        root.append($("<div/>").addClass("info-key").text(key));
-        root.append($("<div/>").addClass("info-value").text(value));
-        
-        return root;
-    }
-    
-    // This holds a list of the string names of the currently selected layers,
-    // in order.
-    // Just use everything on the shortlist.
-    var current_layers = Session.get('shortlist');
-    
-    // Obtain the layer objects (mapping from signatures/hex labels to colors)
-    with_layers(current_layers, function(retrieved_layers) { 
-        
-        // This holds the root element of the card.
-        var infocard = $("<div/>").addClass("infocard");
-        
-        infocard.append(row("Name", signature).addClass("info-name"));
-    
-        for(var i = 0; i < current_layers.length; i++) {
-            // This holds the layer's value for this signature
-            var layer_value = retrieved_layers[i].data[signature];
-            
-            if(have_colormap(current_layers[i])) {
-                // This is a color map
-                
-                // This holds the category object for this category number, or
-                // undefined if there isn't one.
-                var category = colormaps[current_layers[i]][layer_value];
-                
-                if(category != undefined) {
-                    // There's a specific entry for this category, with a 
-                    // human-specified name and color.
-                    // Use the name as the layer value
-                    layer_value = category.name;
-                }
-            }
-            
-            if(layer_value == undefined) {
-                // Let the user know that there's nothing there in this layer.
-                layer_value = "<undefined>";
-            }
-            
-            // Make a listing for this layer's value
-            infocard.append(row(current_layers[i], layer_value));
-        }
-        
-        // Return the infocard by callback
-        callback(infocard);
-    }); 
-    
 }
 
 function add_layer_url(layer_name, layer_url, attributes) {
@@ -641,6 +521,7 @@ find_polygons_in_rectangle = function (start, end) {
     }
     return in_box;
 }
+
 initialize_view = function () {
     // Initialize the global Google Map.
 
@@ -672,39 +553,17 @@ initialize_view = function () {
     // Attach the blank map type to the map
     googlemap.mapTypes.set("blank", new BlankMapType());
 
-    // Make the global info window
-    info_window = new google.maps.InfoWindow({
-        content: "No Signature Selected",
-        position: get_LatLng(0, 0)
-    });
+    initInfoWindow ();
 
     // Attach a listener for the ESC key to close the info_window
-    google.maps.event.addDomListener(document, 'keyup', function (e) {
-        var code = (e.keyCode ? e.keyCode : e.which);
-        if (code === 27) {
-            info_window.close();
-        }
-    });
+    // TODO use session var
+    google.maps.event.addDomListener(document, 'keyup', infoWindowMapKeyup);
     
     // Add an event to close the info window when the user clicks outside of any
     // hexagon
-    google.maps.event.addListener(googlemap, "click", function(event) {
-        info_window.close();
-        
-        // Also make sure that the selected signature is no longer selected,
-        // so we don't pop the info_window up again.
-        selected_signature = undefined;
-        
-        // Also un-focus the search box
-        $("#search").blur();
-    });
+    // TODO use session var
+    google.maps.event.addListener(googlemap, "click", info_window_close);
     
-    
-    // And an event to clear the selected hex when the info_window closes.
-    google.maps.event.addListener(info_window, "closeclick", function(event) {
-        selected_signature = undefined;
-    });
-
     google.maps.event.addListener(googlemap, "center_changed", function(event) {
         ctx.center = googlemap.getCenter();
         //Session.set('center', googlemap.getCenter());

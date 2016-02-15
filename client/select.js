@@ -303,12 +303,25 @@ var app = app || {}; // jshint ignore:line
         
         for(var i = 0; i < lines.length; i++) {
             // Trim and add to our requested selection
-            to_select.push(lines[i].trim());
+            var line = lines[i].trim();
+            if (line.length > 0) {
+                to_select.push(lines[i].trim());
+            }
         }
+
+        if (to_select.length > 0) {
         
-        // Add a selection with as many of the requested hexes as actually exist and
-        // pass the current filters.
-        select_list(to_select);
+            // Add a selection with as many of the requested hexes as actually exist and
+            // pass the current filters.
+            select_list(to_select);
+
+        // TODO future use
+        } else if (to_select.length > 0) {
+
+            // With only one selected, we will assume the user does not want to
+            // create a selection, but just find this hexagon
+            infoWindowFindHexagon(to_select[0]);
+        }
     }
 
     function selectImport() {
@@ -316,9 +329,9 @@ var app = app || {}; // jshint ignore:line
         // A tool for importing a list of hexes as a selection
         // Make the import form
         var import_form = $("<form/>").attr("title", 
-            "Enter a List As a Selection");
+            "Select by Identifier");
 
-        import_form.append($("<div/>").text("Enter hexagon names to be selected on the map with one per line:"));
+        import_form.append($("<div/>").text("Hexagon IDs, one per line:"));
 
         // A big text box
         var text_area = $("<textarea/>").addClass("import");
@@ -356,7 +369,7 @@ var app = app || {}; // jshint ignore:line
             modal: true,
             width: '20em',
             buttons: {
-                "Import": function() {
+                "Select": function() {
                     // Do the import of the data. The data in question is always
                     // in the textbox.
                     
