@@ -1,5 +1,6 @@
-public/data
-server/run_*
+.python/run_*
+public/docs
 analyze
 *.save
 *.pyc
+

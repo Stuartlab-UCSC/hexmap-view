@@ -637,7 +637,6 @@ var app = app || {}; // jshint ignore:line
         computingTextDisplay();
         var diffLayer = focus_attr + ' & ' + focus_attr2;
         opts = {
-            isDiffStats: 'yes',
             statsLayers: ctx.bin_layers.concat(ctx.cat_layers.concat(ctx.cont_layers.concat(diffLayer))),
             binLayers: ctx.bin_layers.concat(diffLayer),
             catLayers: ctx.cat_layers,
