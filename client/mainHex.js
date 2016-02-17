@@ -4,6 +4,7 @@
 
 var app = app || {}; // jshint ignore:line
 
+DEV = true; // true if in development mode, false if not
 ATTR_FILTERS = true;
 ctx = null; // State
 layers = {}; // contains almost all information about attributes

@@ -1,0 +1,3 @@
+make clean
+#make BUILDDIR=../public/docs html
+sphinx-build . ../public/docs
