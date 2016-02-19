@@ -2,7 +2,8 @@ Code Repository
 ===============
 
 The code repository is at
-`github.com/ucscHexmap/hexagram <https://github.com/ucscHexmap/hexagram>`_
+`github.com/ucscHexmap/hexagram <https://github.com/ucscHexmap/hexagram>`_, in
+the dev branch for development.
 
 Repository branches
 ...................
@@ -132,4 +133,4 @@ merge your branch into dev.
 
  git push dev
 
-Good luck !
+Good luck

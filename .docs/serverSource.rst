@@ -1,4 +1,4 @@
-Server Sources
+Source: Server
 --------------
 The dynamic and precomputed statistics use the same python code at the layer
 level, statsLayer.py.
@@ -12,7 +12,7 @@ for dynamic stats and the server uses this for pre-computed stats
 
 Server only
 ^^^^^^^^^^^
-This list includes all of the files currently checked into the repository in
+This list should include all of the files currently checked into the repository in
 hexagram/server.
 
 **hexagram.py** : original code-base and the top executable in generating the
@@ -25,24 +25,16 @@ final input files for the tumor map
 **pool.py** : general utility to manage parallel processing
 
 **diffAnalysis.py** : perform dynamic differential analysis with input from the client.
-Currently unused, but probably will be used soon
+Currently unused, but may be used soon
 
 Client-initiated
 ^^^^^^^^^^^^^^^^
 The dynamic statistics are initiated by the client via Meteor
 rather than directly issuing http requests.
 
-statsDynamic
-............
+**meteorMethods.js** : interface between client and server, a js/node file
 
-**meteorMethods.js** : node file that handles calls and responses between the client
-and server
+**statsDynamic.py** : transforms a dynamic stat layer into a normal layer for computations
 
-**statsDynamic.py** : the top executable when computing dynamic stats as called from
-the client
-
-placeNewNodes
-.............
-
-
+**placeNewNodes** : place nodes on an existing map after computing similarity
 

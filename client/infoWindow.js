@@ -35,7 +35,7 @@ var app = app || {}; // jshint ignore:line
             var root = $("<div/>").addClass("info-row"),
                 newValue = value;
 
-            if (ctx.cont_layers.indexOf(key) > -1) {
+            if (ctx.cont_layers.indexOf(key) > -1 && !_isUndefined(value)) {
                 newValue = value.toExponential(1);
             }
             

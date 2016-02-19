@@ -1,18 +1,11 @@
 /*
  * custom.css
- * ~~~~~~~~~~~
  *
  * Overrides the theme options in conf.py that either don't work or don't exist
- *
  *
  *   #E7E5D7, ucsc pages tan
  *   #05366B  ucsc pages blue font
  */
-
-div.header-wrapper,
-div.footer-wrapper {
-    border: inherit;
-}
 
 div.header .headertitle a,
 div.header div.rel a,
@@ -21,8 +14,37 @@ div.footer, div.footer a {
     color: #E7E5D7;
 }
 
+body {
+    overflow-x: hidden;
+}
+
+div.header-wrapper,
+div.footer-wrapper {
+    border: inherit;
+}
+
+div.header,
+div.content,
+div.footer {
+    padding-left: 1em;
+    padding-right: 1em;
+}
+
+div.document {
+    width: 50em;
+}
+
+div.document ul {
+    margin: 0.2em 1.5em;
+}
+
 div.content-wrapper {
   background-color: #E7E5D7;
+}
+
+.sidebar {
+    margin-right: 1em;
+    padding-right: 1em;
 }
 
 h1, h2, h3, h4,
@@ -45,10 +67,6 @@ div.document div.highlight {
 pre, xmp, plaintext, listing {
     line-height: 1.2;
     font-family: "Courier New", Courier, monospace;
-}
-
-div.sidebar li.toctree-l1.current a {
-    border-right: solid 5px red;
 }
 
 input, textarea, keygen, select, button {

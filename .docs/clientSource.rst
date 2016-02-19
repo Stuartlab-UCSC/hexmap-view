@@ -1,4 +1,4 @@
-Client Sources
+Source: Client
 --------------
 The client code is in javascript, css and html making use of Meteor in the
 newer code, especially

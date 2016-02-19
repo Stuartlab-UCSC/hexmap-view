@@ -1,3 +1,6 @@
 make clean
-#make BUILDDIR=../public/docs html
+rm -rf ../public/docs/*
+cp _static/*  ../public/docs/_static
+cp _templates/*  ../public/docs/_templates
 sphinx-build . ../public/docs
+#sphinx-build . _build

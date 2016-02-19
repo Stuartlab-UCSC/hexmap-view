@@ -2,15 +2,21 @@
 Python API: statsDynamic
 -------------------------
 
-Request the dynamic calculation of statistics due to a dynamically-generated
+Request the dynamic calculation of statistics for a dynamically-generated
 attribute, or because stats were not precomputed.
 
-Note that this request returns data as tsv rather than as json;
+See :doc:`pythonApi` for general information about python APIs as well as an
+example call and response.
+
+The data within the temporary files are explained here.
+
+Note that this request returns data as tsv rather than as json. It was
 implemented prior to standardizing on json.
 
-pre-json options example::
+Example request data::
 
  {
+    "request": "statsDynamic",
     layerA: focus_attr,
     layerIndex: ctx.layer_names_by_index.indexOf(focus_attr),
     statsLayers: ctx.bin_layers,
@@ -27,15 +33,14 @@ pre-json options example::
     tempFile: 'yes',
 
 Definitions
- TBD
- layout: type of values by which the new node will be placed on the map. e.g., "mRNA"
 
-Response success example: TBD
-
-Response success format: TBD
-
-Response errors: TBD
+TBD
 
 
 
+
+
+
+
+Response error formats are at :doc:`pythonApi`
 

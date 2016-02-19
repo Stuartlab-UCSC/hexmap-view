@@ -1,7 +1,7 @@
 Query API
 =========
 
-Revision: February 10, 2016
+Revision: February 17, 2016
 
 All Queries
 -----------
@@ -10,15 +10,15 @@ All Queries
  | API responses are returned in JSON format.
 
 
-Query API: placeNewNodes
-------------------------
+Query API: overlayNodes
+-----------------------
 
-Place new nodes on a frozen map.
+Overlay new nodes on a frozen map.
 
 JSON message body example::
 
  {
-    "map": "pancan33+target",
+    "map": "pancan33+",
     "mRNA": {
         "mySample1": {
             "ALK": "0.897645",
@@ -28,13 +28,12 @@ JSON message body example::
         },
         ...
     },
-    ...
  }
 
 Definitions
 
- | layout: type of values by which the new node will be placed on the map. e.g., "mRNA"
- | map: frozen map ID. e.g., "pancan33+target"
+ | layout: type of values by which the new node will be overlaid on the map. e.g., "mRNA"
+ | map: frozen map ID. e.g., "pancan33+"
  | node: identifier for the node to be placed on the map. e.g., TCGA sample ID
  | node property: identifier for the node's property, e.g., "TP53"
  | query ID: text following the base URL
@@ -45,39 +44,29 @@ JSON message body format::
     "map": <map ID>,
     <layout>: {
         <node>: {
-                <node-property>: <node-property value>,
-                (1 to N properties)
-                ...
-            },
-            (1 to N nodes)
+            <node-property>: <node-property value>,
+            (1 to N properties)
             ...
+        },
+        (1 to N nodes)
+        ...
     },
-    (1 to N layouts)
-     ...
  }
 
 Response success example: HTTP 200::
 
  {
     "bookmark": "https://tumormap.ucsc.edu/?b=18XFlfJG8ijJUVP_CYIbA3qhvCw5pADF651XTi8haPnE",
-    "unknown node properties": [
-        "ALKz",
-        "TP03",
-        ...
-    ]
  }
 
 Response success format: HTTP 200::
 
  {
     "bookmark": <bookmark>
-    "unknown node properties": [
-        <node-property>,
-        ...
-    ]
  }
 
 Response errors
+(there may be more or less)
 
  | HTTP 400 'map "pancan44" not found.'
  | HTTP 400 'layout "sRNA" of map "pancan12" not found.'
@@ -89,7 +78,8 @@ Response errors
  | HTTP 400 'query malformed.'
 
 Notes:
- # For callers other than Treehouse, a gene list needs to be maintained on the tumormap server in order to respond about unknown genes.
+ # For callers other than Treehouse, a gene list needs to be maintained on the
+ tumormap server in order to respond about unknown genes.
 
 
 
