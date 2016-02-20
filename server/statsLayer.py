@@ -266,14 +266,14 @@ class ForEachLayer(object):
         return [layerB, sigDigs(pValue)]
 
     @staticmethod
-    def oneContinuousOneBinary(s, layerA, layerB, layers, hexNames):
+    def oneContinuousOneBinary(contLayers, layerA, layerB, layers, hexNames):
 
         # This handles one attribute pair for layout-independent stats when one
         # of the attributes is continuous and the other binary.
 
         # Assign the new variable names to the layers depending on which is
         # continuous
-        if layerA in s.contLayers:
+        if layerA in contLayers:
             contL = layerA
             binL = layerB
         else:
@@ -306,14 +306,14 @@ class ForEachLayer(object):
                 # No value in the continuous layer, so ignore this hexagon
                 continue
 
-            hexVals.append([binVal, contVal])
+            hexVals.append([binVal, float(contVal)])
 
         # Find the lower and upper quartiles of the continuous values
         # and remove them from the major list
         hexes = sorted(hexVals, key=operator.itemgetter(1))
         length = len(hexes)
         quartile = int(round(length / 4))
-        del hexes[quartile:length - quartile]
+        hexes = hexes[quartile:length - quartile]
 
         # Build two vectors. Each vector will contain the continuous values
         # associated with one binary value.
@@ -366,7 +366,7 @@ class ForEachLayer(object):
             # Is one continuous and one binary?
             elif types.count('bin') > 0:
                 return s.oneContinuousOneBinary(
-                    s, s.layerA, layerB, s.layers, s.hexNames)
+                    s.contLayers, s.layerA, layerB, s.layers, s.hexNames)
 
             else: # One is continous and one categorical
                 return s.oneContinuousOneCategorical(

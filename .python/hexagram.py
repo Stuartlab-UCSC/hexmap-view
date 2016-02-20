@@ -47,6 +47,15 @@ class Context:
         print json.dumps(s, indent=4, sort_keys=True)
 ctx = Context();
 
+def sigDigs(x, sig=4):
+
+    if sig < 1:
+        raise ValueError("number of significant digits must be >= 1")
+
+    # Use %e format to get the n most significant digits, as a string.
+    format = "%." + str(sig-1) + "e"
+    return float(format % x)
+
 def parse_args(args):
     """
     Takes in the command-line arguments list (args), and returns a nice argparse
@@ -1410,7 +1419,7 @@ def hexIt(options):
         scores_writer = tsv.TsvWriter(open(layer_files[layer_name], "w"))
         for signature_name, score in layer.iteritems():
             # Write the score for this signature in this layer
-            scores_writer.line(signature_name, score)
+            scores_writer.line(signature_name, sigDigs(score))
         scores_writer.close()
 
     # We send "clumpiness scores" for each layer to the client (greater is
@@ -1444,6 +1453,9 @@ def hexIt(options):
         clumpiness_scores = [collections.defaultdict(lambda: float("-inf")) 
             for _ in options.similarity]
     
+    # Sort Layers According to Data Type
+    determine_layer_data_types (layers, layer_names, options)
+
     # Count how many layer entries are greater than 0 for each binary layer, and
     # store that number in this dict by layer name. Things with the default
     # empty string instead of a number aren't binary layers, but they can use
@@ -1452,18 +1464,19 @@ def hexIt(options):
     layer_positives = collections.defaultdict(str)
 
     for layer_name in layer_names:
-
-        # Assume it's a binary layer until proven otherwise
-        layer_positives[layer_name] = 0
-        for value in layers[layer_name].itervalues():
-            if value == 1:
-                # Count up all the 1s in the layer
-                layer_positives[layer_name] += 1
-            elif value != 0:
-                # It has something that isn't 1 or 0, so it can't be a binary
-                # layer. Throw it out and try the next layer.
-                layer_positives[layer_name] = ""
-                break
+        if layer_name in ctx.binary_layers:
+            layer_positives[layer_name] = 0
+            for value in layers[layer_name].itervalues():
+                if value == 1:
+                    # Count up all the 1s in the layer
+                    layer_positives[layer_name] += 1
+                elif value != 0:
+                    # It has something that isn't 1 or 0, so it can't be a binary
+                    # layer. Throw it out and try the next layer.
+                    layer_positives[layer_name] = ""
+                    break
+        else:
+            layer_positives[layer_name] = ""
     
     # Write an index of all the layers we have, in the form:
     # <layer>\t<file>\t<number of signatures with data>\t<number of signatures
@@ -1492,9 +1505,6 @@ def hexIt(options):
         index_writer.list_line(parts)
         
     index_writer.close()
-
-    # Sort Layers According to Data Type
-    determine_layer_data_types (layers, layer_names, options)
 
     # Copy over the tags file if one exists
     if options.attributeTags is not None:

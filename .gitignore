@@ -1,4 +1,5 @@
 .python/run_*
+.python/statsLayer.py
 public/docs
 analyze
 *.save
