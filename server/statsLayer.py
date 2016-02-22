@@ -14,6 +14,9 @@ def sigDigs(x, sig=3):
     if sig < 1:
         raise ValueError("number of significant digits must be >= 1")
 
+    if math.isnan(x):
+        return 1
+
     # Use %e format to get the n most significant digits, as a string.
     format = "%." + str(sig-1) + "e"
     return float(format % x)
@@ -293,16 +296,16 @@ class ForEachLayer(object):
         for hexagon in hexNames:
 
             # Look for this hexagon's value in the binary layer
-            try:
+            if hexagon in layers[binL]:
                 binVal = int(layers[binL][hexagon])
-            except KeyError:
+            else:
                 # No value in the binary layer, so ignore this hexagon
                 continue
 
             # Look for this hexagon's value in the continuous layer
-            try:
+            if hexagon in layers[contL]:
                 contVal = layers[contL][hexagon]
-            except KeyError:
+            else:
                 # No value in the continuous layer, so ignore this hexagon
                 continue
 

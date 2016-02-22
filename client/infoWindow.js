@@ -35,8 +35,16 @@ var app = app || {}; // jshint ignore:line
             var root = $("<div/>").addClass("info-row"),
                 newValue = value;
 
-            if (ctx.cont_layers.indexOf(key) > -1 && !_isUndefined(value)) {
-                newValue = value.toExponential(1);
+            if (_.isNaN(newValue) || _.isUndefined(newValue)) {
+                newValue = 'NA';
+
+            } else if (ctx.cont_layers.indexOf(key) > -1) {
+                try {
+                    newValue = value.toExponential(1);
+                }
+                catch (error) {
+                    newValue = 'NA';
+                }
             }
             
             // Add the key and value elements
@@ -80,7 +88,7 @@ var app = app || {}; // jshint ignore:line
                 
                 if (layer_value == undefined) {
                     // Let the user know that there's nothing there in this layer.
-                    layer_value = "<undefined>";
+                    layer_value = 'NA';
                 }
                 
                 // Make a listing for this layer's value
@@ -141,7 +149,7 @@ var app = app || {}; // jshint ignore:line
     showInfoWindow = function (event, hexagon, x, y) {
 
         if (!info_window) return;
-        
+
         var xy = event; // TODO
         if (tool_activity()) {
             // The user is using a tool currently, so we cannot use

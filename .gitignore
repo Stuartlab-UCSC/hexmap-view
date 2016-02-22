@@ -1,3 +1,4 @@
+.DS_Store
 .python/run_*
 .python/statsLayer.py
 public/docs

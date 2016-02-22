@@ -1,7 +1,7 @@
 Query API
 =========
 
-Revision: February 17, 2016
+Revision: February 21, 2016
 
 All Queries
 -----------
@@ -19,11 +19,14 @@ JSON message body example::
 
  {
     "map": "pancan33+",
-    "mRNA": {
-        "mySample1": {
-            "ALK": "0.897645",
-            "TP53": "0.904140",
-            "POGZ: "0.792754",
+    "layouts": {
+        "mRNA": {
+            "mySample1": {
+                "ALK": "0.897645",
+                "TP53": "0.904140",
+                "POGZ: "0.792754",
+                ...
+            },
             ...
         },
         ...
@@ -35,20 +38,23 @@ Definitions
  | layout: type of values by which the new node will be overlaid on the map. e.g., "mRNA"
  | map: frozen map ID. e.g., "pancan33+"
  | node: identifier for the node to be placed on the map. e.g., TCGA sample ID
- | node property: identifier for the node's property, e.g., "TP53"
- | query ID: text following the base URL
+ | node property: identifier for a node's property, e.g., "TP53"
 
 JSON message body format::
 
  {
     "map": <map ID>,
-    <layout>: {
-        <node>: {
-            <node-property>: <node-property value>,
-            (1 to N properties)
+    "layouts": {
+        <layout>: {
+            <node>: {
+                <node-property>: <node-property value>,
+                (1 to N properties)
+                ...
+            },
+            (1 to N nodes)
             ...
         },
-        (1 to N nodes)
+        (1 to N layouts)
         ...
     },
  }
