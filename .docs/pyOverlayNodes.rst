@@ -60,27 +60,33 @@ JSON message body format::
 Response success data example::
 
  {
-    "mRNA": {
-        "mySample1": [
-            "x": "42",
-            "y": "23",
-        ],
+    "map": <map ID>,
+    "layouts": {
+        "mRNA": {
+            "mySample1": {
+                "x": "42",
+                "y": "23",
+            },
+        },
     },
  }
 
 Response success data format::
 
  {
-    <layout>: {
-        <node>: {
-                "x": <x-value>,
-                "y": <y-value>,
-            },
-        (1 to N nodes)
+    "map": <map ID>,
+    "layouts": {
+        <layout>: {
+            <node>: {
+                    "x": <x-value>,
+                    "y": <y-value>,
+                },
+            (1 to N nodes)
+            ...
+        },
+        (1 to N layouts)
         ...
-    },
-    (1 to N layouts)
-    ...
+    }
  }
 
 Response error formats are at :doc:`pythonApi`

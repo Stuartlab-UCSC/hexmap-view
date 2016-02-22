@@ -312,7 +312,7 @@ class ForEachLayer(object):
             hexVals.append([binVal, float(contVal)])
 
         # Find the lower and upper quartiles of the continuous values
-        # and remove them from the major list
+        # and remove them from the major list, TBD inclusive of cutoff
         hexes = sorted(hexVals, key=operator.itemgetter(1))
         length = len(hexes)
         quartile = int(round(length / 4))
@@ -325,12 +325,18 @@ class ForEachLayer(object):
             lists[hex[0]].append(hex[1])
 
         try:
+            # Mann-Whitney rank test returns like so [Mann-Whitney stats, p-value]
+            # Take into account the continuity correction (1/2.).
+            #http://docs.scipy.org/doc/scipy-0.16.0/reference/generated/scipy.stats.mannwhitneyu.html
+
+            mnValue, pValue = scipy.stats.mannwhitneyu(lists[0], lists[1], True)
+
             # (Welch's) t-test call returns like so: [t-value, p-value]
             # Including equal variance argument being False makes this a
             # Welch's t-test.
             # http://docs.scipy.org/doc/scipy-0.14.0/reference/generated/scipy.stats.ttest_ind.html
 
-            tValue, pValue = scipy.stats.ttest_ind(lists[0], lists[1], 0, False)
+            #tValue, pValue = scipy.stats.ttest_ind(lists[0], lists[1], 0, False)
         except Exception:
             pValue = 1
 
@@ -448,11 +454,11 @@ class ForEachLayer(object):
             try:
                 # Benjamini-Hochberg FDR correction for p-values returns:
                 #   [reject, p_vals_corrected, alphacSidak, alphacBonf]
-                # http://statsmodels.sourceforge.net/devel/generated/statsmodels.sandbox.stats.multicomp.multipletests.html#statsmodels.sandbox.stats.multicomp.multipletests
+                # http://statsmodels.sourceforge.net/devel/generated/statsmodels.sandbox.stats.multicomp.multipletests.html
                 reject, adjPvals, alphacSidak, alphacBonf = multicomp.multipletests(preAdjVals, alpha=0.05, method='fdr_bh')
 
             except Exception:
-                adjPvals = [1 for x in preAdjVals]
+                adjPvals = [1 for x in preAdjusted]
 
             for i, row in enumerate(preAdjusted):
                 f.writerow(row + [sigDigs(adjPvals[i])])

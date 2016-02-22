@@ -105,6 +105,8 @@ def parse_args(args):
         help="directory in which to create other output files")
     parser.add_argument("--drlpath", "-r", type=str,
         help="directory in which contain drl binaries")
+    parser.add_argument("--title", type=str, default="",
+        help="title of the map, using characters legal in a unix filename")
     parser.add_argument("--first_attribute", type=str, default="",
         help="initial attribute to be at the top of the list and in the short list")
     parser.add_argument("--query", type=str, default=None,
@@ -693,12 +695,14 @@ def determine_layer_data_types (layers, layer_names, options):
     type_writer = tsv.TsvWriter(open(os.path.join(options.directory, 
     "Layer_Data_Types.tab"), "w"))
 
+    if options.title and len(options.title) > 0:
+        type_writer.line("Title", options.title)
     if (options.first_attribute):
         type_writer.line("FirstAttribute", options.first_attribute)
     type_writer.line("Continuous", *ctx.continuous_layers)
     type_writer.line("Binary", *ctx.binary_layers)
     type_writer.line("Categorical", *ctx.categorical_layers)
- 
+
     type_writer.close()
 
     print timestamp(), 'Attribute counts:', len(ctx.binary_layers) + len(ctx.categorical_layers) + len(ctx.continuous_layers), '= Binary:', len(ctx.binary_layers), '+ Categorical:', len(ctx.categorical_layers), '+ Continuous:', len(ctx.continuous_layers)
