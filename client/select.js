@@ -91,6 +91,55 @@ var app = app || {}; // jshint ignore:line
         select_list(inSelection, "user selection");
     }
 
+    find_polygons_in_rectangle = function (start, end) {
+        // TODO use findHexagonsInPolygon instead
+
+        // Given two Google Maps LatLng objects (denoting arbitrary rectangle 
+        // corners), add a new selection layer containing all the hexagons 
+        // completely within that rectangle.
+        // Only looks at hexes that are not filtered out by the currently selected 
+        // filters.
+        
+        // Sort out the corners to get the rectangle limits in each dimension
+        var min_lat = Math.min(start.lat(), end.lat());
+        var max_lat = Math.max(start.lat(), end.lat());
+        var min_lng = Math.min(start.lng(), end.lng());
+        var max_lng = Math.max(start.lng(), end.lng());
+        
+        // This holds an array of all signature names in our selection box.
+        var in_box = [];
+        
+        // Start it out with 0 for each signature. Otherwise we wil have missing 
+        // data for signatures not passing the filters.
+        for(var signature in polygons) {
+             // Get the path for its hex
+            var path = polygons[signature].getPath();
+            
+            // This holds if any points of the path are outside the selection
+            // box
+            var any_outside = false;
+            
+            path.forEach(function(point, index) {
+                // Check all the points. Runs synchronously.
+                
+                if(point.lat() < min_lat || point.lat() > max_lat || 
+                    point.lng() < min_lng || point.lng() > max_lng) {
+                    
+                    // This point is outside the rectangle
+                    any_outside = true;
+                    
+                }
+            });
+            
+            // Select the hex if all its corners are inside the selection
+            // rectangle.
+            if(!any_outside) {
+                in_box.push(signature);
+            }
+        }
+        return in_box;
+    }
+
     function inSelectable (event) {
 
         // Check for the mouse being inside the selectable area

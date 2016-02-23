@@ -37,29 +37,8 @@ var available_matrices = [];
 // This holds the Google Map that we use for visualization
 googlemap = null;
 
-// This is a mapping from coordinates [x][y] in in the global hex grid to signature
-// name
-var signature_grid = [];
-
-// This holds the grid of hexagon polygons on that Google Map.
-var polygon_grid = [];
-
-// This holds an object of polygons by signature name
-polygons = {};
-
-// How big is a hexagon in google maps units? This gets filled in once we have 
-// the hex assignment data. (This is really the side length.)
-var hex_size;
-
 // This holds a handle for the currently enqueued view redrawing timeout.
 var redraw_handle;
-
-// What's the minimum number of pixels that hex_size must represent at the
-// current zoom level before we start drawing hex borders?
-var MIN_BORDER_SIZE = 10;
-
-// And how thick should the border be when drawn?
-var HEX_STROKE_WEIGHT = 2;
 
 // How many layer search results should we display at once?
 var SEARCH_PAGE_SIZE = 10;
@@ -74,120 +53,6 @@ print = function (text) {
         // We know the console exists, and we can log to it.
         console.log(text);
     }
-}
-
-function make_hexagon(row, column, hex_side_length, grid_offset) {
-    // Make a new hexagon representing the hexagon at the given grid coordinates.
-    // hex_side_length is the side length of hexagons in Google Maps world 
-    // coordinate units. grid_offset specifies a distance to shift the whole 
-    // grid down and right from the top left corner of the map. This lets us 
-    // keep the whole thing away from the edges of the "earth", where Google 
-    // Maps likes to wrap.
-    // Returns the Google Maps polygon.
-    
-    // How much horizontal space is needed per hex on average, stacked the 
-    // way we stack them (wiggly)?
-    var hex_column_width = 3.0/2.0 * hex_side_length;
-
-    // How tall is a hexagon?
-    var hex_height = Math.sqrt(3) * hex_side_length;
-
-    // First, what are x and y in 0-256 world coordinates for this grid position?
-    var x = column * hex_column_width;
-    var y = row * hex_height;
-    if(column % 2 == 1) {
-        // Odd columns go up
-        y -= hex_height / 2; 
-    }
-    
-    // Apply the grid offset to this hex
-    x += grid_offset;
-    y += grid_offset;
-    
-    // That got X and Y for the top left corner of the bounding box. Shift to 
-    // the center.
-    x += hex_side_length;
-    y += hex_height / 2;
-    
-    // Offset the whole thing so no hexes end up off the map when they wiggle up
-    y += hex_height / 2;
-    
-    // This holds an array of all the hexagon corners
-    var coords = [
-        get_LatLng(x - hex_side_length, y),
-        get_LatLng(x - hex_side_length / 2, y - hex_height / 2),
-        get_LatLng(x + hex_side_length / 2, y - hex_height / 2),
-        get_LatLng(x + hex_side_length, y),
-        get_LatLng(x + hex_side_length / 2, y + hex_height / 2),
-        get_LatLng(x - hex_side_length / 2, y + hex_height / 2),
-    ];
-    
-    // We don't know whether the hex should start with a stroke or not without 
-    // looking at the current zoom level.
-    // Get the current zoom level (low is out)
-    var zoom = googlemap.getZoom();
-        
-    // API docs say: pixelCoordinate = worldCoordinate * 2 ^ zoomLevel
-    // So this holds the number of pixels that the global length hex_size 
-    // corresponds to at this zoom level.
-    var hex_size_pixels = hex_size * Math.pow(2, zoom);
-    
-    // Construct the Polygon
-    var hexagon = new google.maps.Polygon({
-        paths: coords,
-        strokeOpacity: 1.0,
-        fillColor: "#FF0000",
-        fillOpacity: 1.0,
-        zIndex: 1,
-    });
-    set_hexagon_stroke(hexagon);
-    
-    // Attach the hexagon to the global map
-    hexagon.setMap(googlemap);
-    
-    // Set up the click listener to move the global info window to this hexagon
-    // and display the hexagon's information
-    // TODO use a session var
-    google.maps.event.addListener(hexagon, "click", function (event) {
-        showInfoWindow(event, hexagon, x, y);
-    });
-
-    // Subscribe the tool listeners to events on this hexagon
-    subscribe_tool_listeners(hexagon);
-    
-    return hexagon;
-} 
-
-function set_hexagon_signature(hexagon, text) {
-    // Given a polygon representing a hexagon, set the signature that the
-    // hexagon represents.
-    hexagon.signature = text;
-}
-
-function set_hexagon_color(hexagon, color) {
-    // Given a polygon, set the hexagon's current background 
-    // color.
-    
-    hexagon.setOptions({
-        fillColor: color
-    });
-}
-
-function set_hexagon_stroke(hexagon) {
-    // Given a polygon, set the weight of hexagon's border stroke, in number of
-    // screen pixels, and the border color.
-
-    // API docs say: pixelCoordinate = worldCoordinate * 2 ^ zoomLevel
-    // So this holds the number of pixels that the global length hex_size 
-    // corresponds to at this zoom level.
-    var weight = (hex_size * Math.pow(2, ctx.zoom) >= MIN_BORDER_SIZE)
-            ? HEX_STROKE_WEIGHT
-            : 0;
-
-    hexagon.setOptions({
-        strokeWeight: weight,
-        strokeColor: Session.get('background'),
-    });
 }
 
 function add_layer_url(layer_name, layer_url, attributes) {
@@ -226,7 +91,7 @@ with_layer = function (layer_name, callback) {
 
     // First get what we have stored for the layer
     var layer = layers[layer_name];
-    
+
 		var data_val = layer.data;
 		if(layer.data == undefined) {
 		    // We need to download the layer.
@@ -475,53 +340,6 @@ update_browse_ui = function() {
     $("#search").select2("close");
 }
 
-find_polygons_in_rectangle = function (start, end) {
-    // Given two Google Maps LatLng objects (denoting arbitrary rectangle 
-    // corners), add a new selection layer containing all the hexagons 
-    // completely within that rectangle.
-    // Only looks at hexes that are not filtered out by the currently selected 
-    // filters.
-    
-    // Sort out the corners to get the rectangle limits in each dimension
-    var min_lat = Math.min(start.lat(), end.lat());
-    var max_lat = Math.max(start.lat(), end.lat());
-    var min_lng = Math.min(start.lng(), end.lng());
-    var max_lng = Math.max(start.lng(), end.lng());
-    
-    // This holds an array of all signature names in our selection box.
-    var in_box = [];
-    
-    // Start it out with 0 for each signature. Otherwise we wil have missing 
-    // data for signatures not passing the filters.
-    for(var signature in polygons) {
-         // Get the path for its hex
-        var path = polygons[signature].getPath();
-        
-        // This holds if any points of the path are outside the selection
-        // box
-        var any_outside = false;
-        
-        path.forEach(function(point, index) {
-            // Check all the points. Runs synchronously.
-            
-            if(point.lat() < min_lat || point.lat() > max_lat || 
-                point.lng() < min_lng || point.lng() > max_lng) {
-                
-                // This point is outside the rectangle
-                any_outside = true;
-                
-            }
-        });
-        
-        // Select the hex if all its corners are inside the selection
-        // rectangle.
-        if(!any_outside) {
-            in_box.push(signature);
-        }
-    }
-    return in_box;
-}
-
 initialize_view = function () {
     // Initialize the global Google Map.
 
@@ -555,15 +373,6 @@ initialize_view = function () {
 
     initInfoWindow ();
 
-    // Attach a listener for the ESC key to close the info_window
-    // TODO use session var
-    google.maps.event.addDomListener(document, 'keyup', infoWindowMapKeyup);
-    
-    // Add an event to close the info window when the user clicks outside of any
-    // hexagon
-    // TODO use session var
-    google.maps.event.addListener(googlemap, "click", info_window_close);
-    
     google.maps.event.addListener(googlemap, "center_changed", function(event) {
         ctx.center = googlemap.getCenter();
         //Session.set('center', googlemap.getCenter());
@@ -575,9 +384,7 @@ initialize_view = function () {
     google.maps.event.addListener(googlemap, "zoom_changed", function(event) {
         // Get the current zoom level (low is out)
         ctx.zoom = googlemap.getZoom();
-        for(var signature in polygons) {
-            set_hexagon_stroke(polygons[signature]);
-        }
+        setHexagonStrokes();
     });
     
     // Subscribe all the tool listeners to the map
@@ -678,10 +485,10 @@ function redraw_view() {
             layer_limits.push(range);
         }
         
-        
+
         // Turn all the hexes the filtered-out color, pre-emptively
         for(var signature in polygons) {
-            set_hexagon_color(polygons[signature], noDataColor());
+            setHexagonColor(polygons[signature], noDataColor());
         }
         
         // Go get the list of filter-passing hexes.
@@ -738,7 +545,7 @@ function redraw_view() {
                 }
                 
                 // Set the color by the composed layers.
-                set_hexagon_color(polygons[label], computed_color);
+                setHexagonColor(polygons[label], computed_color);
             }
         });
 
@@ -963,145 +770,15 @@ function mix2 (a, b, c, d, amount1, amount2) {
     return mix(mix(a, b, amount1), mix(c, d, amount1), amount2);
 }
 
-assignment_values = function (layout_index) {
-	// Download the signature assignments to hexagons and fill in the global
-    // hexagon assignment grid.
-    Meteor.call('getTsvFile', "assignments" + layout_index +".tab",
-        ctx.project, Session.get('proxPre'), function (error, parsed) {;
-
-        // This is an array of rows, which are arrays of values:
-        // id, x, y
-
-        if (error) {
-            projectNotFound();
-            return;
-        }
-
-        // This holds the maximum observed x
-        var max_x = 0;
-        // And y
-        var max_y = 0;
-        polygons = {};
-        polygon_grid = signature_grid = [];
-
-        // Fill in the global signature grid and polygon grid arrays.
-        for(var i = 0; i < parsed.length; i++) {
-            // Get the label
-            var label = parsed[i][0];
-            
-            if(label == "") {
-                // Blank line
-                continue;
-            }
-            
-            // Get the x coord
-            var x = parseInt(parsed[i][1]);
-            // And the y coord
-            var y = parseInt(parsed[i][2]);
-
-            // Update maxes
-            max_x = Math.max(x, max_x);
-            max_y = Math.max(y, max_y);
-
-            // Make sure we have a row
-            if(signature_grid[y] == null) {
-                signature_grid[y] = [];
-                // Pre-emptively add a row to the polygon grid.
-                polygon_grid[y] = [];
-            }
-            
-            // Store the label in the global signature grid.
-            signature_grid[y][x] = label;
-        }
-        
-        // We need to fit this whole thing into a 256x256 grid.
-        // How big can we make each hexagon?
-        // TODO: Do the algebra to make this exact. Right now we just make a
-        // grid that we know to be small enough.
-        // Divide the space into one column per column, and calculate 
-        // side length from column width. Add an extra column for dangling
-        // corners.
-        var side_length_x = (256)/ (max_x + 2) * (2.0 / 3.0);
-
-        print("Max hexagon side length horizontally is " + side_length_x);
-        
-        // Divide the space into rows and calculate the side length
-        // from hex height. Remember to add an extra row for wiggle.
-        var side_length_y = ((256)/(max_y + 2)) / Math.sqrt(3);
-
-        print("Max hexagon side length vertically is " + side_length_y);
-        
-        // How long is a hexagon side in world coords?
-        // Shrink it from the biggest we can have so that we don't wrap off the 
-        // edges of the map. Divide by 2 to make it fit a 128x128 grid
-        var hexagon_side_length = Math.min(side_length_x, side_length_y) / 2.0;
-
-        // Store this in the global hex_size, so we can later calculate the hex
-        // size in pixels and make borders go away if we are too zoomed out.
-        hex_size = hexagon_side_length;
-
-        // How far in should we move the whole grid from the top left corner of 
-        // the earth?
-        // Let's try leaving a 1/4 Earth gap at least, to stop wrapping in 
-        // longitude that we can't turn off.
-        // Since we already shrunk the map to half max size, this would put it 
-        // 1/4 of the 256 unit width and height away from the top left corner.
-        grid_offset = (256) / 4;
-        
-        // Loop through again and draw the polygons, now that we know how big 
-        // they have to be
-        for(var i = 0; i < parsed.length; i++) {
-            // TODO: don't re-parse this info
-            // Get the label
-            var label = parsed[i][0];
-            
-            if(label == "") {
-                // Blank line
-                continue;
-            }
-            
-            // Get the x coord
-            var x = parseInt(parsed[i][1]);
-            // And the y coord
-            var y = parseInt(parsed[i][2]);
-
-            // Make a hexagon on the Google map and store that.
-            var hexagon = make_hexagon(y, x, hexagon_side_length, grid_offset);
-            // Store by x, y in grid
-            polygon_grid[y][x] = hexagon;
-            // Store by label
-            polygons[label] = hexagon;
-            
-            // Set the polygon's signature so we can look stuff up for it when 
-            // it's clicked.
-            set_hexagon_signature(hexagon, label);     
-            
-        }
-        
-        // Now that the polygons exist, do the initial redraw to set all their
-        // colors corectly. In case someone has messed with the controls.
-        // TODO: can someone yet have messed with the controlls?
-        refresh();
-
-        // Initialize tools requiring polygons to be drawn by triggering an
-        // an idle event
-        center = googlemap.getCenter()
-        googlemap.setCenter(new google.maps.LatLng(center.lat(),
-            center.lng() + .000000001));
-        google.maps.event.addListener(googlemap, 'idle', initMapDrawn);
-
-    });
-}
-
 // Function to create a new map based upon the the layout_name argument Find the
-// index of the layout_name and pass it as the index to the assignment_values
-// function as these files are indexed according to the appropriate layout.
+// index of the layout_name and pass it as the index to initialize the hexagons
+// as these files are indexed according to the appropriate layout.
 // Also pass it to the set clumpiness function to swap to the appropriate set
 // of clumpiness scores.
 function recreate_map() {
 
 	var layout_index = ctx.layout_names.indexOf(Session.get('current_layout_name'));
-	assignment_values(layout_index);
+	initHexagons(layout_index);
 	find_clumpiness_stats(layout_index);
 }
 

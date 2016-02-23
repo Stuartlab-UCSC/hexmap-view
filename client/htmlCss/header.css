@@ -106,13 +106,20 @@ layout-name {
     height: 32px;
 }
 
+#layout-row {
+    position: relative;
+}
+
 #coords {
+    position: fixed;
+    left: 550px;
     display: none;
     text-align: left;
     padding-right: 0.3em;
     background: #eee;
     margin-top: 0.1em;
     width: 19em;
+    z-index: 1000;
 }
 #coords td {
     text-align: right;

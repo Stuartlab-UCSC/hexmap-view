@@ -6,6 +6,11 @@ var app = app || {}; // jshint ignore:line
 (function (hex) { // jshint ignore:line
     //'use strict';
 
+    round = function (x, n) {
+        var m = Math.pow(10, n);
+        return Math.round(x * m) / m;
+    }
+
     projectNotFound = function () {
         if (!ctx.projectNotFoundNotified) {
 

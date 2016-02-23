@@ -174,8 +174,10 @@ Read as "The content row", distinct from whatever else that element might be.
 }
 
 /* This is the info window/infocard styling */
+
 .infocard {
     word-break: break-all;
+    cursor: text;
 }
 
 .info-row {

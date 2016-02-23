@@ -122,7 +122,7 @@ var app = app || {}; // jshint ignore:line
             return true;
         }
 
-        if (!layers[layer].tags) {
+        if (!layers[layer].hasOwnProperty('tags')) {
             return (chk.equals('untagged', true));
         }
 

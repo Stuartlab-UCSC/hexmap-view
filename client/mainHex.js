@@ -8,6 +8,7 @@ DEV = true; // true if in development mode, false if not
 ATTR_FILTERS = true;
 ctx = null; // State
 layers = {}; // contains almost all information about attributes
+mapDrawnListener = '';
 
 (function (hex) { // jshint ignore:line
     //'use strict';
@@ -100,9 +101,11 @@ layers = {}; // contains almost all information about attributes
 
     initMapDrawn = function () {
         // Initialize modules that need to have the map drawn.
+        google.maps.event.removeListener(mapDrawnListener);
         if (Session.equals('page', 'mapPage')) initSvg();
         if (DEV) initGrid();
         initCoords();
+        //initOverlayNodes();
         setTimeout(function () { Session.set('loadingMap', 'none')}, 0);
     }
 

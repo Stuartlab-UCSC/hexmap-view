@@ -695,6 +695,7 @@ var app = app || {}; // jshint ignore:line
             var filters = get_current_filters();
 
             // Go get the list of signatures passing the filters and come back.
+            var noneSelected = false;
             with_filtered_signatures(filters, function(signatures) { 
 
                 // How many signatures get selected?
@@ -711,6 +712,7 @@ var app = app || {}; // jshint ignore:line
                 // Complain if no hexagons were selected after applying the filters
                 if (signatures_selected < 1) {
                     banner('warn', 'No hexagons are selected after applying the filters.');
+                    noneSelected = true;
                     return;
                 }
 
@@ -733,8 +735,8 @@ var app = app || {}; // jshint ignore:line
                          if (text != null){
                             layer_name = text;
                          }
-                         if (!text)
-                         {
+                         if (!text) {
+                            noneSelected = true;
                             return;
                          }
                     }
@@ -748,6 +750,7 @@ var app = app || {}; // jshint ignore:line
                     layer_name = new_layer_name;
                 }
             });
+            if (noneSelected) return;
         }
 
         // Add the layer. Say it is a selection
