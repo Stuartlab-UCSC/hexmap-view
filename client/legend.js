@@ -150,7 +150,7 @@ var app = app || {}; // jshint ignore:line
                 }
             }
 
-            for (var j = 0; j < key_ht; j++) {
+            for (var j = 0; j < Math.floor(key_ht); j++) {
 
                 // And j specifies the u coordinate (bottom to top)
                 var u = 0;

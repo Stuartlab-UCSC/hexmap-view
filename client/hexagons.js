@@ -72,7 +72,8 @@ var app = app || {}; // jshint ignore:line
         setHexagonStroke(hexagon);
         
         // Attach the hexagon to the global map
-        if (overlayNode) hexagon.setMap(googlemap);
+        // if (overlayNode) // OVERLAY
+        hexagon.setMap(googlemap);
         
         // Set up the click listener to move the global info window to this hexagon
         // and display the hexagon's information
@@ -80,7 +81,8 @@ var app = app || {}; // jshint ignore:line
         google.maps.event.addListener(hexagon, "click", function (event) {
             showInfoWindow(event, hexagon, x, y);
         });
-        google.maps.event.addListener(hexagon, 'mousemove', coordsMouseMove);
+        // OVERLAY
+        //google.maps.event.addListener(hexagon, 'mousemove', coordsMouseMove);
 
         // Subscribe the tool listeners to events on this hexagon
         subscribe_tool_listeners(hexagon);
