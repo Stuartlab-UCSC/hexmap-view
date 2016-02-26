@@ -292,7 +292,7 @@ class ForEachLayer(object):
         #       [1, 5.73453],
         #       ...
         #   ]
-        hexVals = []
+        hexKeyVals = []
         for hexagon in hexNames:
 
             # Look for this hexagon's value in the binary layer
@@ -309,34 +309,36 @@ class ForEachLayer(object):
                 # No value in the continuous layer, so ignore this hexagon
                 continue
 
-            hexVals.append([binVal, float(contVal)])
-
-        # Find the lower and upper quartiles of the continuous values
-        # and remove them from the major list, TBD inclusive of cutoff
-        hexes = sorted(hexVals, key=operator.itemgetter(1))
-        length = len(hexes)
+            hexKeyVals.append([binVal, float(contVal)])
+                
+        # Find the lower and upper quartile cutoffs of the continuous values
+        hexKeyValsSorted = sorted(hexKeyVals, key=operator.itemgetter(1))
+        length = len(hexKeyValsSorted)
         quartile = int(round(length / 4))
-        hexes = hexes[quartile:length - quartile]
+        lower = hexKeyValsSorted[quartile][1]
+        upper = hexKeyValsSorted[length - 1 - quartile][1]
+        sys.stdout.flush()
 
         # Build two vectors. Each vector will contain the continuous values
-        # associated with one binary value.
+        # associated with one binary value, with the cutoffs applied, inclusive.
         lists = [[], []]
-        for hex in hexes:
-            lists[hex[0]].append(hex[1])
+        for x in hexKeyValsSorted:
+            if x[1] >= lower and x[1] <= upper:
+                lists[x[0]].append(x[1])
 
         try:
             # Mann-Whitney rank test returns like so [Mann-Whitney stats, p-value]
             # Take into account the continuity correction (1/2.).
             #http://docs.scipy.org/doc/scipy-0.16.0/reference/generated/scipy.stats.mannwhitneyu.html
 
-            mnValue, pValue = scipy.stats.mannwhitneyu(lists[0], lists[1], True)
+            #mnValue, pValue = scipy.stats.mannwhitneyu(lists[0], lists[1], True)
 
             # (Welch's) t-test call returns like so: [t-value, p-value]
             # Including equal variance argument being False makes this a
             # Welch's t-test.
             # http://docs.scipy.org/doc/scipy-0.14.0/reference/generated/scipy.stats.ttest_ind.html
 
-            #tValue, pValue = scipy.stats.ttest_ind(lists[0], lists[1], 0, False)
+            tValue, pValue = scipy.stats.ttest_ind(lists[0], lists[1], 0, False)
         except Exception:
             pValue = 1
 
@@ -422,7 +424,12 @@ class ForEachLayer(object):
         return [layerB, sigDigs(correlation), sigDigs(pValue)]
 
     @staticmethod
-    def adjustPvalue(s, preAdjusted, idx):
+    def adjustPvalue(s, preAdjusted, layoutAware):
+
+        if layoutAware:
+            idx = 2
+        else:
+            idx = 1
 
         try:
             # Some hosts do not have this library. If not we don't adjust
@@ -440,7 +447,8 @@ class ForEachLayer(object):
 
                 if not adjust:
 
-                    # No adjustment will happen so just write to the file
+                    # No adjustment will happen so just write a NaN value to
+                    # the file so the UI won't try to display this value
                     f.writerow(row + [float('NaN')])
                     continue
 
@@ -450,6 +458,9 @@ class ForEachLayer(object):
                     preAdjVals.append(1)
                 else:
                     preAdjVals.append(row[idx])
+            
+            if not adjust:
+                return
 
             try:
                 # Benjamini-Hochberg FDR correction for p-values returns:
@@ -481,7 +492,7 @@ class ForEachLayer(object):
                 
                 preAdjusted.append(line)
 
-            s.adjustPvalue(s, preAdjusted, 2)
+            s.adjustPvalue(s, preAdjusted, True)
 
         else:
 
@@ -496,7 +507,7 @@ class ForEachLayer(object):
 
                 preAdjusted.append(line)
 
-            s.adjustPvalue(s, preAdjusted, 1)
+            s.adjustPvalue(s, preAdjusted, False)
 
         # For dynamic stats, pass the results file name to the caller via stdout
         if hasattr(s, 'dynamic'):
