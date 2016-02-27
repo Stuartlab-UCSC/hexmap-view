@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Requirements &mdash; UCSC TumorMap Developer Documentation</title>
+    <title>Requirements &mdash; TumorMap Developer Documentation</title>
     
     <link rel="stylesheet" href="_static/agogo.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -24,19 +24,19 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="UCSC TumorMap Developer Documentation" href="index.html" />
-    <link rel="next" title="this doc" href="docs.html" />
+    <link rel="top" title="TumorMap Developer Documentation" href="index.html" />
+    <link rel="next" title="This Document" href="docs.html" />
     <link rel="prev" title="Code Repository" href="repository.html" /> 
   </head>
-  <body>
-    <div class="header-wrapper">
+  <body role="document">
+    <div class="header-wrapper" role="banner">
       <div class="header">
         <div class="headertitle"><a
-          href="index.html">UCSC TumorMap DD</a></div>
-        <div class="rel">
+          href="index.html">TumorMap Developer Documentation</a></div>
+        <div class="rel" role="navigation" aria-label="related navigation">
           <a href="repository.html" title="Code Repository"
              accesskey="P">previous</a> |
-          <a href="docs.html" title="this doc"
+          <a href="docs.html" title="This Document"
              accesskey="N">next</a> |
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a>
@@ -50,15 +50,58 @@
             
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body">
+          <div class="body" role="main">
             
   <div class="section" id="requirements">
 <h1>Requirements<a class="headerlink" href="#requirements" title="Permalink to this headline">¶</a></h1>
-<p>Set your PYTHON_PATH environment variable to include:</p>
-<div class="highlight-python"><div class="highlight"><pre>&lt;root&gt;/hexagram/.python:&lt;root&gt;/hexagram/server
-
-more TBD
+<div class="section" id="python-2-7">
+<h2>Python 2.7<a class="headerlink" href="#python-2-7" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="drl-graph-layout-1">
+<h2>DRL graph layout [1]<a class="headerlink" href="#drl-graph-layout-1" title="Permalink to this headline">¶</a></h2>
+<p>Install:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span>wget https://bitbucket.org/adam_novak/drl-graph-layout/get/c41341de8058.zip
+#alternatively:
+    curl https://bitbucket.org/adam_novak/drl-graph-layout/get/c41341de8058.zip &gt; c41341de8058.zip
+unzip c41341de8058.zip
+cd adam*/src
+cp Configuration.gnu Configuration.mk
+make
+ls ../bin
 </pre></div>
+</div>
+</div>
+<div class="section" id="fdr-correction-for-p-values-2">
+<h2>FDR correction for p-values [2]<a class="headerlink" href="#fdr-correction-for-p-values-2" title="Permalink to this headline">¶</a></h2>
+<p>Install the Benjamini-Hochberg method:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span>easy_install -U statsmodels
+</pre></div>
+</div>
+<p><a class="reference external" href="http://statsmodels.sourceforge.net/devel/install.html">http://statsmodels.sourceforge.net/devel/install.html</a></p>
+</div>
+<div class="section" id="path-environment-variable">
+<h2>PATH environment variable<a class="headerlink" href="#path-environment-variable" title="Permalink to this headline">¶</a></h2>
+<p>Set your PATH environment variable to include python and DRL layout executables:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span>&lt;hexagram-root&gt;/hexagram/.python:&lt;root&gt;/hexagram/server:&lt;drl-root&gt;/drl-graph-layout/bin
+</pre></div>
+</div>
+</div>
+<div class="section" id="sphinx">
+<h2>Sphinx<a class="headerlink" href="#sphinx" title="Permalink to this headline">¶</a></h2>
+<p>Sphinx is used to build this document. To modify this document, Sphinx needs to
+be installed according to <a class="reference external" href="http://www.sphinx-doc.org/en/stable/install.html">http://www.sphinx-doc.org/en/stable/install.html</a></p>
+</div>
+<div class="section" id="tbd">
+<h2>TBD<a class="headerlink" href="#tbd" title="Permalink to this headline">¶</a></h2>
+<p>more TBD</p>
+</div>
+<div class="section" id="references">
+<h2>References<a class="headerlink" href="#references" title="Permalink to this headline">¶</a></h2>
+<p>[1] S. Martin, W. M. Brown, R. Klavans, K. Boyack, &#8220;Dr. L: Distributed Recursive
+(Graph) Layout,&#8221; in preparation for Journal of Graph Algorithms and
+Applications.</p>
+<p>(TODO:  check this in In somehow)</p>
+<p>[2] (TODO: reference &amp; check this in In somehow)</p>
 </div>
 </div>
 
@@ -76,20 +119,32 @@ more TBD
 <li class="toctree-l1"><a class="reference internal" href="clientSource.html">Source: Client</a></li>
 <li class="toctree-l1"><a class="reference internal" href="serverSource.html">Source: Server</a></li>
 <li class="toctree-l1"><a class="reference internal" href="repository.html">Code Repository</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="">Requirements</a></li>
-<li class="toctree-l1"><a class="reference internal" href="docs.html">this doc</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="">Requirements</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#python-2-7">Python 2.7</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#drl-graph-layout-1">DRL graph layout [1]</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#fdr-correction-for-p-values-2">FDR correction for p-values [2]</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#path-environment-variable">PATH environment variable</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#sphinx">Sphinx</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#tbd">TBD</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#references">References</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="docs.html">This Document</a></li>
+<li class="toctree-l1"><a class="reference internal" href="licenses.html">Licenses</a></li>
 </ul>
 
-          <h3 style="margin-top: 1.5em;">Search</h3>
-          <form class="search" action="search.html" method="get">
-            <input type="text" name="q" />
-            <input type="submit" value="Go" />
-            <input type="hidden" name="check_keywords" value="yes" />
-            <input type="hidden" name="area" value="default" />
-          </form>
-          <p class="searchtip" style="font-size: 90%">
-            Enter search terms or a module, class or function name.
-          </p>
+          <div role="search">
+            <h3 style="margin-top: 1.5em;">Search</h3>
+            <form class="search" action="search.html" method="get">
+                <input type="text" name="q" />
+                <input type="submit" value="Go" />
+                <input type="hidden" name="check_keywords" value="yes" />
+                <input type="hidden" name="area" value="default" />
+            </form>
+            <p class="searchtip" style="font-size: 90%">
+                Enter search terms or a module, class or function name.
+            </p>
+          </div>
         </div>
         <div class="clearer"></div>
       </div>
@@ -98,22 +153,26 @@ more TBD
     <div class="footer-wrapper">
       <div class="footer">
         <div class="left">
-          <a href="repository.html" title="Code Repository"
-             >previous</a> |
-          <a href="docs.html" title="this doc"
-             >next</a> |
-          <a href="genindex.html" title="General Index"
-             >index</a>
-            <br/>
-            <a href="_sources/requirements.txt"
-               rel="nofollow">Show Source</a>
+          <div role="navigation" aria-label="related navigaton">
+            <a href="repository.html" title="Code Repository"
+              >previous</a> |
+            <a href="docs.html" title="This Document"
+              >next</a> |
+            <a href="genindex.html" title="General Index"
+              >index</a>
+          </div>
+          <div role="note" aria-label="source link">
+              <br/>
+              <a href="_sources/requirements.txt"
+                rel="nofollow">Show Source</a>
+          </div>
         </div>
 
         <div class="right">
           
-    <div class="footer">
+    <div class="footer" role="contentinfo">
         &copy; Copyright 2016, UCSC TumorMap development team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.5.
     </div>
         </div>
         <div class="clearer"></div>

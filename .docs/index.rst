@@ -13,4 +13,5 @@ Contents
    repository
    requirements
    docs
+   licenses
 

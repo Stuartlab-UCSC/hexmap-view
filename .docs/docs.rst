@@ -1,15 +1,14 @@
-this doc
-========
+This Document
+=============
 
 Important places:
- | These documentation pages: `tumormap.ucsc.edu/docs <http://tumormap.ucsc.edu/docs>`_
+ | These pages: http://tumormap.ucsc.edu/docs/index.html
  | Source files: hexagram/.docs
- | Developers documentation HTML pages: hexgram/.docs/_build/html
 
 To build the documentation HTML pages::
 
  cd hexagram/.docs
  makehtml
 
- This will build and deposit the html pages into hexagram/public/docs for
- serving.
+This will build and deposit the html pages into hexagram/public/docs for
+serving.

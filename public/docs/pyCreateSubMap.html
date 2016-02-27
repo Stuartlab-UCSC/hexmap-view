@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Python API: createSubMap &mdash; UCSC TumorMap Developer Documentation</title>
+    <title>Python API: createSubMap &mdash; TumorMap Developer Documentation</title>
     
     <link rel="stylesheet" href="_static/agogo.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -24,17 +24,17 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="UCSC TumorMap Developer Documentation" href="index.html" />
+    <link rel="top" title="TumorMap Developer Documentation" href="index.html" />
     <link rel="up" title="Python API" href="pythonApi.html" />
     <link rel="next" title="Python API: overlayNodes" href="pyOverlayNodes.html" />
     <link rel="prev" title="Python API" href="pythonApi.html" /> 
   </head>
-  <body>
-    <div class="header-wrapper">
+  <body role="document">
+    <div class="header-wrapper" role="banner">
       <div class="header">
         <div class="headertitle"><a
-          href="index.html">UCSC TumorMap DD</a></div>
-        <div class="rel">
+          href="index.html">TumorMap Developer Documentation</a></div>
+        <div class="rel" role="navigation" aria-label="related navigation">
           <a href="pythonApi.html" title="Python API"
              accesskey="P">previous</a> |
           <a href="pyOverlayNodes.html" title="Python API: overlayNodes"
@@ -51,7 +51,7 @@
             
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body">
+          <div class="body" role="main">
             
   <div class="section" id="python-api-createsubmap">
 <h1>Python API: createSubMap<a class="headerlink" href="#python-api-createsubmap" title="Permalink to this headline">¶</a></h1>
@@ -59,8 +59,10 @@
 <p>See <a class="reference internal" href="pythonApi.html"><em>Python API</em></a> for general information about python APIs as well as an
 example call and response.</p>
 <p>The data within the temporary files are explained here.</p>
-<p>Example request data:</p>
-<div class="highlight-python"><div class="highlight"><pre>{
+<div class="section" id="request">
+<h2>Request<a class="headerlink" href="#request" title="Permalink to this headline">¶</a></h2>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span>{
    &quot;map&quot;: &quot;pancan33+&quot;,
    &quot;layouts&quot;: [
        &quot;mRNA&quot;,
@@ -84,15 +86,18 @@ example call and response.</p>
 </pre></div>
 </div>
 <p>Definitions</p>
-<p><strong>layout</strong> : type of values by which the new node will be placed on the map. e.g., &#8220;mRNA&#8221;</p>
-<p><strong>directory</strong> : absolute path of the directory to write the rendering
-input for the new map</p>
-<p><strong>map</strong> : frozen map ID. e.g., &#8220;pancan33+&#8221;</p>
-<p><strong>nodeGroup</strong> : a group of nodes. e.g., &#8220;kidney tissue&#8221;</p>
-<p><strong>node</strong> : ID of the node to be placed on the map. e.g., TCGA sample ID</p>
-<p><strong>title</strong> : sub-map title assigned by user and displayed on the UI</p>
-<p>Request data Format:</p>
-<div class="highlight-python"><div class="highlight"><pre>{
+<blockquote>
+<div><div class="line-block">
+<div class="line"><em>layout</em> : type of values by which the new node will be placed on the map. e.g., &#8220;mRNA&#8221;</div>
+<div class="line"><em>directory</em> : absolute path of the directory to write the rendering input for the new map</div>
+<div class="line"><em>map</em> : frozen map ID. e.g., &#8220;pancan33+&#8221;</div>
+<div class="line"><em>nodeGroup</em> : a group of nodes. e.g., &#8220;kidney tissue&#8221;</div>
+<div class="line"><em>node</em> : ID of the node to be placed on the map. e.g., TCGA sample ID</div>
+<div class="line"><em>title</em> : sub-map title assigned by user and displayed on the UI</div>
+</div>
+</div></blockquote>
+<p>Format:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span>{
    &quot;map&quot;: &lt;map ID&gt;,
    &quot;layouts&quot;: [
        &lt;layout1&gt;,
@@ -115,16 +120,16 @@ input for the new map</p>
 }
 </pre></div>
 </div>
-<p>Processing notes:</p>
-<p>Write the values to the tsv files with 4 significant digits. This will save us
-some disk space.</p>
-<p>Response success data example and format:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="p">{</span>
-   <span class="s">&quot;status&quot;</span><span class="p">,</span> <span class="s">&quot;success&quot;</span><span class="p">,</span>
-<span class="p">}</span>
-</pre></div>
 </div>
-<p>Response error formats are at <a class="reference internal" href="pythonApi.html"><em>Python API</em></a></p>
+<div class="section" id="response">
+<h2>Response<a class="headerlink" href="#response" title="Permalink to this headline">¶</a></h2>
+<p>Response success data should be empty.</p>
+<p>Response errors are at <a class="reference internal" href="pythonApi.html"><em>Python API</em></a></p>
+</div>
+<div class="section" id="processing-notes">
+<h2>Processing notes<a class="headerlink" href="#processing-notes" title="Permalink to this headline">¶</a></h2>
+<p>Write the values to the tsv files with 4 significant digits.</p>
+</div>
 </div>
 
 
@@ -147,19 +152,22 @@ some disk space.</p>
 <li class="toctree-l1"><a class="reference internal" href="serverSource.html">Source: Server</a></li>
 <li class="toctree-l1"><a class="reference internal" href="repository.html">Code Repository</a></li>
 <li class="toctree-l1"><a class="reference internal" href="requirements.html">Requirements</a></li>
-<li class="toctree-l1"><a class="reference internal" href="docs.html">this doc</a></li>
+<li class="toctree-l1"><a class="reference internal" href="docs.html">This Document</a></li>
+<li class="toctree-l1"><a class="reference internal" href="licenses.html">Licenses</a></li>
 </ul>
 
-          <h3 style="margin-top: 1.5em;">Search</h3>
-          <form class="search" action="search.html" method="get">
-            <input type="text" name="q" />
-            <input type="submit" value="Go" />
-            <input type="hidden" name="check_keywords" value="yes" />
-            <input type="hidden" name="area" value="default" />
-          </form>
-          <p class="searchtip" style="font-size: 90%">
-            Enter search terms or a module, class or function name.
-          </p>
+          <div role="search">
+            <h3 style="margin-top: 1.5em;">Search</h3>
+            <form class="search" action="search.html" method="get">
+                <input type="text" name="q" />
+                <input type="submit" value="Go" />
+                <input type="hidden" name="check_keywords" value="yes" />
+                <input type="hidden" name="area" value="default" />
+            </form>
+            <p class="searchtip" style="font-size: 90%">
+                Enter search terms or a module, class or function name.
+            </p>
+          </div>
         </div>
         <div class="clearer"></div>
       </div>
@@ -168,22 +176,26 @@ some disk space.</p>
     <div class="footer-wrapper">
       <div class="footer">
         <div class="left">
-          <a href="pythonApi.html" title="Python API"
-             >previous</a> |
-          <a href="pyOverlayNodes.html" title="Python API: overlayNodes"
-             >next</a> |
-          <a href="genindex.html" title="General Index"
-             >index</a>
-            <br/>
-            <a href="_sources/pyCreateSubMap.txt"
-               rel="nofollow">Show Source</a>
+          <div role="navigation" aria-label="related navigaton">
+            <a href="pythonApi.html" title="Python API"
+              >previous</a> |
+            <a href="pyOverlayNodes.html" title="Python API: overlayNodes"
+              >next</a> |
+            <a href="genindex.html" title="General Index"
+              >index</a>
+          </div>
+          <div role="note" aria-label="source link">
+              <br/>
+              <a href="_sources/pyCreateSubMap.txt"
+                rel="nofollow">Show Source</a>
+          </div>
         </div>
 
         <div class="right">
           
-    <div class="footer">
+    <div class="footer" role="contentinfo">
         &copy; Copyright 2016, UCSC TumorMap development team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.5.
     </div>
         </div>
         <div class="clearer"></div>

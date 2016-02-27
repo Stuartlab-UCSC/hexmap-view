@@ -1,16 +1,18 @@
 
 Python API: overlayNodes
-------------------------
+========================
 
 Overlay new nodes on a frozen map.
 
-See :doc:`pythonApi` for an example call and response.
+See :doc:`pythonApi` for general information about python APIs as well as an
+example call and response.
 
 The data within the temporary files are explained here.
 
-Overlay new nodes on a frozen map.
+Request
+-------
 
-JSON message body example::
+Example::
 
  {
     "map": "pancan33+",
@@ -30,20 +32,17 @@ JSON message body example::
 
 Definitions
 
-**layout** : type of values by which the new node will be placed on the map. e.g., "mRNA"
+ | *layout* : type of values by which the new node will be placed on the map. e.g., "mRNA"
+ | *map* : frozen map ID. e.g., "pancan33+"
+ | *node* : ID of the node to be placed on the map. e.g., TCGA sample ID
+ | *node property* : identifier for a node's property, e.g., "TP53"
 
-**map** : frozen map ID. e.g., "pancan33+"
-
-**node** : ID of the node to be placed on the map. e.g., TCGA sample ID
-
-**node property** : identifier for a node's property, e.g., "TP53"
-
-JSON message body format::
+Format::
 
  {
     "map": <map ID>,
     "layouts": {
-        "mRNA": {
+        <layout>: {
             <node>: {
                 <node-property>: <node-property value>,
                 (1 to N properties)
@@ -57,7 +56,12 @@ JSON message body format::
     },
  }
 
-Response success data example::
+Response
+--------
+
+**Success**
+
+Example::
 
  {
     "map": <map ID>,
@@ -71,12 +75,12 @@ Response success data example::
     },
  }
 
-Response success data format::
+Format::
 
  {
     "map": <map ID>,
     "layouts": {
-        "mRNA": {
+        <layout>: {
             <node>: {
                     "x": <x-value>,
                     "y": <y-value>,
@@ -89,4 +93,6 @@ Response success data format::
     }
  }
 
-Response error formats are at :doc:`pythonApi`
+**Errors**
+
+Response errors are at :doc:`pythonApi`

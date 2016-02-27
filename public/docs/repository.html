@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Code Repository &mdash; UCSC TumorMap Developer Documentation</title>
+    <title>Code Repository &mdash; TumorMap Developer Documentation</title>
     
     <link rel="stylesheet" href="_static/agogo.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -24,16 +24,16 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="UCSC TumorMap Developer Documentation" href="index.html" />
+    <link rel="top" title="TumorMap Developer Documentation" href="index.html" />
     <link rel="next" title="Requirements" href="requirements.html" />
     <link rel="prev" title="Source: Server" href="serverSource.html" /> 
   </head>
-  <body>
-    <div class="header-wrapper">
+  <body role="document">
+    <div class="header-wrapper" role="banner">
       <div class="header">
         <div class="headertitle"><a
-          href="index.html">UCSC TumorMap DD</a></div>
-        <div class="rel">
+          href="index.html">TumorMap Developer Documentation</a></div>
+        <div class="rel" role="navigation" aria-label="related navigation">
           <a href="serverSource.html" title="Source: Server"
              accesskey="P">previous</a> |
           <a href="requirements.html" title="Requirements"
@@ -50,7 +50,7 @@
             
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body">
+          <div class="body" role="main">
             
   <div class="section" id="code-repository">
 <h1>Code Repository<a class="headerlink" href="#code-repository" title="Permalink to this headline">¶</a></h1>
@@ -82,17 +82,17 @@ branch through committing your files and merging to dev if you&#8217;ve branched
 of it. If things awry, you may need some other commands.</p>
 <p>#1. Get a copy of the source code on the dev branch. Change to the directory where
 you want to put the source code, then:</p>
-<div class="highlight-python"><div class="highlight"><pre>git clone https://github.com/ucscHexmap/hexagram
+<div class="highlight-python"><div class="highlight"><pre><span></span>git clone https://github.com/ucscHexmap/hexagram
 cd hexagram
 </pre></div>
 </div>
 <p>#2. Get status:</p>
-<div class="highlight-python"><div class="highlight"><pre>git status
+<div class="highlight-python"><div class="highlight"><pre><span></span>git status
 </pre></div>
 </div>
 <p>#3. By default you are on the master branch, so change to the dev branch. You
 will see the dev branch reflected in the &#8216;git status&#8217; output:</p>
-<div class="highlight-python"><div class="highlight"><pre>git checkout dev
+<div class="highlight-python"><div class="highlight"><pre><span></span>git checkout dev
 git status
 </pre></div>
 </div>
@@ -101,13 +101,13 @@ dev. To work on your own branch create one as follows, otherwise skip this step
 then follow the rest of the steps.</p>
 <p>#4. We&#8217;ll call the new branch &#8216;mine&#8217; for this example. Notice to create or
 change to an existing branch is the same command:</p>
-<div class="highlight-python"><div class="highlight"><pre>git checkout mine
+<div class="highlight-python"><div class="highlight"><pre><span></span>git checkout mine
 git status
 </pre></div>
 </div>
 <p>#5. Git has helpful messages when you want to commit. After you have added and
 changed files, &#8216;git status&#8217; gives something like:</p>
-<div class="highlight-python"><div class="highlight"><pre>On branch mine
+<div class="highlight-python"><div class="highlight"><pre><span></span>On branch mine
 Your branch is up-to-date with &#39;origin/dev/mine&#39;.
 Changes to be committed:
   (use &quot;git reset HEAD &lt;file&gt;...&quot; to unstage)
@@ -132,7 +132,7 @@ Untracked files:
 <p><strong>.python/myFile</strong> is a new file</p>
 <p>So do the appropriate action to stage all the file you want to commit.</p>
 <p>#6. The second stage actually updates the repository:</p>
-<div class="highlight-python"><div class="highlight"><pre>git commit
+<div class="highlight-python"><div class="highlight"><pre><span></span>git commit
 </pre></div>
 </div>
 <p>Add a short comment and quit the editor. This commits files to your local git
@@ -142,14 +142,14 @@ push it to the remote repository for safe keeping in case you lose the files on
 your laptop.</p>
 <p>First pull down any changes from the remote repository so if a merge is
 required, you can do it now before things get ugly:</p>
-<div class="highlight-python"><div class="highlight"><pre>git pull
+<div class="highlight-python"><div class="highlight"><pre><span></span>git pull
 </pre></div>
 </div>
 <p>#8. If there are any merge conflicts, git will tell you about them, and you fix them
 then commit as above. If there are no conflicts, your repository now has any
 changes anyone else committed since last time you pulled. Now push your changes
 to the remote repository:</p>
-<div class="highlight-python"><div class="highlight"><pre>git push
+<div class="highlight-python"><div class="highlight"><pre><span></span>git push
 </pre></div>
 </div>
 <p>Ta da! If you are working off the dev branch, you&#8217;re golden.</p>
@@ -158,16 +158,16 @@ to the remote repository:</p>
 <p>If you are working off of your own branch which is off of dev, you need to
 merge your branch into dev.</p>
 <p>#9. Change to the dev branch then update your local dev branch from the remote dev branch:</p>
-<div class="highlight-python"><div class="highlight"><pre>git checkout dev
+<div class="highlight-python"><div class="highlight"><pre><span></span>git checkout dev
 git pull origin dev
 </pre></div>
 </div>
 <p>#10. Now you do the merge from your branch to dev:</p>
-<div class="highlight-python"><div class="highlight"><pre>git merge dev
+<div class="highlight-python"><div class="highlight"><pre><span></span>git merge dev
 </pre></div>
 </div>
 <p>#11. Make and do sanity testing. Then push your dev to the remote dev:</p>
-<div class="highlight-python"><div class="highlight"><pre>git push dev
+<div class="highlight-python"><div class="highlight"><pre><span></span>git push dev
 </pre></div>
 </div>
 <p>Good luck</p>
@@ -194,19 +194,22 @@ git pull origin dev
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="requirements.html">Requirements</a></li>
-<li class="toctree-l1"><a class="reference internal" href="docs.html">this doc</a></li>
+<li class="toctree-l1"><a class="reference internal" href="docs.html">This Document</a></li>
+<li class="toctree-l1"><a class="reference internal" href="licenses.html">Licenses</a></li>
 </ul>
 
-          <h3 style="margin-top: 1.5em;">Search</h3>
-          <form class="search" action="search.html" method="get">
-            <input type="text" name="q" />
-            <input type="submit" value="Go" />
-            <input type="hidden" name="check_keywords" value="yes" />
-            <input type="hidden" name="area" value="default" />
-          </form>
-          <p class="searchtip" style="font-size: 90%">
-            Enter search terms or a module, class or function name.
-          </p>
+          <div role="search">
+            <h3 style="margin-top: 1.5em;">Search</h3>
+            <form class="search" action="search.html" method="get">
+                <input type="text" name="q" />
+                <input type="submit" value="Go" />
+                <input type="hidden" name="check_keywords" value="yes" />
+                <input type="hidden" name="area" value="default" />
+            </form>
+            <p class="searchtip" style="font-size: 90%">
+                Enter search terms or a module, class or function name.
+            </p>
+          </div>
         </div>
         <div class="clearer"></div>
       </div>
@@ -215,22 +218,26 @@ git pull origin dev
     <div class="footer-wrapper">
       <div class="footer">
         <div class="left">
-          <a href="serverSource.html" title="Source: Server"
-             >previous</a> |
-          <a href="requirements.html" title="Requirements"
-             >next</a> |
-          <a href="genindex.html" title="General Index"
-             >index</a>
-            <br/>
-            <a href="_sources/repository.txt"
-               rel="nofollow">Show Source</a>
+          <div role="navigation" aria-label="related navigaton">
+            <a href="serverSource.html" title="Source: Server"
+              >previous</a> |
+            <a href="requirements.html" title="Requirements"
+              >next</a> |
+            <a href="genindex.html" title="General Index"
+              >index</a>
+          </div>
+          <div role="note" aria-label="source link">
+              <br/>
+              <a href="_sources/repository.txt"
+                rel="nofollow">Show Source</a>
+          </div>
         </div>
 
         <div class="right">
           
-    <div class="footer">
+    <div class="footer" role="contentinfo">
         &copy; Copyright 2016, UCSC TumorMap development team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.5.
     </div>
         </div>
         <div class="clearer"></div>

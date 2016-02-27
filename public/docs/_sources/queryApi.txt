@@ -6,7 +6,7 @@ Revision: February 21, 2016
 All Queries
 -----------
  | API query URLs begin with "https://tumormap.ucsc.edu/?query=" followed by the specific query ID.
- | API query parameters are sent in the HTTP POST messsge body in JSON format.
+ | API query parameters are sent in the HTTP POST message body in JSON format.
  | API responses are returned in JSON format.
 
 
@@ -15,7 +15,9 @@ Query API: overlayNodes
 
 Overlay new nodes on a frozen map.
 
-JSON message body example::
+**Query format**
+
+Example::
 
  {
     "map": "pancan33+",
@@ -35,12 +37,12 @@ JSON message body example::
 
 Definitions
 
- | layout: type of values by which the new node will be overlaid on the map. e.g., "mRNA"
- | map: frozen map ID. e.g., "pancan33+"
- | node: identifier for the node to be placed on the map. e.g., TCGA sample ID
- | node property: identifier for a node's property, e.g., "TP53"
+ | *layout* : type of values by which the new node will be placed on the map. e.g., "mRNA"
+ | *map* : frozen map ID. e.g., "pancan33+"
+ | *node* : ID of the node to be placed on the map. e.g., TCGA sample ID
+ | *node property* : identifier for a node's property, e.g., "TP53"
 
-JSON message body format::
+Format::
 
  {
     "map": <map ID>,
@@ -59,29 +61,36 @@ JSON message body format::
     },
  }
 
-Response success example: HTTP 200::
+**Response success**
+
+These are returned as HTTP 200.
+
+Example::
 
  {
     "bookmark": "https://tumormap.ucsc.edu/?b=18XFlfJG8ijJUVP_CYIbA3qhvCw5pADF651XTi8haPnE",
  }
 
-Response success format: HTTP 200::
+Format::
 
  {
     "bookmark": <bookmark>
  }
 
-Response errors
-(there may be more or less)
+**Response errors**
 
- | HTTP 400 'map "pancan44" not found.'
- | HTTP 400 'layout "sRNA" of map "pancan12" not found.'
- | HTTP 400 'map missing or malformed.'
- | HTTP 400 'layout missing or malformed.'
- | HTTP 400 'layoutData missing or malformed.'
- | HTTP 400 'nodes missing or malformed.'
- | HTTP 400 'node properties missing or malformed.'
- | HTTP 400 'query malformed.'
+These are returned as HTTP 400.
+
+There may be more or less than listed here.
+
+ | map "pancan44" not found
+ | layout "sRNA" of map "pancan12" not found
+ | map missing or malformed
+ | layout missing or malformed
+ | layoutData missing or malformed
+ | nodes missing or malformed
+ | node properties missing or malformed
+ | query malformed
 
 Notes:
  # For callers other than Treehouse, a gene list needs to be maintained on the

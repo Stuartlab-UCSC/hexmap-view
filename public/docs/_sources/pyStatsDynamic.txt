@@ -1,6 +1,6 @@
 
 Python API: statsDynamic
--------------------------
+========================
 
 Request the dynamic calculation of statistics for a dynamically-generated
 attribute, or because stats were not precomputed.
@@ -13,7 +13,10 @@ The data within the temporary files are explained here.
 Note that this request returns data as tsv rather than as json. It was
 implemented prior to standardizing on json.
 
-Example request data::
+Request
+-------
+
+Example::
 
  {
     "request": "statsDynamic",
@@ -25,22 +28,28 @@ Example request data::
     binLayers: ctx.bin_layers.concat(diffLayer),
     catLayers: ctx.cat_layers,
     contLayers: ctx.cont_layers,
-
     layout: layout_index,
     anticorrelated: anticorrelated,
-
     proxPre: Session.get('proxPre'),
     tempFile: 'yes',
+ }
 
 Definitions
 
 TBD
 
+Format::
 
+ TBD
 
+Response
+--------
 
+**Success**
 
+TBD
 
+**Errors**
 
-Response error formats are at :doc:`pythonApi`
+Response errors are at :doc:`pythonApi`
 

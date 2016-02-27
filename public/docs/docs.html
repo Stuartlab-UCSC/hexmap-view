@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>this doc &mdash; UCSC TumorMap Developer Documentation</title>
+    <title>This Document &mdash; TumorMap Developer Documentation</title>
     
     <link rel="stylesheet" href="_static/agogo.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -24,17 +24,20 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="UCSC TumorMap Developer Documentation" href="index.html" />
+    <link rel="top" title="TumorMap Developer Documentation" href="index.html" />
+    <link rel="next" title="Licenses" href="licenses.html" />
     <link rel="prev" title="Requirements" href="requirements.html" /> 
   </head>
-  <body>
-    <div class="header-wrapper">
+  <body role="document">
+    <div class="header-wrapper" role="banner">
       <div class="header">
         <div class="headertitle"><a
-          href="index.html">UCSC TumorMap DD</a></div>
-        <div class="rel">
+          href="index.html">TumorMap Developer Documentation</a></div>
+        <div class="rel" role="navigation" aria-label="related navigation">
           <a href="requirements.html" title="Requirements"
              accesskey="P">previous</a> |
+          <a href="licenses.html" title="Licenses"
+             accesskey="N">next</a> |
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a>
         </div>
@@ -47,27 +50,25 @@
             
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body">
+          <div class="body" role="main">
             
-  <div class="section" id="this-doc">
-<h1>this doc<a class="headerlink" href="#this-doc" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="this-document">
+<h1>This Document<a class="headerlink" href="#this-document" title="Permalink to this headline">¶</a></h1>
 <dl class="docutils">
 <dt>Important places:</dt>
 <dd><div class="first last line-block">
-<div class="line">These documentation pages: <a class="reference external" href="http://tumormap.ucsc.edu/docs">tumormap.ucsc.edu/docs</a></div>
+<div class="line">These pages: <a class="reference external" href="http://tumormap.ucsc.edu/docs/index.html">http://tumormap.ucsc.edu/docs/index.html</a></div>
 <div class="line">Source files: hexagram/.docs</div>
-<div class="line">Developers documentation HTML pages: hexgram/.docs/_build/html</div>
 </div>
 </dd>
 </dl>
 <p>To build the documentation HTML pages:</p>
-<div class="highlight-python"><div class="highlight"><pre>cd hexagram/.docs
+<div class="highlight-python"><div class="highlight"><pre><span></span>cd hexagram/.docs
 makehtml
-
-This will build and deposit the html pages into hexagram/public/docs for
-serving.
 </pre></div>
 </div>
+<p>This will build and deposit the html pages into hexagram/public/docs for
+serving.</p>
 </div>
 
 
@@ -85,19 +86,22 @@ serving.
 <li class="toctree-l1"><a class="reference internal" href="serverSource.html">Source: Server</a></li>
 <li class="toctree-l1"><a class="reference internal" href="repository.html">Code Repository</a></li>
 <li class="toctree-l1"><a class="reference internal" href="requirements.html">Requirements</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="">this doc</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="">This Document</a></li>
+<li class="toctree-l1"><a class="reference internal" href="licenses.html">Licenses</a></li>
 </ul>
 
-          <h3 style="margin-top: 1.5em;">Search</h3>
-          <form class="search" action="search.html" method="get">
-            <input type="text" name="q" />
-            <input type="submit" value="Go" />
-            <input type="hidden" name="check_keywords" value="yes" />
-            <input type="hidden" name="area" value="default" />
-          </form>
-          <p class="searchtip" style="font-size: 90%">
-            Enter search terms or a module, class or function name.
-          </p>
+          <div role="search">
+            <h3 style="margin-top: 1.5em;">Search</h3>
+            <form class="search" action="search.html" method="get">
+                <input type="text" name="q" />
+                <input type="submit" value="Go" />
+                <input type="hidden" name="check_keywords" value="yes" />
+                <input type="hidden" name="area" value="default" />
+            </form>
+            <p class="searchtip" style="font-size: 90%">
+                Enter search terms or a module, class or function name.
+            </p>
+          </div>
         </div>
         <div class="clearer"></div>
       </div>
@@ -106,20 +110,26 @@ serving.
     <div class="footer-wrapper">
       <div class="footer">
         <div class="left">
-          <a href="requirements.html" title="Requirements"
-             >previous</a> |
-          <a href="genindex.html" title="General Index"
-             >index</a>
-            <br/>
-            <a href="_sources/docs.txt"
-               rel="nofollow">Show Source</a>
+          <div role="navigation" aria-label="related navigaton">
+            <a href="requirements.html" title="Requirements"
+              >previous</a> |
+            <a href="licenses.html" title="Licenses"
+              >next</a> |
+            <a href="genindex.html" title="General Index"
+              >index</a>
+          </div>
+          <div role="note" aria-label="source link">
+              <br/>
+              <a href="_sources/docs.txt"
+                rel="nofollow">Show Source</a>
+          </div>
         </div>
 
         <div class="right">
           
-    <div class="footer">
+    <div class="footer" role="contentinfo">
         &copy; Copyright 2016, UCSC TumorMap development team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.5.
     </div>
         </div>
         <div class="clearer"></div>

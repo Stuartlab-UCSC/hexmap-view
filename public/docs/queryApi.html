@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Query API &mdash; UCSC TumorMap Developer Documentation</title>
+    <title>Query API &mdash; TumorMap Developer Documentation</title>
     
     <link rel="stylesheet" href="_static/agogo.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -24,16 +24,16 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="UCSC TumorMap Developer Documentation" href="index.html" />
+    <link rel="top" title="TumorMap Developer Documentation" href="index.html" />
     <link rel="next" title="Python API" href="pythonApi.html" />
     <link rel="prev" title="&lt;no title&gt;" href="index.html" /> 
   </head>
-  <body>
-    <div class="header-wrapper">
+  <body role="document">
+    <div class="header-wrapper" role="banner">
       <div class="header">
         <div class="headertitle"><a
-          href="index.html">UCSC TumorMap DD</a></div>
-        <div class="rel">
+          href="index.html">TumorMap Developer Documentation</a></div>
+        <div class="rel" role="navigation" aria-label="related navigation">
           <a href="index.html" title="&lt;no title&gt;"
              accesskey="P">previous</a> |
           <a href="pythonApi.html" title="Python API"
@@ -50,7 +50,7 @@
             
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body">
+          <div class="body" role="main">
             
   <div class="section" id="query-api">
 <h1>Query API<a class="headerlink" href="#query-api" title="Permalink to this headline">¶</a></h1>
@@ -60,7 +60,7 @@
 <blockquote>
 <div><div class="line-block">
 <div class="line">API query URLs begin with &#8220;<a class="reference external" href="https://tumormap.ucsc.edu/?query=">https://tumormap.ucsc.edu/?query=</a>&#8221; followed by the specific query ID.</div>
-<div class="line">API query parameters are sent in the HTTP POST messsge body in JSON format.</div>
+<div class="line">API query parameters are sent in the HTTP POST message body in JSON format.</div>
 <div class="line">API responses are returned in JSON format.</div>
 </div>
 </div></blockquote>
@@ -68,8 +68,9 @@
 <div class="section" id="query-api-overlaynodes">
 <h2>Query API: overlayNodes<a class="headerlink" href="#query-api-overlaynodes" title="Permalink to this headline">¶</a></h2>
 <p>Overlay new nodes on a frozen map.</p>
-<p>JSON message body example:</p>
-<div class="highlight-python"><div class="highlight"><pre>{
+<p><strong>Query format</strong></p>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span>{
    &quot;map&quot;: &quot;pancan33+&quot;,
    &quot;layouts&quot;: {
        &quot;mRNA&quot;: {
@@ -89,14 +90,14 @@
 <p>Definitions</p>
 <blockquote>
 <div><div class="line-block">
-<div class="line">layout: type of values by which the new node will be overlaid on the map. e.g., &#8220;mRNA&#8221;</div>
-<div class="line">map: frozen map ID. e.g., &#8220;pancan33+&#8221;</div>
-<div class="line">node: identifier for the node to be placed on the map. e.g., TCGA sample ID</div>
-<div class="line">node property: identifier for a node&#8217;s property, e.g., &#8220;TP53&#8221;</div>
+<div class="line"><em>layout</em> : type of values by which the new node will be placed on the map. e.g., &#8220;mRNA&#8221;</div>
+<div class="line"><em>map</em> : frozen map ID. e.g., &#8220;pancan33+&#8221;</div>
+<div class="line"><em>node</em> : ID of the node to be placed on the map. e.g., TCGA sample ID</div>
+<div class="line"><em>node property</em> : identifier for a node&#8217;s property, e.g., &#8220;TP53&#8221;</div>
 </div>
 </div></blockquote>
-<p>JSON message body format:</p>
-<div class="highlight-python"><div class="highlight"><pre>{
+<p>Format:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span>{
    &quot;map&quot;: &lt;map ID&gt;,
    &quot;layouts&quot;: {
        &lt;layout&gt;: {
@@ -114,30 +115,33 @@
 }
 </pre></div>
 </div>
-<p>Response success example: HTTP 200:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="p">{</span>
-   <span class="s">&quot;bookmark&quot;</span><span class="p">:</span> <span class="s">&quot;https://tumormap.ucsc.edu/?b=18XFlfJG8ijJUVP_CYIbA3qhvCw5pADF651XTi8haPnE&quot;</span><span class="p">,</span>
+<p><strong>Response success</strong></p>
+<p>These are returned as HTTP 200.</p>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="p">{</span>
+   <span class="s2">&quot;bookmark&quot;</span><span class="p">:</span> <span class="s2">&quot;https://tumormap.ucsc.edu/?b=18XFlfJG8ijJUVP_CYIbA3qhvCw5pADF651XTi8haPnE&quot;</span><span class="p">,</span>
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>Response success format: HTTP 200:</p>
-<div class="highlight-python"><div class="highlight"><pre>{
+<p>Format:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span>{
    &quot;bookmark&quot;: &lt;bookmark&gt;
 }
 </pre></div>
 </div>
-<p>Response errors
-(there may be more or less)</p>
+<p><strong>Response errors</strong></p>
+<p>These are returned as HTTP 400.</p>
+<p>There may be more or less than listed here.</p>
 <blockquote>
 <div><div class="line-block">
-<div class="line">HTTP 400 &#8216;map &#8220;pancan44&#8221; not found.&#8217;</div>
-<div class="line">HTTP 400 &#8216;layout &#8220;sRNA&#8221; of map &#8220;pancan12&#8221; not found.&#8217;</div>
-<div class="line">HTTP 400 &#8216;map missing or malformed.&#8217;</div>
-<div class="line">HTTP 400 &#8216;layout missing or malformed.&#8217;</div>
-<div class="line">HTTP 400 &#8216;layoutData missing or malformed.&#8217;</div>
-<div class="line">HTTP 400 &#8216;nodes missing or malformed.&#8217;</div>
-<div class="line">HTTP 400 &#8216;node properties missing or malformed.&#8217;</div>
-<div class="line">HTTP 400 &#8216;query malformed.&#8217;</div>
+<div class="line">map &#8220;pancan44&#8221; not found</div>
+<div class="line">layout &#8220;sRNA&#8221; of map &#8220;pancan12&#8221; not found</div>
+<div class="line">map missing or malformed</div>
+<div class="line">layout missing or malformed</div>
+<div class="line">layoutData missing or malformed</div>
+<div class="line">nodes missing or malformed</div>
+<div class="line">node properties missing or malformed</div>
+<div class="line">query malformed</div>
 </div>
 </div></blockquote>
 <dl class="docutils">
@@ -167,19 +171,22 @@ tumormap server in order to respond about unknown genes.</dd>
 <li class="toctree-l1"><a class="reference internal" href="serverSource.html">Source: Server</a></li>
 <li class="toctree-l1"><a class="reference internal" href="repository.html">Code Repository</a></li>
 <li class="toctree-l1"><a class="reference internal" href="requirements.html">Requirements</a></li>
-<li class="toctree-l1"><a class="reference internal" href="docs.html">this doc</a></li>
+<li class="toctree-l1"><a class="reference internal" href="docs.html">This Document</a></li>
+<li class="toctree-l1"><a class="reference internal" href="licenses.html">Licenses</a></li>
 </ul>
 
-          <h3 style="margin-top: 1.5em;">Search</h3>
-          <form class="search" action="search.html" method="get">
-            <input type="text" name="q" />
-            <input type="submit" value="Go" />
-            <input type="hidden" name="check_keywords" value="yes" />
-            <input type="hidden" name="area" value="default" />
-          </form>
-          <p class="searchtip" style="font-size: 90%">
-            Enter search terms or a module, class or function name.
-          </p>
+          <div role="search">
+            <h3 style="margin-top: 1.5em;">Search</h3>
+            <form class="search" action="search.html" method="get">
+                <input type="text" name="q" />
+                <input type="submit" value="Go" />
+                <input type="hidden" name="check_keywords" value="yes" />
+                <input type="hidden" name="area" value="default" />
+            </form>
+            <p class="searchtip" style="font-size: 90%">
+                Enter search terms or a module, class or function name.
+            </p>
+          </div>
         </div>
         <div class="clearer"></div>
       </div>
@@ -188,22 +195,26 @@ tumormap server in order to respond about unknown genes.</dd>
     <div class="footer-wrapper">
       <div class="footer">
         <div class="left">
-          <a href="index.html" title="&lt;no title&gt;"
-             >previous</a> |
-          <a href="pythonApi.html" title="Python API"
-             >next</a> |
-          <a href="genindex.html" title="General Index"
-             >index</a>
-            <br/>
-            <a href="_sources/queryApi.txt"
-               rel="nofollow">Show Source</a>
+          <div role="navigation" aria-label="related navigaton">
+            <a href="index.html" title="&lt;no title&gt;"
+              >previous</a> |
+            <a href="pythonApi.html" title="Python API"
+              >next</a> |
+            <a href="genindex.html" title="General Index"
+              >index</a>
+          </div>
+          <div role="note" aria-label="source link">
+              <br/>
+              <a href="_sources/queryApi.txt"
+                rel="nofollow">Show Source</a>
+          </div>
         </div>
 
         <div class="right">
           
-    <div class="footer">
+    <div class="footer" role="contentinfo">
         &copy; Copyright 2016, UCSC TumorMap development team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.5.
     </div>
         </div>
         <div class="clearer"></div>

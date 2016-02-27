@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Python API &mdash; UCSC TumorMap Developer Documentation</title>
+    <title>Python API &mdash; TumorMap Developer Documentation</title>
     
     <link rel="stylesheet" href="_static/agogo.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -24,16 +24,16 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="UCSC TumorMap Developer Documentation" href="index.html" />
+    <link rel="top" title="TumorMap Developer Documentation" href="index.html" />
     <link rel="next" title="Python API: createSubMap" href="pyCreateSubMap.html" />
     <link rel="prev" title="Query API" href="queryApi.html" /> 
   </head>
-  <body>
-    <div class="header-wrapper">
+  <body role="document">
+    <div class="header-wrapper" role="banner">
       <div class="header">
         <div class="headertitle"><a
-          href="index.html">UCSC TumorMap DD</a></div>
-        <div class="rel">
+          href="index.html">TumorMap Developer Documentation</a></div>
+        <div class="rel" role="navigation" aria-label="related navigation">
           <a href="queryApi.html" title="Query API"
              accesskey="P">previous</a> |
           <a href="pyCreateSubMap.html" title="Python API: createSubMap"
@@ -50,7 +50,7 @@
             
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body">
+          <div class="body" role="main">
             
   <div class="section" id="python-api">
 <h1>Python API<a class="headerlink" href="#python-api" title="Permalink to this headline">¶</a></h1>
@@ -58,40 +58,52 @@
 responder to the server&#8217;s requests.</p>
 <p><strong>Requests</strong></p>
 <p>Requests and responses have only one parameter: the file name containing the data
-in JSON format.
-The caller and responder should create their temporary files in /tmp or an
-equivilant and the caller will remove them. All requests are asynchronous.</p>
-<p>Example request to a python script from the server:</p>
-<div class="highlight-python"><div class="highlight"><pre>python placeNewNodes.py /tmp/x.txt
+in JSON format.</p>
+<p>The caller and responder create their temporary files in /tmp or
+equivalent and the caller will remove them. All requests are asynchronous.</p>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span>python placeNewNodes.py /tmp/x.txt
 </pre></div>
 </div>
-<p><strong>Response: Success</strong></p>
+<p><strong>Response success</strong></p>
 <p>The response from the python script is returned in stdout, so that just a print
 statement is required to pass the temporary filename. This means you cannot
 have any other print statements in your scripts.</p>
-<p>Example response from the python script to the server via a print command at the
-end of they script:</p>
-<div class="highlight-python"><div class="highlight"><pre>print /tmp/y.txt
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span>print /tmp/y.txt
 </pre></div>
 </div>
-<p><strong>Response: Error</strong></p>
-<p>In place of the temporary file name, use stdout to return error and warning
+<p><strong>Response errors</strong></p>
+<p>In place of the temporary file name used for success, use stdout to return error and warning
 messages. Use one of these forms for your message so the UI can echo it.</p>
-<p>&#8216;WARN &lt;some warning, not a failure, but no data&gt;&#8217;</p>
-<p>&#8216;ERROR &lt;some real error that prevented or will prevent something from happening&gt;&#8217;</p>
-<p>For example:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="k">print</span> <span class="s">&#39;ERROR that just blew everything up&#39;</span>
-<span class="k">print</span> <span class="s">&#39;WARN something minor issue occurred&#39;</span>
+<p>&#8216;WARNING &lt;some warning, not a failure, but no data&gt;&#8217;</p>
+<p>&#8216;ERROR &lt;some real error that prevented something from happening&gt;&#8217;</p>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="k">print</span> <span class="s1">&#39;WARNING some minor issue occurred&#39;</span>
+<span class="k">print</span> <span class="s1">&#39;ERROR that just blew everything up&#39;</span>
 </pre></div>
 </div>
-<p>(I&#8217;m not sure this is the best solution yet, but it is easy enough to implement
+<p>(This may not be the best solution yet, but it is easy enough to implement
 until we find a better one.)</p>
-<p><strong>The python APIs JSON data:</strong></p>
+<p><strong>Python API JSON data:</strong></p>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="pyCreateSubMap.html">Python API: createSubMap</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pyOverlayNodes.html">Python API: overlayNodes</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pyStatsDynamic.html">Python API: statsDynamic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pyCreateSubMap.html">Python API: createSubMap</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pyCreateSubMap.html#request">Request</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyCreateSubMap.html#response">Response</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyCreateSubMap.html#processing-notes">Processing notes</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pyOverlayNodes.html">Python API: overlayNodes</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pyOverlayNodes.html#request">Request</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyOverlayNodes.html#response">Response</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pyStatsDynamic.html">Python API: statsDynamic</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pyStatsDynamic.html#request">Request</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyStatsDynamic.html#response">Response</a></li>
+</ul>
+</li>
 </ul>
 </div>
 </div>
@@ -116,19 +128,22 @@ until we find a better one.)</p>
 <li class="toctree-l1"><a class="reference internal" href="serverSource.html">Source: Server</a></li>
 <li class="toctree-l1"><a class="reference internal" href="repository.html">Code Repository</a></li>
 <li class="toctree-l1"><a class="reference internal" href="requirements.html">Requirements</a></li>
-<li class="toctree-l1"><a class="reference internal" href="docs.html">this doc</a></li>
+<li class="toctree-l1"><a class="reference internal" href="docs.html">This Document</a></li>
+<li class="toctree-l1"><a class="reference internal" href="licenses.html">Licenses</a></li>
 </ul>
 
-          <h3 style="margin-top: 1.5em;">Search</h3>
-          <form class="search" action="search.html" method="get">
-            <input type="text" name="q" />
-            <input type="submit" value="Go" />
-            <input type="hidden" name="check_keywords" value="yes" />
-            <input type="hidden" name="area" value="default" />
-          </form>
-          <p class="searchtip" style="font-size: 90%">
-            Enter search terms or a module, class or function name.
-          </p>
+          <div role="search">
+            <h3 style="margin-top: 1.5em;">Search</h3>
+            <form class="search" action="search.html" method="get">
+                <input type="text" name="q" />
+                <input type="submit" value="Go" />
+                <input type="hidden" name="check_keywords" value="yes" />
+                <input type="hidden" name="area" value="default" />
+            </form>
+            <p class="searchtip" style="font-size: 90%">
+                Enter search terms or a module, class or function name.
+            </p>
+          </div>
         </div>
         <div class="clearer"></div>
       </div>
@@ -137,22 +152,26 @@ until we find a better one.)</p>
     <div class="footer-wrapper">
       <div class="footer">
         <div class="left">
-          <a href="queryApi.html" title="Query API"
-             >previous</a> |
-          <a href="pyCreateSubMap.html" title="Python API: createSubMap"
-             >next</a> |
-          <a href="genindex.html" title="General Index"
-             >index</a>
-            <br/>
-            <a href="_sources/pythonApi.txt"
-               rel="nofollow">Show Source</a>
+          <div role="navigation" aria-label="related navigaton">
+            <a href="queryApi.html" title="Query API"
+              >previous</a> |
+            <a href="pyCreateSubMap.html" title="Python API: createSubMap"
+              >next</a> |
+            <a href="genindex.html" title="General Index"
+              >index</a>
+          </div>
+          <div role="note" aria-label="source link">
+              <br/>
+              <a href="_sources/pythonApi.txt"
+                rel="nofollow">Show Source</a>
+          </div>
         </div>
 
         <div class="right">
           
-    <div class="footer">
+    <div class="footer" role="contentinfo">
         &copy; Copyright 2016, UCSC TumorMap development team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.5.
     </div>
         </div>
         <div class="clearer"></div>
