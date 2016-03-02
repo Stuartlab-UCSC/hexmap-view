@@ -9,7 +9,7 @@ import sys, os, json, copy, csv, math, operator, traceback, pprint
 import scipy.stats
 import numpy
 
-def sigDigs(x, sig=3):
+def sigDigs(x, sig=7):
 
     if sig < 1:
         raise ValueError("number of significant digits must be >= 1")
@@ -342,14 +342,14 @@ class ForEachLayer(object):
             # Take into account the continuity correction (1/2.).
             # http://docs.scipy.org/doc/scipy-0.16.0/reference/generated/scipy.stats.mannwhitneyu.html
 
-            mnValue, pValue = scipy.stats.mannwhitneyu(lists[0], lists[1], True) # TODO
+            #mnValue, pValue = scipy.stats.mannwhitneyu(lists[0], lists[1], True) # TODO
 
             # (Welch's) t-test call returns like so: [t-value, p-value]
             # Including equal variance argument being False makes this a
             # Welch's t-test.
             # http://docs.scipy.org/doc/scipy-0.14.0/reference/generated/scipy.stats.ttest_ind.html
 
-            #tValue, pValue = scipy.stats.ttest_ind(lists[0], lists[1], 0, False) # TODO
+            tValue, pValue = scipy.stats.ttest_ind(lists[0], lists[1], 0, False) # TODO
         except Exception:
             pValue = 1
 

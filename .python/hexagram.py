@@ -47,7 +47,7 @@ class Context:
         print json.dumps(s, indent=4, sort_keys=True)
 ctx = Context();
 
-def sigDigs(x, sig=4):
+def sigDigs(x, sig=7):
 
     if sig < 1:
         raise ValueError("number of significant digits must be >= 1")

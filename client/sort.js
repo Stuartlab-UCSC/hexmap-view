@@ -542,7 +542,7 @@ var app = app || {}; // jshint ignore:line
 
     computingTextDisplay = function () {
 
-        banner('warn', computingText);
+        banner('info', computingText);
         Session.set('sort', {
             text: computingText, color: '#2E662C', background: '#D8EECE'});
     }

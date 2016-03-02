@@ -43,15 +43,18 @@ PAGE = 'homePage';
         //          initialization functions
 
         var s = this,
-            proxPre;
+            proxPre = '';
 
         // Prefix for images and other such files
         s.defaultProject = DEFAULT_PROJECT;
-        if (location.host === 'localhost:3000') {
-            proxPre = '';
-        } else if (location.host === 'medbook.ucsc.edu') {
+ 
+        if (location.host === 'medbook.ucsc.edu') {
             proxPre = '/hex/';
             s.defaultProject = 'data/ynewton/gliomas-paper/';
+        } else if (location.host === 'hexmap.sdsc.edu:8112'
+            || location.host === 'hexmap.sdsc.edu:8111'
+            || location.host === 'localhost:3000') {
+            proxPre = '';
         } else if (DEV) {
             proxPre = '/hexmap/'; // su2c-dev:DEV
         } else {
