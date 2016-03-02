@@ -95,7 +95,7 @@ PAGE = 'homePage';
         // Non-project variables maintained in the meteor session
         Session.setDefault('page', PAGE);
         Session.setDefault('background', 'black');  // Visualization background color
-        Session.setDefault('proxPre', proxPre);  // Prefix for images and other such files
+        Session.set('proxPre', proxPre);  // Prefix for images and other such files
         Session.setDefault('sort', DEFAULT_SORT); // Default sort message & type
 
         // Variables maintained in this state object, with defaults.

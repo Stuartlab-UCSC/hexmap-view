@@ -53,13 +53,6 @@ def statsNoLayout(layers, layer_names, ctx, options):
     
     print timestamp(), "Running sample-based statistics..."
 
-    # Create the hex names file accessed by the subprocesses
-    hexNames = ctx.all_hexagons[0].values()
-    with open(os.path.join(options.directory, 'hexNames.tab'), 'w') as f:
-        f = csv.writer(f, delimiter='\t')
-        for name in hexNames:
-            f.writerow([name])
-
     # Consider all data types for pre-computed stats
     statsLayers = ctx.binary_layers \
         + ctx.categorical_layers \
@@ -67,7 +60,7 @@ def statsNoLayout(layers, layer_names, ctx, options):
 
     # Create the parameters to pass to the subprocesses.
     parm = {
-        'hexNames': hexNames, # a list of all hexagon names
+        'hexNames': ctx.all_hexagons[0].values(), # a list of all hexagon names
         'layers': layers, # all layers
         'directory': options.directory,
         'statsLayers': statsLayers,

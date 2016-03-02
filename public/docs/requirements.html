@@ -54,8 +54,28 @@
             
   <div class="section" id="requirements">
 <h1>Requirements<a class="headerlink" href="#requirements" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="python-2-7">
-<h2>Python 2.7<a class="headerlink" href="#python-2-7" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="python-and-modules">
+<h2>Python and modules<a class="headerlink" href="#python-and-modules" title="Permalink to this headline">¶</a></h2>
+<p>Python and modules required:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span>Python 2.7.10
+...
+&gt;&gt;&gt; import statsmodels
+&gt;&gt;&gt; statsmodels.__version__
+&#39;0.6.1&#39;
+&gt;&gt;&gt; import numpy
+&gt;&gt;&gt; numpy.__version__
+&#39;1.10.4&#39;
+&gt;&gt;&gt; import scipy
+&gt;&gt;&gt; scipy.__version__
+&#39;0.17.0&#39;
+</pre></div>
+</div>
+<p>Miniconda was used to install these versions..</p>
+<p><a class="reference external" href="http://conda.pydata.org/docs/install/quick.html">http://conda.pydata.org/docs/install/quick.html</a></p>
+<p>Use this form of the anaconda command to install a specific version:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span>conda install scipy=0.15.0
+</pre></div>
+</div>
 </div>
 <div class="section" id="drl-graph-layout-1">
 <h2>DRL graph layout [1]<a class="headerlink" href="#drl-graph-layout-1" title="Permalink to this headline">¶</a></h2>
@@ -71,17 +91,10 @@ ls ../bin
 </pre></div>
 </div>
 </div>
-<div class="section" id="fdr-correction-for-p-values-2">
-<h2>FDR correction for p-values [2]<a class="headerlink" href="#fdr-correction-for-p-values-2" title="Permalink to this headline">¶</a></h2>
-<p>Install the Benjamini-Hochberg method:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span>easy_install -U statsmodels
-</pre></div>
-</div>
-<p><a class="reference external" href="http://statsmodels.sourceforge.net/devel/install.html">http://statsmodels.sourceforge.net/devel/install.html</a></p>
-</div>
 <div class="section" id="path-environment-variable">
 <h2>PATH environment variable<a class="headerlink" href="#path-environment-variable" title="Permalink to this headline">¶</a></h2>
-<p>Set your PATH environment variable to include python and DRL layout executables:</p>
+<p>Set your PATH environment variable to include thte tumor map python executables
+and the DRL layout executables:</p>
 <div class="highlight-python"><div class="highlight"><pre><span></span>&lt;hexagram-root&gt;/hexagram/.python:&lt;root&gt;/hexagram/server:&lt;drl-root&gt;/drl-graph-layout/bin
 </pre></div>
 </div>
@@ -91,17 +104,12 @@ ls ../bin
 <p>Sphinx is used to build this document. To modify this document, Sphinx needs to
 be installed according to <a class="reference external" href="http://www.sphinx-doc.org/en/stable/install.html">http://www.sphinx-doc.org/en/stable/install.html</a></p>
 </div>
-<div class="section" id="tbd">
-<h2>TBD<a class="headerlink" href="#tbd" title="Permalink to this headline">¶</a></h2>
-<p>more TBD</p>
-</div>
 <div class="section" id="references">
 <h2>References<a class="headerlink" href="#references" title="Permalink to this headline">¶</a></h2>
 <p>[1] S. Martin, W. M. Brown, R. Klavans, K. Boyack, &#8220;Dr. L: Distributed Recursive
 (Graph) Layout,&#8221; in preparation for Journal of Graph Algorithms and
 Applications.</p>
-<p>(TODO:  check this in In somehow)</p>
-<p>[2] (TODO: reference &amp; check this in In somehow)</p>
+<p>(TODO:  check this in somehow with yulia&#8217;s changes)</p>
 </div>
 </div>
 
@@ -120,12 +128,10 @@ Applications.</p>
 <li class="toctree-l1"><a class="reference internal" href="serverSource.html">Source: Server</a></li>
 <li class="toctree-l1"><a class="reference internal" href="repository.html">Code Repository</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="">Requirements</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#python-2-7">Python 2.7</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#python-and-modules">Python and modules</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#drl-graph-layout-1">DRL graph layout [1]</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#fdr-correction-for-p-values-2">FDR correction for p-values [2]</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#path-environment-variable">PATH environment variable</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#sphinx">Sphinx</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#tbd">TBD</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#references">References</a></li>
 </ul>
 </li>

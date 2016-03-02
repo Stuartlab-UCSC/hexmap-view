@@ -1,8 +1,30 @@
 Requirements
 ============
 
-Python 2.7
-----------
+Python and modules
+------------------
+
+Python and modules required::
+
+ Python 2.7.10
+ ...
+ >>> import statsmodels
+ >>> statsmodels.__version__
+ '0.6.1'
+ >>> import numpy
+ >>> numpy.__version__
+ '1.10.4'
+ >>> import scipy
+ >>> scipy.__version__
+ '0.17.0'
+
+Miniconda was used to install these versions..
+
+http://conda.pydata.org/docs/install/quick.html
+
+Use this form of the anaconda command to install a specific version::
+
+ conda install scipy=0.15.0
 
 DRL graph layout [1]
 --------------------
@@ -18,19 +40,11 @@ Install::
  make
  ls ../bin
 
-FDR correction for p-values [2]
--------------------------------
-
-Install the Benjamini-Hochberg method::
-
- easy_install -U statsmodels
-
-http://statsmodels.sourceforge.net/devel/install.html
-
 PATH environment variable
 -------------------------
 
-Set your PATH environment variable to include python and DRL layout executables::
+Set your PATH environment variable to include thte tumor map python executables
+and the DRL layout executables::
 
  <hexagram-root>/hexagram/.python:<root>/hexagram/server:<drl-root>/drl-graph-layout/bin
 
@@ -40,11 +54,6 @@ Sphinx
 Sphinx is used to build this document. To modify this document, Sphinx needs to
 be installed according to http://www.sphinx-doc.org/en/stable/install.html
 
-TBD
----
-
-more TBD
-
 References
 ----------
 
@@ -52,7 +61,6 @@ References
 (Graph) Layout," in preparation for Journal of Graph Algorithms and
 Applications.
 
-(TODO:  check this in In somehow)
+(TODO:  check this in somehow with yulia's changes)
 
-[2] (TODO: reference & check this in In somehow)
 

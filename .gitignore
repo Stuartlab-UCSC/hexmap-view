@@ -1,7 +1,6 @@
 .DS_Store
-.python/run_*
+run_*
 .python/statsLayer.py
-public/docs
 analyze
 *.save
 *.pyc

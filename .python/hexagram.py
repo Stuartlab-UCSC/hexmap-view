@@ -1738,6 +1738,14 @@ def hexIt(options):
     else:
         print ("No Data Provided...Skipping Beta Calculations")
     
+    # Create the hex names file accessed by the stats subprocesses,
+    # even if we don't pre-compute stats, do this for dynamic  stats
+    hexNames = ctx.all_hexagons[0].values()
+    with open(os.path.join(options.directory, 'hexNames.tab'), 'w') as f:
+        f = csv.writer(f, delimiter='\t')
+        for name in hexNames:
+            f.writerow([name])
+
     # Run sample-based stats
     if options.associations == True:
         statsNoLayout(layers, layer_names, ctx, options)
