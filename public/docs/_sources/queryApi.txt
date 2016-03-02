@@ -5,7 +5,7 @@ Revision: February 21, 2016
 
 All Queries
 -----------
- | API query URLs begin with "https://tumormap.ucsc.edu/" followed by the specific query ID.
+ | API query URLs begin with "https://tumormap.ucsc.edu/" for production, followed by the specific query ID. For develoment, use "http://hexmap.sdsc.edu:8111/".
  | API query parameters are sent in the HTTP POST message body in JSON format.
  | API responses are returned in JSON format.
 

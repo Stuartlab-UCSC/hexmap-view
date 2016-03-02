@@ -43,7 +43,7 @@ Install::
 PATH environment variable
 -------------------------
 
-Set your PATH environment variable to include thte tumor map python executables
+Set your PATH environment variable to include the tumor map python executables
 and the DRL layout executables::
 
  <hexagram-root>/hexagram/.python:<root>/hexagram/server:<drl-root>/drl-graph-layout/bin
