@@ -292,6 +292,16 @@ class ForEachLayer(object):
         #       [1, 5.73453],
         #       ...
         #   ]
+        MANN_WHITNEY_U = False
+        DEBUG = False
+        DROP_QUANTILES = False
+        if DEBUG and contL != 'GP7_Estrogen signaling program':
+            DEBUG = False
+        if DEBUG:
+            fname = '/cluster/home/swat/hexmap/dev/server/tmpDebug'
+            file = open(fname, 'w')
+            f = csv.writer(file, delimiter='\t')
+            f.writerow(['contL, binL', contL, binL])
         hexKeyVals = []
         for hexagon in hexNames:
 
@@ -310,49 +320,75 @@ class ForEachLayer(object):
                 continue
 
             hexKeyVals.append([binVal, float(contVal)])
+            if DEBUG: f.writerow([hexagon, binVal, float(contVal)])
+            
+        if DROP_QUANTILES:
+            # Find the lower and upper quantile cutoffs of the continuous values
+            hexKeyValsSorted = sorted(hexKeyVals, key=operator.itemgetter(1))
+            length = len(hexKeyValsSorted)
+            if length <= 3:
+            
+                # With so few values in the combined list,
+                # no good stats will come of this
+                return [layerB, 1]
 
-        # Find the lower and upper quartile cutoffs of the continuous values
-        hexKeyValsSorted = sorted(hexKeyVals, key=operator.itemgetter(1))
-        length = len(hexKeyValsSorted)
-        if length <= 3:
-        
-            # With so few values in the combined list,
-            # no good stats will come of this
-            return [layerB, 1]
+            quantile = length / 10
+            lower = hexKeyValsSorted[int(round(quantile))][1]
+            upper = hexKeyValsSorted[int(round(length - quantile))][1]
 
-        quartile = length / 4
-        lower = hexKeyValsSorted[int(round(quartile))][1]
-        upper = hexKeyValsSorted[int(round(length - quartile))][1]
-
-        # Build two vectors. Each vector will contain the continuous values
-        # associated with one binary value, with the cutoffs applied, inclusive.
-        lists = [[], []]
-        for x in hexKeyValsSorted:
-            if x[1] >= lower and x[1] <= upper:
+            if DEBUG:
+                f.writerow(['lower, upper', lower, upper])
+            
+            # Build two vectors. Each vector will contain the continuous values
+            # associated with one binary value, with the cutoffs applied, inclusive.
+            lists = [[], []]
+            for x in hexKeyValsSorted:
+                if x[1] >= lower and x[1] <= upper:
+                    lists[x[0]].append(x[1])
+                    
+        else:
+            # Build two vectors. Each vector will contain the continuous values
+            # associated with one binary value, with the cutoffs applied, inclusive.
+            lists = [[], []]
+            for x in hexKeyVals:
                 lists[x[0]].append(x[1])
-                
+
+        if DEBUG:
+            f.writerow(['lists[0] len', + len(lists[0])])
+            for i in range(len(lists[0])):
+                f.writerow([lists[0][i]])
+            f.writerow(['lists[1] len', len(lists[1])])
+            for i in range(len(lists[1])):
+                f.writerow([lists[1][i]])
+
         if len(lists[0]) == 0 or len(lists[1]) == 0:
         
             # With no values in one of the lists,
             # no good stats will come of this
             return [layerB, 1]
-        
+
         try:
-            # Mann-Whitney rank test returns like so [Mann-Whitney stats, p-value]
-            # Take into account the continuity correction (1/2.).
-            # http://docs.scipy.org/doc/scipy-0.16.0/reference/generated/scipy.stats.mannwhitneyu.html
+            if MANN_WHITNEY_U:
+            
+                # Mann-Whitney rank test returns like so [Mann-Whitney stats, p-value]
+                # Take into account the continuity correction (1/2.).
+                # http://docs.scipy.org/doc/scipy-0.16.0/reference/generated/scipy.stats.mannwhitneyu.html
 
-            #mnValue, pValue = scipy.stats.mannwhitneyu(lists[0], lists[1], True) # TODO
+                mnValue, pValue = scipy.stats.mannwhitneyu(lists[0], lists[1], True) # TODO
 
-            # (Welch's) t-test call returns like so: [t-value, p-value]
-            # Including equal variance argument being False makes this a
-            # Welch's t-test.
-            # http://docs.scipy.org/doc/scipy-0.14.0/reference/generated/scipy.stats.ttest_ind.html
+            else:
+            
+                # (Welch's) t-test call returns like so: [t-value, p-value]
+                # Including equal variance argument being False makes this a
+                # Welch's t-test.
+                # http://docs.scipy.org/doc/scipy-0.14.0/reference/generated/scipy.stats.ttest_ind.html
 
-            tValue, pValue = scipy.stats.ttest_ind(lists[0], lists[1], 0, False) # TODO
+                tValue, pValue = scipy.stats.ttest_ind(lists[0], lists[1], 0, False) # TODO
         except Exception:
+            if DEBUG: f.writerow(['exception on lib call'])
             pValue = 1
 
+        if DEBUG: file.close()
         return [layerB, sigDigs(pValue)]
 
     @staticmethod

@@ -8,10 +8,41 @@ var app = app || {}; // jshint ignore:line
     // This is the global Google Maps info window. We only want one hex to have its
     // info open at a time.
     var info_window = null;
+    var w = {}; // TODO hack to display object position
 
     // This holds the signature name of the hex that the info window is currently
     // about.
     var selected_signature = undefined;
+
+    function row(key, value) {
+
+        // Small helper function that returns a jQuery element that displays the
+        // given key being the given value.
+        // Using jQuery to build this saves us from HTML injection by making jQuery
+        // do all the escaping work (we only ever set text).
+
+        // This holds the root element of the row
+        var root = $("<div/>").addClass("info-row"),
+            newValue = value;
+
+        if (_.isNaN(newValue) || _.isUndefined(newValue)) {
+            newValue = 'NA';
+
+        } else if (ctx.cont_layers.indexOf(key) > -1) {
+            try {
+                newValue = value.toExponential(1);
+            }
+            catch (error) {
+                newValue = 'NA';
+            }
+        }
+        
+        // Add the key and value elements
+        root.append($("<div/>").addClass("info-key").text(key));
+        root.append($("<div/>").addClass("info-value").text(newValue));
+
+        return root;
+    }
 
     function with_infocard(signature, callback) {
         // Given a signature, call the callback with a jQuery element representing 
@@ -23,37 +54,7 @@ var app = app || {}; // jshint ignore:line
         // from the layers, which are retrieved by callback.
         // TODO: Can we say that we will never have to download a layer here and 
         // just directly access them? Is that neater or less neat?
-        
-        // Using jQuery to build this saves us from HTML injection by making jQuery
-        // do all the escaping work (we only ever set text).
-        
-        function row(key, value) {
-            // Small helper function that returns a jQuery element that displays the
-            // given key being the given value.
-            
-            // This holds the root element of the row
-            var root = $("<div/>").addClass("info-row"),
-                newValue = value;
 
-            if (_.isNaN(newValue) || _.isUndefined(newValue)) {
-                newValue = 'NA';
-
-            } else if (ctx.cont_layers.indexOf(key) > -1) {
-                try {
-                    newValue = value.toExponential(1);
-                }
-                catch (error) {
-                    newValue = 'NA';
-                }
-            }
-            
-            // Add the key and value elements
-            root.append($("<div/>").addClass("info-key").text(key));
-            root.append($("<div/>").addClass("info-value").text(newValue));
-
-            return root;
-        }
-        
         // This holds a list of the string names of the currently selected layers,
         // in order.
         // Just use everything on the shortlist.
@@ -66,7 +67,15 @@ var app = app || {}; // jshint ignore:line
             var infocard = $("<div/>").addClass("infocard");
             
             infocard.append(row("ID", signature).addClass("info-name"));
-        
+
+            // TODO hack to display obj coords
+            var o = get_xyIn_from_xyWorld(w.x, w.y);
+
+            var x = round(o.x, 2),
+                y = round(o.y, 2);
+            infocard.append(row('object xy',
+                (x.toString() + ', ' + y.toString())));
+
             for(var i = 0; i < current_layers.length; i++) {
                 // This holds the layer's value for this signature
                 var layer_value = retrieved_layers[i].data[signature];
@@ -138,11 +147,13 @@ var app = app || {}; // jshint ignore:line
             // The [0] is supposed to get the DOM element from the jQuery 
             // element.
             info_window.setContent(infocard[0]);
-            
+
             // Open the window. It may already be open, or it may be closed but 
             // properly positioned and waiting for its initial contents before 
-            // opening.
-            info_window.open(googlemap);
+            // opening. Give the contents a chance to update.
+            setTimeout(function () {
+                info_window.open(googlemap);
+            }, 0);
         });
     }
 
@@ -150,7 +161,10 @@ var app = app || {}; // jshint ignore:line
 
         if (!info_window) return;
 
-        var xy = event; // TODO
+        // TODO hack to display object coordinates
+        w.x = x;
+        w.y = y;
+
         if (tool_activity()) {
             // The user is using a tool currently, so we cannot use
             // their clicks for the info window.
@@ -180,6 +194,15 @@ var app = app || {}; // jshint ignore:line
             content: "No Signature Selected",
             position: get_LatLng(0, 0)
         });
+
+        // Attach a listener for the ESC key to close the info_window
+        // TODO use session var
+        google.maps.event.addDomListener(document, 'keyup', infoWindowMapKeyup);
+        
+        // Add an event to close the info window when the user clicks outside of any
+        // hexagon
+        // TODO use session var
+        google.maps.event.addListener(googlemap, "click", info_window_close);
 
         // And an event to clear the selected hex when the info_window closes.
         // TODO use session var

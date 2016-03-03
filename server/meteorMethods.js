@@ -15,10 +15,8 @@ var url = Meteor.absoluteUrl();
 var dataDir;
 if (url === 'http://localhost:3000/') {
     dataDir = '/Users/swat/';
-} else if (url === 'http://hexmap.sdsc.edu:8111/') {
-    dataDir = '/cluster/home/swat/';
 } else {
-    dataDir = '/data/home/swat/';
+    dataDir = '/cluster/home/swat/';
 }
 
 function writeToTempFile (data, fileExtension) {

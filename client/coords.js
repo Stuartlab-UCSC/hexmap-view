@@ -1,5 +1,20 @@
 // coords.js
-// Handle the coordinates along with google map type and projection.
+// Handle the transformations between all coordinate systems.
+
+/* We have three coordinate systems here:
+ *
+ *       xyIn:   0 -> ?,    0 -> ?   incoming coordinates
+ *    xyWorld:   0 -> 256,  0 -> 256 googlemap xy world coordinates
+ *     latLng: -90 -> 90, -45 -> 45  latitude, longitude (order as y, x)
+ *
+ * Tranformation functions:
+ *
+ *        xyWorld  to  latLng   get_LatLng()
+ *         latLng  to  xyWorld  get_xyWorld()
+ *         latLng  to  xyIn     get_xyIn_from_xyWorld()
+ *           xyIn  to  xyWorld  get_xyWorld_from_xyIn
+ *           xyIn  to  latLng   get_latLng_from_xyIn
+ */
 
 /* global $ */
 
@@ -9,9 +24,19 @@ var app = app || {}; // jshint ignore:line
     //'use strict';
 
     var SHOW_COORDS = false, // true = show them, false = not
-        xyMapSize = 256,
-        dims,
-        initialized = false;
+
+    // Global: googlemap world size in xy coordinates.
+    XY_WORLD_SIZE = 256;
+
+    // Global: specifies a distance to shift the whole grid down and right from
+    // the top left corner of the map. This lets us keep the whole thing away
+    // from the edges of the "earth", where Google Maps likes to wrap.
+    XY_OFFSET = XY_WORLD_SIZE / 4;
+
+    // Global: scaling factor from input coordinates to xy world coordinates.
+    xyScale = 1;
+
+    var initialized = false;
 
     // Define a flat projection
     FlatProjection = function () {
@@ -23,19 +48,19 @@ var app = app || {}; // jshint ignore:line
 
         // See https://developers.google.com/maps/documentation/javascript/maptypes#Projections
         FlatProjection.prototype.fromLatLngToPoint = function(latLng) {
-            // Given a LatLng from -90 to 90 and -180 to 180, transform to an x, y Point 
-            // from 0 to 256 and 0 to 256   
-            var point = new google.maps.Point((latLng.lng() + 180) * 256 / 360, 
+            // Given a LatLng from -90 to 90 and -180 to 180, transform to an
+            // x, y Point from 0 to 256 and 0 to 256
+            var xyWorld = new google.maps.Point((latLng.lng() + 180) * 256 / 360,
                 (latLng.lat() + 90) * 256 / 180);
             
-            return point;
+            return xyWorld;
 
         }
 
         FlatProjection.prototype.fromPointToLatLng = function(point, noWrap) {
-            // Given a an x, y Point from 0 to 256 and 0 to 256, transform to a LatLng from
-            // -90 to 90 and -180 to 180
-            var latLng = new google.maps.LatLng(point.y * 180 / 256 - 90, 
+            // Given a an x, y Point from 0 to 256 and 0 to 256, transform to
+            // a LatLng from -90 to 90 and -180 to 180
+            var latLng = new google.maps.LatLng(point.y * 180 / 256 - 90,
                 point.x * 360 / 256 - 180, noWrap);
             
             return latLng;
@@ -66,14 +91,57 @@ var app = app || {}; // jshint ignore:line
     },
 
     get_LatLng = function (x, y) {
-        // Given a point x, y in map space (0 to 256), get the corresponding LatLng
+
+        // Transform latLng to xyWorld
         return FlatProjection.prototype.fromPointToLatLng(
             new google.maps.Point(x, y));
     }
 
+    function get_xyWorld (latLng) {
+
+        // Transform latLng to xyWorld
+        return FlatProjection.prototype.fromLatLngToPoint(latLng);
+    }
+
+    findScale = function (maxX, maxY) {
+
+        // Find the scaling factor to convert xyIn to xyWorld
+        xyScale = (XY_WORLD_SIZE / 2) / Math.max(maxX, maxY)
+        console.log ('xyScale, max:', xyScale, Math.max(maxX, maxY));
+    }
+ 
+    get_xyIn_from_xyWorld = function  (x, y) {
+
+        // Transform xyWorld to xyIn. offset then scale
+        // =(D3 - 64) / $B$11
+        return {
+            x: ((x - XY_OFFSET) / xyScale),
+            y: ((y - XY_OFFSET) / xyScale)
+        };
+    }
+
+    get_xyWorld_from_xyIn = function (x, y) {
+
+        // Transform xyIn to xyWorld. scale then offset
+        // =$B$11 * C2 + 64
+        return {
+            x: (x * xyScale + XY_OFFSET),
+            y: (y * xyScale + XY_OFFSET)
+        };
+    }
+
+    get_latLng_from_xyIn = function (x, y) {
+
+        // Transform xyIn to latLng
+        var xyWorld = get_xyWorld_from_xyIn(x, y);
+        print ('xyWorld:', xyWorld);
+        return get_LatLng(xyWorld.x, xyWorld.y);
+    }
+
     getHexLatLngCoords= function (c, len) {
 
-        // Define a hexagon in latLng coordinates, given in xy coordinates
+        // TODO should use hexagons.js code instead
+        // Define a hexagon in latLng coordinates, given in xyWorld coordinates
         // @param c: the center point as [x,y]
         // @param len: length of the hexagon side
         // @param ht: height of the hexagon
@@ -92,70 +160,10 @@ var app = app || {}; // jshint ignore:line
             get_LatLng(c[0] - len / 2, c[1] + ht / 2),
         ];
     }
-        
-    findHexagonDims = function (maxX, maxY, zoom, gridSizeIn, wiggleIn) {
-
-        // Find the hexagon dimensions given a maximum X and Y
-        // @param maxX
-        // @param maxY
-        // @param zoom: a zoom level
-        // @param gridSize: grid size in the x and y extents
-        // @param wiggle: some extra room to account for
-        var side_length_x,
-            side_length_y,
-            sideLen
-            wt,
-            ht,
-            gridSize = _.isUndefined(gridSizeIn) ? 256 : gridSizeIn, // 256 for squiggled hexagons
-            wiggle = _.isUndefined(wiggleIn) ? 0 : wiggleIn; // 2 for squiggled hexagons
-
-        var side_length_x = (gridSize)/ (maxX + wiggle) * (2.0 / 3.0);
-
-        // Divide the space into rows and calculate the side length
-        // from hex height. Remember to add an extra row for wiggle.
-        var side_length_y = ((gridSize)/(maxY + wiggle)) / Math.sqrt(3);
-
-        // How long is a hexagon side in world coords?
-        // Shrink it from the biggest we can have so that we don't wrap off the 
-        // edges of the map. Divide by 2 to make it fit a grid half the
-        // dimensions of the std rgrid
-        //var sideLen = Math.min(side_length_x, side_length_y) / 2.0;
-        var sideLen = Math.min(side_length_x, side_length_y) / Math.pow(2, zoom);
-
-        // How tall is a hexagon?
-        var ht = Math.sqrt(3) * sideLen;
-
-        // How much horizontal space is needed per hex on average, stacked the
-        // way we stack them (wiggly)?
-        var wt = 3.0/2.0 * sideLen;
-
-        return {len: sideLen, wt: wt, ht: ht}
-    }
-
-    get_xyPix = function (latLng) {
-
-        // Given a point LatLng in the range, -90:90, -180:180, get the
-        // corresponding point in pixel space, 0:256, 0,256
-        return FlatProjection.prototype.fromLatLngToPoint(latLng);
-    }
-
-    get_xyMap = function (latLng, dims) {
-
-        // Convert world coordinates within the current viewport
-        // to xy map coordinates
-
-        // Transform the world coordinates to xy in the range: 1 - 256
-        var xy = get_xyPix(latLng),
-
-            // Offset the xy by the minimum xy of the google polygons,
-            // then scale it to our big svg map
-            x = (xy.x - dims.xMin) * dims.scale,
-            y = (xy.y - dims.yMin) * dims.scale;
-
-        return {x:x, y:y};
-    }
 
     get_polygons = function () {
+
+        // This finds all the polygons entirely within the rectangle
         var rect = googlemap.getBounds();
 
         // Because we have a wrap-around map, the lng bounds
@@ -164,7 +172,7 @@ var app = app || {}; // jshint ignore:line
         // TODO replace this call with the better one in select.js
     }
 
-    findPolygonExtents = function (googlePolygonKeys, xyMapSize) {
+    findPolygonExtents = function (googlePolygonKeys, xyWorldSize) {
 
         // Find the extents of the visible google polygons
             var i,
@@ -187,18 +195,29 @@ var app = app || {}; // jshint ignore:line
                 lngMax = Math.max(lngMax, v.lng());
             }
         }
-        min = get_xyPix(new google.maps.LatLng(latMin, lngMin));
-        max = get_xyPix(new google.maps.LatLng(latMax, lngMax));
+        min = get_xyWorld(new google.maps.LatLng(latMin, lngMin));
+        max = get_xyWorld(new google.maps.LatLng(latMax, lngMax));
 
-        dims = {};
-        dims.xSize = max.x - min.x;
-        dims.ySize = max.y - min.y;
-        dims.scale = xyMapSize / Math.max(dims.xSize, dims.ySize);
-        dims.xSize = dims.xSize * dims.scale;
-        dims.ySize = dims.ySize * dims.scale;
-        dims.yMin = min.y;
-        dims.xMin = min.x;
-        return dims;
+        var XY = {};
+        XY.xSize = max.x - min.x;
+        XY.ySize = max.y - min.y;
+        XY.scale = XY_SCALE = xyWorldSize / Math.max(XY.xSize, XY.ySize);
+        XY.xSize = XY.xSize * XY.scale;
+        XY.ySize = XY.ySize * XY.scale;
+        XY.yMin = min.y;
+        XY.xMin = min.x;
+        return XY;
+    }
+
+    coordsMouseMove = function (e) {
+        var xyWorld = get_xyWorld(e.latLng),
+            xyIn = get_xyIn_from_xyWorld(xyWorld.x, xyWorld.y);
+        $('#xIn').text(round(xyIn.x, 2));
+        $('#yIn').text(round(xyIn.y, 2));
+        $('#xWorld').text(round(xyWorld.x, 2));
+        $('#yWorld').text(round(xyWorld.y, 2));
+        $('#lngCoord').text(round(e.latLng.lng()));
+        $('#latCoord').text(round(e.latLng.lat()));
     }
 
     initCoords = function () {
@@ -214,28 +233,14 @@ var app = app || {}; // jshint ignore:line
         if (Session.equals('page', 'gridPage')) {
             map = getGridMap();
             $el = $('#gridMap');
-            dims = findGridExtents(xyMapSize);
+            XY = findGridExtents(XY_WORLD_SIZE);
         } else {
             map = googlemap;
             $el = $('#visualization');
-            dims = findPolygonExtents(get_polygons(), xyMapSize);
+            XY = findPolygonExtents(get_polygons(), XY_WORLD_SIZE);
         }
 
         // Set up the handler of mousemove on the map
-        google.maps.event.addListener(map, 'mousemove', function (e) {
-            var xyMap = get_xyPix(e.latLng),
-                xyObj = get_xyMap(e.latLng, dims);
-            $('#xObjCoord').text(Math.round(xyObj.x));
-            $('#yObjCoord').text(Math.round(xyObj.y));
-            $('#xMapCoord').text(Math.round(xyMap.x));
-            $('#yMapCoord').text(Math.round(xyMap.y));
-            $('#lngCoord').text(Math.round(e.latLng.lng()));
-            $('#latCoord').text(Math.round(e.latLng.lat()));
-        });
-        $el.on('mousemove', function(e) {
-            $('#xScrCoord').text(e.screenX);
-            $('#yScrCoord').text(e.screenY);
-        });
-
+        google.maps.event.addListener(map, 'mousemove', coordsMouseMove);
     }
 })(app);

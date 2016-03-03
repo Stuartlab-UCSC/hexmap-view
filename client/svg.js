@@ -23,7 +23,7 @@ var app = app || {}; // jshint ignore:line
 
         // Transform world coord vertices to our svg xy space
             for (i = 0; i < verts.getLength(); i += 1) {
-            xy = get_xyMap(verts.getAt(i), dims);
+            xy = get_xyWorld(verts.getAt(i), dims);
             points += ' ' + xy.x + ',' + xy.y;
         }
 
@@ -53,8 +53,8 @@ var app = app || {}; // jshint ignore:line
         // Define the svg element,
         // setting its size to that of the visible polygons area
         svg = "<svg xmlns:svg='http://www.w3.org/2000/svg'"
-            + " width='" + dims.xSize
-            + "' height='" + dims.ySize
+            + " width='" + XY.xSize
+            + "' height='" + XY.ySize
             + "' style='z-index:102;border: 1px solid black'"
             + ">\n";
 

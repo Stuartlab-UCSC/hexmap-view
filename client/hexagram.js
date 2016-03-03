@@ -92,6 +92,10 @@ with_layer = function (layer_name, callback) {
     // First get what we have stored for the layer
     var layer = layers[layer_name];
 
+        if (layer == undefined) {
+            console.log('TODO layer is undefined for', layer_name, '. This should not happen if state is correct');
+            return true;
+        }
 		var data_val = layer.data;
 		if(layer.data == undefined) {
 		    // We need to download the layer.

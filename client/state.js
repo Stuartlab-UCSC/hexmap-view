@@ -51,14 +51,6 @@ PAGE = 'homePage';
         if (location.host === 'medbook.ucsc.edu') {
             proxPre = '/hex/';
             s.defaultProject = 'data/ynewton/gliomas-paper/';
-        } else if (location.host === 'hexmap.sdsc.edu:8112'
-            || location.host === 'hexmap.sdsc.edu:8111'
-            || location.host === 'localhost:3000') {
-            proxPre = '';
-        } else if (DEV) {
-            proxPre = '/hexmap/'; // su2c-dev:DEV
-        } else {
-            proxPre = '/hex/'; // su2c-dev:notDEV
         }
         s.defaultProject = proxPre + s.defaultProject;
 
