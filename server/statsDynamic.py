@@ -19,7 +19,7 @@ def dynamicLayoutAwareStats(parm):
     fpath = os.path.join(parm['directory'], fname)
     if not os.path.isfile(fpath):
         print "Error:", fname, "not found, so statistics could not be computed\n"
-        return 1;
+        return 0;
 
     windowNodes = []
     windowAdditives = []
@@ -42,7 +42,7 @@ def dynamicIgnoreLayoutStats(parm):
     fpath = os.path.join(parm['directory'], "hexNames.tab")
     if not os.path.isfile(fpath):
         print "Error:", fpath, "not found, so statistics could not be computed\n"
-        return 1;
+        return 0;
 
     hexNames = []
     with open(fpath, 'rU') as f:
@@ -57,7 +57,7 @@ def dynamicStats(parmFile):
 
     if not os.path.isfile(parmFile):
         print "Error: temporary parm file,", parmFile, "not found, so statistics could not be computed\n"
-        return 1;
+        return 0;
 
     # Read the parms from the temp file
     with open(parmFile, 'rU') as f:
@@ -99,7 +99,7 @@ def dynamicStats(parmFile):
         ret = dynamicLayoutAwareStats(parm)
     else:
         ret = dynamicIgnoreLayoutStats(parm)
-    if ret == 1: return 0
+    if ret == 0: return 0
 
     # Create an instance of ForEachLayer and call it
     oneLayer = ForEachLayer(parm)

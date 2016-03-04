@@ -215,6 +215,7 @@ var app = app || {}; // jshint ignore:line
             text = 'None, due to no statistical results';
             Session.set('sort', {text: text, type: 'noStats',
                 focus_attr: focus_attr, color: 'inherit', background: 'inherit'});
+            banner('error', text);
         } else {
 
             Session.set('sort', {text: text, type: type,
@@ -223,7 +224,9 @@ var app = app || {}; // jshint ignore:line
         clearAllFilters();
         update_browse_ui();
         update_shortlist_ui();
-        banner('info', 'Now sorted by ' + text + elapsed);
+        if (type !== 'noStats') {
+            banner('info', 'Now sorted by ' + text + elapsed);
+        }
     }
 
     function cleanPvalue (val) {
@@ -509,10 +512,13 @@ var app = app || {}; // jshint ignore:line
             function (error, result) {
                 if (error) {
                     banner('error', error);
+                    updateUi('noStats');
                 } else if (result.slice(0,5) === 'Error') {
                     banner('error', result);
+                    updateUi('noStats');
                 } else if (result.slice(0,4) === 'Info') {
                     banner('info', result);
+                    updateUi('noStats');
                 } else {
                     receive_data(result, focus_attr, opts);
                 }
@@ -531,7 +537,7 @@ var app = app || {}; // jshint ignore:line
         Meteor.call('getTsvFile', filename, ctx.project,
             Session.get('proxPre'), function (error, parsed) {;
 
-            if (error) {
+            if (error || parsed.slice(0,5) === 'Error') {
                 computingTextDisplay();
                 getDynamicStats(focus_attr, opts);
                 return;

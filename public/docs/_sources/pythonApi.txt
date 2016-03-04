@@ -6,11 +6,10 @@ responder to the server's requests.
 
 **Requests**
 
-Requests and responses have only one parameter: the file name containing the data
-in JSON format.
-
-The caller and responder create their temporary files in /tmp or
-equivalent and the caller will remove them. All requests are asynchronous.
+Requests and responses have only one parameter: a file name containing the data
+in JSON format. Use the helper function: readJsonRequestData() to read the json-formatted data
+from the file and convert the json to a python dict. The data are described
+in the individual python APIs listed at the bottom of this page.
 
 Example::
 
@@ -19,17 +18,21 @@ Example::
 **Response success**
 
 The response from the python script is returned in stdout, so that just a print
-statement is required to pass the temporary filename. This means you cannot
-have any other print statements in your scripts.
+statement is required to pass the temporary filename. This means the only print
+statements you may have in your scripts include the one to return the
+filename containing the response data, and errors as described in **Response errors**.
 
-Example::
-
- print /tmp/y.txt
+Use the helper function:
+writeJsonResponseData() to convert the python data to json, write it
+to a file, and pass the filename back to the caller via stdout. The data are described
+in the individual python APIs listed at the bottom of this page.
 
 **Response errors**
 
-In place of the temporary file name used for success, use stdout to return error and warning
-messages. Use one of these forms for your message so the UI can echo it.
+In place of the temporary file name used for success, use stdout to return error
+and warning messages. Use one of these forms for your message so the UI can echo it.
+Return a zero after printing the message so the caller will know this is a captured
+error/warning, and not an unknown exception.
 
 'WARNING <some warning, not a failure, but no data>'
 
@@ -38,14 +41,15 @@ messages. Use one of these forms for your message so the UI can echo it.
 Example::
 
  print 'WARNING some minor issue occurred'
- print 'ERROR that just blew everything up'
+ return 0
 
-(This may not be the best solution yet, but it is easy enough to implement
-until we find a better one.)
+ print 'ERROR that just blew everything up'
+ return 0
 
 **Python API JSON data:**
 
 .. toctree::
+   pyApiHelpers
    pyCreateSubMap
    pyOverlayNodes
    pyStatsDynamic

@@ -25,7 +25,7 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="top" title="TumorMap Developer Documentation" href="index.html" />
-    <link rel="next" title="Python API: createSubMap" href="pyCreateSubMap.html" />
+    <link rel="next" title="Python API Helpers" href="pyApiHelpers.html" />
     <link rel="prev" title="Query API" href="queryApi.html" /> 
   </head>
   <body role="document">
@@ -36,7 +36,7 @@
         <div class="rel" role="navigation" aria-label="related navigation">
           <a href="queryApi.html" title="Query API"
              accesskey="P">previous</a> |
-          <a href="pyCreateSubMap.html" title="Python API: createSubMap"
+          <a href="pyApiHelpers.html" title="Python API Helpers"
              accesskey="N">next</a> |
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a>
@@ -57,37 +57,42 @@
 <p>The server initiates calls to python scripts, while the python script is a
 responder to the server&#8217;s requests.</p>
 <p><strong>Requests</strong></p>
-<p>Requests and responses have only one parameter: the file name containing the data
-in JSON format.</p>
-<p>The caller and responder create their temporary files in /tmp or
-equivalent and the caller will remove them. All requests are asynchronous.</p>
+<p>Requests and responses have only one parameter: a file name containing the data
+in JSON format. Use the helper function: readJsonRequestData() to read the json-formatted data
+from the file and convert the json to a python dict. The data are described
+in the individual python APIs listed at the bottom of this page.</p>
 <p>Example:</p>
 <div class="highlight-python"><div class="highlight"><pre><span></span>python placeNewNodes.py /tmp/x.txt
 </pre></div>
 </div>
 <p><strong>Response success</strong></p>
 <p>The response from the python script is returned in stdout, so that just a print
-statement is required to pass the temporary filename. This means you cannot
-have any other print statements in your scripts.</p>
-<p>Example:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span>print /tmp/y.txt
-</pre></div>
-</div>
+statement is required to pass the temporary filename. This means the only print
+statements you may have in your scripts include the one to return the
+filename containing the response data, and errors as described in <strong>Response errors</strong>.</p>
+<p>Use the helper function:
+writeJsonResponseData() to convert the python data to json, write it
+to a file, and pass the filename back to the caller via stdout. The data are described
+in the individual python APIs listed at the bottom of this page.</p>
 <p><strong>Response errors</strong></p>
-<p>In place of the temporary file name used for success, use stdout to return error and warning
-messages. Use one of these forms for your message so the UI can echo it.</p>
+<p>In place of the temporary file name used for success, use stdout to return error
+and warning messages. Use one of these forms for your message so the UI can echo it.
+Return a zero after printing the message so the caller will know this is a captured
+error/warning, and not an unknown exception.</p>
 <p>&#8216;WARNING &lt;some warning, not a failure, but no data&gt;&#8217;</p>
 <p>&#8216;ERROR &lt;some real error that prevented something from happening&gt;&#8217;</p>
 <p>Example:</p>
 <div class="highlight-python"><div class="highlight"><pre><span></span><span class="k">print</span> <span class="s1">&#39;WARNING some minor issue occurred&#39;</span>
+<span class="k">return</span> <span class="mi">0</span>
+
 <span class="k">print</span> <span class="s1">&#39;ERROR that just blew everything up&#39;</span>
+<span class="k">return</span> <span class="mi">0</span>
 </pre></div>
 </div>
-<p>(This may not be the best solution yet, but it is easy enough to implement
-until we find a better one.)</p>
 <p><strong>Python API JSON data:</strong></p>
 <div class="toctree-wrapper compound">
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="pyApiHelpers.html">Python API Helpers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="pyCreateSubMap.html">Python API: createSubMap</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="pyCreateSubMap.html#request">Request</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pyCreateSubMap.html#response">Response</a></li>
@@ -118,6 +123,7 @@ until we find a better one.)</p>
           <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="queryApi.html">Query API</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="">Python API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pyApiHelpers.html">Python API Helpers</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pyCreateSubMap.html">Python API: createSubMap</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pyOverlayNodes.html">Python API: overlayNodes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pyStatsDynamic.html">Python API: statsDynamic</a></li>
@@ -155,7 +161,7 @@ until we find a better one.)</p>
           <div role="navigation" aria-label="related navigaton">
             <a href="queryApi.html" title="Query API"
               >previous</a> |
-            <a href="pyCreateSubMap.html" title="Python API: createSubMap"
+            <a href="pyApiHelpers.html" title="Python API Helpers"
               >next</a> |
             <a href="genindex.html" title="General Index"
               >index</a>

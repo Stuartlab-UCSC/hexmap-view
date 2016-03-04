@@ -558,6 +558,6 @@ class ForEachLayer(object):
 
         # For dynamic stats, pass the results file name to the caller via stdout
         if hasattr(s, 'dynamic'):
-            print json.dumps(s.file)
+            print s.file
 
         return 0

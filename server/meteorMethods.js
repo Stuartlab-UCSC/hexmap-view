@@ -137,14 +137,18 @@ Meteor.methods({
             + "'";
 
         exec(command, function (error, stdout, stderr) {
+            console.log('error: ###', error, '###');
+            console.log('stdout: ###', stdout, '###');
+            console.log('stderr: ###', stderr, '###');
             if (error) {
                 future.throw(error);
             } else {
 
-                var result = stdout.toString().slice(1, -2); //strip quotes and newline
+                var result = stdout.toString().slice(0, -1); //  newline
 
-                // Return any known errors to the client
-                if (result.slice(0,5) === 'Error' || result.slice(0,4) === 'Info') {
+                // Return any known errors/warnings to the client
+                if (result.slice(0,5) === 'Error'
+                    || result.slice(0,7) === 'Warning') {
                     fs.unlinkSync(parmFile);
                     future.return(result);
                 } else {
