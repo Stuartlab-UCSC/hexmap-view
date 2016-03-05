@@ -1,6 +1,0 @@
-make clean
-rm -rf ../public/docs/*
-cp -R _static/*  ../public/docs/_static
-cp -R _templates/*  ../public/docs/_templates
-sphinx-build . ../public/docs
-#sphinx-build . _build

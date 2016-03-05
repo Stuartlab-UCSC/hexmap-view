@@ -5,8 +5,8 @@ Contents
 .. toctree::
    :maxdepth: 2
 
-   queryApi
    pythonApi
+   queryApi
    source
    clientSource
    serverSource
