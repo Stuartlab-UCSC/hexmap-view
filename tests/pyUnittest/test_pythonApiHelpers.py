@@ -1,7 +1,4 @@
 #!/usr/bin/env python2.7
-"""
-test_pythonApiExample.py
-"""
 
 import os, sys, glob, filecmp, shutil, csv
 import unittest
@@ -14,12 +11,16 @@ sys.path.append(pythonDir)
 sys.path.append(serverDir)
 from statsLayer import ForEachLayer
 
-class TestPythonExample(unittest.TestCase):
-    from pythonApiHelpers import callHelpersExample
+class TestPythonApi(unittest.TestCase):
 
-    #sys.stdout = open('file', 'w')
-    filename = 'testData/test_overlayNode_request_short.json'
-    callHelpersExample(filename)
+    def test_helpers(s):
+
+        from pythonApiHelpers import callHelpersExample
+
+        # TODO this should test more than a success return
+        filename = 'testData/test_overlayNode_request_short.json'
+        rc = callHelpersExample(filename)
+        s.assertTrue(rc != 1) # not 1 is success
 
 if __name__ == '__main__':
     unittest.main()

@@ -137,9 +137,6 @@ Meteor.methods({
             + "'";
 
         exec(command, function (error, stdout, stderr) {
-            console.log('error: ###', error, '###');
-            console.log('stdout: ###', stdout, '###');
-            console.log('stderr: ###', stderr, '###');
             if (error) {
                 future.throw(error);
             } else {
