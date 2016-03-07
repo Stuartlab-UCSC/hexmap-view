@@ -292,9 +292,10 @@ class ForEachLayer(object):
         #       [1, 5.73453],
         #       ...
         #   ]
-        MANN_WHITNEY_U = False
+        MANN_WHITNEY_U = True
         DEBUG = False
-        DROP_QUANTILES = False
+        DROP_QUANTILES = True
+        QUANTILE_DIVISOR = 10
         if DEBUG and contL != 'GP7_Estrogen signaling program':
             DEBUG = False
         if DEBUG:
@@ -332,7 +333,7 @@ class ForEachLayer(object):
                 # no good stats will come of this
                 return [layerB, 1]
 
-            quantile = length / 10
+            quantile = length / QUANTILE_DIVISOR
             lower = hexKeyValsSorted[int(round(quantile))][1]
             upper = hexKeyValsSorted[int(round(length - quantile))][1]
 
