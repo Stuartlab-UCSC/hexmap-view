@@ -67,14 +67,14 @@ class TestQueryOverlayNodes(unittest.TestCase):
         s.assertTrue(rc['data']== 'Map missing or malformed')
 
     def test_layoutIncludedCheck(s):
-        data = '{"map": "CKCCv1"}'
+        data = '{"map": "CKCC/v1"}'
         opts = ['-d', data, '-H', 'Content-Type:application/json', '-X', 'POST', '-v']
         rc = s.doCurl(opts)
         s.assertTrue(rc['code'] == '400')
         s.assertTrue(rc['data']== 'Layouts missing or malformed')
 
     def test_layoutsIsObjectCheck(s):
-        data = '{"map": "CKCCv1", "layouts": "junk"}'
+        data = '{"map": "CKCC/v1", "layouts": "junk"}'
         opts = ['-d', data, '-H', 'Content-Type:application/json', '-X', 'POST', '-v']
         rc = s.doCurl(opts)
         s.assertTrue(rc['code'] == '400')
@@ -85,22 +85,30 @@ class TestQueryOverlayNodes(unittest.TestCase):
         opts = ['-d', data, '-H', 'Content-Type:application/json', '-X', 'POST', '-v']
         rc = s.doCurl(opts)
         s.assertTrue(rc['code'] == '400')
-        s.assertTrue(rc['data'] == 'The only frozen map available is ' + "CKCCv1")
+        s.assertTrue(rc['data'] == 'The only frozen map available is ' + "CKCC/v1")
 
     def test_layoutsValueCheck(s):
-        data = '{"map": "CKCCv1", "layouts": {"junk": "junk"}}'
+        data = '{"map": "CKCC/v1", "layouts": {"junk": "junk"}}'
         opts = ['-d', data, '-H', 'Content-Type:application/json', '-X', 'POST', '-v']
         rc = s.doCurl(opts)
         s.assertTrue(rc['code'] == '400')
         s.assertTrue(rc['data'] == 'The only map layout available is ' + "mRNA")
-
-    def test_valid(s):
-        data = '{"map": "CKCCv1", "layouts": {"mRNA": "junk"}}'
+    
+    def test_bookmarkStub(s):
+        data = '{"testBookmarkStub": "yes", "map": "CKCC/v1", "layouts": {"mRNA": "junk"}}'
         resData = '{"bookmark":"http://localhost:3000/?b=18XFlfJG8ijJUVP_CYIbA3qhvCw5pADF651XTi8haPnE"}\n'
         opts = ['-d', data, '-H', 'Content-Type:application/json', '-X', 'POST', '-v']
         rc = s.doCurl(opts)
-        #print 'data: ##', rc['data'], '##'
-        #print 'code: ##', rc['code'], '##'
+        s.assertTrue(rc['code'] == '200')
+        s.assertTrue(rc['data'] == resData)
+
+    def test_pythonCallStub(s):
+        data = '{"map": "CKCC/v1", "layouts": {"mRNA": {"node1": {"gene1": "1", "gene2": "2"}, "node2": {"gene1": "3", "gene2": "4"}}}}'
+        resData = '{"bookmark":"http://localhost:3000/?b=18XFlfJG8ijJUVP_CYIbA3qhvCw5pADF651XTi8haPnE"}\n'
+        opts = ['-d', data, '-H', 'Content-Type:application/json', '-X', 'POST', '-v']
+        rc = s.doCurl(opts)
+        print 'data: ##', rc['data'], '##'
+        print 'code: ##', rc['code'], '##'
         s.assertTrue(rc['code'] == '200')
         s.assertTrue(rc['data'] == resData)
 

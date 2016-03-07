@@ -10,7 +10,6 @@ boilerplate-generator@1.0.4
 caching-compiler@1.0.0
 caching-html-compiler@1.0.2
 callback-hook@1.0.4
-cfs:http-methods@0.0.30
 check@1.1.0
 ddp@1.2.2
 ddp-client@1.2.1

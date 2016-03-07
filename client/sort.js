@@ -502,7 +502,8 @@ var app = app || {}; // jshint ignore:line
         opts.layerIndex = ctx.layer_names_by_index.indexOf(focus_attr);
         opts.directory = ctx.project;
         opts.proxPre = Session.get('proxPre');
-        opts.tempFile=  'yes';
+        opts.tempFile = 'yes';
+        opts.tsv = true;
 
         // Gather the data for user-selection attributes
         opts.dynamicData = gatherSelectionData(opts.dynamicData);

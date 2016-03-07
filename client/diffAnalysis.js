@@ -89,6 +89,7 @@ var app = app || {}; // jshint ignore:line
             proxPre: Session.get('proxPre'),
             tempFile: 'yes',
             startDate: new Date(),
+            tsv: true,
         };
 
         opts.dynamicData = gatherSelectionData();

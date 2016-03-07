@@ -9,7 +9,6 @@ pythonDir = rootDir + '.python/'
 serverDir = rootDir + 'server/'
 sys.path.append(pythonDir)
 sys.path.append(serverDir)
-from statsLayer import ForEachLayer
 
 class TestPythonApi(unittest.TestCase):
 
