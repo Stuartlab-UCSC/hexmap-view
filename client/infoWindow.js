@@ -8,7 +8,6 @@ var app = app || {}; // jshint ignore:line
     // This is the global Google Maps info window. We only want one hex to have its
     // info open at a time.
     var info_window = null;
-    var w = {}; // TODO hack to display object position
 
     // This holds the signature name of the hex that the info window is currently
     // about.
@@ -66,16 +65,14 @@ var app = app || {}; // jshint ignore:line
             // This holds the root element of the card.
             var infocard = $("<div/>").addClass("infocard");
             
+            // Display the hexagon name
             infocard.append(row("ID", signature).addClass("info-name"));
 
-            // TODO hack to display obj coords
-            var o = get_xyIn_from_xyWorld(w.x, w.y);
-
-            var x = round(o.x, 2),
-                y = round(o.y, 2);
-            infocard.append(row('object xy',
-                (x.toString() + ', ' + y.toString())));
-
+            // Display the honeycomb coordinates
+            infocard.append(row('xyHex',
+                polygons[signature].xHex.toString() + ', ' +
+                polygons[signature].yHex.toString()));
+                
             for(var i = 0; i < current_layers.length; i++) {
                 // This holds the layer's value for this signature
                 var layer_value = retrieved_layers[i].data[signature];
@@ -160,10 +157,6 @@ var app = app || {}; // jshint ignore:line
     showInfoWindow = function (event, hexagon, x, y) {
 
         if (!info_window) return;
-
-        // TODO hack to display object coordinates
-        w.x = x;
-        w.y = y;
 
         if (tool_activity()) {
             // The user is using a tool currently, so we cannot use

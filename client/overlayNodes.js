@@ -12,15 +12,24 @@ var app = app || {}; // jshint ignore:line
 
     showOverlayNodes = function () {
 
-        var nodes = Session.get('overlayNodes');
+        var nodes = Session.get('overlayNodes'),
+            pinColor = "FFFFFF",
+            pinImage = new google.maps.MarkerImage("http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=%E2%80%A2|" + pinColor,
+                new google.maps.Size(21, 34),
+                new google.maps.Point(0,0),
+                new google.maps.Point(10, 34));
+        
         _.each (Object.keys(nodes), function (n) {
+        
             markers[n] = new google.maps.Marker({
-                position: get_latLng_from_xyIn(nodes[n].x, nodes[n].y),
+                icon: pinImage,
+                position: get_latLng_from_xyHex(nodes[n].x, nodes[n].y),
                 map: googlemap,
                 title: n,
                 animation: google.maps.Animation.DROP,
             });
 
+            // Render the overlay hexagon
             addHexagon(nodes[n].x, nodes[n].y, n, true);
         });
     }
@@ -28,21 +37,19 @@ var app = app || {}; // jshint ignore:line
     initOverlayNodes = function () {
 
         // Called after the map is drawn
-        //return;
-        console.log('initOverlayNodes');
 
         // Stub to simulate what should already be in Session:overlayNodes
         Session.set('overlayNodes', {
-            mySample1: {
-               x: 153,
-               y: 135,
-            },
             /*
-            mySample2: {
-               x: 167.91,
-               y: 57.73,
+            'PNOC003-011': {
+               x: 43,
+               y: 227.1666667,
             },
             */
+            'PNOC003-009': {
+               x: 64.5,
+               y: 228.3333333,
+            },
         });
 
         if (!Session.equals('overlayNodes', undefined)) {

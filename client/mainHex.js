@@ -105,7 +105,6 @@ mapDrawnListener = '';
         if (Session.equals('page', 'mapPage')) initSvg();
         if (DEV) initGrid();
         initCoords();
-        //initOverlayNodes();
         setTimeout(function () { Session.set('loadingMap', 'none')}, 0);
     }
 
