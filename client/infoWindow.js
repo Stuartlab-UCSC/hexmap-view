@@ -68,10 +68,12 @@ var app = app || {}; // jshint ignore:line
             // Display the hexagon name
             infocard.append(row("ID", signature).addClass("info-name"));
 
-            // Display the honeycomb coordinates
-            infocard.append(row('xyHex',
-                polygons[signature].xHex.toString() + ', ' +
-                polygons[signature].yHex.toString()));
+            if (DEV) {
+                // Display the honeycomb coordinates
+                infocard.append(row('xyHex',
+                    polygons[signature].xHex.toString() + ', ' +
+                    polygons[signature].yHex.toString()));
+            }
                 
             for(var i = 0; i < current_layers.length; i++) {
                 // This holds the layer's value for this signature

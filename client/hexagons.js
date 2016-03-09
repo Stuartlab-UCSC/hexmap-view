@@ -143,11 +143,11 @@ var app = app || {}; // jshint ignore:line
 
             // Trigger an idle event to initialize tools requiring polygons
             // to be drawn
-            center = googlemap.getCenter()
-            googlemap.setCenter(new google.maps.LatLng(
-                center.lat(), center.lng()));
             mapDrawnListener = google.maps.event.addListener(
                 googlemap, 'idle', initMapDrawn);
+            var center = googlemap.getCenter()
+            googlemap.setCenter(new google.maps.LatLng(
+                center.lat(), center.lng()));
         });
     }
 

@@ -104,13 +104,15 @@ mapDrawnListener = '';
         google.maps.event.removeListener(mapDrawnListener);
         if (Session.equals('page', 'mapPage')) initSvg();
         if (DEV) initGrid();
-        initCoords();
-        setTimeout(function () { Session.set('loadingMap', 'none')}, 0);
+        //initCoords();
+        setTimeout(function () {
+            Session.set('loadingMap', 'none')
+        }, 0);
     }
 
     initGridDrawn = function () {
         // Initialize modules that need to have the grid drawn.
-        initCoords();
+        //initCoords();
     }
 
     function initHomeLink() {
