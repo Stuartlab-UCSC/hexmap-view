@@ -128,7 +128,7 @@ var app = app || {}; // jshint ignore:line
             project._getUsers();
         } else {
             $('#project')
-                .text(ctx.project.split('/').slice(-2,-1))
+                .text(ctx.project.slice(5, -1))
                 .addClass('static');
         }
     };

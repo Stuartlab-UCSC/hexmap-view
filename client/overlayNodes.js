@@ -37,21 +37,6 @@ var app = app || {}; // jshint ignore:line
     initOverlayNodes = function () {
 
         // Called after the map is drawn
-
-        // Stub to simulate what should already be in Session:overlayNodes
-        Session.set('overlayNodes', {
-            /*
-            'PNOC003-011': {
-               x: 43,
-               y: 227.1666667,
-            },
-            */
-            'PNOC003-009': {
-               x: 64.5,
-               y: 228.3333333,
-            },
-        });
-
         if (!Session.equals('overlayNodes', undefined)) {
             showOverlayNodes();
         }

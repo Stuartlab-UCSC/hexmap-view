@@ -2,11 +2,7 @@
 // httpQuery.js
 // Receive and respond to incoming HTTP requests according to the query API
 
-var url = Meteor.absoluteUrl(),
-
-    // TODO fixed map and layout for now
-    map = 'CKCC/v1',
-    layout = 'mRNA';
+var url = Meteor.absoluteUrl();
 
 function respond (code, res, msg) {
 
@@ -20,31 +16,41 @@ function respond (code, res, msg) {
     res.end(data + '\n');
 }
 
-function pythonCallStub(dataIn, res) {
+function passOverlayNodeChecks (dataIn, res) {
 
-    // For this stub, we'll return a fake xy position for each node requested
-    var resData = {
-           map: map,
-           layouts: {},
-           },
-        i = 1;
-    resData.layouts[layout] = {}
+    // Do some checks on the overlayNodes request content, returning false if
+    // not passing.
+    
+    // TODO Validate a specific map and layout for now.
+    // Eventually we will want to check for any maps we have deemed frozen
+    var map = 'CKCC/stable',
+        layout = 'mRNA';
+    
+    // Validate that certain properties are included
+    if (!dataIn.hasOwnProperty('map')) {
+        respond(400, res, 'Map missing or malformed');
+        return false;
 
-    for (node in dataIn.layouts.mRNA) {
+    } else if (!dataIn.hasOwnProperty('layouts')) {
+        respond(400, res, 'Layouts missing or malformed');
+        return false;
 
-        // Assuming our map has a max coordinates of (110, 110)
-        // and there are no more that 10 nodes.
-        var x = 10 * i;
-        i += 1;
-        resData.layouts[layout][node] = {x: x, y: x};
-        if (i > 10) {
-            break;
-        }
+    } else if (typeof dataIn.layouts !== 'object') {
+        respond(400, res, 'Layouts type should be an object')
+        return false;
+    
+    // Validate a specific map and layout for now.
+    } else if (dataIn.map !== map) {
+        respond(400, res, 'The only frozen map available is ' + map);
+        return false;
+    } else if (!dataIn.layouts.hasOwnProperty(layout)) {
+        respond(400, res, 'The only map layout available is ' + layout);
+        return false;
     }
-    console.log('resData.layouts.mRNA:', resData.layouts.mRNA);
-    return resData;
+        
+    return true;
 }
-
+    
 saveBookmark = function(state) {
 
     // TODO replace this with a hash of the state so the same state may reuse an
@@ -52,116 +58,48 @@ saveBookmark = function(state) {
     var crypto = Npm.require('crypto');
     var id = crypto.randomBytes(4).readUInt32LE(0).toString();
     
-    // TODO fibers/future should be used here
+    // TODO should fibers/future be used here?
+    // TODO put this into dbMethods.js
     var Fiber = Npm.require('fibers');
     var f = Fiber(function(id) {
         Bookmarks.insert({
             "_id": id,
-            "jsonState": JSON.stringify(state),
+            "jsonState": state,
             "createdAt": new Date(),
         });
     }).run(id);
     return id
 }
 
-function saveBookmarkFromOverlayNodes(pythonDataIn) {
-    var state = {
-            page: 'mapPage',
-            //project: "data/CKCC/v1/",
-            project: 'data/' + pythonDataIn.map + '/',
-            current_layout_name: "mRNA",
-            overlayNodes: pythonDataIn.layouts.mRNA,
-        },
-        bookmark = saveBookmark(state);
-    
-        console.log('bookmark id:', bookmark);
-    return bookmark;
-    
-    // TODO for now we return a fake bookmark for testing
-    return "18XFlfJG8ijJUVP_CYIbA3qhvCw5pADF651XTi8haPnE"
+function overlayNodesGetXy(dataIn) {
 
-    //{"background":"black","page":"mapPage","project":"data/swat/pancan33+/",
-    // "center":[9.66796875,9.999894245993346e-9],
-    // "current_layout_name":"PANCAN33+","first_layer":"Disease","gridZoom":1,
-    // "shortlist":["Disease"],"zoom":1}
-}
-
-function pythonCall(queryDataIn, res) {
-
-    var pythonDataIn = pythonCallStub(queryDataIn, res);
-    
-    // TODO handle errors in python call
-    
-    // Save state as a bookmark
-    var bookmark = saveBookmarkFromOverlayNodes(pythonDataIn);
-    
-    var dataOut = {bookmark: url + '?b=' + bookmark};
-    respond(200, res, dataOut);
+    // For now this is a stub and we return the positions for our mock samples.
+    var xyData = '{"map": "CKCC/stable", "layout": "mRNA", "nodes": {"PNOC003-009": {"x": "64.5", "y": "228.3333333"}, "PNOC003-011": {"x": "43", "y": "227.1666667"}}}';
+    return JSON.parse(xyData);
 }
 
 function overlayNodes(dataIn, res) {
 
-    // Process the data in the request.
-
-    // Validate a specific map and layout for now.
-    var map = 'CKCC/v1',
-        layout = 'mRNA';
+    // Process the data in the overlayNodes request.
     
-    // Validate that certain properties are included
-    if (!dataIn.hasOwnProperty('map')) {
-        respond(400, res, 'Map missing or malformed');
-    } else if (!dataIn.hasOwnProperty('layouts')) {
-        respond(400, res, 'Layouts missing or malformed');
-    } else if (typeof dataIn.layouts !== 'object') {
-        respond(400, res, 'Layouts type should be an object')
+    if (!passOverlayNodeChecks(dataIn, res)) return;
     
-    // Validate a specific map and layout for now.
-    } else if (dataIn.map !== map) {
-        respond(400, res, 'The only frozen map available is ' + map);
-    } else if (!dataIn.layouts.hasOwnProperty(layout)) {
-        respond(400, res, 'The only map layout available is ' + layout);
-        
-        
-    } else if (dataIn.hasOwnProperty('testPythonCallStub')) {
+    if (dataIn.hasOwnProperty('testBookmarkStub')) {
 
-        // All validations have passed, so process the data
-        // TODO this is throwing error:
-        // Error: Meteor code must always run within a Fiber.
-        // Try wrapping callbacks that you pass to non-Meteor libraries with Meteor.bindEnvironment.
-        Meteor.call('pythonCall', 'overlayNodes', dataIn, true,
-            function (error, result) {
-                if (error) {
-                    respond(400, res, error);
-                } else if (result.slice(0,5) === 'Error'
-                        || result.slice(0,4) === 'Warning') {
-                    respond(400, res, result);
-                } else {
-                
-                    if (dataIn.hasOwnProperty('testPythonCallStub')) {
-                    
-                        // A funky way to test the pipeline from query request
-                        // to receiving data from our overlayNodes.py stub
-                        dataOut = results;
-                        respond(200, res, dataOut);
-                    
-                    } else {
-                    
-                        // TODO
-                        respond(200, res, dataOut);
-                    }
-                }
-            }
-        );
-        
-    } else if (dataIn.hasOwnProperty('testBookmarkStub')) {
-
-        // TODO for now we return a fake URL for testing
+        // Return this fake URL for this test
         var dataOut = {bookmark: url + "?b=18XFlfJG8ijJUVP_CYIbA3qhvCw5pADF651XTi8haPnE"};
         respond(200, res, dataOut);
 
     } else {
-    
-        pythonCall(dataIn, res);
+        var xyData = overlayNodesGetXy(dataIn);
+        var state = {
+            page: 'mapPage',
+            project: 'data/' + xyData.map + '/',
+            current_layout_name: xyData.layout,
+            overlayNodes: xyData.nodes,
+        };
+        var bookmark = saveBookmark(state);
+        respond(200, res, {bookmark: url + '?b=' + bookmark});
     }
 }
 
@@ -193,16 +131,18 @@ WebApp.connectHandlers.use("/query/overlayNodes", function(req, res, next) {
         return;
     }
     
-    req.setEncoding('utf8');
+    var queryFx = overlayNodes;
     var jsonDataIn = '';
+    req.setEncoding('utf8');
+    
+    // Continue to receive chunks of this request
     req.on('data', function (chunk) {
         jsonDataIn += chunk;
     });
     
-    var queryFx = overlayNodes;
+    // Process the data in this requests
     req.on('end', function () {
     
-        // Process the data in the request.
         //console.log('jsonDataIn:', jsonDataIn);
         try {
             var dataIn = JSON.parse(jsonDataIn);

@@ -57,8 +57,12 @@ PAGE = 'homePage';
         // Keep localStore of different development versions separate
         s.storeName = proxPre + '-hexMapState';
 
+        // Find the bookmark if one was included in the URL
+        if (window.location.search.indexOf( '?b=' ) > -1 ) {
+            Session.set('bookmark', window.location.search.slice(3));
+
         // Find the project if one was included in the URL, replacing every '.' with '/'
-        if ( window.location.search.indexOf( '?p=' ) > -1 ) {
+        } else if ( window.location.search.indexOf( '?p=' ) > -1 ) {
             s.urlProject = proxPre
                 + 'data/'
                 + window.location.search.slice(3).replace(/\./g, '/')
@@ -79,6 +83,7 @@ PAGE = 'homePage';
                 'current_layout_name',
                 'first_layer',
                 'gridZoom',
+                'overlayNodes',
                 //'layout_names', // We use this for a project, but don' save it
                 'shortlist',
                 'zoom',
@@ -114,6 +119,7 @@ PAGE = 'homePage';
         Session.set('first_layer', undefined); // first to be displayed in shortlist
         s.gridZoom = 1;  // Zoom level of the grid
         s.layout_names = [];  // Map layout names maintained in order of entry
+        Session.set('overlayNodes', undefined);  // overlay nodes to include
         Session.set('shortlist', []); // Array of layer names in the shortlist
         s.zoom = 1;  // Map zoom level where 1 is one level above most zoomed out
     }
@@ -170,8 +176,64 @@ PAGE = 'homePage';
         window['localStorage'].removeItem(s.storeName);
         window['localStorage'].setItem(s.storeName, JSON.stringify(store));
     };
+ 
+    State.prototype.load = function (store, page) {
+ 
+        // Walk through the localStorage loading anything we recognize
+        var s = this;
+        _.each(store, function (val, key) {
 
-    State.prototype.load = function () {
+            if (key === 'page') {
+                page = val; // Don't set the session var yet, page may change
+                return;
+            }
+            // Skip those we don't know
+            if (s.localStorage.known.indexOf(key) < 0) {
+                return;
+            }
+            // Load this object's vars into this state if maintained in this state
+            if (!_.isUndefined(s[key])) {
+                s[key] = val;
+
+            // Otherwise assume this is a Session var and load it into there
+            } else {
+                Session.set(key, val);
+            }
+        });
+        return page;
+    };
+ 
+    State.prototype.loadFromBookmark = function () {
+ 
+        // Load state from the given bookmark
+        var s = this;
+        // Reset the already saved flag
+        s.alreadySaved = false;
+
+ 
+        Meteor.call('findBookmark', Session.get('bookmark'),
+            function (error, result) {
+                if (error) {
+                    banner('error', error);
+                    return;
+                }
+                
+                var store = result.jsonState;
+                
+                console.log('store:', store);
+                if (store === null) {
+                    console.log("No saved state found, so using defaults.");
+                } else {
+                    page = s.load(store);
+                }
+                 s.projectNotFoundNotified = false;
+
+                Session.set('page', page);
+            }
+        );
+    };
+ 
+    State.prototype.loadFromLocalStore = function () {
 
         // Load state from local store
         var s = this,
@@ -186,26 +248,7 @@ PAGE = 'homePage';
 
         } else {
 
-            // Walk through the localStorage loading anything we recognize
-            _.each(store, function (val, key) {
-
-                if (key === 'page') {
-                    page = val; // Don't set the session var yet, page may change
-                    return;
-                }
-                // Skip those we don't know
-                if (s.localStorage.known.indexOf(key) < 0) {
-                    return;
-                }
-                // Load this object's vars into this state if maintained in this state
-                if (!_.isUndefined(s[key])) {
-                    s[key] = val;
-
-                // Otherwise assume this is a Session var and load it into there
-                } else {
-                    Session.set(key, val);
-                }
-            });
+            page = s.load(store, page);
         }
 
         if (s.urlProject) {
@@ -244,9 +287,12 @@ PAGE = 'homePage';
             s = new State();
             s.setProjectDefaults();
 
+        if (Session.get('bookmark')) {
+            s.loadFromBookmark();
+        } else if (storageSupported) {
+            s.loadFromLocalStore();
+        }
         if (storageSupported) {
-            s.load();
-
             // Create a listener to know when to save state
             window.onbeforeunload = function() {
                 s.save();
