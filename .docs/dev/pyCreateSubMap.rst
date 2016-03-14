@@ -79,5 +79,5 @@ Response errors are at :doc:`pythonApi`
 Processing notes
 ----------------
 
-Write the values to the tsv files with 4 significant digits.
+Write the values to the tsv files with seven significant digits.
 

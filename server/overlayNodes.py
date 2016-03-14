@@ -13,7 +13,7 @@ def processRequest(requestData):
 
     # TODO UNUSED!
     # For this stub, we'll return a fake xy position for each node requested
-    map = 'CKCC/stable
+    map = 'pancan33+/stable
     '
     layout = 'mRNA'
     resData = {

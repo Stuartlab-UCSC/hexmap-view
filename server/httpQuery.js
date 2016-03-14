@@ -23,27 +23,32 @@ function passOverlayNodeChecks (dataIn, res) {
     
     // TODO Validate a specific map and layout for now.
     // Eventually we will want to check for any maps we have deemed frozen
-    var map = 'CKCC/stable',
+    var map = 'pancan33+/stable',
         layout = 'mRNA';
     
     // Validate that certain properties are included
-    if (!dataIn.hasOwnProperty('map')) {
+    if (!dataIn.hasOwnProperty('map') && !dataIn.hasOwnProperty('map2')) {
         respond(400, res, 'Map missing or malformed');
         return false;
 
-    } else if (!dataIn.hasOwnProperty('layouts')) {
-        respond(400, res, 'Layouts missing or malformed');
+    } else if (!dataIn.hasOwnProperty('layout')) {
+        respond(400, res, 'Layout missing or malformed');
         return false;
 
-    } else if (typeof dataIn.layouts !== 'object') {
-        respond(400, res, 'Layouts type should be an object')
+    } else if (!dataIn.hasOwnProperty('nodes')) {
+        respond(400, res, 'Nodes missing or malformed');
         return false;
-    
+
+    } else if (typeof dataIn.nodes !== 'object') {
+        respond(400, res, 'Nodes type should be an object')
+        return false;
+
     // Validate a specific map and layout for now.
     } else if (dataIn.map !== map) {
         respond(400, res, 'The only frozen map available is ' + map);
         return false;
-    } else if (!dataIn.layouts.hasOwnProperty(layout)) {
+        
+    } else if (dataIn.layout !== layout) {
         respond(400, res, 'The only map layout available is ' + layout);
         return false;
     }
@@ -74,7 +79,7 @@ saveBookmark = function(state) {
 function overlayNodesGetXy(dataIn) {
 
     // For now this is a stub and we return the positions for our mock samples.
-    var xyData = '{"map": "CKCC/stable", "layout": "mRNA", "nodes": {"PNOC003-009": {"x": "64.5", "y": "228.3333333"}, "PNOC003-011": {"x": "43", "y": "227.1666667"}}}';
+    var xyData = '{"map": "pancan33+/stable", "layout": "mRNA", "nodes": {"PNOC003-009": {"x": "64.5", "y": "228.3333333"}, "PNOC003-011": {"x": "43", "y": "227.1666667"}}}';
     return JSON.parse(xyData);
 }
 

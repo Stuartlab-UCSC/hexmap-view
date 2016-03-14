@@ -53,7 +53,9 @@
 <h1>Query API<a class="headerlink" href="#query-api" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="all-queries">
 <h2>All Queries<a class="headerlink" href="#all-queries" title="Permalink to this headline">¶</a></h2>
-<p>API query URLs begin with &#8220;<a class="reference external" href="https://tumormap.ucsc.edu/query/">https://tumormap.ucsc.edu/query/</a>&#8221; for production, followed by the specific query ID. For develoment, use &#8220;<a class="reference external" href="http://hexmap.sdsc.edu:8111/query/">http://hexmap.sdsc.edu:8111/query/</a>&#8221; followed by the query ID.</p>
+<p>API query URLs begin with &#8220;<a class="reference external" href="http://tumormap.ucsc.edu/query/">http://tumormap.ucsc.edu/query/</a>&#8221; followed by the
+specific query ID. For testing in development, use
+&#8220;<a class="reference external" href="http://hexmap.sdsc.edu:8111/query/">http://hexmap.sdsc.edu:8111/query/</a>&#8221; followed by the query ID.</p>
 <p>API query parameters are sent in the HTTP POST message body in JSON format.</p>
 <p>API responses are returned in JSON format.</p>
 </div>
@@ -64,14 +66,12 @@
 <p>Example:</p>
 <div class="highlight-python"><div class="highlight"><pre><span></span>{
    &quot;map&quot;: &quot;pancan33+&quot;,
-   &quot;layouts&quot;: {
-       &quot;mRNA&quot;: {
-           &quot;mySample1&quot;: {
-               &quot;ALK&quot;: &quot;0.897645&quot;,
-               &quot;TP53&quot;: &quot;0.904140&quot;,
-               &quot;POGZ: &quot;0.792754&quot;,
-               ...
-           },
+   &quot;layout&quot;: &quot;mRNA&quot;,
+   &quot;nodes&quot;: {
+       &quot;mySample1&quot;: {
+           &quot;ALK&quot;: &quot;0.897645&quot;,
+           &quot;TP53&quot;: &quot;0.904140&quot;,
+           &quot;POGZ&quot;: &quot;0.792754&quot;,
            ...
        },
        ...
@@ -79,30 +79,36 @@
 }
 </pre></div>
 </div>
+<p>This curl example using the development server:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span>curl -H Content-Type:application/json -X POST -d \
+&#39;{&quot;map&quot;: &quot;pancan33+/stable&quot;, &quot;layout&quot;: &quot;mRNA&quot;, &quot;nodes&quot;: {&quot;node1&quot;: {&quot;gene1&quot;: &quot;1&quot;, &quot;gene2&quot;: &quot;2&quot;}, &quot;node2&quot;: {&quot;gene1&quot;: &quot;3&quot;, &quot;gene2&quot;: &quot;4&quot;}}}&#39; \
+hexmap.sdsc.edu:8111/query/overlayNodes
+</pre></div>
+</div>
+<p>should return a bookmark of the form:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s2">&quot;bookmark&quot;</span><span class="p">:</span> <span class="s2">&quot;http://hexmap.sdsc.edu:8111/?b=586633986&quot;</span><span class="p">}</span>
+</pre></div>
+</div>
 <p>Definitions</p>
 <blockquote>
 <div><div class="line-block">
 <div class="line"><em>layout</em> : type of values by which the new node will be placed on the map. e.g., &#8220;mRNA&#8221;</div>
-<div class="line"><em>map</em> : frozen map ID. e.g., &#8220;pancan33+&#8221;</div>
+<div class="line"><em>mapID</em> : frozen map ID. e.g., &#8220;pancan33+&#8221;</div>
+<div class="line"><em>nodes</em> : the nodes to be placed on the map</div>
 <div class="line"><em>node</em> : ID of the node to be placed on the map. e.g., TCGA sample ID</div>
-<div class="line"><em>node property</em> : identifier for a node&#8217;s property, e.g., &#8220;TP53&#8221;</div>
+<div class="line"><em>node-property</em> : identifier for a node&#8217;s property, e.g., &#8220;TP53&#8221;</div>
 </div>
 </div></blockquote>
 <p>Generalized Format:</p>
 <div class="highlight-python"><div class="highlight"><pre><span></span>{
-   &quot;map&quot;: &lt;map ID&gt;,
-   &quot;layouts&quot;: {
-       &lt;layout&gt;: {
-           &lt;node&gt;: {
-               &lt;node-property&gt;: &lt;node-property value&gt;,
-               (1 to N properties)
-               ...
-           },
-           (1 to N nodes)
-           ...
+   &quot;map&quot;: &lt;mapID&gt;,
+   &quot;layout&quot;: &lt;layout&gt;,
+   &quot;nodes: {
+       &lt;node&gt;: {
+           &lt;node-property&gt;: &lt;node-property value&gt;,
+           (1 to N properties ...)
        },
-       (1 to N layouts)
-       ...
+       (1 to N nodes ...)
    },
 }
 </pre></div>
@@ -115,7 +121,7 @@
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>Format:</p>
+<p>Generalized format:</p>
 <div class="highlight-python"><div class="highlight"><pre><span></span>{
    &quot;bookmark&quot;: &lt;bookmark&gt;
 }

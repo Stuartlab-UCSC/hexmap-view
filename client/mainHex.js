@@ -104,7 +104,7 @@ mapDrawnListener = '';
         google.maps.event.removeListener(mapDrawnListener);
         if (Session.equals('page', 'mapPage')) initSvg();
         if (DEV) initGrid();
-        //initCoords();
+        initCoords();
         setTimeout(function () {
             Session.set('loadingMap', 'none')
         }, 0);

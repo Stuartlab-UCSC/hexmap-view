@@ -1,5 +1,6 @@
 make clean
-d='../../public/dev/'
+d=_build
+#d='../../public/dev/'
 rm -rf $d/*
 cp -R _static/*  $d/_static
 cp -R _templates/*  $d/_templates

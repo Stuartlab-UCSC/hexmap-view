@@ -29,6 +29,7 @@ class TestQueryOverlayNodes(unittest.TestCase):
         with open(outfile, 'w') as o:
             e = open(errfile, 'w')
             curl = ['curl', '-s'] + opts + [s.curlUrl]
+            #print 'curl:', curl
             subprocess.check_call(curl, stdout=o, stderr=e);
             e.close()
         with open(outfile, 'r') as o:
@@ -65,45 +66,52 @@ class TestQueryOverlayNodes(unittest.TestCase):
         rc = s.doCurl(opts)
         s.assertTrue(rc['code'] == '400')
         s.assertTrue(rc['data']== 'Map missing or malformed')
-
+    
     def test_layoutIncludedCheck(s):
-        data = '{"map": "CKCC/v1"}'
+        data = '{"map": "junk"}'
         opts = ['-d', data, '-H', 'Content-Type:application/json', '-X', 'POST', '-v']
         rc = s.doCurl(opts)
         s.assertTrue(rc['code'] == '400')
-        s.assertTrue(rc['data']== 'Layouts missing or malformed')
-
+        s.assertTrue(rc['data']== 'Layout missing or malformed')
+    
+    def test_nodesIncludedCheck(s):
+        data = '{"map": "junk", "layout": "someLayout"}'
+        opts = ['-d', data, '-H', 'Content-Type:application/json', '-X', 'POST', '-v']
+        rc = s.doCurl(opts)
+        s.assertTrue(rc['code'] == '400')
+        s.assertTrue(rc['data']== 'Nodes missing or malformed')
+    
     def test_layoutsIsObjectCheck(s):
-        data = '{"map": "CKCC/v1", "layouts": "junk"}'
+        data = '{"map": "junk", "layout": "junk", "nodes": "someString"}'
         opts = ['-d', data, '-H', 'Content-Type:application/json', '-X', 'POST', '-v']
         rc = s.doCurl(opts)
         s.assertTrue(rc['code'] == '400')
-        s.assertTrue(rc['data'] == 'Layouts type should be an object')
-
+        s.assertTrue(rc['data'] == 'Nodes type should be an object')
+    
     def test_mapValueCheck(s):
-        data = '{"map": "junk", "layouts": {"junk": "junk"}}'
+        data = '{"map": "junk", "layout": "junk", "nodes": {}}'
         opts = ['-d', data, '-H', 'Content-Type:application/json', '-X', 'POST', '-v']
         rc = s.doCurl(opts)
         s.assertTrue(rc['code'] == '400')
-        s.assertTrue(rc['data'] == 'The only frozen map available is ' + "CKCC/v1")
-
+        s.assertTrue(rc['data'] == 'The only frozen map available is ' + "pancan33+/stable")
+    
     def test_layoutsValueCheck(s):
-        data = '{"map": "CKCC/v1", "layouts": {"junk": "junk"}}'
+        data = '{"map": "pancan33+/stable", "layout": "junk", "nodes": {}}'
         opts = ['-d', data, '-H', 'Content-Type:application/json', '-X', 'POST', '-v']
         rc = s.doCurl(opts)
         s.assertTrue(rc['code'] == '400')
         s.assertTrue(rc['data'] == 'The only map layout available is ' + "mRNA")
     
     def test_bookmarkStub(s):
-        data = '{"testBookmarkStub": "yes", "map": "CKCC/v1", "layouts": {"mRNA": "junk"}}'
+        data = '{"testBookmarkStub": "yes", "map": "pancan33+/stable", "layout": "mRNA", "nodes": {}}'
         resData = '{"bookmark":"http://localhost:3000/?b=18XFlfJG8ijJUVP_CYIbA3qhvCw5pADF651XTi8haPnE"}\n'
         opts = ['-d', data, '-H', 'Content-Type:application/json', '-X', 'POST', '-v']
         rc = s.doCurl(opts)
         s.assertTrue(rc['code'] == '200')
         s.assertTrue(rc['data'] == resData)
-
+    """
     def test_pythonCallStub(s):
-        data = '{"map": "CKCC/v1", "layouts": {"mRNA": {"node1": {"gene1": "1", "gene2": "2"}, "node2": {"gene1": "3", "gene2": "4"}}}}'
+        data = '{"testPythonCallStub": "yes", "map": "pancan33+/stable", "layout": "mRNA", "nodes": {"node1": {"gene1": "1", "gene2": "2"}, "node2": {"gene1": "3", "gene2": "4"}}}'
         resData = '{"bookmark":"http://localhost:3000/?b=18XFlfJG8ijJUVP_CYIbA3qhvCw5pADF651XTi8haPnE"}\n'
         opts = ['-d', data, '-H', 'Content-Type:application/json', '-X', 'POST', '-v']
         rc = s.doCurl(opts)
@@ -111,6 +119,6 @@ class TestQueryOverlayNodes(unittest.TestCase):
         print 'code: ##', rc['code'], '##'
         s.assertTrue(rc['code'] == '200')
         s.assertTrue(rc['data'] == resData)
-
+    """
 if __name__ == '__main__':
     unittest.main()

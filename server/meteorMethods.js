@@ -12,12 +12,32 @@ var path = Npm.require('path');
 
 // TODO these dirs may need to be different with built meteor
 // There must be a better way to do this for dev and built
-var serverDir = '../../../../../server/'; // TODO move server python files out of meteor
+var serverDir = '../../../../../server/';
 var url = Meteor.absoluteUrl();
 var dataDir;
 if (url === 'http://localhost:3000/') {
+
+    // Local development
     dataDir = '/Users/swat/';
+} else if (
+    url === 'http://hexmap.sdsc.edu/' ||
+    url === 'http://hexmap.sdsc.edu:80/' ||
+    url === 'https://hexmap.sdsc.edu/' ||
+    url === 'https://hexmap.sdsc.edu:443/' ||
+    url === 'http://hexmap.ucsc.edu:8081/' ||
+    url === 'https://hexmap.ucsc.edu:8443/' ||
+    url === 'http://tumormap.ucsc.edu/' ||
+    url === 'http://tumormap.ucsc.edu:80/' ||
+    url === 'https://tumormap.ucsc.edu/' ||
+    url === 'https://tumormap.ucsc.edu:443/' ||
+    url === 'http://tumormap.ucsc.edu:8081/' ||
+    url === 'https://tumormap.ucsc.edu:8443/') {
+    
+    // Production
+    dataDir = '/data/';
 } else {
+
+    // Development
     dataDir = '/cluster/home/swat/';
 }
 

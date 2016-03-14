@@ -295,7 +295,7 @@ class ForEachLayer(object):
         MANN_WHITNEY_U = True
         DEBUG = False
         DROP_QUANTILES = True
-        QUANTILE_DIVISOR = 10
+        QUANTILE_DIVISOR = 100
         if DEBUG and contL != 'GP7_Estrogen signaling program':
             DEBUG = False
         if DEBUG:
@@ -324,18 +324,21 @@ class ForEachLayer(object):
             if DEBUG: f.writerow([hexagon, binVal, float(contVal)])
             
         if DROP_QUANTILES:
+        
             # Find the lower and upper quantile cutoffs of the continuous values
             hexKeyValsSorted = sorted(hexKeyVals, key=operator.itemgetter(1))
             length = len(hexKeyValsSorted)
+            quantile = int(round(float(length) / QUANTILE_DIVISOR))
+        
+        if DROP_QUANTILES and quantile > 0:
             if length <= 3:
             
                 # With so few values in the combined list,
                 # no good stats will come of this
                 return [layerB, 1]
 
-            quantile = length / QUANTILE_DIVISOR
-            lower = hexKeyValsSorted[int(round(quantile))][1]
-            upper = hexKeyValsSorted[int(round(length - quantile))][1]
+            lower = hexKeyValsSorted[quantile][1]
+            upper = hexKeyValsSorted[length - quantile][1]
 
             if DEBUG:
                 f.writerow(['lower, upper', lower, upper])
@@ -346,7 +349,7 @@ class ForEachLayer(object):
             for x in hexKeyValsSorted:
                 if x[1] >= lower and x[1] <= upper:
                     lists[x[0]].append(x[1])
-                    
+            
         else:
             # Build two vectors. Each vector will contain the continuous values
             # associated with one binary value, with the cutoffs applied, inclusive.

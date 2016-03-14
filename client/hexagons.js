@@ -143,11 +143,17 @@ var app = app || {}; // jshint ignore:line
 
             // Trigger an idle event to initialize tools requiring polygons
             // to be drawn
-            mapDrawnListener = google.maps.event.addListener(
-                googlemap, 'idle', initMapDrawn);
-            var center = googlemap.getCenter()
-            googlemap.setCenter(new google.maps.LatLng(
-                center.lat(), center.lng()));
+            setTimeout(function () {
+                initMapDrawn();
+                /*
+                // TODO This doesn't always work, so we need a better way
+                mapDrawnListener = google.maps.event.addListener(
+                    googlemap, 'idle', initMapDrawn);
+                var center = googlemap.getCenter()
+                googlemap.setCenter(new google.maps.LatLng(
+                    center.lat(), center.lng()));
+                */
+                }, 1000);
         });
     }
 

@@ -51,11 +51,13 @@ PAGE = 'homePage';
         if (location.host === 'medbook.ucsc.edu') {
             proxPre = '/hex/';
             s.defaultProject = 'data/ynewton/gliomas-paper/';
+        } else if (location.host === 'tumormap.ucsc.edu') {
+            s.defaultProject = 'data/ynewton/gliomas-paper/';
         }
         s.defaultProject = proxPre + s.defaultProject;
 
-        // Keep localStore of different development versions separate
-        s.storeName = proxPre + '-hexMapState';
+        // Keep localStore of different servers separate
+        s.storeName = location.host + '-hexMapState';
 
         // Find the bookmark if one was included in the URL
         if (window.location.search.indexOf( '?b=' ) > -1 ) {
@@ -148,6 +150,11 @@ PAGE = 'homePage';
 
             // If this is a Session var we want to store it there
             if (!Session.equals(key, undefined)) {
+               
+                // TODO for now don't store overlayNodes
+                if (key === 'overlayNodes') {
+                    return;
+                }
                 store[key] = Session.get(key);
 
             // If this var belongs to this ctx object we want to store it here

@@ -3,7 +3,9 @@ Query API
 
 All Queries
 -----------
-API query URLs begin with "https://tumormap.ucsc.edu/query/" for production, followed by the specific query ID. For develoment, use "http://hexmap.sdsc.edu:8111/query/" followed by the query ID.
+API query URLs begin with "http://tumormap.ucsc.edu/query/" followed by the
+specific query ID. For testing in development, use
+"http://hexmap.sdsc.edu:8111/query/" followed by the query ID.
 
 API query parameters are sent in the HTTP POST message body in JSON format.
 
@@ -20,43 +22,47 @@ Example::
 
  {
     "map": "pancan33+",
-    "layouts": {
-        "mRNA": {
-            "mySample1": {
-                "ALK": "0.897645",
-                "TP53": "0.904140",
-                "POGZ: "0.792754",
-                ...
-            },
+    "layout": "mRNA",
+    "nodes": {
+        "mySample1": {
+            "ALK": "0.897645",
+            "TP53": "0.904140",
+            "POGZ": "0.792754",
             ...
         },
         ...
     },
  }
 
+This curl example using the development server::
+
+ curl -H Content-Type:application/json -X POST -d \
+ '{"map": "pancan33+/stable", "layout": "mRNA", "nodes": {"node1": {"gene1": "1", "gene2": "2"}, "node2": {"gene1": "3", "gene2": "4"}}}' \
+ hexmap.sdsc.edu:8111/query/overlayNodes
+
+should return a bookmark of the form::
+
+ {"bookmark": "http://hexmap.sdsc.edu:8111/?b=586633986"}
+
 Definitions
 
  | *layout* : type of values by which the new node will be placed on the map. e.g., "mRNA"
- | *map* : frozen map ID. e.g., "pancan33+"
+ | *mapID* : frozen map ID. e.g., "pancan33+"
+ | *nodes* : the nodes to be placed on the map
  | *node* : ID of the node to be placed on the map. e.g., TCGA sample ID
- | *node property* : identifier for a node's property, e.g., "TP53"
+ | *node-property* : identifier for a node's property, e.g., "TP53"
 
 Generalized Format::
 
  {
-    "map": <map ID>,
-    "layouts": {
-        <layout>: {
-            <node>: {
-                <node-property>: <node-property value>,
-                (1 to N properties)
-                ...
-            },
-            (1 to N nodes)
-            ...
+    "map": <mapID>,
+    "layout": <layout>,
+    "nodes: {
+        <node>: {
+            <node-property>: <node-property value>,
+            (1 to N properties ...)
         },
-        (1 to N layouts)
-        ...
+        (1 to N nodes ...)
     },
  }
 
@@ -70,7 +76,7 @@ Example::
     "bookmark": "https://tumormap.ucsc.edu/?b=18XFlfJG8ijJUVP_CYIbA3qhvCw5pADF651XTi8haPnE",
  }
 
-Format::
+Generalized format::
 
  {
     "bookmark": <bookmark>
