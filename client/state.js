@@ -11,7 +11,7 @@ PAGE = 'homePage';
     // Globals across this app
     DISABLED_COLOR = '#aaaaaa';
 
-    var DEFAULT_PROJECT = 'data/pancan12/first/',
+    var DEFAULT_PROJECT = 'data/pancan12/stable/',
         DEFAULT_SORT = {
             text: 'Density of attributes',
             type: 'default',

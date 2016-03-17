@@ -292,17 +292,16 @@ class ForEachLayer(object):
         #       [1, 5.73453],
         #       ...
         #   ]
-        MANN_WHITNEY_U = True
+        MANN_WHITNEY_U = False
         DEBUG = False
         DROP_QUANTILES = True
         QUANTILE_DIVISOR = 100
-        if DEBUG and contL != 'GP7_Estrogen signaling program':
+        if DEBUG and contL != 'GP17_Basal signaling program':
             DEBUG = False
-        if DEBUG:
-            fname = '/cluster/home/swat/hexmap/dev/server/tmpDebug'
+            fname = '/cluster/home/swat/tmpDebug'
             file = open(fname, 'w')
             f = csv.writer(file, delimiter='\t')
-            f.writerow(['contL, binL', contL, binL])
+            f.writerow(['#node', binL, contL])
         hexKeyVals = []
         for hexagon in hexNames:
 
@@ -331,17 +330,20 @@ class ForEachLayer(object):
             quantile = int(round(float(length) / QUANTILE_DIVISOR))
         
         if DROP_QUANTILES and quantile > 0:
-            if length <= 3:
+            if length < 4:
             
                 # With so few values in the combined list,
                 # no good stats will come of this
+                if DEBUG:
+                    f.writerow(['There are less than 4 values, so stats not computed.'])
                 return [layerB, 1]
 
             lower = hexKeyValsSorted[quantile][1]
             upper = hexKeyValsSorted[length - quantile][1]
 
             if DEBUG:
-                f.writerow(['lower, upper', lower, upper])
+                f.writerow(['#length', 'quantile', 'lower', 'upper'])
+                f.writerow([length, quantile, lower, upper])
             
             # Build two vectors. Each vector will contain the continuous values
             # associated with one binary value, with the cutoffs applied, inclusive.
@@ -358,10 +360,10 @@ class ForEachLayer(object):
                 lists[x[0]].append(x[1])
 
         if DEBUG:
-            f.writerow(['lists[0] len', + len(lists[0])])
+            f.writerow(['#lists[0]'])
             for i in range(len(lists[0])):
                 f.writerow([lists[0][i]])
-            f.writerow(['lists[1] len', len(lists[1])])
+            f.writerow(['#lists[1]'])
             for i in range(len(lists[1])):
                 f.writerow([lists[1][i]])
 
@@ -382,17 +384,20 @@ class ForEachLayer(object):
 
             else:
             
-                # (Welch's) t-test call returns like so: [t-value, p-value]
-                # Including equal variance argument being False makes this a
-                # Welch's t-test.
-                # http://docs.scipy.org/doc/scipy-0.14.0/reference/generated/scipy.stats.ttest_ind.html
-
-                tValue, pValue = scipy.stats.ttest_ind(lists[0], lists[1], 0, False) # TODO
+                # Ranksums test returns like so [statistic, p-value]
+                # For continuity correction see scipy.stats.mannwhitneyu.
+                # http://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.ranksums.html
+                
+                statistic, pValue = scipy.stats.ranksums(lists[0], lists[1]) # TODO
         except Exception:
             if DEBUG: f.writerow(['exception on lib call'])
             pValue = 1
 
-        if DEBUG: file.close()
+        if DEBUG:
+            f.writerow(['#attribute', 'pValue', 'adjPvalue'])
+            f.writerow([contL, pValue, 'adjPvalue'])
+            file.close()
+
         return [layerB, sigDigs(pValue)]
 
     @staticmethod
@@ -522,8 +527,17 @@ class ForEachLayer(object):
             except Exception:
                 adjPvals = [1 for x in preAdjusted]
 
+            try:
+                # Bonferroni correction for p-values returns:
+                #   [reject, p_vals_corrected, alphacSidak, alphacBonf]
+                # http://statsmodels.sourceforge.net/devel/generated/statsmodels.sandbox.stats.multicomp.multipletests.html
+                reject, adjPvalsB, alphacSidak, alphacBonf = multicomp.multipletests(preAdjVals, alpha=0.05, method='fdr_bh')
+
+            except Exception:
+                adjPvalsB = [1 for x in preAdjusted]
+
             for i, row in enumerate(preAdjusted):
-                f.writerow(row + [sigDigs(adjPvals[i])])
+                f.writerow(row + [sigDigs(adjPvals[i]), sigDigs(adjPvalsB[i])])
 
     def __call__(s):
 
@@ -548,9 +562,9 @@ class ForEachLayer(object):
         else:
 
             # for layout-independent stats
-
+ 
             s.significancyCutoffA = s.findSignificancyCutoff(s, s.layerA)
-
+            
             for layerB in s.statsLayers:
 
                 line = s.layoutIndependent(s, layerB)
