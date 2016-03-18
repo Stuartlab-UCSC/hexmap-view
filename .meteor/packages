@@ -22,3 +22,6 @@ check
 mrt:googlemaps
 reactive-dict
 reactive-var
+accounts-ui
+accounts-password
+alanning:roles

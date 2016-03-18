@@ -15,7 +15,7 @@ Request
 Example::
 
  {
-    "map": "pancan33+",
+    "map": "CKCC/v1",
     "layouts": [
         "mRNA",
     ],
@@ -31,7 +31,7 @@ Example::
             ...
         ],
     }
-    "title": "PanCan33+ Gene Expression",
+    "title": "CKCC/v1 Gene Expression",
     "directory": "/data/pancan12",
     ...
  }
@@ -40,7 +40,7 @@ Definitions
 
  | *layout* : type of values by which the new node will be placed on the map. e.g., "mRNA"
  | *directory* : absolute path of the directory to write the rendering input for the new map
- | *map* : frozen map ID. e.g., "pancan33+"
+ | *map* : frozen map ID. e.g., "CKCC/v1"
  | *nodeGroup* : a group of nodes. e.g., "kidney tissue"
  | *node* : ID of the node to be placed on the map. e.g., TCGA sample ID
  | *title* : sub-map title assigned by user and displayed on the UI

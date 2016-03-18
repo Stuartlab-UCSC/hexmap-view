@@ -23,7 +23,7 @@ function passOverlayNodeChecks (dataIn, res) {
     
     // TODO Validate a specific map and layout for now.
     // Eventually we will want to check for any maps we have deemed frozen
-    var map = 'pancan33+/stable',
+    var map = 'CKCC/v1',
         layout = 'mRNA';
     
     // Validate that certain properties are included
@@ -79,7 +79,7 @@ saveBookmark = function(state) {
 function overlayNodesGetXy(dataIn) {
 
     // For now this is a stub and we return the positions for our mock samples.
-    var xyData = '{"map": "pancan33+/stable", "layout": "mRNA", "nodes": {"PNOC003-009": {"x": "64.5", "y": "228.3333333"}, "PNOC003-011": {"x": "43", "y": "227.1666667"}}}';
+    var xyData = '{"map": "CKCC/v1", "layout": "mRNA", "nodes": {"PNOC003-009": {"x": "64.5", "y": "228.3333333"}, "PNOC003-011": {"x": "43", "y": "227.1666667"}}}';
     return JSON.parse(xyData);
 }
 

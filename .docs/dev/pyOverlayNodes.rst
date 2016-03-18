@@ -15,7 +15,7 @@ Request
 Example::
 
  {
-    "map": "pancan33+",
+    "map": "CKCC/v1",
     "layout": "mRNA",
     "nodes": {
         "mySample1": {
@@ -31,7 +31,7 @@ Example::
 This curl example where TUMORMAP is the tumormap server::
 
  curl -H Content-Type:application/json -X POST -d \
- '{"map": "pancan33+/stable", "layout": "mRNA", "nodes": {"node1": {"gene1": "1", "gene2": "2"}, "node2": {"gene1": "3", "gene2": "4"}}}' \
+ '{"map": "CKCC/v1", "layout": "mRNA", "nodes": {"node1": {"gene1": "1", "gene2": "2"}, "node2": {"gene1": "3", "gene2": "4"}}}' \
  hexmap.sdsc.edu:8111/query/overlayNodes
 
 should return a bookmark of the form::
@@ -41,7 +41,7 @@ should return a bookmark of the form::
 Definitions
 
  | *layout* : type of values by which the new node will be placed on the map. e.g., "mRNA"
- | *mapID* : frozen map ID. e.g., "pancan33+"
+ | *mapID* : frozen map ID. e.g., "CKCC/v1"
  | *nodes* : the nodes to be placed on the map
  | *node* : ID of the node to be placed on the map. e.g., TCGA sample ID
  | *node-property* : identifier for a node's property, e.g., "TP53"

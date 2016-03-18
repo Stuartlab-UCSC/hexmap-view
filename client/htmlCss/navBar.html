@@ -37,7 +37,7 @@
                     </li>
                 </ul>
             </li>
-            <li class='primary mapOnly' data-sel='addText'>Label</li>
+            
             <li class='primary mapOnly'>
                 Colors
                 <img src='{{absoluteUrl}}/caret-down.svg' style='height:8px'>
@@ -47,8 +47,28 @@
                     <li data-sel='colormap'>&nbsp;&nbsp;Colormap</li>
                 </ul>
             </li>
+            
+            <li class='primary mapOnly' data-sel='addText'>Label</li>
+            
             <li class='primary mapOnly' data-sel='methods'>Methods</li>
+            
             <li class='primary hexMap' data-sel='hexMap'>HexagonMap</li>
+
+            <li class='primary'>
+                Help
+                <img src='{{absoluteUrl}}/caret-down.svg' style='height:8px'>
+                <ul>
+                    <li>
+                        <a href="http://tumormap.ucsc.edu/help.pdf" target='_blank'>User Guide</a>
+                    </li>
+                    <li>
+                        <a href="https://groups.google.com/a/ucsc.edu/forum/#!forum/hex" target='_blank'>Discussion Group</a>
+                    </li>
+                    <li>
+                        <a href="mailto:hex@ucsc.edu">Email Group</a>
+                    </li>
+                </ul>
+            </li>
         </ul>
 
         <!-- select menu -->
@@ -64,10 +84,13 @@
                 Identifier
             </li>
         </ul>
+        
+        <span class="stacker">
+            {{> loginButtons}}
+        </span>
 
-        <a href='https://medbook.ucsc.edu/hex/help.pdf'  class='mapOnly stacker right' target='_blank'>
-            <img class="helpNav question-sign" src='{{absoluteUrl}}/question-sign.svg'>
-        </a>
+
+
         <div class="mapOnly stacker right">
             <img class="recalculate-throbber throbber" title="Recalculating..." />
             <span class="recalculate-progress">

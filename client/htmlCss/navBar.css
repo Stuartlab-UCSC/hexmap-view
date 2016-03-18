@@ -84,15 +84,22 @@
 }
 
 .selectMenuLabel {
-    font-weight: bold;
+    font-size: 1em;
     padding-left: 2em;
 }
 
 .helpNav {
+    display: inline-block;
     margin-top: 0.2em;
     margin-bottom: -0.5em;
-    height: 24px;
+    height: 20px;
     line-height: 24px;
+}
+
+#login-buttons a,
+.accounts-dialog a {
+    text-decoration: none;
+    padding-left: 2em;
 }
 
 #banner.row {

@@ -93,17 +93,17 @@ class TestQueryOverlayNodes(unittest.TestCase):
         opts = ['-d', data, '-H', 'Content-Type:application/json', '-X', 'POST', '-v']
         rc = s.doCurl(opts)
         s.assertTrue(rc['code'] == '400')
-        s.assertTrue(rc['data'] == 'The only frozen map available is ' + "pancan33+/stable")
+        s.assertTrue(rc['data'] == 'The only frozen map available is ' + "CKCC/v1")
     
     def test_layoutsValueCheck(s):
-        data = '{"map": "pancan33+/stable", "layout": "junk", "nodes": {}}'
+        data = '{"map": "CKCC/v1", "layout": "junk", "nodes": {}}'
         opts = ['-d', data, '-H', 'Content-Type:application/json', '-X', 'POST', '-v']
         rc = s.doCurl(opts)
         s.assertTrue(rc['code'] == '400')
         s.assertTrue(rc['data'] == 'The only map layout available is ' + "mRNA")
     
     def test_bookmarkStub(s):
-        data = '{"testBookmarkStub": "yes", "map": "pancan33+/stable", "layout": "mRNA", "nodes": {}}'
+        data = '{"testBookmarkStub": "yes", "map": "CKCC/v1", "layout": "mRNA", "nodes": {}}'
         resData = '{"bookmark":"http://localhost:3000/?b=18XFlfJG8ijJUVP_CYIbA3qhvCw5pADF651XTi8haPnE"}\n'
         opts = ['-d', data, '-H', 'Content-Type:application/json', '-X', 'POST', '-v']
         rc = s.doCurl(opts)
@@ -111,7 +111,7 @@ class TestQueryOverlayNodes(unittest.TestCase):
         s.assertTrue(rc['data'] == resData)
     """
     def test_pythonCallStub(s):
-        data = '{"testPythonCallStub": "yes", "map": "pancan33+/stable", "layout": "mRNA", "nodes": {"node1": {"gene1": "1", "gene2": "2"}, "node2": {"gene1": "3", "gene2": "4"}}}'
+        data = '{"testPythonCallStub": "yes", "map": "CKCC/v1", "layout": "mRNA", "nodes": {"node1": {"gene1": "1", "gene2": "2"}, "node2": {"gene1": "3", "gene2": "4"}}}'
         resData = '{"bookmark":"http://localhost:3000/?b=18XFlfJG8ijJUVP_CYIbA3qhvCw5pADF651XTi8haPnE"}\n'
         opts = ['-d', data, '-H', 'Content-Type:application/json', '-X', 'POST', '-v']
         rc = s.doCurl(opts)

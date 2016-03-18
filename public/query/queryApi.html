@@ -65,7 +65,7 @@ specific query ID. For testing in development, use
 <p><strong>Request</strong></p>
 <p>Example:</p>
 <div class="highlight-python"><div class="highlight"><pre><span></span>{
-   &quot;map&quot;: &quot;pancan33+&quot;,
+   &quot;map&quot;: &quot;CKCC/v1&quot;,
    &quot;layout&quot;: &quot;mRNA&quot;,
    &quot;nodes&quot;: {
        &quot;mySample1&quot;: {
@@ -81,7 +81,7 @@ specific query ID. For testing in development, use
 </div>
 <p>This curl example using the development server:</p>
 <div class="highlight-python"><div class="highlight"><pre><span></span>curl -H Content-Type:application/json -X POST -d \
-&#39;{&quot;map&quot;: &quot;pancan33+/stable&quot;, &quot;layout&quot;: &quot;mRNA&quot;, &quot;nodes&quot;: {&quot;node1&quot;: {&quot;gene1&quot;: &quot;1&quot;, &quot;gene2&quot;: &quot;2&quot;}, &quot;node2&quot;: {&quot;gene1&quot;: &quot;3&quot;, &quot;gene2&quot;: &quot;4&quot;}}}&#39; \
+&#39;{&quot;map&quot;: &quot;CKCC/v1/stable&quot;, &quot;layout&quot;: &quot;mRNA&quot;, &quot;nodes&quot;: {&quot;node1&quot;: {&quot;gene1&quot;: &quot;1&quot;, &quot;gene2&quot;: &quot;2&quot;}, &quot;node2&quot;: {&quot;gene1&quot;: &quot;3&quot;, &quot;gene2&quot;: &quot;4&quot;}}}&#39; \
 hexmap.sdsc.edu:8111/query/overlayNodes
 </pre></div>
 </div>
@@ -93,7 +93,7 @@ hexmap.sdsc.edu:8111/query/overlayNodes
 <blockquote>
 <div><div class="line-block">
 <div class="line"><em>layout</em> : type of values by which the new node will be placed on the map. e.g., &#8220;mRNA&#8221;</div>
-<div class="line"><em>mapID</em> : frozen map ID. e.g., &#8220;pancan33+&#8221;</div>
+<div class="line"><em>mapID</em> : frozen map ID. e.g., &#8220;CKCC/v1&#8221;</div>
 <div class="line"><em>nodes</em> : the nodes to be placed on the map</div>
 <div class="line"><em>node</em> : ID of the node to be placed on the map. e.g., TCGA sample ID</div>
 <div class="line"><em>node-property</em> : identifier for a node&#8217;s property, e.g., &#8220;TP53&#8221;</div>

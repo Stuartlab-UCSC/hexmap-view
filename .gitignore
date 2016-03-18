@@ -4,4 +4,6 @@ run_*
 analyze
 *.save
 *.pyc
+*.tar
+_build
 
