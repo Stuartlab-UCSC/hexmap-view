@@ -161,6 +161,9 @@ var app = app || {}; // jshint ignore:line
     Project.prototype._getMajors = function () {
 
         // Get the major directory names
+        // TODO it would be better if there was only one server call to find
+        // the directories, remove paths of '.', '..' and files, and remove
+        // unauthorized groups.
         var self = this;
 
         Meteor.call('getDataDirs', function (error, majors) {

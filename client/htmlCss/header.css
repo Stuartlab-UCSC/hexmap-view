@@ -12,7 +12,7 @@
 }
 
 .layer-row .stacker {
-    line-height: 2.9em;
+    line-height: 2.7em;
 }
 
 #s2id_search {
@@ -75,10 +75,11 @@
 
 /* ***************** layout **************** */
 
+/*
 #layout-row {
     margin-top: -0.3em;
 }
-
+*/
 #current-layout {
 	padding-top: 0.2em;
 }

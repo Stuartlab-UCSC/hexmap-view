@@ -51,6 +51,7 @@
 
 .shortlist .panel-title {
     text-align: center;
+    padding-top: 0.2em;
     font-weight: bold;
     height: 1em;
 }

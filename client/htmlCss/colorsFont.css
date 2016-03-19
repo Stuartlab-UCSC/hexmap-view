@@ -24,6 +24,8 @@ body {
 }
 
 #layout-row,
+/*#toolbar,
+.layer-row,*/
 .select2-container .select2-choice,
 .shortlist .panel {
     background: rgba(255,255,255,0.8);

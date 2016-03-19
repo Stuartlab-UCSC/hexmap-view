@@ -20,7 +20,6 @@
 
 #project,
 #s2id_project {
-    padding-top: 0.2em;
     width: 15em;
 }
 
@@ -39,6 +38,7 @@
 #selectMenu.ui-widget.ui-menu {
     height: 100%;
     font-size: 0.8em;
+    line-height: 2.2em;
     border: none;
 }
 
@@ -83,8 +83,10 @@
     position: static;
 }
 
+.login,
 .selectMenuLabel {
     font-size: 1em;
+    padding-top: 0.2em;
     padding-left: 2em;
 }
 
