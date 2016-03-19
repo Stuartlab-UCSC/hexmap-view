@@ -82,28 +82,18 @@ function readFromJsonFileSync (filename) {
     return JSON.parse(fs.readFileSync(filename, 'utf8'));
 }
 
-function fixUpProjectDir (parms) {
-
-    // Make a project data directory string usable by the server code.
-    // This is needed due to a prefix required on http calls to proxy
-    // servers. This prefix needs to be removed for the server's use.
-    // We may not need proxPre after having all file retrievals go through
-    // meteor methods.
-    parms.directory = dataDir + parms.directory.replace(parms.proxPre, '');
-}
-
 Meteor.methods({
 
-    getTsvFile: function (filename, project, proxPre) {
+    getTsvFile: function (filename, project) {
 
         // Retrieve data from a tab-separated file
         this.unblock();
         var future = new Future();
         var path;
             if (filename.indexOf('layer_') > -1 || filename.indexOf('stats') > -1) {
-                path = dataDir + filename.replace(proxPre, '');
+                path = dataDir + filename;
             } else {
-                path = dataDir + project.replace(proxPre, '') + filename;
+                path = dataDir + project + filename;
             }
 
         // TODO check for existence first so we don't throw an error into
@@ -151,7 +141,8 @@ Meteor.methods({
             parms.tempFile = writeToTempFile('junk');
         }
 
-        fixUpProjectDir(parms);
+        // Make a project data directory string usable by the server code.
+        parms.directory = dataDir + parms.directory;
 
         // Write the parms to a temporary file so we don't overflow the stdout
         // buffer.

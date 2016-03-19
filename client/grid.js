@@ -24,7 +24,7 @@ var app = app || {}; // jshint ignore:line
     function buildGrid(layout) {
         var file = 'grid_' + layout + '.tab';
         Meteor.call('getTsvFile', file, ctx.project,
-            Session.get('proxPre'), function (error, parsed) {
+            function (error, parsed) {
 
             // This is an array of lines, with two points each:
             //
@@ -76,7 +76,7 @@ var app = app || {}; // jshint ignore:line
         // that were not mapped to this layer's grid
         var file = 'gridOrphans_' + layout + '.tab';
         Meteor.call('getTsvFile', file, ctx.project,
-            Session.get('proxPre'), function (error, parsed) {;
+            function (error, parsed) {;
 
             // This is an array of points names.
             var orphans;
@@ -161,7 +161,7 @@ var app = app || {}; // jshint ignore:line
         // Render the points before they were assigned to hexagons
         var file = 'xyPreSquiggle_' + layout + '.tab';
         Meteor.call('getTsvFile', file, ctx.project,
-            Session.get('proxPre'), function (error, parsed) {;
+            function (error, parsed) {;
 
             // This is an array of point locations, in the form:
             //  s1  x1  y1

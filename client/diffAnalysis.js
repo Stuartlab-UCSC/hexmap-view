@@ -86,7 +86,6 @@ var app = app || {}; // jshint ignore:line
             attr1: attr,
             attr2: attr2,
             directory: ctx.project,
-            proxPre: Session.get('proxPre'),
             tempFile: 'yes',
             startDate: new Date(),
             tsv: true,

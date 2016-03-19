@@ -501,7 +501,6 @@ var app = app || {}; // jshint ignore:line
         opts.layerA = focus_attr;
         opts.layerIndex = ctx.layer_names_by_index.indexOf(focus_attr);
         opts.directory = ctx.project;
-        opts.proxPre = Session.get('proxPre');
         opts.tempFile = 'yes';
         opts.tsv = true;
 
@@ -536,7 +535,7 @@ var app = app || {}; // jshint ignore:line
 
         print("Fetching " + filename);
         Meteor.call('getTsvFile', filename, ctx.project,
-            Session.get('proxPre'), function (error, parsed) {;
+            function (error, parsed) {;
 
             if (error || parsed.slice(0,5) === 'Error') {
                 computingTextDisplay();

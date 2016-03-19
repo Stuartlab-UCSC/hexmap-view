@@ -19,7 +19,7 @@ initRpc = null; // jshint ignore:line
 
         self = this;
 
-        s.worker_filename = Session.get('proxPre') + 'statistics.js';
+        s.worker_filename = 'statistics.js';
 
         // How many statistics Web Workers should we start?
         s.NUM_RPC_WORKERS = 1; // TODO testing

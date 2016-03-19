@@ -42,7 +42,7 @@ var app = app || {}; // jshint ignore:line
         DialogHex.prototype.init = function () {
 
             var self = this,
-                closeSvg = Session.get('proxPre') + 'close.svg';
+                closeSvg = 'close.svg';
 
             // Replace jqueryUI's sad close icon
             $('.ui-dialog-titlebar-close').css({

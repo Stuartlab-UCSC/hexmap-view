@@ -103,7 +103,7 @@ with_layer = function (layer_name, callback) {
 		    
 		    // Go get it (as text!)
             Meteor.call('getTsvFile', layer.url, ctx.project,
-                Session.get('proxPre'), function (error, layer_parsed) {
+                function (error, layer_parsed) {
 
                 if (error) {
                     projectNotFound();
@@ -788,7 +788,7 @@ function recreate_map() {
 
 function create_indexed_layers_array () {
     Meteor.call('getTsvFile', "layers.tab", ctx.project,
-        Session.get('proxPre'), function (error, parsed) {;
+        function (error, parsed) {;
 
 		// Create a list of layer names ordered by their indices
 		ctx.layer_names_by_index = new Array (Session.get('sortedLayers').length);
@@ -822,7 +822,7 @@ initLayout = function () {
 
     // Download the Matrix Names and pass it to the layout_names array
     Meteor.call('getTsvFile', "matrixnames.tab", ctx.project,
-        Session.get('proxPre'), function (error, parsed) {
+        function (error, parsed) {
 
         // This is an array of rows, which are strings of matrix names
 
@@ -889,7 +889,7 @@ initHex = function () {
     // first.
 	// Download Information on what layers are continuous and which are binary
     Meteor.call('getTsvFile', "Layer_Data_Types.tab", ctx.project,
-        Session.get('proxPre'), function (error, parsed) {;
+        function (error, parsed) {;
 
         // This is an array of rows with the following content:
         //
@@ -950,7 +950,7 @@ initHex = function () {
 
     // Download the layer index
     Meteor.call('getTsvFile', "layers.tab", ctx.project,
-        Session.get('proxPre'), function (error, parsed) {;
+        function (error, parsed) {;
 
         // Layer index is tab-separated like so:
         // name  file  N-hex-value  binary-ones  layout0-clumpiness  layout1-clumpiness  ...
@@ -1034,7 +1034,7 @@ initHex = function () {
     // Download full score matrix index, which we later use for statistics. Note
     // that stats won't work unless this finishes first. TODO: enforce this.
     Meteor.call('getTsvFile', "matrices.tab", ctx.project,
-        Session.get('proxPre'), function (error, parsed) {;
+        function (error, parsed) {;
 
         // Matrix index is just <filename>
 
@@ -1060,7 +1060,7 @@ initHex = function () {
     
     // Download color map information
     Meteor.call('getTsvFile', "colormaps.tab", ctx.project,
-        Session.get('proxPre'), function (error, parsed) {;
+        function (error, parsed) {;
 
         // Colormap data is <layer name>\t<value>\t<category name>\t<color>
         // \t<value>\t<category name>\t<color>...

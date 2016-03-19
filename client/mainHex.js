@@ -60,13 +60,13 @@ mapDrawnListener = '';
             pageReload('homePage');
         },
         "click .mapPage": function() {
-            ctx.project = Session.get('proxPre') + 'data/pancan12/latest/';
+            //ctx.project = 'data/pancan12/latest/';
             pageReload('mapPage');
         },
 
         "click .thumbnail": function (ev){
             var project = $(ev.currentTarget).data('project');
-            ctx.project = Session.get('proxPre') + 'data/' + project + '/';
+            ctx.project = 'data/' + project + '/';
             pageReload('mapPage');
         },
         "click .gridPage": function() {

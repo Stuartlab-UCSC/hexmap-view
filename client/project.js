@@ -25,7 +25,7 @@ var app = app || {}; // jshint ignore:line
             return {
                 text: user,
                 children: _.map(userProjs, function (proj) {
-                    id = Session.get("proxPre") + 'data/' + user + '/' + proj + '/';
+                    id = 'data/' + user + '/' + proj + '/';
                     return { id: id, text: proj };
                 })
             }

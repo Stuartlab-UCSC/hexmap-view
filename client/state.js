@@ -42,19 +42,13 @@ PAGE = 'homePage';
         //          initialized here, but in their respective file
         //          initialization functions
 
-        var s = this,
-            proxPre = '';
+        var s = this;
 
-        // Prefix for images and other such files
         s.defaultProject = DEFAULT_PROJECT;
  
-        if (location.host === 'medbook.ucsc.edu') {
-            proxPre = '/hex/';
-            s.defaultProject = 'data/ynewton/gliomas-paper/';
-        } else if (location.host === 'tumormap.ucsc.edu') {
+        if (location.host === 'tumormap.ucsc.edu') {
             s.defaultProject = 'data/ynewton/gliomas-paper/';
         }
-        s.defaultProject = proxPre + s.defaultProject;
 
         // Keep localStore of different servers separate
         s.storeName = location.host + '-hexMapState';
@@ -65,8 +59,8 @@ PAGE = 'homePage';
 
         // Find the project if one was included in the URL, replacing every '.' with '/'
         } else if ( window.location.search.indexOf( '?p=' ) > -1 ) {
-            s.urlProject = proxPre
-                + 'data/'
+            s.urlProject
+                = 'data/'
                 + window.location.search.slice(3).replace(/\./g, '/')
                 + '/';
         }
@@ -97,7 +91,6 @@ PAGE = 'homePage';
         // Non-project variables maintained in the meteor session
         Session.setDefault('page', PAGE);
         Session.setDefault('background', 'black');  // Visualization background color
-        Session.set('proxPre', proxPre);  // Prefix for images and other such files
         Session.setDefault('sort', DEFAULT_SORT); // Default sort message & type
 
         // Variables maintained in this state object, with defaults.
@@ -182,10 +175,14 @@ PAGE = 'homePage';
         // Overwrite the previous state in localStorage
         window['localStorage'].removeItem(s.storeName);
         window['localStorage'].setItem(s.storeName, JSON.stringify(store));
+ 
+        //console.log('save store:', store);
     };
  
     State.prototype.load = function (store, page) {
  
+        //console.log('load store:', store);
+
         // Walk through the localStorage loading anything we recognize
         var s = this;
         _.each(store, function (val, key) {
@@ -217,7 +214,6 @@ PAGE = 'homePage';
         // Reset the already saved flag
         s.alreadySaved = false;
 
- 
         Meteor.call('findBookmark', Session.get('bookmark'),
             function (error, result) {
                 if (error) {

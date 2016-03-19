@@ -273,7 +273,7 @@ var app = app || {}; // jshint ignore:line
         
         // Add an image label for the filter control.
         // TODO: put this in a label
-        var filter_image = $("<img/>").attr("src", Session.get('proxPre') + "filter.svg");
+        var filter_image = $("<img/>").attr("src", "filter.svg");
         filter_image.attr("title", "Filter on Layer");
         filter_image.addClass("filter");
         
@@ -315,7 +315,7 @@ var app = app || {}; // jshint ignore:line
         });
 
         // Add a image for the save function
-        var save_filter = $("<img/>").attr("src", Session.get('proxPre') + "file-new.svg");
+        var save_filter = $("<img/>").attr("src", "file-new.svg");
         save_filter.addClass("save-filter");
         save_filter.addClass("file-new");
         save_filter.attr("title", "Save Filter as Layer");
@@ -346,7 +346,7 @@ var app = app || {}; // jshint ignore:line
         // We have some configuration stuff and then the div from the dropdown
         // This holds all the config stuff
         var controls = $("<div/>").addClass("shortlist-controls");
-        var moveIcon = Session.get('proxPre') + 'resize-vertical.svg';
+        var moveIcon = 'resize-vertical.svg';
         controls.css('background-image', 'url(' + moveIcon + ')');
         
         // Add a remove link

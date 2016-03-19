@@ -30,7 +30,6 @@ Example::
     contLayers: ctx.cont_layers,
     layout: layout_index,
     anticorrelated: anticorrelated,
-    proxPre: Session.get('proxPre'),
     tempFile: 'yes',
  }
 
