@@ -113,6 +113,26 @@ Meteor.methods({
         return future.wait();
     },
 
+    isDataDir: function (entry) {
+
+        // Determine if an entry is a directory
+        this.unblock();
+        var future = new Future();
+        var path = dataDir + entry;
+        
+        // First find the stats on this path
+        fs.stat(path, function (error, fsStats) {
+            if (error) {
+                future.throw(error);
+            } else {
+            
+                // Return the directory status of this path
+                future.return(fsStats.isDirectory());
+            }
+        });
+        return future.wait();
+    },
+
     getDataDirs: function (user) {
 
         // Retrieve data directories
