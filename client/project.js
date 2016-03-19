@@ -12,21 +12,21 @@ var app = app || {}; // jshint ignore:line
 
     Project.prototype._populate = function () {
         // Populate the project list.
-        // The projects object is of the form:
+        // The projects object is two-tiered of the form:
         //  {
-		//      user1:	[proj1, proj2 ...],
-		//      user2:	[proj3, proj4 ...],
+		//      major1:	[minor1, minor2 ...],
+		//      major2:	[minor3, minor4 ...],
         //      ...
         //  }
 		//
         var self = this;
 
-        data = _.map(self.projects, function (userProjs, user) {
+        data = _.map(self.projects, function (minors, major) {
             return {
-                text: user,
-                children: _.map(userProjs, function (proj) {
-                    id = 'data/' + user + '/' + proj + '/';
-                    return { id: id, text: proj };
+                text: major,
+                children: _.map(minors, function (minor) {
+                    id = 'data/' + major + '/' + minor + '/';
+                    return { id: id, text: minor };
                 })
             }
         });
@@ -46,9 +46,9 @@ var app = app || {}; // jshint ignore:line
        });
 
         // Is the context project on our list?
-        var projectOnList = _.find(data, function (user) {
-            var projectMatch = _.find(user.children, function (proj) {
-                var idMatch = (proj.id === ctx.project);
+        var projectOnList = _.find(data, function (major) {
+            var projectMatch = _.find(major.children, function (minor) {
+                var idMatch = (minor.id === ctx.project);
                 return idMatch;
             });
             return !_.isUndefined(projectMatch);
@@ -72,28 +72,28 @@ var app = app || {}; // jshint ignore:line
         });
     };
 
-    var users, projects;
+    var majors, minors;
 
-    Project.prototype._getProjects = function (userIndex) {
+    Project.prototype._getMinors = function (majorIndex) {
 
-        // Get one user's project directory names
+        // Get one major's minor directory names
         var self = this;
 
-        Meteor.call('getDataDirs', self.users[userIndex], function (error, projects) {
+        Meteor.call('getDataDirs', self.majors[majorIndex], function (error, minors) {
             if (error) {
-                console.log('_getProjects error', error);
-                banner('warn', "Unable to retrieve user's project data.\n" + error);
+                console.log('_getMinors error', error);
+                banner('warn', "Unable to retrieve project's minor data.\n" + error);
             } else {
 
-                // Save the user's projects
-                var projects = self._removeHiddenDirs(projects);
-                if (projects.length > 0) {
-                    self.projects[self.users[userIndex]] = projects;
+                // Save the major's minors
+                var minors = self._removeHiddenDirs(minors);
+                if (minors.length > 0) {
+                    self.projects[self.majors[majorIndex]] = minors;
                 }
-                if (userIndex < self.users.length - 1) {
+                if (majorIndex < self.majors.length - 1) {
 
-                    // Go get the next user's projects
-                    self._getProjects(userIndex + 1);
+                    // Go get the next major's minors
+                    self._getMinors(majorIndex + 1);
                 } else {
 
                     // Populate the project list
@@ -103,21 +103,21 @@ var app = app || {}; // jshint ignore:line
         });
     };
 
-    Project.prototype._getUsers = function () {
+    Project.prototype._getMajors = function () {
 
-        // Get the user directory names
+        // Get the major directory names
         var self = this;
 
-        Meteor.call('getDataDirs', function (error, users) {
+        Meteor.call('getDataDirs', function (error, majors) {
             if (error) {
                 banner('warn', "Unable to retrieve project data.\n" + error);
             } else {
 
-                // Save the user array & go get her projects
-                self.users = self._removeHiddenDirs(users);
+                // Save the major array & go get the minor projects
+                self.majors = self._removeHiddenDirs(majors);
                 self.projects = {};
-                if (self.users.length > 0)
-                    self._getProjects(0);
+                if (self.majors.length > 0)
+                    self._getMinors(0);
             }
         });
     };
@@ -125,7 +125,7 @@ var app = app || {}; // jshint ignore:line
     initProject = function () { // jshint ignore:line
         if (DEV) {
             var project = new Project();
-            project._getUsers();
+            project._getMajors();
         } else {
             $('#project')
                 .text(ctx.project.slice(5, -1))
