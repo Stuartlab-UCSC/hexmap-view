@@ -1,6 +1,6 @@
 #!/usr/bin/env python2.7
 
-# This does not test any python code, but it is easier to test shell commands
+# This tests javascript, using python's easer calls to shell commands
 # from here than from mocha
 
 import sys, os, subprocess, tempfile

@@ -28,6 +28,10 @@ function passOverlayNodeChecks (dataIn, res) {
     
     // Validate that certain properties are included
     if (!dataIn.hasOwnProperty('map') && !dataIn.hasOwnProperty('map2')) {
+    
+        // TODO use this ?:
+        //  throw new Meteor.Error(403, "Access denied")
+
         respond(400, res, 'Map missing or malformed');
         return false;
 

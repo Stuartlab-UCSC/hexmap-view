@@ -17,22 +17,10 @@ var url = Meteor.absoluteUrl();
 var dataDir;
 if (url === 'http://localhost:3000/') {
 
-    // Local development
+    // Localhost development
     dataDir = '/Users/swat/';
-} else if (
-    url === 'http://hexmap.sdsc.edu/' ||
-    url === 'http://hexmap.sdsc.edu:80/' ||
-    url === 'https://hexmap.sdsc.edu/' ||
-    url === 'https://hexmap.sdsc.edu:443/' ||
-    url === 'http://hexmap.ucsc.edu:8081/' ||
-    url === 'https://hexmap.ucsc.edu:8443/' ||
-    url === 'http://tumormap.ucsc.edu/' ||
-    url === 'http://tumormap.ucsc.edu:80/' ||
-    url === 'https://tumormap.ucsc.edu/' ||
-    url === 'https://tumormap.ucsc.edu:443/' ||
-    url === 'http://tumormap.ucsc.edu:8081/' ||
-    url === 'https://tumormap.ucsc.edu:8443/') {
-    
+} else if (url.search('hexmap.sdsc.edu') > -1) {
+
     // Production
     dataDir = '/data/';
 } else {
@@ -80,6 +68,10 @@ function readFromJsonFileSync (filename) {
 
     // Parse the data after reading the file
     return JSON.parse(fs.readFileSync(filename, 'utf8'));
+}
+
+readFromJsonBaseFile = function (baseFilename) {
+    return readFromJsonFileSync(dataDir + baseFilename);
 }
 
 Meteor.methods({

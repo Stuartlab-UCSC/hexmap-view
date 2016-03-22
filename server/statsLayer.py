@@ -165,8 +165,27 @@ class ForEachLayer(object):
 
             table[aVal - aMin][bVal - bMin] += 1
 
+        DEBUG = False
+        if DEBUG and layerB == 'BRCA Subtype':
+            # Capture the contingency table
+            fname = '/cluster/home/swat/tmpDebug' #'/cluster/home/swat/tmpDebug'
+            file = open(fname, 'w')
+            f = csv.writer(file, delimiter='\t')
+            for row in table:
+                f.writerow(row)
+            f.writerow(['checking for enough counts in the table'])
+            
         if not s.hasEnoughCounts(s, table, layerB):
+        
+            if DEBUG and layerB == 'BRCA Subtype':
+                f.writerow(['NOT enough counts in the table'])
+                file.close()
+                
             return [layerB, 1]
+
+        if DEBUG and layerB == 'BRCA Subtype':
+            f.writerow(['there ARE enough counts in the table'])
+            file.close()
 
         # Call the chi-squared function
         try:
