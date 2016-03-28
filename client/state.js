@@ -116,7 +116,7 @@ PAGE = 'homePage';
         s.layout_names = [];  // Map layout names maintained in order of entry
         Session.set('overlayNodes', undefined);  // overlay nodes to include
         Session.set('shortlist', []); // Array of layer names in the shortlist
-        s.zoom = 1;  // Map zoom level where 1 is one level above most zoomed out
+        s.zoom = 2;  // Map zoom level where 2 means zoomed in by 2 levels
     }
 
     State.prototype.save = function (newProject) {
@@ -143,11 +143,6 @@ PAGE = 'homePage';
 
             // If this is a Session var we want to store it there
             if (!Session.equals(key, undefined)) {
-               
-                // TODO for now don't store overlayNodes
-                if (key === 'overlayNodes') {
-                    return;
-                }
                 store[key] = Session.get(key);
 
             // If this var belongs to this ctx object we want to store it here
@@ -204,6 +199,24 @@ PAGE = 'homePage';
                 Session.set(key, val);
             }
         });
+
+        if (s.project === 'data/CKCC/v1-09/') {
+           Session.set('overlayNodes', {
+                'PNOC003-009': {
+                   x: 64.5,
+                   y: 228.3333333,
+                },
+            });
+        
+        } else if (s.project === 'data/CKCC/v1-11/') {
+           Session.set('overlayNodes', {
+                'PNOC003-011': {
+                   x: 43,
+                   y: 227.1666667,
+                },
+            });
+        }
+
         return page;
     };
  

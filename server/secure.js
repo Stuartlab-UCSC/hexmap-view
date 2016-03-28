@@ -6,46 +6,33 @@
 
 var exec = Npm.require('child_process').exec;
 
-Meteor.methods({
-
-    findUser: function (id) {
-        return Meteor.users.findOne(id);
-    },
+function sendNewUserMail(user) {
     
-    findAllUsers: function() {
-        return Meteor.users.find({}).fetch();
-    },
+    // Notify the admin of a new user
+    var msg = "'New "
+        + user.emails[0].address
+        + ' at '
+        + Meteor.absoluteUrl()
+        + "'",
+        command =
+            'echo '
+            + msg
+            + ' | '
+            + 'mail -s '
+            + msg
+            + ' hexmap@ucsc.edu';
 
-    sendNewUserMail: function (user) {
-    
-        // TODO move out of methods since it is just for server
-        // Notify the admin of a new user
-        var msg = "'New "
-            + user.emails[0].address
-            + ' at '
-            + Meteor.absoluteUrl()
-            + "'",
-            command =
-                'echo '
-                + msg
-                + ' | '
-                + 'mail -s '
-                + msg
-                + ' hexmap@ucsc.edu';
-
-        exec(command, function (error, stdout, stderr) {
-            if (error) {
-                console.log('sendNewUserMail had an error:', error);
-            }
-        });
-    },
-});
+    exec(command, function (error, stdout, stderr) {
+        if (error) {
+            console.log('sendNewUserMail had an error:', error);
+        }
+    });
+}
 
 Accounts.onCreateUser(function (options, user) {
 
-     // Add a field of username that meteor recognizes as unique
+     // Add a field of 'username' that meteor recognizes as unique
     user.username = user.emails[0].address;
-    console.log('trying to add username:', user.emails[0].address);
     
     // Notify the admin of a new user
             var msg = "'New "
@@ -66,20 +53,17 @@ Accounts.onCreateUser(function (options, user) {
                 console.log('sendNewUserMail had an error:', error);
             }
         });
-//Meteor.call('sendNewUserMail', user, function (error, result) {
-        //console.log('onCreate new user:' );
-  //  })
     
     // Don't forget to return the new user object.
     return user;
 });
 
-
-// Unit tests are here since mocha is broken
+// Unit tests are here since mocha is broken ///////////////////////////////////
 function runUnitTests () {
 
     var failures = 0;
 
+/*
     // Clear all users
     var count = Meteor.users.remove({});
     //console.log('deleteAllUsers: number of users removed:', count);
@@ -125,14 +109,12 @@ function runUnitTests () {
         i = 0;
     for (user in users) {
         ids[i] = Meteor.users.insert(user);
-        console.log('rc on insert of user:', ids[i]);
-        //failures += 1;
         i += 1;
     }
-    console.log('ids:', ids);
-
+*/
     // Verify users added
     var usersAdded = Meteor.users.find().fetch();
+/*
     if (usersAdded.length !== 3) {
         console.log('FAILED: users added count is not 3.');
         failures += 1;
@@ -144,6 +126,7 @@ function runUnitTests () {
         }
     });
     
+
     // Create the public group
     Roles.createRole('public');
     
@@ -161,7 +144,11 @@ function runUnitTests () {
     Roles.addUsersToRoles(usersAdded[0], 'aDeveloper');
     Roles.addUsersToRoles([usersAdded[0], usersAdded[1]], 'CKCC');
     Roles.addUsersToRoles(usersAdded[2], Roles.GLOBAL_GROUP);
-
+*/
+    // demo
+    //Roles.createRole('CKCC');
+    Roles.addUsersToRoles(usersAdded[3], ['public','CKCC']);
+/*
     // Verify roles added
     var roles = ['aDeveloper', 'CKCC', Roles.GLOBAL_GROUP, ],
         rolesAdded = Roles.getAllRoles().fetch();
@@ -210,7 +197,7 @@ function runUnitTests () {
         console.log("FAILED: user's role count should be 1", usersAdded[2].username);
         failures += 1;
     }
-    
+
     // Read the roles file in a public data directory
     var project = 'data/mcrchopra/first';
     var metaJson = project + '/meta.json';
@@ -224,9 +211,11 @@ function runUnitTests () {
         console.log("FAILED: cannot find role 'public' in", metaJson);
         failures += 1;
     }
+*/
     
     if (failures < 1) console.log('All user tests were successful!');
 }
+
 
 
 runUnitTests() // turn off when not testing;
@@ -239,16 +228,15 @@ runUnitTests() // turn off when not testing;
 // userId is equivalent to _id in the db.
 
 /*
-Meteor.call('findUser', 'CYhm7nMLqiRPpWYdX', function (error, user) {
-    console.log('user.emails[0].address', user.emails[0].address);
-});
+user = findOne(id);
+console.log('user.emails[0].address', user.emails[0].address);
 */
 
 /*
 // Find all users.
-Meteor.call('findAllUsers', function (error, users) {
+var users = Meteor.users.find({}).fetch();
     _.each(users, function (user) {
         console.log('user', user.emails[0].address, user.username);
     });
-});
+}
 */

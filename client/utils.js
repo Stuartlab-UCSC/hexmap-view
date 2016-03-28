@@ -132,8 +132,17 @@ var app = app || {}; // jshint ignore:line
         }
     }
 
+    setHeightSelect2 = function ($el) {
+ 
+        // Make the bottom of the list no longer than the main window
+        $el.parent().on('select2-open', function () {
+            var results = $('#select2-drop .select2-results');
+            results.css('max-height', $(window).height() - results.offset().top - 15);
+        });
+    }
+
     createOurSelect2 = function ($el, optsIn, defaultSelection) {
-    
+ 
         // Create a select2 drop-down.
 
         // Including our favorite options
@@ -157,11 +166,7 @@ var app = app || {}; // jshint ignore:line
             $el.select2('val', defaultSelection);
         }
 
-        // Make the bottom of the list no longer than the main window
-        $el.parent().on('select2-open', function () {
-            var results = $('#select2-drop .select2-results');
-            results.css('max-height', $(window).height() - results.offset().top - 15);
-        });
+        setHeightSelect2($el);
     }
 })(app);
 

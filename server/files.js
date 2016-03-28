@@ -88,8 +88,6 @@ Meteor.methods({
                 path = dataDir + project + filename;
             }
 
-        // TODO check for existence first so we don't throw an error into
-        // the server log
         if (fs.existsSync(path)) {
             fs.readFile(path, 'utf8', function (error, results) {
                 if (error) {
@@ -102,42 +100,6 @@ Meteor.methods({
         } else {
             future.return('Error: file not found on server: ' + path);
         }
-        return future.wait();
-    },
-
-    isDataDir: function (entry) {
-
-        // Determine if an entry is a directory
-        this.unblock();
-        var future = new Future();
-        var path = dataDir + entry;
-        
-        // First find the stats on this path
-        fs.stat(path, function (error, fsStats) {
-            if (error) {
-                future.throw(error);
-            } else {
-            
-                // Return the directory status of this path
-                future.return(fsStats.isDirectory());
-            }
-        });
-        return future.wait();
-    },
-
-    getDataDirs: function (user) {
-
-        // Retrieve data directories
-        this.unblock();
-        var future = new Future(),
-            dir = dataDir + 'data/' + ((_.isUndefined(user)) ? '' : user);
-        fs.readdir(dir, function (error, results) {
-            if (error) {
-                future.throw(error);
-            } else {
-                future.return(results);
-            }
-        });
         return future.wait();
     },
 
