@@ -21,13 +21,7 @@ if (url === 'http://localhost:3000/') {
 }
 
 var majors,
-    projects = {},
-    roleProjects = {
-    CKCC: ['CKCC'],
-    pancan12: 'public',
-    ynewton: 'public',
-    evanPaull: 'public',
-};
+    projects = {};
 
 function removeHiddenDirs (dirs) {
     return _.filter(dirs, function (dir) {
@@ -125,6 +119,23 @@ function getMinors (majorIndex) {
     }
 }
 
+function getProjectRole (major) {
+
+    var meta,
+        filename = dataDir + 'data/' + major + '/meta.json';
+    
+    if (fs.existsSync(filename)) {
+        meta = readFromJsonFileSync(filename);
+        if (meta && meta.role) {
+            return meta.role;
+        } else {
+            return undefined;
+        }
+    } else {
+        return undefined;
+    }
+}
+
 function getMajors () {
 
     // Get the major directory names
@@ -146,9 +157,10 @@ function getMajors () {
     // Remove any projects for which this user is not authorized
     majors = []
     _.each(majors1, function(major) {
-        var role = roleProjects[major]
-        if (role === 'public'
-            || (user && Roles.userIsInRole(user, role))) {
+        var role = getProjectRole(major);
+        
+        // Don't include those without a role, or if the user is not in that role
+        if (role && (role === 'public' || (user && Roles.userIsInRole(user, role)))) {
             majors.push(major);
         }
     });

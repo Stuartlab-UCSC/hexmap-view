@@ -98,19 +98,20 @@ class ForEachLayer(object):
             return min(len(ones), len(zeros)) / 10
         else:
             return float('inf')
-
+    """
+    # not used anymore
     @staticmethod
     def hasEnoughCounts(s, table, layerB):
+
+        # Any pair combination outside of binary-binary always returns true
+        if not (s.layerA in s.binLayers and layerB in s.binLayers):
+            return True
 
         # For binary-binary pairs we want to prevent finding high statistical
         # significance when there are only a few counts of an attribute value.
         # In the contingency table, if the biggest count of the cells is less
         # than 10% of the sample count of the smallest of the attribute values
         # we don't want to compute stats for that attribute pair.
-
-        # Any pair combination outside of binary-binary always returns true
-        if not (s.layerA in s.binLayers and layerB in s.binLayers):
-            return True
 
         # Include both attributes when looking for the smallest value count
         significancyCutoffB = s.findSignificancyCutoff(s, layerB)
@@ -124,6 +125,7 @@ class ForEachLayer(object):
 
         # Return true if the biggest cell count is greater than the cutoff
         return (biggest > cutoff)
+    """
 
     @staticmethod
     def bothDiscrete(s, layerA, layerB, layers, hexNames):
@@ -175,6 +177,7 @@ class ForEachLayer(object):
                 f.writerow(row)
             f.writerow(['checking for enough counts in the table'])
             
+        """
         if not s.hasEnoughCounts(s, table, layerB):
         
             if DEBUG and layerB == 'BRCA Subtype':
@@ -182,20 +185,33 @@ class ForEachLayer(object):
                 file.close()
                 
             return [layerB, 1]
-
+        """
+        
         if DEBUG and layerB == 'BRCA Subtype':
             f.writerow(['there ARE enough counts in the table'])
             file.close()
+        
+        # Run different a different test if both layers are binary
+        if hasattr(s, 'binLayers') and layerA in s.binLayers and layerB in s.binLayers:
 
-        # Call the chi-squared function
-        try:
-            chi2, pValue, dof, expectedFreq = scipy.stats.chi2_contingency(table)
-        except Exception:
-            # We probably had all zeros for a column in the contingency table.
-            # See <http://stats.stackexchange.com/q/73708>. Chi-squared can't be
-            # done in this case.
+            # Both layers are binary so call the Fisher exact test function
+            # http://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.fisher_exact.html
+            try:
+                oddsratio, pValue = scipy.stats.fisher_exact(table)
+            except Exception:
+                pValue = 1
+        else:
+
+            # Both layers are not binary so call the chi-squared function
             # http://docs.scipy.org/doc/scipy-0.16.0/reference/generated/scipy.stats.chi2_contingency.html#scipy.stats.chi2_contingency
-            pValue = 1
+            try:
+                chi2, pValue, dof, expectedFreq = scipy.stats.chi2_contingency(table, lambda_='log-likelyhood')
+            except Exception:
+            
+                # We probably had all zeros for a column in the contingency table.
+                # See <http://stats.stackexchange.com/q/73708>. Chi-squared can't be
+                # done in this case.
+                pValue = 1
 
         return [layerB, sigDigs(pValue)]
 
@@ -550,7 +566,7 @@ class ForEachLayer(object):
                 # Bonferroni correction for p-values returns:
                 #   [reject, p_vals_corrected, alphacSidak, alphacBonf]
                 # http://statsmodels.sourceforge.net/devel/generated/statsmodels.sandbox.stats.multicomp.multipletests.html
-                reject, adjPvalsB, alphacSidak, alphacBonf = multicomp.multipletests(preAdjVals, alpha=0.05, method='fdr_bh')
+                reject, adjPvalsB, alphacSidak, alphacBonf = multicomp.multipletests(preAdjVals, alpha=0.05, method='bonferroni')
 
             except Exception:
                 adjPvalsB = [1 for x in preAdjusted]
