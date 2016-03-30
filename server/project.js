@@ -3,23 +3,6 @@
 
 var fs = Npm.require('fs');
 var Future = Npm.require('fibers/future');
-
-var url = Meteor.absoluteUrl();
-var dataDir;
-if (url === 'http://localhost:3000/') {
-
-    // Localhost development
-    dataDir = '/Users/swat/';
-} else if (url.search('hexmap.sdsc.edu') > -1) {
-
-    // Production
-    dataDir = '/data/';
-} else {
-
-    // Development
-    dataDir = '/cluster/home/swat/';
-}
-
 var majors,
     projects = {};
 
@@ -33,7 +16,7 @@ function isDataDir (entry) {
 
     // Determine if an entry is a directory
     var future = new Future();
-    var path = dataDir + entry;
+    var path = DATA_DIR + entry;
     
     // First find the stats on this path
     fs.stat(path, function (error, fsStats) {
@@ -88,7 +71,7 @@ function getDataDirs (major) {
 
     // Retrieve data directories
     var future = new Future(),
-        dir = dataDir + 'data/' + ((_.isUndefined(major)) ? '' : major);
+        dir = DATA_DIR + 'data/' + ((_.isUndefined(major)) ? '' : major);
     fs.readdir(dir, function (error, results) {
         if (error) {
             future.throw(error);
@@ -122,7 +105,7 @@ function getMinors (majorIndex) {
 function getProjectRole (major) {
 
     var meta,
-        filename = dataDir + 'data/' + major + '/meta.json';
+        filename = DATA_DIR + 'data/' + major + '/meta.json';
     
     if (fs.existsSync(filename)) {
         meta = readFromJsonFileSync(filename);

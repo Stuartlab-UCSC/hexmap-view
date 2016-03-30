@@ -114,9 +114,22 @@ PAGE = 'homePage';
         Session.set('first_layer', undefined); // first to be displayed in shortlist
         s.gridZoom = 1;  // Zoom level of the grid
         s.layout_names = [];  // Map layout names maintained in order of entry
-        Session.set('overlayNodes', undefined);  // overlay nodes to include
+        //Session.set('overlayNodes', undefined);  // overlay nodes to include
         Session.set('shortlist', []); // Array of layer names in the shortlist
         s.zoom = 2;  // Map zoom level where 2 means zoomed in by 2 levels
+ 
+        if (s.urlProject) {
+            s.project = s.urlProject;
+            Session.set('page', 'mapPage');
+            if (s.project.slice(0,13) === 'data/CKCC/v1-') {
+                var ind = s.project.slice(13,-1);
+                if (OVERLAY_NODES[ind]) {
+                    var node = {};
+                    node[ind] = OVERLAY_NODES[ind];
+                    Session.set('overlayNodes', node);
+                }
+            }
+        }
     }
 
     State.prototype.save = function (newProject) {
@@ -199,23 +212,6 @@ PAGE = 'homePage';
                 Session.set(key, val);
             }
         });
-
-        if (s.project === 'data/CKCC/v1-09/') {
-           Session.set('overlayNodes', {
-                'PNOC003-009': {
-                   x: 64.5,
-                   y: 228.3333333,
-                },
-            });
-        
-        } else if (s.project === 'data/CKCC/v1-11/') {
-           Session.set('overlayNodes', {
-                'PNOC003-011': {
-                   x: 43,
-                   y: 227.1666667,
-                },
-            });
-        }
 
         return page;
     };
@@ -305,6 +301,8 @@ PAGE = 'homePage';
 
         if (Session.get('bookmark')) {
             s.loadFromBookmark();
+        } else if (s.urlProject) {
+            // we're done
         } else if (storageSupported) {
             s.loadFromLocalStore();
         }

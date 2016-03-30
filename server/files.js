@@ -13,22 +13,6 @@ var path = Npm.require('path');
 // TODO these dirs may need to be different with built meteor
 // There must be a better way to do this for dev and built
 var serverDir = '../../../../../server/';
-var url = Meteor.absoluteUrl();
-var dataDir;
-if (url === 'http://localhost:3000/') {
-
-    // Localhost development
-    dataDir = '/Users/swat/';
-} else if (url.search('hexmap.sdsc.edu') > -1) {
-
-    // Production
-    dataDir = '/data/';
-} else {
-
-    // Development
-    dataDir = '/cluster/home/swat/';
-}
-
 function writeToTempFile (data, fileExtension) {
 
     // Write arbitrary data to a file, blocking until the write is complete
@@ -71,7 +55,7 @@ readFromJsonFileSync = function (filename) {
 }
 
 readFromJsonBaseFile = function (baseFilename) {
-    return readFromJsonFileSync(dataDir + baseFilename);
+    return readFromJsonFileSync(DATA_DIR + baseFilename);
 }
 
 Meteor.methods({
@@ -83,9 +67,9 @@ Meteor.methods({
         var future = new Future();
         var path;
             if (filename.indexOf('layer_') > -1 || filename.indexOf('stats') > -1) {
-                path = dataDir + filename;
+                path = DATA_DIR + filename;
             } else {
-                path = dataDir + project + filename;
+                path = DATA_DIR + project + filename;
             }
 
         if (fs.existsSync(path)) {
@@ -116,7 +100,7 @@ Meteor.methods({
         }
 
         // Make a project data directory string usable by the server code.
-        parms.directory = dataDir + parms.directory;
+        parms.directory = DATA_DIR + parms.directory;
 
         // Write the parms to a temporary file so we don't overflow the stdout
         // buffer.
