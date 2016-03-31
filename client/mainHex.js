@@ -9,11 +9,10 @@ ATTR_FILTERS = true;
 ctx = null; // State
 layers = {}; // contains almost all information about attributes
 mapDrawnListener = '';
+googlemap; // our googlemap instance
 
 (function (hex) { // jshint ignore:line
     //'use strict';
-
-    var googlemapsInitialized = false;
 
     function convertStoredCenterToLatLng() {
         if (_.isNull(ctx.center)) {
@@ -83,11 +82,13 @@ mapDrawnListener = '';
         // We want to show these early on
         $('.sort_attributes, .statistics').show()
 
-        initMrtGooglemapsForMap();
+        Tracker.autorun(whenGoogleMapsLoaded);
+        GoogleMaps.load();
     });
 
     Template.gridPage.onRendered(function () {
-        initMrtGooglemapsForGrid();
+        Tracker.autorun(whenGoogleMapsLoaded);
+        GoogleMaps.load();
     });
 
     Template.headerT.helpers({
@@ -98,6 +99,16 @@ mapDrawnListener = '';
             return Session.get('loadingMap');
         },
     });
+ 
+    function whenGoogleMapsLoaded () {
+        if (GoogleMaps.loaded()) {
+            if (Session.equals('page', 'mapPage')) {
+                initGoogleMapsForMap();
+            } else {
+                initGoogleMapsForGrid();
+            }
+        }
+    }
 
     initMapDrawn = function () {
         // Initialize modules that need to have the map drawn.
@@ -134,39 +145,35 @@ mapDrawnListener = '';
         $('#gridContent').height(windowHt - navHt - 2);
     }
 
-    initMrtGooglemapsForMap = function () {
+    initGoogleMapsForMap = function () {
         setTimeout(function () {
             resizeMap();
             $(window).resize(resizeMap);
-            GoogleMaps.init({}, function () {
 
-                // Initialize everything else
-                initHomeLink();
-                initProject();
-                initSelect();
-                initTools();
-                initDownload();
-                initColors();
-                convertStoredCenterToLatLng();
-                initLegend();
-                initShortlist();
-                initHex();
-                $.get("maplabel.js");
-            });
+            // Initialize everything else
+            initHomeLink();
+            initProject();
+            initSelect();
+            initTools();
+            initDownload();
+            initColors();
+            convertStoredCenterToLatLng();
+            initLegend();
+            initShortlist();
+            initHex();
+            $.get("maplabel.js");
         }, 0)
     };
 
-    initMrtGooglemapsForGrid = function () {
+    initGoogleMapsForGrid = function () {
         setTimeout(function () {
             resizeMap();
             $(window).resize(resizeMap);
-            GoogleMaps.init({}, function () {
-                initHomeLink();
-                initTools();
-                convertStoredCenterToLatLng();
-                initHex();
-                initGrid();
-            });
+            initHomeLink();
+            initTools();
+            convertStoredCenterToLatLng();
+            initHex();
+            initGrid();
         }, 0)
     };
 })(app);

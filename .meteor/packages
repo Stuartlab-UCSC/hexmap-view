@@ -15,9 +15,9 @@ tracker
 random
 ejson
 check
-mrt:googlemaps
 reactive-dict
 reactive-var
 accounts-ui
 accounts-password
 alanning:roles
+dburles:google-maps

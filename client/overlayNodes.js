@@ -15,50 +15,15 @@ var app = app || {}; // jshint ignore:line
         var nodes = Session.get('overlayNodes'),
             pinColor = "ff0000",
             origImage = "http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=%E2%80%A2|" + pinColor,
-            scale = 2,
+            pinImage = {
+                url: origImage,
+                scaledSize: new google.maps.Size(42, 68), // 84, 136),
+            };
 
-            // TODO: this scaled marker does not work through the current
-            // google maps meteor package, so go with the default for now
-            // InvalidValueError: setIcon: not a string; and no url property; and no path property
-            marker = new google.maps.Marker({
-                map: googlemap,
-                icon: new google.maps.MarkerImage(
-                    origImage,
-                    //'http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=%E2%80%A2|' + pinColor,
-                    //'http://www.gettyicons.com/free-icons/108/gis-gps/png/24/needle_left_yellow_2_24.png',
-                    new google.maps.Size(24, 24),
-                    new google.maps.Point(0, 0),
-                    new google.maps.Point(0, 24)
-                )
-            }),
-            pinImage = new google.maps.MarkerImage(
-                marker.getIcon().ra,
-                new google.maps.Size(
-                    marker.getIcon().size.width * scale,
-                    marker.getIcon().size.height * scale
-                ),
-                new google.maps.Point(0,0),
-                new google.maps.Point (
-                    marker.getIcon().anchor.x * scale,
-                    marker.getIcon().anchor.y * scale / 2
-                )
-            );
-/*
-            // TODO This method may be too old vor v3 api
-            pinImage = new google.maps.MarkerImage(
-                origImage.ra,
-                // This actually makes a smaller pin
-                new google.maps.Size(84, 136),
-                new google.maps.Point(0,0),
-                new google.maps.Point(42, 136));
-                //new google.maps.Size(21, 34),   // default size
-                //new google.maps.Point(0,0),     // default origin
-                //new google.maps.Point(10, 34)); // default anchor
-*/
         _.each (Object.keys(nodes), function (n) {
         
             markers[n] = new google.maps.Marker({
-                //icon: pinImage,
+                icon: pinImage,
                 position: get_latLng_from_xyHex(nodes[n].x, nodes[n].y),
                 map: googlemap,
                 title: n,
@@ -88,7 +53,8 @@ var app = app || {}; // jshint ignore:line
         'C021_0016_RNA': { x: 40.8333333333, y: 226.833333333 },
         'C021_0006Relapse_RNA': { x: 52.6666666667, y: 232.666666667 },
         'C021_0003_RNA': { x: 43.8333333333, y: 233.0 },
- 
+        'C021_0006_RNA': { x: 45.8333333333, y: 226.833333333},
+
         // Stanford
         'K1_S1': { x: 204.833333333, y: 194.666666667 },
         'K2_S2': { x: 206.0, y: 196.166666667 },
