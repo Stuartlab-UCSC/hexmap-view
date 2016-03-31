@@ -81,7 +81,7 @@ mapDrawnListener = '';
         if (!Session.equals('page', 'mapPage')) return;
 
         // We want to show these early on
-        if (DEV) $('.sort_attributes, .statistics').show()
+        $('.sort_attributes, .statistics').show()
 
         initMrtGooglemapsForMap();
     });
@@ -103,7 +103,7 @@ mapDrawnListener = '';
         // Initialize modules that need to have the map drawn.
         google.maps.event.removeListener(mapDrawnListener);
         if (Session.equals('page', 'mapPage')) initSvg();
-        if (DEV) initGrid();
+        initGrid();
         initCoords();
         setTimeout(function () {
             Session.set('loadingMap', 'none')

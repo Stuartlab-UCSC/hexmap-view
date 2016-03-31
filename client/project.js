@@ -90,21 +90,27 @@ var app = app || {}; // jshint ignore:line
 
     initProject = function () { // jshint ignore:line
  
-        // Initialize projects whenever the username changes including log out
+        // Initialize projects whenever the username changes, including log out
         Meteor.autorun(function() {
             var x = Meteor.user(); // Just to trigger execution
             
-            if (!project) {
-                project = new Project();
-            }
-            Meteor.call('getProjects', function (error, projects) {
-                if (error) {
-                    banner('warn', "Unable to retrieve project data.\n" + error);
-                    return;
+            if (DEV) {
+                if (!project) {
+                    project = new Project();
                 }
-                project.projects = projects;
-                project._populate();
-            });
+                Meteor.call('getProjects', function (error, projects) {
+                    if (error) {
+                        banner('warn', "Unable to retrieve project data.\n" + error);
+                        return;
+                    }
+                    project.projects = projects;
+                    project._populate();
+                });
+            } else {
+            
+                // Not DEV
+                $('#project').text(ctx.project.slice(5, -1));
+            }
         });
     };
 

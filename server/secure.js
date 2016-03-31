@@ -34,25 +34,8 @@ Accounts.onCreateUser(function (options, user) {
      // Add a field of 'username' that meteor recognizes as unique
     user.username = user.emails[0].address;
     
-    // Notify the admin of a new user
-            var msg = "'New "
-            + user.emails[0].address
-            + ' at '
-            + Meteor.absoluteUrl()
-            + "'",
-            command =
-                'echo '
-                + msg
-                + ' | '
-                + 'mail -s '
-                + msg
-                + ' hexmap@ucsc.edu';
-
-        exec(command, function (error, stdout, stderr) {
-            if (error) {
-                console.log('sendNewUserMail had an error:', error);
-            }
-        });
+    // Send the admin an email.
+    sendNewUserMail(user);
     
     // Don't forget to return the new user object.
     return user;
@@ -147,7 +130,7 @@ function runUnitTests () {
 */
     // demo
     //Roles.createRole('CKCC');
-    Roles.addUsersToRoles(usersAdded[3], ['public','CKCC']);
+    //Roles.addUsersToRoles(usersAdded[3], ['public','CKCC']);
 /*
     // Verify roles added
     var roles = ['aDeveloper', 'CKCC', Roles.GLOBAL_GROUP, ],

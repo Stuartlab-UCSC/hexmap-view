@@ -12,11 +12,8 @@ blaze-html-templates
 session
 jquery
 tracker
-logging
-reload
 random
 ejson
-spacebars
 check
 mrt:googlemaps
 reactive-dict

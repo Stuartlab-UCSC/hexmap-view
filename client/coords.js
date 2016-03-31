@@ -35,7 +35,7 @@ var app = app || {}; // jshint ignore:line
 (function (hex) { // jshint ignore:line
     //'use strict';
 
-    var SHOW_COORDS = false, // true = show them, false = not
+    SHOW_COORDS = false, // true = show them, false = not
 
     // Global: googlemap world size in xy coordinates.
     XY_WORLD_SIZE = 256;
