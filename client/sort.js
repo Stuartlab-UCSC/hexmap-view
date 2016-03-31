@@ -74,6 +74,16 @@ var app = app || {}; // jshint ignore:line
         return finalCompare(a, b);
     }
 
+    function adjPvalueBcompare(a, b) {
+
+        // Compare adjusted_p_value_bs, then do the final compare
+        
+        var result = variableCompare(a, b, 'adjusted_p_value_b');
+        if (result !== 0) return result;
+
+        return finalCompare(a, b);
+    }
+
     function differentialCompare(a, b) {
 
         // Compare  differential values, then do the final compare
@@ -158,6 +168,9 @@ var app = app || {}; // jshint ignore:line
         } else if (type_value == "adjusted_p_value") {
             layer_array.sort(adjPvalueCompare);
 
+        } else if (type_value == "adjusted_p_value_b") {
+            layer_array.sort(adjPvalueBcompare);
+
         } else if (type_value == "Differential") {
             layer_array.sort(differentialCompare);
 
@@ -188,6 +201,7 @@ var app = app || {}; // jshint ignore:line
             delete layers[layer_name].clumpiness;
             delete layers[layer_name].p_value;
             delete layers[layer_name].adjusted_p_value;
+            delete layers[layer_name].adjusted_p_value_b;
             delete layers[layer_name].correlation;
             delete layers[layer_name].Differential;
          }
@@ -238,52 +252,82 @@ var app = app || {}; // jshint ignore:line
         }
     }
 
-    function updateIgnoreLayout (parsed, focus_attr, lI, pI, apI) {
+    function updateIgnoreLayout (parsed, focus_attr, lI, pI, apI, apbI) {
 
         // See if all of the adjusted p-values are NaN
-        // where lI, pI, and apI are the indices of the layer, p-value, adjusted p-value
+        // where lI, pI, apI and apbI are the indices of the layer,
+        //       p-value, adjusted p-value, adjusted p-value-b
 
         var count = 0,
-            isOldFormat = _.isUndefined(apI),
+            type = 'p_value',
             layer,
             p_value,
-            adjusted_p_value;
+            adjusted_p_value,
+            adjusted_p_value_b;
+ 
+        // Find the type of sort
+        if (!_.isUndefined(apI)) {
+            type = 'adjusted_p_value';
+            if (!_.isUndefined(apbI)) {
+                type = 'adjusted_p_value_b';
+            }
+        }
 
-        // If this is not the old format, so look to see if there are any
-        // adjusted p-values with actual values
-        if (!isOldFormat) {
+        // This has adjusted p-values, are there are any actual values?
+        if (type !== 'p_value') {
             var hasAny = _.find(parsed, function (line) {
                 return !_.isNaN(Number(line[apI]));
             });
 
             // If there are no real values, treat this like a p-value sort
-            isOldFormat =_.isUndefined(hasAny);
+            //isOldFormat =_.isUndefined(hasAny);
+            if (_.isUndefined(hasAny)) {
+                type = p_value;
+            }
+            if (type === 'p_value') {
+                banner('warn', 'All adjusted p-values were NaN, so displaying '
+                    + 'and sorting by the single test p-value instead');
+            }
+        }
+        
+        if (type === 'adjusted_p_value') {
+            var hasAny = _.find(parsed, function (line) {
+                return !_.isNaN(Number(line[apbI]));
+            });
 
-            if (isOldFormat) {
-                banner('warn', 'All adjusted p-values were NaN, so displaying and sorting by the single test p-value instead');
+            // If there are no real values, treat this like a p-value sort
+            if (_.isUndefined(hasAny)) {
+                type = p_value;
+            }
+            if (type === 'p_value') {
+                banner('warn', 'All adjusted p-value-bs were NaN, so displaying '
+                    + 'and sorting by the single test p-value instead');
             }
         }
 
-        // Update each layer's p-value and maybe adjusted p-value
+        // Update each layer's p-value and maybe adjusted p-values
         for (var i = 0; i < parsed.length; i++) {
             layer = parsed[i][lI];
             p_value = parsed[i][pI];
-            adjusted_p_value;
 
             // Don't load if it is the focus layer so it won't show up in sort
             // Replace any NaNs with 1
             if (layer !== focus_attr) {
                 layers[layer].p_value = cleanPvalue(p_value);
 
-                if (!isOldFormat) {
-                    adjusted_p_value = parsed[i][apI];
-                    layers[layer].adjusted_p_value = cleanPvalue(adjusted_p_value);
+                if (type !== 'p_value') {
+                    layers[layer].adjusted_p_value
+                        = cleanPvalue(parsed[i][apI]);
+                    if (type !== 'adjusted_p_value') {
+                        layers[layer].adjusted_p_value_b
+                            = cleanPvalue(parsed[i][apbI]);
+                    }
                 }
                 count += 1;
             }
         }
-        return {count: count,
-                type: isOldFormat ? 'p_value' : 'adjusted_p_value'};
+        
+        return {count: count, type: type};
     }
 
     function receive_ignore_layout_stats (parsed, focus_attr, opts) {
@@ -294,22 +338,20 @@ var app = app || {}; // jshint ignore:line
 
         if (parsed[0].length === 4) {
 
-            // This is dynamic stats, new format, so is of the form:
+            // This has 3 values, so is of the form:
             // [
-            //      [layerName, layerName, p-value, adjusted-p-value],
-            //      [layerName, layerName, p-value, adjusted-p-value],
+            //      [layerName, p-value, adjusted-p-value, adjusted-p-value_b],
+            //      [layerName, p-value, adjusted-p-value, adjusted-p-value_b],
             //      ...
             // ]
-            // The first element of each row is the focus layer name
-            // which we already know, so ignore it.
 
-            r = updateIgnoreLayout(parsed, focus_attr, 1, 2, 3);
+            r = updateIgnoreLayout(parsed, focus_attr, 0, 1, 2, 3);
 
         } else if (parsed[0].length === 3) {
             second = parsed[0][1];
             if ($.isNumeric(second) || second === 'nan') {
 
-                // This is pre-computed stats, new format, so it is of the form:
+                // This has 2 values so is of the form:
                 // [
                 //      [layerName, p-value, adjusted-p-value],
                 //      [layerName, p-value, adjusted-p-value],
@@ -330,7 +372,7 @@ var app = app || {}; // jshint ignore:line
                 // which we already know, so ignore it.
 
                 r = updateIgnoreLayout(parsed, focus_attr, 1, 2);
-                }
+            }
         } else {
 
             // This is pre-computed, old format, so it is of the form:
@@ -385,13 +427,7 @@ var app = app || {}; // jshint ignore:line
             //
             var compare_layer_name = parsed[i][0],
                 r_value = Number(parsed[i][1]),
-                p_value = cleanPvalue(parsed[i][2]),
-                adjusted_p_value;
-
-            // If there is an adjusted p-value, set it
-            if (!_.isUndefined(parsed[i][3])) {
-                adjusted_p_value = cleanPvalue(parsed[i][3]);
-            }
+                p_value = cleanPvalue(parsed[i][2]);
 
             // Save the stats for this layer against the focus layer.
             if (p_value === 1) {
@@ -400,9 +436,16 @@ var app = app || {}; // jshint ignore:line
             layers[compare_layer_name].correlation = r_value;
             layers[compare_layer_name].p_value = p_value;
 
-            if (!_.isUndefined(adjusted_p_value)) {
-                //layers[compare_layer_name].adjusted_p_value = adjusted_p_value;
+            // If there is an adjusted p-value, set it
+            if (!_.isUndefined(parsed[i][3])) {
+                layers[compare_layer_name].adjusted_p_value
+                    = cleanPvalue(parsed[i][3]);
             }
+            if (!_.isUndefined(parsed[i][4])) {
+                layers[compare_layer_name].adjusted_p_value_b
+                    = cleanPvalue(parsed[i][4]);
+            }
+
             count += 1;
         }
 

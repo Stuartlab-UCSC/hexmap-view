@@ -316,6 +316,7 @@ fill_layer_metadata = function (container, layer_name) {
             p_value: "Single test p-value",
             correlation: "Correlation",
             adjusted_p_value: "BH FDR",
+            adjusted_p_value_b: "Bonferroni p-value",
         }
         
         if(lookup[attribute]) {
