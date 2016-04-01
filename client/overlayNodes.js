@@ -7,27 +7,78 @@ var app = app || {}; // jshint ignore:line
 (function (hex) { // jshint ignore:line
     //'use strict';
 
-    var markers = {},
-        listeners = [];
+    var DEFAULT_MARKER_COLOR = 'ff0000',
+        MARKER_IMAGE = "http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=%E2%80%A2|",
+        markerScaledSize,
+        markers = {},
+        color = new ReactiveVar(),
+        colorAutorun,
+        $markerInfoWindow;
+ 
+    Template.markerInfoWindow.helpers({
+        color: function () {
+            return color.get();
+        },
+    });
+ 
+    function markerClick(marker) {
+ 
+        // Handle a click on the marker
+ 
+        // Create an infoWindow
+        color.set(marker.color);
+        var infoWindow = new google.maps.InfoWindow({
+            content: $markerInfoWindow[0],
+        });
+        $markerInfoWindow.show();
+        infoWindow.open(googlemap, marker);
+        $('#markerInfoWindow .color').focus();
+ 
+        // Whenever the color value changes, update the marker color
+        colorAutorun = Tracker.autorun(function () {
+            marker.setIcon({
+                url: MARKER_IMAGE + color.get(),
+                scaledSize: markerScaledSize,
+            });
+        });
+
+        // On input in the color text, change the color value
+        $('#markerInfoWindow .color').on('input', function (ev) {
+            if (ev.target.value.length === 6) {
+                color.set(ev.target.value);
+                marker.color = ev.target.value;
+            }
+        });
+ 
+        // On close of the infoWindow, attach our contents to somewhere else
+        // so they will be available next time.
+        infoWindow.addListener('closeclick', function() {
+            $markerInfoWindow = $markerInfoWindow.detach();
+        });
+
+    }
 
     showOverlayNodes = function () {
 
-        var nodes = Session.get('overlayNodes'),
-            pinColor = "ff0000",
-            origImage = "http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=%E2%80%A2|" + pinColor,
-            pinImage = {
-                url: origImage,
-                scaledSize: new google.maps.Size(42, 68), // 84, 136),
-            };
+        var nodes = Session.get('overlayNodes');
 
         _.each (Object.keys(nodes), function (n) {
         
             markers[n] = new google.maps.Marker({
-                icon: pinImage,
+                icon: {
+                    url: MARKER_IMAGE + color.get(),
+                    scaledSize: markerScaledSize,
+                },
                 position: get_latLng_from_xyHex(nodes[n].x, nodes[n].y),
                 map: googlemap,
-                title: n,
                 animation: google.maps.Animation.DROP,
+                title: n,
+            });
+            markers[n].color = DEFAULT_MARKER_COLOR, // Our attribute, not google's
+            
+            // Add a listener for clicking on the marker
+            markers[n].addListener('click', function() {
+                markerClick(markers[n]);
             });
 
             // Render the overlay hexagon
@@ -36,16 +87,20 @@ var app = app || {}; // jshint ignore:line
     }
 
     initOverlayNodes = function () {
-
+ 
         // Called after the map is drawn
+        color.set(DEFAULT_MARKER_COLOR);
+        markerScaledSize = new google.maps.Size(42, 68); // 21, 34 are the defaults
         if (!Session.equals('overlayNodes', undefined)) {
             showOverlayNodes();
         }
+        $markerInfoWindow = $('#markerInfoWindow');
     }
  
     OVERLAY_NODES = {
-        // First
-        'PNOC003-009': { x: 64.5, y: 228.3333333, },
+ 
+        // PNOC
+        'PNOC003-009': { x: 64.5, y: 228.3333333,},
         'PNOC003-011': { x: 43, y: 227.1666667 },
  
         // UCSF
