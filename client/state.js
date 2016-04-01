@@ -3,15 +3,14 @@
 
 var app = app || {}; // jshint ignore:line
 
-PAGE = 'homePage';
-
 (function (hex) { // jshint ignore:line
     //'use strict';
 
-    // Globals across this app
+    // Global across this app
     DISABLED_COLOR = '#aaaaaa';
 
-    var DEFAULT_PROJECT = 'data/pancan12/stable/',
+    var DEFAULT_PAGE = 'homePage',
+        DEFAULT_PROJECT = 'data/pancan12/stable/',
         DEFAULT_SORT = {
             text: 'Density of attributes',
             type: 'default',
@@ -19,6 +18,24 @@ PAGE = 'homePage';
             color: 'inherit',
             background: 'inherit',
         };
+ 
+    function getUrlParms() {
+        var parms = location.search.substr(1);
+        var result = {};
+        var found = false;
+        parms.split("&").forEach(function(part) {
+            if (part !== "") {
+                var item = part.split("=");
+                result[item[0]] = decodeURIComponent(item[1]);
+                found = true;
+            }
+        });
+        if (found) {
+            return result;
+        } else {
+            return null;
+        }
+    }
 
     State = function() {
 
@@ -52,18 +69,9 @@ PAGE = 'homePage';
 
         // Keep localStore of different servers separate
         s.storeName = location.host + '-hexMapState';
-
-        // Find the bookmark if one was included in the URL
-        if (window.location.search.indexOf( '?b=' ) > -1 ) {
-            Session.set('bookmark', window.location.search.slice(3));
-
-        // Find the project if one was included in the URL, replacing every '.' with '/'
-        } else if ( window.location.search.indexOf( '?p=' ) > -1 ) {
-            s.urlProject
-                = 'data/'
-                + window.location.search.slice(3).replace(/\./g, '/')
-                + '/';
-        }
+ 
+        // Pull out any parameters in the URL
+        s.uParm = getUrlParms();
 
         s.localStorage = {
             // Contains all of the non-project state we want to save
@@ -89,7 +97,7 @@ PAGE = 'homePage';
         s.alreadySaved = false;
 
         // Non-project variables maintained in the meteor session
-        Session.setDefault('page', PAGE);
+        Session.setDefault('page', DEFAULT_PAGE);
         Session.setDefault('background', 'black');  // Visualization background color
         Session.setDefault('sort', DEFAULT_SORT); // Default sort message & type
 
@@ -117,22 +125,10 @@ PAGE = 'homePage';
         //Session.set('overlayNodes', undefined);  // overlay nodes to include
         Session.set('shortlist', []); // Array of layer names in the shortlist
         s.zoom = 2;  // Map zoom level where 2 means zoomed in by 2 levels
- 
-        if (s.urlProject) {
-            s.project = s.urlProject;
-            Session.set('page', 'mapPage');
-            if (s.project.slice(0,13) === 'data/CKCC/v1-') {
-                var ind = s.project.slice(13,-1);
-                if (OVERLAY_NODES[ind]) {
-                    var node = {};
-                    node[ind] = OVERLAY_NODES[ind];
-                    Session.set('overlayNodes', node);
-                }
-            }
-        }
     }
 
     State.prototype.save = function (newProject) {
+ 
         // Save state by writing it to local browser store.
         // newProject is optional.
         var s = this,
@@ -187,23 +183,21 @@ PAGE = 'homePage';
         //console.log('save store:', store);
     };
  
-    State.prototype.load = function (store, page) {
+    State.prototype.load = function (store) {
  
         //console.log('load store:', store);
 
-        // Walk through the localStorage loading anything we recognize
+        // Walk through the saved state loading anything we recognize
         var s = this;
         _.each(store, function (val, key) {
 
-            if (key === 'page') {
-                page = val; // Don't set the session var yet, page may change
-                return;
-            }
             // Skip those we don't know
             if (s.localStorage.known.indexOf(key) < 0) {
                 return;
             }
-            // Load this object's vars into this state if maintained in this state
+            
+            // Load this object's vars into this state if maintained in this
+            // state rather than in a Session var
             if (!_.isUndefined(s[key])) {
                 s[key] = val;
 
@@ -212,18 +206,14 @@ PAGE = 'homePage';
                 Session.set(key, val);
             }
         });
-
-        return page;
     };
  
-    State.prototype.loadFromBookmark = function () {
+    State.prototype.loadFromBookmark = function (bookmark) {
  
         // Load state from the given bookmark
         var s = this;
-        // Reset the already saved flag
-        s.alreadySaved = false;
 
-        Meteor.call('findBookmark', Session.get('bookmark'),
+        Meteor.call('findBookmark', bookmark,
             function (error, result) {
                 if (error) {
                     banner('error', error);
@@ -231,16 +221,12 @@ PAGE = 'homePage';
                 }
                 
                 var store = result.jsonState;
-                
-                console.log('store:', store);
                 if (store === null) {
                     console.log("No saved state found, so using defaults.");
                 } else {
-                    page = s.load(store);
+                    s.load(store);
                 }
-                 s.projectNotFoundNotified = false;
-
-                Session.set('page', page);
+                s.projectNotFoundNotified = false;
             }
         );
     };
@@ -249,34 +235,57 @@ PAGE = 'homePage';
 
         // Load state from local store
         var s = this,
-            page = Session.get('page'),
             store = JSON.parse(window['localStorage'].getItem(s.storeName));
-
-        // Reset the already saved flag
-        s.alreadySaved = false;
-
         if (store === null) {
             console.log("No saved state found, so using defaults.");
 
         } else {
-
-            page = s.load(store, page);
+            s.load(store);
         }
+    };
 
-        if (s.urlProject) {
-
-            // Override the project if one was passed in the URL and different
-            // from the current project. Go to the map page
-            if (s.project != s.urlProject) {
-                s.project = s.urlProject;
-                s.setProjectDefaults();
+    State.prototype.loadFromUrl = function () {
+ 
+        // Load state from parameters in the url
+        var s = this;
+ 
+        // Find the bookmark if one was included in the URL
+        if (s.uParm.b) {
+            s.loadFromBookmark(s.uParm.b);
+            return;
+        }
+ 
+        var state = {};
+ 
+        // Find the project if one was included in the URL,
+        // replacing every '.' with '/'
+        if (s.uParm.p) {
+            state.project
+                = 'data/'
+                + window.location.search.slice(3).replace(/\./g, '/')
+                + '/';
+ 
+            // A project in a url means someone wants to see a particular map
+            state.page = 'mapPage';
+ 
+            // Find any overlay node in the URL
+            if (s.uParm.node && s.uParm.x && s.uParm.y) {
+                state.overlayNodes = {}
+                state.overlayNodes[s.uParm.node] = {x: s.uParm.x, y: s.uParm.y};
+     
+            // TODO a special hack until we get bookmarks going: load
+            // the hard-coded overlay node data specific to this project
+            } else if (s.project.slice(0,13) === 'data/CKCC/v1-') {
+     
+                var node = s.project.slice(13,-1);
+                if (OVERLAY_NODES[node]) {
+                    state.overlayNodes = {};
+                    state.overlayNodes[node] = OVERLAY_NODES[node];
+                }
             }
-            page = 'mapPage';
+ 
+            s.load(state);
         }
-
-        s.projectNotFoundNotified = false;
-
-        Session.set('page', page);
     };
 
     function checkLocalStore () {
@@ -295,18 +304,22 @@ PAGE = 'homePage';
     }
 
     initState = function () { // jshint ignore:line
-        var storageSupported = checkLocalStore(),
-            s = new State();
-            s.setProjectDefaults();
+        var storageSupported = checkLocalStore();
+        var s = new State();
+        s.setProjectDefaults();
 
-        if (Session.get('bookmark')) {
-            s.loadFromBookmark();
-        } else if (s.urlProject) {
-            // we're done
+        // Initialize some flags
+        s.alreadySaved = false;
+        s.projectNotFoundNotified = false;
+
+        // Load state
+        if (s.uParm !== null) {
+            s.loadFromUrl();
         } else if (storageSupported) {
             s.loadFromLocalStore();
         }
         if (storageSupported) {
+        
             // Create a listener to know when to save state
             window.onbeforeunload = function() {
                 s.save();
