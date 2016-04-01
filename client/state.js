@@ -262,14 +262,17 @@ var app = app || {}; // jshint ignore:line
         if (s.uParm.p) {
             state.project
                 = 'data/'
-                + window.location.search.slice(3).replace(/\./g, '/')
+                + s.uParm.p.replace(/\./g, '/')
                 + '/';
  
             // A project in a url means someone wants to see a particular map
             state.page = 'mapPage';
  
             // Find any overlay node in the URL
-            if (s.uParm.node && s.uParm.x && s.uParm.y) {
+            if (s.uParm.x && s.uParm.y) {
+                if (!s.uParm.node) {
+                    s.uParm.node = 'x';
+                }
                 state.overlayNodes = {}
                 state.overlayNodes[s.uParm.node] = {x: s.uParm.x, y: s.uParm.y};
      
