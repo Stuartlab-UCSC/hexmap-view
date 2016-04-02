@@ -278,9 +278,9 @@ var app = app || {}; // jshint ignore:line
      
             // TODO a special hack until we get bookmarks going: load
             // the hard-coded overlay node data specific to this project
-            } else if (s.project.slice(0,13) === 'data/CKCC/v1-') {
-     
-                var node = s.project.slice(13,-1);
+            } else if (state.project.slice(0,13) === 'data/CKCC/v1-') {
+      
+                var node = state.project.slice(13,-1);
                 if (OVERLAY_NODES[node]) {
                     state.overlayNodes = {};
                     state.overlayNodes[node] = OVERLAY_NODES[node];

@@ -1,11 +1,19 @@
 <template name='markerInfoWindow'>
     <table id='markerInfoWindow' style='display:none'>
         <tr>
-            <td>
+            <td class='dialog-label'>
                 Color:
             </td>
             <td class='dialog-value'>
                 <input class='color' type='text' value='{{color}}' style='width:5em'>
+            </td>
+        </tr>
+        <tr>
+            <td class='dialog-label'>
+                Scale:
+            </td>
+            <td class='dialog-value'>
+                <input class='scale' type='text' value='{{scale}}' style='width:5em'>
             </td>
         </tr>
     </table>

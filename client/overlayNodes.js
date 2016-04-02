@@ -8,25 +8,41 @@ var app = app || {}; // jshint ignore:line
     //'use strict';
 
     var DEFAULT_MARKER_COLOR = 'ff0000',
+        DEFAULT_MARKER_SCALE = 2,
+        MARKER_WIDTH = 21,
+        MARKER_HEIGHT = 34,
         MARKER_IMAGE = "http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=%E2%80%A2|",
         markerScaledSize,
         markers = {},
         color = new ReactiveVar(),
-        colorAutorun,
+        scale = new ReactiveVar(),
+        markerAutorun,
         $markerInfoWindow;
  
     Template.markerInfoWindow.helpers({
         color: function () {
             return color.get();
         },
+        scale: function () {
+            return scale.get();
+        },
     });
  
+    function getIcon () {
+        return {
+            url: MARKER_IMAGE + color.get(),
+            scaledSize: new google.maps.Size(
+                scale.get() * MARKER_WIDTH, scale.get() * MARKER_HEIGHT),
+        }
+    }
+
     function markerClick(marker) {
  
         // Handle a click on the marker
  
         // Create an infoWindow
         color.set(marker.color);
+        scale.set(marker.scale);
         var infoWindow = new google.maps.InfoWindow({
             content: $markerInfoWindow[0],
         });
@@ -34,12 +50,10 @@ var app = app || {}; // jshint ignore:line
         infoWindow.open(googlemap, marker);
         $('#markerInfoWindow .color').focus();
  
-        // Whenever the color value changes, update the marker color
-        colorAutorun = Tracker.autorun(function () {
-            marker.setIcon({
-                url: MARKER_IMAGE + color.get(),
-                scaledSize: markerScaledSize,
-            });
+        // Whenever the color or scale value changes, update the marker
+        // TODO remove this to free mem?
+        markerAutorun = Tracker.autorun(function () {
+            marker.setIcon(getIcon());
         });
 
         // On input in the color text, change the color value
@@ -47,6 +61,15 @@ var app = app || {}; // jshint ignore:line
             if (ev.target.value.length === 6) {
                 color.set(ev.target.value);
                 marker.color = ev.target.value;
+            }
+        });
+
+        // On input in the scale text, change the scale value
+        $('#markerInfoWindow .scale').on('input', function (ev) {
+            var val = ev.target.value;
+            if (!isNaN(val)) {
+                scale.set(val);
+                marker.scale = val;
             }
         });
  
@@ -65,16 +88,14 @@ var app = app || {}; // jshint ignore:line
         _.each (Object.keys(nodes), function (n) {
         
             markers[n] = new google.maps.Marker({
-                icon: {
-                    url: MARKER_IMAGE + color.get(),
-                    scaledSize: markerScaledSize,
-                },
+                icon: getIcon(),
                 position: get_latLng_from_xyHex(nodes[n].x, nodes[n].y),
                 map: googlemap,
                 animation: google.maps.Animation.DROP,
                 title: n,
             });
             markers[n].color = DEFAULT_MARKER_COLOR, // Our attribute, not google's
+            markers[n].scale = DEFAULT_MARKER_SCALE, // Our attribute, not google's
             
             // Add a listener for clicking on the marker
             markers[n].addListener('click', function() {
@@ -90,7 +111,7 @@ var app = app || {}; // jshint ignore:line
  
         // Called after the map is drawn
         color.set(DEFAULT_MARKER_COLOR);
-        markerScaledSize = new google.maps.Size(42, 68); // 21, 34 are the defaults
+        scale.set(DEFAULT_MARKER_SCALE);
         if (!Session.equals('overlayNodes', undefined)) {
             showOverlayNodes();
         }
