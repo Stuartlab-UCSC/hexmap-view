@@ -381,7 +381,8 @@ initialize_view = function () {
     googlemap.mapTypes.set("blank", new BlankMapType());
 
     initInfoWindow ();
-
+    showOverlayNodes();
+    
     google.maps.event.addListener(googlemap, "center_changed", function(event) {
         ctx.center = googlemap.getCenter();
         //Session.set('center', googlemap.getCenter());
@@ -400,7 +401,7 @@ initialize_view = function () {
     subscribe_tool_listeners(googlemap);
     
 }
-re_initialize_view = function () { // swat
+re_initialize_view = function () {
 	// Re_initialize the view because something changed that requires it
 
     // Save current map settings

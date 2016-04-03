@@ -113,7 +113,6 @@ var app = app || {}; // jshint ignore:line
             }
 
             findDimensions(max_x, max_y);
-            initOverlayNodes();
 
             // Loop through again and draw the polygons, now that
             // we know how big they have to be.

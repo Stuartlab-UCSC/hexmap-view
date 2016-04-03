@@ -76,13 +76,13 @@ var app = app || {}; // jshint ignore:line
         s.localStorage = {
             // Contains all of the non-project state we want to save
             all: [
-                'background',
                 'page',
                 'project',
             ],
 
             // Contains all of the project state we want to save
             project: [
+                'background',
                 'center',
                 'current_layout_name',
                 'first_layer',
@@ -98,7 +98,6 @@ var app = app || {}; // jshint ignore:line
 
         // Non-project variables maintained in the meteor session
         Session.setDefault('page', DEFAULT_PAGE);
-        Session.setDefault('background', 'black');  // Visualization background color
         Session.setDefault('sort', DEFAULT_SORT); // Default sort message & type
 
         // Variables maintained in this state object, with defaults.
@@ -117,6 +116,7 @@ var app = app || {}; // jshint ignore:line
         var s = this;
 
         // Project variables maintained in this state object, with defaults.
+        Session.setDefault('background', 'black');  // Visualization background color
         s.center = null; // google map center
         Session.set('current_layout_name', null);
         Session.set('first_layer', undefined); // first to be displayed in shortlist

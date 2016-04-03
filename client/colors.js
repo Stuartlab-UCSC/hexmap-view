@@ -34,21 +34,29 @@ var app = app || {}; // jshint ignore:line
         }
     });
 
+    // Define the background color template helper
+    Template.navBarT.helpers({
+
+        background: function () {
+            if (Session.get('background') === 'black') {
+                return 'White';
+            } else {
+                return 'Black';
+            }
+        }
+    });
+
     initColors = function () {
 
-        $('#blackBackground').on('click', function () {
+        $('#background').on('click', function () {
             if (Session.equals('background', 'white')) {
                 Session.set('background', 'black');
-                re_initialize_view();
-            }
-        });
-
-        $('#whiteBackground').on('click', function () {
-            if (Session.equals('background', 'black')) {
+            } else {
                 Session.set('background', 'white');
-                re_initialize_view();
             }
+            re_initialize_view();
         });
+ 
         // Prepare a tool to change the colorMap
 
         findRowLayer = function ($row, colorArray) {

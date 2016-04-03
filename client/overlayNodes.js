@@ -16,8 +16,8 @@ var app = app || {}; // jshint ignore:line
         markers = {},
         color = new ReactiveVar(),
         scale = new ReactiveVar(),
-        markerAutorun,
-        $markerInfoWindow;
+        $markerInfoWindow,
+        initialized = false;
  
     Template.markerInfoWindow.helpers({
         color: function () {
@@ -36,13 +36,29 @@ var app = app || {}; // jshint ignore:line
         }
     }
 
+    function addMarkerClickListener(marker) {
+        marker.listener = marker.addListener('click', function() {
+            markerClick(marker);
+        });
+    }
+ 
+    function closeInfoWindow (marker) {
+ 
+        // Detach our contents so we can use it later
+        $markerInfoWindow = $markerInfoWindow.detach();
+        
+        // Add back the click listener
+        addMarkerClickListener(marker);
+    }
+
     function markerClick(marker) {
  
         // Handle a click on the marker
  
+        // Disable the click listener while the infoWindow is open
+        google.maps.event.removeListener(marker.listener);
+ 
         // Create an infoWindow
-        color.set(marker.color);
-        scale.set(marker.scale);
         var infoWindow = new google.maps.InfoWindow({
             content: $markerInfoWindow[0],
         });
@@ -51,70 +67,102 @@ var app = app || {}; // jshint ignore:line
         $('#markerInfoWindow .color').focus();
  
         // Whenever the color or scale value changes, update the marker
-        // TODO remove this to free mem?
-        markerAutorun = Tracker.autorun(function () {
+        Tracker.autorun(function () {
             marker.setIcon(getIcon());
         });
 
         // On input in the color text, change the color value
         $('#markerInfoWindow .color').on('input', function (ev) {
-            if (ev.target.value.length === 6) {
-                color.set(ev.target.value);
-                marker.color = ev.target.value;
+            var val = ev.target.value;
+            
+            // Remove any leading '#'
+            if (val.length === 7 && val.indexOf('#') === 0) {
+                val = ev.target.value.slice(1);
+            }
+            if (val.length === 6 && val.indexOf('#') < 0) {
+                color.set(val);
+                marker.color = val;
+            }
+        });
+
+        // On return key down in the color text, go to the next field
+        $('#markerInfoWindow .color').on('keydown', function (ev) {
+            if (ev.which == 13) {
+                $('#markerInfoWindow .scale').focus();
+                ev.preventDefault();
             }
         });
 
         // On input in the scale text, change the scale value
         $('#markerInfoWindow .scale').on('input', function (ev) {
             var val = ev.target.value;
-            if (!isNaN(val)) {
+            if (val.length > 0 && !isNaN(val)) {
                 scale.set(val);
                 marker.scale = val;
             }
         });
  
-        // On close of the infoWindow, attach our contents to somewhere else
-        // so they will be available next time.
+        // On return key down in the scale text, close the infoWindow
+        $('#markerInfoWindow .scale').on('keydown', function (ev) {
+            if (ev.which == 13) {
+                closeInfoWindow(marker);
+                infoWindow.setMap(null);
+                ev.preventDefault();
+            }
+        });
+
         infoWindow.addListener('closeclick', function() {
-            $markerInfoWindow = $markerInfoWindow.detach();
+            closeInfoWindow(marker);
         });
 
     }
 
     showOverlayNodes = function () {
 
-        var nodes = Session.get('overlayNodes');
+        if (!initialized || _.isUndefined(Session.get('overlayNodes'))) {
+            return;
+        }
 
-        _.each (Object.keys(nodes), function (n) {
+        // Allow the ui to catch up so we can see the pin drop
+        setTimeout(function () {
         
-            markers[n] = new google.maps.Marker({
-                icon: getIcon(),
-                position: get_latLng_from_xyHex(nodes[n].x, nodes[n].y),
-                map: googlemap,
-                animation: google.maps.Animation.DROP,
-                title: n,
-            });
-            markers[n].color = DEFAULT_MARKER_COLOR, // Our attribute, not google's
-            markers[n].scale = DEFAULT_MARKER_SCALE, // Our attribute, not google's
-            
-            // Add a listener for clicking on the marker
-            markers[n].addListener('click', function() {
-                markerClick(markers[n]);
-            });
+            var nodes = Session.get('overlayNodes');
 
-            // Render the overlay hexagon
-            addHexagon(nodes[n].x, nodes[n].y, n, true);
-        });
+            _.each (Object.keys(nodes), function (n) {
+            
+                // Remove any previous markers
+                if (markers[n]) {
+                    markers[n].setMap(null);
+                }
+            
+                markers[n] = new google.maps.Marker({
+                    icon: getIcon(),
+                    position: get_latLng_from_xyHex(nodes[n].x, nodes[n].y),
+                    map: googlemap,
+                    animation: google.maps.Animation.DROP,
+                    title: n,
+                });
+                markers[n].color = DEFAULT_MARKER_COLOR, // Our attribute, not google's
+                markers[n].scale = DEFAULT_MARKER_SCALE, // Our attribute, not google's
+                
+                // Add a listener for clicking on the marker
+                addMarkerClickListener(markers[n]);
+
+                // Render the overlay hexagon
+                addHexagon(nodes[n].x, nodes[n].y, n, true);
+            });
+        }, 500);
     }
 
     initOverlayNodes = function () {
  
         // Called after the map is drawn
+        if (initialized) return;
+ 
+        initialized = true;
         color.set(DEFAULT_MARKER_COLOR);
         scale.set(DEFAULT_MARKER_SCALE);
-        if (!Session.equals('overlayNodes', undefined)) {
-            showOverlayNodes();
-        }
+        showOverlayNodes();
         $markerInfoWindow = $('#markerInfoWindow');
     }
  
