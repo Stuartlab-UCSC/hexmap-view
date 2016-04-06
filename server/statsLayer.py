@@ -176,16 +176,6 @@ class ForEachLayer(object):
             for row in table:
                 f.writerow(row)
             f.writerow(['checking for enough counts in the table'])
-            
-        """
-        if not s.hasEnoughCounts(s, table, layerB):
-        
-            if DEBUG and layerB == 'BRCA Subtype':
-                f.writerow(['NOT enough counts in the table'])
-                file.close()
-                
-            return [layerB, 1]
-        """
         
         if DEBUG and layerB == 'BRCA Subtype':
             f.writerow(['there ARE enough counts in the table'])
@@ -292,12 +282,13 @@ class ForEachLayer(object):
         lists = vals.values()
 
         try:
-            # Anova call returns like so: [F-value, p-value]
+            # Kruskal-Wallis H-test for independent samples returns like so:
+            #     [Kruskal-Wallis_H_statistic, pValue]
             # http://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.f_oneway.html
 
             # Create a string to evaluate to make the call because we have
             # a variable number of lists to pass in
-            fValue, pValue = eval('scipy.stats.f_oneway(' + str(lists)[1:-1] + ')')
+            stat, pValue = eval('scipy.stats.mstats.kruskalwallis(' + str(lists)[1:-1] + ')')
         except Exception:
             pValue = 1
 
@@ -327,7 +318,6 @@ class ForEachLayer(object):
         #       [1, 5.73453],
         #       ...
         #   ]
-        MANN_WHITNEY_U = False
         DEBUG = False
         DROP_QUANTILES = True
         QUANTILE_DIVISOR = 100
@@ -409,21 +399,11 @@ class ForEachLayer(object):
             return [layerB, 1]
 
         try:
-            if MANN_WHITNEY_U:
+            # Ranksums test returns like so [statistic, p-value]
+            # For continuity correction see scipy.stats.mannwhitneyu.
+            # http://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.ranksums.html
             
-                # Mann-Whitney rank test returns like so [Mann-Whitney stats, p-value]
-                # Take into account the continuity correction (1/2.).
-                # http://docs.scipy.org/doc/scipy-0.16.0/reference/generated/scipy.stats.mannwhitneyu.html
-
-                mnValue, pValue = scipy.stats.mannwhitneyu(lists[0], lists[1], True) # TODO
-
-            else:
-            
-                # Ranksums test returns like so [statistic, p-value]
-                # For continuity correction see scipy.stats.mannwhitneyu.
-                # http://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.ranksums.html
-                
-                statistic, pValue = scipy.stats.ranksums(lists[0], lists[1]) # TODO
+            statistic, pValue = scipy.stats.ranksums(lists[0], lists[1])
         except Exception:
             if DEBUG: f.writerow(['exception on lib call'])
             pValue = 1
