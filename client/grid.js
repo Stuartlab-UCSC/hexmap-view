@@ -302,13 +302,7 @@ var app = app || {}; // jshint ignore:line
         }
 
         // Initialize the grid page and grid map
-        $('.mapOnly').hide();
         createMap();
         findOrphans(current_layout_index);
-
-        add_tool("hexMap", function() {
-            $('.mapPage').click();
-            tool_activity(false);
-        });
     }
 })(app);

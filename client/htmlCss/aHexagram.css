@@ -90,32 +90,6 @@ Read as "The content row", distinct from whatever else that element might be.
 	text-align: left;
 }
 
-#recalculate-statistics {
-    padding: 0.2em;
-	margin-left: 10px;
-}
-
-.recalculate-throbber {
-    display: none;
-}
-
-#recalculate-progress {
-    display: none;
-    position: relative;
-    top: 1em;
-	margin-top: -5px;
-	height: 10px;
-	width: 100px;
-}
-
-.recalculate-progress {
-    display: none;
-}
-
-.recalculate-finished {
-    display: none;
-}
-
 /* Popups for ordering up stats operations. */
 .dropdown {
     display:none;

@@ -282,7 +282,7 @@ var app = app || {}; // jshint ignore:line
 
             // Deselect the tool.
             tool_activity(false);
-        }, 'Change colors of attributes', 'mapOnly');
+        }, 'Change colors of attributes', 'mapShow');
     }
 })(app);
 

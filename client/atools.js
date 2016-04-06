@@ -23,6 +23,7 @@ var app = app || {}; // jshint ignore:line
         "mousemove",
     ];
     var callbacks = {}; // The callbacks for each tool
+    var initialized = false;
     
     // This holds all the currently active tool event listeners.
     // They are indexed by handle, and are objects with a "handler" and an "event".
@@ -123,7 +124,7 @@ var app = app || {}; // jshint ignore:line
         // menu option.
 
         // Add the hover text and class to the menu option belonging to this tool
-        $('#menus').find('[data-sel="tool_name"]')
+        $('#toolbar').find('[data-sel="tool_name"]')
             .attr('title', hover_text)
             .addClass(klass);
 
@@ -173,9 +174,10 @@ var app = app || {}; // jshint ignore:line
                 // Cleanup: de-select ourselves.
                     tool_activity(false);
             });
-        }, 'Add text to the map', 'mapOnly');
+        }, 'Add text to the map', 'mapShow');
 
     }
+ 
     function selected (ev, ui) {
         var tool = ui.item.data('sel');
         if (callbacks[tool]) {
@@ -183,20 +185,51 @@ var app = app || {}; // jshint ignore:line
         }
     }
 
-    initTools = function () {
-        var nav = $('#menus');
+    function initMapLink() {
+        add_tool("hexMap", function() {
+            $('.mapPage').click();
+            tool_activity(false);
+        });
+    }
 
+    function initHomeLink() {
+        // Set up the link to the home page
+        add_tool("home", function() {
+            $('.homePage').click();
+            tool_activity(false);
+        });
+    }
+
+    initTools = function () {
+ 
+        if (initialized) return;
+ 
+        initialized = true;
+        var nav = $('#menus');
+        if (Session.equals('page', 'homePage')) {
+            $('body').find('.mapShow, .gridShow').hide();
+            $('body').find('.homeShow').show();
+            initMapLink();
+            initTheseTools();
+        } else if (Session.equals('page', 'mapPage')) {
+            $('body').find('.homeShow, gridShow').hide();
+            $('body').find('.mapShow').show();
+            initHomeLink();
+            initTheseTools();
+            initSelect();
+            $('.selectMenuLabel, #selectMenu').show();
+        } else if (Session.equals('page', 'gridPage')) {
+            $('body').find('.homeShow, .mapShow').hide();
+            $('body').find('.gridShow').show();
+            initHomeLink();
+            initMapLink();
+        }
         nav.menu({
             position: { my: "left top", at: "left bottom-7" },
             icons: { submenu: "ui-icon-blank" },
             select: selected,
         });
-
-        if (Session.equals('page', 'mapPage')) {
-            nav.find('.hexMap').hide();
-        }
         nav.show();
-        initTheseTools();
     }
 })(app);
 

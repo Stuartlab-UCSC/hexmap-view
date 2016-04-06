@@ -1,33 +1,29 @@
-
-
-
 <template name='navBarT'>
     <div class="tools row" id="toolbar">
         <img src="/cyber-slug.svg" class="stacker cyber-slug"/>
-        <!--
-        <div class="title stacker">
-             UCSC Tumor Map
-        </div>
-        -->
 
         <!-- main menu -->
-        <ul id='menus' class='stacker' style='display:none'>
-            <li class='primary' data-sel='home'>Home</li>
-            <li id='downloadMenu' class='primary mapOnly'>
+        <ul id='menus' class='stacker'>
+        
+            <li class='primary mapShow gridShow' data-sel='home' style='display:inline'>Home</li>
+            
+            <li class='primary hexMap gridShow homeShow' data-sel='hexMap' style='display:inline'>Map</li>
+
+            <li id='downloadMenu' class='primary mapShow gridShow' style='display:inline'>
                 Download
-                <img src='/caret-down.svg' style='height:8px'>
+                <img src='/caret-down.png' style='height:8px'>
                 <ul>
-                    <li data-sel='hexagonNames' title = 'Download the hexagon identifiers'>&nbsp;
+                    <li class='mapShow' data-sel='hexagonNames' title = 'Download the hexagon identifiers'>&nbsp;
                         Identifiers&nbsp;&nbsp;
                     </li>
-                    <li>
+                    <li class='mapShow' >
                         <a id='svgDownload' download='hexmap.svg'
                             href='data:text/plain;base64'
                             title = 'Download the map in SVG format'>
                             SVG map
                         </a>
                     </li>
-                    <li>
+                    <li class='mapShow gridShow' >
                         <a id='xyPreSquiggle'
                             download='xyPreSquiggle_....tab'
                             href='...xyPositions.tab'
@@ -38,24 +34,22 @@
                 </ul>
             </li>
             
-            <li class='primary mapOnly'>
+            <li class='primary mapShow' style='display:inline'>
                 Colors
-                <img src='/caret-down.svg' style='height:8px'>
+                <img src='/caret-down.png' style='height:8px'>
                 <ul style='top:0px;left:0px'>
                     <li id='background'>&nbsp;&nbsp;{{background}} background&nbsp;&nbsp;</li>
                     <li data-sel='colormap'>&nbsp;&nbsp;Colormap</li>
                 </ul>
             </li>
             
-            <li class='primary mapOnly' data-sel='addText'>Label</li>
+            <li class='primary mapShow' data-sel='addText' style='display:inline'>Label</li>
             
-            <li class='primary mapOnly' data-sel='methods'>Methods</li>
+            <li class='primary mapShow' data-sel='methods' style='display:inline'>Methods</li>
             
-            <li class='primary hexMap' data-sel='hexMap'>HexagonMap</li>
-
-            <li class='primary'>
+            <li class='primary' style='display:inline'>
                 Help
-                <img src='/caret-down.svg' style='height:8px'>
+                <img src='/caret-down.png' style='height:8px'>
                 <ul>
                     <li>
                         <a href="http://tumormap.ucsc.edu/help.pdf" target='_blank'>User Guide</a>
@@ -71,36 +65,22 @@
         </ul>
 
         <!-- select menu -->
-        <span class='selectMenuLabel stacker mapOnly'>Select by:</span>
-        <ul id='selectMenu' class='stacker mapOnly' style='display:none'>
-            <li data-sel='rectangle' class='primary' title='Select hexagons using a rectangular region'>
+        <span class='selectMenuLabel stacker' style='display:none'>Select by:</span>
+        <ul id='selectMenu' class='stacker' style='display:none'>
+            <li data-sel='rectangle' class='primary' title='Select hexagons using a rectangular region' style='display:inline'>
                 Rectangle
             </li>
-            <li data-sel='polygon' class='primary' title='Select hexagons using a polygonal region'>
+            <li data-sel='polygon' class='primary' title='Select hexagons using a polygonal region' style='display:inline'>
                 Polygon
             </li>
-            <li data-sel='import' class='primary' title='Enter identifiers to create a selection of hexagons'>
+            <li data-sel='import' class='primary' title='Enter identifiers to create a selection of hexagons' style='display:inline'>
                 Identifier
             </li>
         </ul>
         
-        <span class="login stacker">
+         <!-- login -->
+        <span class="login right stacker">
             {{> loginButtons}}
         </span>
-
-
-
-        <div class="mapOnly stacker right">
-            <img class="recalculate-throbber throbber" title="Recalculating..." />
-            <span class="recalculate-progress">
-                <span id="jobs-running">0</span>/<span id="jobs-in-batch">0</span> jobs running.
-            </span>
-            <span class="recalculate-finished">
-                Done.
-            </span>
-        </div>
-        <div class="mapOnly stacker right">
-            <div id="recalculate-progress" class="recalculate-progress"></div>
-        </div>
     </div>
 </template>

@@ -463,7 +463,5 @@ var app = app || {}; // jshint ignore:line
         $menu.menu({
             select: selected,
         });
-
-        $menu.show();
     }
 })(app);

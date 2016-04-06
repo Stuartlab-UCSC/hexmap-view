@@ -47,6 +47,9 @@ googlemap; // our googlemap instance
 
     pageReload = function (page) {
         Session.set('page', page);
+ 
+        // Hide parts of the nav bar so it doesn't flash
+        $('#menus, .selectMenuLabel, #selectMenu').hide();
         queryFreeReload();
     }
 
@@ -71,6 +74,10 @@ googlemap; // our googlemap instance
         "click .gridPage": function() {
             pageReload('gridPage');
         },
+    });
+
+    Template.homePage.onRendered(function () {
+        initTools();
     });
 
     Template.mapPage.onRendered(function () {
@@ -122,19 +129,6 @@ googlemap; // our googlemap instance
         }, 0);
     }
 
-    initGridDrawn = function () {
-        // Initialize modules that need to have the grid drawn.
-        //initCoords();
-    }
-
-    function initHomeLink() {
-        // Set up the link to the home page
-        add_tool("home", function() {
-            $('.homePage').click();
-            tool_activity(false);
-        });
-    }
-
     function resizeMap () {
 
         // Capture a resize window event to resize the map.
@@ -152,9 +146,7 @@ googlemap; // our googlemap instance
             $(window).resize(resizeMap);
 
             // Initialize everything else
-            initHomeLink();
             initProject();
-            initSelect();
             initTools();
             initDownload();
             initColors();
@@ -170,7 +162,6 @@ googlemap; // our googlemap instance
         setTimeout(function () {
             resizeMap();
             $(window).resize(resizeMap);
-            initHomeLink();
             initTools();
             convertStoredCenterToLatLng();
             initHex();

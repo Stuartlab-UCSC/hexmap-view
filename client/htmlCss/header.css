@@ -80,10 +80,11 @@
     margin-top: -0.3em;
 }
 */
-#current-layout {
-	padding-top: 0.2em;
-}
 
+#s2id_project,
+#s2id_layout-search {
+    padding-top: 0.2em;
+}
 #s2id_layout-search {
     width: 15em;
 }

@@ -35,7 +35,7 @@ var app = app || {}; // jshint ignore:line
 
         // Position the short list to be against the right side of the window
         // and the bottom of the toolbar.
-        //$('#shortlist-holder').css('top', $('#toolbar').height());
+        $('#shortlist-holder').css('top', $('#toolbar').height());
 
         $search = $("#search");
 

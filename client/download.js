@@ -123,7 +123,7 @@ var app = app || {}; // jshint ignore:line
                         tool_activity(false);
                 }
             });
-        }, 'Export the selection as a list of hexagons', 'mapOnly');
+        }, 'Export the selection as a list of hexagons', 'mapShow');
     }
 
     function xyPreSquiggle_click(event) {
