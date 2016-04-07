@@ -62,14 +62,13 @@ googlemap; // our googlemap instance
             pageReload('homePage');
         },
         "click .mapPage": function() {
-            //ctx.project = 'data/pancan12/latest/';
             pageReload('mapPage');
         },
 
         "click .thumbnail": function (ev){
-            var project = $(ev.currentTarget).data('project');
-            ctx.project = 'data/' + project + '/';
-            pageReload('mapPage');
+            var project = 'data/' + $(ev.currentTarget).data('project') + '/';
+            ctx.save(project);
+            queryFreeReload();
         },
         "click .gridPage": function() {
             pageReload('gridPage');

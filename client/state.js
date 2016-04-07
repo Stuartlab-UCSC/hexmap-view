@@ -10,7 +10,7 @@ var app = app || {}; // jshint ignore:line
     DISABLED_COLOR = '#aaaaaa';
 
     var DEFAULT_PAGE = 'homePage',
-        DEFAULT_PROJECT = 'data/pancan12/stable/',
+        DEFAULT_PROJECT = 'data/Gliomas/',
         DEFAULT_SORT = {
             text: 'Density of attributes',
             type: 'default',
@@ -62,10 +62,6 @@ var app = app || {}; // jshint ignore:line
         var s = this;
 
         s.defaultProject = DEFAULT_PROJECT;
- 
-        if (location.host === 'tumormap.ucsc.edu') {
-            s.defaultProject = 'data/ynewton/gliomas-paper/';
-        }
 
         // Keep localStore of different servers separate
         s.storeName = location.host + '-hexMapState';
@@ -143,6 +139,7 @@ var app = app || {}; // jshint ignore:line
 
         // If we have a new project, clear any state related to the old project
         if (isNewProject && newProject !== s.project) {
+            Session.set('page', 'mapPage');
             s.project = newProject;
             s.setProjectDefaults();
         }
@@ -244,6 +241,21 @@ var app = app || {}; // jshint ignore:line
         }
     };
 
+    State.prototype.fixUpOldUrls = function (project) {
+ 
+        var xlate = {
+            'data/evanPaull/pCHIPS/': 'data/pCHIPS/',
+            'data/ynewton/gliomas-paper/': 'data/Gliomas/',
+        }
+ 
+        // Fix up some project names that we've aleady given out to people
+        // before reorganizing projects and implementing logins
+        if (xlate[project]) {
+            project = xlate[project]
+        }
+        return project;
+    };
+ 
     State.prototype.loadFromUrl = function () {
  
         // Load state from parameters in the url
@@ -285,6 +297,10 @@ var app = app || {}; // jshint ignore:line
                     state.overlayNodes = {};
                     state.overlayNodes[node] = OVERLAY_NODES[node];
                 }
+            } else {
+ 
+                // Fix up any old URLs we gave out
+                state.project = s.fixUpOldUrls(state.project);
             }
  
             s.load(state);

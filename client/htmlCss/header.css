@@ -11,6 +11,10 @@
     position: relative;
 }
 
+#layout-row .stacker {
+    padding-top: 0.4em;
+}
+
 .layer-row .stacker {
     line-height: 2.7em;
 }

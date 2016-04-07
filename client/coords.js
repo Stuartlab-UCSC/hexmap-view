@@ -114,7 +114,7 @@ var app = app || {}; // jshint ignore:line
             new google.maps.Point(x, y));
     }
 
-    function get_xyWorld (latLng) {
+    get_xyWorld = function (latLng) {
 
         // Transform latLng to xyWorld
         return FlatProjection.prototype.fromLatLngToPoint(latLng);

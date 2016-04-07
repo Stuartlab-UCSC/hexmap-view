@@ -46,9 +46,10 @@ var app = app || {}; // jshint ignore:line
             sPoly,
             googlePolygonKeys = get_polygons(),
             dims,
-            svg;
+            svg,
+            XY;
             
-        dims = findPolygonExtents(googlePolygonKeys, xyMapSize);
+        XY = findPolygonExtents(googlePolygonKeys, xyMapSize);
 
         // Define the svg element,
         // setting its size to that of the visible polygons area
