@@ -138,7 +138,7 @@ var app = app || {}; // jshint ignore:line
         s.alreadySaved = true;
 
         // If we have a new project, clear any state related to the old project
-        if (isNewProject && newProject !== s.project) {
+        if (isNewProject) {
             Session.set('page', 'mapPage');
             s.project = newProject;
             s.setProjectDefaults();
@@ -260,13 +260,6 @@ var app = app || {}; // jshint ignore:line
  
         // Load state from parameters in the url
         var s = this;
- 
-        // Find the bookmark if one was included in the URL
-        if (s.uParm.b) {
-            s.loadFromBookmark(s.uParm.b);
-            return;
-        }
- 
         var state = {};
  
         // Find the project if one was included in the URL,
@@ -333,8 +326,18 @@ var app = app || {}; // jshint ignore:line
 
         // Load state
         if (s.uParm !== null) {
-            s.loadFromUrl();
+            if (s.uParm.b) {
+ 
+                // Load from the bookmark ID in the URL
+                s.loadFromBookmark(s.uParm.b);
+            } else {
+ 
+                // Load from the parms in the URL
+                s.loadFromUrl();
+            }
         } else if (storageSupported) {
+ 
+            // Load from the local store if there is anything in there
             s.loadFromLocalStore();
         }
         if (storageSupported) {

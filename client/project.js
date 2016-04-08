@@ -10,6 +10,18 @@ var app = app || {}; // jshint ignore:line
     // This will be an instance of this Project class.
     var project;
  
+    // Give this a value when the user has asked for a project that cannot be found.
+    var unFoundProject;
+ 
+    // A callback executed after the projects are loaded
+    var onProjectsLoaded;
+ 
+    function getHumanProject (project) {
+ 
+        // Transform a project from dir structure to display for humans
+        return project.slice(5, -1);
+	};
+
     // Define a Project class.
     function Project() {};
 
@@ -42,7 +54,7 @@ var app = app || {}; // jshint ignore:line
         $('#project')
             .select2({
                 data: data,
-                placeholder: "Load Project",
+                placeholder: "Select Project",
             })
             // Handle result selecting
             .on("select2-selecting", function(event) {
@@ -71,46 +83,63 @@ var app = app || {}; // jshint ignore:line
             }
         });
  
+        // Make the bottom of the list within the main window
+        setHeightSelect2($('#project'));
+
         // If a protected project was loaded before and the new user is not
         // authorized to see it, or there is no one logged in, load the default.
         if (!projectOnList) {
-            ctx.save(ctx.defaultProject);
-            queryFreeReload();
-        }
  
-        // Select the current project in the UI
-        $('#project').select2("val", ctx.project);
-
-        // Set our own text on the selected option when drop-down is closed
-        $('#s2id_project .select2-choice span').text(ctx.project.slice(5, -1));
-
-        // Make the bottom of the list within the main window
-        setHeightSelect2($('#project'));
+            // The project may be protected and has been loaded before under an
+            // authorized account and is either in the user's saved state or
+            // is a parameter in the URL.
+ 
+            // Lock the user out of this project
+            unFoundProject = ctx.project;
+            ctx.project = undefined;
+            alert('Please sign in to see project "' 
+                + getHumanProject(unFoundProject) + '".\n');
+        } else {
+ 
+            // Select the current project in the UI
+            $('#project').select2("val", ctx.project);
+ 
+             // Set our own text on the selected option when drop-down is closed
+            $('#s2id_project .select2-choice span')
+                .text(getHumanProject(ctx.project));
+        }
+        if (ctx.project) {
+            onProjectsLoaded();
+            onProjectsLoaded = undefined;
+        }
 	};
 
-    initProject = function () { // jshint ignore:line
+    initProject = function (callback) { // jshint ignore:line
+ 
+        onProjectsLoaded = callback;
  
         // Initialize projects whenever the username changes, including log out
         Meteor.autorun(function() {
-            var x = Meteor.user(); // Just to trigger execution
+            var x = Meteor.user();
             
-            if (DEV) {
-                if (!project) {
-                    project = new Project();
-                }
-                Meteor.call('getProjects', function (error, projects) {
-                    if (error) {
-                        banner('warn', "Unable to retrieve project data.\n" + error);
-                        return;
-                    }
-                    project.projects = projects;
-                    project._populate();
-                });
-            } else {
-            
-                // Not DEV
-                $('#project').text(ctx.project.slice(5, -1));
+            if (!project) {
+                project = new Project();
             }
+            
+            if (unFoundProject) {
+                // Set the project requested to be found again now that the
+                // user's login status has changed.
+                ctx.project = unFoundProject;
+            }
+            
+            Meteor.call('getProjects', function (error, projects) {
+                if (error) {
+                    banner('warn', "Unable to retrieve project data.\n" + error);
+                    return;
+                }
+                project.projects = projects;
+                project._populate();
+            });
         });
     };
 

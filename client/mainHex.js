@@ -140,25 +140,24 @@ googlemap; // our googlemap instance
     }
 
     initGoogleMapsForMap = function () {
-        setTimeout(function () {
+        setTimeout(function () { // The timeout allows the google libs to load
             resizeMap();
             $(window).resize(resizeMap);
 
             // Initialize everything else
-            initProject();
+            initProject(initHex);
             initTools();
             initDownload();
             initColors();
             convertStoredCenterToLatLng();
             initLegend();
             initShortlist();
-            initHex();
             $.get("maplabel.js");
         }, 0)
     };
 
     initGoogleMapsForGrid = function () {
-        setTimeout(function () {
+        setTimeout(function () { // The timeout allows the google libs to load
             resizeMap();
             $(window).resize(resizeMap);
             initTools();

@@ -1017,10 +1017,12 @@ initHex = function () {
         // By now we assume the layers.tab file has been processed, which may
         // specify a first layer/attribute. If one was not supplied there, and
         // we find the standard sort layer, use that as first.
-        if (_.isUndefined(Session.get('first_layer'))
-                && (layers.hasOwnProperty('Tissue')
-                || layers.hasOwnProperty('tissue'))) {
-            Session.set('first_layer', layer_name);
+        if (_.isUndefined(Session.get('first_layer'))) {
+            if (layers['Tissue']) {
+                Session.set('first_layer', 'Tissue');
+            } else if (layers['tissue']) {
+                Session.set('first_layer', 'tissue');
+            }
         }
 
 
