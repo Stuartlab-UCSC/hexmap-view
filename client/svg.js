@@ -2,7 +2,7 @@
 
 // A tool to download an svg file of the current viewport
 
-/* global $, FlatProjection, add_tool, polygons, google, googlemap, find_polygons_in_rectangle, oper, window */
+/* global $, FlatProjection, add_tool, polygons, google, googlemap, oper, window */
 
 var app = app || {}; // jshint ignore:line
 
@@ -38,7 +38,7 @@ var app = app || {}; // jshint ignore:line
             xy;
 
         // Transform world coord vertices to our svg xy space
-            for (i = 0; i < verts.getLength(); i += 1) {
+        for (i = 0; i < verts.getLength(); i += 1) {
             xy = get_xySvgMap(verts.getAt(i), dims);
             points += ' ' + xy.x + ',' + xy.y;
         }
@@ -50,7 +50,6 @@ var app = app || {}; // jshint ignore:line
             + "' fill-opacity='" + gp.fillOpacity
             + "' stroke='" + gp.strokeColor
             + "' stroke-width='" + 1
-            //+ "' stroke-width='" + gp.strokeWeight
             + "' stroke-opacity='" + gp.strokeOpacity
             + " ' />\n";
     }
@@ -60,11 +59,11 @@ var app = app || {}; // jshint ignore:line
         // Transform google elements to svg format
         var i,
             sPoly,
-            googlePolygonKeys = get_polygons(),
+            hexagonKeys = findHexagonsInViewport(),
             dims,
             svg;
             
-        dims = findPolygonExtents(googlePolygonKeys, xyMapSize);
+        dims = findPolygonExtents(hexagonKeys, xyMapSize);
 
         // Define the svg element,
         // setting its size to that of the visible polygons area
@@ -83,8 +82,8 @@ var app = app || {}; // jshint ignore:line
             + " ></rect>\n";
 
         // Transform each polygon to xy space
-        for (i in googlePolygonKeys) {
-             sPoly = googleToSvgPoly(polygons[googlePolygonKeys[i]], dims);
+        for (i in hexagonKeys) {
+             sPoly = googleToSvgPoly(polygons[hexagonKeys[i]], dims);
              if (sPoly !== null) {
                 svg += sPoly;
              }

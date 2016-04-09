@@ -22,7 +22,7 @@ var app = app || {}; // jshint ignore:line
         
         savedCursor, // Cursor to return reinstate after the selection is complete
         startLatLng, // Starting point of the selection area
-        shape, // Google maps selection boundary: rectangle or polygon
+        shape, // rectangular or polygonal selection boundary in latLng
         isRectangle, // Rectangle or polygon?
         guide, // Bounding lines of the selectable area
         color; // Color of the selection boundary and fill
@@ -66,78 +66,46 @@ var app = app || {}; // jshint ignore:line
     function hexagonCursor (on) {
 
         // Set the cursor on or off when hovering over the hexagons
-        _.each(get_polygons(), function(hex) {
-            polygons[hex].setOptions({clickable: on});
+        _.each(polygons, function(hex) {
+            hex.setOptions({clickable: on});
         });
     }
 
-    function findHexagonsInPolygon () {
-        // TODO use this routine instead of find_polygons_in_rectangle
-        // everywhere else
+    function findHexagonsInPolygon (boundingPolygon) {
 
         // Select the hexagons that are contained within the given polygon.
-        var inSelection = _.filter(get_polygons(), function(hex) {
+        var inBounds = _.filter(Object.keys(polygons), function(hex) {
+            var verts = polygons[hex].getPath();
             var contains = true;
-            verts = polygons[hex].getPath();
             for (j = 0; j < verts.getLength(); j += 1) {
                 v = verts.getAt(j);
-                 if (!google.maps.geometry.poly.containsLocation(v, shape)) {
+                 if (!google.maps.geometry.poly.containsLocation(v, boundingPolygon)) {
                     contains = false;
                     break;
                 }
             }
             return contains;
         });
-        select_list(inSelection, "user selection");
+        return inBounds;
     }
 
-    find_polygons_in_rectangle = function (start, end) {
-        // TODO use findHexagonsInPolygon instead
+    function twoPointRectangleToPolygon (latLng1, latLng2) {
+ 
+        // Find the paths of the rectangle as if it were a polygon
+        var paths = [
+            new google.maps.LatLng(latLng1.lat(), latLng1.lng()),
+            new google.maps.LatLng(latLng2.lat(), latLng1.lng()),
+            new google.maps.LatLng(latLng2.lat(), latLng2.lng()),
+            new google.maps.LatLng(latLng1.lat(), latLng2.lng()),
+        ];
 
-        // Given two Google Maps LatLng objects (denoting arbitrary rectangle 
-        // corners), add a new selection layer containing all the hexagons 
-        // completely within that rectangle.
-        // Only looks at hexes that are not filtered out by the currently selected 
-        // filters.
+        // Replace the rectangle with a polygon
+        return createPolygon(paths);
+    }
         
-        // Sort out the corners to get the rectangle limits in each dimension
-        var min_lat = Math.min(start.lat(), end.lat());
-        var max_lat = Math.max(start.lat(), end.lat());
-        var min_lng = Math.min(start.lng(), end.lng());
-        var max_lng = Math.max(start.lng(), end.lng());
-        
-        // This holds an array of all signature names in our selection box.
-        var in_box = [];
-        
-        // Start it out with 0 for each signature. Otherwise we wil have missing 
-        // data for signatures not passing the filters.
-        for(var signature in polygons) {
-             // Get the path for its hex
-            var path = polygons[signature].getPath();
-            
-            // This holds if any points of the path are outside the selection
-            // box
-            var any_outside = false;
-            
-            path.forEach(function(point, index) {
-                // Check all the points. Runs synchronously.
-                
-                if(point.lat() < min_lat || point.lat() > max_lat || 
-                    point.lng() < min_lng || point.lng() > max_lng) {
-                    
-                    // This point is outside the rectangle
-                    any_outside = true;
-                    
-                }
-            });
-            
-            // Select the hex if all its corners are inside the selection
-            // rectangle.
-            if(!any_outside) {
-                in_box.push(signature);
-            }
-        }
-        return in_box;
+    findHexagonsInRectangle = function (start, end) {
+
+        return findHexagonsInPolygon(twoPointRectangleToPolygon(start, end));
     }
 
     function inSelectable (event) {
@@ -175,17 +143,9 @@ var app = app || {}; // jshint ignore:line
 
         if (isRectangle) {
 
-            // Find the paths of the rectangle as if it were a polygon
-            var paths = [
-                new google.maps.LatLng(startLatLng.lat(), startLatLng.lng()),
-                new google.maps.LatLng(latLng.lat(), startLatLng.lng()),
-                new google.maps.LatLng(latLng.lat(), latLng.lng()),
-                new google.maps.LatLng(startLatLng.lat(), latLng.lng()),
-            ];
-
             // Replace the rectangle with a polygon
             shape.setMap(null);
-            shape = createPolygon(paths);
+            shape = twoPointRectangleToPolygon(startLatLng, latLng);
 
         } else { // polygon
 
@@ -194,7 +154,6 @@ var app = app || {}; // jshint ignore:line
 
             // Add the last point of the polygon
             shape.getPath().push(event.latLng);
-
          }
 
         // Enable the zoom-by-double-click,
@@ -207,9 +166,9 @@ var app = app || {}; // jshint ignore:line
             });
         }, 500);
 
-         // Create a selection polygon & find the hexagons in it
-         setCursor(savedCursor);
-         findHexagonsInPolygon();
+        // Create a selection polygon & find the hexagons in it
+        setCursor(savedCursor);
+        select_list(findHexagonsInPolygon(shape), "user selection");
 
         // Remove the bounding polygons and reset the hover curser for hexagons
         shape.setMap(null);

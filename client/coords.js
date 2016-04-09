@@ -259,18 +259,19 @@ var app = app || {}; // jshint ignore:line
         ];
     }
 
-    get_polygons = function () {
+    findHexagonsInViewport = function () {
 
-        // This finds all the polygons entirely within the rectangle
+        // This finds all the polygons entirely within the current googlemap
+        // viewport
         var rect = googlemap.getBounds();
 
         // Because we have a wrap-around map, the lng bounds
         // are always -180:180 for getBounds().
-        return find_polygons_in_rectangle(rect.getSouthWest(), rect.getNorthEast());
-        // TODO replace this call with the better one in select.js
+        return findHexagonsInRectangle(
+            rect.getSouthWest(), rect.getNorthEast());
     }
 
-    findPolygonExtents = function (googlePolygonKeys, xyMapSize) {
+    findPolygonExtents = function (hexagonKeys, xyMapSize) {
 
         // Find the extents of the visible google polygons
             var i,
@@ -283,8 +284,8 @@ var app = app || {}; // jshint ignore:line
             latMax = 0,
             lngMin = 0,
             lngMax = 0;
-        for (i in googlePolygonKeys) {
-            verts = polygons[googlePolygonKeys[i]].getPath();
+        for (i in hexagonKeys) {
+            verts = polygons[hexagonKeys[i]].getPath();
             for (j = 0; j < verts.getLength(); j += 1) {
                 v = verts.getAt(j);
                 latMin = Math.min(latMin, v.lat());
@@ -335,7 +336,7 @@ var app = app || {}; // jshint ignore:line
         } else {
             map = googlemap;
             $el = $('#visualization');
-            XY = findPolygonExtents(get_polygons(), XY_WORLD_SIZE);
+            XY = findPolygonExtents(findHexagonsInViewport(), XY_WORLD_SIZE);
         }
 
         // Set up the handler of mousemove on the map
