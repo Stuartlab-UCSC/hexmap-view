@@ -270,7 +270,7 @@ var app = app || {}; // jshint ignore:line
         // TODO replace this call with the better one in select.js
     }
 
-    findPolygonExtents = function (googlePolygonKeys, xyWorldSize) {
+    findPolygonExtents = function (googlePolygonKeys, xyMapSize) {
 
         // Find the extents of the visible google polygons
             var i,
@@ -299,7 +299,7 @@ var app = app || {}; // jshint ignore:line
         var XY = {};
         XY.xSize = max.x - min.x;
         XY.ySize = max.y - min.y;
-        XY.scale = XY_SCALE = xyWorldSize / Math.max(XY.xSize, XY.ySize);
+        XY.scale = xyMapSize / Math.max(XY.xSize, XY.ySize);
         XY.xSize = XY.xSize * XY.scale;
         XY.ySize = XY.ySize * XY.scale;
         XY.yMin = min.y;

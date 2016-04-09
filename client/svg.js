@@ -13,6 +13,22 @@ var app = app || {}; // jshint ignore:line
         dims = null,
         initiated = false;
 
+    function get_xySvgMap (latLng, dims) {
+
+        // Convert world coordinates within the current viewport
+        // to xy map coordinates
+
+        // Transform the world coordinates to xy in the range: 1 - 256
+        var xy = get_xyWorld(latLng),
+
+            // Offset the xy by the minimum xy of the google polygons,
+            // then scale it to our big svg map
+            x = (xy.x - dims.xMin) * dims.scale,
+            y = (xy.y - dims.yMin) * dims.scale;
+
+        return {x:x, y:y};
+    }
+ 
     function googleToSvgPoly (gp, dims) {
 
         // Transform a google polygon to an svg polygon
@@ -23,7 +39,7 @@ var app = app || {}; // jshint ignore:line
 
         // Transform world coord vertices to our svg xy space
             for (i = 0; i < verts.getLength(); i += 1) {
-            xy = get_xyWorld(verts.getAt(i), dims);
+            xy = get_xySvgMap(verts.getAt(i), dims);
             points += ' ' + xy.x + ',' + xy.y;
         }
 
@@ -46,16 +62,15 @@ var app = app || {}; // jshint ignore:line
             sPoly,
             googlePolygonKeys = get_polygons(),
             dims,
-            svg,
-            XY;
+            svg;
             
-        XY = findPolygonExtents(googlePolygonKeys, xyMapSize);
+        dims = findPolygonExtents(googlePolygonKeys, xyMapSize);
 
         // Define the svg element,
         // setting its size to that of the visible polygons area
         svg = "<svg xmlns:svg='http://www.w3.org/2000/svg'"
-            + " width='" + XY.xSize
-            + "' height='" + XY.ySize
+            + " width='" + dims.xSize
+            + "' height='" + dims.ySize
             + "' style='z-index:102;border: 1px solid black'"
             + ">\n";
 
