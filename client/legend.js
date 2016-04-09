@@ -81,6 +81,9 @@ var app = app || {}; // jshint ignore:line
 
 
     redraw_legend = function (retrieved_layers, current_layers) {
+ 
+        // current_layers is an array of zero to two layer names
+        // retrieved_layers are the current_layers' layer objects with data
 
         // Draw the color key.
         if(retrieved_layers.length == 0) {

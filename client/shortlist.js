@@ -361,7 +361,7 @@ var app = app || {}; // jshint ignore:line
         
         root.append(controls);
 
-        /* TODO we no longer want to remove selections without also removing them 
+        /* TODO If we no longer want to remove selections without also removing them
                 from the long list, use this logic for selections for the normal 
                 remove button, and remove this section
         */
@@ -496,8 +496,6 @@ var app = app || {}; // jshint ignore:line
         var update_range_display = function(event, ui) {
             range_display.find(".low").text(ui.values[0].toExponential(1));
             range_display.find(".high").text(ui.values[1].toExponential(1));
-            //range_display.find(".low").text(ui.values[0].toFixed(3));
-            //range_display.find(".high").text(ui.values[1].toFixed(3));
         }
         
         range_slider.slider({
@@ -527,44 +525,52 @@ var app = app || {}; // jshint ignore:line
         // the shortlist UI, and that each UI element has an entry in the shortlist.
         // Also make sure the metadata for all existing layers is up to date.
 
-        // Clear the existing UI lookup table
+        // Clear the existing DOM list
         shortlist_ui = {};
 
+        // Get the list of shortlist layer names
         var shortlist = Session.get('shortlist');
 
+        // For each shortlist name, put a false in the DOM list
         for(var i = 0; i < shortlist.length; i++) {
-            // For each shortlist entry, put a false in the lookup table
             shortlist_ui[shortlist[i]] = false;
         }
-        
+ 
+        // For each DOM element in the DOM list...
         $("#shortlist").children().each(function(index, element) {
+        
+            // If the DOM element's layer name is still in the shortlist...
             if(shortlist_ui[$(element).data("layer")] === false) {
-                // There's a space for this element: it's still in the shortlist
                 
-                // Fill it in
+                // Save the element in the DOM list
                 shortlist_ui[$(element).data("layer")] = $(element);
                 
-                // Update the metadata in the element. It make have changed due to
-                // statistics info coming back.
+                // Update the metadata in the element. It make have changed due
+                // to new statistics info.
                 fill_layer_metadata($(element).find(".metadata-holder"), 
                     $(element).data("layer"));
             } else {
-                // It wasn't in the shortlist, so get rid of it.
+            
+                // The DOM element isn't in the DOM list, so get rid of it.
                 $(element).remove();
             }
         });
-        
+ 
+        // For each layer name in the DOM list...
         for(var layer_name in shortlist_ui) {
-            // For each entry in the lookup table
+ 
+            // If the layer name does not have a DOM element...
             if(shortlist_ui[layer_name] === false) {
 
-                 // If it's still false, make a UI element for it.
+                 // Create a DOM element for this shortlist layer
                  shortlist_ui[layer_name] = make_shortlist_ui(layer_name);
                  $("#shortlist").prepend(shortlist_ui[layer_name]);
-                 
-                 // Check it's box if possible
+ 
                 if (shortlist_ui[layer_name]) {
-                 shortlist_ui[layer_name].find(".layer-on").click();
+ 
+                    // If the DOM element was created, show its colors on the
+                    // map if the number showing is not yet maxed out.
+                    shortlist_ui[layer_name].find(".layer-on").click();
                 }
             }
         }
