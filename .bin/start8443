@@ -1,0 +1,9 @@
+#!/bin/bash
+# Start the application server on port 8443
+
+PORT=8443
+export ROOT_URL=https://hexmap.sdsc.edu:$PORT
+export MONGO_URL=mongodb://localhost:27017/$PORT
+mv /data/8$PORT.log /data/8$PORT.prev.log
+cd /data/$PORT
+/data/home/hexmap/.meteor/meteor --port $PORT &> /data/8$PORT.log

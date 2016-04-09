@@ -1,0 +1,6 @@
+#!/bin/bash
+# tar the contents of hexagram for production
+
+rm t.tar
+tar cf t.tar client lib public server
+
