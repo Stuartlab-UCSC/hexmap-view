@@ -11,7 +11,7 @@ var app = app || {}; // jshint ignore:line
         MAX_LAT = 90,
         MIN_LNG = -95,
         MAX_LNG = 85,
-        GUIDE_COLOR = 'orange',
+        PREVEW_COLOR = 'grey',
 
         // Handles of map listeners
         preClickHandle,
@@ -24,8 +24,9 @@ var app = app || {}; // jshint ignore:line
         startLatLng, // Starting point of the selection area
         shape, // rectangular or polygonal selection boundary in latLng
         isRectangle, // Rectangle or polygon?
-        guide, // Bounding lines of the selectable area
-        color; // Color of the selection boundary and fill
+        color, // Color of the selection boundary and fill
+        previewHexagons = []; // hexagons in selection preview
+
 
     function setCursor (cursor) {
         googlemap.setOptions({ draggableCursor: cursor });
@@ -47,15 +48,21 @@ var app = app || {}; // jshint ignore:line
         });
     }
 
-    function createPolygon (paths) {
-
+    function createPolygon (paths, transparent) {
+ 
         // Make a polygon for the selection
+        var strokeOpacity = 1.0,
+            fillOpacity = 0.2;
+        if (transparent) {
+            strokeOpacity = 0.0;
+            fillOpacity = 0.0;
+        }
         return new google.maps.Polygon({
             strokeColor: color,
             strokeWeight: 1,
-            strokeOpacity: 1.0,
+            strokeOpacity: strokeOpacity,
             fillColor: color,
-            fillOpacity: 0.2,
+            fillOpacity: fillOpacity,
             clickable: false,
             map: googlemap,
             paths: paths,
@@ -71,6 +78,16 @@ var app = app || {}; // jshint ignore:line
         });
     }
 
+    function clearPreviewHexagons () {
+ 
+        // Clear the previous preview hexagons
+        _.each(previewHexagons, function(hex) {
+            polygons[hex].setOptions({fillColor: polygons[hex].saveColor});
+            delete polygons[hex].saveColor;
+        });
+        previewHexagons = [];
+    }
+        
     function findHexagonsInPolygon (boundingPolygon) {
 
         // Select the hexagons that are contained within the given polygon.
@@ -100,7 +117,7 @@ var app = app || {}; // jshint ignore:line
         ];
 
         // Replace the rectangle with a polygon
-        return createPolygon(paths);
+        return createPolygon(paths, true);
     }
         
     findHexagonsInRectangle = function (start, end) {
@@ -116,11 +133,9 @@ var app = app || {}; // jshint ignore:line
                 && event.latLng.lat() > MIN_LAT
                 && event.latLng.lat() < MAX_LAT) {
             setCursor('crosshair');
-            guide.setOptions({strokeWeight: 0});
             return true;
         } else {
             setCursor('help');
-            guide.setOptions({strokeWeight: 1});
             return false;
         }
     }
@@ -130,7 +145,7 @@ var app = app || {}; // jshint ignore:line
         // Handle the final click of the selection
 
         // Ignore if outside the selectable area
-        inSelectable(event);
+        //inSelectable(event);
 
         // Don't trigger again
         remove_tool_listener(stopHandle);
@@ -168,12 +183,15 @@ var app = app || {}; // jshint ignore:line
 
         // Create a selection polygon & find the hexagons in it
         setCursor(savedCursor);
+
+        // Clear the selection color from the preview hexagons.
+        clearPreviewHexagons();
+
         select_list(findHexagonsInPolygon(shape), "user selection");
 
         // Remove the bounding polygons and reset the hover curser for hexagons
         shape.setMap(null);
-        guide.setMap(null);
-        shape = guide = null;
+        shape = null;
         hexagonCursor(true);
     }
 
@@ -182,39 +200,53 @@ var app = app || {}; // jshint ignore:line
         // Handle a mid-point click of the selection for a polygon
 
         // Change cursor and bounding box if needed
-        inSelectable(event);
+        //inSelectable(event);
 
         shape.getPath().push(event.latLng);
+    }
+        
+    function colorPreviewHexagons () {
+ 
+        // Change the fill color of the preview hexagons
+        _.each(previewHexagons, function(hex) {
+            polygons[hex].saveColor = polygons[hex].fillColor;
+            polygons[hex].setOptions({fillColor: PREVEW_COLOR});
+        });
     }
         
     function preview (event) {
 
         // This holds a selection preview event handler that should happen
         // when we mouse over the map after pressing the first point.
+        // It updates the user's view of the selection polygon and
+        // the hexagons within it.
 
         // Change cursor and bounding box if needed
-        inSelectable(event);
-
+        //inSelectable(event);
+ 
         var latLng = event.latLng;
+ 
+        clearPreviewHexagons();
+ 
         if (isRectangle) {
-            if(latLng.lng() < startLatLng.lng()) {
-                // The user has selected a backwards rectangle, which wraps
-                // across the place where the globe is cut. None of our 
-                // selections ever need to do this.
-                
-                // Make the rectangle backwards
-                shape.setBounds(new google.maps.LatLngBounds(
-                    latLng, startLatLng));    
-                
-            } else {
-                // Make the rectangle forwards
-                shape.setBounds(new google.maps.LatLngBounds(
-                    startLatLng, latLng));    
+            var start = startLatLng,
+                end = latLng;
+ 
+            if (latLng.lng() < startLatLng.lng()) {
+ 
+                // Make the bounds in the order google rectangle expects
+                start = latLng;
+                end = startLatLng;
             }
+            shape.setBounds(new google.maps.LatLngBounds(start, end));
+            previewHexagons = findHexagonsInPolygon(twoPointRectangleToPolygon(start, end));
+
         } else { // this is a polygon
             shape.getPath().pop();
             shape.getPath().push(latLng);
+            previewHexagons = findHexagonsInPolygon(shape);
         }
+        colorPreviewHexagons();
     }
 
     function startSelect (event) {
@@ -222,7 +254,7 @@ var app = app || {}; // jshint ignore:line
         // Handle the first click of the selection
 
         // Ignore if outside the selectable area
-        inSelectable(event);
+        //inSelectable(event);
 
         // Don't trigger again
         remove_tool_listener(startHandle);
@@ -240,7 +272,7 @@ var app = app || {}; // jshint ignore:line
             shape = createRectangle();
             stopClick = 'click';
         } else {
-            shape = createPolygon([startLatLng, startLatLng], true);
+            shape = createPolygon([startLatLng, startLatLng]);
             stopClick = 'dblclick';
             midHandle = add_tool_listener("click", midSelect);
         }
@@ -267,30 +299,13 @@ var app = app || {}; // jshint ignore:line
 
         // Add a listener to change the curser if the
         // mouse goes outside the selectable area
-        preClickHandle = add_tool_listener("mousemove", inSelectable);
+        preClickHandle = add_tool_listener("mousemove",
+            function () { setCursor('crosshair') });
 
         // Set the selection color depending on the background
         color = (Session.equals('background', 'white'))
             ? 'black'
             : 'white';
-
-        // Create guidelines so the user might understand
-        // the selection area might wrap around the world
-        guide = new google.maps.Polygon({
-            fillOpacity: 0,
-            strokeColor: GUIDE_COLOR,
-            strokeWeight: 0,
-            strokeOpacity: 1.0,
-            clickable: false,
-            map: googlemap,
-            zIndex: 8,
-            paths: [
-                {lat: MIN_LAT, lng: MIN_LNG},
-                {lat: MAX_LAT, lng: MIN_LNG},
-                {lat: MAX_LAT, lng: MAX_LNG},
-                {lat: MIN_LAT, lng: MAX_LNG},
-            ]
-        });
 
         // Turn off the cursor for hovering over hexagons
         hexagonCursor(false);
@@ -388,12 +403,12 @@ var app = app || {}; // jshint ignore:line
                     $(this).dialog("close");
                     
                     // Done with the tool
-                        tool_activity(false);
+                    tool_activity(false);
                 }   
             },
             close: function() {
                 // They didn't want to use this tool.
-                    tool_activity(false);
+                tool_activity(false);
             }
         });
     }
