@@ -2,6 +2,7 @@
 # Start the mongoDb daemon
 
 D=/data
+
 touch $D/db.log
 mv $D/db.log $D/db.old.log &&
 MONGO_BIN=/data/home/hexmap/.meteor/packages/meteor-tool/.1.1.10.ki0ccv++os.linux.x86_64+web.browser+web.cordova/mt-os.linux.x86_64/dev_bundle/mongodb/bin

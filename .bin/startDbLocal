@@ -1,0 +1,12 @@
+#!/bin/bash
+# Start the mongoDb daemon
+
+D=/Users/swat/dev/db
+
+touch $D/db.log
+mv $D/db.log $D/db.prev.log
+mongod \
+        --bind_ip 127.0.0.1 \
+        --port 27017 \
+        --dbpath $D \
+        &> $D/db.log &
