@@ -152,15 +152,17 @@ var app = app || {}; // jshint ignore:line
 
         // Initialize the differential analysis functions, happens once per app reload
 
-        // Set jquery element names
-        $dialog = $('#diffAnalysisDialog');
-
         // Define the dialog options & create an instance of DialogHex
         var opts = {
             title: title,
             buttons: [{ text: 'Run', click: runCheck }],
         };
-        dialogHex = createDialogHex($('#diffAnalysisButton'), $dialog, opts,
-            show, justBeforeDestroy);
+        dialogHex = createDialogHex(
+            $('#diffAnalysisButton'),
+            $('#diffAnalysisDialog'),
+            opts,
+            show,
+            justBeforeDestroy
+        );
     }
 })(app);

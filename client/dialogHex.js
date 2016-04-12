@@ -103,26 +103,18 @@ var app = app || {}; // jshint ignore:line
                 .prop('title', this.opts.title)
                 .button()
                 .click(function() {
-
-                    // Handler for clicking the button on the header
-                    // Hide other functions so that if a dialog is visible,
-                    // it disappears from sight.
-                    // TODO we can remove this if the other dialogs become
-                    // jquery-ui modal dialogs
-                    // or maybe we don't want modals anywhere?
-                    reset_set_operations();
-
                     self.show();
                 });
         }
     }
 
-    createDialogHex = function ($button, $el, opts, initFx, destroyFx) {
+    createDialogHex = function ($button, $el, opts, initFx, destroyFx, buttonInitialized) {
 
         /* Creates an instance of our dialog, which contains a button to open
          * the dialog in addition to a dialog
          *
          * @param $button: jquery DOM element of the dialog activator
+         *          where null indicates the button is already initialized
          * @param $el: jquery DOM element of the dialog anchor
          * @param opts: overrides of this class' jquery-ui dialog options
          * @param initFx: called after the init function of this class
@@ -130,7 +122,9 @@ var app = app || {}; // jshint ignore:line
          *                      optional
          */
         var instance = new DialogHex($el, opts, initFx, destroyFx);
-        instance.initButton($button);
+        if (!buttonInitialized) {
+            instance.initButton($button);
+        }
         return instance;
     }
 })(app);

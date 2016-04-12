@@ -119,10 +119,16 @@ googlemap; // our googlemap instance
     initMapDrawn = function () {
         // Initialize modules that need to have the map drawn.
         google.maps.event.removeListener(mapDrawnListener);
-        if (Session.equals('page', 'mapPage')) initSvg();
-        initGrid();
-        initCoords();
-        initOverlayNodes();
+        if (Session.equals('page', 'mapPage')) {
+            initPdf();
+            initSvg();
+            initGrid();
+            initCoords();
+            initOverlayNodes();
+        } else {
+            initGrid();
+            initCoords();
+        }
         setTimeout(function () {
             Session.set('loadingMap', 'none')
         }, 0);

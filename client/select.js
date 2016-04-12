@@ -493,7 +493,6 @@ var app = app || {}; // jshint ignore:line
             } else {
                 Session.set('showSelecting', true);
             }
-            re_initialize_view();
         });
     }
 })(app);

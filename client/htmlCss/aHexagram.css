@@ -35,10 +35,7 @@ body {
 The visualization element needs to take up all available space.
 */
 #visualization, #gridMap {
-    position: absolute;
-    left: 0;
-    top: 0;
-    bottom: 0;
+    height: 100%;
     width: 100%;
     overflow: hidden;
 }
