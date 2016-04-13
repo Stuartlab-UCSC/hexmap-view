@@ -357,6 +357,7 @@ initialize_view = function () {
         mapTypeControlOptions: {
             mapTypeIds: []
         },
+        minZoom: 2,
         /*
         // TODO This does not force the large zoom control to show even if
         // the google maps docs says it does
@@ -933,6 +934,7 @@ initHex = function () {
     initSortAttrs();
     //initDiffAnalysis(); // TODO shelf this feature for now.
 
+/*
 	// Set up help buttons to open their sibling help dialogs.
 	$(".help-button").each(function() {
 	    // We need to attach the dialog to the button ourselves since .dialog()
@@ -951,8 +953,8 @@ initHex = function () {
 	    $(this).button().click(function () {
 	        $(this).data("dialog").dialog("open");
 	    });
-	    
 	});
+*/	    
 
     // Download the layer index
     Meteor.call('getTsvFile', "layers.tab", ctx.project,

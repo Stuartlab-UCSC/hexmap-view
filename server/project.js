@@ -3,6 +3,7 @@
 
 var fs = Npm.require('fs');
 var Future = Npm.require('fibers/future');
+
 var majors;
 var projects = {};
 var dataDir = DATA_DIR + 'data/';
@@ -26,15 +27,17 @@ function isDataDir (entry, major) {
     return future.wait();
 }
 
-function cleanDirectory (dirs, major) {
+getDataDirs = function (major) {
 
+    var dirs = getAllData(major);
+    
     // Remove any files and hidden dirs
     return _.filter(dirs, function (dir) {
         return (dir.indexOf('.') !== 0) && isDataDir(dir, major);
     });
 }
 
-function getDataDirs (major) {
+function getAllData (major) {
 
     // Retrieve data directories
     var future = new Future(),
@@ -54,15 +57,12 @@ function getMinors (majorIndex) {
 
     // Get one major's minor directory names
     var major = majors[majorIndex];
-    var minors = getDataDirs(major);
+    var minors  = getDataDirs(major);
     
     if (_.isUndefined(minors)) return;
 
-    // Remove any files and hidden dirs
-    var minors1 = cleanDirectory(minors, major);
-
     // Save the major's minors to our projects object
-    projects[major] = minors1;
+    projects[major] = minors;
     
     if (majorIndex < majors.length - 1) {
 
@@ -75,7 +75,7 @@ function getMinors (majorIndex) {
     }
 }
 
-function getProjectRole (major) {
+getProjectRole = function (major) {
 
     var meta,
         filename = dataDir + major + '/meta.json';
@@ -96,19 +96,11 @@ function getMajors () {
 
     // Get the major directory names
     var user = Meteor.user();
-    projects = {};
-    var majors1, majors2 = getDataDirs();
+    var projects = {};
+    var majors1 = getDataDirs();
     
     // There are no projects at all.
-    if (_.isUndefined(majors2)) {
-        return;
-    }
-
-    // Save the major projects array
-    majors1 = cleanDirectory(majors2);
-    if (majors1.length < 1) {
-        return;
-    }
+    if (_.isUndefined(majors1)) return;
     
     // Remove any projects for which this user is not authorized
     majors = []
@@ -116,7 +108,7 @@ function getMajors () {
         var role = getProjectRole(major);
            
         // Don't include those without a role, or if the user is not in that role
-        if (role && (role === 'public' || (user && Roles.userIsInRole(user, role)))) {
+        if (isUserInRole(user, role)) {
             majors.push(major);
         }
     });

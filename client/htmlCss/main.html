@@ -14,12 +14,13 @@
     <!-- End Google Analytics -->
 </head>
 <body>
+    {{> Template.dynamic template=page }}
     {{> localStoreT}}
     <div id='pdfClose'></div>
     <a href="" class="homePage" style='display:none'></a>
     <a href="" class="mapPage" style='display:none'></a>
     <a href="" class="gridPage" style='display:none'></a>
-    {{> Template.dynamic template=page }}
+    <img class="help-button help question-sign" src='/question-sign.svg' style='display:none'>
 </body>
 
 <template name="localStoreT">

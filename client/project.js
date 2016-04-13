@@ -109,8 +109,10 @@ var app = app || {}; // jshint ignore:line
                 .text(getHumanProject(ctx.project));
         }
         if (ctx.project) {
-            onProjectsLoaded();
-            onProjectsLoaded = undefined;
+            if (onProjectsLoaded) {
+                onProjectsLoaded();
+                onProjectsLoaded = undefined;
+            }
         }
 	};
 

@@ -118,11 +118,11 @@ Read as "The content row", distinct from whatever else that element might be.
 }
 
 .help-button {
-    float: left;
-    margin-left: 1em;
-    margin-top: 5px;
-    padding: 2px;
-    height: 28px;
+    position: absolute;
+    right: 30px;
+    top: 5px;
+    height: 20px;
+    cursor: pointer;
 }
 
 .help-dialog {

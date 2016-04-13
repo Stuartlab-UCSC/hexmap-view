@@ -8,18 +8,34 @@ var app = app || {}; // jshint ignore:line
 
 (function (hex) {
 
-    DialogHex = function ($el, opts, initFx, destroyFx) {
+    DialogHex = function ($el, opts, initFx, destroyFx, helpAnchor) {
 
         this.$el = $el;
         this.opts = opts;
         this.initFx = initFx;
         this.destroyFx = destroyFx;
         this.$help = $('.help-button');
+        this.helpAnchor = helpAnchor;
 
         DialogHex.prototype.showHelp = function () {
 
-            // This should either take a
+            // TODO This should bring up the help doc in another window
+            // scrolled to the specific anchor.
             alert('Sorry, no help here yet for "' + opts.title + '"');
+        }
+
+        DialogHex.prototype.initHelp = function () {
+ 
+            var self = this;
+ 
+            this.$help.detach()
+                .css('display', 'inline');
+            $('.ui-dialog-titlebar-close').before(self.$help);
+
+            // Event handlers
+            // Remove any old help handlers from other dialogs using it
+            this.$help.off('click')
+                .on('click', self.showHelp);
         }
 
         DialogHex.prototype.destroyDialog = function () {
@@ -54,17 +70,10 @@ var app = app || {}; // jshint ignore:line
             })
             .find('span').hide();
 
-            /* TODO disable this until we have some help
-            this.$help.detach()
-                .css('display', 'inline');
-            $('.ui-dialog-titlebar-close').before(self.$help);
-
-            // Event handlers
-            // Remove any old help handlers from other dialogs using it
-            this.$help.off('click')
-                .on('click', self.showHelp);
-            */
-
+            if (this.helpAnchor) {
+                //this.initHelp(); // TODO turn this on when we have help
+            }
+ 
             if (this.initFx) {
                 this.initFx(); // Call the instance init function
             }
@@ -108,7 +117,8 @@ var app = app || {}; // jshint ignore:line
         }
     }
 
-    createDialogHex = function ($button, $el, opts, initFx, destroyFx, buttonInitialized) {
+    createDialogHex = function ($button, $el, opts, initFx, destroyFx,
+        buttonInitialized, helpAnchor) {
 
         /* Creates an instance of our dialog, which contains a button to open
          * the dialog in addition to a dialog
@@ -120,8 +130,9 @@ var app = app || {}; // jshint ignore:line
          * @param initFx: called after the init function of this class
          * @param destroyFx: called before the destroy function of this class, 
          *                      optional
+         * @param helpAnchor: the html anchor in the user help doc
          */
-        var instance = new DialogHex($el, opts, initFx, destroyFx);
+        var instance = new DialogHex($el, opts, initFx, destroyFx, helpAnchor);
         if (!buttonInitialized) {
             instance.initButton($button);
         }
