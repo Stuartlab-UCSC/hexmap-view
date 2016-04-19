@@ -259,18 +259,6 @@ var app = app || {}; // jshint ignore:line
         ];
     }
 
-    findHexagonsInViewport = function () {
-
-        // This finds all the polygons entirely within the current googlemap
-        // viewport
-        var rect = googlemap.getBounds();
-
-        // Because we have a wrap-around map, the lng bounds
-        // are always -180:180 for getBounds().
-        return findHexagonsInRectangle(
-            rect.getSouthWest(), rect.getNorthEast());
-    }
-
     findPolygonExtents = function (hexagonKeys, xyMapSize) {
 
         // Find the extents of the visible google polygons

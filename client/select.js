@@ -62,22 +62,20 @@ var app = app || {}; // jshint ignore:line
         });
     }
 
-    function createPolygon (paths, transparent, preview) {
+    function createPolygon (paths, preview) {
  
         // Make a polygon for the selection
         var strokeOpacity = 1.0,
             fillOpacity = 0.2,
             draggable = true;
  
-        if (transparent) {
-            strokeOpacity = 0.0;
-            fillOpacity = 0.0;
-            draggable = false;
-        } else if (preview) {
+        // If we are making a preview hexagon while selecting.
+        if (preview) {
             strokeOpacity = 0.0;
             fillOpacity = 0.6;
             draggable = false;
         }
+
         return new google.maps.Polygon({
             strokeColor: color,
             strokeWeight: 1,
@@ -118,15 +116,16 @@ var app = app || {}; // jshint ignore:line
         }
     }
         
-    function findHexagonsInPolygon (boundingPolygon) {
+    function findHexagonsInPolygon (bounds, isRect) {
 
-        // Select the hexagons that are contained within the given polygon.
+        // Select hexagons that are contained within the given polygon/rectangle.
         var inBounds = _.filter(Object.keys(polygons), function(hex) {
             var verts = polygons[hex].getPath();
             var contains = true;
             for (j = 0; j < verts.getLength(); j += 1) {
                 v = verts.getAt(j);
-                 if (!google.maps.geometry.poly.containsLocation(v, boundingPolygon)) {
+                if ((isRect && !bounds.contains(v)) ||
+                    (!isRect && !google.maps.geometry.poly.containsLocation(v, bounds))) {
                     contains = false;
                     break;
                 }
@@ -136,23 +135,15 @@ var app = app || {}; // jshint ignore:line
         return inBounds;
     }
 
-    function twoPointRectangleToPolygon (latLng1, latLng2) {
+    function boundsToPath (latLng1, latLng2) {
  
-        // Find the paths of the rectangle as if it were a polygon
-        var paths = [
+        // Converts rectangular bounds to a polygon path
+        return [
             new google.maps.LatLng(latLng1.lat(), latLng1.lng()),
             new google.maps.LatLng(latLng2.lat(), latLng1.lng()),
             new google.maps.LatLng(latLng2.lat(), latLng2.lng()),
             new google.maps.LatLng(latLng1.lat(), latLng2.lng()),
         ];
-
-        // Replace the rectangle with a polygon
-        return createPolygon(paths, true);
-    }
-        
-    findHexagonsInRectangle = function (start, end) {
-
-        return findHexagonsInPolygon(twoPointRectangleToPolygon(start, end));
     }
 
     function finishSelect (event) {
@@ -177,9 +168,8 @@ var app = app || {}; // jshint ignore:line
 
         if (isRectangle) {
 
-            // Replace the rectangle with a polygon
-            shape.setMap(null);
-            shape = twoPointRectangleToPolygon(startLatLng, latLng);
+            // Replace the path to include this last point
+            shape.setPath(boundsToPath(startLatLng, latLng));
 
         } else { // polygon
 
@@ -227,7 +217,7 @@ var app = app || {}; // jshint ignore:line
             // Create the preview hexagons
             _.each(previewHexNames, function(hex) {
                 previewHexes[hex] =
-                    createPolygon(polygons[hex].getPath(), null, true);
+                    createPolygon(polygons[hex].getPath(), true);
             });
         } else {
  
@@ -251,21 +241,7 @@ var app = app || {}; // jshint ignore:line
         if (Session.get('showSelecting')) clearPreviewHexagons();
  
         if (isRectangle) {
-            var start = startLatLng,
-                end = latLng;
- 
-            if (latLng.lng() < startLatLng.lng()) {
- 
-                // Make the bounds in the order google rectangle expects
-                start = latLng;
-                end = startLatLng;
-            }
-            shape.setBounds(new google.maps.LatLngBounds(start, end));
-            if (Session.get('showSelecting')) {
-                previewHexNames = findHexagonsInPolygon(
-                    twoPointRectangleToPolygon(start, end));
-                colorPreviewHexagons();
-            }
+            shape.setPath(boundsToPath(startLatLng, latLng));
 
         } else { // this is a polygon
  
@@ -275,10 +251,10 @@ var app = app || {}; // jshint ignore:line
             }
  
             shape.getPath().push(latLng);
-            if (Session.get('showSelecting')) {
-                previewHexNames = findHexagonsInPolygon(shape);
-                colorPreviewHexagons();
-            }
+        }
+        if (Session.get('showSelecting')) {
+            previewHexNames = findHexagonsInPolygon(shape);
+            colorPreviewHexagons();
         }
     }
 
@@ -318,7 +294,7 @@ var app = app || {}; // jshint ignore:line
         tool_activity(false);
     }
 
-    function setUp() {
+    function setUpShapeSelect() {
 
         // Disable some events on the map
         googlemap.setOptions({
@@ -326,6 +302,9 @@ var app = app || {}; // jshint ignore:line
             draggable: false,
             scrollwheel: false,
         });
+ 
+        // Create a polygon as the rubber-band select polygon
+        shape = createPolygon([new google.maps.LatLng(0,0)]);
  
         // Add a listener to start the selection where the user clicks
         startHandle = googlemap.addListener('mousedown', startSelect);
@@ -455,13 +434,11 @@ var app = app || {}; // jshint ignore:line
 
         if (tool === 'rectangle') {
             isRectangle = true;
-            shape = createRectangle();
-            setUp();
+            setUpShapeSelect();
 
         } else if (tool === 'polygon') {
             isRectangle = false;
-            shape = createPolygon([new google.maps.LatLng(0,0)]);
-            setUp();
+            setUpShapeSelect();
 
         } else { // The import function must have been selected
             selectImport();
@@ -478,6 +455,11 @@ var app = app || {}; // jshint ignore:line
             }
         }
     });
+
+    findHexagonsInViewport = function () {
+ 
+        return findHexagonsInPolygon(googlemap.getBounds(), true)
+    }
 
     initSelect = function () {
 
