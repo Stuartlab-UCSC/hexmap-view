@@ -116,9 +116,25 @@ var app = app || {}; // jshint ignore:line
         }
 	};
 
+    function signInClicked(count) {
+ 
+        // Set focus to the login-email input text box
+        if (_.isUndefined(count)) count = 0;
+        var reps = 20,
+            mSecs = 100,
+            timer = setTimeout(function () {
+                if ($('#login-email').length > 0) {
+                    $('#login-email').focus();
+                } else if (count < reps ) {
+                    loginFocus(count + 1);
+                }
+            }, mSecs);
+	};
+ 
     initProject = function (callback) { // jshint ignore:line
  
         onProjectsLoaded = callback;
+        $('.login').on('click', $('#login-sign-in-link'), signInClicked);
  
         // Initialize projects whenever the username changes, including log out
         Meteor.autorun(function() {

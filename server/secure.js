@@ -74,8 +74,7 @@ function showUsernames () {
 }
 
 //showUsernames();
-showUsers();
-//addUsersToRoles ('aDeveloperUser@x.x', 'dev');
+//addUsersToRoles ('swat@soe.ucsc.edu', 'CKCC');
 //showRolesWithUsersAndProject();
 //addUsersToRoles(['x@x.x'],
 //Meteor.users.remove({});
