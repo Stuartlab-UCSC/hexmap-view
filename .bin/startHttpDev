@@ -1,0 +1,9 @@
+#!/bin/bash
+# Start the http server on port 80, the default
+
+DIR=/cluster/home/swat/hexmap
+NODEPATH=/cluster/home/swat/.meteor/packages/meteor-tool/.1.1.10.ki0ccv++os.linux.x86_64+web.browser+web.cordova/mt-os.linux.x86_64/dev_bundle/bin
+
+touch $DIR/http.log
+mv $DIR/http.log $DIR/http.prev.log
+$NODEPATH/node $DIR/http/http.js &> $DIR/http.log &

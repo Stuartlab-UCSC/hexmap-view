@@ -76,7 +76,7 @@ var app = app || {}; // jshint ignore:line
         // that were not mapped to this layer's grid
         var file = 'gridOrphans_' + layout + '.tab';
         Meteor.call('getTsvFile', file, ctx.project,
-            function (error, parsed) {;
+            function (error, parsed) {
 
             // This is an array of points names.
             var orphans;

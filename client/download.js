@@ -129,14 +129,20 @@ var app = app || {}; // jshint ignore:line
     function xyPreSquiggle_click(event) {
 
         // Initialize for the xy pre-squiggle positions file
-        var layout = ctx.layout_names.indexOf(
-                Session.get('current_layout_name'))
-            defaultFileName = 'xyPreSquiggle_' + layout +'.tab'
-            url = Meteor.absoluteUrl() + ctx.project + defaultFileName;
-
-        $(event.target).attr({
-            'href': url,
-            'download': defaultFileName,
+        var layout = ctx.layout_names.indexOf(Session.get('current_layout_name')),
+            file = 'xyPreSquiggle_' + layout +'.tab';
+            //url = Meteor.absoluteUrl() + ctx.project + defaultFileName;
+ 
+        Meteor.call('getTsvFile', file, ctx.project, true,
+            function (error, tsv) {
+            if (error || tsv.slice(0,5) === 'Error') {
+                banner('warn', 'Sorry, but that XY position file cannot be found.');
+            } else {
+                $(event.target).attr({
+                    'href': 'data:text/plain;base64,' + window.btoa(tsv),
+                    'download': file,
+                });
+            }
         });
     }
 

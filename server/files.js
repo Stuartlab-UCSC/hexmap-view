@@ -1,4 +1,6 @@
-// meteorMethods.js
+// files.js
+
+// Contains the Meteor methods for accessing flat files on the server.
 
 var exec = Npm.require('child_process').exec;
 var Fiber = Npm.require('fibers');
@@ -12,6 +14,7 @@ var path = Npm.require('path');
 
 // TODO these dirs may need to be different with built meteor
 // There must be a better way to do this for dev and built
+// Maybe move these files to a directory the client can see?
 var serverDir = '../../../../../server/';
 function writeToTempFile (data, fileExtension) {
 
@@ -60,7 +63,7 @@ readFromJsonBaseFile = function (baseFilename) {
 
 Meteor.methods({
 
-    getTsvFile: function (filename, project) {
+    getTsvFile: function (filename, project, unparsed) {
 
         // Retrieve data from a tab-separated file
         this.unblock();
@@ -76,8 +79,10 @@ Meteor.methods({
             fs.readFile(path, 'utf8', function (error, results) {
                 if (error) {
                     future.throw(error);
+                }
+                if (unparsed) {
+                    future.return(results);
                 } else {
-
                     future.return(parseTsv(results));
                 }
             });

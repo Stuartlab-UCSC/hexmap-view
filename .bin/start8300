@@ -1,0 +1,15 @@
+#!/bin/bash
+# Start a dev server on port 8300
+
+PORT=8300
+METEORPATH=/cluster/home/swat/.meteor
+DIR=/cluster/home/swat/hexmap
+DB_PORT=27000
+HTTPS_PORT=8343
+ROOT_URL=https://tumormap.ucsc.edu:$HTTPS_PORT
+MONGO_URL=mongodb://localhost:$DB_PORT/$PORT
+
+touch $DIR/$PORT.log
+mv $DIR/$PORT.log $DIR/$PORT.prev.log
+cd $DIR/$PORT
+$METEORPATH/meteor --port $PORT &> $DIR/$PORT.log &
