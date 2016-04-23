@@ -127,12 +127,22 @@ Accounts.onCreateUser(function (options, user) {
 isUserInRole = function (user, role) {
 
     // Determine if a user is in a role.
-    if (role &&
-        (role === 'public' || (user && Roles.userIsInRole(user, role)))) {
+    if (!role) return false;
+    
+    var roles = role;
+    if (Object.prototype.toString.call(role) === '[object String]' ) {
+        roles = [role];
+    }
+    if (roles.indexOf('public') > -1 || (user && Roles.userIsInRole(user, roles))) {
         return true;
     } else {
         return false;
     }
 }
 
+Meteor.methods({
 
+    isUserInRole: function (role) {
+        return isUserInRole(Meteor.user(), role);
+    },
+});

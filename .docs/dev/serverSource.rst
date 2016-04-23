@@ -1,40 +1,68 @@
 Source: Server
 --------------
-The dynamic and precomputed statistics use the same python code at the layer
-level, statsLayer.py.
+The server code is in two main directories: .server and server. The .server
+directory contains code to preprocess the data before being viewed in the tumor
+map. This code is never accessed by the client.
 
-Shared
-^^^^^^
-This is shared between the server-only pipeline and the client-initiated pipeline.
-
-**statsLayer.py** calls the stats libraries for one layer. The client uses this
-for dynamic stats and the server uses this for pre-computed stats
+The server directory has code that is initiated by the client but run on the
+server and includes node scripts.
 
 Server only
 ^^^^^^^^^^^
-This list should include all of the files currently checked into the repository in
-hexagram/server.
+hexagram/.server contains files that are only used by the server and not
+initiated by the client.
 
-**hexagram.py** : original code-base and the top executable in generating the
+**clr.py** :
+
+**compute_sparse_matrix.py** :
+
+**convert_annotation_to_tumormap_mapping.py** :
+
+**create_colormaps.py** :
+
+**layout.py** : was hexagram.py. original code-base and the top executable in generating the
 final input files for the tumor map
+
+**pool.py** : general utility to manage parallel processing
+
+**start/start** : scripts for starting the servers
+
+**statsLayer.py** calls the stats libraries for one layer. The client uses this
+for dynamic stats and the server uses this for pre-computed stats. This is the
+only file used by the server and client.
 
 **stats.Layout.py** : precomputed layout-aware stats
 
 **statsNoLayout.py** : precomputed layout-independent stats
 
-**pool.py** : general utility to manage parallel processing
+**tsvToJson_overlayNodes.py** : transform a specifically-formatted tsv file into a json file
 
-**diffAnalysis.py** : perform dynamic differential analysis with input from the client.
-Currently unused, but may be used soon
+**tsv.py** : TSV read and write utility
 
 Client-initiated
 ^^^^^^^^^^^^^^^^
-The dynamic statistics are initiated by the client via Meteor
+hexagram/server contains the files that are initiated by the client via Meteor
 rather than directly issuing http requests.
 
-**meteorMethods.js** : interface between client and server, a js/node file
+**dbMethods.js** : handle queries to the data base.
+
+**diffAnalysis.py** : perform dynamic differential analysis with input from the client.
+Currently unused
+
+**files.js** : the Meteor methods for accessing flat files on the server.
+
+**httpQuery.js** : Receive and respond to incoming HTTP requests according to
+the query API.
+
+**project.js** : handles project list retrieval based on user role
+
+**pythonApiHelpers.py** : helper functions to read and write json-formatted files
+from python. There is also an example of calling these helper functions.
+
+**secure.js** : handles checking user roles for authorization
 
 **statsDynamic.py** : transforms a dynamic stat layer into a normal layer for computations
 
-**placeNewNodes** : place nodes on an existing map after computing similarity
-
+**statsLayer.py** calls the stats libraries for one layer. The client uses this
+for dynamic stats and the server uses this for pre-computed stats. This is the
+only file used by the server and client.

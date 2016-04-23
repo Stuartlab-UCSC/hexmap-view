@@ -3,9 +3,9 @@ Query API
 
 All Queries
 -----------
-API query URLs begin with "http://tumormap.ucsc.edu/query/" followed by the
+API query URLs begin with "https://tumormap.ucsc.edu/query/" followed by the
 specific query ID. For testing in development, use
-"http://hexmap.sdsc.edu:8111/query/" followed by the query ID.
+"https://tumormap.ucsc.edu:8343/query/" followed by the query ID.
 
 API query parameters are sent in the HTTP POST message body in JSON format.
 
@@ -23,6 +23,10 @@ Example::
  {
     "map": "CKCC/v1",
     "layout": "mRNA",
+    "email": [
+        "mok66@gmail.com",
+        ...
+    ],
     "nodes": {
         "mySample1": {
             "ALK": "0.897645",
@@ -37,15 +41,16 @@ Example::
 This curl example using the development server::
 
  curl -H Content-Type:application/json -X POST -d \
- '{"map": "CKCC/v1/stable", "layout": "mRNA", "nodes": {"node1": {"gene1": "1", "gene2": "2"}, "node2": {"gene1": "3", "gene2": "4"}}}' \
- hexmap.sdsc.edu:8111/query/overlayNodes
+ '{"map": "CKCC/v1", "layout": "mRNA", "email": "mok66@gmail.com", "nodes": {"node1": {"gene1": "1", "gene2": "2"}, "node2": {"gene1": "3", "gene2": "4"}}}' \
+ https://tumormap.ucsc.edu:8343/query/overlayNodes
 
 should return a bookmark of the form::
 
- {"bookmark": "http://hexmap.sdsc.edu:8111/?b=586633986"}
+ {"bookmark": "https://tumormap.ucsc.edu:8343/?b=586633986"}
 
 Definitions
 
+ | *email* : optional parameter, one or more email addresses to receive the bookmark
  | *layout* : type of values by which the new node will be placed on the map. e.g., "mRNA"
  | *mapID* : frozen map ID. e.g., "CKCC/v1"
  | *nodes* : the nodes to be placed on the map
@@ -57,6 +62,10 @@ Generalized Format::
  {
     "map": <mapID>,
     "layout": <layout>,
+    "email": [
+        <email>,
+        (1 to N email addresses ...)
+    ],
     "nodes: {
         <node>: {
             <node-property>: <node-property value>,

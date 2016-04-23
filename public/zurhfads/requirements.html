@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Requirements &mdash; TumorMap Developer Documentation</title>
+    <title>Requirements &mdash; Tumor Map Developer Documentation</title>
     
     <link rel="stylesheet" href="_static/agogo.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -24,7 +24,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="TumorMap Developer Documentation" href="index.html" />
+    <link rel="top" title="Tumor Map Developer Documentation" href="index.html" />
     <link rel="next" title="This Document" href="docs.html" />
     <link rel="prev" title="Code Repository" href="repository.html" /> 
   </head>
@@ -32,7 +32,7 @@
     <div class="header-wrapper" role="banner">
       <div class="header">
         <div class="headertitle"><a
-          href="index.html">TumorMap Developer Documentation</a></div>
+          href="index.html">Tumor Map Developer Documentation</a></div>
         <div class="rel" role="navigation" aria-label="related navigation">
           <a href="repository.html" title="Code Repository"
              accesskey="P">previous</a> |
@@ -56,11 +56,10 @@
 <h1>Requirements<a class="headerlink" href="#requirements" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="our-servers">
 <h2>Our servers<a class="headerlink" href="#our-servers" title="Permalink to this headline">¶</a></h2>
-<p>The public server is at <a class="reference external" href="https://tumorMap.ucsc.edu">https://tumorMap.ucsc.edu</a> which resides on the virtual
+<p><a class="reference external" href="https://tumormap.ucsc.edu">https://tumormap.ucsc.edu</a> is the public server residing on the virtual
 machine called hexmap.sdsc.edu, running on the standard https port: 443. User,
 &#8216;hexmap&#8217; should be used to update this server.</p>
-<p>The development servers are running at <a class="reference external" href="https://hexmap.sdsc.edu:8111">https://hexmap.sdsc.edu:8111</a> and other
-ports beginning with 8 in the 8 thousands.</p>
+<p><a class="reference external" href="https://hexmap.sdsc.edu:8343">https://hexmap.sdsc.edu:8343</a> is the development server.</p>
 </div>
 <div class="section" id="python-and-modules">
 <h2>Python and modules<a class="headerlink" href="#python-and-modules" title="Permalink to this headline">¶</a></h2>
@@ -99,12 +98,14 @@ make
 ls ../bin
 </pre></div>
 </div>
+<p>(TODO:  check this in somehow with yulia&#8217;s changes)</p>
 </div>
 <div class="section" id="path-environment-variable">
 <h2>PATH environment variable<a class="headerlink" href="#path-environment-variable" title="Permalink to this headline">¶</a></h2>
 <p>Set your PATH environment variable to include the tumor map python executables
-and the DRL layout executables:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span>&lt;hexagram-root&gt;/.python:&lt;hexagram-root&gt;/server:&lt;drl-root&gt;/bin
+and the DRL layout executables. Where HEXROOT is the full path to your hexagram
+directory and DRLROOT is the location of your DRL installation:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span>HEXROOT/.python:HEXROOT/server:DRLROOT/bin
 </pre></div>
 </div>
 </div>
@@ -118,7 +119,6 @@ be installed according to <a class="reference external" href="http://www.sphinx-
 <p>[1] S. Martin, W. M. Brown, R. Klavans, K. Boyack, &#8220;Dr. L: Distributed Recursive
 (Graph) Layout,&#8221; in preparation for Journal of Graph Algorithms and
 Applications.</p>
-<p>(TODO:  check this in somehow with yulia&#8217;s changes)</p>
 </div>
 </div>
 
@@ -187,7 +187,7 @@ Applications.</p>
         <div class="right">
           
     <div class="footer" role="contentinfo">
-        &copy; Copyright 2016, UCSC TumorMap development team.
+        &copy; Copyright 2016, UCSC Tumor Map development team.
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.5.
     </div>
         </div>

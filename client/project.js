@@ -158,23 +158,23 @@ var app = app || {}; // jshint ignore:line
                 project.projects = projects;
                 project._populate();
 
-                // Show API doc & dev doc menu options if user is in dev role.
-                var queryDocsAccess = false;
+                // Show dev doc menu option if user is in dev role.
                 Meteor.call('isUserInRole', 'dev', function (error, results) {
                     if (!error && results) {
-                        $('.queryDocs').show();
                         $('.devDocs').show();
                    } else {
-                        $('.queryDocs').hide();
                         $('.devDocs').hide();
                     }
                 });
                 
-                // Show the API doc menu option if the user is someone special.
-                if (!$('.queryDocs').is(":visible")
-                    && user && user.username === 'mokolodi1@gmail.com') {
-                    $('.queryDocs').show();
-                }
+                // Show API doc menu option if user is in dev or CKCC role.
+                Meteor.call('isUserInRole', ['dev', 'CKCC'], function (error, results) {
+                    if (!error && results) {
+                        $('.queryDocs').show();
+                   } else {
+                        $('.queryDocs').hide();
+                    }
+                });
             });
         });
     };

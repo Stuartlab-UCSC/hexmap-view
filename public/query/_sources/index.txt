@@ -1,4 +1,4 @@
-.. UCSC TumorMap Query API master file
+.. UCSC Tumor Map Query API master file
 
 Contents
 

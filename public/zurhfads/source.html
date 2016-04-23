@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Source Code &mdash; TumorMap Developer Documentation</title>
+    <title>Source Code &mdash; Tumor Map Developer Documentation</title>
     
     <link rel="stylesheet" href="_static/agogo.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -24,7 +24,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="TumorMap Developer Documentation" href="index.html" />
+    <link rel="top" title="Tumor Map Developer Documentation" href="index.html" />
     <link rel="next" title="Source: Client" href="clientSource.html" />
     <link rel="prev" title="Query API" href="queryApi.html" /> 
   </head>
@@ -32,7 +32,7 @@
     <div class="header-wrapper" role="banner">
       <div class="header">
         <div class="headertitle"><a
-          href="index.html">TumorMap Developer Documentation</a></div>
+          href="index.html">Tumor Map Developer Documentation</a></div>
         <div class="rel" role="navigation" aria-label="related navigation">
           <a href="queryApi.html" title="Query API"
              accesskey="P">previous</a> |
@@ -64,27 +64,42 @@
 <h2>Directory structure<a class="headerlink" href="#directory-structure" title="Permalink to this headline">¶</a></h2>
 <p>The source code uses a directory structure suggested by Meteor.</p>
 <p>Below are descriptions of these directories, where the &#8221;.&#8221; hides it from Meteor&#8217;s deployment build:</p>
-<p><strong>.docs</strong> : sources for this document</p>
-<p><strong>.python</strong> : python that is not initiated by the client</p>
+<p><strong>.docs</strong> : sources for this document and query API</p>
+<p><strong>.server</strong> : python and other scripts that are not initiated by the client</p>
+<blockquote>
+<div><div class="line-block">
+<div class="line"><strong>start</strong> : scripts to start servers</div>
+</div>
+</div></blockquote>
 <p><strong>client</strong> : client-only javascript</p>
 <blockquote>
 <div><div class="line-block">
 <div class="line"><strong>htmlCss</strong> : html and css files</div>
 </div>
 <div class="line-block">
-<div class="line"><strong>lib</strong> : 3rd party libraries</div>
+<div class="line"><strong>lib</strong> : 3rd party libraries and client files we want loaded first</div>
 </div>
 </div></blockquote>
+<p><strong>lib</strong> : server and client files we want loaded first</p>
 <p><strong>public</strong> : static files to be served, such as images</p>
 <blockquote>
 <div><div class="line-block">
-<div class="line"><strong>docs</strong> : html pages for this document</div>
+<div class="line"><strong>images</strong> : images that jquery-ui wants in an image directory</div>
 </div>
 <div class="line-block">
-<div class="line"><strong>images</strong> : images that jquery-ui wants in an image directory</div>
+<div class="line"><strong>query</strong> : html pages for the Query API document</div>
+</div>
+<div class="line-block">
+<div class="line"><strong>zurhfads</strong> : html pages for this document</div>
 </div>
 </div></blockquote>
 <p><strong>server</strong> : server-only node/javascript and python initiated by the client</p>
+<blockquote>
+<div><div class="line-block">
+<div class="line"><strong>lib</strong> : server files we want loaded first</div>
+</div>
+</div></blockquote>
+<p><strong>tests</strong> : unit and integration tests</p>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="clientSource.html">Source: Client</a></li>
@@ -154,7 +169,7 @@
         <div class="right">
           
     <div class="footer" role="contentinfo">
-        &copy; Copyright 2016, UCSC TumorMap development team.
+        &copy; Copyright 2016, UCSC Tumor Map development team.
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.5.
     </div>
         </div>

@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Python API: overlayNodes &mdash; TumorMap Developer Documentation</title>
+    <title>Python API: overlayNodes &mdash; Tumor Map Developer Documentation</title>
     
     <link rel="stylesheet" href="_static/agogo.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -24,7 +24,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="TumorMap Developer Documentation" href="index.html" />
+    <link rel="top" title="Tumor Map Developer Documentation" href="index.html" />
     <link rel="up" title="Python API" href="pythonApi.html" />
     <link rel="next" title="Python API: statsDynamic" href="pyStatsDynamic.html" />
     <link rel="prev" title="Python API: createSubMap" href="pyCreateSubMap.html" /> 
@@ -33,7 +33,7 @@
     <div class="header-wrapper" role="banner">
       <div class="header">
         <div class="headertitle"><a
-          href="index.html">TumorMap Developer Documentation</a></div>
+          href="index.html">Tumor Map Developer Documentation</a></div>
         <div class="rel" role="navigation" aria-label="related navigation">
           <a href="pyCreateSubMap.html" title="Python API: createSubMap"
              accesskey="P">previous</a> |
@@ -82,14 +82,14 @@ example call and response.</p>
 }
 </pre></div>
 </div>
-<p>This curl example where TUMORMAP is the tumormap server:</p>
+<p>This curl example using the development server:</p>
 <div class="highlight-python"><div class="highlight"><pre><span></span>curl -H Content-Type:application/json -X POST -d \
-&#39;{&quot;map&quot;: &quot;CKCC/v1&quot;, &quot;layout&quot;: &quot;mRNA&quot;, &quot;nodes&quot;: {&quot;node1&quot;: {&quot;gene1&quot;: &quot;1&quot;, &quot;gene2&quot;: &quot;2&quot;}, &quot;node2&quot;: {&quot;gene1&quot;: &quot;3&quot;, &quot;gene2&quot;: &quot;4&quot;}}}&#39; \
-hexmap.sdsc.edu:8111/query/overlayNodes
+&#39;{&quot;map&quot;: &quot;CKCC/v1&quot;, &quot;layout&quot;: &quot;mRNA&quot;, &quot;email&quot;: &quot;mok66@gmail.com&quot;, &quot;nodes&quot;: {&quot;node1&quot;: {&quot;gene1&quot;: &quot;1&quot;, &quot;gene2&quot;: &quot;2&quot;}, &quot;node2&quot;: {&quot;gene1&quot;: &quot;3&quot;, &quot;gene2&quot;: &quot;4&quot;}}}&#39; \
+https://tumormap.ucsc.edu:8343/query/overlayNodes
 </pre></div>
 </div>
 <p>should return a bookmark of the form:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s2">&quot;bookmark&quot;</span><span class="p">:</span> <span class="s2">&quot;http://hexmap.sdsc.edu:8111/?b=586633986&quot;</span><span class="p">}</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s2">&quot;bookmark&quot;</span><span class="p">:</span> <span class="s2">&quot;https://tumormap.ucsc.edu:8343/?b=586633986&quot;</span><span class="p">}</span>
 </pre></div>
 </div>
 <p>Definitions</p>
@@ -126,16 +126,16 @@ hexmap.sdsc.edu:8111/query/overlayNodes
 <h2>Response<a class="headerlink" href="#response" title="Permalink to this headline">¶</a></h2>
 <p><strong>Success</strong></p>
 <p>Example:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span>{
-   &quot;map&quot;: &lt;map ID&gt;,
-   &quot;layout&quot;: &quot;mRNA&quot;,
-   &quot;nodes&quot;: {
-       &quot;mySample1&quot;: {
-           &quot;x&quot;: &quot;42&quot;,
-           &quot;y&quot;: &quot;23&quot;,
-       },
-   },
-}
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="p">{</span>
+   <span class="s2">&quot;map&quot;</span><span class="p">:</span> <span class="s2">&quot;CKCC/v1&quot;</span><span class="p">,</span>
+   <span class="s2">&quot;layout&quot;</span><span class="p">:</span> <span class="s2">&quot;mRNA&quot;</span><span class="p">,</span>
+   <span class="s2">&quot;nodes&quot;</span><span class="p">:</span> <span class="p">{</span>
+       <span class="s2">&quot;mySample1&quot;</span><span class="p">:</span> <span class="p">{</span>
+           <span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="s2">&quot;42&quot;</span><span class="p">,</span>
+           <span class="s2">&quot;y&quot;</span><span class="p">:</span> <span class="s2">&quot;23&quot;</span><span class="p">,</span>
+       <span class="p">},</span>
+   <span class="p">},</span>
+<span class="p">}</span>
 </pre></div>
 </div>
 <p>Generalized Format:</p>
@@ -220,7 +220,7 @@ hexmap.sdsc.edu:8111/query/overlayNodes
         <div class="right">
           
     <div class="footer" role="contentinfo">
-        &copy; Copyright 2016, UCSC TumorMap development team.
+        &copy; Copyright 2016, UCSC Tumor Map development team.
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.5.
     </div>
         </div>

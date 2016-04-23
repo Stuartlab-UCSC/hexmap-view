@@ -33,15 +33,15 @@ Example::
     },
  }
 
-This curl example where TUMORMAP is the tumormap server::
+This curl example using the development server::
 
  curl -H Content-Type:application/json -X POST -d \
- '{"map": "CKCC/v1", "layout": "mRNA", "nodes": {"node1": {"gene1": "1", "gene2": "2"}, "node2": {"gene1": "3", "gene2": "4"}}}' \
- hexmap.sdsc.edu:8111/query/overlayNodes
+ '{"map": "CKCC/v1", "layout": "mRNA", "email": "mok66@gmail.com", "nodes": {"node1": {"gene1": "1", "gene2": "2"}, "node2": {"gene1": "3", "gene2": "4"}}}' \
+ https://tumormap.ucsc.edu:8343/query/overlayNodes
 
 should return a bookmark of the form::
 
- {"bookmark": "http://hexmap.sdsc.edu:8111/?b=586633986"}
+ {"bookmark": "https://tumormap.ucsc.edu:8343/?b=586633986"}
 
 Definitions
 
@@ -78,7 +78,7 @@ Response
 Example::
 
  {
-    "map": <map ID>,
+    "map": "CKCC/v1",
     "layout": "mRNA",
     "nodes": {
         "mySample1": {

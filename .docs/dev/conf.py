@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# TumorMap documentation build configuration file, created by
+# Tumor Map documentation build configuration file, created by
 # sphinx-quickstart on Sun Feb 14 16:29:25 2016.
 #
 # This file is execfile()d with the current directory set to its
@@ -43,8 +43,8 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'UCSC TumorMap'
-copyright = u'2016, UCSC TumorMap development team'
+project = u'UCSC Tumor Map'
+copyright = u'2016, UCSC Tumor Map development team'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -125,10 +125,10 @@ html_theme_options = {
 
 # The name for this set of Sphinx documents.  If None, it defaults to
 # "<project> v<release> Documentation".
-html_title = "TumorMap Developer Documentation"
+html_title = "Tumor Map Developer Documentation"
 
 # A shorter title for the navigation bar.  Default is the same as html_title.
-html_short_title = "TumorMap Developer Documentation"
+html_short_title = "Tumor Map Developer Documentation"
 
 # The name of an image file (relative to this directory) to place at the top
 # of the sidebar.
@@ -227,8 +227,8 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-  ('index', 'TumorMap.tex', u'TumorMap Documentation',
-   u'TumorMap development team', 'manual'),
+  ('index', 'TumorMap.tex', u'Tumor Map Documentation',
+   u'Tumor Map development team', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -257,8 +257,8 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'tumormap', u'TumorMap Documentation',
-     [u'TumorMap development team'], 1)
+    ('index', 'tumormap', u'Tumor Map Documentation',
+     [u'Tumor Map development team'], 1)
 ]
 
 # If true, show URL addresses after external links.
@@ -271,8 +271,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-  ('index', 'TumorMap', u'TumorMap Documentation',
-   u'TumorMap development team', 'TumorMap', 'One line description of project.',
+  ('index', 'TumorMap', u'Tumor Map Documentation',
+   u'Tumor Map development team', 'Tumor Map', 'One line description of project.',
    'Miscellaneous'),
 ]
 

@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Source: Server &mdash; TumorMap Developer Documentation</title>
+    <title>Source: Server &mdash; Tumor Map Developer Documentation</title>
     
     <link rel="stylesheet" href="_static/agogo.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -24,7 +24,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="TumorMap Developer Documentation" href="index.html" />
+    <link rel="top" title="Tumor Map Developer Documentation" href="index.html" />
     <link rel="up" title="Source Code" href="source.html" />
     <link rel="next" title="Code Repository" href="repository.html" />
     <link rel="prev" title="Source: Client" href="clientSource.html" /> 
@@ -33,7 +33,7 @@
     <div class="header-wrapper" role="banner">
       <div class="header">
         <div class="headertitle"><a
-          href="index.html">TumorMap Developer Documentation</a></div>
+          href="index.html">Tumor Map Developer Documentation</a></div>
         <div class="rel" role="navigation" aria-label="related navigation">
           <a href="clientSource.html" title="Source: Client"
              accesskey="P">previous</a> |
@@ -55,33 +55,48 @@
             
   <div class="section" id="source-server">
 <h1>Source: Server<a class="headerlink" href="#source-server" title="Permalink to this headline">¶</a></h1>
-<p>The dynamic and precomputed statistics use the same python code at the layer
-level, statsLayer.py.</p>
-<div class="section" id="shared">
-<h2>Shared<a class="headerlink" href="#shared" title="Permalink to this headline">¶</a></h2>
-<p>This is shared between the server-only pipeline and the client-initiated pipeline.</p>
-<p><strong>statsLayer.py</strong> calls the stats libraries for one layer. The client uses this
-for dynamic stats and the server uses this for pre-computed stats</p>
-</div>
+<p>The server code is in two main directories: .server and server. The .server
+directory contains code to preprocess the data before being viewed in the tumor
+map. This code is never accessed by the client.</p>
+<p>The server directory has code that is initiated by the client but run on the
+server and includes node scripts.</p>
 <div class="section" id="server-only">
 <h2>Server only<a class="headerlink" href="#server-only" title="Permalink to this headline">¶</a></h2>
-<p>This list should include all of the files currently checked into the repository in
-hexagram/server.</p>
-<p><strong>hexagram.py</strong> : original code-base and the top executable in generating the
+<p>hexagram/.server contains files that are only used by the server and not
+initiated by the client.</p>
+<p><strong>clr.py</strong> :</p>
+<p><strong>compute_sparse_matrix.py</strong> :</p>
+<p><strong>convert_annotation_to_tumormap_mapping.py</strong> :</p>
+<p><strong>create_colormaps.py</strong> :</p>
+<p><strong>layout.py</strong> : was hexagram.py. original code-base and the top executable in generating the
 final input files for the tumor map</p>
+<p><strong>pool.py</strong> : general utility to manage parallel processing</p>
+<p><strong>statsLayer.py</strong> calls the stats libraries for one layer. The client uses this
+for dynamic stats and the server uses this for pre-computed stats. This is the
+only file used by the server and client.</p>
 <p><strong>stats.Layout.py</strong> : precomputed layout-aware stats</p>
 <p><strong>statsNoLayout.py</strong> : precomputed layout-independent stats</p>
-<p><strong>pool.py</strong> : general utility to manage parallel processing</p>
-<p><strong>diffAnalysis.py</strong> : perform dynamic differential analysis with input from the client.
-Currently unused, but may be used soon</p>
+<p><strong>tsvToJson_overlayNodes.py</strong> : transform a specifically-formatted tsv file into a json file</p>
+<p><strong>tsv.py</strong> : TSV read and write utility</p>
 </div>
 <div class="section" id="client-initiated">
 <h2>Client-initiated<a class="headerlink" href="#client-initiated" title="Permalink to this headline">¶</a></h2>
-<p>The dynamic statistics are initiated by the client via Meteor
+<p>hexagram/server contains the files that are initiated by the client via Meteor
 rather than directly issuing http requests.</p>
-<p><strong>meteorMethods.js</strong> : interface between client and server, a js/node file</p>
+<p><strong>dbMethods.js</strong> : handle queries to the data base.</p>
+<p><strong>diffAnalysis.py</strong> : perform dynamic differential analysis with input from the client.
+Currently unused</p>
+<p><strong>files.js</strong> : the Meteor methods for accessing flat files on the server.</p>
+<p><strong>httpQuery.js</strong> : Receive and respond to incoming HTTP requests according to
+the query API.</p>
+<p><strong>project.js</strong> : handles project list retrieval based on user role</p>
+<p><strong>pythonApiHelpers.py</strong> : helper functions to read and write json-formatted files
+from python. There is also an example of calling these helper functions.</p>
+<p><strong>secure.js</strong> : handles checking user roles for authorization</p>
 <p><strong>statsDynamic.py</strong> : transforms a dynamic stat layer into a normal layer for computations</p>
-<p><strong>placeNewNodes</strong> : place nodes on an existing map after computing similarity</p>
+<p><strong>statsLayer.py</strong> calls the stats libraries for one layer. The client uses this
+for dynamic stats and the server uses this for pre-computed stats. This is the
+only file used by the server and client.</p>
 </div>
 </div>
 
@@ -101,7 +116,6 @@ rather than directly issuing http requests.</p>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="clientSource.html">Source: Client</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="">Source: Server</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#shared">Shared</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#server-only">Server only</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#client-initiated">Client-initiated</a></li>
 </ul>
@@ -150,7 +164,7 @@ rather than directly issuing http requests.</p>
         <div class="right">
           
     <div class="footer" role="contentinfo">
-        &copy; Copyright 2016, UCSC TumorMap development team.
+        &copy; Copyright 2016, UCSC Tumor Map development team.
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.5.
     </div>
         </div>

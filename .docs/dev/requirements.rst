@@ -4,12 +4,11 @@ Requirements
 Our servers
 -----------
 
-The public server is at https://tumorMap.ucsc.edu which resides on the virtual
+https://tumormap.ucsc.edu is the public server residing on the virtual
 machine called hexmap.sdsc.edu, running on the standard https port: 443. User,
 'hexmap' should be used to update this server.
 
-The development servers are running at https://hexmap.sdsc.edu:8111 and other
-ports beginning with 8 in the 8 thousands.
+https://hexmap.sdsc.edu:8343 is the development server.
 
 Python and modules
 ------------------
@@ -51,13 +50,16 @@ Install::
  make
  ls ../bin
 
+(TODO:  check this in somehow with yulia's changes)
+
 PATH environment variable
 -------------------------
 
 Set your PATH environment variable to include the tumor map python executables
-and the DRL layout executables::
+and the DRL layout executables. Where HEXROOT is the full path to your hexagram
+directory and DRLROOT is the location of your DRL installation::
 
- <hexagram-root>/.python:<hexagram-root>/server:<drl-root>/bin
+ HEXROOT/.python:HEXROOT/server:DRLROOT/bin
 
 Sphinx
 ------
@@ -71,7 +73,3 @@ References
 [1] S. Martin, W. M. Brown, R. Klavans, K. Boyack, "Dr. L: Distributed Recursive
 (Graph) Layout," in preparation for Journal of Graph Algorithms and
 Applications.
-
-(TODO:  check this in somehow with yulia's changes)
-
-
