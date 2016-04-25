@@ -74,8 +74,8 @@ function showUsernames () {
 }
 
 //showUsernames();
-//addUsersToRoles ('swat@soe.ucsc.edu', 'CKCC');
-//showRolesWithUsersAndProject();
+//addUsersToRoles ([ 'swat@soe.ucsc.edu', 'ynewton@soe.ucsc.edu', 'thjmatth@ucsc.edu', 'dmccoll@ucsc.edu' ], 'dev');
+showRolesWithUsersAndProject();
 //addUsersToRoles(['x@x.x'],
 //Meteor.users.remove({});
 
@@ -92,10 +92,10 @@ userRequestRole: A UI for a user to request to join a role
 function sendNewUserMail(user) {
     
     // Notify the admin of a new user
-    var msg = "'New "
+    var msg = "'New user: "
         + user.emails[0].address
-        + ' at '
-        + Meteor.absoluteUrl()
+        + ' at port '
+        + URL_PORT.toString()
         + "'",
         command =
             'echo '
@@ -105,6 +105,7 @@ function sendNewUserMail(user) {
             + msg
             + ' hexmap@ucsc.edu';
 
+    console.log(msg);
     exec(command, function (error, stdout, stderr) {
         if (error) {
             console.log('sendNewUserMail had an error:', error);

@@ -1,14 +1,15 @@
 
-DATA_DIR = '' // a global variable
+DATA_DIR = '' // Global data directory
+URL_PORT = 0; // Global url port number
 
 var url = Meteor.absoluteUrl();
-var port = Number(url.slice(url.lastIndexOf(':') + 1, -1));
+URL_PORT = Number(url.slice(url.lastIndexOf(':') + 1, -1));
 
-if (port === 3000) {
+if (URL_PORT === 3000) {
 
     // Localhost development
     DATA_DIR = '/Users/swat/';
-} else if (port > 8080 && port < 8443) {
+} else if (URL_PORT > 8080 && URL_PORT < 8443) {
 
     // Development on hexmap.sdsc.edu
     DATA_DIR = '/cluster/home/swat/';

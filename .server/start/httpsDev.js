@@ -1,9 +1,9 @@
-const PROXY_PORT = 443;
-const TARGET_PORT = 8443;
+const PROXY_PORT = 8112
+const TARGET_PORT = 8113
 
 const httpProxy = require('http-proxy'); 
 const fs = require('fs');
-const DIR = '/data/home/hexmap/sec/';
+const DIR = '/data/home/hexmap/sec/'
 const KEY = DIR + 'tumormap.key';
 const CERT = DIR + 'tumormap.crt';
 //const PATH_TO_CHAIN = DIR + 'chain.crt';

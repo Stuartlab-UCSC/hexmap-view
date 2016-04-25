@@ -1,9 +1,9 @@
 #!/bin/bash
-# Start the https server on port 443, the default
+# Start the https server on development
 
 DIR=/cluster/home/swat/hexmap
 NODEPATH=/cluster/home/swat/.meteor/packages/meteor-tool/.1.1.10.ki0ccv++os.linux.x86_64+web.browser+web.cordova/mt-os.linux.x86_64/dev_bundle/bin
 
 touch $DIR/https.log
 mv $DIR/https.log $DIR/https.prev.log
-$NODEPATH/node $DIR/https/https.js &> $DIR/https.log &
+$NODEPATH/node $DIR/https/httpsDev.js &> $DIR/https.log &

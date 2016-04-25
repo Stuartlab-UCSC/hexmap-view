@@ -1,5 +1,5 @@
 #!/bin/bash
-# Start the http server on port 80, the default
+# Start the http server on production
 
 NODEPATH=/data/home/hexmap/.meteor/packages/meteor-tool/.1.1.10.ki0ccv++os.linux.x86_64+web.browser+web.cordova/mt-os.linux.x86_64/dev_bundle/bin
 $NODEPATH/node /data/http/http.js &> /data/http.log &

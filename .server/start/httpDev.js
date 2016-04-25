@@ -1,5 +1,5 @@
-const LISTEN_PORT = 80;
-const HTTPS_PORT = 443;
+const LISTEN_PORT = 8111;
+const HTTPS_PORT = 8112;
 
 var http = require("http");
 var target = "https://tumormap.ucsc.edu:".concat(HTTPS_PORT)
