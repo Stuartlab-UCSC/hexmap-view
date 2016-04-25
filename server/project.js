@@ -115,8 +115,8 @@ function getMajors () {
     _.each(majors1, function(major) {
         var role = getProjectRole(major);
            
-        // Exclude projects without a role, or if the user is not in that role
-        if (isUserInRole(user, role)) {
+        // Authorize depending on user and her role.
+        if (isUserAuthorized(user, role)) {
             majors.push(major);
         }
     });

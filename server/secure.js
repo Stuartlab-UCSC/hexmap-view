@@ -6,26 +6,38 @@
 
 var exec = Npm.require('child_process').exec;
 
-function addUsersToRoles (usernamesIn, roles) {
+function usernamesToUsers (usernamesIn) {
+    var usernames = usernamesIn;
+    if (typeof usernames === 'string') {
+        usernames = [usernamesIn];
+    }
+    return _.map(usernames, function (username) {
+        return Accounts.findUserByUsername(username)
+    });
+}
+
+function addUsersToRoles (usernames, roles) {
 
     // Add users to roles
     // Users must exist
     // Non-existant roles will be created
     // Duplicate roles will be not added
-    var usernames = usernamesIn;
-    if (typeof usernames === 'string') {
-        usernames = [usernamesIn];
+    var users = usernamesToUsers(usernames);
+    if (users) {
+        Roles.addUsersToRoles(users, roles);
     }
-    var users = _.map(usernames, function (username) {
-        return Accounts.findUserByUsername(username)
-    });
-    Roles.addUsersToRoles(users, roles);
+}
+
+function removeUsersFromRoles(usernames, roles) {
+
+    var users = usernamesToUsers(usernames);
+    Roles.removeUsersFromRoles(users, roles);
 }
 
 function showRolesWithUsersAndProject () {
 
     // Show all roles with users and projects in each
-    console.log('\nroles with users and projects in each');
+    console.log('\nRoles, users, projects:');
     
     var roleObjs = Roles.getAllRoles().fetch();
     var roles = _.map(roleObjs, function(role) {
@@ -56,7 +68,7 @@ function showRolesWithUsersAndProject () {
     });
 }
 
-function showUsers  () {
+function showUsers () {
 
     // Show all users with their properties
     var users = Meteor.users.find().fetch();
@@ -73,18 +85,45 @@ function showUsernames () {
     console.log('all usernames:\n', usernames);
 }
 
+function removeRoles (role) {
+
+    // Drop all users from the roles and remove the roles.
+    if (!role) return;
+    
+    var roles = role;
+    if (Object.prototype.toString.call(role) === '[object String]' ) {
+        roles = [role];
+    }
+    var users = Meteor.users.find().fetch();
+    Roles.removeUsersFromRoles(users, roles);
+    _.each(roles, function (role) {
+        Roles.deleteRole(role);
+    });
+}
+
+function createRole(newRoleName) {
+    
+    // Create a role unless it already exists
+    var roles = Roles.getAllRoles().fetch();
+    var foundRole = _.find(roles, function (role) {
+        return role.name === newRoleName;
+    });
+    if (!foundRole) {
+        Roles.createRole(newRoleName)
+    }
+}
+
+//removeRoles(['dev']);
+//createRole('dev');
+removeUsersFromRoles([ 'swat@soe.ucsc.edu' ], 'CKCC');
 //showUsernames();
-//addUsersToRoles ([ 'swat@soe.ucsc.edu', 'ynewton@soe.ucsc.edu', 'thjmatth@ucsc.edu', 'dmccoll@ucsc.edu' ], 'dev');
+//addUsersToRoles (['swat@soe.ucsc.edu', 'ynewton@soe.ucsc.edu', 'thjmatth@ucsc.edu', 'dmccoll@ucsc.edu' ], 'dev');
 showRolesWithUsersAndProject();
 //addUsersToRoles(['x@x.x'],
 //Meteor.users.remove({});
 
-
-
 // Possible queries
 /*
-showRolesWithUsers: Show all roles with users in each
-showRolesWithProjects: Show all roles with projects in each
 showProjectsWithRoles: Show all projects with the role in each
 userRequestRole: A UI for a user to request to join a role
 */
@@ -125,25 +164,43 @@ Accounts.onCreateUser(function (options, user) {
     return user;
 });
 
-isUserInRole = function (user, role) {
+isUserAuthorized = function (user, role) {
 
-    // Determine if a user is in a role.
-    if (!role) return false;
+    // Determine if a user is authorized based on this role.
+    // user and role are single strings, no arrays.
+    // Logs a message when user is not authorized.
+    var PUBLIC = 'public',
+        ALL_ACCESS = 'dev';
     
-    var roles = role;
-    if (Object.prototype.toString.call(role) === '[object String]' ) {
-        roles = [role];
-    }
-    if (roles.indexOf('public') > -1 || (user && Roles.userIsInRole(user, roles))) {
-        return true;
-    } else {
+    // Public projects with are viewable by anyone
+    if (role === 'public') return true;
+    
+    // When not logged in, only public projects may be seen.
+    if (!user) {
+        console.log('someone not logged in tried to access a project with role:', role);
         return false;
     }
+    
+    // Authorize anything if the user is in the dev role.
+    if (Roles.userIsInRole(user, ALL_ACCESS)) return true;
+    
+    // No role at this point means no authorization. This should never happen.
+    if (!role) {
+        console.log('user:', user.username, 'tried to access a project without a role');
+        return false;
+    }
+    
+    // Authorize if the user is in the given role
+    if (Roles.userIsInRole(user, role)) return true;
+
+    // Not authorized
+    console.log('user:', user.username, 'tried to access a project with role:', role);
+    return false;
 }
 
 Meteor.methods({
 
     isUserInRole: function (role) {
-        return isUserInRole(Meteor.user(), role);
+        return Roles.userIsInRole(Meteor.user(), role);
     },
 });
