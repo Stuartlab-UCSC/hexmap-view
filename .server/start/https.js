@@ -1,9 +1,9 @@
 const PROXY_PORT = 443;
 const TARGET_PORT = 8443;
+const DIR = '/data/home/hexmap/sec/';
 
 const httpProxy = require('http-proxy'); 
 const fs = require('fs');
-const DIR = '/data/home/hexmap/sec/';
 const KEY = DIR + 'tumormap.key';
 const CERT = DIR + 'tumormap.crt';
 //const PATH_TO_CHAIN = DIR + 'chain.crt';
@@ -21,10 +21,11 @@ var options = {
 };
 
 var proxy = httpProxy.createProxyServer(options).listen(PROXY_PORT);
-console.log('https proxy started on', PROXY_PORT, 'targetting', TARGET_PORT);
+console.log('https proxy starting on', PROXY_PORT, 'targetting', TARGET_PORT);
 
 // Listen for the `error` event on `proxy`. 
 proxy.on('error', function (err, req, res) {
+    console.log('https.js err', err);
     res.writeHead(500, {
         'Content-Type': 'text/plain'
     });         
@@ -33,7 +34,7 @@ proxy.on('error', function (err, req, res) {
               
 // Listen for the `proxyRes` event on `proxy`.  
 proxy.on('proxyRes', function (proxyRes, req, res) {
-//    console.log('RAW Response from target: connection:', proxyRes.headers.connection);
+    //console.log('RAW Response from target: connection:', proxyRes.headers.connection);
 });                
  
 // Listen for the `open` event on `proxy`.  
@@ -41,9 +42,8 @@ proxy.on('open', function (proxySocket) {
 
     // listen for messages coming FROM the target here 
     proxySocket.on('data', function (data) {
-//        console.log('proxy on open');
+        //console.log('proxy on open');
     });
-    //proxySocket.on('data', hybiParseAndLogMessage);
 
 });                     
  
@@ -51,6 +51,6 @@ proxy.on('open', function (proxySocket) {
 proxy.on('close', function (res, socket, head) {
 
     // view disconnected websocket connections 
-//    console.log('proxy on close (client disconnected)');
+    //console.log('proxy on close (client disconnected)');
 });
 

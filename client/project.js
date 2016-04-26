@@ -128,8 +128,6 @@ var app = app || {}; // jshint ignore:line
                 onProjectsLoaded();
                 onProjectsLoaded = undefined;
             }
-        } else {
-     
         }
 	};
 

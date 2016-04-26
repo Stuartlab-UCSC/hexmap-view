@@ -1,9 +1,9 @@
-const PROXY_PORT = 8112
-const TARGET_PORT = 8113
+const PROXY_PORT = 8112;
+const TARGET_PORT = 8113;
+const DIR = '/data/home/hexmap/sec/';
 
 const httpProxy = require('http-proxy'); 
 const fs = require('fs');
-const DIR = '/data/home/hexmap/sec/'
 const KEY = DIR + 'tumormap.key';
 const CERT = DIR + 'tumormap.crt';
 //const PATH_TO_CHAIN = DIR + 'chain.crt';
@@ -21,10 +21,11 @@ var options = {
 };
 
 var proxy = httpProxy.createProxyServer(options).listen(PROXY_PORT);
-console.log('https proxy started on', PROXY_PORT, 'targetting', TARGET_PORT);
+console.log('https proxy starting on', PROXY_PORT, 'targetting', TARGET_PORT);
 
 // Listen for the `error` event on `proxy`. 
 proxy.on('error', function (err, req, res) {
+    console.log('httpsDev.js err', err);
     res.writeHead(500, {
         'Content-Type': 'text/plain'
     });         

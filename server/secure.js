@@ -37,8 +37,6 @@ function removeUsersFromRoles(usernames, roles) {
 function showRolesWithUsersAndProject () {
 
     // Show all roles with users and projects in each
-    console.log('\nRoles, users, projects:');
-    
     var roleObjs = Roles.getAllRoles().fetch();
     var roles = _.map(roleObjs, function(role) {
         return role.name;
@@ -49,6 +47,14 @@ function showRolesWithUsersAndProject () {
     // Find the projects for each role
     _.each(projects, function (project) {
         var role = getProjectRole(project);
+        if (!role) {
+        
+            // Make a fake role so we print those projects with no role
+            role = 'fully-protected';
+            if (roles.indexOf(role) < 0) {
+                roles.push(role);
+            }
+        }
         if (roleProjects[role]) {
             roleProjects[role].push(project);
         } else {
@@ -57,15 +63,22 @@ function showRolesWithUsersAndProject () {
     });
 
     // Print for each role, its users and projects
+    console.log('\nRoles, users, projects:');
+    var noRoleUsers = getAllUsernames();
     _.each(roles, function (role) {
         var users = Roles.getUsersInRole(role).fetch();
         var usernames = _.map(users, function (user) {
+            var index = noRoleUsers.indexOf(user.username);
+            if (index > -1) {
+                noRoleUsers.splice(index, 1);
+            }
             return user.username;
         });
-        console.log('\nRole:', role);
-        console.log('Usernames:', usernames);
-        console.log('Projects:', roleProjects[role]);
+        console.log('Role:', role);
+        console.log('  Usernames:', usernames);
+        console.log('  Projects:', roleProjects[role]);
     });
+    console.log('Users without a role:', noRoleUsers);
 }
 
 function showUsers () {
@@ -75,14 +88,19 @@ function showUsers () {
     console.log('all users:\n', users);
 }
 
+function getAllUsernames () {
+
+    // Find all of the usernames
+    var users = Meteor.users.find({}, {fields: {username: 1, _id: 0}}).fetch();
+    return _.map(users, function (user) {
+        return user.username;
+    });
+}
+
 function showUsernames () {
 
     // Show all usernames
-    var users = Meteor.users.find({}, {fields: {username: 1, _id: 0}}).fetch();
-    var usernames = _.map(users, function (user) {
-        return user.username;
-    });
-    console.log('all usernames:\n', usernames);
+    console.log('all usernames:\n', getAllUsernames());
 }
 
 function removeRoles (role) {
@@ -115,7 +133,7 @@ function createRole(newRoleName) {
 
 //removeRoles(['dev']);
 //createRole('dev');
-removeUsersFromRoles([ 'swat@soe.ucsc.edu' ], 'CKCC');
+//removeUsersFromRoles([ 'ynewton@soe.ucsc.edu', 'thjmatth@ucsc.edu', 'dmccoll@ucsc.edu' ] , 'CKCC');
 //showUsernames();
 //addUsersToRoles (['swat@soe.ucsc.edu', 'ynewton@soe.ucsc.edu', 'thjmatth@ucsc.edu', 'dmccoll@ucsc.edu' ], 'dev');
 showRolesWithUsersAndProject();
@@ -176,25 +194,18 @@ isUserAuthorized = function (user, role) {
     if (role === 'public') return true;
     
     // When not logged in, only public projects may be seen.
-    if (!user) {
-        console.log('someone not logged in tried to access a project with role:', role);
-        return false;
-    }
+    if (!user) return false;
     
     // Authorize anything if the user is in the dev role.
     if (Roles.userIsInRole(user, ALL_ACCESS)) return true;
     
-    // No role at this point means no authorization. This should never happen.
-    if (!role) {
-        console.log('user:', user.username, 'tried to access a project without a role');
-        return false;
-    }
+    // No role at this point means no authorization. Only ALL_ACCESS can access this.
+    if (!role) return false;
     
     // Authorize if the user is in the given role
     if (Roles.userIsInRole(user, role)) return true;
 
     // Not authorized
-    console.log('user:', user.username, 'tried to access a project with role:', role);
     return false;
 }
 

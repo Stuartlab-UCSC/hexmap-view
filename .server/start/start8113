@@ -1,16 +1,13 @@
 #!/bin/bash
 # Start a dev server on port 8113
+
 PORT=8113
-HTTPS_PORT=8112
-DB_PORT=27000
-
-METEORPATH=/cluster/home/swat/.meteor
 DIR=/cluster/home/swat/hexmap
-ROOT_URL=https://tumormap.ucsc.edu:$HTTPS_PORT
+DB_PORT=27000
+METEORPATH=/cluster/home/swat/.meteor
 
-# TODO: move the db from 8343 to 8113
-MONGO_URL=mongodb://localhost:$DB_PORT/8343
-
+export ROOT_URL=https://tumormap.ucsc.edu:$PORT
+export MONGO_URL=mongodb://localhost:$DB_PORT/$PORT
 touch $DIR/$PORT.log
 mv $DIR/$PORT.log $DIR/$PORT.prev.log
 cd $DIR/$PORT

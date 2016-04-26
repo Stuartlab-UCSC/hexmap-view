@@ -1,10 +1,14 @@
 #!/bin/bash
-# Start the application server on port 8443
+# Start a production server on port 8443
 
 PORT=8443
+DIR=/dir
+DB_PORT=27017
+METEORPATH=/data/home/hexmap/.meteor
 
-export ROOT_URL=https://hexmap.sdsc.edu:$PORT
-export MONGO_URL=mongodb://localhost:27017/$PORT
-mv /data/$PORT.log /data/$PORT.prev.log
-cd /data/$PORT
-/data/home/hexmap/.meteor/meteor --port $PORT &> /data/$PORT.log
+export ROOT_URL=https://tumormap.ucsc.edu:$PORT
+export MONGO_URL=mongodb://localhost:$DB_PORT/$PORT
+touch $DIR/$PORT.log
+mv $DIR/$PORT.log $DIR/$PORT.prev.log
+cd $DIR/$PORT
+$METEORPATH/meteor --port $PORT &> $DIR/$PORT.log &
