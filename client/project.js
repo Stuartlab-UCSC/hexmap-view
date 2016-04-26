@@ -7,6 +7,9 @@ var app = app || {}; // jshint ignore:line
 (function (hex) { // jshint ignore:line
     //'use strict';
  
+    // Placeholder text when no project is selected
+    var PLACEHOLDER_TEXT = 'Select Project...';
+ 
     // This will be an instance of this Project class.
     var project;
  
@@ -49,15 +52,17 @@ var app = app || {}; // jshint ignore:line
             }
             return data;
         });
-
+ 
         // Create the select2 drop-down
         $('#project')
             .select2({
                 data: data,
-                placeholder: "Select Project",
+                placeholder: PLACEHOLDER_TEXT,
             })
             // Handle result selecting
             .on("select2-selecting", function(event) {
+            
+                $('#s2id_project .select2-choice span').removeClass('noProject');
 
                 // The select2 id of the thing clicked is event.val
                 // Save the dir to session storage and reload the app
@@ -65,6 +70,7 @@ var app = app || {}; // jshint ignore:line
                     ctx.save(event.val);
                     queryFreeReload();
                 }
+            
             });
 
         // Is the context project on our list?
@@ -97,22 +103,33 @@ var app = app || {}; // jshint ignore:line
             // Lock the user out of this project
             unFoundProject = ctx.project;
             ctx.project = undefined;
+ 
+            // Set the project to the placeholder
+            $('#s2id_project .select2-choice span')
+                .text(PLACEHOLDER_TEXT)
+                .addClass('noProject');
+
             alert('Please sign in to see project "' 
                 + getHumanProject(unFoundProject) + '".\n');
-        } else {
  
+        } else if (ctx.project) {
+
             // Select the current project in the UI
             $('#project').select2("val", ctx.project);
  
              // Set our own text on the selected option when drop-down is closed
             $('#s2id_project .select2-choice span')
-                .text(getHumanProject(ctx.project));
-        }
+                .text(getHumanProject(ctx.project))
+                .removeClass('noProject');
+         }
+ 
         if (ctx.project) {
             if (onProjectsLoaded) {
                 onProjectsLoaded();
                 onProjectsLoaded = undefined;
             }
+        } else {
+     
         }
 	};
 

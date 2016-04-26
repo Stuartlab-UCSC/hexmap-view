@@ -19,6 +19,10 @@
     line-height: 2.7em;
 }
 
+#s2id_project .select2-choice span.noProject {
+    color: #999;
+}
+
 #s2id_search {
     padding-top: 0.45em;
     margin-right: 0.5em;
