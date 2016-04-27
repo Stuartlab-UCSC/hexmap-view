@@ -347,6 +347,30 @@ var app = app || {}; // jshint ignore:line
                 s.save();
             }
         }
+ 
+        // Set help menu options when the username changes, including log out
+        Meteor.autorun(function () {
+            var x = Meteor.user();
+
+            // Show dev doc menu option if user is in dev role.
+            Meteor.call('isUserInRole', 'dev', function (error, results) {
+                if (!error && results) {
+                    $('.devDocs').show();
+               } else {
+                    $('.devDocs').hide();
+                }
+            });
+            
+            // Show query API doc menu option if user is in dev or CKCC role.
+            Meteor.call('isUserInRole', ['dev', 'CKCC'], function (error, results) {
+                if (!error && results) {
+                    $('.queryDocs').show();
+               } else {
+                    $('.queryDocs').hide();
+                }
+            });
+        });
+
         return s;
     };
 })(app);

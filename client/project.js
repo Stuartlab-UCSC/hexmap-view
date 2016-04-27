@@ -172,24 +172,6 @@ var app = app || {}; // jshint ignore:line
                 }
                 project.projects = projects;
                 project._populate();
-
-                // Show dev doc menu option if user is in dev role.
-                Meteor.call('isUserInRole', 'dev', function (error, results) {
-                    if (!error && results) {
-                        $('.devDocs').show();
-                   } else {
-                        $('.devDocs').hide();
-                    }
-                });
-                
-                // Show API doc menu option if user is in dev or CKCC role.
-                Meteor.call('isUserInRole', ['dev', 'CKCC'], function (error, results) {
-                    if (!error && results) {
-                        $('.queryDocs').show();
-                   } else {
-                        $('.queryDocs').hide();
-                    }
-                });
             });
         });
     };
