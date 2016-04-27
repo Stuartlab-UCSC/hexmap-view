@@ -9,7 +9,7 @@ Repository branches
 ...................
 There are two main branches, "master" and "dev". Master is used to hold the
 latest production version so should be kept clean. Nothing is ever comitted
-directly into the master branch. It gets updated by the repository miester when
+directly into the master branch. It gets updated by the repository meister when
 there is a new release by merging from the dev branch.
 
 You may use
@@ -133,7 +133,7 @@ merge your branch into dev. We'll use 'mine' as your own branch in this example.
 **#8**. Change to the dev branch then update your local dev branch from the remote dev branch::
 
  git checkout dev
- git pull origin dev
+ git pull
 
 **#9**. Now you do the merge from your branch to dev::
 
@@ -141,6 +141,6 @@ merge your branch into dev. We'll use 'mine' as your own branch in this example.
 
 **#10**. Do sanity testing. Then push your dev to the remote dev::
 
- git push dev
+ git push
 
 Good luck

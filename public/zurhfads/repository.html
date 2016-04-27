@@ -61,7 +61,7 @@ the dev branch for development.</p>
 <h2>Repository branches<a class="headerlink" href="#repository-branches" title="Permalink to this headline">¶</a></h2>
 <p>There are two main branches, &#8220;master&#8221; and &#8220;dev&#8221;. Master is used to hold the
 latest production version so should be kept clean. Nothing is ever comitted
-directly into the master branch. It gets updated by the repository miester when
+directly into the master branch. It gets updated by the repository meister when
 there is a new release by merging from the dev branch.</p>
 <p>You may use
 personal or project branches off of dev however working directly on the dev
@@ -166,15 +166,15 @@ Now push your changes to the remote repository:</p>
 merge your branch into dev. We&#8217;ll use &#8216;mine&#8217; as your own branch in this example.</p>
 <p><strong>#8</strong>. Change to the dev branch then update your local dev branch from the remote dev branch:</p>
 <div class="highlight-python"><div class="highlight"><pre><span></span>git checkout dev
-git pull origin dev
+git pull
 </pre></div>
 </div>
 <p><strong>#9</strong>. Now you do the merge from your branch to dev:</p>
 <div class="highlight-python"><div class="highlight"><pre><span></span>git merge mine
 </pre></div>
 </div>
-<p><strong>#10</strong>. Make and do sanity testing. Then push your dev to the remote dev:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span>git push dev
+<p><strong>#10</strong>. Do sanity testing. Then push your dev to the remote dev:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span>git push
 </pre></div>
 </div>
 <p>Good luck</p>
