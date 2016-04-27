@@ -25,6 +25,8 @@ final input files for the tumor map
 
 **pool.py** : general utility to manage parallel processing
 
+**start/start** : scripts for starting the servers
+
 **statsLayer.py** calls the stats libraries for one layer. The client uses this
 for dynamic stats and the server uses this for pre-computed stats. This is the
 only file used by the server and client.

@@ -33,37 +33,44 @@ branch through committing your files and merging to dev if you've branched off
 of it. If things awry, you may need some other commands.
 
 
-#1. Get a copy of the source code on the dev branch. Change to the directory where
+**#1**. Get a copy of the source code on the dev branch. Change to the directory where
 you want to put the source code, then::
 
- git clone https://github.com/ucscHexmap/hexagram
+ git clone -b dev --single-branch https://github.com/ucscHexmap/hexagram
  cd hexagram
 
-#2. Get status::
+**#2**. Get status to verify things went well and verify the branch::
 
  git status
 
-#3. By default you are on the master branch, so change to the dev branch. You
-will see the dev branch reflected in the 'git status' output::
+Now you can either work directly on the dev branch, or create your own branch
+off of dev.
 
- git checkout dev
+Create your own branch if you want to isolate other developers from
+your changes as you save them to the remote repository. Then when you are ready
+to expose your changes to other developers, do a merge from your branch to dev.
+Your own branch is a good idea if you are working on something
+experimentally and you are not sure it will go into the common code.
+
+Otherwise, working directly on the dev branch requires fewer merges and you just
+have to be more careful with each push to the remote. Besides fewer merges, this
+is an advantage if you are working closely with others on the same feature.
+
+To work on your own branch create one as follows, otherwise skip this step
+and continue with the next. The commits, pushes and pulls in the following steps
+will apply to whichever branch your are currently on.
+
+**#3**. We'll call the new branch 'mine' for this example. Notice that to create
+a branch or change to an existing branch is the same command::
+
+ git checkout -b mine
  git status
 
-Now you can either work off of the dev branch, or create your own branch off of
-dev. To work on your own branch create one as follows, otherwise skip this step
-then follow the rest of the steps.
-
-#4. We'll call the new branch 'mine' for this example. Notice to create or
-change to an existing branch is the same command::
-
- git checkout mine
- git status
-
-#5. Git has helpful messages when you want to commit. After you have added and
+**#4**. Git has helpful messages when you want to commit. After you have added and
 changed files, 'git status' gives something like::
 
- On branch mine
- Your branch is up-to-date with 'origin/dev/mine'.
+ On branch dev
+ Your branch is up-to-date with 'origin/dev'.
  Changes to be committed:
    (use "git reset HEAD <file>..." to unstage)
 
@@ -80,36 +87,39 @@ changed files, 'git status' gives something like::
 
  	.python/myFile
 
-Adding and checking in files is a two stage process. In the above:
+Adding and checking in files is a two step process where files are staged before
+actually committed to the repository. In the above:
 
 **server/statsLayer.py** is already staged for commit
 
-**client/colors.js** is a modified, existing file that needs to be staged
+**client/colors.js** is a modified, existing file
 
 **.python/myFile** is a new file
 
-So do the appropriate action to stage all the file you want to commit.
+So do the appropriate action to stage all the files you want to commit, then
+continue with the next step.
 
-#6. The second stage actually updates the repository::
+**#5**. The commit actually updates the repository::
 
  git commit
 
-Add a short comment and quit the editor. This commits files to your local git
-repository.
+A vim editor with your changes shows up. Add a comment and quit the editor.
+This commits files to your **local** git repository.
 
-#7. If the commit went without any errors, you probably want to
+**#6**. If the commit went without any errors, you probably want to
 push it to the remote repository for safe keeping in case you lose the files on
 your laptop.
 
 First pull down any changes from the remote repository so if a merge is
-required, you can do it now before things get ugly::
+required, you can do it locally rather than trying to fix up the remote repository
+where things could get ugly::
 
  git pull
 
-#8. If there are any merge conflicts, git will tell you about them, and you fix them
-then commit as above. If there are no conflicts, your repository now has any
-changes anyone else committed since last time you pulled. Now push your changes
-to the remote repository::
+**#7**. If there are any merge conflicts, git will tell you about them, and after
+fixing and sanity checking, commit as in steps 4 & 5 above. If there are no conflicts, your
+repository now has any changes anyone else committed since last time you pulled.
+Now push your changes to the remote repository::
 
  git push
 
@@ -117,19 +127,19 @@ Ta da! If you are working off the dev branch, you're golden.
 
 Merging from your branch into dev
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-If you are working off of your own branch which is off of dev, you need to
-merge your branch into dev.
+If you are working on your own branch which is off of dev, you need to
+merge your branch into dev. We'll use 'mine' as your own branch in this example.
 
-#9. Change to the dev branch then update your local dev branch from the remote dev branch::
+**#8**. Change to the dev branch then update your local dev branch from the remote dev branch::
 
  git checkout dev
  git pull origin dev
 
-#10. Now you do the merge from your branch to dev::
+**#9**. Now you do the merge from your branch to dev::
 
- git merge dev
+ git merge mine
 
-#11. Make and do sanity testing. Then push your dev to the remote dev::
+**#10**. Do sanity testing. Then push your dev to the remote dev::
 
  git push dev
 

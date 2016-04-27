@@ -1,7 +1,7 @@
 #!/usr/bin/env python2.7
 """
 diffBHvsBon.py
-This reports differnences between the BenjaminiWhitney-FDR p-value correction
+This reports differences between the BenjaminiWhitney-FDR p-value correction
 vs. the Bonferroni
 """
 
@@ -11,7 +11,7 @@ def diffBHvsBon():
     #basePath = '/Users/swat/data/mcrchopra/first/'
     #tmpBase = '/Users/swat/tmp/'
     tmpBase = '/cluster/home/swat/tmp/'
-    basePath = '/cluster/home/swat/data/pancan12/mar17_ranksums/'
+    basePath = '/cluster/home/swat/data/Pancan12/mar28/'
     
     # Build a list of layer names with index corresponding to the layers
     layers = glob.glob(basePath + 'layer_*.tab')
@@ -26,8 +26,8 @@ def diffBHvsBon():
             layerIndex[j] = line[0]
 
     # Save each stats whose two p-value corrections are the same
-    searches =['stats_*']
-    #searches =['stats_*', 'statsL_*']
+    #searches =['statsL_*']
+    searches =['stats_*', 'statsL_*']
     outFiles = [
         'stats_sameBHvsBon.tab',
         'statsL_sameBHvsBon.tab',
@@ -42,7 +42,8 @@ def diffBHvsBon():
             fOut = csv.writer(fOut, delimiter='\t')
             #fOut.writerow(['#p-value correction', 'layer1', 'layer2'])
             for file in files:
-                layer1 = layerIndex[int(file[len(basePath) + 6:-4])]
+                if search[-8:-2] != 'statsL':
+                    layer1 = layerIndex[int(file[len(basePath) + 6:-4])]
                 with open(file, 'r') as f:
                     f = csv.reader(f, delimiter='\t')
                     for i, line in enumerate(f.__iter__()):
