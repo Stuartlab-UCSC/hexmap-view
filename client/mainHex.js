@@ -59,7 +59,7 @@ googlemap; // our googlemap instance
         // TODO we should not require a reload, however we don't yet have a
         // method to clear the appropriate state and reload does this for us
         "click .homePage": function () {
-            pageReload('homePage');
+            Session.set('page', 'homePage');
         },
         "click .mapPage": function() {
             pageReload('mapPage');
@@ -80,20 +80,18 @@ googlemap; // our googlemap instance
     });
 
     Template.mapPage.onRendered(function () {
-
-        // TODO this may be removed when we are not
-        // drawing mapPage along with the gridPage
-        if (!Session.equals('page', 'mapPage')) return;
-
-        // We want to show these early on
-        $('.sort_attributes, .statistics').show()
-
-        Tracker.autorun(whenGoogleMapsLoaded);
+        Tracker.autorun(function () {
+            if (GoogleMaps.loaded() && Session.equals('page', 'mapPage'))
+                initGoogleMapsForMap();
+        });
         GoogleMaps.load();
     });
 
     Template.gridPage.onRendered(function () {
-        Tracker.autorun(whenGoogleMapsLoaded);
+        Tracker.autorun(function () {
+            if (GoogleMaps.loaded() && Session.equals('page', 'gridPage'))
+                initGoogleMapsForGrid();
+        });
         GoogleMaps.load();
     });
 
@@ -105,16 +103,6 @@ googlemap; // our googlemap instance
             return Session.get('loadingMap');
         },
     });
- 
-    function whenGoogleMapsLoaded () {
-        if (GoogleMaps.loaded()) {
-            if (Session.equals('page', 'mapPage')) {
-                initGoogleMapsForMap();
-            } else {
-                initGoogleMapsForGrid();
-            }
-        }
-    }
 
     initMapDrawn = function () {
         // Initialize modules that need to have the map drawn.
@@ -167,6 +155,7 @@ googlemap; // our googlemap instance
             resizeMap();
             $(window).resize(resizeMap);
             initTools();
+            initDownload();
             convertStoredCenterToLatLng();
             initHex();
             initGrid();

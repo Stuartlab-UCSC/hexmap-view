@@ -303,6 +303,6 @@ var app = app || {}; // jshint ignore:line
 
         // Initialize the grid page and grid map
         createMap();
-        findOrphans(current_layout_index);
+        findOrphans(Session.get('layoutIndex'));
     }
 })(app);

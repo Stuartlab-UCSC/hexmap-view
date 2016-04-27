@@ -24,9 +24,6 @@ var stats_value = 0;
 var first_opening = true;
 var first_opening_stats = true;
 
-// Stores the Index of the Current Layout Selected. Default is 0 for default layout.
-current_layout_index = 0;
-
 // This holds colormaps (objects from layer values to category objects with a
 // name and color). They are stored under the name of the layer they apply to.
 colormaps = {}
@@ -788,7 +785,7 @@ function mix2 (a, b, c, d, amount1, amount2) {
 // of clumpiness scores.
 function recreate_map() {
 
-	var layout_index = ctx.layout_names.indexOf(Session.get('current_layout_name'));
+	var layout_index = Session.get('layoutIndex');
 	initHexagons(layout_index);
 	find_clumpiness_stats(layout_index);
 }
@@ -852,21 +849,21 @@ initLayout = function () {
         }
 
         // Transform the layout list into the form wanted by select2
-        var data = _.map(ctx.layout_names, function (layout) {
-            return { id: layout, text: layout }
+        var data = _.map(ctx.layout_names, function (layout, i) {
+            return { id: i, text: layout }
         });
 
         // Create our selection list
-        if (Session.equals('current_layout_name', null)) {
-            Session.set('current_layout_name', ctx.layout_names[0]);
+        if (Session.equals('layoutIndex', null)) {
+            Session.set('layoutIndex', 0);
         }
-        createOurSelect2($("#layout-search"), {data: data},
-            Session.get('current_layout_name'));
+        createOurSelect2($("#layout-search"),
+            {data: data}, Session.get('layoutIndex').toString());
         re_initialize_view ();
 
         // Define the event handler for the selecting in the list
         $("#layout-search").on('change', function (ev) {
-            Session.set('current_layout_name', ev.target.value);
+            Session.set('layoutIndex', ev.target.value);
             re_initialize_view ();
         });
     });
@@ -1029,7 +1026,7 @@ initHex = function () {
 
 
         // Sort attributes by the default sort
-        find_clumpiness_stats(current_layout_index);
+        find_clumpiness_stats(Session.get('layoutIndex'));
 
         //update_shortlist_ui(); // TODO redundant with find_clumpiness_stats() call
 

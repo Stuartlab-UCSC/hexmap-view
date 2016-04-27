@@ -129,8 +129,7 @@ var app = app || {}; // jshint ignore:line
     function xyPreSquiggle_click(event) {
 
         // Initialize for the xy pre-squiggle positions file
-        var layout = ctx.layout_names.indexOf(Session.get('current_layout_name')),
-            file = 'xyPreSquiggle_' + layout +'.tab';
+        var file = 'xyPreSquiggle_' + Session.get('layoutIndex') +'.tab';
  
         Meteor.call('getTsvFile', file, ctx.project, true,
             function (error, tsv) {
@@ -146,7 +145,9 @@ var app = app || {}; // jshint ignore:line
     }
 
     initDownload = function () {
-        add_export_tool();
+        if (Session.equals('page', 'mapPage')) {
+            add_export_tool();
+        }
         $('#xyPreSquiggle').on('click', xyPreSquiggle_click);
     }
 

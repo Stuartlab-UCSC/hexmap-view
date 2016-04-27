@@ -80,9 +80,9 @@ var app = app || {}; // jshint ignore:line
             project: [
                 'background',
                 'center',
-                'current_layout_name',
                 'first_layer',
                 'gridZoom',
+                'layoutIndex',
                 'overlayNodes',
                 //'layout_names', // We use this for a project, but don' save it
                 'shortlist',
@@ -114,10 +114,10 @@ var app = app || {}; // jshint ignore:line
         // Project variables maintained in this state object, with defaults.
         Session.setDefault('background', 'black');  // Visualization background color
         s.center = null; // google map center
-        Session.set('current_layout_name', null);
         Session.set('first_layer', undefined); // first to be displayed in shortlist
         s.gridZoom = 1;  // Zoom level of the grid
         s.layout_names = [];  // Map layout names maintained in order of entry
+        Session.set('layoutIndex', null);
         //Session.set('overlayNodes', undefined);  // overlay nodes to include
         Session.set('shortlist', []); // Array of layer names in the shortlist
         s.zoom = 2;  // Map zoom level where 2 means zoomed in by 2 levels

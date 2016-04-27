@@ -138,7 +138,7 @@ var app = app || {}; // jshint ignore:line
         if (ui.equals('sortBy', 'density')) {
 
             // Density sort has been requested
-            find_clumpiness_stats(current_layout_index);
+            find_clumpiness_stats(Session.get('layoutIndex'));
 
         } else if (ui.equals('sortBy', 'focus')) {
 
@@ -148,7 +148,7 @@ var app = app || {}; // jshint ignore:line
                 returnMessage = 'For some reason an attribute is not selected';
 
             } else if (ui.equals('layoutAware', true)) {
-                get_layout_aware_stats(current_layout_index, focusAttr,
+                get_layout_aware_stats(Session.get('layoutIndex'), focusAttr,
                     ui.equals('corrNeg', true));
 
             } else { // ignore layout requested

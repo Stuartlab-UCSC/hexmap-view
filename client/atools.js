@@ -122,6 +122,9 @@ var app = app || {}; // jshint ignore:line
         // Register a name for a tool that matches the select data in a
         // navigation bar option, and a callback for when the user selects that
         // menu option.
+ 
+        // No need to add a tool twice
+        if (callbacks[tool_name]) return;
 
         // Add the hover text and class to the menu option belonging to this tool
         $('#toolbar').find('[data-sel="tool_name"]')
@@ -179,57 +182,52 @@ var app = app || {}; // jshint ignore:line
     }
  
     function selected (ev, ui) {
+ 
+        // Call the callback for this menu option click
         var tool = ui.item.data('sel');
         if (callbacks[tool]) {
             callbacks[tool](ev);
         }
     }
-
-    function initMapLink() {
-        add_tool("hexMap", function() {
-            $('.mapPage').click();
-            tool_activity(false);
-        });
+ 
+    function whenPageChanges () {
+        var page = Session.get('page');
     }
-
-    function initHomeLink() {
-        // Set up the link to the home page
-        add_tool("home", function() {
-            $('.homePage').click();
-            tool_activity(false);
-        });
-    }
-
+ 
     initTools = function () {
- 
-        if (initialized) return;
- 
-        initialized = true;
-        var nav = $('#menus');
         if (Session.equals('page', 'homePage')) {
             $('body').find('.mapShow, .gridShow').hide();
             $('body').find('.homeShow').show();
-            initMapLink();
-            initTheseTools();
         } else if (Session.equals('page', 'mapPage')) {
             $('body').find('.homeShow, gridShow').hide();
             $('body').find('.mapShow').show();
-            initHomeLink();
             initTheseTools();
             initSelect();
             $('.selectMenuLabel, #selectMenu').show();
         } else if (Session.equals('page', 'gridPage')) {
             $('body').find('.homeShow, .mapShow').hide();
             $('body').find('.gridShow').show();
-            initHomeLink();
-            initMapLink();
         }
-        nav.menu({
-            position: { my: "left top", at: "left bottom-7" },
-            icons: { submenu: "ui-icon-blank" },
-            select: selected,
+ 
+        // Set up the link to the map page
+        add_tool("hexMap", function() {
+            $('.mapPage').click();
+            tool_activity(false);
         });
-        nav.show();
+ 
+        // Set up the link to the home page
+        add_tool("home", function() {
+            $('.homePage').click();
+            tool_activity(false);
+        });
+ 
+        $('#menus')
+            .menu({
+                position: { my: "left top", at: "left bottom-7" },
+                icons: { submenu: "ui-icon-blank" },
+                select: selected,
+            })
+            .show();
     }
 })(app);
 

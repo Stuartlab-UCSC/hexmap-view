@@ -131,14 +131,20 @@ function createRole(newRoleName) {
     }
 }
 
+function removeUser(username) {
+    var user = usernamesToUsers(username);
+    Meteor.users.remove(user[0]);
+}
+
 //removeRoles(['dev']);
 //createRole('dev');
-//removeUsersFromRoles([ 'ynewton@soe.ucsc.edu', 'thjmatth@ucsc.edu', 'dmccoll@ucsc.edu' ] , 'CKCC');
+//removeUsersFromRoles([ 'ynewton@soe.ucsc.edu', 'dmccoll@ucsc.edu', 'swat@soe.ucsc.edu'] , ['Pancan12', 'CKCC']);
 //showUsernames();
-//addUsersToRoles (['swat@soe.ucsc.edu', 'ynewton@soe.ucsc.edu', 'thjmatth@ucsc.edu', 'dmccoll@ucsc.edu' ], 'dev');
-showRolesWithUsersAndProject();
+//addUsersToRoles (['mokolodi1@gmail.com'], 'CKCC');
+//removeUser('aDeveloperUser@x.x');
 //addUsersToRoles(['x@x.x'],
 //Meteor.users.remove({});
+showRolesWithUsersAndProject();
 
 // Possible queries
 /*
