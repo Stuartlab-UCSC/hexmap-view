@@ -98,7 +98,7 @@ to expose your changes to other developers, do a merge from your branch to dev.
 Your own branch is a good idea if you are working on something
 experimentally and you are not sure it will go into the common code.</p>
 <p>Otherwise, working directly on the dev branch requires fewer merges and you just
-have to be more careful with each push to the remote. Besides fewer merges, this
+have to be more careful with each push to the remote. With fewer merges, this
 is an advantage if you are working closely with others on the same feature.</p>
 <p>To work on your own branch create one as follows, otherwise skip this step
 and continue with the next. The commits, pushes and pulls in the following steps
@@ -127,14 +127,14 @@ Changes not staged for commit:
 Untracked files:
   (use &quot;git add &lt;file&gt;...&quot; to include in what will be committed)
 
-       .python/myFile
+       .server/myFile
 </pre></div>
 </div>
 <p>Adding and checking in files is a two step process where files are staged before
 actually committed to the repository. In the above:</p>
 <p><strong>server/statsLayer.py</strong> is already staged for commit</p>
 <p><strong>client/colors.js</strong> is a modified, existing file</p>
-<p><strong>.python/myFile</strong> is a new file</p>
+<p><strong>.server/myFile</strong> is a new file</p>
 <p>So do the appropriate action to stage all the files you want to commit, then
 continue with the next step.</p>
 <p><strong>#5</strong>. The commit actually updates the repository:</p>
@@ -154,15 +154,15 @@ where things could get ugly:</p>
 </div>
 <p><strong>#7</strong>. If there are any merge conflicts, git will tell you about them, and after
 fixing and sanity checking, commit as in steps 4 &amp; 5 above. If there are no conflicts, your
-repository now has any changes anyone else committed since last time you pulled.
-Now push your changes to the remote repository:</p>
+repository now has any changes anyone else committed and pushed to the remote
+since last time you pulled. Now push your changes to the remote repository:</p>
 <div class="highlight-python"><div class="highlight"><pre><span></span>git push
 </pre></div>
 </div>
 <p>Ta da! If you are working off the dev branch, you&#8217;re golden.</p>
 <div class="section" id="merging-from-your-branch-into-dev">
 <h3>Merging from your branch into dev<a class="headerlink" href="#merging-from-your-branch-into-dev" title="Permalink to this headline">¶</a></h3>
-<p>If you are working on your own branch which is off of dev, you need to
+<p>If you are working on your own branch which is off of dev, you will eventually need to
 merge your branch into dev. We&#8217;ll use &#8216;mine&#8217; as your own branch in this example.</p>
 <p><strong>#8</strong>. Change to the dev branch then update your local dev branch from the remote dev branch:</p>
 <div class="highlight-python"><div class="highlight"><pre><span></span>git checkout dev

@@ -53,7 +53,7 @@ Your own branch is a good idea if you are working on something
 experimentally and you are not sure it will go into the common code.
 
 Otherwise, working directly on the dev branch requires fewer merges and you just
-have to be more careful with each push to the remote. Besides fewer merges, this
+have to be more careful with each push to the remote. With fewer merges, this
 is an advantage if you are working closely with others on the same feature.
 
 To work on your own branch create one as follows, otherwise skip this step
@@ -85,7 +85,7 @@ changed files, 'git status' gives something like::
  Untracked files:
    (use "git add <file>..." to include in what will be committed)
 
- 	.python/myFile
+ 	.server/myFile
 
 Adding and checking in files is a two step process where files are staged before
 actually committed to the repository. In the above:
@@ -94,7 +94,7 @@ actually committed to the repository. In the above:
 
 **client/colors.js** is a modified, existing file
 
-**.python/myFile** is a new file
+**.server/myFile** is a new file
 
 So do the appropriate action to stage all the files you want to commit, then
 continue with the next step.
@@ -118,8 +118,8 @@ where things could get ugly::
 
 **#7**. If there are any merge conflicts, git will tell you about them, and after
 fixing and sanity checking, commit as in steps 4 & 5 above. If there are no conflicts, your
-repository now has any changes anyone else committed since last time you pulled.
-Now push your changes to the remote repository::
+repository now has any changes anyone else committed and pushed to the remote
+since last time you pulled. Now push your changes to the remote repository::
 
  git push
 
@@ -127,7 +127,7 @@ Ta da! If you are working off the dev branch, you're golden.
 
 Merging from your branch into dev
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-If you are working on your own branch which is off of dev, you need to
+If you are working on your own branch which is off of dev, you will eventually need to
 merge your branch into dev. We'll use 'mine' as your own branch in this example.
 
 **#8**. Change to the dev branch then update your local dev branch from the remote dev branch::
