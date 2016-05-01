@@ -103,7 +103,7 @@ with_layer = function (layer_name, callback) {
                 function (error, layer_parsed) {
 
                 if (error) {
-                    projectNotFound();
+                    projectNotFound(layer.url);
                     return;
                 }
 
@@ -798,7 +798,7 @@ function create_indexed_layers_array () {
 		ctx.layer_names_by_index = new Array (Session.get('sortedLayers').length);
 
         if (error) {
-            projectNotFound();
+            projectNotFound("layers.tab");
             return;
         }
 
@@ -824,33 +824,46 @@ function create_indexed_layers_array () {
 
 initLayout = function () {
 
-    // Download the Matrix Names and pass it to the layout_names array
-    Meteor.call('getTsvFile', "matrixnames.tab", ctx.project,
+    // Download the layout names and filenames and save to the layouts array
+    Meteor.call('getTsvFile', "layouts.tab", ctx.project,
         function (error, parsed) {
 
-        // This is an array of rows, which are strings of matrix names
+        // This is an array of rows, with two elements in each row: name and
+        // filename. Unless it is the older format stored in matrixnames.tab, in
+        // which case only the name is provided.
 
         if (error) {
-            projectNotFound();
+            projectNotFound("layouts.tab");
             return;
         }
 
-        ctx.layout_names = [];
-        for(var i = 0; i < parsed.length; i++) {
+        var layouts = [];
+        for (var i = 0; i < parsed.length; i++) {
             // Pull out the parts of the TSV entry
-            var label = parsed[i][0];
+            var row = parsed[i];
 
-            if(label == "") {
+            if (row.length === 0) {
                 // Skip any blank lines
                 continue;
             }
-            // Add layout names to global array of names
-            ctx.layout_names.push(label);
+
+            layouts.push({name: row[0]});
+            if (row.length > 1) {
+                
+                // hack alert: don't know why there is a \r at the end of
+                // the filename but remove it here
+                if (row[1].charCodeAt(row[1].length - 1) === 13) {
+                    layouts[i].filename = row[1].slice(0,row[1].length - 1);
+                } else {
+                    layouts[i].filename = row[1];
+                }
+            }
         }
+        Session.set('layouts', layouts);
 
         // Transform the layout list into the form wanted by select2
-        var data = _.map(ctx.layout_names, function (layout, i) {
-            return { id: i, text: layout }
+        var data = _.map(layouts, function (layout, i) {
+            return { id: i, text: layout.name }
         });
 
         // Create our selection list
@@ -904,7 +917,7 @@ initHex = function () {
 		//
 
         if (error) {
-            projectNotFound();
+            projectNotFound("Layer_Data_Types.tab");
             return;
         }
 
@@ -961,7 +974,7 @@ initHex = function () {
         // name  file  N-hex-value  binary-ones  layout0-clumpiness  layout1-clumpiness  ...
 
         if (error) {
-            projectNotFound();
+            projectNotFound("layers.tab");
             return;
         }
 
@@ -1046,7 +1059,7 @@ initHex = function () {
         // Matrix index is just <filename>
 
         if (error) {
-            projectNotFound();
+            projectNotFound("matrices.tab");
             return;
         }
 
@@ -1073,7 +1086,7 @@ initHex = function () {
         // \t<value>\t<category name>\t<color>...
 
         if (error) {
-            projectNotFound();
+            projectNotFound("colormaps.tab");
             return;
         }
 

@@ -1,5 +1,5 @@
 // grid.js
-// This handles the adaptive grid that was used to calculate region-based stats.
+// This handles some visualizations of methods use in the layout generation.
 
 var app = app || {}; // jshint ignore:line
 
@@ -9,20 +9,38 @@ var app = app || {}; // jshint ignore:line
     // our map range: lng: -90 -> 90   x: 0 -> 128
     //                lat: -45 -> 45   y: 0 -> 128
 
+    Template.navBarT.helpers({
+
+        viewGraph: function () {
+            return Session.get('viewGraph') ? 'Hide ' : 'Show ';
+        },
+
+        viewWindows: function () {
+            return Session.get('viewWindows') ? 'Hide ' : 'Show ';
+        }
+    });
+
     var xyMapSize = 256,
         GRID_OFFSET = 256 / 4,
         HEX_COLOR = '#00F',
         ORPHAN_COLOR = '#F00',
+        WINDOW_COLOR = '#888',
+        SIMILAR_COLOR = '#888',
         HEX_LEN_SEED = 9,
         RADIUS_SEED = 100000,
         TINY_BIT = 0.000001,
+        TOP_SIMILARITIES = 6, // Number of lines to draw from each node
         gridMap = null,
         dims = null,
         initialized = false,
-        hexes = [];
+        hexes = {},
+        windowLines = []
+        graphLines = [];
 
-    function buildGrid(layout) {
-        var file = 'grid_' + layout + '.tab';
+    function drawWindows() {
+ 
+        // Draw the adaptive windows used for layout-aware stats
+        var file = 'grid_' + Session.get('layoutIndex') + '.tab';
         Meteor.call('getTsvFile', file, ctx.project,
             function (error, parsed) {
 
@@ -32,49 +50,183 @@ var app = app || {}; // jshint ignore:line
             //  x3  y3  x4  y4
             //  ...
 
-            var xyLines;
-
             if (error) {
-                alert('Sorry, the file containing the grid points was not found ' +
-                    'so only the pre-squiggle hexagons will be displayed. (grid_*.tab)')
+                banner('error', 'Sorry, the file containing the windows was not found. (grid_*.tab)')
                 return;
             }
-
-            // Remove any blank lines
-            xyLines = _.filter(parsed, function (row) {
-                return (row.length === 4);
-            });
-
-            xyLines = _.map(xyLines, function (row) {
-                return [[parseFloat(row[0]), parseFloat(row[1])],
+            if (parsed.slice(0,5) === 'Error') {
+                banner('error', parsed);
+                return;
+            }
+            
+            var opts = {
+                strokeColor: WINDOW_COLOR,
+                strokeOpacity: 1.0,
+                strokeWeight: 1,
+                zIndex: 4,
+                map: gridMap,
+            };
+            _.each(parsed, function(row) {
+                var xyLine = [[parseFloat(row[0]), parseFloat(row[1])],
                         [parseFloat(row[2]), parseFloat(row[3])]];
-            });
-
-            _.each(xyLines, function (xyLine) {
-                var llLine,
-                    line;
-                llLine = _.map(xyLine, function (xyPoint) {
-                    var llPoint = get_LatLng(xyPoint[0] * dims.scale / 2 + GRID_OFFSET,
+                opts.path = _.map(xyLine, function (xyPoint) {
+                    var point = get_LatLng(xyPoint[0] * dims.scale / 2 + GRID_OFFSET,
                                              xyPoint[1] * dims.scale / 2 + GRID_OFFSET);
-                    return llPoint;
+                    return point;
                 });
-                line = new google.maps.Polyline({
-                    path: llLine,
-                    strokeColor: '#888',
-                    strokeOpacity: 1.0,
-                    strokeWeight: 1,
-                    zIndex: 4,
-                });
-                line.setMap(gridMap);
+                windowLines.push(new google.maps.Polyline(opts));
             });
         });
     }
 
-    function findOrphans(layout) {
+    function viewWindowsMenuClick () {
+        Session.set('viewWindows', !Session.get('viewWindows'));
+        if (Session.equals('viewWindows', true)) {
+ 
+            // We want to show the windows
+            if (windowLines.length > 0) {
+ 
+                // Set the map of the existing window lines so they show
+                _.each(windowLines, function (line) {
+                    line.setMap(gridMap);
+                });
+            } else {
+ 
+                // Generate the windows
+                drawWindows();
+            }
+        } else if (windowLines.length > 0) {
+ 
+            // We want to hide the windows, so set their maps to null
+            _.each(windowLines, function (line) {
+                line.setMap(null);
+            });
+        }
+        tool_activity(false);
+    }
+
+    function drawSimilarityLines (parsed, row, i, firstI) {
+
+        // Find the nodes most similar to this node
+        // There may be a faster way to do this than sorting
+        var nodes = parsed.slice(firstI, i),
+            opacity = [0.1, 0.2, 0.3],
+            weight = [1, 1.5, 2],
+            color = ['#f00', '#0f0', '#00f'],
+            opts = {
+                strokeColor: SIMILAR_COLOR,
+                strokeOpacity: 1.0,
+                strokeWeight: 10,
+                zIndex: 2,
+                map: gridMap,
+            };
+        nodes.sort(function (a, b) {
+            if (a[2] > b[2]) {
+                return -1;
+            } else if (a[2] < b[2]) {
+                return 1;
+            } else {
+                return 0;
+            }
+        });
+        _.each(nodes.slice(0, TOP_SIMILARITIES), function(row, j) {
+            
+            // Break down the line between two nodes into 3 segments
+            var p0 = hexes[row[0]].xyCenter,
+                p1 = hexes[row[1]].xyCenter,
+                x3 = (p1[0] - p0[0]) / 3, // 1/3 of x distance
+                xf = 0, //(p1[0] - p0[0]) / 100, // fudge factor to reduce overlap of segments
+                y3 = (p1[1] - p0[1]) / 3, // 1/3 of y distance
+                yf = 0, //(p1[1] - p0[1]) / 100, // fudge factor to reduce overlap of segments
+                lines = [
+                    [[ p0[0], p0[1] ], [ p0[0] + x3, p0[1] + y3 ]],
+                    [[ p0[0] + x3+xf, p0[1] + y3+yf ], [ p0[0] + x3*2, p0[1] + y3*2 ]],
+                    [[ p0[0] + x3*2+xf, p0[1] + y3*2+yf ], [ p1[0], p1[1] ]],
+                ];
+
+            _.each(lines, function (line, k) {
+                opts.path = _.map(line, function (point) {
+                    return get_LatLng(point[0], point[1]);
+                });
+                //opts.strokeOpacity = opacity[k];
+                opts.strokeWeight = weight[k];
+                //opts.strokeColor = color[k];
+                
+                // Draw the line between the two nodes as 3 segments
+                graphLines.push(new google.maps.Polyline(opts));
+            });
+        });
+    }
+
+    function drawGraph () {
+ 
+        // Draw the directed graph
+        var file = Session.get('layouts')[Session.get('layoutIndex')].filename;
+
+        Meteor.call('getTsvFile', file, ctx.project,
+            function (error, parsed) {
+
+            // This is an array of node pairs and their value:
+            //
+            //  node1  node2  value
+            //  node1  node3  value
+            //  ...
+
+            if (error) {
+                banner('error', 'Sorry, the file containing the similarities was not found. ('
+                    + file + ')');
+                return;
+            }
+            if (parsed.slice(0,5) === 'Error') {
+                banner('error', parsed);
+                return;
+            }
+            
+            // Find the top similar nodes for each node
+            var node0 = parsed[0][0],
+                firstI = 0;
+            _.each(parsed, function (row, i) {
+                if (row[0] !== node0) {
+                    drawSimilarityLines(parsed, row, i, firstI);
+                    node0 = row[0];
+                    firstI = i;
+                }
+            });
+        });
+    }
+
+    function viewGraphMenuClick () {
+        Session.set('viewGraph', !Session.get('viewGraph'));
+        if (Session.equals('viewGraph', true)) {
+ 
+            // We want to show the directed graph
+            if (graphLines.length > 0) {
+ 
+                // Set the map of the existing graph lines so they show
+                _.each(graphLines, function (line) {
+                    line.setMap(gridMap);
+                });
+            } else {
+ 
+                // Generate the graph
+                drawGraph();
+            }
+
+        } else if (graphLines.length > 0) {
+ 
+            // We want to hide the directed graph, so set their maps to null
+            _.each(graphLines, function (line) {
+                line.setMap(null);
+            });
+        }
+        tool_activity(false);
+    }
+
+    function findOrphans() {
 
         // Find those points, pre-hexagon assignment,
         // that were not mapped to this layer's grid
-        var file = 'gridOrphans_' + layout + '.tab';
+        var file = 'gridOrphans_' + Session.get('layoutIndex') + '.tab';
         Meteor.call('getTsvFile', file, ctx.project,
             function (error, parsed) {
 
@@ -88,7 +240,7 @@ var app = app || {}; // jshint ignore:line
                 });
             }
 
-            buildScatter(layout, orphans);
+            findNodePoints(orphans);
         });
     }
 
@@ -108,7 +260,7 @@ var app = app || {}; // jshint ignore:line
         });
     }
 
-    drawGridPoints = function (points, pointNames, orphans) {
+    drawHexagons = function (points, pointNames, orphans) {
 
         // Set up the options common to all hexagons
         var hexLen = HEX_LEN_SEED / Math.pow(2, ctx.gridZoom),
@@ -147,19 +299,25 @@ var app = app || {}; // jshint ignore:line
             dotOpts.path = [get_LatLng(xyPoint[0]-add, xyPoint[1]-add),
                              get_LatLng(xyPoint[0]+add, xyPoint[1]+add)];
 
-            // Render the hexagon and its center, and save then in an array
-            hexes.push({
+            // Render the hexagon and its center, and save them in an array
+            var hex = {
                 xyCenter: xyPoint,
+                name: pointNames[i],
                 polygon: new google.maps.Polygon(hexOpts),
                 dot: new google.maps.Polyline(dotOpts),
+            };
+            google.maps.event.addListener(hex, "click", function (event) {
+                alert(hex.name);
+                //showInfoWindow(event, hex, xyPoint[0], xyPoint[1], gridMap);
             });
+            hexes[pointNames[i]] = hex;
         });
     }
 
-    function buildScatter(layout, orphans) {
+    function findNodePoints(orphans) {
 
         // Render the points before they were assigned to hexagons
-        var file = 'xyPreSquiggle_' + layout + '.tab';
+        var file = 'xyPreSquiggle_' + Session.get('layoutIndex') + '.tab';
         Meteor.call('getTsvFile', file, ctx.project,
             function (error, parsed) {;
 
@@ -192,11 +350,20 @@ var app = app || {}; // jshint ignore:line
                 return [row[1], row[2]]
             });
 
-            // Find the extennts of the map so we and normalize it to our
+            // Find the extents of the map so we and normalize it to our
             // standard size.
             dims = findGridExtents(xyMapSize-TINY_BIT, xyPointsRaw);
-            buildGrid(layout);
-
+            
+            // Draw the grid if the user wants to
+            if (Session.equals('viewWindows', true)) {
+                drawWindows();
+            }
+            
+            // Draw the directed graph if the user wants to
+            if (Session.equals('viewGraph', true)) {
+                drawGraph();
+            }
+            
             // Scale to create object coords of (0, 0) -> (xyMapSize/2, xyMapSize/2)
             // so the map will not wrap around the world east and west. And add
             // an offset to put the map in the center of the full map space
@@ -205,11 +372,13 @@ var app = app || {}; // jshint ignore:line
                         (row[1] * dims.scale / 2) + (xyMapSize / 4)];
             });
 
-            drawGridPoints(xyPointsMap, pointNames, orphans);
+            drawHexagons(xyPointsMap, pointNames, orphans);
         });
     }
 
     function createMap () {
+ 
+        // Creates the google map for methods
         mapTypeDef();
         var mapOptions = {
             center: ctx.center,
@@ -281,28 +450,21 @@ var app = app || {}; // jshint ignore:line
     getGridMap = function () {
         return gridMap;
     }
-
+ 
     initGrid = function () {
 
         if (initialized) return;
         initialized = true;
 
-        if (Session.equals('page', 'homePage')) {
-            return;
-        }
+        // Register a callback for the view graph menu click
+        add_tool("viewGraph", viewGraphMenuClick);
 
-        if (Session.equals('page', 'mapPage')) {
-
-            // Create a link to the grid page from the map page
-            add_tool("methods", function() {
-                $('.gridPage').click();
-                tool_activity(false);
-            });
-            return;
-        }
+        // Register a callback for the view windows menu click
+        add_tool("viewWindows", viewWindowsMenuClick);
 
         // Initialize the grid page and grid map
         createMap();
-        findOrphans(Session.get('layoutIndex'));
+        findOrphans();
+        initCoords(dims);
     }
 })(app);

@@ -1,15 +1,15 @@
 <template name='headerT'>
-    <div class="header mapShow" id="header">
+    <div class="header" id="header">
         <div id="layout-row" class='row'>
-            <div class='stacker'>Project:</div>
-            <div id='project' class='stacker'></div>
-            <div class='stacker'>Layout:</div>
-            <input id="layout-search" class='stacker' type="hidden"/>
-            <div id="loadingMap" class='stacker' style="display:{{loadingMap}};background: url('spin.gif') no-repeat center center;"></div>
+            <div class='stacker mapShow'>Project:</div>
+            <div id='project' class='stacker mapShow'></div>
+            <div class='stacker mapShow'>Layout:</div>
+            <input id="layout-search" class='stacker mapShow' type="hidden"/>
+            <div id="loadingMap mapShow" class='stacker' style="display:{{loadingMap}};background: url('spin.gif') no-repeat center center;"></div>
             {{> coords }}
         </div>
 
-        <div class='layer-row row'>
+        <div class='layer-row row mapShow'>
             <input id="search" class='stacker' type="hidden"/>
             <img class="filter headerButton stacker" src='filter.svg' title="Filter attributes"/>
             <img class="filterCaution headerButton stacker" src='filterCaution.svg' title="Attributes are being filtered"/>

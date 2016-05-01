@@ -100,12 +100,13 @@ ls ../bin
 </div>
 <p>(TODO:  check this in somehow with yulia&#8217;s changes)</p>
 </div>
-<div class="section" id="path-environment-variable">
-<h2>PATH environment variable<a class="headerlink" href="#path-environment-variable" title="Permalink to this headline">¶</a></h2>
-<p>Set your PATH environment variable to include the tumor map python executables
-and the DRL layout executables. Where HEXROOT is the full path to your hexagram
+<div class="section" id="environment-variables">
+<h2>Environment variables<a class="headerlink" href="#environment-variables" title="Permalink to this headline">¶</a></h2>
+<p>Set some environment variables where HEXROOT is the full path to your hexagram
 directory and DRLROOT is the location of your DRL installation:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span>HEXROOT/.python:HEXROOT/server:DRLROOT/bin
+<div class="highlight-python"><div class="highlight"><pre><span></span>export PYTHONPATH=HEXROOT/.server:HEXROOT/server
+
+export PATH=HEXROOT/.server:HEXROOT/server:DRLROOT/bin:$PATH
 </pre></div>
 </div>
 </div>
@@ -140,7 +141,7 @@ Applications.</p>
 <li class="toctree-l2"><a class="reference internal" href="#our-servers">Our servers</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#python-and-modules">Python and modules</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#drl-graph-layout-1">DRL graph layout [1]</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#path-environment-variable">PATH environment variable</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#environment-variables">Environment variables</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#sphinx">Sphinx</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#references">References</a></li>
 </ul>

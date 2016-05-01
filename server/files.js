@@ -61,6 +61,37 @@ readFromJsonBaseFile = function (baseFilename) {
     return readFromJsonFileSync(DATA_DIR + baseFilename);
 }
 
+getTsvFile = function (filename, project, unparsed, future) {
+    var path;
+        if (filename.indexOf('layer_') > -1 || filename.indexOf('stats') > -1) {
+            path = DATA_DIR + filename;
+        } else {
+            path = DATA_DIR + project + filename;
+        }
+
+    if (fs.existsSync(path)) {
+        fs.readFile(path, 'utf8', function (error, results) {
+            if (error) {
+                future.throw(error);
+            }
+            if (unparsed) {
+                future.return(results);
+            } else {
+                future.return(parseTsv(results));
+            }
+        });
+    } else if (filename === 'layouts.tab') {
+    
+        // Special handling for this file because we have a better name
+        // and have added the raw layout data filenames
+        //future.return(getTsvFile('matrixnames.tab', project, unparsed, future));
+        getTsvFile('matrixnames.tab', project, unparsed, future);
+    } else {
+        future.return('Error: file not found on server: ' + path);
+    }
+    return future.wait();
+}
+
 Meteor.methods({
 
     getTsvFile: function (filename, project, unparsed) {
@@ -68,28 +99,8 @@ Meteor.methods({
         // Retrieve data from a tab-separated file
         this.unblock();
         var future = new Future();
-        var path;
-            if (filename.indexOf('layer_') > -1 || filename.indexOf('stats') > -1) {
-                path = DATA_DIR + filename;
-            } else {
-                path = DATA_DIR + project + filename;
-            }
-
-        if (fs.existsSync(path)) {
-            fs.readFile(path, 'utf8', function (error, results) {
-                if (error) {
-                    future.throw(error);
-                }
-                if (unparsed) {
-                    future.return(results);
-                } else {
-                    future.return(parseTsv(results));
-                }
-            });
-        } else {
-            future.return('Error: file not found on server: ' + path);
-        }
-        return future.wait();
+        
+        return getTsvFile(filename, project, unparsed, future);
     },
 
     pythonCall: function (pythonCallName, parms, fromServer) {

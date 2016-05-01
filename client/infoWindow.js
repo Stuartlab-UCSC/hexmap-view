@@ -130,7 +130,7 @@ var app = app || {}; // jshint ignore:line
         $("#search").blur();
     }
 
-    redraw_info_window = function () {
+    redraw_info_window = function (gMap) {
 
         // Set the contents of the global info window to reflect the currently
         // visible information about the global selected signature. 
@@ -156,7 +156,7 @@ var app = app || {}; // jshint ignore:line
         });
     }
 
-    showInfoWindow = function (event, hexagon, x, y) {
+    showInfoWindow = function (event, hexagon, x, y, gMap) {
 
         if (!info_window) return;
 
@@ -176,7 +176,7 @@ var app = app || {}; // jshint ignore:line
         selected_signature = hexagon.signature;
         
         // Calculate the window's contents and make it display them.
-        redraw_info_window();
+        redraw_info_window(gMap ? gMap : googlemap);
     }
 
     infoWindowFindHexagon = function (hexagon) {
@@ -184,6 +184,7 @@ var app = app || {}; // jshint ignore:line
     }
 
     initInfoWindow = function () {
+ 
         // Make the global info window
         info_window = new google.maps.InfoWindow({
             content: "No Signature Selected",

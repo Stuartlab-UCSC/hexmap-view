@@ -52,14 +52,15 @@ Install::
 
 (TODO:  check this in somehow with yulia's changes)
 
-PATH environment variable
--------------------------
+Environment variables
+---------------------
 
-Set your PATH environment variable to include the tumor map python executables
-and the DRL layout executables. Where HEXROOT is the full path to your hexagram
+Set some environment variables where HEXROOT is the full path to your hexagram
 directory and DRLROOT is the location of your DRL installation::
 
- HEXROOT/.python:HEXROOT/server:DRLROOT/bin
+ export PYTHONPATH=HEXROOT/.server:HEXROOT/server
+
+ export PATH=HEXROOT/.server:HEXROOT/server:DRLROOT/bin:$PATH
 
 Sphinx
 ------

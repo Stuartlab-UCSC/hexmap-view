@@ -307,7 +307,7 @@ var app = app || {}; // jshint ignore:line
         $('#latCoord').text(round(e.latLng.lat()));
     }
 
-    initCoords = function () {
+    initCoords = function (gridDims) {
 
         if (initialized || !SHOW_COORDS) return
         initialized = true;
@@ -320,7 +320,7 @@ var app = app || {}; // jshint ignore:line
         if (Session.equals('page', 'gridPage')) {
             map = getGridMap();
             $el = $('#gridMap');
-            XY = findGridExtents(XY_WORLD_SIZE);
+            XY = gridDims;
         } else {
             map = googlemap;
             $el = $('#visualization');

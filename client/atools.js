@@ -199,7 +199,7 @@ var app = app || {}; // jshint ignore:line
             $('body').find('.mapShow, .gridShow').hide();
             $('body').find('.homeShow').show();
         } else if (Session.equals('page', 'mapPage')) {
-            $('body').find('.homeShow, gridShow').hide();
+            $('body').find('.homeShow, .gridShow').hide();
             $('body').find('.mapShow').show();
             initTheseTools();
             initSelect();
@@ -218,6 +218,12 @@ var app = app || {}; // jshint ignore:line
         // Set up the link to the home page
         add_tool("home", function() {
             $('.homePage').click();
+            tool_activity(false);
+        });
+ 
+        // Create a link to the methods
+        add_tool("methods", function() {
+            $('.gridPage').click();
             tool_activity(false);
         });
  

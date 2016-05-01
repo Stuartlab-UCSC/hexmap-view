@@ -14,13 +14,14 @@ var app = app || {}; // jshint ignore:line
         return Math.round(x * m) / m;
     }
 
-    projectNotFound = function () {
+    projectNotFound = function (filename) {
         if (!ctx.projectNotFoundNotified) {
 
             // make the project name look it would in the URL & alert the user
             var proj = ctx.project.slice(5, -1).replace('/', '.');
             alert('"' + proj
-                + '" does not seem to be a valid project.\nPlease select another.');
+                + '" does not seem to be a valid project.\nPlease select another.'
+                + '\n(' + filename + ')');
             ctx.projectNotFoundNotified = true;
         }
     }

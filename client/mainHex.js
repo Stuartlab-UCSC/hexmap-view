@@ -110,12 +110,10 @@ googlemap; // our googlemap instance
         if (Session.equals('page', 'mapPage')) {
             initPdf();
             initSvg();
-            initGrid();
             initCoords();
             initOverlayNodes();
         } else {
             initGrid();
-            initCoords();
         }
         setTimeout(function () {
             Session.set('loadingMap', 'none')

@@ -1161,20 +1161,16 @@ def compute_hexagram_assignments(nodes, index, options):
     # all_hexagons.
     return placement_badnesses
                 
-def write_matrix_names(options):
+def write_similarity_names(options):
     """
-    Write the names of the similarity matrices so that hexagram.js can
-    process the names and create the toggle layout GUI.
-    We pass options to access the parsed args and thus the matrix names.
+    Write the human names and file names of the similarity matrices so that 
+    the tumor map UI can use them.
     """
-    name_writer = tsv.TsvWriter(open(os.path.join(options.directory, 
-        "matrixnames.tab"), "w"))
-    for i in options.names:
-        name_writer.line(i)
+    with open(os.path.join(options.directory, 'layouts.tab'), 'w') as f:
+        f = csv.writer(f, delimiter='\t')
+        for i, name in enumerate(options.names):
+            f.writerow([name, os.path.basename(options.similarity[i])])
 
-    #name_writer.line("Linear Regression")
-    #name_writer.close()
-    
 def run_clumpiness_statistics(layers, layer_names, window_size, layout_index):
     """
     
@@ -1226,6 +1222,74 @@ def run_clumpiness_statistics(layers, layer_names, window_size, layout_index):
 
     return dict
 
+def copy_files_for_UI(options, layer_files, layers, layer_positives, clumpiness_scores):
+    """
+    Copy some files over to the tumor map space so it may access them.
+    """
+    # Write an index of all the layers we have, in the form:
+    # <layer>\t<file>\t<number of signatures with data>\t<number of signatures
+    # that are 1 for binary layers, or NaN> and then columns with the clumpiness
+    # score for each layout.
+    
+    # This is the writer to use.
+    index_writer = tsv.TsvWriter(open(os.path.join(options.directory, 
+        "layers.tab"), "w"))
+
+    print "Writing layer index..."
+        
+    for layer_name, layer_file in layer_files.iteritems():
+        # Gather together the parts to write
+        parts = [layer_name, os.path.basename(layer_file),
+            len(layers[layer_name]), layer_positives[layer_name]]
+            
+        for clumpiness_dict in clumpiness_scores:
+            # Go through each dict of clumpiness scores by layer, in layout
+            # order, and put the score for this layer in this layout at the end
+            # of the line.
+            
+            parts.append(clumpiness_dict[layer_name])
+    
+        # Write the index entry for this layer
+        index_writer.list_line(parts)
+        
+    index_writer.close()
+
+    # Copy over the tags file if one exists
+    if options.attributeTags is not None:
+        tagsPath = os.path.join(options.directory, 'attribute_tags.tab')
+        shutil.copy2(options.attributeTags, tagsPath)
+        print 'Tags file copied to', tagsPath
+
+    # Copy over the user-specified colormaps file, or make an empty TSV if it's
+    # not specified.
+    
+    # This holds a writer for the sim file. Creating it creates the file.
+    colormaps_writer = tsv.TsvWriter(open(os.path.join(options.directory,
+        "colormaps.tab"), "w"))
+    
+    if options.colormaps is not None:
+
+        # The user specified colormap data, so copy it over
+        # This holds a reader for the colormaps file
+        colormaps_reader = tsv.TsvReader(open(options.colormaps, 'r'))
+
+        print "Regularizing colormaps file..."
+        sys.stdout.flush()
+        
+        for parts in colormaps_reader:
+            colormaps_writer.list_line(parts)
+        
+        colormaps_reader.close()
+    
+    # Close the colormaps file we wrote. It may have gotten data, or it may 
+    # still be empty.
+    colormaps_writer.close()
+
+    # Copy over the similarity files
+    for i, file in enumerate(options.similarity):
+        shutil.copy2(file, options.directory)
+    print 'Similarity files copied to', options.directory
+
 def hexIt(options):
 
     # Set some global context values
@@ -1245,7 +1309,7 @@ def hexIt(options):
     
     print "Writing matrix names..."
     # We must write the file names for hexagram.js to access.
-    write_matrix_names(options)
+    write_similarity_names(options)
 
     print "About to open matrices..."
 
@@ -1481,65 +1545,8 @@ def hexIt(options):
                     break
         else:
             layer_positives[layer_name] = ""
-    
-    # Write an index of all the layers we have, in the form:
-    # <layer>\t<file>\t<number of signatures with data>\t<number of signatures
-    # that are 1 for binary layers, or NaN> and then columns with the clumpiness
-    # score for each layout.
-    
-    # This is the writer to use.
-    index_writer = tsv.TsvWriter(open(os.path.join(options.directory, 
-        "layers.tab"), "w"))
 
-    print "Writing layer index..."
-        
-    for layer_name, layer_file in layer_files.iteritems():
-        # Gather together the parts to write
-        parts = [layer_name, os.path.basename(layer_file),
-            len(layers[layer_name]), layer_positives[layer_name]]
-            
-        for clumpiness_dict in clumpiness_scores:
-            # Go through each dict of clumpiness scores by layer, in layout
-            # order, and put the score for this layer in this layout at the end
-            # of the line.
-            
-            parts.append(clumpiness_dict[layer_name])
-    
-        # Write the index entry for this layer
-        index_writer.list_line(parts)
-        
-    index_writer.close()
-
-    # Copy over the tags file if one exists
-    if options.attributeTags is not None:
-        tagsPath = os.path.join(options.directory, 'attribute_tags.tab')
-        print 'Tags file copied to', tagsPath
-        shutil.copy2(options.attributeTags, tagsPath)
-
-    # Copy over the user-specified colormaps file, or make an empty TSV if it's
-    # not specified.
-    
-    # This holds a writer for the sim file. Creating it creates the file.
-    colormaps_writer = tsv.TsvWriter(open(os.path.join(options.directory,
-        "colormaps.tab"), "w"))
-    
-    if options.colormaps is not None:
-
-        # The user specified colormap data, so copy it over
-        # This holds a reader for the colormaps file
-        colormaps_reader = tsv.TsvReader(open(options.colormaps, 'r'))
-
-        print "Regularizing colormaps file..."
-        sys.stdout.flush()
-        
-        for parts in colormaps_reader:
-            colormaps_writer.list_line(parts)
-        
-        colormaps_reader.close()
-    
-    # Close the colormaps file we wrote. It may have gotten data, or it may 
-    # still be empty.
-    colormaps_writer.close()
+    copy_files_for_UI(options, layer_files, layers, layer_positives, clumpiness_scores)
 
     #create_gmt(layers, layer_names, options)
     

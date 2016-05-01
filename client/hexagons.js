@@ -89,14 +89,15 @@ var app = app || {}; // jshint ignore:line
 
         // Download the signature assignments to hexagons and fill in the global
         // hexagon assignment grid.
-        Meteor.call('getTsvFile', "assignments" + layout_index +".tab",
+        var file = "assignments" + layout_index +".tab"
+        Meteor.call('getTsvFile', file,
             ctx.project, function (error, parsed) {;
 
             // This is an array of rows, which are arrays of values:
             // id, x, y
 
             if (error) {
-                projectNotFound();
+                projectNotFound(file);
                 return;
             }
 

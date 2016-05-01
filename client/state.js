@@ -74,6 +74,8 @@ var app = app || {}; // jshint ignore:line
             all: [
                 'page',
                 'project',
+                'viewGraph',
+                'viewWindows',
             ],
 
             // Contains all of the project state we want to save
@@ -84,7 +86,7 @@ var app = app || {}; // jshint ignore:line
                 'gridZoom',
                 'layoutIndex',
                 'overlayNodes',
-                //'layout_names', // We use this for a project, but don' save it
+                //'layouts', // We use this for a project, but don't save it
                 'shortlist',
                 'zoom',
             ],
@@ -95,6 +97,8 @@ var app = app || {}; // jshint ignore:line
         // Non-project variables maintained in the meteor session
         Session.setDefault('page', DEFAULT_PAGE);
         Session.setDefault('sort', DEFAULT_SORT); // Default sort message & type
+        Session.setDefault('viewGraph', true); // Display of directed graph or not
+        Session.setDefault('viewWindows', false); // Display of stats windows or not
 
         // Variables maintained in this state object, with defaults.
         s.project = DEFAULT_PROJECT;  // The project data to load
@@ -111,12 +115,12 @@ var app = app || {}; // jshint ignore:line
     State.prototype.setProjectDefaults = function () {
         var s = this;
 
-        // Project variables maintained in this state object, with defaults.
+        // Project variables maintaineds in this state object, with defaults.
         Session.setDefault('background', 'black');  // Visualization background color
         s.center = null; // google map center
         Session.set('first_layer', undefined); // first to be displayed in shortlist
         s.gridZoom = 1;  // Zoom level of the grid
-        s.layout_names = [];  // Map layout names maintained in order of entry
+        Session.set('layouts', []);  // Map layouts maintained in order of entry
         Session.set('layoutIndex', null);
         //Session.set('overlayNodes', undefined);  // overlay nodes to include
         Session.set('shortlist', []); // Array of layer names in the shortlist
