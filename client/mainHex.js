@@ -112,8 +112,6 @@ googlemap; // our googlemap instance
             initSvg();
             initCoords();
             initOverlayNodes();
-        } else {
-            initGrid();
         }
         setTimeout(function () {
             Session.set('loadingMap', 'none')

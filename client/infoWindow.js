@@ -43,8 +43,30 @@ var app = app || {}; // jshint ignore:line
         return root;
     }
 
-    function with_infocard(signature, callback) {
-        // Given a signature, call the callback with a jQuery element representing 
+    function with_infocard_gMap(signature, callback) {
+
+        // This is limited to the methods/grid map
+ 
+        // This holds the root element of the card.
+        var infocard = $("<div/>").addClass("infocard");
+        
+        // Display the hexagon name
+        infocard.append(row("ID", signature).addClass("info-name"));
+
+        _.each(graphLines[signature].neighbors, function (neighbor, i) {
+            var label = '';
+            if (i === 0) {
+                label = 'Neighbors';
+            }
+            infocard.append(row(label, neighbor));
+        });
+ 
+        callback(infocard);
+        return;
+    }
+
+    function with_infocard(signature, callback, gMap) {
+        // Given a signature, call the callback with a jQuery element representing
         // an "info card" about that signature. It's the contents of the infowindow 
         // that we want to appear when the user clicks on the hex representing this 
         // signature, and it includes things like the signature name and its values
@@ -54,6 +76,11 @@ var app = app || {}; // jshint ignore:line
         // TODO: Can we say that we will never have to download a layer here and 
         // just directly access them? Is that neater or less neat?
 
+        if (gMap) {
+            with_infocard_gMap(signature, callback);
+            return;
+        }
+ 
         // This holds a list of the string names of the currently selected layers,
         // in order.
         // Just use everything on the shortlist.
@@ -130,7 +157,7 @@ var app = app || {}; // jshint ignore:line
         $("#search").blur();
     }
 
-    redraw_info_window = function (gMap) {
+    redraw_info_window = function (gMap, callback1) {
 
         // Set the contents of the global info window to reflect the currently
         // visible information about the global selected signature. 
@@ -151,12 +178,13 @@ var app = app || {}; // jshint ignore:line
             // properly positioned and waiting for its initial contents before 
             // opening. Give the contents a chance to update.
             setTimeout(function () {
-                info_window.open(googlemap);
+                info_window.open(gMap ? gMap : googlemap);
             }, 0);
-        });
+            if (callback1) callback1();
+        }, gMap);
     }
 
-    showInfoWindow = function (event, hexagon, x, y, gMap) {
+    showInfoWindow = function (event, hexagon, x, y, gMap, callback1) {
 
         if (!info_window) return;
 
@@ -174,9 +202,9 @@ var app = app || {}; // jshint ignore:line
         
         // Record that this signature is selected now
         selected_signature = hexagon.signature;
-        
+ 
         // Calculate the window's contents and make it display them.
-        redraw_info_window(gMap ? gMap : googlemap);
+        redraw_info_window(gMap, callback1);
     }
 
     infoWindowFindHexagon = function (hexagon) {

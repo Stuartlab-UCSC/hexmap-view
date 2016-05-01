@@ -15,7 +15,7 @@ if (!(typeof MochaWeb === 'undefined')) {
                 var s = initState();
                 chai.assert.equal(Session.get('background'), 'black');
                 chai.assert.equal(s.zoom, 1);
-                chai.assert.equal(s.layout_names.length, 0);
+                chai.assert.equal(Session.get('layouts').length, 0);
                 chai.assert.equal(Session.get('current_layout_name'), null);
                 chai.assert(s.project, 'data/public/pancan12/');
             });

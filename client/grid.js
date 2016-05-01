@@ -3,6 +3,8 @@
 
 var app = app || {}; // jshint ignore:line
 
+graphLines = undefined;
+
 (function (hex) { // jshint ignore:line
     //'use strict';
 
@@ -26,6 +28,7 @@ var app = app || {}; // jshint ignore:line
         ORPHAN_COLOR = '#F00',
         WINDOW_COLOR = '#888',
         SIMILAR_COLOR = '#888',
+        HILITE_COLOR = '#F00',
         HEX_LEN_SEED = 9,
         RADIUS_SEED = 100000,
         TINY_BIT = 0.000001,
@@ -34,8 +37,9 @@ var app = app || {}; // jshint ignore:line
         dims = null,
         initialized = false,
         hexes = {},
-        windowLines = []
-        graphLines = [];
+        windowLines = [],
+        infoHex,
+        prevInfoHex;
 
     function drawWindows() {
  
@@ -105,7 +109,7 @@ var app = app || {}; // jshint ignore:line
         tool_activity(false);
     }
 
-    function drawSimilarityLines (parsed, row, i, firstI) {
+    function drawSimilarityLines (parsed, i, firstI) {
 
         // Find the nodes most similar to this node
         // There may be a faster way to do this than sorting
@@ -129,6 +133,11 @@ var app = app || {}; // jshint ignore:line
                 return 0;
             }
         });
+ 
+        graphLines[parsed[firstI][0]] = {};
+        graphLines[parsed[firstI][0]].lines = [];
+        graphLines[parsed[firstI][0]].neighbors = [];
+ 
         _.each(nodes.slice(0, TOP_SIMILARITIES), function(row, j) {
             
             // Break down the line between two nodes into 3 segments
@@ -143,7 +152,10 @@ var app = app || {}; // jshint ignore:line
                     [[ p0[0] + x3+xf, p0[1] + y3+yf ], [ p0[0] + x3*2, p0[1] + y3*2 ]],
                     [[ p0[0] + x3*2+xf, p0[1] + y3*2+yf ], [ p1[0], p1[1] ]],
                 ];
-
+               
+            // Save this hex's neighbors
+            graphLines[row[0]].neighbors.push(row[1]);
+            
             _.each(lines, function (line, k) {
                 opts.path = _.map(line, function (point) {
                     return get_LatLng(point[0], point[1]);
@@ -153,7 +165,7 @@ var app = app || {}; // jshint ignore:line
                 //opts.strokeColor = color[k];
                 
                 // Draw the line between the two nodes as 3 segments
-                graphLines.push(new google.maps.Polyline(opts));
+                graphLines[row[0]].lines.push(new google.maps.Polyline(opts));
             });
         });
     }
@@ -162,6 +174,7 @@ var app = app || {}; // jshint ignore:line
  
         // Draw the directed graph
         var file = Session.get('layouts')[Session.get('layoutIndex')].filename;
+        graphLines = {};
 
         Meteor.call('getTsvFile', file, ctx.project,
             function (error, parsed) {
@@ -187,10 +200,37 @@ var app = app || {}; // jshint ignore:line
                 firstI = 0;
             _.each(parsed, function (row, i) {
                 if (row[0] !== node0) {
-                    drawSimilarityLines(parsed, row, i, firstI);
+                    drawSimilarityLines(parsed, i, firstI);
                     node0 = row[0];
                     firstI = i;
                 }
+            });
+        });
+    }
+ 
+    function infoWindowShowing () {
+        if (graphLines) {
+            if (prevInfoHex) {
+                _.each(graphLines[prevInfoHex].lines, function (line) {
+                    line.setOptions({
+                        strokeColor: SIMILAR_COLOR,
+                        zIndex: 2,
+                    });
+                });
+            }
+            _.each(graphLines[infoHex].lines, function (line) {
+                line.setOptions({
+                    strokeColor: HILITE_COLOR,
+                        zIndex: 3,
+                });
+            });
+        }
+    }
+ 
+    function setGraphMap(map) {
+        _.each(graphLines, function (node) {
+            _.each(node.lines, function (line) {
+                line.setMap(map);
             });
         });
     }
@@ -200,24 +240,20 @@ var app = app || {}; // jshint ignore:line
         if (Session.equals('viewGraph', true)) {
  
             // We want to show the directed graph
-            if (graphLines.length > 0) {
+            if (graphLines) {
  
                 // Set the map of the existing graph lines so they show
-                _.each(graphLines, function (line) {
-                    line.setMap(gridMap);
-                });
+                setGraphMap(gridMap);
             } else {
  
                 // Generate the graph
                 drawGraph();
             }
 
-        } else if (graphLines.length > 0) {
+        } else if (graphLines) {
  
             // We want to hide the directed graph, so set their maps to null
-            _.each(graphLines, function (line) {
-                line.setMap(null);
-            });
+             setGraphMap(null);
         }
         tool_activity(false);
     }
@@ -303,12 +339,14 @@ var app = app || {}; // jshint ignore:line
             var hex = {
                 xyCenter: xyPoint,
                 name: pointNames[i],
+                signature: pointNames[i],
                 polygon: new google.maps.Polygon(hexOpts),
                 dot: new google.maps.Polyline(dotOpts),
             };
-            google.maps.event.addListener(hex, "click", function (event) {
-                alert(hex.name);
-                //showInfoWindow(event, hex, xyPoint[0], xyPoint[1], gridMap);
+            google.maps.event.addListener(hex.polygon, "click", function (event) {
+                prevInfoHex = infoHex;
+                infoHex = hex.signature;
+                showInfoWindow(event, hex, xyPoint[0], xyPoint[1], gridMap, infoWindowShowing);
             });
             hexes[pointNames[i]] = hex;
         });
@@ -452,7 +490,7 @@ var app = app || {}; // jshint ignore:line
     }
  
     initGrid = function () {
-
+        
         if (initialized) return;
         initialized = true;
 
