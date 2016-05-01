@@ -32,11 +32,11 @@ function parseTsv (data) {
     // separate the data in to an array of rows
     var data1 = data.split('\n'),
 
-        // Separate each row into an array of values
-        parsed = _.map(data1, function(row) {
-            return row.split('\t');
-        });
-
+    // Separate each row into an array of values
+    parsed = _.map(data1, function(row) {
+        return row.split('\t');
+    });
+    
     // Remove any empty row left from the new-line split
     if (parsed[parsed.length-1].length === 1
             && parsed[parsed.length-1][0] === '') {
@@ -63,11 +63,12 @@ readFromJsonBaseFile = function (baseFilename) {
 
 getTsvFile = function (filename, project, unparsed, future) {
     var path;
-        if (filename.indexOf('layer_') > -1 || filename.indexOf('stats') > -1) {
-            path = DATA_DIR + filename;
-        } else {
-            path = DATA_DIR + project + filename;
-        }
+    
+    if (filename.indexOf('layer_') > -1 || filename.indexOf('stats') > -1) {
+        path = DATA_DIR + filename;
+    } else {
+        path = DATA_DIR + project + filename;
+    }
 
     if (fs.existsSync(path)) {
         fs.readFile(path, 'utf8', function (error, results) {

@@ -1167,7 +1167,7 @@ def write_similarity_names(options):
     the tumor map UI can use them.
     """
     with open(os.path.join(options.directory, 'layouts.tab'), 'w') as f:
-        f = csv.writer(f, delimiter='\t')
+        f = csv.writer(f, delimiter='\t', lineterminator='\n')
         for i, name in enumerate(options.names):
             f.writerow([name, os.path.basename(options.similarity[i])])
 

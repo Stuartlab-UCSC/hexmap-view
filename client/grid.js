@@ -109,11 +109,11 @@ graphLines = undefined;
         tool_activity(false);
     }
 
-    function drawSimilarityLines (parsed, i, firstI) {
+    function drawSimilarityLines (row) {
 
         // Find the nodes most similar to this node
         // There may be a faster way to do this than sorting
-        var nodes = parsed.slice(firstI, i),
+        var node = row[0]
             opacity = [0.1, 0.2, 0.3],
             weight = [1, 1.5, 2],
             color = ['#f00', '#0f0', '#00f'],
@@ -124,25 +124,15 @@ graphLines = undefined;
                 zIndex: 2,
                 map: gridMap,
             };
-        nodes.sort(function (a, b) {
-            if (a[2] > b[2]) {
-                return -1;
-            } else if (a[2] < b[2]) {
-                return 1;
-            } else {
-                return 0;
-            }
-        });
+        graphLines[node] = {};
+        graphLines[node].lines = [];
+        graphLines[node].neighbors = row.slice(1);
  
-        graphLines[parsed[firstI][0]] = {};
-        graphLines[parsed[firstI][0]].lines = [];
-        graphLines[parsed[firstI][0]].neighbors = [];
- 
-        _.each(nodes.slice(0, TOP_SIMILARITIES), function(row, j) {
-            
+        _.each(graphLines[node].neighbors, function(neighbor) {
+               
             // Break down the line between two nodes into 3 segments
-            var p0 = hexes[row[0]].xyCenter,
-                p1 = hexes[row[1]].xyCenter,
+            var p0 = hexes[node].xyCenter,
+                p1 = hexes[neighbor].xyCenter,
                 x3 = (p1[0] - p0[0]) / 3, // 1/3 of x distance
                 xf = 0, //(p1[0] - p0[0]) / 100, // fudge factor to reduce overlap of segments
                 y3 = (p1[1] - p0[1]) / 3, // 1/3 of y distance
@@ -153,19 +143,14 @@ graphLines = undefined;
                     [[ p0[0] + x3*2+xf, p0[1] + y3*2+yf ], [ p1[0], p1[1] ]],
                 ];
                
-            // Save this hex's neighbors
-            graphLines[row[0]].neighbors.push(row[1]);
-            
             _.each(lines, function (line, k) {
                 opts.path = _.map(line, function (point) {
                     return get_LatLng(point[0], point[1]);
                 });
-                //opts.strokeOpacity = opacity[k];
                 opts.strokeWeight = weight[k];
-                //opts.strokeColor = color[k];
                 
                 // Draw the line between the two nodes as 3 segments
-                graphLines[row[0]].lines.push(new google.maps.Polyline(opts));
+                graphLines[node].lines.push(new google.maps.Polyline(opts));
             });
         });
     }
@@ -173,20 +158,22 @@ graphLines = undefined;
     function drawGraph () {
  
         // Draw the directed graph
-        var file = Session.get('layouts')[Session.get('layoutIndex')].filename;
+        var file = 'neighbors_' + Session.get('layoutIndex') + '.tab';
         graphLines = {};
 
         Meteor.call('getTsvFile', file, ctx.project,
             function (error, parsed) {
 
-            // This is an array of node pairs and their value:
+            // This is an array of nodes and their neighbors with the primary
+            // node at the front of each row:
             //
-            //  node1  node2  value
-            //  node1  node3  value
+            //  node1  nodeA  nodeB  nodeC ...
+            //  node2  nodeX  nodeY  nodeZ ...
             //  ...
 
             if (error) {
-                banner('error', 'Sorry, the file containing the similarities was not found. ('
+                banner('error',
+                    'Sorry, the file containing the similarities was not found. ('
                     + file + ')');
                 return;
             }
@@ -194,16 +181,9 @@ graphLines = undefined;
                 banner('error', parsed);
                 return;
             }
-            
-            // Find the top similar nodes for each node
-            var node0 = parsed[0][0],
-                firstI = 0;
-            _.each(parsed, function (row, i) {
-                if (row[0] !== node0) {
-                    drawSimilarityLines(parsed, i, firstI);
-                    node0 = row[0];
-                    firstI = i;
-                }
+            // Draw the lines for each node
+            _.each(parsed, function (row) {
+                drawSimilarityLines(row);
             });
         });
     }
