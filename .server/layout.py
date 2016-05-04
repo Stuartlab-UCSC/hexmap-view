@@ -26,6 +26,7 @@ import tsv, csv, json
 from statsNoLayout import statsNoLayout
 from statsLayout import statsLayout
 import pool
+from topNeighbors import topNeighbors
 
 def timestamp():
     return str(datetime.datetime.now())[8:-7]
@@ -123,7 +124,7 @@ def parse_args(args):
         dest="mi_binary_binning",
         help="whether to bin counts from binary layers for region-based stats")
     parser.add_argument("--truncation_edges", type=int, default=6,
-        help="number of edges for DrL truncate to pass per node")
+        help="number of edges for DrL truncate to pass per node, and edges to draw in the directed graph")
     parser.add_argument("--no-stats", dest="clumpinessStats", action="store_false",
         default=True,
         help="disable cluster-finding statistics")
@@ -136,8 +137,10 @@ def parse_args(args):
     parser.add_argument("--include-singletons", dest="singletons", 
         action="store_true", default=False,
         help="add self-edges to retain unconnected points")
-        
-   
+    parser.add_argument("--directed_graph", dest="directedGraph",
+        action="store_true", default=True,
+        help="generate the data to draw the directed graph")
+
     a = parser.parse_args(args)
     print "#ARGS",args, a, "raw",a.raw
     return a
@@ -1169,7 +1172,7 @@ def write_similarity_names(options):
     with open(os.path.join(options.directory, 'layouts.tab'), 'w') as f:
         f = csv.writer(f, delimiter='\t', lineterminator='\n')
         for i, name in enumerate(options.names):
-            f.writerow([name, os.path.basename(options.similarity[i])])
+            f.writerow([name])
 
 def run_clumpiness_statistics(layers, layer_names, window_size, layout_index):
     """
@@ -1284,11 +1287,6 @@ def copy_files_for_UI(options, layer_files, layers, layer_positives, clumpiness_
     # Close the colormaps file we wrote. It may have gotten data, or it may 
     # still be empty.
     colormaps_writer.close()
-
-    # Copy over the similarity files
-    for i, file in enumerate(options.similarity):
-        shutil.copy2(file, options.directory)
-    print 'Similarity files copied to', options.directory
 
 def hexIt(options):
 
@@ -1764,6 +1762,11 @@ def hexIt(options):
     # Sampling windows are built in case the user requests a dynamic stats
     # from the viz UI.
     statsLayout(options.directory, layers, layer_names, nodes_multiple, ctx, options)
+
+    # Find the top neighbors of each node
+    if options.directedGraph:
+        topNeighbors(options.similarity , options.directory, options.truncation_edges)
+
     print timestamp(), "Visualization generation complete!"
 
 def main(args):

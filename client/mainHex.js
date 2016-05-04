@@ -100,22 +100,21 @@ googlemap; // our googlemap instance
             return Session.get('sort');
         },
         loadingMap: function () {
-            return Session.get('loadingMap');
+            if (Session.get('loadingMap')) {
+                return 'block';
+            } else {
+                return 'none';
+            }
         },
     });
 
     initMapDrawn = function () {
-        // Initialize modules that need to have the map drawn.
+        // Initialize modules that need to have the main map drawn.
         google.maps.event.removeListener(mapDrawnListener);
-        if (Session.equals('page', 'mapPage')) {
             initPdf();
             initSvg();
             initCoords();
             initOverlayNodes();
-        }
-        setTimeout(function () {
-            Session.set('loadingMap', 'none')
-        }, 0);
     }
 
     function resizeMap () {
@@ -142,7 +141,9 @@ googlemap; // our googlemap instance
             convertStoredCenterToLatLng();
             initLegend();
             initShortlist();
-            $.get("maplabel.js");
+            setTimeout(function () {
+                Session.set('loadingMap', false)
+            }, 500);
         }, 0)
     };
 
@@ -153,7 +154,6 @@ googlemap; // our googlemap instance
             initTools();
             initDownload();
             convertStoredCenterToLatLng();
-            initHex();
             initGrid();
         }, 0)
     };

@@ -97,7 +97,7 @@ var app = app || {}; // jshint ignore:line
         // Non-project variables maintained in the meteor session
         Session.setDefault('page', DEFAULT_PAGE);
         Session.setDefault('sort', DEFAULT_SORT); // Default sort message & type
-        Session.setDefault('viewGraph', true); // Display of directed graph or not
+        Session.setDefault('viewGraph', false); // Display of directed graph or not
         Session.setDefault('viewWindows', false); // Display of stats windows or not
 
         // Variables maintained in this state object, with defaults.
@@ -119,7 +119,7 @@ var app = app || {}; // jshint ignore:line
         Session.setDefault('background', 'black');  // Visualization background color
         s.center = null; // google map center
         Session.set('first_layer', undefined); // first to be displayed in shortlist
-        s.gridZoom = 1;  // Zoom level of the grid
+        s.gridZoom = 2;  // Zoom level of the grid
         Session.set('layouts', []);  // Map layouts maintained in order of entry
         Session.set('layoutIndex', null);
         //Session.set('overlayNodes', undefined);  // overlay nodes to include
@@ -319,6 +319,27 @@ var app = app || {}; // jshint ignore:line
         return true;
     }
 
+    function initDocs () {
+ 
+        // Show dev doc menu option if user is in dev role.
+        Meteor.call('isUserInRole', 'dev', function (error, results) {
+            if (!error && results) {
+                $('.devDocs').show();
+           } else {
+                $('.devDocs').hide();
+            }
+        });
+        
+        // Show query API doc menu option if user is in dev or CKCC role.
+        Meteor.call('isUserInRole', ['dev', 'CKCC'], function (error, results) {
+            if (!error && results) {
+                $('.queryDocs').show();
+           } else {
+                $('.queryDocs').hide();
+            }
+        });
+    }
+
     initState = function () { // jshint ignore:line
         var storageSupported = checkLocalStore();
         var s = new State();
@@ -355,24 +376,7 @@ var app = app || {}; // jshint ignore:line
         // Set help menu options when the username changes, including log out
         Meteor.autorun(function () {
             var x = Meteor.user();
-
-            // Show dev doc menu option if user is in dev role.
-            Meteor.call('isUserInRole', 'dev', function (error, results) {
-                if (!error && results) {
-                    $('.devDocs').show();
-               } else {
-                    $('.devDocs').hide();
-                }
-            });
-            
-            // Show query API doc menu option if user is in dev or CKCC role.
-            Meteor.call('isUserInRole', ['dev', 'CKCC'], function (error, results) {
-                if (!error && results) {
-                    $('.queryDocs').show();
-               } else {
-                    $('.queryDocs').hide();
-                }
-            });
+            initDocs();
         });
 
         return s;

@@ -1,4 +1,4 @@
 Template.headerT.onCreated(function () {
-    Session.set('loadingMap', 'block');
+    Session.set('loadingMap', true);
 });
 

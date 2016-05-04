@@ -7,16 +7,23 @@
         
             <li class='primary mapShow gridShow' data-sel='home' style='display:inline'>Home</li>
             
-            <li class='primary hexMap gridShow homeShow' data-sel='hexMap' style='display:inline'>Map</li>
+            <li class='primary hexMap homeShow' data-sel='hexMap' style='display:inline'>Map</li>
 
-            <li id='viewMenu' class='primary gridShow' style='display:inline'>
+            <li id='viewMenu' class='primary mapShow gridShow' style='display:inline'>
                 View
                 <img src='/caret-down.png' style='height:8px'>
                 <ul>
-                    <li data-sel='viewGraph' title = 'Directed graph of node relationships'>&nbsp;
-                        {{viewGraph}} Graph
+                    <li data-sel='hexMap' class='mapLayout' title = 'Main map'>&nbsp;
+                        Map Layout
                     </li>
-                    <li data-sel='viewWindows' title = 'Adaptive windows for layout-aware stats'>&nbsp;
+                    <li data-sel='methods' class='methods' title = 'Map of nodes before final layout'>&nbsp;
+                        Node Density&nbsp;&nbsp;
+                    </li>
+                    <hr class='gridShow'>
+                    <li data-sel='viewGraph' class='gridShow' title = 'Directed graph of node relationships'>&nbsp;
+                        {{viewGraph}} Edges
+                    </li>
+                    <li data-sel='viewWindows' class='gridShow' title = 'Adaptive windows for layout-aware stats'>&nbsp;
                         {{viewWindows}} Windows&nbsp;&nbsp;
                     </li>
                 </ul>
@@ -63,8 +70,6 @@
             </li>
             
             <li class='primary mapShow' data-sel='addText' style='display:inline'>Label</li>
-            
-            <li class='primary mapShow' data-sel='methods' style='display:inline'>Methods</li>
             
             <li class='primary' style='display:inline'>
                 Help

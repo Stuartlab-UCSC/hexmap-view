@@ -195,18 +195,25 @@ var app = app || {}; // jshint ignore:line
     }
  
     initTools = function () {
+ 
         if (Session.equals('page', 'homePage')) {
             $('body').find('.mapShow, .gridShow').hide();
             $('body').find('.homeShow').show();
+ 
         } else if (Session.equals('page', 'mapPage')) {
             $('body').find('.homeShow, .gridShow').hide();
             $('body').find('.mapShow').show();
+            $('.mapLayout').addClass('ui-state-disabled');
+            $('.methods').removeClass('ui-state-disabled');
             initTheseTools();
             initSelect();
             $('.selectMenuLabel, #selectMenu').show();
+ 
         } else if (Session.equals('page', 'gridPage')) {
             $('body').find('.homeShow, .mapShow').hide();
             $('body').find('.gridShow').show();
+            $('.mapLayout').removeClass('ui-state-disabled');
+            $('.methods').addClass('ui-state-disabled');
         }
  
         // Set up the link to the map page

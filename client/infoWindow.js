@@ -13,7 +13,7 @@ var app = app || {}; // jshint ignore:line
     // about.
     var selected_signature = undefined;
 
-    function row(key, value) {
+    function row(key, value, gMap) {
 
         // Small helper function that returns a jQuery element that displays the
         // given key being the given value.
@@ -27,7 +27,7 @@ var app = app || {}; // jshint ignore:line
         if (_.isNaN(newValue) || _.isUndefined(newValue)) {
             newValue = 'NA';
 
-        } else if (ctx.cont_layers.indexOf(key) > -1) {
+        } else if (_.isUndefined(gMap) && ctx.cont_layers.indexOf(key) > -1) {
             try {
                 newValue = value.toExponential(1);
             }
@@ -43,28 +43,6 @@ var app = app || {}; // jshint ignore:line
         return root;
     }
 
-    function with_infocard_gMap(signature, callback) {
-
-        // This is limited to the methods/grid map
- 
-        // This holds the root element of the card.
-        var infocard = $("<div/>").addClass("infocard");
-        
-        // Display the hexagon name
-        infocard.append(row("ID", signature).addClass("info-name"));
-
-        _.each(graphLines[signature].neighbors, function (neighbor, i) {
-            var label = '';
-            if (i === 0) {
-                label = 'Neighbors';
-            }
-            infocard.append(row(label, neighbor));
-        });
- 
-        callback(infocard);
-        return;
-    }
-
     function with_infocard(signature, callback, gMap) {
         // Given a signature, call the callback with a jQuery element representing
         // an "info card" about that signature. It's the contents of the infowindow 
@@ -77,7 +55,8 @@ var app = app || {}; // jshint ignore:line
         // just directly access them? Is that neater or less neat?
 
         if (gMap) {
-            with_infocard_gMap(signature, callback);
+            var infocard = $("<div/>").addClass("infocard");
+            callback(infocard);
             return;
         }
  
@@ -172,6 +151,7 @@ var app = app || {}; // jshint ignore:line
         with_infocard(selected_signature, function(infocard) {
             // The [0] is supposed to get the DOM element from the jQuery 
             // element.
+            if (callback1) callback1(infocard, row);
             info_window.setContent(infocard[0]);
 
             // Open the window. It may already be open, or it may be closed but 
@@ -180,7 +160,6 @@ var app = app || {}; // jshint ignore:line
             setTimeout(function () {
                 info_window.open(gMap ? gMap : googlemap);
             }, 0);
-            if (callback1) callback1();
         }, gMap);
     }
 
@@ -211,7 +190,7 @@ var app = app || {}; // jshint ignore:line
         alert('looking for hexagon: ' + hexagon);
     }
 
-    initInfoWindow = function () {
+    initInfoWindow = function (gMap) {
  
         // Make the global info window
         info_window = new google.maps.InfoWindow({
@@ -224,9 +203,10 @@ var app = app || {}; // jshint ignore:line
         google.maps.event.addDomListener(document, 'keyup', infoWindowMapKeyup);
         
         // Add an event to close the info window when the user clicks outside of any
-        // hexagon
-        // TODO use session var
-        google.maps.event.addListener(googlemap, "click", info_window_close);
+        // any hexagon
+        var map = googlemap;
+        if (gMap) map = gMap;
+        google.maps.event.addListener(map, "click", info_window_close);
 
         // And an event to clear the selected hex when the info_window closes.
         // TODO use session var

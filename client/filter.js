@@ -254,7 +254,7 @@ var app = app || {}; // jshint ignore:line
         var display = Session.get('displayLayers');
         if (!display) return;
 
-        if (display.length < 1 && Session.equals('loadingMap', 'none')) {
+        if (display.length < 1 && Session.equals('loadingMap', false)) {
             banner('warn', 'No attributes to display, relax some filters');
             $passFilters.addClass('red');
         } else {
