@@ -1,5 +1,5 @@
 // grid.js
-// This handles some visualizations of methods use in the layout generation.
+// This handles the node density visualizations.
 
 var app = app || {}; // jshint ignore:line
 
@@ -11,8 +11,8 @@ var app = app || {}; // jshint ignore:line
 
     Template.navBarT.helpers({
 
-        viewGraph: function () {
-            return Session.get('viewGraph') ? 'Hide ' : 'Show ';
+        viewEdges: function () {
+            return Session.get('viewEdges') ? 'Hide ' : 'Show ';
         },
 
         viewWindows: function () {
@@ -21,7 +21,6 @@ var app = app || {}; // jshint ignore:line
     });
 
     var xyMapSize = 256,
-        ONE_SEGMENT = true, // false for 3 segments per node pair
         GRID_OFFSET = 256 / 4,
         HEX_COLOR = '#00F',
         WINDOW_COLOR = '#888',
@@ -34,16 +33,18 @@ var app = app || {}; // jshint ignore:line
         OUTGOING_COLOR = '#F00',
         INCOMING_COLOR = '#0C0',
         INCOMING_FONT_COLOR = '#080',
+        INOUT_COLOR = '#777',
         gridMap = null,
         dims = null,
         initialized = false,
         hexes = {},
         windowLines = [],
+        edges,
         infoHex,
-        prevInfoHex,
         edgesDrawn = new ReactiveVar(),
         windowsDrawn = new ReactiveVar(),
-        autorun;
+        autorun,
+        highlights = {};
 
     function status(msg) {
  
@@ -66,7 +67,7 @@ var app = app || {}; // jshint ignore:line
             // object does not need to be drawn.
             var eDrawn = edgesDrawn.get();
             var wDrawn = windowsDrawn.get();
-            var eView = Session.get('viewGraph');
+            var eView = Session.get('viewEdges');
             var wView = Session.get('viewWindows');
             
             if (wDrawn && (eDrawn || !eView)) {
@@ -128,7 +129,8 @@ var app = app || {}; // jshint ignore:line
         });
     }
 
-    function viewWindowsMenuClickInner () {
+    function viewWindowsMenuClick () {
+        initAutorun();
         Session.set('viewWindows', !Session.get('viewWindows'));
 
         if (Session.equals('viewWindows', true)) {
@@ -155,89 +157,34 @@ var app = app || {}; // jshint ignore:line
         tool_activity(false);
     }
 
-    function viewWindowsMenuClick () {
-        initAutorun();
-        Meteor.setTimeout(viewWindowsMenuClickInner, 10);
-    }
-
-    function setGraphMap(map) {
-        status('setGraphMap()');
-        _.each(hexes, function (node) {
-            _.each(node.lines, function (line) {
-                line.setMap(map);
-            });
-        });
-        status('setGraphMap() done');
-    }
-
-    function drawEdges (row) {
-
-        // Find the nodes most similar to this node
-        var node = row[0]
-            opacity = [0.1, 0.2, 0.3],
-            weight = [1, 1.5, 2],
-            color = ['#f00', '#0f0', '#00f'],
-            opts = {
-                strokeColor: SIMILAR_COLOR,
-                strokeOpacity: SIMILAR_OPACITY,
-                strokeWeight: 1,
-                zIndex: 2,
-                map: gridMap,
-            };
-        hexes[node].lines = [];
-        hexes[node].neighbors = row.slice(1);
+    function xyPathsToMvc (node, neighbors, pathsIn) {
  
-        if (!ONE_SEGMENT) {
- 
-            // Draw each line in three segments rather than one
-            _.each(hexes[node].neighbors, function(neighbor) {
-                   
-                // Break down the line between two nodes into 3 segments
-                var p0 = hexes[node].xyCenter,
-                    p1 = hexes[neighbor].xyCenter,
-                    x3 = (p1[0] - p0[0]) / 3, // 1/3 of x distance
-                    xf = 0, //(p1[0] - p0[0]) / 100, // fudge factor to reduce overlap of segments
-                    y3 = (p1[1] - p0[1]) / 3, // 1/3 of y distance
-                    yf = 0, //(p1[1] - p0[1]) / 100, // fudge factor to reduce overlap of segments
-                    lines = [
-                        [[ p0[0], p0[1] ], [ p0[0] + x3, p0[1] + y3 ]],
-                        [[ p0[0] + x3+xf, p0[1] + y3+yf ], [ p0[0] + x3*2, p0[1] + y3*2 ]],
-                        [[ p0[0] + x3*2+xf, p0[1] + y3*2+yf ], [ p1[0], p1[1] ]],
-                    ];
-                   
-                _.each(lines, function (line, k) {
-                    opts.path = _.map(line, function (point) {
-                        return get_LatLng(point[0], point[1]);
-                    });
-                    opts.strokeWeight = weight[k];
-                    
-                    // Draw the line between the two nodes as 3 segments
-                    hexes[node].lines.push(new google.maps.Polyline(opts));
-                });
-            });
-        } else {
- 
-            // Draw the lines with one segment between each node
-            _.each(hexes[node].neighbors, function(neighbor) {
-                var p0 = hexes[node].xyCenter,
-                    p1 = hexes[neighbor].xyCenter;
-                   
-                opts.path = [get_LatLng(p0[0], p0[1]), get_LatLng(p1[0], p1[1])];
-                   
-                // Draw each line with one segment rather than three
-                hexes[node].lines.push(new google.maps.Polyline(opts));
-            });
+        // Make an array of neighbors into an array of MVCArray paths between
+        // the node and the neighbors. If paths are given, append to it.
+        var paths = [];
+        if (pathsIn) {
+            paths = pathsIn;
         }
+        _.each(neighbors, function(neighbor) {
+            var p0 = hexes[node].xyCenter,
+                p1 = hexes[neighbor].xyCenter,
+                path = [get_LatLng(p0[0], p0[1]), get_LatLng(p1[0], p1[1])],
+                mvc = new google.maps.MVCArray(path);
+               
+            // Draw this edge
+            paths.push(mvc);
+        });
+        return paths;
     }
 
-    function getEdgeInfo () {
+    function drawEdges () {
  
         // Draw the directed graph
-        status('getEdgeInfo()');
+        status('drawEdges()');
         var file = 'neighbors_' + Session.get('layoutIndex') + '.tab';
 
         Meteor.call('getTsvFile', file, ctx.project, function (error, parsed) {
-            status('getEdgeInfo() data received');
+            status('drawEdges() data received');
 
             // This is an array of nodes and their neighbors with the primary
             // node at the front of each row:
@@ -256,74 +203,89 @@ var app = app || {}; // jshint ignore:line
                 banner('error', parsed);
                 return;
             }
-            // Draw the lines for each node
+            
+            var opts = {
+                strokeColor: SIMILAR_COLOR,
+                strokeOpacity: SIMILAR_OPACITY,
+                strokeWeight: 1,
+                zIndex: 2,
+                map: gridMap,
+                paths: [],
+            };
+
+            // Find the outgoing edges for each node
             _.each(parsed, function (row) {
-                drawEdges(row);
+                var node = row[0];
+                hexes[node].outNodes = row.slice(1);
+
+                // Save the paths for this node's outgoing edges
+                opts.paths = (xyPathsToMvc(node, hexes[node].outNodes, opts.paths));
             });
-            status('getEdgeInfo() done');
+            
+            // Draw all of the edges
+            edges = new google.maps.Polygon(opts);
+
+            status('drawEdges() done');
             edgesDrawn.set(true);
         });
     }
 
-    function viewGraphMenuClickInner () {
-        Session.set('viewGraph', !Session.get('viewGraph'));
+    function viewEdgesMenuClick () {
+        initAutorun();
+        Session.set('viewEdges', !Session.get('viewEdges'));
 
-        if (Session.equals('viewGraph', true)) {
+        if (Session.equals('viewEdges', true)) {
  
             // We want to show the directed graph
             if (edgesDrawn.get()) {
  
                 // Set the map of the existing graph lines so they show
-                setGraphMap(gridMap);
+                edges.setMap(gridMap);
             } else {
  
                 // Generate the graph
-                getEdgeInfo();
+                drawEdges();
             }
 
-        } else if (edgesDrawn.get()) {
+        } else if (edges) {
  
             // We want to hide the directed graph, so set their maps to null
-            setGraphMap(null);
+            edges.setMap(null);
+            _.each(highlights, function (highlight) {
+                highlight.setPaths([]);
+            });
         }
         tool_activity(false);
     }
 
-    function viewGraphMenuClick () {
-        initAutorun();
-        Tracker.flush();
-        Meteor.setTimeout(viewGraphMenuClickInner, 10);
+    function initHighlights (infocard, infoCardRow) {
+        var opts = {
+            strokeColor: OUTGOING_COLOR,
+            strokeOpacity: 1.0,
+            strokeWeight: 2,
+            zIndex: 3,
+            map: gridMap,
+            paths: [],
+        };
+        highlights.out = new google.maps.Polygon(opts);
+        opts.strokeColor = INCOMING_COLOR;
+        highlights.in = new google.maps.Polygon(opts);
+        opts.strokeColor = INOUT_COLOR;
+        highlights.inOut = new google.maps.Polygon(opts);
     }
 
     function infoWindowShowing (infocard, infoCardRow) {
  
-        // This is called after the info window is created so we can fill it
-        var info = hexes[infoHex];
- 
-        if (prevInfoHex) {
- 
-            // Set the last highlighted outgoing edges back to normal
-            _.each(hexes[prevInfoHex].lines, function (line) {
-                line.setOptions({
-                    strokeColor: SIMILAR_COLOR,
-                    strokeOpacity: SIMILAR_OPACITY,
-                    strokeWeight: 1,
-                    zIndex: 2,
-                });
-            });
- 
-            // Set the last highlighted incoming edges back to normal
-            _.each(hexes[prevInfoHex].incoming, function (line) {
-                line.setOptions({
-                    strokeColor: SIMILAR_COLOR,
-                    strokeOpacity: SIMILAR_OPACITY,
-                    strokeWeight: 1,
-                    zIndex: 2,
-                });
-            });
-            delete hexes[prevInfoHex].incoming;
+        // Fills the info window with this hexagon's ID and its outgoing and
+        // incoming neighbors. Also highlights the edges with each neighbor.
+        if (!highlights.out) {
+            initHighlights();
         }
  
+        var info = hexes[infoHex],
+            inNodes = [],
+            outNodes = [];
+
         // Display the hexagon name and set up the columns
         infocard.css('overflow', 'hidden');
 
@@ -340,63 +302,69 @@ var app = app || {}; // jshint ignore:line
             });
         infocard.append(cardOut);
         infocard.append(cardIn);
-
+ 
         // Loop through the infoHex's outgoing neighbors
-        var firstOutgoing = true;
-        _.each(info.lines, function (line, i) {
+        var outPaths = [];
+        _.each(info.outNodes, function (neighbor, i) {
             
             // Add this outgoing neighbor to the info card
-            var label = '',
-                neighbor = info.neighbors[i];
+            var label = '';
             if (i === 0) {
                 label = 'Outgoing';
             }
             var row = infoCardRow(label, neighbor, gridMap);
             row.find('.info-value').css('color', OUTGOING_COLOR);
             cardOut.append(row);
-            
-            // Highlight this node's outgoing edges
-            line.setOptions({
-                strokeColor: OUTGOING_COLOR,
-                strokeOpacity: 1.0,
-                strokeWeight: 2,
-                zIndex: 3,
-            });
         });
  
         // Loop through the infoHex's incoming neighbors
-        info.incoming = [];
-        _.each(hexes, function (hex) {
-            var i = hex.neighbors.indexOf(infoHex);
+        var nodes = {in: [], out: [], inOut: []},
+            firstIncoming = true;
+        _.each(hexes, function (hex, key) {
+            var i = hex.outNodes.indexOf(infoHex);
             if (i > -1) {
             
                 // Add this outgoing neighbor to the info card
                 var label = '';
-                if (firstOutgoing) {
+                if (firstIncoming) {
                     label = 'Incoming';
-                    firstOutgoing = false;
+                    firstIncoming = false;
                 }
                 var row = infoCardRow(label, hex.signature, gridMap)
                 row.find('.info-value').css('color', INCOMING_FONT_COLOR);
                 cardIn.append(row);
             
-                // Highlight the infoHex's incoming edge from this hex
-                hex.lines[i].setOptions({
-                    strokeColor: INCOMING_COLOR,
-                    strokeOpacity: 1.0,
-                    strokeWeight: 2,
-                    zIndex: 3,
-                });
-                info.incoming.push(hex.lines[i]);
+                // Save this incoming node
+                nodes.in.push(key);
             }
         });
-    }
  
+        // Find any overlapping in and out going edges
+        _.each(info.outNodes, function (out) {
+            var i = nodes.in.indexOf(out);
+            if (i > -1) {
+                nodes.inOut.push(out);
+                nodes.in.splice(i, 1);
+            } else {
+                nodes.out.push(out);
+            }
+        });
+
+        // Set the paths for each node direction
+        _.each(highlights, function (highlight, dir) {
+            var paths = xyPathsToMvc(infoHex, nodes[dir]);
+            highlight.setPaths(paths);
+        });
+    }
+
     function hexOpacity () {
         return ((ctx.gridZoom - 1) / 20) +  0.05;
     }
 
     function adjustForZoom () {
+ 
+        // When zooming keep the hexagons the same size
+        // and increase opacity when zooming in.
         status('adjustForZoom()');
         ctx.gridZoom = gridMap.getZoom();
         var opacity = hexOpacity();
@@ -454,9 +422,10 @@ var app = app || {}; // jshint ignore:line
                 dot: new google.maps.Polyline(dotOpts),
             };
             google.maps.event.addListener(hex.polygon, "click", function (event) {
-                prevInfoHex = infoHex;
-                infoHex = hex.signature;
-                showInfoWindow(event, hex, xyPoint[0], xyPoint[1], gridMap, infoWindowShowing);
+                if (Session.equals('viewEdges', true)) {
+                    infoHex = hex.signature;
+                    showInfoWindow(event, hex, xyPoint[0], xyPoint[1], gridMap, infoWindowShowing);
+                }
             });
             hexes[pointNames[i]] = hex;
             
@@ -469,8 +438,8 @@ var app = app || {}; // jshint ignore:line
         }
         
         // Draw the directed graph if the user wants to
-        if (Session.equals('viewGraph', true)) {
-            getEdgeInfo();
+        if (Session.equals('viewEdges', true)) {
+            drawEdges();
         }
     }
 
@@ -622,7 +591,7 @@ var app = app || {}; // jshint ignore:line
         initInfoWindow (gridMap);
 
         // Register a callback for the view graph menu click
-        add_tool("viewGraph", viewGraphMenuClick);
+        add_tool("viewEdges", viewEdgesMenuClick);
 
         // Register a callback for the view windows menu click
         add_tool("viewWindows", viewWindowsMenuClick);

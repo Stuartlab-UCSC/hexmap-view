@@ -74,7 +74,7 @@ var app = app || {}; // jshint ignore:line
             all: [
                 'page',
                 'project',
-                'viewGraph',
+                'viewEdges',
                 'viewWindows',
             ],
 
@@ -97,7 +97,7 @@ var app = app || {}; // jshint ignore:line
         // Non-project variables maintained in the meteor session
         Session.setDefault('page', DEFAULT_PAGE);
         Session.setDefault('sort', DEFAULT_SORT); // Default sort message & type
-        Session.setDefault('viewGraph', false); // Display of directed graph or not
+        Session.setDefault('viewEdges', false); // Display of directed graph or not
         Session.setDefault('viewWindows', false); // Display of stats windows or not
 
         // Variables maintained in this state object, with defaults.
