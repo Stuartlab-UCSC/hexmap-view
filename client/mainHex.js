@@ -14,13 +14,6 @@ googlemap; // our googlemap instance
 (function (hex) { // jshint ignore:line
     //'use strict';
 
-    function convertStoredCenterToLatLng() {
-        if (_.isNull(ctx.center)) {
-            ctx.center = [0, 0];
-        }
-        ctx.center = new google.maps.LatLng(ctx.center[0], ctx.center[1]);
-    }
-
     Template.localStoreT.created = function () {
         // This template is only used to initialize state
         if (_.isNull(ctx)) ctx = initState();
@@ -138,7 +131,6 @@ googlemap; // our googlemap instance
             initTools();
             initDownload();
             initColors();
-            convertStoredCenterToLatLng();
             initLegend();
             initShortlist();
             setTimeout(function () {
@@ -153,7 +145,6 @@ googlemap; // our googlemap instance
             $(window).resize(resizeMap);
             initTools();
             initDownload();
-            convertStoredCenterToLatLng();
             initGrid();
         }, 0)
     };

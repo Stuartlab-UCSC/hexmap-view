@@ -345,9 +345,9 @@ update_browse_ui = function() {
 initialize_view = function () {
     // Initialize the global Google Map.
 
+    ctx.center = centerToLatLng(ctx.center);
     var mapOptions = {
         center: ctx.center,
-        //center: Session.get('center'),
         zoom: ctx.zoom,
         mapTypeId: "blank",
         // Don't show a map type picker.

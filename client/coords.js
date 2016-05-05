@@ -2,11 +2,12 @@
  * coords.js
  *
  * Handle the transformations between the coordinate systems.
- * We have three coordinate systems here:
+ * We have four coordinate systems here:
  *
- *      xyHex:   0 -> ?,    0 -> ?   incoming coordinates in honeycomb space
- *    xyWorld:   0 -> 256,  0 -> 256 googlemap xy world coordinates
- *     latLng: -90 -> 90, -45 -> 45  latitude, longitude (order as y, x)
+ *    xyIn:   0 -> ?,    0 -> ?   incoming coords in xy space for node density
+ *   xyHex:   0 -> ?,    0 -> ?   incoming coords in honeycomb space for main map
+ * xyWorld:   0 -> 256,  0 -> 256 googlemap xy world coords
+ *  latLng: -90 -> 90, -45 -> 45  latitude, longitude (order as y, x)
  *
  * Honeycomb space is indexed like so:
  *         -----       -----
@@ -21,11 +22,13 @@
  *
  * Tranformation functions:
  *
- *        xyWorld  to  latLng   get_LatLng()
- *         latLng  to  xyWorld  get_xyWorld()
- *         latLng  to  xyHex    get_xyHex_from_xyWorld()
+ *        xyWorld  to  latLng   get_LatLng
+ *         latLng  to  xyWorld  get_xyWorld
+ *         latLng  to  xyHex    get_xyHex_from_xyWorld
  *          xyHex  to  xyWorld  get_xyWorld_from_xyHex
  *          xyHex  to  latLng   get_latLng_from_xyHex
+ *           xyIn  to  xyWorld  get_xyIn_from_xyWorld
+ *        xyWorld  to  xyIn     get_xyWorld_from_xyIn
  */
 
 /* global $ */
@@ -48,7 +51,7 @@ var app = app || {}; // jshint ignore:line
     // Global: scaling factor from input coordinates to xy world coordinates.
     xyScale = 1;
  
-    // Hexagon side length, height & width in xy world coordinates
+    // Hexagon side length, height & width in xy world coordinates for main map
     sideLen = 0;
     hexWidth = 0;
     hexHeight = 0;
@@ -71,7 +74,6 @@ var app = app || {}; // jshint ignore:line
                 (latLng.lat() + 90) * 256 / 180);
             
             return xyWorld;
-
         }
 
         FlatProjection.prototype.fromPointToLatLng = function(point, noWrap) {
@@ -103,10 +105,22 @@ var app = app || {}; // jshint ignore:line
 
         BlankMapType.prototype.name = "Blank";
         BlankMapType.prototype.alt = "Blank Map";
-
         BlankMapType.prototype.projection = new FlatProjection();
-    },
+    }
 
+    function findScale (maxX, maxY) {
+
+        // Find the scaling factor to convert xyHex to xyWorld
+        maxXy = Math.max(maxX, maxY);
+        xyScale = (XY_WORLD_SIZE / 2) / maxXy;
+        maxXy = Math.round(maxXy);
+
+        // Set the input coords range display
+        if (SHOW_COORDS) {
+            $('.inputRange').text('0 to ' + maxXy + ', 0 to ' + maxXy);
+        }
+    }
+ 
     get_LatLng = function (x, y) {
 
         // Transform latLng to xyWorld
@@ -120,24 +134,12 @@ var app = app || {}; // jshint ignore:line
         return FlatProjection.prototype.fromLatLngToPoint(latLng);
     }
 
-    findScale = function (maxX, maxY) {
+    get_xyWorld_from_xyIn = function (x, y) {
 
-        // Find the scaling factor to convert xyIn to xyWorld
-        maxXy = Math.max(maxX, maxY);
-        xyScale = (XY_WORLD_SIZE / 2) / maxXy
-
-        // Set the input coords range display
-        if (SHOW_COORDS) {
-            $('.inputRange').text('> 0 -> ' + maxXy + ', 0 -> ' + maxXy);
-        }
-    }
- 
-    get_xyIn_from_xyWorld = function  (x, y) {
-
-        // Transform xyWorld to xyIn. offset then scale
+        // Transform xyIn to xyWorld. scale then offset
         return {
-            x: ((x - XY_OFFSET) / xyScale),
-            y: ((y - XY_OFFSET) / xyScale)
+            x: (x * xyScale + XY_OFFSET),
+            y: (y * xyScale + XY_OFFSET)
         };
     }
 
@@ -157,6 +159,15 @@ var app = app || {}; // jshint ignore:line
             x: x + XY_OFFSET,
             y: y + XY_OFFSET,
         }
+    }
+
+    get_xyIn_from_xyWorld = function  (x, y) {
+
+        // Transform xyWorld to xyIn. offset then scale
+        return {
+            x: ((x - XY_OFFSET) / xyScale),
+            y: ((y - XY_OFFSET) / xyScale)
+        };
     }
 
     get_xyHex_from_xyWorld = function  (xWorld, yWorld) {
@@ -190,72 +201,34 @@ var app = app || {}; // jshint ignore:line
         return get_LatLng(xyWorld.x, xyWorld.y);
     }
 
-
-    get_xyWorld_from_xyIn = function (x, y) {
-
-        // Transform xyIn to xyWorld. scale then offset
-        return {
-            x: (x * xyScale + XY_OFFSET),
-            y: (y * xyScale + XY_OFFSET)
-        };
-    }
-
     findDimensions = function (max_x, max_y) {
 
         // Find the hexagon side length, height and width.
 
         // Find the scale for transforming from input coords to xy world coords
         findScale(max_x, max_y);
-
+ 
         sideLen = (xyScale) * (2.0 / 3.0);
         hexWidth = 3.0/2.0 * sideLen;
         hexHeight = Math.sqrt(3) * sideLen;
- 
- /*
-        // TODO this really should calc considering height and width since
-        // a hexagon height is different than its width
-        // Find the dimensions of hexagons in world xy coordinates
-        // We need to fit this whole thing into a 256x256 grid.
-        // How big can we make each hexagon?
-        // TODO: Do the algebra to make this exact. Right now we just make a
-        // grid that we know to be small enough.
-        // Divide the space into one column per column, and calculate 
-        // side length from column width. Add an extra column for dangling
-        // corners.
-        var side_length_x = (256)/ (max_x + 2) * (2.0 / 3.0);
-
-        // Divide the space into rows and calculate the side length
-        // from hex height. Remember to add an extra row for wiggle.
-        var side_length_y = ((256)/(max_y + 2)) / Math.sqrt(3);
-
-        // How long is a hexagon side in world xy coords?
-        // Shrink it from the biggest we can have so that we don't wrap off the 
-        // edges of the map. Divide by 2 to make it fit a 128x128 grid
-        sideLen = Math.min(side_length_x, side_length_y) / 2.0;
-        console.log('sideLen:', sideLen);
-*/
     }
 
-    getHexLatLngCoords= function (c, len) {
+    getHexLatLngCoords = function (center, len) {
 
-        // TODO should use hexagons.js code instead
         // Define a hexagon in latLng coordinates, given in xyWorld coordinates
-        // @param c: the center point as [x,y]
+        // @param c: the center point as {x: val, y: val}
         // @param len: length of the hexagon side
-        // @param ht: height of the hexagon
-
-        // If the center is an array, it is in xy coordinates, otherwise the
-        // center is a latLng object which needs to be converted to xy
-        // coordinates
-        var ht = Math.sqrt(3) * len;
+        var ht = Math.sqrt(3) * len,
+            x = center.x,
+            y = center.y;
 
         return [
-            get_LatLng(c[0] - len, c[1]),
-            get_LatLng(c[0] - len / 2, c[1] - ht / 2),
-            get_LatLng(c[0] + len / 2, c[1] - ht / 2),
-            get_LatLng(c[0] + len, c[1]),
-            get_LatLng(c[0] + len / 2, c[1] + ht / 2),
-            get_LatLng(c[0] - len / 2, c[1] + ht / 2),
+            get_LatLng(x - len, y),
+            get_LatLng(x - len / 2, y - ht / 2),
+            get_LatLng(x + len / 2, y - ht / 2),
+            get_LatLng(x + len, y),
+            get_LatLng(x + len / 2, y + ht / 2),
+            get_LatLng(x - len / 2, y + ht / 2),
         ];
     }
 
@@ -296,18 +269,23 @@ var app = app || {}; // jshint ignore:line
         return XY;
     }
 
-    coordsMouseMove = function (e) {
+    function coordsMouseMove (e) {
         var xyWorld = get_xyWorld(e.latLng),
-            xyIn = get_xyHex_from_xyWorld(xyWorld.x, xyWorld.y);
-        $('#xIn').text(round(xyIn.x, 1));
-        $('#yIn').text(round(xyIn.y, 1));
+            xy;
+        if (Session.equals('page', 'gridPage')) {
+            xy = get_xyIn_from_xyWorld(xyWorld.x, xyWorld.y);
+        } else {
+            xy = get_xyHex_from_xyWorld(xyWorld.x, xyWorld.y);
+        }
+        $('#xIn').text(round(xy.x, 1));
+        $('#yIn').text(round(xy.y, 1));
         $('#xWorld').text(round(xyWorld.x, 2));
         $('#yWorld').text(round(xyWorld.y, 2));
         $('#lngCoord').text(round(e.latLng.lng()));
         $('#latCoord').text(round(e.latLng.lat()));
     }
 
-    initCoords = function (gridDims) {
+    initCoords = function () {
 
         if (initialized || !SHOW_COORDS) return
         initialized = true;
@@ -320,11 +298,9 @@ var app = app || {}; // jshint ignore:line
         if (Session.equals('page', 'gridPage')) {
             map = getGridMap();
             $el = $('#gridMap');
-            XY = gridDims;
         } else {
             map = googlemap;
             $el = $('#visualization');
-            XY = findPolygonExtents(findHexagonsInViewport(), XY_WORLD_SIZE);
         }
 
         // Set up the handler of mousemove on the map

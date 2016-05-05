@@ -24,17 +24,9 @@ var app = app || {}; // jshint ignore:line
         var xy = get_xyWorld_from_xyHex(column, row),
             x = xy.x,
             y = xy.y;
+ 
+        var coords = getHexLatLngCoords(xy, sideLen);
 
-        // This holds an array of all the hexagon vertices
-        var coords = [
-            get_LatLng(x - sideLen, y),
-            get_LatLng(x - sideLen / 2, y - hexHeight / 2),
-            get_LatLng(x + sideLen / 2, y - hexHeight / 2),
-            get_LatLng(x + sideLen, y),
-            get_LatLng(x + sideLen / 2, y + hexHeight / 2),
-            get_LatLng(x - sideLen / 2, y + hexHeight / 2),
-        ];
-        
         // Construct the Polygon
         var hexagon = new google.maps.Polygon({
             paths: coords,
@@ -46,7 +38,7 @@ var app = app || {}; // jshint ignore:line
         setHexagonStroke(hexagon);
         
         // Attach the hexagon to the global map
-        // if (overlayNode) // OVERLAY
+        // if (overlayNode) // OVERLAY TODO
         hexagon.setMap(googlemap);
  
         // Save the honeycomb coordinates with the hexagon
@@ -57,10 +49,8 @@ var app = app || {}; // jshint ignore:line
         // and display the hexagon's information
         // TODO use a session var
         google.maps.event.addListener(hexagon, "click", function (event) {
-            showInfoWindow(event, hexagon, x, y);
+            showInfoWindow(event, hexagon, xy.x, xy.y);
         });
-
-        google.maps.event.addListener(hexagon, 'mousemove', coordsMouseMove);
 
         // Subscribe the tool listeners to events on this hexagon
         subscribe_tool_listeners(hexagon);

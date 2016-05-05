@@ -83,6 +83,7 @@ var app = app || {}; // jshint ignore:line
                 'background',
                 'center',
                 'first_layer',
+                'gridCenter',
                 'gridZoom',
                 'layoutIndex',
                 'overlayNodes',
@@ -119,6 +120,7 @@ var app = app || {}; // jshint ignore:line
         Session.setDefault('background', 'black');  // Visualization background color
         s.center = null; // google map center
         Session.set('first_layer', undefined); // first to be displayed in shortlist
+        s.gridCenter = null; // grid map center
         s.gridZoom = 2;  // Zoom level of the grid
         Session.set('layouts', []);  // Map layouts maintained in order of entry
         Session.set('layoutIndex', null);
@@ -158,19 +160,11 @@ var app = app || {}; // jshint ignore:line
             // If this var belongs to this ctx object we want to store it here
             } else if (!_.isUndefined(s[key]) && !_.isNull(s[key])) {
                 if (key === 'center') {
-                    if (Array.isArray(ctx.center)) {
-
-                        // No need to translate from LatLng to array
-                        store.center = ctx.center;
-                    } else {
-                        // We need to store this as an array of two numbers rather
-                        // than as latLng since when we retrieve it, we won't know
-                        // about google maps yet so won't understand LatLng.
-                        store.center = [ctx.center.lat(), ctx.center.lng()];
-                    }
-                } else {
-                    store[key] = s[key];
+                    s.center = centerToArray(s.center);
+                } else if (key === 'gridCenter') {
+                    s.gridCenter = centerToArray(s.gridCenter);
                 }
+                store[key] = s[key];
             // This var has no value to store
             } else {
                 return;
@@ -340,6 +334,37 @@ var app = app || {}; // jshint ignore:line
         });
     }
 
+    centerToLatLng = function (centerIn) {
+ 
+        // If needed, create the center or translate from an array to latLng.
+        var center = centerIn;
+        if (_.isNull(center)) {
+            center = [0, 0];
+        }
+        if (Array.isArray(center)) {
+ 
+            // This is stored this as an array of two numbers rather
+            // than as latLng since when we retrieve it, we won't know
+            // about google maps yet so won't understand LatLng.
+            center = new google.maps.LatLng(center[0], center[1]);
+        }
+        return center;
+    }
+ 
+    centerToArray = function (centerIn) {
+ 
+        // If needed, translate the latLng center to an array for store.
+        var center = centerIn;
+        if (!Array.isArray(center)) {
+
+            // This is stored this as an array of two numbers rather
+            // than as latLng since when we retrieve it, we won't know
+            // about google maps yet so won't understand LatLng.
+            center = [center.lat(), center.lng()];
+        }
+        return center
+    }
+ 
     initState = function () { // jshint ignore:line
         var storageSupported = checkLocalStore();
         var s = new State();

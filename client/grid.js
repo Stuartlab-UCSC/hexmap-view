@@ -375,7 +375,8 @@ var app = app || {}; // jshint ignore:line
         _.each(hexes, function (hex) {
             var line = [get_LatLng(hex.xyCenter[0]-add, hex.xyCenter[1]-add),
                         get_LatLng(hex.xyCenter[0]+add, hex.xyCenter[1]+add)],
-                path = getHexLatLngCoords(hex.xyCenter, hexLen);
+                xy = {x: hex.xyCenter[0], y: hex.xyCenter[1]},
+                path = getHexLatLngCoords(xy, hexLen);
 
             hex.polygon.setOptions({ path: path, fillOpacity: opacity});
             hex.dot.setOptions({ path: line });
@@ -408,7 +409,8 @@ var app = app || {}; // jshint ignore:line
         _.each(points, function (xyPoint, i) {
 
             // Find the hexagon points
-            hexOpts.path = getHexLatLngCoords(xyPoint, hexLen);
+            var xy = {x: xyPoint[0], y: xyPoint[1]};
+            hexOpts.path = getHexLatLngCoords(xy, hexLen);
 
             // Find the center point
             dotOpts.path = [get_LatLng(xyPoint[0]-add, xyPoint[1]-add),
@@ -484,7 +486,9 @@ var app = app || {}; // jshint ignore:line
             // Find the extents of the map so we and normalize it to our
             // standard size.
             dims = findGridExtents(xyMapSize-TINY_BIT, xyPointsRaw);
-            
+            findDimensions(dims.xMaxIn, dims.yMaxIn);
+            initCoords();
+
             // Scale to create object coords of (0, 0) -> (xyMapSize/2, xyMapSize/2)
             // so the map will not wrap around the world east and west. And add
             // an offset to put the map in the center of the full map space
@@ -501,8 +505,10 @@ var app = app || {}; // jshint ignore:line
  
         // Creates the google map for methods
         mapTypeDef();
+ 
+        ctx.gridCenter = centerToLatLng(ctx.gridCenter);
         var mapOptions = {
-            center: ctx.center,
+            center: ctx.gridCenter,
             zoom: ctx.gridZoom,
             mapTypeId: "blank",
             // Don't show a map type picker.
@@ -523,8 +529,7 @@ var app = app || {}; // jshint ignore:line
 
         // Add a listener for the center changing
         google.maps.event.addListener(gridMap, "center_changed", function(event) {
-            ctx.center = gridMap.getCenter();
-            //Session.set('center', gridMap.getCenter());
+            ctx.gridCenter = gridMap.getCenter();
         });
     
         // Add a listener for the zoom changing
@@ -567,6 +572,8 @@ var app = app || {}; // jshint ignore:line
         idims.yMin *= idims.scale;
         idims.xMax = xMax * idims.scale;
         idims.yMax = yMax * idims.scale;
+        idims.xMaxIn = xMax;
+        idims.yMaxIn = yMax;
 
         return idims;
     }
@@ -587,7 +594,6 @@ var app = app || {}; // jshint ignore:line
 
         // Initialize the grid page and grid map
         createMap();
-        initCoords(dims);
         initInfoWindow (gridMap);
 
         // Register a callback for the view graph menu click
