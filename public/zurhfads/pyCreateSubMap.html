@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Python API: createSubMap &mdash; Tumor Map Developer Documentation</title>
+    <title>Python API: syncMaps &mdash; Tumor Map Developer Documentation</title>
     
     <link rel="stylesheet" href="_static/agogo.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -53,81 +53,53 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="python-api-createsubmap">
-<h1>Python API: createSubMap<a class="headerlink" href="#python-api-createsubmap" title="Permalink to this headline">¶</a></h1>
-<p>Make a new map based on data sent.</p>
+  <div class="section" id="python-api-syncmaps">
+<h1>Python API: syncMaps<a class="headerlink" href="#python-api-syncmaps" title="Permalink to this headline">¶</a></h1>
+<p>This python API is used in communications between the map manager and the
+magician. You can read about the full pipeline at the
+<a class="reference internal" href="mapManager.html"><em>Map Manager</em></a>
+.</p>
 <p>See <a class="reference internal" href="pythonApi.html"><em>Python API</em></a> for general information about python APIs as well as an
 example call and response.</p>
 <p>The data within the temporary files are explained here.</p>
-<div class="section" id="request">
-<h2>Request<a class="headerlink" href="#request" title="Permalink to this headline">¶</a></h2>
-<p>Example:</p>
+<p>Examples</p>
+<div class="section" id="syncmapdatain">
+<h2>syncMapDataIn<a class="headerlink" href="#syncmapdatain" title="Permalink to this headline">¶</a></h2>
+<p>The data going from the map manager to the magician:</p>
 <div class="highlight-python"><div class="highlight"><pre><span></span>{
-   &quot;map&quot;: &quot;CKCC/v1&quot;,
-   &quot;layouts&quot;: [
-       &quot;mRNA&quot;,
+   &quot;gene1&quot;: [
+       &quot;value&quot;,
+       &quot;value&quot;,
+       ...
    ],
-   &quot;nodeGroups&quot;: {
-       &quot;kidney tissue group&quot;: [
-           &quot;mySample1&quot;,
-           &quot;mySample2&quot;,
-           ...
-       ],
-       &quot;ovarian tissue group&quot;: [
-           &quot;mySample3&quot;,
-           &quot;mySample4&quot;,
-           ...
-       ],
-   }
-   &quot;title&quot;: &quot;CKCC/v1 Gene Expression&quot;,
-   &quot;directory&quot;: &quot;/data/pancan12&quot;,
+   &quot;gene2&quot; [
+       &quot;value&quot;,
+       &quot;value&quot;,
+       ...
+   ],
    ...
 }
 </pre></div>
 </div>
-<p>Definitions</p>
-<blockquote>
-<div><div class="line-block">
-<div class="line"><em>layout</em> : type of values by which the new node will be placed on the map. e.g., &#8220;mRNA&#8221;</div>
-<div class="line"><em>directory</em> : absolute path of the directory to write the rendering input for the new map</div>
-<div class="line"><em>map</em> : frozen map ID. e.g., &#8220;CKCC/v1&#8221;</div>
-<div class="line"><em>nodeGroup</em> : a group of nodes. e.g., &#8220;kidney tissue&#8221;</div>
-<div class="line"><em>node</em> : ID of the node to be placed on the map. e.g., TCGA sample ID</div>
-<div class="line"><em>title</em> : sub-map title assigned by user and displayed on the UI</div>
 </div>
-</div></blockquote>
-<p>Generalized format:</p>
+<div class="section" id="syncmapdataout">
+<h2>syncMapDataOut<a class="headerlink" href="#syncmapdataout" title="Permalink to this headline">¶</a></h2>
+<p>The data returned from the magician to the map manager:</p>
 <div class="highlight-python"><div class="highlight"><pre><span></span>{
-   &quot;map&quot;: &lt;map ID&gt;,
-   &quot;layouts&quot;: [
-       &lt;layout1&gt;,
-       &lt;layout2&gt;,
-       &lt;one to N layouts&gt;,
-       ...
-   ],
-   &quot;nodeGroups&quot;: {
-       &lt;nodeGroup&gt;: [
-           &lt;node&gt;,
-           &lt;node&gt;,
-           (1 to N nodes)
-           ...
-       ],
-       (1 to N nodeGroups)
-       ...
-   }
-   &quot;title&quot;: &lt;title&gt;,
-   &quot;directory&quot;: &lt;directoryPath&gt;,
+   &quot;gene1&quot;: &quot;value&quot;,
+   &quot;gene2&quot;: &quot;value&quot;,
+   ...
 }
 </pre></div>
 </div>
 </div>
 <div class="section" id="response">
 <h2>Response<a class="headerlink" href="#response" title="Permalink to this headline">¶</a></h2>
-<p>Response success data should be empty.</p>
-<p>Response errors are at <a class="reference internal" href="pythonApi.html"><em>Python API</em></a></p>
+<p>TBD</p>
+<p>Response errors TBD</p>
 </div>
-<div class="section" id="processing-notes">
-<h2>Processing notes<a class="headerlink" href="#processing-notes" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="implementation-notes">
+<h2>Implementation notes<a class="headerlink" href="#implementation-notes" title="Permalink to this headline">¶</a></h2>
 <p>Write the values to the tsv files with seven significant digits.</p>
 </div>
 </div>
@@ -142,12 +114,13 @@ example call and response.</p>
           <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="pythonApi.html">Python API</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="pyApiHelpers.html">Python API Helpers</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="">Python API: createSubMap</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="">Python API: syncMaps</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pyOverlayNodes.html">Python API: overlayNodes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pyStatsDynamic.html">Python API: statsDynamic</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="queryApi.html">Query API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mapManager.html">Map Manager</a></li>
 <li class="toctree-l1"><a class="reference internal" href="source.html">Source Code</a></li>
 <li class="toctree-l1"><a class="reference internal" href="clientSource.html">Source: Client</a></li>
 <li class="toctree-l1"><a class="reference internal" href="serverSource.html">Source: Server</a></li>

@@ -10,6 +10,7 @@ Contents
 
    pythonApi
    queryApi
+   mapManager
    source
    clientSource
    serverSource
