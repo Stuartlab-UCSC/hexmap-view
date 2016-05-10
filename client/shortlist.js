@@ -436,7 +436,7 @@ var app = app || {}; // jshint ignore:line
             root.remove();
 
             // Make the UI match the list.
-            update_shortlist_ui();
+            updateShortlist();
             if(checkbox.is(":checked") || filterControl.equals(layer_name, true)) {
                 // Re-draw the view since we were selected (as coloring or filter) 
                 // before removal.
@@ -459,7 +459,7 @@ var app = app || {}; // jshint ignore:line
                 root.remove();
 
                 // Make the UI match the list.
-                update_shortlist_ui();
+                updateShortlist();
                 if(checkbox.is(":checked") || filterControl.equals(layer_name, true)) {
                     // Re-draw the view since we were selected (as coloring or filter) 
                     // before removal.
@@ -484,7 +484,7 @@ var app = app || {}; // jshint ignore:line
                 }
             
                 // Update the browse UI with the new layer.
-                update_browse_ui();
+                updateLonglist();
             });
         }
 
@@ -520,7 +520,7 @@ var app = app || {}; // jshint ignore:line
         return root;
     }
 
-    update_shortlist_ui = function () {
+    updateShortlist = function () {
         // Go through the shortlist and make sure each layer there has an entry in 
         // the shortlist UI, and that each UI element has an entry in the shortlist.
         // Also make sure the metadata for all existing layers is up to date.
@@ -767,18 +767,18 @@ var app = app || {}; // jshint ignore:line
         });
         
         // Update the browse UI with the new layer.
-        update_browse_ui();
+        updateLonglist();
         var shortlist = Session.get('shortlist').slice();
         if (shortlist_push !== false) {
             // Immediately shortlist it if the attribute is being created for
             // the first time.
             shortlist.push(layer_name);
             Session.set('shortlist', shortlist);
-            update_shortlist_ui();
+            updateShortlist();
         } else if (shortlist.indexOf(layer_name) >= 0) {
             // Immediately update shortlist it if the attribute is being loaded
             // and has been declared as part of the shortlist.
-            update_shortlist_ui();
+            updateShortlist();
         }
         new_layer_name = layer_name;
 
@@ -939,7 +939,7 @@ var app = app || {}; // jshint ignore:line
             var first = Session.get('first_layer');
             if (!_.isUndefined(first) && Session.get('shortlist').length < 1) {
                 Session.set('shortlist', [first]);
-                update_shortlist_ui();
+                updateShortlist();
             }
         });
     }

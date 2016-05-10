@@ -65,19 +65,29 @@ var app = app || {}; // jshint ignore:line
             // If a view is requested for windows or edges & it's drawn,
             // kill the snake. If one of the views is not requested, that
             // object does not need to be drawn.
+            // The timeout were estimated using a pancan12 map.
             var eDrawn = edgesDrawn.get();
             var wDrawn = windowsDrawn.get();
             var eView = Session.get('viewEdges');
             var wView = Session.get('viewWindows');
             
-            if (wDrawn && (eDrawn || !eView)) {
+            if (wDrawn && eDrawn) {
+                Meteor.setTimeout(function () {
+                    Session.set('loadingMap', false);
+                }, 2000);
+                killAutorun();
+            } else if (wDrawn && !eView) {
                 Session.set('loadingMap', false);
                 killAutorun();
             } else if (eDrawn && !wView) {
-                Session.set('loadingMap', false);
+                Meteor.setTimeout(function () {
+                    Session.set('loadingMap', false);
+                }, 2000);
                 killAutorun();
             } else if (!wView && !eView) {
-                Session.set('loadingMap', false);
+                Meteor.setTimeout(function () {
+                    Session.set('loadingMap', false);
+                }, 1000);
                 killAutorun();
             }
         });
@@ -130,6 +140,7 @@ var app = app || {}; // jshint ignore:line
     }
 
     function viewWindowsMenuClick () {
+        Session.set('loadingMap', true);
         initAutorun();
         Session.set('viewWindows', !Session.get('viewWindows'));
 
@@ -231,31 +242,34 @@ var app = app || {}; // jshint ignore:line
     }
 
     function viewEdgesMenuClick () {
+        Session.set('loadingMap', true);
         initAutorun();
         Session.set('viewEdges', !Session.get('viewEdges'));
+        Meteor.setTimeout(function () {  // Let the UI catch up
 
-        if (Session.equals('viewEdges', true)) {
- 
-            // We want to show the directed graph
-            if (edgesDrawn.get()) {
- 
-                // Set the map of the existing graph lines so they show
-                edges.setMap(gridMap);
-            } else {
- 
-                // Generate the graph
-                drawEdges();
+            if (Session.equals('viewEdges', true)) {
+     
+                // We want to show the directed graph
+                if (edgesDrawn.get()) {
+     
+                    // Set the map of the existing graph lines so they show
+                    edges.setMap(gridMap);
+                } else {
+     
+                    // Generate the graph
+                    drawEdges();
+                }
+
+            } else if (edges) {
+     
+                // We want to hide the directed graph, so set their maps to null
+                edges.setMap(null);
+                _.each(highlights, function (highlight) {
+                    highlight.setPaths([]);
+                });
             }
-
-        } else if (edges) {
- 
-            // We want to hide the directed graph, so set their maps to null
-            edges.setMap(null);
-            _.each(highlights, function (highlight) {
-                highlight.setPaths([]);
-            });
-        }
-        tool_activity(false);
+            tool_activity(false);
+        }, 500);
     }
 
     function initHighlights (infocard, infoCardRow) {

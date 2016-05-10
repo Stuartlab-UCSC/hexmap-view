@@ -207,7 +207,7 @@ var app = app || {}; // jshint ignore:line
          }
     }
 
-    updateUi = function (type, text, focus_attr, opts) {
+    updateSortUi = function (type, text, focus_attr, opts) {
  
         // If we were computing dynamic stats,
         // include the elapsed time in the banner
@@ -236,8 +236,8 @@ var app = app || {}; // jshint ignore:line
                 focus_attr: focus_attr, color: 'inherit', background: 'inherit'});
         }
         clearAllFilters();
-        update_browse_ui();
-        update_shortlist_ui();
+        updateLonglist();
+        updateShortlist();
  
         // Skip the banner on the first sort
         if (Session.equals('firstSort', false)) {
@@ -405,13 +405,13 @@ var app = app || {}; // jshint ignore:line
         // Now we're done loading the stats, update the sort properties
         var text = 'BH FDR by: ';
         if (r.count < 1) {
-            updateUi('noStats');
+            updateSortUi('noStats');
         } else {
             if (r.type === 'p_value') {
                 text = ' ';
             }
             text += focus_attr + ' (ignoring layout)';
-            updateUi(r.type, text, focus_attr, opts);
+            updateSortUi(r.type, text, focus_attr, opts);
         }
     }
 
@@ -465,9 +465,9 @@ var app = app || {}; // jshint ignore:line
             }
             var text = 'Layout-aware ' + corr + ' with: ' + focus_attr;
 
-            updateUi(type, text, focus_attr, opts);
+            updateSortUi(type, text, focus_attr, opts);
         } else {
-            updateUi('noStats');
+            updateSortUi('noStats');
         }
     }
 
@@ -518,9 +518,9 @@ var app = app || {}; // jshint ignore:line
         }
 
         if (count > 0) {
-            updateUi('default');
+            updateSortUi('default');
         } else {
-            updateUi('none', 'No sort due to no density stats', 'none');
+            updateSortUi('none', 'No sort due to no density stats', 'none');
         }
     }
 
@@ -561,13 +561,13 @@ var app = app || {}; // jshint ignore:line
             function (error, result) {
                 if (error) {
                     banner('error', error);
-                    updateUi('noStats');
+                    updateSortUi('noStats');
                 } else if (result.slice(0,5) === 'Error') {
                     banner('error', result);
-                    updateUi('noStats');
+                    updateSortUi('noStats');
                 } else if (result.slice(0,4) === 'Info') {
                     banner('info', result);
-                    updateUi('noStats');
+                    updateSortUi('noStats');
                 } else {
                     receive_data(result, focus_attr, opts);
                 }

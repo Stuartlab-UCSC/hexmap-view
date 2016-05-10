@@ -129,7 +129,7 @@ googlemap; // our main googlemap instance
             Session.get('initializedColormaps')) {
             checkUiDrawn.stop();
  
-            re_initialize_view();
+            reInitMap();
  
             // Turn off the loading progress wheel
             setTimeout(function () {
@@ -192,7 +192,7 @@ googlemap; // our main googlemap instance
             checkReadyForMap.stop();
  
             initMapType();
-            initView();
+            InitMap();
             initLayout();
             initHex();
         }
@@ -202,6 +202,7 @@ googlemap; // our main googlemap instance
         setTimeout(function () { // The timeout allows the google libs to load
             resizeMap();
             $(window).resize(resizeMap);
+            $('#shortlist-holder').css('top', $('#toolbar').height());
             ctx.center = centerToLatLng(ctx.center);
             Session.set('initializedMapContainer', true);
         }, 0);

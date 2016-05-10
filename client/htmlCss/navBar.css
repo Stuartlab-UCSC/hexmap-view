@@ -177,4 +177,14 @@
     display: block;
 }
 
-
+#loadingMap {
+    width: 20px;
+    height: 20px;
+    margin-top: 5px;
+    -webkit-animation: sweep 1s infinite linear;
+    animation: sweep 1s infinite linear;
+    border-radius:20px;
+    border-bottom:3px solid white;
+}
+@-webkit-keyframes sweep { to { -webkit-transform: rotate(360deg); } }
+@keyframes sweep { to { transform: rotate(360deg); } }

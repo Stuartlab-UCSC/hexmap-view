@@ -67,12 +67,12 @@ var app = app || {}; // jshint ignore:line
 
         // Now we're done loading the stats, update the sort properties
         if (count < 1) {
-            updateUi('noStats');
+            updateSortUi('noStats');
         } else {
             var text = (type === 'p_value')
                 ? 'P-value by: ' + focus_attr + ' (ignoring layout)'
                 : 'Differential by: ' + focus_attr;
-            updateUi(type, text, focus_attr, opts);
+            updateSortUi(type, text, focus_attr, opts);
         }
 
     }

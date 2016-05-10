@@ -323,23 +323,10 @@ fill_layer_metadata = function (container, layer_name) {
         metadata.text(attribute + " = " + value_formatted);
         
         container.append(metadata);
-
     }
 }
 
-update_browse_ui = function() {
-    // Make the layer browse UI reflect the current list of layers in sorted
-    // order.
-    
-    // Re-sort the sorted list that we maintain
-    sort_layers();
-
-    // Close the select if it was open, forcing the data to refresh when it
-    // opens again.
-    $("#search").select2("close");
-}
-
-initView = function () {
+InitMap = function () {
 
     // Initialize the global Google Map.
 
@@ -372,7 +359,6 @@ initView = function () {
     
     google.maps.event.addListener(googlemap, "center_changed", function(event) {
         ctx.center = googlemap.getCenter();
-        //Session.set('center', googlemap.getCenter());
     });
     
     // We also have an event listener that checks when the zoom level changes,
@@ -388,20 +374,16 @@ initView = function () {
     subscribe_tool_listeners(googlemap);
     
 }
-re_initialize_view = function () {
+reInitMap = function () {
 
 	// Re_initialize the view because something changed that requires it
 
     // Save current map settings
-    print ('ctx:');
-    print (ctx);
-    print ('googlemap:');
-    print (googlemap);
     if (googlemap) {
         ctx.zoom = googlemap.getZoom();
     }
-    initView ();
-    recreate_map();
+    InitMap ();
+    reInitLayout();
     refresh ();
 }
 
@@ -774,7 +756,7 @@ function mix2 (a, b, c, d, amount1, amount2) {
 // as these files are indexed according to the appropriate layout.
 // Also pass it to the set clumpiness function to swap to the appropriate set
 // of clumpiness scores.
-function recreate_map() {
+function reInitLayout() {
 
 	var layout_index = Session.get('layoutIndex');
 	reInitHexagons(layout_index);
@@ -867,7 +849,7 @@ initLayout = function () {
         // Define the event handler for the selecting in the list
         $("#layout-search").on('change', function (ev) {
             Session.set('layoutIndex', ev.target.value);
-            re_initialize_view ();
+            reInitMap ();
         });
         Session.set('initializedLayout', true);
     });
@@ -892,7 +874,6 @@ initHex = function () {
     initLayerIndex();
     initColormaps();
     initLayersArray();
-    //refresh();
 
 /*
 	// Set up help buttons to open their sibling help dialogs.
@@ -949,7 +930,6 @@ initLayerTypes = function () {
             } // skip any lines we don't know about
         });
         
-        refresh(); // TODO is this needed?
         Session.set('initiatedLayertypes', true);
 	});
 }
@@ -1027,10 +1007,7 @@ initLayerIndex = function () {
             }
         }
 
-        refresh();
-        Session.set('initialLayersLoaded', true); // TODO
         Session.set('initiatedLayerIndex', true);
-
     });
 }
     
@@ -1086,7 +1063,6 @@ initColormaps = function () {
             colormaps[layer_name] = colormap;
         }
 
-        //refresh(); TOD
         Session.set('initializedColormaps', true);
     });
 }

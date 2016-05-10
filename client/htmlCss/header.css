@@ -110,12 +110,6 @@ layout-name {
     word-wrap: break-word;
 }
 
-#loadingMap {
-    z-index: 300;
-    width: 32px;
-    height: 32px;
-}
-
 #layout-row {
     position: relative;
 }

@@ -1,5 +1,5 @@
 
-/* global add_tool, selected_tool, ctx, re_initialize_view, colormaps, Color, $, window */
+/* global add_tool, selected_tool, ctx, reInitMap, colormaps, Color, $, window */
 
 var app = app || {}; // jshint ignore:line
 
@@ -54,7 +54,7 @@ var app = app || {}; // jshint ignore:line
             } else {
                 Session.set('background', 'white');
             }
-            re_initialize_view();
+            reInitMap();
         });
  
         // Prepare a tool to change the colorMap
@@ -113,7 +113,7 @@ var app = app || {}; // jshint ignore:line
                 return false;
             });
             colormaps[layer][catI].color = Color(aCat.operVal);
-            re_initialize_view();
+            reInitMap();
         };
 
         // Convert an rgb array, [66, 77, 88], to an object, {r:66, b:77, g:88}

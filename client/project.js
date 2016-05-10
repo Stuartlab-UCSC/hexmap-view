@@ -118,11 +118,14 @@ var app = app || {}; // jshint ignore:line
             $('#s2id_project .select2-choice span')
                 .text(getHumanProject(ctx.project))
                 .removeClass('noProject');
+            Session.set('initializedProject', true);
          }
  
-        if (ctx.project) {
-            Session.set('projectInitd', true); // TODO why only if there is a project ?
-        }
+         if (!ctx.project) {
+ 
+            // Turn off the snake
+            Session.set('loadingMap', false);
+         }
 	};
  
     function signInClicked(count) {
@@ -165,7 +168,6 @@ var app = app || {}; // jshint ignore:line
                 }
                 project.projects = projects;
                 project._populate();
-                Session.set('initializedProject', true);
             });
         });
     };

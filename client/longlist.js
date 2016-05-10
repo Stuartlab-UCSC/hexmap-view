@@ -31,6 +31,19 @@ var app = app || {}; // jshint ignore:line
         return root;
     }
 
+    updateLonglist = function() {
+    
+        // Make the layer browse UI reflect the current list of layers in sorted
+        // order.
+        
+        // Re-sort the sorted list that we maintain
+        sort_layers();
+
+        // Close the select if it was open, forcing the data to refresh when it
+        // opens again.
+        $("#search").select2("close");
+    }
+
     initLayerLists = function () {
 
         $search = $("#search");
@@ -128,7 +141,7 @@ var app = app || {}; // jshint ignore:line
                 Session.set('shortlist', shortlist);
                 
                 // Update the UI to reflect this. This may redraw the view.
-                update_shortlist_ui();
+                updateShortlist();
                 
             }
             
