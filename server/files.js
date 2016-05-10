@@ -85,7 +85,6 @@ getTsvFile = function (filename, project, unparsed, future) {
     
         // Special handling for this file because we have a better name
         // and have added the raw layout data filenames
-        //future.return(getTsvFile('matrixnames.tab', project, unparsed, future));
         getTsvFile('matrixnames.tab', project, unparsed, future);
     } else {
         future.return('Error: file not found on server: ' + path);

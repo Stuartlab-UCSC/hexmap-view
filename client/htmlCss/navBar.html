@@ -70,28 +70,6 @@
             </li>
             
             <li class='primary mapShow' data-sel='addText' style='display:inline'>Label</li>
-            
-            <li class='primary' style='display:inline'>
-                Help
-                <img src='/caret-down.png' style='height:8px'>
-                <ul>
-                    <li>
-                        <a href="/help.pdf" target='_blank'>User Guide</a>
-                    </li>
-                    <li>
-                        <a href="https://groups.google.com/a/ucsc.edu/forum/#!forum/hex" target='_blank'>Discussion Group</a>
-                    </li>
-                    <li>
-                        <a href="mailto:hex@ucsc.edu">Email Group</a>
-                    </li>
-                    <li class='queryDocs'> <!-- dev -->
-                        <a href='/query/index.html' target='_blank'>Query APIs</a>
-                    </li>
-                    <li class='devDocs'> <!-- dev -->
-                        <a href='/zurhfads/index.html' target='_blank'>Developer Docs</a>
-                    </li>
-                </ul>
-            </li>
         </ul>
 
         <!-- select menu -->
@@ -108,9 +86,38 @@
             </li>
         </ul>
         
+        <!-- help -->
+        <ul id='helpMenu' class='stacker right'>
+            <li style='padding-left:1em;padding-right:4em'>
+                Help
+                <img src='/caret-down.png' style='height:8px'>
+                <ul>
+                    <li>
+                        <a href="/help.pdf" target='_blank'>&nbsp;User Guide</a>
+                    </li>
+                    <li>
+                        <a href="https://groups.google.com/a/ucsc.edu/forum/#!forum/hex" target='_blank'>&nbsp;Discussion Group&nbsp;&nbsp;</a>
+                    </li>
+                    <li>
+                        <a href="mailto:hex@ucsc.edu">&nbsp;Email Group</a>
+                    </li>
+                    <li class='queryDocs'> <!-- dev -->
+                        <a href='/query/index.html' target='_blank'>&nbsp;Query APIs</a>
+                    </li>
+                    <li class='devDocs'> <!-- dev -->
+                        <a href='/zurhfads/index.html' target='_blank'>&nbsp;Developer Docs</a>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+        
+         <!-- loading snake -->
+        <div id="loadingMap" class='stacker' style="display:{{loadingMap}};background: url('spin.gif') no-repeat center center;"></div>
+
          <!-- login -->
         <span class="login right stacker">
             {{> loginButtons}}
         </span>
+        
     </div>
 </template>

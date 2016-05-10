@@ -64,7 +64,7 @@ var app = app || {}; // jshint ignore:line
     BlankMapType = function () {
     }
 
-    mapTypeDef = function() {
+    initMapType = function() {
 
         // See https://developers.google.com/maps/documentation/javascript/maptypes#Projections
         FlatProjection.prototype.fromLatLngToPoint = function(latLng) {
@@ -306,4 +306,6 @@ var app = app || {}; // jshint ignore:line
         // Set up the handler of mousemove on the map
         google.maps.event.addListener(map, 'mousemove', coordsMouseMove);
     }
+ 
+    Session.set('initializedMapType', true);
 })(app);

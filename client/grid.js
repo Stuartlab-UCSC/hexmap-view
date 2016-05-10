@@ -504,9 +504,8 @@ var app = app || {}; // jshint ignore:line
     function createMap () {
  
         // Creates the google map for methods
-        mapTypeDef();
+        initMapType();
  
-        ctx.gridCenter = centerToLatLng(ctx.gridCenter);
         var mapOptions = {
             center: ctx.gridCenter,
             zoom: ctx.gridZoom,
@@ -592,9 +591,12 @@ var app = app || {}; // jshint ignore:line
         edgesDrawn.set(false);
         initAutorun();
 
-        // Initialize the grid page and grid map
+        // Initialize the grid map
         createMap();
+ 
+        // Initalize utilities not dependent on the initial UI draw
         initInfoWindow (gridMap);
+        initDownload();
 
         // Register a callback for the view graph menu click
         add_tool("viewEdges", viewEdgesMenuClick);

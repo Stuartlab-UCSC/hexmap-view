@@ -16,9 +16,6 @@ var app = app || {}; // jshint ignore:line
     // Give this a value when the user has asked for a project that cannot be found.
     var unFoundProject;
  
-    // A callback executed after the projects are loaded
-    var onProjectsLoaded;
- 
     function getHumanProject (project) {
  
         // Transform a project from dir structure to display for humans
@@ -124,13 +121,10 @@ var app = app || {}; // jshint ignore:line
          }
  
         if (ctx.project) {
-            if (onProjectsLoaded) {
-                onProjectsLoaded();
-                onProjectsLoaded = undefined;
-            }
+            Session.set('projectInitd', true); // TODO why only if there is a project ?
         }
 	};
-
+ 
     function signInClicked(count) {
  
         // Set focus to the login-email input text box
@@ -146,9 +140,8 @@ var app = app || {}; // jshint ignore:line
             }, mSecs);
 	};
  
-    initProject = function (callback) { // jshint ignore:line
- 
-        onProjectsLoaded = callback;
+    initProject = function () { // jshint ignore:line
+  
         $('.login').on('click', $('#login-sign-in-link'), signInClicked);
  
         // Initialize projects whenever the username changes, including log out
@@ -172,6 +165,7 @@ var app = app || {}; // jshint ignore:line
                 }
                 project.projects = projects;
                 project._populate();
+                Session.set('initializedProject', true);
             });
         });
     };

@@ -146,11 +146,11 @@ var app = app || {}; // jshint ignore:line
 
         // Attach the tags to the layers and load them into the filter UI
 
-        var sorted = Session.get('sortedLayers'),
-            layersLoaded = Session.get('initialLayersLoaded');
+        var sorted = Session.get('sortedLayers');
 
         // A few things need to be ready before we can process the tags
-        if (!tagData || tagData.length < 1 || !layersLoaded
+        // TODO don't need all of these checks with our new init
+        if (!tagData || tagData.length < 1
             || !sorted || sorted.length < 0) return;
 
         // We don't want this to run anymore

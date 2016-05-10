@@ -56,43 +56,13 @@
   <div class="section" id="python-api-syncmaps">
 <h1>Python API: syncMaps<a class="headerlink" href="#python-api-syncmaps" title="Permalink to this headline">¶</a></h1>
 <p>This python API is used in communications between the map manager and the
-magician. You can read about the full pipeline at the
+agent to feature translator. The full pipeline is at
 <a class="reference internal" href="mapManager.html"><em>Map Manager</em></a>
-.</p>
+with the python APIs being these two steps:</p>
+<p>#4 syncMapTranslate</p>
+<p>#5 syncMapTranslateReply</p>
 <p>See <a class="reference internal" href="pythonApi.html"><em>Python API</em></a> for general information about python APIs as well as an
 example call and response.</p>
-<p>The data within the temporary files are explained here.</p>
-<p>Examples</p>
-<div class="section" id="syncmapdatain">
-<h2>syncMapDataIn<a class="headerlink" href="#syncmapdatain" title="Permalink to this headline">¶</a></h2>
-<p>The data going from the map manager to the magician:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span>{
-   &quot;gene1&quot;: [
-       &quot;value&quot;,
-       &quot;value&quot;,
-       ...
-   ],
-   &quot;gene2&quot; [
-       &quot;value&quot;,
-       &quot;value&quot;,
-       ...
-   ],
-   ...
-}
-</pre></div>
-</div>
-</div>
-<div class="section" id="syncmapdataout">
-<h2>syncMapDataOut<a class="headerlink" href="#syncmapdataout" title="Permalink to this headline">¶</a></h2>
-<p>The data returned from the magician to the map manager:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span>{
-   &quot;gene1&quot;: &quot;value&quot;,
-   &quot;gene2&quot;: &quot;value&quot;,
-   ...
-}
-</pre></div>
-</div>
-</div>
 <div class="section" id="response">
 <h2>Response<a class="headerlink" href="#response" title="Permalink to this headline">¶</a></h2>
 <p>TBD</p>

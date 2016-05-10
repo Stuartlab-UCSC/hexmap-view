@@ -8,7 +8,7 @@ body {
 /*
 #E7E5D7, rgb(231,229,215)  ucsc pages tan
 #05366B  ucsc pages blue font
-#2B5E91  a lighter ucsc pages blue
+#2B5E91  ucsc pages blue background
 #E0E0FF  shortlist lavender
 #FFE0FF  shortlist pink
 */
@@ -26,14 +26,17 @@ body {
 }
 
 #menus,
-#selectMenu {
+#selectMenu,
+#helpMenu {
     background-color: transparent;
     background-image: none;
 }
 .login:hover,
 .ui-widget .ui-menu-item.ui-state-focus,
 .ui-widget .ui-menu-item.primary.ui-state-focus,
-.ui-widget .ui-menu-item.primary.ui-state-active {
+.ui-widget .ui-menu-item.primary.ui-state-active,
+#helpMenu > li.ui-menu-item.ui-state-focus,
+#helpMenu > li.ui-menu-item.ui-state-active {
     background: white;
 }
 
@@ -50,7 +53,7 @@ body {
     background: #FFE0FF;
 }
 
-.ui-widget .ui-menu-item.ui-state-focus:not(.primary) {
+.ui-widget .ui-menu-item.ui-state-focus:not(.primary),
     background: #cccccc;
 }
 
@@ -62,7 +65,8 @@ body {
 
 #toolbar,
 #menus.ui-widget.ui-menu,
-#selectMenu.ui-widget.ui-menu {
+#selectMenu.ui-widget.ui-menu,
+#helpMenu.ui-widget.ui-menu {
     color: white;
 }
 

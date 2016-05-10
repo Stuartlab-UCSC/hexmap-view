@@ -15,7 +15,7 @@ var app = app || {}; // jshint ignore:line
 (function (hex) {
     //'use strict';
 
-    add_export_tool = function () {
+    initDownloadSelectTool = function () {
 
         // And a tool for exporting selections as lists of hexes
         // TODO this doesn't need to be modal, only tools mousing on the screen
@@ -145,8 +145,11 @@ var app = app || {}; // jshint ignore:line
     }
 
     initDownload = function () {
+ 
         if (Session.equals('page', 'mapPage')) {
-            add_export_tool();
+            initDownloadSelectTool();
+            initPdf();
+            initSvg();
         }
         $('#xyPreSquiggle').on('click', xyPreSquiggle_click);
     }

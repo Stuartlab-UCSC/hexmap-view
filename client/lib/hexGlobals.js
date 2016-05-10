@@ -1,4 +1,4 @@
-Template.headerT.onCreated(function () {
+Template.navBarT.onCreated(function () {
     Session.set('loadingMap', true);
 });
 

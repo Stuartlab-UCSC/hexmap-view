@@ -208,7 +208,7 @@ var app = app || {}; // jshint ignore:line
     }
 
     updateUi = function (type, text, focus_attr, opts) {
-
+ 
         // If we were computing dynamic stats,
         // include the elapsed time in the banner
         var elapsed = '';
@@ -238,8 +238,14 @@ var app = app || {}; // jshint ignore:line
         clearAllFilters();
         update_browse_ui();
         update_shortlist_ui();
-        if (type !== 'noStats') {
-            banner('info', 'Now sorted by ' + text + elapsed);
+ 
+        // Skip the banner on the first sort
+        if (Session.equals('firstSort', false)) {
+            if (type !== 'noStats') {
+                banner('info', 'Now sorted by ' + text + elapsed);
+            }
+        } else {
+           Session.set('firstSort', false);
         }
     }
 

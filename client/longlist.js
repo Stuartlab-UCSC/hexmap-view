@@ -33,10 +33,6 @@ var app = app || {}; // jshint ignore:line
 
     initLayerLists = function () {
 
-        // Position the short list to be against the right side of the window
-        // and the bottom of the toolbar.
-        $('#shortlist-holder').css('top', $('#toolbar').height());
-
         $search = $("#search");
 
         // Set up the layer search
@@ -57,9 +53,7 @@ var app = app || {}; // jshint ignore:line
                     start_position = query.context;
                 }
 
-                var displayLayers = ATTR_FILTERS
-                    ? Session.get('displayLayers')
-                    : Session.get('sortedLayers'),
+                var displayLayers = Session.get('displayLayers'),
                     sortedLayers = Session.get('sortedLayers');
                 for (var i = start_position; i < sortedLayers.length; i++) {
 

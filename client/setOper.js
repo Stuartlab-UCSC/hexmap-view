@@ -239,5 +239,5 @@ var app = app || {}; // jshint ignore:line
                                                 });
             }
         });
-    };
+    }
 })(app);

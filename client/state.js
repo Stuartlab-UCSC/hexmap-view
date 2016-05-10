@@ -100,6 +100,7 @@ var app = app || {}; // jshint ignore:line
         Session.setDefault('sort', DEFAULT_SORT); // Default sort message & type
         Session.setDefault('viewEdges', false); // Display of directed graph or not
         Session.setDefault('viewWindows', false); // Display of stats windows or not
+        Session.set('firstSort', true);
 
         // Variables maintained in this state object, with defaults.
         s.project = DEFAULT_PROJECT;  // The project data to load
@@ -315,15 +316,6 @@ var app = app || {}; // jshint ignore:line
 
     function initDocs () {
  
-        // Show dev doc menu option if user is in dev role.
-        Meteor.call('isUserInRole', 'dev', function (error, results) {
-            if (!error && results) {
-                $('.devDocs').show();
-           } else {
-                $('.devDocs').hide();
-            }
-        });
-        
         // Show query API doc menu option if user is in dev or CKCC role.
         Meteor.call('isUserInRole', ['dev', 'CKCC'], function (error, results) {
             if (!error && results) {
@@ -332,6 +324,18 @@ var app = app || {}; // jshint ignore:line
                 $('.queryDocs').hide();
             }
         });
+ 
+        if (DEV) {
+        
+            // Show dev doc menu option if user is in dev role.
+            Meteor.call('isUserInRole', 'dev', function (error, results) {
+                if (!error && results) {
+                    $('.devDocs').show();
+               } else {
+                    $('.devDocs').hide();
+                }
+            });
+        }
     }
 
     centerToLatLng = function (centerIn) {

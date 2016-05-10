@@ -135,7 +135,7 @@ var app = app || {}; // jshint ignore:line
         callbacks[tool_name] = callback;
     }
 
-    function initTheseTools () {
+    initLabelTool = function () {
 
         // Set up the add text control
         add_tool("addText", function() {
@@ -196,6 +196,7 @@ var app = app || {}; // jshint ignore:line
  
     initTools = function () {
  
+        // Initialize the toolbar/navbar.
         if (Session.equals('page', 'homePage')) {
             $('body').find('.mapShow, .gridShow').hide();
             $('body').find('.homeShow').show();
@@ -205,7 +206,6 @@ var app = app || {}; // jshint ignore:line
             $('body').find('.mapShow').show();
             $('.mapLayout').addClass('ui-state-disabled');
             $('.methods').removeClass('ui-state-disabled');
-            initTheseTools();
             initSelect();
             $('.selectMenuLabel, #selectMenu').show();
  
@@ -235,6 +235,13 @@ var app = app || {}; // jshint ignore:line
         });
  
         $('#menus')
+            .menu({
+                position: { my: "left top", at: "left bottom-7" },
+                icons: { submenu: "ui-icon-blank" },
+                select: selected,
+            })
+            .show();
+        $('#helpMenu')
             .menu({
                 position: { my: "left top", at: "left bottom-7" },
                 icons: { submenu: "ui-icon-blank" },

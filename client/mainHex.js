@@ -4,16 +4,14 @@
 
 var app = app || {}; // jshint ignore:line
 
-DEV = true; // true if in development mode, false if not
-ATTR_FILTERS = true;
+DEV = (URL_PORT !== '443' && URL_PORT !== '8443'); // true if on development server, false if not
 ctx = null; // State
 layers = {}; // contains almost all information about attributes
-mapDrawnListener = '';
-googlemap; // our googlemap instance
+googlemap; // our main googlemap instance
 
 (function (hex) { // jshint ignore:line
     //'use strict';
-
+ 
     Template.localStoreT.created = function () {
         // This template is only used to initialize state
         if (_.isNull(ctx)) ctx = initState();
@@ -74,24 +72,26 @@ googlemap; // our googlemap instance
 
     Template.mapPage.onRendered(function () {
         Tracker.autorun(function () {
-            if (GoogleMaps.loaded() && Session.equals('page', 'mapPage'))
-                initGoogleMapsForMap();
+            if (GoogleMaps.loaded()) {
+                initMainMapContainer();
+            }
         });
+        initProject();
         GoogleMaps.load();
+        initTools();
     });
 
     Template.gridPage.onRendered(function () {
         Tracker.autorun(function () {
-            if (GoogleMaps.loaded() && Session.equals('page', 'gridPage'))
-                initGoogleMapsForGrid();
+            if (GoogleMaps.loaded()) {
+                initGridMapContainer();
+            }
         });
         GoogleMaps.load();
+        initTools();
     });
 
-    Template.headerT.helpers({
-        sort: function () {
-            return Session.get('sort');
-        },
+    Template.navBarT.helpers({
         loadingMap: function () {
             if (Session.get('loadingMap')) {
                 return 'block';
@@ -101,51 +101,120 @@ googlemap; // our googlemap instance
         },
     });
 
-    initMapDrawn = function () {
-        // Initialize modules that need to have the main map drawn.
-        google.maps.event.removeListener(mapDrawnListener);
-            initPdf();
-            initSvg();
-            initCoords();
-            initOverlayNodes();
-    }
+    Template.headerT.helpers({
+        sort: function () {
+            return Session.get('sort');
+        },
+    });
 
     function resizeMap () {
 
-        // Capture a resize window event to resize the map.
-        // We need to do this before the google map or it will not be centered.
+        // Set the initial map size and capture any resize window event so
+        // the map gets resized too.
         var windowHt = $(window).height(),
             navHt = $('#toolbar').height(),
             headerHt = $('#header').height();
-        $('#mapContent').height(windowHt - navHt - headerHt - 2);
-        $('#gridContent').height(windowHt - navHt - 2);
+        $('#mapContent').height(windowHt - navHt - headerHt - 1);
+        $('#gridContent').height(windowHt - navHt);
     }
 
-    initGoogleMapsForMap = function () {
-        setTimeout(function () { // The timeout allows the google libs to load
-            resizeMap();
-            $(window).resize(resizeMap);
-
-            // Initialize everything else
-            initProject(initHex);
-            initTools();
-            initDownload();
-            initColors();
-            initLegend();
-            initShortlist();
+    // Define the autotracker to find when the basic UI is drawn
+    Session.set('initializedHexagons', false);
+    Session.set('initialiedLayers', false);
+    Session.set('initializedColormaps', false);
+    var checkUiDrawn = Tracker.autorun(isUiDrawn);
+    function isUiDrawn () {
+        if (Session.get('initializedHexagons') &&
+            Session.get('retrievedLayerInfo') &&
+            Session.get('initializedColormaps')) {
+            checkUiDrawn.stop();
+ 
+            re_initialize_view();
+ 
+            // Turn off the loading progress wheel
             setTimeout(function () {
                 Session.set('loadingMap', false)
             }, 500);
-        }, 0)
-    };
 
-    initGoogleMapsForGrid = function () {
+            // Initialize the background functions.
+            //initOverlayNodes();
+            initShortlist();
+            initLegend();
+            initCoords();
+            initLabelTool();
+            initDownload();
+            initColors();
+            initInfoWindow();
+            initSetOperations();
+            //initDiffAnalysis();
+        }
+    }
+ 
+    // Define the autotracker to find when the layers are initialized
+    Session.set('initiatedLayertypes', false);
+    Session.set('initiatedLayerIndex', false);
+    Session.set('initializedLayersArray', false);
+    var checkInitLayers = Tracker.autorun(areLayersInitialized);
+    function areLayersInitialized () {
+        if (Session.get('initiatedLayertypes') &&
+            Session.get('initiatedLayerIndex') &&
+            Session.get('initializedLayersArray')) {
+            checkInitLayers.stop();
+ 
+            initSortAttrs();
+            initFilter()
+            initLayerLists();
+ 
+            Session.set('retrievedLayerInfo', true);
+        }
+    }
+
+    // Define the autotracker to find when the layout is initialized
+    Session.set('initializedLayout', false);
+    var checkInitLayout = Tracker.autorun(isLayoutInitialized);
+    function isLayoutInitialized () {
+        if (Session.get('initializedLayout')) {
+            checkInitLayout.stop();
+ 
+            initHexagons();
+        }
+    }
+ 
+    // Define the autotracker to find when the map prep is complete
+    Session.set('initializedProject', false);
+    Session.set('initializedMapContainer', false);
+    Session.get('initializedMapType', false);
+    var checkReadyForMap = Tracker.autorun(areWeReadyForMap);
+    function areWeReadyForMap () {
+        if (Session.get('initializedProject') &&
+            Session.get('initializedMapContainer') &&
+            Session.get('initializedMapType')) {
+            checkReadyForMap.stop();
+ 
+            initMapType();
+            initView();
+            initLayout();
+            initHex();
+        }
+    }
+
+    function initMainMapContainer () {
         setTimeout(function () { // The timeout allows the google libs to load
             resizeMap();
             $(window).resize(resizeMap);
-            initTools();
-            initDownload();
+            ctx.center = centerToLatLng(ctx.center);
+            Session.set('initializedMapContainer', true);
+        }, 0);
+    };
+
+    function initGridMapContainer () {
+        setTimeout(function () { // The timeout allows the google libs to load
+            $(window).resize(resizeMap);
+            ctx.gridCenter = centerToLatLng(ctx.gridCenter);
             initGrid();
+            
+            // Resize the map to fill the available space
+            Meteor.setTimeout(resizeMap, 0);
         }, 0)
     };
 })(app);

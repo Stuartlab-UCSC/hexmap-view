@@ -56,7 +56,7 @@
 <h1>Map Manager<a class="headerlink" href="#map-manager" title="Permalink to this headline">¶</a></h1>
 <p>The map manager handles the communications for synchronizing a user
 selection of node IDs from one map to another map. The map manager queries the
-target map database using the source map&#8217;s node IDs. The magician then does
+target map database using the source map&#8217;s node IDs. The translator then does
 some magic to produce values for a list of target node IDs. These IDs and values
 are sent to the target map as a generated attribute.</p>
 <a class="reference internal image-reference" href="_images/mapManager.png"><img alt="_images/mapManager.png" src="_images/mapManager.png" style="width: 800px;" /></a>
@@ -64,7 +64,7 @@ are sent to the target map as a generated attribute.</p>
 <p><strong>An example sequence of calls follows.</strong></p>
 <div class="section" id="syncmaprequest">
 <h2>#1 syncMapRequest<a class="headerlink" href="#syncmaprequest" title="Permalink to this headline">¶</a></h2>
-<p>A request to sync from a source map to another map, sent to the map manager
+<p>A request to sync from a source map to a target map, sent to the map manager
 from the source map via http:</p>
 <div class="highlight-python"><div class="highlight"><pre><span></span>{
    &quot;map&quot;: &quot;CKCC/v1&quot;,
@@ -101,33 +101,8 @@ from the source map via http:</p>
 <div class="section" id="syncmapqueryreply">
 <h2>#3 syncMapQueryReply<a class="headerlink" href="#syncmapqueryreply" title="Permalink to this headline">¶</a></h2>
 <p>The query response from the database to the map manager, where the values are
-one for each source node ID. Is that right, or does the magician need all of the
-node values?:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span>{
-   &quot;selection&quot;: &quot;Kidney&quot;,
-   &quot;genes&quot;: {
-       &quot;gene1&quot;: [
-           &quot;value&quot;,
-           &quot;value&quot;,
-           ...
-       ],
-       &quot;gene2&quot; [
-           &quot;value&quot;,
-           &quot;value&quot;,
-           ...
-       ],
-   ...
-   ]
-}
-</pre></div>
-</div>
-<ul class="simple">
-<li>Note: This returns all values, including NA values.</li>
-</ul>
-</div>
-<div class="section" id="syncmapmagic">
-<h2>#4 syncMapMagic<a class="headerlink" href="#syncmapmagic" title="Permalink to this headline">¶</a></h2>
-<p>The data going from the map manager to the magician:</p>
+one for each source node ID. (Is that right, or does the translator need all of
+the source node values?):</p>
 <div class="highlight-python"><div class="highlight"><pre><span></span>{
    &quot;gene1&quot;: [
        &quot;value&quot;,
@@ -143,10 +118,39 @@ node values?:</p>
 }
 </pre></div>
 </div>
+<ul class="simple">
+<li>Note: This returns all values, including NA values.</li>
+</ul>
 </div>
-<div class="section" id="syncmapmagicreply">
-<h2>#5 syncMapMagicReply<a class="headerlink" href="#syncmapmagicreply" title="Permalink to this headline">¶</a></h2>
-<p>The data returned from the magician to the map manager:</p>
+<div class="section" id="syncmaptranslate">
+<h2>#4 syncMapTranslate<a class="headerlink" href="#syncmaptranslate" title="Permalink to this headline">¶</a></h2>
+<p>The data going from the map manager to the translator will contain the to and
+from map types along with the node information from the above API,
+syncMapQueryReply:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span>{
+   &quot;fromMapType&quot;: &quot;tumorMap&quot;,
+   &quot;toMapType&quot;: &quot;geneMap&quot;,
+   &quot;nodes&quot;: {
+       &quot;gene1&quot;: [
+           &quot;value&quot;,
+           &quot;value&quot;,
+           ...
+       ],
+       &quot;gene2&quot; [
+           &quot;value&quot;,
+           &quot;value&quot;,
+           ...
+       ],
+       ...
+   }
+}
+</pre></div>
+</div>
+</div>
+<div class="section" id="syncmaptranslatereply">
+<h2>#5 syncMapTranslateReply<a class="headerlink" href="#syncmaptranslatereply" title="Permalink to this headline">¶</a></h2>
+<p>The data returned from the translator to the map manager will be a dictionary
+of node names and values:</p>
 <div class="highlight-python"><div class="highlight"><pre><span></span>{
    &quot;gene1&quot;: &quot;value&quot;,
    &quot;gene2&quot;: &quot;value&quot;,
@@ -161,11 +165,11 @@ node values?:</p>
 on the UI as a generated attribute:</p>
 <div class="highlight-python"><div class="highlight"><pre><span></span>{
    &quot;layer&quot;: &quot;Kidney&quot;,
-   [
+   &quot;nodes&quot;: {
        &quot;gene1&quot;: &quot;value&quot;,
-       &quot;gene2&quot; &quot;value&quot;,
+       &quot;gene2&quot;: &quot;value&quot;,
        ...
-   ]
+   }
 }
 </pre></div>
 </div>
@@ -186,8 +190,8 @@ on the UI as a generated attribute:</p>
 <li class="toctree-l2"><a class="reference internal" href="#syncmaprequest">#1 syncMapRequest</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#syncmapquery">#2 syncMapQuery</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#syncmapqueryreply">#3 syncMapQueryReply</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#syncmapmagic">#4 syncMapMagic</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#syncmapmagicreply">#5 syncMapMagicReply</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#syncmaptranslate">#4 syncMapTranslate</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#syncmaptranslatereply">#5 syncMapTranslateReply</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#syncmappush">#6 syncMapPush</a></li>
 </ul>
 </li>

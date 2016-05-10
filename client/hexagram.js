@@ -28,9 +28,6 @@ var first_opening_stats = true;
 // name and color). They are stored under the name of the layer they apply to.
 colormaps = {}
 
-// This holds an array of the available score matrix filenames
-var available_matrices = [];
-
 // This holds the Google Map that we use for visualization
 googlemap = null;
 
@@ -342,10 +339,10 @@ update_browse_ui = function() {
     $("#search").select2("close");
 }
 
-initialize_view = function () {
+initView = function () {
+
     // Initialize the global Google Map.
 
-    ctx.center = centerToLatLng(ctx.center);
     var mapOptions = {
         center: ctx.center,
         zoom: ctx.zoom,
@@ -355,14 +352,7 @@ initialize_view = function () {
             mapTypeIds: []
         },
         minZoom: 2,
-        /*
-        // TODO This does not force the large zoom control to show even if
-        // the google maps docs says it does
-        zoomControl:true,
-        zoomControlOptions: {
-            style:google.maps.ZoomControlStyle.LARGE
-        },
-        */
+
         // Or a street view man that lets you walk around various Earth places.
         streetViewControl: false
     };
@@ -378,8 +368,7 @@ initialize_view = function () {
     // Attach the blank map type to the map
     googlemap.mapTypes.set("blank", new BlankMapType());
 
-    initInfoWindow ();
-    showOverlayNodes();
+    //showOverlayNodes();
     
     google.maps.event.addListener(googlemap, "center_changed", function(event) {
         ctx.center = googlemap.getCenter();
@@ -400,6 +389,7 @@ initialize_view = function () {
     
 }
 re_initialize_view = function () {
+
 	// Re_initialize the view because something changed that requires it
 
     // Save current map settings
@@ -407,9 +397,10 @@ re_initialize_view = function () {
     print (ctx);
     print ('googlemap:');
     print (googlemap);
-    ctx.zoom = googlemap.getZoom();
-
-    initialize_view ();
+    if (googlemap) {
+        ctx.zoom = googlemap.getZoom();
+    }
+    initView ();
     recreate_map();
     refresh ();
 }
@@ -786,11 +777,11 @@ function mix2 (a, b, c, d, amount1, amount2) {
 function recreate_map() {
 
 	var layout_index = Session.get('layoutIndex');
-	initHexagons(layout_index);
+	reInitHexagons(layout_index);
 	find_clumpiness_stats(layout_index);
 }
 
-function create_indexed_layers_array () {
+function initLayersArray () {
     Meteor.call('getTsvFile', "layers.tab", ctx.project,
         function (error, parsed) {;
 
@@ -817,9 +808,9 @@ function create_indexed_layers_array () {
 			var period_index =file_name.lastIndexOf(".");
 			var index_value = file_name.substring(underscore_index+1, period_index);
 			ctx.layer_names_by_index [index_value] = parsed[i][0];
-		 }			     
+		 }
+         Session.set('initializedLayersArray', true);
     });
-
 }
 
 initLayout = function () {
@@ -872,24 +863,20 @@ initLayout = function () {
         }
         createOurSelect2($("#layout-search"),
             {data: data}, Session.get('layoutIndex').toString());
-        re_initialize_view ();
 
         // Define the event handler for the selecting in the list
         $("#layout-search").on('change', function (ev) {
             Session.set('layoutIndex', ev.target.value);
             re_initialize_view ();
         });
+        Session.set('initializedLayout', true);
     });
 }
 
 initHex = function () {
-    // Set up the RPC system for background statistics
-    //rpc = initRpc(); // TODO causing issues under meteor
-
-    // Initialize some persistent store values
 
     // Attributes created via a select or set operation
-	ctx.created_attr = []
+	ctx.created_attr = [];
 
     // Initialize some operating values
 
@@ -900,10 +887,39 @@ initHex = function () {
     // updated. We would rather use 'shortlist', but that produces an infinite
     // loop at times.
     Session.set('shortlistFilterUpdated', 0);
+ 
+    initLayerTypes();
+    initLayerIndex();
+    initColormaps();
+    initLayersArray();
+    //refresh();
 
-    // TODO we need to get this from the server before the attribute sort the
-    // user sees on startup. We're lucky now. We need to guarantee this is done
-    // first.
+/*
+	// Set up help buttons to open their sibling help dialogs.
+	$(".help-button").each(function() {
+	    // We need to attach the dialog to the button ourselves since .dialog()
+	    // removes it from its home in the DOM.
+	    $(this).data("dialog", $(this).siblings(".help-dialog"));
+	    
+	    // Set up the dialog
+	    $(this).data("dialog").dialog({
+	        width: "auto",
+	        resizable: false,
+	        modal: true,
+	        autoOpen: false
+	    });
+	    
+	    // Set up the open-the-dialog listener.
+	    $(this).button().click(function () {
+	        $(this).data("dialog").dialog("open");
+	    });
+	});
+*/	    
+
+}
+
+initLayerTypes = function () {
+
 	// Download Information on what layers are continuous and which are binary
     Meteor.call('getTsvFile', "Layer_Data_Types.tab", ctx.project,
         function (error, parsed) {;
@@ -932,39 +948,13 @@ initHex = function () {
                 Session.set('first_layer', line.slice(1).join());
             } // skip any lines we don't know about
         });
+        
+        refresh(); // TODO is this needed?
+        Session.set('initiatedLayertypes', true);
 	});
+}
 
-    // Set up the Google Map type and projection
-    mapTypeDef();
-
-    initialize_view();
-    initLayerLists();
-    if (ATTR_FILTERS) initFilter();
-    initSetOperations();
-    initSortAttrs();
-    //initDiffAnalysis(); // TODO shelf this feature for now.
-
-/*
-	// Set up help buttons to open their sibling help dialogs.
-	$(".help-button").each(function() {
-	    // We need to attach the dialog to the button ourselves since .dialog()
-	    // removes it from its home in the DOM.
-	    $(this).data("dialog", $(this).siblings(".help-dialog"));
-	    
-	    // Set up the dialog
-	    $(this).data("dialog").dialog({
-	        width: "auto",
-	        resizable: false,
-	        modal: true,
-	        autoOpen: false
-	    });
-	    
-	    // Set up the open-the-dialog listener.
-	    $(this).button().click(function () {
-	        $(this).data("dialog").dialog("open");
-	    });
-	});
-*/	    
+initLayerIndex = function () {
 
     // Download the layer index
     Meteor.call('getTsvFile', "layers.tab", ctx.project,
@@ -1037,50 +1027,18 @@ initHex = function () {
             }
         }
 
+        refresh();
+        Session.set('initialLayersLoaded', true); // TODO
+        Session.set('initiatedLayerIndex', true);
 
-        // Sort attributes by the default sort
-        find_clumpiness_stats(Session.get('layoutIndex'));
-
-        //update_shortlist_ui(); // TODO redundant with find_clumpiness_stats() call
-
-        // Now we have added layer downloaders for all the layers in the 
-        // index. Update the UI
-        //update_browse_ui();  // TODO redundant with find_clumpiness_stats() call
-
-        // Announce that the initial layers have loaded.
-        Session.set('initialLayersLoaded', true);
     });
+}
     
-    // Download full score matrix index, which we later use for statistics. Note
-    // that stats won't work unless this finishes first. TODO: enforce this.
-    Meteor.call('getTsvFile', "matrices.tab", ctx.project,
-        function (error, parsed) {;
+initColormaps = function () {
 
-        // Matrix index is just <filename>
-
-        if (error) {
-            projectNotFound("matrices.tab");
-            return;
-        }
-
-        for(var i = 0; i < parsed.length; i++) {
-            // Pull out the parts of the TSV entry
-            // This is the filename of the matrix.
-            var matrix_name = parsed[i][0];
-            
-            if(matrix_name == "") {
-                // Not a real matrix
-                continue;
-            }
-            
-            // Add it to the global list
-            available_matrices.push(ctx.project + matrix_name);
-        }
-    });
-    
     // Download color map information
     Meteor.call('getTsvFile', "colormaps.tab", ctx.project,
-        function (error, parsed) {;
+        function (error, parsed) {
 
         // Colormap data is <layer name>\t<value>\t<category name>\t<color>
         // \t<value>\t<category name>\t<color>...
@@ -1128,13 +1086,8 @@ initHex = function () {
             colormaps[layer_name] = colormap;
         }
 
-        // We may need to redraw the view in response to having new color map 
-        // info, if it came particularly late.
-        refresh();
-            
+        //refresh(); TOD
+        Session.set('initializedColormaps', true);
     });
-
-    initLayout();
-	create_indexed_layers_array ();
-};
+}
 })(app);

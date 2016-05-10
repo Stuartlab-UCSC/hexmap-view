@@ -75,13 +75,13 @@ var app = app || {}; // jshint ignore:line
         });
     }
 
-    function assignmentValues (layout_index) {
+    function assignmentValues () {
 
         // Download the signature assignments to hexagons and fill in the global
         // hexagon assignment grid.
-        var file = "assignments" + layout_index +".tab"
+        var file = "assignments" + Session.get('layoutIndex') +".tab"
         Meteor.call('getTsvFile', file,
-            ctx.project, function (error, parsed) {;
+            ctx.project, function (error, parsed) {
 
             // This is an array of rows, which are arrays of values:
             // id, x, y
@@ -133,17 +133,9 @@ var app = app || {}; // jshint ignore:line
 
             // Trigger an idle event to initialize tools requiring polygons
             // to be drawn
-            setTimeout(function () {
-                initMapDrawn();
-                /*
-                // TODO This doesn't always work, so we need a better way
-                mapDrawnListener = google.maps.event.addListener(
-                    googlemap, 'idle', initMapDrawn);
-                var center = googlemap.getCenter()
-                googlemap.setCenter(new google.maps.LatLng(
-                    center.lat(), center.lng()));
-                */
-                }, 1000);
+            //setTimeout('initMapDrawn', 0);
+            
+            Session.set('initializedHexagons', true);
         });
     }
 
@@ -178,7 +170,11 @@ var app = app || {}; // jshint ignore:line
         });
     }
 
-    initHexagons = function (layout_index) {
-        assignmentValues(layout_index);
+    reInitHexagons = function () {
+        assignmentValues();
+    }
+
+    initHexagons = function () {
+        reInitHexagons();
     }
 })(app);

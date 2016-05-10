@@ -30,7 +30,8 @@
 }
 
 #menus.ui-widget.ui-menu,
-#selectMenu.ui-widget.ui-menu {
+#selectMenu.ui-widget.ui-menu,
+#helpMenu.ui-widget.ui-menu {
     height: 100%;
     font-size: 0.8em;
     line-height: 2.2em;
@@ -38,7 +39,8 @@
 }
 
 #menus .ui-widget.ui-menu,
-#selectMenu .ui-widget.ui-menu {
+#selectMenu .ui-widget.ui-menu,
+#helpMenu .ui-widget.ui-menu {
     border: none;
     padding: 0;
     margin: 0;
@@ -80,14 +82,14 @@
 .selectMenuLabel {
     font-size: 1em;
     padding-top: 0.2em;
-    padding-left: 2em;
+    padding-left: 4em;
 }
 
 .login.stacker.right {
     font-size: 1em;
-    margin-right: 12em;
+    margin-right: 5em;
     padding-top: 0.2em;
-    padding-left: 0.5em;
+    padding-left: 4em;
     padding-right: 0.5em;
 }
 
