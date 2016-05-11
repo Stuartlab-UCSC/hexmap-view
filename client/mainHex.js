@@ -137,7 +137,7 @@ googlemap; // our main googlemap instance
             }, 500);
 
             // Initialize the background functions.
-            //initOverlayNodes();
+            initOverlayNodes();
             initShortlist();
             initLegend();
             initCoords();
