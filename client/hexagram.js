@@ -257,6 +257,7 @@ fill_layer_metadata = function (container, layer_name) {
     // Empty the container.
     container.html("");
 
+    var binaryCountsProcessed = false;
     for(attribute in layers[layer_name]) {
         // Go through everything we know about this layer
         if(attribute == "data" || attribute == "url" || 
@@ -268,59 +269,94 @@ fill_layer_metadata = function (container, layer_name) {
             // TODO: Ought to maybe have all metadata in its own object?
             continue;
         }
+ 
+        var text;
+        if ((attribute === 'positives' || attribute === 'n')
+            && ctx.bin_layers.indexOf(layer_name) > -1) {
         
-        // This holds the metadata value we're displaying
-        var value = layers[layer_name][attribute];
-        
-        if(typeof value == "number" && isNaN(value)) {
-            // If it's a numerical NaN (but not a string), just leave it out.
-            continue;
-        }
-        
-        if(value == undefined) {
-            // Skip it if it's not actually defined for this layer
-            continue;
-        }
-        
-        // If we're still here, this is real metadata.
-        // Format it for display.
-        var value_formatted;
-        if(typeof value == "number") {
-            if(value % 1 == 0) {
-                // It's an int!
-                // Display the default way
-                value_formatted = value;
-            } else {
-                // It's a float!
-                // Format the number for easy viewing
-                value_formatted = value.toExponential(1);
+            // Special case these two attributes
+            if (binaryCountsProcessed) continue;
+ 
+            binaryCountsProcessed = true;
+ 
+            var n = Number(layers[layer_name].n),
+                p = Number(layers[layer_name].positives),
+                hexCount = Object.keys(polygons).length;
+ 
+            if (_.isNaN(n)) n = 0;
+            if (_.isNaN(p)) p = 0;
+ 
+            text = p + '/' + n + ' (' + (hexCount - n) + ' missing)';
+ 
+            if (n > hexCount) {
+                console.log('bad metadata: layer, n, hexCount',
+                    layer_name, layers[layer_name].n, hexCount);
             }
-        } else {
-            // Just put the thing in as a string
-            value_formatted = value;
+
+        } else {  // process the usual attributes
+ 
+            // This holds the metadata value we're displaying
+            var value = layers[layer_name][attribute];
+            
+            if(typeof value == "number" && isNaN(value)) {
+                // If it's a numerical NaN (but not a string), just leave it out.
+                continue;
+            }
+            
+            if(value == undefined) {
+                // Skip it if it's not actually defined for this layer
+                continue;
+            }
+            
+            // If we're still here, this is real metadata.
+            // Format it for display.
+            var value_formatted;
+            if (typeof value == "number") {
+                if(value % 1 == 0) {
+                    // It's an int!
+                    // Display the default way
+                    value_formatted = value;
+                } else {
+                    // It's a float!
+                    // Format the number for easy viewing
+                    value_formatted = value.toExponential(1);
+                }
+            } else {
+                // Just put the thing in as a string
+                value_formatted = value;
+            }
+ 
+            // Do a sanity check
+            if (attribute === 'n'
+                && value_formatted > Object.keys(polygons).length) {
+                console.log('bad metadata: layer, n, hexCount',
+                    layer_name, layers[layer_name].n, Object.keys(polygons).length);
+            }
+ 
+            // Do some transformations to make the displayed labels make more sense
+            lookup = {
+                n: "Number of non-empty values",
+                positives: "Number of ones",
+                inside_yes: "Ones in A",
+                outside_yes: "Ones in background",
+                clumpiness: "Density score",
+                p_value: "Single test p-value",
+                correlation: "Correlation",
+                adjusted_p_value: "BH FDR",
+                adjusted_p_value_b: "Bonferroni p-value",
+            }
+            
+            if (lookup[attribute]) {
+ 
+                if (lookup[attribute] === 'Number of ones') console.log(layer_name, value_formatted);
+                // Replace a boring short name with a useful long name
+                attribute = lookup[attribute];
+            }
+            text = attribute + " = " + value_formatted;
         }
         
-        // Do some transformations to make the displayed labels make more sense
-        lookup = {
-            n: "Number of non-empty values",
-            positives: "Number of ones",
-            inside_yes: "Ones in A",
-            outside_yes: "Ones in background",
-            clumpiness: "Density score",
-            p_value: "Single test p-value",
-            correlation: "Correlation",
-            adjusted_p_value: "BH FDR",
-            adjusted_p_value_b: "Bonferroni p-value",
-        }
-        
-        if(lookup[attribute]) {
-            // Replace a boring short name with a useful long name
-            attribute = lookup[attribute];
-        }
-        
-        // Make a spot for it in the container and put it in
         var metadata = $("<div\>").addClass("layer-metadata");
-        metadata.text(attribute + " = " + value_formatted);
+        metadata.text(text);
         
         container.append(metadata);
     }

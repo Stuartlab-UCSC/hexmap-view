@@ -48,6 +48,15 @@
     box-shadow: 4px 4px 4px #aaaaaa;
 }
 
+
+#helpMenu {
+    width: 5em;
+}
+
+#helpMenu ul {
+    width: 11em;
+}
+
 #menus .ui-menu-item a {
     padding-left: 0.7em;
 }
@@ -87,9 +96,9 @@
 
 .login.stacker.right {
     font-size: 1em;
-    margin-right: 5em;
+    margin-right: 8em;
     padding-top: 0.2em;
-    padding-left: 4em;
+    padding-left: 0.5em;
     padding-right: 0.5em;
 }
 

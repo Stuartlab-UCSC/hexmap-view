@@ -79,6 +79,8 @@ var app = app || {}; // jshint ignore:line
 
         // Download the signature assignments to hexagons and fill in the global
         // hexagon assignment grid.
+        if (Session.equals('initializedHexagons', true)) return;
+
         var file = "assignments" + Session.get('layoutIndex') +".tab"
         Meteor.call('getTsvFile', file,
             ctx.project, function (error, parsed) {

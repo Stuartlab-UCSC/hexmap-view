@@ -200,6 +200,7 @@ var app = app || {}; // jshint ignore:line
         if (Session.equals('page', 'homePage')) {
             $('body').find('.mapShow, .gridShow').hide();
             $('body').find('.homeShow').show();
+            Session.set('loadingMap', false);
  
         } else if (Session.equals('page', 'mapPage')) {
             $('body').find('.homeShow, .gridShow').hide();
@@ -208,12 +209,14 @@ var app = app || {}; // jshint ignore:line
             $('.methods').removeClass('ui-state-disabled');
             initSelect();
             $('.selectMenuLabel, #selectMenu').show();
+            Session.set('loadingMap', true);
  
         } else if (Session.equals('page', 'gridPage')) {
             $('body').find('.homeShow, .mapShow').hide();
             $('body').find('.gridShow').show();
             $('.mapLayout').removeClass('ui-state-disabled');
             $('.methods').addClass('ui-state-disabled');
+            Session.set('loadingMap', true);
         }
  
         // Set up the link to the map page
@@ -246,6 +249,7 @@ var app = app || {}; // jshint ignore:line
                 position: { my: "left top", at: "left bottom-7" },
                 icons: { submenu: "ui-icon-blank" },
                 select: selected,
+                position: { my: "right top", at: "right+60 bottom" },
             })
             .show();
     }
