@@ -327,8 +327,7 @@ var app = app || {}; // jshint ignore:line
                      var last_index = value.options.length - 1;
                      value.selectedIndex = last_index;   
                     }                
-                // Now that the right controls are there, assume they have 
-                refresh();
+                refreshColors();
          });
     }
 

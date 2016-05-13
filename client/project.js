@@ -118,7 +118,7 @@ var app = app || {}; // jshint ignore:line
             $('#s2id_project .select2-choice span')
                 .text(getHumanProject(ctx.project))
                 .removeClass('noProject');
-            Session.set('initializedProject', true);
+            Session.set('initedProject', true);
          }
  
          if (!ctx.project) {

@@ -189,7 +189,10 @@ var app = app || {}; // jshint ignore:line
 
     initSortAttrs = function () {
 
-        // Initialize the sort functions, happens once per app reload
+        // Initialize the sort functions
+
+        // Density sort is the default sort
+        find_clumpiness_stats(Session.get('layoutIndex'));
 
         // Initialize the reactive variables
         ui.set({

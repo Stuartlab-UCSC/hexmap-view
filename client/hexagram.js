@@ -31,9 +31,6 @@ colormaps = {}
 // This holds the Google Map that we use for visualization
 googlemap = null;
 
-// This holds a handle for the currently enqueued view redrawing timeout.
-var redraw_handle;
-
 // How many layer search results should we display at once?
 var SEARCH_PAGE_SIZE = 10;
 
@@ -362,10 +359,9 @@ fill_layer_metadata = function (container, layer_name) {
     }
 }
 
-InitMap = function () {
+createMap = function  () {
 
-    // Initialize the global Google Map.
-
+    // Create the google map.
     var mapOptions = {
         center: ctx.center,
         zoom: ctx.zoom,
@@ -408,19 +404,13 @@ InitMap = function () {
     
     // Subscribe all the tool listeners to the map
     subscribe_tool_listeners(googlemap);
-    
 }
-reInitMap = function () {
 
-	// Re_initialize the view because something changed that requires it
+initMap = function () {
 
-    // Save current map settings
-    if (googlemap) {
-        ctx.zoom = googlemap.getZoom();
-    }
-    InitMap ();
-    reInitLayout();
-    refresh ();
+    // Initialize the google map and create the hexagon assignments
+    createMap();
+    createHexagons();
 }
 
 have_colormap = function (colormap_name) {
@@ -457,24 +447,26 @@ function get_range_position(score, low, high) {
     return score;
 }
 
-refresh = function () {
+var refreshColorsHandle;
+
+refreshColors = function (delay) {
     // Schedule the view to be redrawn after the current event finishes.
     
     // Get rid of the previous redraw request, if there was one. We only want 
     // one.
-    window.clearTimeout(redraw_handle);
+    window.clearTimeout(refreshColorsHandle);
     
     // Make a new one to happen as soon as this event finishes
-    redraw_handle = Meteor.setTimeout(redraw_view, 0);
+    refreshColorsHandle = Meteor.setTimeout(refreshColorsInner, delay ? delay : 0);
 }
 
-function redraw_view() {
+function refreshColorsInner() {
     // Make the view display the correct hexagons in the colors of the current 
     // layer(s), as read from the values of the layer pickers in the global
     // layer pickers array.
     // All pickers must have selected layers that are in the object of 
     // layers.
-    // Instead of calling this, you probably want to call refresh().
+    // Instead of calling this, you probably want to call refreshColors().
     
     // This holds a list of the string names of the currently selected layers,
     // in order.
@@ -787,19 +779,7 @@ function mix2 (a, b, c, d, amount1, amount2) {
     return mix(mix(a, b, amount1), mix(c, d, amount1), amount2);
 }
 
-// Function to create a new map based upon the the layout_name argument Find the
-// index of the layout_name and pass it as the index to initialize the hexagons
-// as these files are indexed according to the appropriate layout.
-// Also pass it to the set clumpiness function to swap to the appropriate set
-// of clumpiness scores.
-function reInitLayout() {
-
-	var layout_index = Session.get('layoutIndex');
-	reInitHexagons(layout_index);
-	find_clumpiness_stats(layout_index);
-}
-
-function initLayersArray () {
+initLayersArray = function  () {
     Meteor.call('getTsvFile', "layers.tab", ctx.project,
         function (error, parsed) {;
 
@@ -827,7 +807,7 @@ function initLayersArray () {
 			var index_value = file_name.substring(underscore_index+1, period_index);
 			ctx.layer_names_by_index [index_value] = parsed[i][0];
 		 }
-         Session.set('initializedLayersArray', true);
+         Session.set('initedLayersArray', true);
     });
 }
 
@@ -885,9 +865,11 @@ initLayout = function () {
         // Define the event handler for the selecting in the list
         $("#layout-search").on('change', function (ev) {
             Session.set('layoutIndex', ev.target.value);
-            reInitMap ();
+            console.log('layout', layouts[Session.get('layoutIndex')]);
+            createMap();
+            initHexagons(true);
         });
-        Session.set('initializedLayout', true);
+        Session.set('initedLayout', true);
     });
 }
 
@@ -905,11 +887,6 @@ initHex = function () {
     // updated. We would rather use 'shortlist', but that produces an infinite
     // loop at times.
     Session.set('shortlistFilterUpdated', 0);
- 
-    initLayerTypes();
-    initLayerIndex();
-    initColormaps();
-    initLayersArray();
 
 /*
 	// Set up help buttons to open their sibling help dialogs.
@@ -966,7 +943,7 @@ initLayerTypes = function () {
             } // skip any lines we don't know about
         });
         
-        Session.set('initiatedLayertypes', true);
+        Session.set('initedLayerTypes', true);
 	});
 }
 
@@ -1043,7 +1020,7 @@ initLayerIndex = function () {
             }
         }
 
-        Session.set('initiatedLayerIndex', true);
+        Session.set('initedLayerIndex', true);
     });
 }
     
@@ -1099,7 +1076,7 @@ initColormaps = function () {
             colormaps[layer_name] = colormap;
         }
 
-        Session.set('initializedColormaps', true);
+        Session.set('initedColormaps', true);
     });
 }
 })(app);

@@ -398,10 +398,10 @@ var app = app || {}; // jshint ignore:line
         status('adjustForZoom() done');
     }
 
-    drawHexagons = function (points, pointNames) {
+    function drawPreSquiggleHexagons (points, pointNames) {
 
         // Set up the options common to all hexagons
-        status('drawHexagons()');
+        status('drawPreSquiggleHexagons()');
         var hexLen = HEX_LEN_SEED / Math.pow(2, ctx.gridZoom),
             add = hexLen / 20,
             hexOpts = {
@@ -446,7 +446,7 @@ var app = app || {}; // jshint ignore:line
             hexes[pointNames[i]] = hex;
             
         });
-        status('drawHexagons() done');
+        status('drawPreSquiggleHexagons() done');
  
         // Draw the grid if the user wants to
         if (Session.equals('viewWindows', true)) {
@@ -511,11 +511,11 @@ var app = app || {}; // jshint ignore:line
                         (row[1] * dims.scale / 2) + (xyMapSize / 4)];
             });
 
-            drawHexagons(xyPointsMap, pointNames);
+            drawPreSquiggleHexagons(xyPointsMap, pointNames);
         });
     }
 
-    function createMap () {
+    function createGridMap () {
  
         // Creates the google map for methods
         initMapType();
@@ -606,7 +606,7 @@ var app = app || {}; // jshint ignore:line
         initAutorun();
 
         // Initialize the grid map
-        createMap();
+        createGridMap();
  
         // Initalize utilities not dependent on the initial UI draw
         initInfoWindow (gridMap);

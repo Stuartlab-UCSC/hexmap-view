@@ -14,6 +14,9 @@ var app = app || {}; // jshint ignore:line
 
     // And how thick should the border be when drawn?
     var HEX_STROKE_WEIGHT = 2;
+ 
+    // The node assignments in honeycomb space
+    var assignments;
 
     function renderHexagon (row, column, overlayNode) {
 
@@ -59,6 +62,7 @@ var app = app || {}; // jshint ignore:line
     } 
 
     function setHexagonStroke(hexagon) {
+ 
         // Given a polygon, set the weight of hexagon's border stroke, in number of
         // screen pixels, and the border color.
 
@@ -75,13 +79,53 @@ var app = app || {}; // jshint ignore:line
         });
     }
 
-    function assignmentValues () {
+    createHexagons = function () {
+ 
+        // Create the hexagons from the assignments.
+        polygons = {};
+        _.each(assignments, function (hex, id) {
+            addHexagon (hex.x, hex.y, id);
+        });
+    }
 
+    addHexagon = function (x, y, label, overlayNode) {
+
+        // Make a hexagon on the Google map and store that.
+        // x and y are in object coordinates before transform to world xy coords
+        // overlayNode is optional
+        var hexagon = renderHexagon(y, x, overlayNode);
+
+        // Store by label
+        polygons[label] = hexagon;
+        
+        // Set the polygon's signature so we can look stuff up for it when 
+        // it's clicked.
+        hexagon.signature = label;
+    }
+
+    setHexagonStrokes = function () {
+
+        // Turns off hex borders if we zoom out far enough, and turn them on
+        // again if we come back.
+        for (var signature in polygons) {
+            setHexagonStroke(polygons[signature]);
+        }
+    }
+
+    setHexagonColor = function (hexagon, color) {
+
+        // Given a polygon, set the hexagon's fill color.
+        hexagon.setOptions({
+            fillColor: color
+        });
+    }
+
+    initHexagons = function (draw) {
+    
         // Download the signature assignments to hexagons and fill in the global
         // hexagon assignment grid.
-        if (Session.equals('initializedHexagons', true)) return;
-
         var file = "assignments" + Session.get('layoutIndex') +".tab"
+
         Meteor.call('getTsvFile', file,
             ctx.project, function (error, parsed) {
 
@@ -95,88 +139,23 @@ var app = app || {}; // jshint ignore:line
 
             // This holds the maximum observed x & y
             var max_x = max_y = 0;
-            polygons = {};
 
-            // Find the max x and y.
+            // Find the max x and y while storing the assignments
+            assignments = {};
             for (var i = 0; i < parsed.length; i++) {
                 var x = parseInt(parsed[i][1]),
                     y = parseInt(parsed[i][2]);
+                assignments[parsed[i][0]] = {x: x, y: y};
                 max_x = Math.max(x, max_x);
                 max_y = Math.max(y, max_y);
             }
 
             findDimensions(max_x, max_y);
-
-            // Loop through again and draw the polygons, now that
-            // we know how big they have to be.
-            for (var i = 0; i < parsed.length; i++) {
-
-                // Get the label
-                var label = parsed[i][0];
-                
-                if (label == "") {
-                    // Blank line
-                    continue;
-                }
-                
-                // Get the x coord
-                var x = parseInt(parsed[i][1]);
-                // And the y coord
-                var y = parseInt(parsed[i][2]);
-
-                addHexagon (x, y, label);
+            Session.set('initedHexagons', true);
+            if (draw) {
+                createHexagons();
+                refreshColors();
             }
-            
-            // Now that the polygons exist, do the initial redraw to set all
-            // their colors corectly. In case someone has messed with the
-            // controls.
-            // TODO: can someone yet have messed with the controlls?
-            refresh();
-
-            // Trigger an idle event to initialize tools requiring polygons
-            // to be drawn
-            //setTimeout('initMapDrawn', 0);
-            
-            Session.set('initializedHexagons', true);
         });
-    }
-
-    addHexagon = function (x, y, label, overlayNode) {
-
-        // Make a hexagon on the Google map and store that.
-        // x and y are in object coordinates before transform to world xy coords
-        var hexagon = renderHexagon(y, x, overlayNode);
-
-        // Store by label
-        polygons[label] = hexagon;
-        
-        // Set the polygon's signature so we can look stuff up for it when 
-        // it's clicked.
-        hexagon.signature = label;
-    }
-
-    // Turns off hex borders if we zoom out far enough, and turn them on
-    // again if we come back.
-    setHexagonStrokes = function () {
-        for (var signature in polygons) {
-            setHexagonStroke(polygons[signature]);
-        }
-    }
-
-    setHexagonColor = function (hexagon, color) {
-
-        // Given a polygon, set the hexagon's current background 
-        // color.
-        hexagon.setOptions({
-            fillColor: color
-        });
-    }
-
-    reInitHexagons = function () {
-        assignmentValues();
-    }
-
-    initHexagons = function () {
-        reInitHexagons();
     }
 })(app);

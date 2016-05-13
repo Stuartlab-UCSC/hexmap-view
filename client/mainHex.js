@@ -1,7 +1,5 @@
 // mainHex.js
 
-/* global stateCreate, GoogleMaps, initHex, print */
-
 var app = app || {}; // jshint ignore:line
 
 DEV = (URL_PORT !== '443' && URL_PORT !== '8443'); // true if on development server, false if not
@@ -118,18 +116,18 @@ googlemap; // our main googlemap instance
         $('#gridContent').height(windowHt - navHt);
     }
 
-    // Define the autotracker to find when the basic UI is drawn
-    Session.set('initializedHexagons', false);
+    // Autotracker to find when the basic UI is drawn
+    Session.set('initedHexagons', false);
     Session.set('initialiedLayers', false);
-    Session.set('initializedColormaps', false);
+    Session.set('initedColormaps', false);
     var checkUiDrawn = Tracker.autorun(isUiDrawn);
     function isUiDrawn () {
-        if (Session.get('initializedHexagons') &&
+        if (Session.get('initedHexagons') &&
             Session.get('retrievedLayerInfo') &&
-            Session.get('initializedColormaps')) {
+            Session.get('initedColormaps')) {
             checkUiDrawn.stop();
  
-            reInitMap();
+            initMap();
  
             // Turn off the loading progress wheel
             setTimeout(function () {
@@ -150,15 +148,13 @@ googlemap; // our main googlemap instance
         }
     }
  
-    // Define the autotracker to find when the layers are initialized
-    Session.set('initiatedLayertypes', false);
-    Session.set('initiatedLayerIndex', false);
-    Session.set('initializedLayersArray', false);
+    // Autotracker to find when the layers are initialized
+    Session.set('initedLayerTypes', false);
+    Session.set('initedLayersArray', false);
     var checkInitLayers = Tracker.autorun(areLayersInitialized);
     function areLayersInitialized () {
-        if (Session.get('initiatedLayertypes') &&
-            Session.get('initiatedLayerIndex') &&
-            Session.get('initializedLayersArray')) {
+        if (Session.get('initedLayerTypes') &&
+            Session.get('initedLayersArray')) {
             checkInitLayers.stop();
  
             initSortAttrs();
@@ -169,32 +165,45 @@ googlemap; // our main googlemap instance
         }
     }
 
-    // Define the autotracker to find when the layout is initialized
-    Session.set('initializedLayout', false);
+    // Autotracker to find when the layer index is initialized
+    Session.set('initedLayerIndex', false);
+    var checkInitLayerIndex = Tracker.autorun(isLayerIndexInitialized);
+    function isLayerIndexInitialized () {
+        if (Session.get('initedLayerIndex')) {
+            checkInitLayerIndex.stop();
+ 
+            initLayersArray();
+        }
+    }
+ 
+    // Autotracker to find when the layout is initialized
+    Session.set('initedLayout', false);
     var checkInitLayout = Tracker.autorun(isLayoutInitialized);
     function isLayoutInitialized () {
-        if (Session.get('initializedLayout')) {
+        if (Session.get('initedLayout')) {
             checkInitLayout.stop();
  
             initHexagons();
         }
     }
  
-    // Define the autotracker to find when the map prep is complete
-    Session.set('initializedProject', false);
-    Session.set('initializedMapContainer', false);
-    Session.get('initializedMapType', false);
+    // Autotracker to find when the map prep is complete
+    Session.set('initedProject', false);
+    Session.set('initedMapContainer', false);
+    Session.get('initedMapType', false);
     var checkReadyForMap = Tracker.autorun(areWeReadyForMap);
     function areWeReadyForMap () {
-        if (Session.get('initializedProject') &&
-            Session.get('initializedMapContainer') &&
-            Session.get('initializedMapType')) {
+        if (Session.get('initedProject') &&
+            Session.get('initedMapContainer') &&
+            Session.get('initedMapType')) {
             checkReadyForMap.stop();
  
             initMapType();
-            InitMap();
             initLayout();
             initHex();
+            initLayerTypes();
+            initLayerIndex();
+            initColormaps();
         }
     }
 
@@ -204,7 +213,7 @@ googlemap; // our main googlemap instance
             $(window).resize(resizeMap);
             $('#shortlist-holder').css('top', $('#toolbar').height());
             ctx.center = centerToLatLng(ctx.center);
-            Session.set('initializedMapContainer', true);
+            Session.set('initedMapContainer', true);
         }, 0);
     };
 

@@ -79,8 +79,8 @@ var app = app || {}; // jshint ignore:line
                     
                 print("Scaled to range " + minBound + " to " + maxBound);
                     
-                // Redraw the view in case this changed anything
-                refresh();
+                // Refresh the colors in case this changed anything
+                refreshColors();
             }
             
         });
@@ -135,12 +135,12 @@ var app = app || {}; // jshint ignore:line
             // Select the appropriate option on first opening and update the UI
             filter_value.val(first);
             filterSelector.set(layer_name, parseInt(first));
-            refresh();
+            refreshColors();
 
             // Define the event handler for selecting an item
             filter_value.on('change', function (ev) {
                 filterSelector.set(layer_name, parseInt(ev.target.value));
-                refresh();
+                refreshColors();
             });
         }
     }
@@ -246,9 +246,8 @@ var app = app || {}; // jshint ignore:line
                     // TODO the below is negating the above
                     created = false;			
                 });
-    
-                // Now that the right controls are there, assume they have 
-                refresh();
+     
+                refreshColors();
             });
         } else {
 
@@ -262,8 +261,8 @@ var app = app || {}; // jshint ignore:line
             filter_threshold.hide();
             save_filter.hide();
 
-            // Draw view since we're no longer filtering on this layer.
-            refresh();
+            // Refresh the colors since we're no longer filtering on this layer.
+            refreshColors();
         }
     }
 
@@ -292,11 +291,9 @@ var app = app || {}; // jshint ignore:line
         filter_holder.append(filter_threshold);
         filter_threshold.hide();
 
-        // TODO: Add a longer delay before refreshing here so the user can type more
-        // interactively.
         filter_threshold.keyup(function (ev) {
             filterThreshold.set(layer_name, parseInt(ev.target.value));
-            refresh();
+            refreshColors(1000);
         });
 
         // Add a select input to pick from a discrete list of values to filter on
@@ -417,11 +414,11 @@ var app = app || {}; // jshint ignore:line
                 // Enabling this checkbox puts us over the edge, so un-check it
                 $(this).prop("checked", false);
                 
-                // Skip the redraw
+                // Skip the color refresh
                 return;
             }
         
-            refresh();
+            refreshColors();
         });
         
         // Run the removal process
@@ -438,9 +435,9 @@ var app = app || {}; // jshint ignore:line
             // Make the UI match the list.
             updateShortlist();
             if(checkbox.is(":checked") || filterControl.equals(layer_name, true)) {
-                // Re-draw the view since we were selected (as coloring or filter) 
+                // Refresh the colors since we were selected (as coloring or filter)
                 // before removal.
-                refresh();
+                refreshColors();
             }
 
         });
@@ -461,9 +458,9 @@ var app = app || {}; // jshint ignore:line
                 // Make the UI match the list.
                 updateShortlist();
                 if(checkbox.is(":checked") || filterControl.equals(layer_name, true)) {
-                    // Re-draw the view since we were selected (as coloring or filter) 
+                    // Refresh the colors since we were selected (as coloring or filter)
                     // before removal.
-                    refresh();
+                    refreshColors();
                 }
 
                 // Remove from layers lists and data type list
@@ -508,8 +505,8 @@ var app = app || {}; // jshint ignore:line
             change: update_range_display,
             stop: function(event, ui) {
                 // The user has finished sliding
-                // Draw the view. We will be asked for our values
-                refresh();
+                // Refresh the colors. We will be asked for our values
+                refreshColors();
             }
         });
         
@@ -579,7 +576,7 @@ var app = app || {}; // jshint ignore:line
         // Be sure to re-draw the view if the order changes, after the user puts 
         // things down.
         $("#shortlist").sortable({
-            update: refresh,
+            update: refreshColors,
             // Sort by the part with the lines icon, so we can still select text.
             handle: ".shortlist-controls" 
         });

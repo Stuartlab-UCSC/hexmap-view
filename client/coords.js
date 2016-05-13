@@ -307,5 +307,5 @@ var app = app || {}; // jshint ignore:line
         google.maps.event.addListener(map, 'mousemove', coordsMouseMove);
     }
  
-    Session.set('initializedMapType', true);
+    Session.set('initedMapType', true);
 })(app);
