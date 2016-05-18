@@ -19,7 +19,7 @@ var app = app || {}; // jshint ignore:line
     function getHumanProject (project) {
  
         // Transform a project from dir structure to display for humans
-        return project.slice(5, -1);
+        return project.slice(0, -1);
 	};
 
     // Define a Project class.
@@ -41,11 +41,11 @@ var app = app || {}; // jshint ignore:line
             var data = {text: major};
             if (minors.length) {
                 data.children = _.map(minors, function (minor) {
-                    id = 'data/' + major + '/' + minor + '/';
+                    id = major + '/' + minor + '/';
                     return { id: id, text: minor };
                 })
             } else {
-                data.id = 'data/' + major + '/';
+                data.id = major + '/';
             }
             return data;
         });

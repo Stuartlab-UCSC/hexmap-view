@@ -58,16 +58,16 @@ readFromJsonFileSync = function (filename) {
 }
 
 readFromJsonBaseFile = function (baseFilename) {
-    return readFromJsonFileSync(DATA_DIR + baseFilename);
+    return readFromJsonFileSync(VIEW_DATA_DIR + baseFilename);
 }
 
 getTsvFile = function (filename, project, unparsed, future) {
     var path;
     
     if (filename.indexOf('layer_') > -1 || filename.indexOf('stats') > -1) {
-        path = DATA_DIR + filename;
+        path = VIEW_DATA_DIR + filename;
     } else {
-        path = DATA_DIR + project + filename;
+        path = VIEW_DATA_DIR + project + filename;
     }
 
     if (fs.existsSync(path)) {
@@ -116,7 +116,7 @@ Meteor.methods({
         }
 
         // Make a project data directory string usable by the server code.
-        parms.directory = DATA_DIR + parms.directory;
+        parms.directory = VIEW_DATA_DIR + parms.directory;
 
         // Write the parms to a temporary file so we don't overflow the stdout
         // buffer.

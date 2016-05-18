@@ -55,7 +55,7 @@ googlemap; // our main googlemap instance
         },
 
         "click .thumbnail": function (ev){
-            var project = 'data/' + $(ev.currentTarget).data('project') + '/';
+            var project = $(ev.currentTarget).data('project') + '/';
             ctx.save(project);
             queryFreeReload();
         },
