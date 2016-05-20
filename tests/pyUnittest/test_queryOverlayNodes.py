@@ -3,12 +3,16 @@
 # This tests javascript, using python's easer calls to shell commands
 # from here than from mocha
 
-import sys, os, subprocess, tempfile
+import sys, os, subprocess, json, tempfile
+import string
 import unittest
 
 class TestQueryOverlayNodes(unittest.TestCase):
 
-    unittest.TestCase.curlUrl = "localhost:3000/query/overlayNodes"
+    unittest.TestCase.appInstallDir = '/Users/swat/dev/hexagram'
+    unittest.TestCase.port = "localhost:3333"
+    unittest.TestCase.curlUrl = unittest.TestCase.port + "/query/overlayNodes"
+    unittest.TestCase.tempDir = '/tmp'
 
     def cleanDataOut(s, dataOut):
         data = dataOut
@@ -40,7 +44,10 @@ class TestQueryOverlayNodes(unittest.TestCase):
         os.remove(outfile)
         os.remove(errfile)
         return {'data': data, 'code': code}
-
+    
+    def expectedResults(s):
+        return '{"Sample #1":{"local neighborhood":{"TCGA-4J-AA1J-01":0.9977276,"TCGA-AJ-A3EM-01":0.9890932,"TCGA-DQ-7589-01":0.9929598,"TCGA-HT-7686-01":0.990232,"TCGA-KS-A4IB-01":0.9940576,"TCGA-N7-A4Y5-01":0.9988113},"median metric":0.9935087,"url":"https://tumormap.ucsc.edu/?p=CKCC/v1&x=200.5&y=226.5","x":200.5,"y":226.5},"Sample #2":{"local neighborhood":{"TCGA-4J-AA1J-01":0.9999689,"TCGA-DQ-7589-01":0.9917174,"TCGA-DW-7836-01":0.9886427,"TCGA-KS-A4IB-01":0.9987738,"TCGA-LH-A9QB-06":0.9927174,"TCGA-N7-A4Y5-01":0.9999419},"median metric":0.9957456,"url":"https://tumormap.ucsc.edu/?p=CKCC/v1&x=252.5&y=241.5","x":252.5,"y":241.5}}\n'
+    
     def test_methodCheck(s):
         opts = ['-X', 'GET', '-v']
         rc = s.doCurl(opts)
@@ -103,22 +110,53 @@ class TestQueryOverlayNodes(unittest.TestCase):
         s.assertTrue(rc['data'] == 'The only map layout available is ' + "mRNA")
     
     def test_bookmarkStub(s):
-        data = '{"testBookmarkStub": "yes", "map": "CKCC/v1", "layout": "mRNA", "nodes": {}}'
-        resData = '{"bookmark":"http://localhost:3000/?b=18XFlfJG8ijJUVP_CYIbA3qhvCw5pADF651XTi8haPnE"}\n'
+        data = '{"TESTbookmarkStub": "yes", "map": "CKCC/v1", "layout": "mRNA", "nodes": {}}'
+        resData = '{"bookmark":"http://' + unittest.TestCase.port + '/?b=18XFlfJG8ijJUVP_CYIbA3qhvCw5pADF651XTi8haPnE"}\n'
         opts = ['-d', data, '-H', 'Content-Type:application/json', '-X', 'POST', '-v']
         rc = s.doCurl(opts)
         s.assertTrue(rc['code'] == '200')
         s.assertTrue(rc['data'] == resData)
-    """
+    
     def test_pythonCallStub(s):
-        data = '{"testPythonCallStub": "yes", "map": "CKCC/v1", "layout": "mRNA", "nodes": {"node1": {"gene1": "1", "gene2": "2"}, "node2": {"gene1": "3", "gene2": "4"}}}'
-        resData = '{"bookmark":"http://localhost:3000/?b=18XFlfJG8ijJUVP_CYIbA3qhvCw5pADF651XTi8haPnE"}\n'
+        data = '{"TESTpythonCallStub": "yes", "map": "CKCC/v1", "layout": "mRNA", "nodes": {"node1": {"gene1": "1", "gene2": "2"}, "node2": {"gene1": "3", "gene2": "4"}}}'
+        resData = '{"TESTpythonCallStub":"success"}\n';
         opts = ['-d', data, '-H', 'Content-Type:application/json', '-X', 'POST', '-v']
         rc = s.doCurl(opts)
-        print 'data: ##', rc['data'], '##'
-        print 'code: ##', rc['code'], '##'
         s.assertTrue(rc['code'] == '200')
         s.assertTrue(rc['data'] == resData)
-    """
+    
+    def test_pythonCallGoodData(s):
+        data = '{"TESTpythonCall": "yes", "map": "CKCC/v1", "layout": "mRNA", "nodes": {"node1": {"gene1": "1", "gene2": "2"}, "node2": {"gene1": "3", "gene2": "4"}}}'
+        resData = s.expectedResults()
+        opts = ['-d', data, '-H', 'Content-Type:application/json', '-X', 'POST', '-v']
+        rc = s.doCurl(opts)
+        s.assertTrue(rc['code'] == '200')
+        s.assertTrue(rc['data'] == resData)
+    
+    def test_pythonCallGoodDataBookmark(s):
+        data = '{"TESTpythonCallBookmark": "yes", "map": "CKCC/v1", "layout": "mRNA", "nodes": {"node1": {"gene1": "1", "gene2": "2"}, "node2": {"gene1": "3", "gene2": "4"}}}'
+        resData = '{"bookmarks":["https://tumormap.ucsc.edu/?p=CKCC/v1&x=200.5&y=226.5","https://tumormap.ucsc.edu/?p=CKCC/v1&x=252.5&y=241.5"]}\n'
+        opts = ['-d', data, '-H', 'Content-Type:application/json', '-X', 'POST', '-v']
+        rc = s.doCurl(opts)
+        s.assertTrue(rc['code'] == '200')
+        s.assertTrue(rc['data'] == resData)
+    
+    def test_pythonCallViaBash(s):
+        resultsFile = 'overlayNodesResults.json'
+        resData = s.expectedResults()
+        command = [
+            'overlayNodes.sh',
+            s.appInstallDir,
+            s.tempDir,
+            resultsFile
+        ]
+        subprocess.check_call(command);
+
+        # Compare expected to actual results after normalizing to the most compact json
+        with open(s.tempDir + '/' + resultsFile, 'r') as f:
+            data = json.dumps(json.load(f), sort_keys=True, separators=(',', ':'))
+            resData2 = json.dumps(json.loads(resData), sort_keys=True, separators=(',', ':'))
+        s.assertTrue(data == resData2)
+
 if __name__ == '__main__':
     unittest.main()

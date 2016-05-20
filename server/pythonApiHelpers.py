@@ -5,54 +5,57 @@ This has helper functions to read and write json-formatted files.
 There is also an example of calling these helper functions: callHelpersExample
 """
 
-import sys, json, tempfile, traceback, pprint
+import sys, math, json, tempfile, traceback, pprint
+
+def sigDigs(x, sig=7):
+
+    if sig < 1:
+        raise ValueError("number of significant digits must be >= 1")
+
+    if math.isnan(x):
+        return 1
+
+    # Use %e format to get the n most significant digits, as a string.
+    format = "%." + str(sig-1) + "e"
+    return float(format % x)
 
 def readJsonRequestData(jsonRequestFilename):
 
     # This reads the json-formatted file and returns it's data as a python dict.
-    # On error a one is returned.
+    # Returns 0 on success, 1 on error.
 
     # Read the json-formatted data from the file
     try:
         with open(jsonRequestFilename, 'rU') as f:
-            jsonData = f.read();
+            requestData = json.load(f)
     except:
         print 'Error: json file:', jsonRequestFile, 'could not be read', '\n'
-        return 1
-
-    # Transform the json-formatted data to a python dict
-    try:
-        requestData = json.loads(jsonData);
-    except:
-        print 'Error: json file:', jsonRequestFilename, 'is not valid json', '\n'
         return 1
 
     return requestData
 
 def writeJsonResponseData(responseData):
 
-    # This transforms the dict into json format and writes it to a file.
-    # On error a one is returned; on success a zero is returned.
+    # This creates a temporary file, transforms the dict into json format,
+    # then writes it to the temporary file.
+    # Returns 0 on success, 1 on error.
 
-    # Transform the python dict to json format
-    try:
-        jsonData = json.dumps(responseData)
-    except:
-        print 'Error: the response data could not be transformed into json format', '\n'
-        return 1
-    
-    # Create and write the temporary file
-    # Note that the caller will remove this temporary file
+    # Create a temporary file
     try:
         fileHandle, filename = tempfile.mkstemp(suffix='.json')
-        fileHandle = open(filename, 'w')
-        fileHandle.write(jsonData)
     except:
-        print 'Error: the response data could not be written to the temporary file', '\n'
+        print 'Error:the response file could not be created', '\n'
         return 1
 
-    # Write the filename to stdout for the caller to pick up
-    print filename, '\n'
+    # Write the data to the file as json
+    try:
+        with open(filename, 'w') as f:
+            json.dump(responseData, f, sort_keys=True, indent=4)
+    except:
+        print 'Error:the response data could not be transformed into json format'
+        return 1
+
+    print filename
     return 0
 
 def callHelpersExample(jsonRequestFile):

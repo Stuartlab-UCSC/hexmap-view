@@ -168,7 +168,7 @@ function sendNewUserMail(user) {
             + msg
             + ' hexmap@ucsc.edu';
 
-    console.log(msg);
+    console.log('command:', command);
     exec(command, function (error, stdout, stderr) {
         if (error) {
             console.log('sendNewUserMail had an error:', error);

@@ -2,6 +2,9 @@
 // httpQuery.js
 // Receive and respond to incoming HTTP requests according to the query API
 
+var Future = Npm.require('fibers/future');
+var exec = Future.wrap(Npm.require('child_process').exec);
+
 var url = Meteor.absoluteUrl();
 
 function respond (code, res, msg) {
@@ -80,39 +83,114 @@ saveBookmark = function(state) {
     return id
 }
 
-function overlayNodesGetXy(dataIn) {
+function sendMail(users, subject, msg) {
 
-    // For now this is a stub and we return the positions for our mock samples.
-    var xyData = '{"map": "CKCC/v1", "layout": "mRNA", "nodes": {"PNOC003-009": {"x": "64.5", "y": "228.3333333"}, "PNOC003-011": {"x": "43", "y": "227.1666667"}}}';
-    return JSON.parse(xyData);
+    // Send mail to user(s) with the given subject and message.
+    // TODO handle email array or singleton
+    var command =
+        'echo "'
+        + msg
+        + '" | '
+        + 'mail -s "'
+        + subject
+        + '" '
+        + users;
+
+    exec(command, function (error, stdout, stderr) {
+        if (error) {
+            console.log('sendMail had an error:', error);
+        }
+    });
 }
 
-function overlayNodes(dataIn, res) {
-
-    // Process the data in the overlayNodes request.
+function overlayNodes (dataIn, res) {
     
+    // Process the data in the overlayNodes request where dataIn is the
+    // request data as a javascript object.
+    
+    // Let the validator send the response on invalid data.
     if (!passOverlayNodeChecks(dataIn, res)) return;
     
-    if (dataIn.hasOwnProperty('testBookmarkStub')) {
+    // Set up some static options for the python call
+    var opts = {
+        neighborhood_size: 6,
+        num_jobs: 0,
+        data: dataIn,
+    };
+    
+    if (dataIn.TESTbookmarkStub) {
 
         // Return this fake URL for this test
-        var dataOut = {bookmark: url + "?b=18XFlfJG8ijJUVP_CYIbA3qhvCw5pADF651XTi8haPnE"};
-        respond(200, res, dataOut);
+        respond(200, res, {bookmark: url + "?b=18XFlfJG8ijJUVP_CYIbA3qhvCw5pADF651XTi8haPnE"});
+        return;
+    } else if (dataIn.TESTpythonCall || dataIn.TESTpythonCallBookmark) {
 
+        // Point to the test data for this test
+        opts.in_pivot = TEST_DATA_DIR + 'overlayNodesQuery.json';
+        opts.in_meta = TEST_DATA_DIR + 'overlayNodesMeta.json';
+        opts.out_file = TEMP_DIR + 'overlayNodesGetXyResults.json';
+        opts.log = TEMP_DIR + 'overlayNodes.log';
     } else {
-        var xyData = overlayNodesGetXy(dataIn);
+    
+        // Build up the filenames
+        //TODO
+    }
+    
+    callPython('compute_pivot_vs_background', opts, function (result) {
+        
+        if (result.code !== 0) {
+            respond(500, res, result.data);
+            return;
+        }
+        
+        var dataIn = opts.data,
+            data = result.data;
+        
+        if (dataIn.TESTpythonCallStub || dataIn.TESTpythonCall) {
+            respond(result.code === 0 ? 200 : 500, res, data);
+            return;
+        }
+        
+        // Send the http response to the original caller
+        var urls = _.map(data, function (node) {
+            return node.url;
+        });
+        respond(200, res, {bookmarks: urls});
+        
+        // Send email to interested parties
+            
+        // TODO for testing then remove
+        dataIn.email = 'hexmap.ucsc.edu';
+        //dataIn.email = ['hexmap.ucsc.edu', 'swat@soe.ucsc.edu'];
+        
+        var subject = 'tumor map results: ',
+            msg = 'The tumor map calculation of overlay node position is complete for map: '
+                + dataIn.map
+                + ', layout: '
+                + dataIn.layout
+                + ' and available for viewing.\n\n';
+        
+        _.each(data, function (node, nodeName) {
+            msg += nodeName + ' : ' + node.url + '\n';
+            subject += node.url + ' ';
+        });
+        
+        sendMail(dataIn.email, subject, msg);
+
+        /* TODO bookmarks for later
         var state = {
             page: 'mapPage',
-            project: 'data/' + xyData.map + '/',
+            project: xyData.map + '/',
             current_layout_name: xyData.layout,
             overlayNodes: xyData.nodes,
         };
         var bookmark = saveBookmark(state);
         respond(200, res, {bookmark: url + '?b=' + bookmark});
-    }
+        */
+    });
 }
 
-function passBasicChecks (req, res) {
+function passHttpChecks (req, res) {
 
     // Do some basic checks on the request headers, returning false if not passing.
 
@@ -131,12 +209,16 @@ function passBasicChecks (req, res) {
     return true;
 }
 
+respondToHttp = function (code, res, msg) {
+    respond(code, res, msg);
+}
+
 WebApp.connectHandlers.use("/query/overlayNodes", function(req, res, next) {
     
     // Receive query requests and process them
     // TODO use this to process all queries, not just overlayNodes
     
-    if (!passBasicChecks(req, res)) {
+    if (!passHttpChecks(req, res)) {
         return;
     }
     
@@ -149,7 +231,7 @@ WebApp.connectHandlers.use("/query/overlayNodes", function(req, res, next) {
         jsonDataIn += chunk;
     });
     
-    // Process the data in this requests
+    // Process the data in this request
     req.on('end', function () {
     
         //console.log('jsonDataIn:', jsonDataIn);

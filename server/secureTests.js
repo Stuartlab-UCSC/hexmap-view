@@ -140,7 +140,7 @@ function runUnitTests () {
     }
     
     // Read the roles file in a public data directory
-    var project = 'data/mcrchopra/first';
+    var project = 'mcrchopra/first';
     var metaJson = project + '/meta.json';
     var roles = readFromJsonBaseFile(metaJson).roles;
     

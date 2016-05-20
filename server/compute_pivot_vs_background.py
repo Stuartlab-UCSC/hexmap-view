@@ -1,3 +1,4 @@
+#!/usr/bin/env python2.7
 #Yulia Newton
 #python2.7 compute_pivot_vs_background.py --in_pivot temp.json --in_meta meta.json --out_file out.tab --log log.tab --num_jobs 0 --neighborhood_size 6
 
@@ -10,7 +11,22 @@ import time
 import json
 import multiprocessing
 import warnings
+import traceback
+from pythonApiHelpers import sigDigs
+
 VALID_METRICS = ['canberra','cosine','euclidean','manhattan','chebyshev','correlation','hamming','jaccard','rogerstanimoto']
+
+def parse_args(args):
+	parser = optparse.OptionParser()
+	parser.add_option("--in_pivot", dest="in_pivot", action="store", default="", help="")
+	parser.add_option("--in_meta", dest="in_meta", action="store", default="", help="")
+	parser.add_option("--project", dest="project", action="store", default="", help="")
+	parser.add_option("--out_file", dest="out_file", action="store", default="", help="")
+	parser.add_option("--log", dest="log", action="store", default="", help="")
+	parser.add_option("--num_jobs", dest="num_jobs", action="store", default="0", help="http://scikit-learn.org/stable/modules/generated/sklearn.metrics.pairwise.pairwise_distances.html")	
+	parser.add_option("--neighborhood_size", dest="neighborhood_size", action="store", default="6", help="")
+	opts, args = parser.parse_args()
+	return (opts);
 
 def read_tabular(input_file, numeric_flag):
 	data = open(input_file, 'r')
@@ -87,18 +103,23 @@ def byteify(input):
 	else:
 		return input
 
-def main():
+def main(opts):
+
+	"""
+	via bash: 
+	opts: {
+		"in_meta": "/Users/swat/dev/hexagram/tests/pyUnittest/testData/overlayNodesMeta.json",
+		"in_pivot": "/Users/swat/dev/hexagram/tests/pyUnittest/testData/overlayNodesQuery.json",
+		"log": "/tmp/overlayNodes.log",
+		"neighborhood_size": "6",
+		"num_jobs": "0",
+		"out_file": "/tmp/overlayNodesResults.json",
+		"project": ""
+	}
+	"""
+
 	start_time = time.time()
-	
-	parser = optparse.OptionParser()
-	parser.add_option("--in_pivot", dest="in_pivot", action="store", default="", help="")
-	parser.add_option("--in_meta", dest="in_meta", action="store", default="", help="")
-	parser.add_option("--out_file", dest="out_file", action="store", default="", help="")
-	parser.add_option("--log", dest="log", action="store", default="", help="")
-	parser.add_option("--num_jobs", dest="num_jobs", action="store", default="0", help="http://scikit-learn.org/stable/modules/generated/sklearn.metrics.pairwise.pairwise_distances.html")	
-	parser.add_option("--neighborhood_size", dest="neighborhood_size", action="store", default="6", help="")
-	opts, args = parser.parse_args()
-	
+
 	#process input arguments:
 	in_file1 = opts.in_pivot
 	in_meta = opts.in_meta
@@ -147,9 +168,9 @@ def main():
 	if not(meta["map"] == map):
 		print >> sys.stderr, "ERROR: meta data file does not match the requested map."
 		sys.exit(1)
-	in_file2 = meta["layouts"][layout]["genomic_data"]
+	in_file2 = meta["layouts"][layout]["featureSpaceFile"]
 	metric_type = meta["layouts"][layout]["metric"]
-	map_positions = meta["layouts"][layout]["map_positions"]
+	map_positions = meta["layouts"][layout]["nodePostSquiggleFile"]
 	if not(metric_type in VALID_METRICS):
 		print >> sys.stderr, "ERROR: invalid metric specified in meta file"
 		sys.exit(1)	
@@ -236,10 +257,10 @@ def main():
 			v=list(sample_dict.values())
 			k=list(sample_dict.keys())
 			m=v.index(max(v))
-			results[sample_labels1[i]]['local neighborhood'][k[m]] = v[m]
+			results[sample_labels1[i]]['local neighborhood'][k[m]] = sigDigs(v[m])
 			neighborhood_metrics.append(v[m])
 			del sample_dict[k[m]]
-		results[sample_labels1[i]]['median metric'] = numpy.median(neighborhood_metrics)
+		results[sample_labels1[i]]['median metric'] = sigDigs(numpy.median(neighborhood_metrics))
 	if len(log_file) > 0:
 		print >> log, str(time.time() - curr_time) + " seconds"
 		
@@ -287,4 +308,20 @@ def main():
 	if len(log_file) > 0:
 		print >> log, "--- %s seconds ---" % (time.time() - start_time)
 		log.close()
-main()
+
+	return 0
+
+def fromNodejs(opts):
+	class Struct:
+		def __init__(self, **entries):
+			self.__dict__.update(entries)
+
+	return main(Struct(**opts))
+
+if __name__ == "__main__" :
+	try:
+		return_code = main(parse_args(sys.argv))
+	except:
+		traceback.print_exc()
+		return_code = 1
+	sys.exit(return_code)

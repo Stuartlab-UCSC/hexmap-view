@@ -5,7 +5,7 @@ var fs = Npm.require('fs');
 
 var majors;
 var projects = {};
-var dataDir = VIEW_DATA_DIR;
+var dataDir = VIEW_DIR;
 
 function isDataDir (entry, major) {
 

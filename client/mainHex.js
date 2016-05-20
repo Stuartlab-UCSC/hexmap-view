@@ -3,7 +3,6 @@
 var app = app || {}; // jshint ignore:line
 
 DEV = (URL_PORT !== '443' && URL_PORT !== '8443'); // true if on development server, false if not
-ctx = null; // State
 layers = {}; // contains almost all information about attributes
 googlemap; // our main googlemap instance
 
@@ -126,25 +125,27 @@ googlemap; // our main googlemap instance
             Session.get('retrievedLayerInfo') &&
             Session.get('initedColormaps')) {
             checkUiDrawn.stop();
+            Meteor.setTimeout(function () {
  
-            initMap();
- 
-            // Turn off the loading progress wheel
-            setTimeout(function () {
-                Session.set('loadingMap', false)
-            }, 500);
+                initMap();
+     
+                // Turn off the loading progress wheel
+                setTimeout(function () {
+                    Session.set('loadingMap', false)
+                }, 500);
 
-            // Initialize the background functions.
-            initOverlayNodes();
-            initShortlist();
-            initLegend();
-            initCoords();
-            initLabelTool();
-            initDownload();
-            initColors();
-            initInfoWindow();
-            initSetOperations();
-            //initDiffAnalysis();
+                // Initialize the background functions.
+                initOverlayNodes();
+                initShortlist();
+                initLegend();
+                initCoords();
+                initLabelTool();
+                initDownload();
+                initColors();
+                initInfoWindow();
+                initSetOperations();
+                //initDiffAnalysis();
+            }, 0);
         }
     }
  

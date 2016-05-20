@@ -15,8 +15,8 @@ var path = Npm.require('path');
 // TODO these dirs may need to be different with built meteor
 // There must be a better way to do this for dev and built
 // Maybe move these files to a directory the client can see?
-var serverDir = '../../../../../server/';
-function writeToTempFile (data, fileExtension) {
+SERVER_DIR = '../../../../../server/';
+writeToTempFile = function (data, fileExtension) {
 
     // Write arbitrary data to a file, blocking until the write is complete
     var filename = os.tmpdir() + '/' + crypto.randomBytes(4).readUInt32LE(0);
@@ -58,16 +58,16 @@ readFromJsonFileSync = function (filename) {
 }
 
 readFromJsonBaseFile = function (baseFilename) {
-    return readFromJsonFileSync(VIEW_DATA_DIR + baseFilename);
+    return readFromJsonFileSync(VIEW_DIR + baseFilename);
 }
 
 getTsvFile = function (filename, project, unparsed, future) {
     var path;
     
     if (filename.indexOf('layer_') > -1 || filename.indexOf('stats') > -1) {
-        path = VIEW_DATA_DIR + filename;
+        path = VIEW_DIR + filename;
     } else {
-        path = VIEW_DATA_DIR + project + filename;
+        path = VIEW_DIR + project + filename;
     }
 
     if (fs.existsSync(path)) {
@@ -103,72 +103,4 @@ Meteor.methods({
         return getTsvFile(filename, project, unparsed, future);
     },
 
-    pythonCall: function (pythonCallName, parms, fromServer) {
-
-        // Call a python function named pythonCallName passing the parms
-        this.unblock();
-        var future = new Future();
-
-        // Create temp file if the client wants us to
-        // TODO is this used?
-        if (parms.hasOwnProperty('tempFile')) {
-            parms.tempFile = writeToTempFile('junk');
-        }
-
-        // Make a project data directory string usable by the server code.
-        parms.directory = VIEW_DATA_DIR + parms.directory;
-
-        // Write the parms to a temporary file so we don't overflow the stdout
-        // buffer.
-        var pythonDir = serverDir,
-            parmFile = writeToTempFile(JSON.stringify({parm: parms}));
-        
-        if (fromServer) {
-            pythonDir = '';
-        }
-
-        var command =
-            'python '
-            + pythonDir
-            + pythonCallName
-            + ".py '"
-            + parmFile
-            + "'";
-
-        exec(command, function (error, stdout, stderr) {
-            if (error) {
-                future.throw(error);
-            } else {
-
-                var data,
-                    result = stdout.toString().slice(0, -1); // remove last newline
-
-                // Return any known errors/warnings to the client
-                if (result.slice(0,5) === 'Error'
-                    || result.slice(0,7) === 'Warning') {
-                    fs.unlinkSync(parmFile);
-                    future.return(result);
-                } else {
-                    if (parms.tsv) {
-
-                        // Read the tsv results file, creating an array of strings,
-                        // one string per row. Return the array to the client where
-                        // the row format is known, and parse them there.
-                        // TODO This seems abusive of Meteor and should be change
-                        // to what is best for meteor. This is reading the file on
-                        // the server, then passing the long array to the client.
-                        data = readFromTsvFileSync(result);
-                    } else {
-             
-                        // Read and parse the json file
-                        data = readFromJsonFileSync(result);
-                    }
-                    fs.unlinkSync(parmFile);
-                    //fs.unlinkSync(result); // TODO may not always be a temp file?
-                    future.return(data);
-                }
-            }
-        });
-        return future.wait();
-    },
 });

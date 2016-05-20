@@ -10,7 +10,7 @@ var app = app || {}; // jshint ignore:line
     DISABLED_COLOR = '#aaaaaa';
 
     var DEFAULT_PAGE = 'homePage',
-        DEFAULT_PROJECT = 'data/Gliomas/',
+        DEFAULT_PROJECT = 'Gliomas/',
         DEFAULT_SORT = {
             text: 'Density of attributes',
             type: 'default',
@@ -243,8 +243,8 @@ var app = app || {}; // jshint ignore:line
     State.prototype.fixUpOldUrls = function (project) {
  
         var xlate = {
-            'data/evanPaull/pCHIPS/': 'data/pCHIPS/',
-            'data/ynewton/gliomas-paper/': 'data/Gliomas/',
+            'evanPaull/pCHIPS/': 'pCHIPS/',
+            'ynewton/gliomas-paper/': 'Gliomas/',
         }
  
         // Fix up some project names that we've aleady given out to people
@@ -265,8 +265,7 @@ var app = app || {}; // jshint ignore:line
         // replacing every '.' with '/'
         if (s.uParm.p) {
             state.project
-                = 'data/'
-                + s.uParm.p.replace(/\./g, '/')
+                = s.uParm.p.replace(/\./g, '/')
                 + '/';
  
             // A project in a url means someone wants to see a particular map
@@ -282,7 +281,7 @@ var app = app || {}; // jshint ignore:line
      
             // TODO a special hack until we get bookmarks going: load
             // the hard-coded overlay node data specific to this project
-            } else if (state.project.slice(0,13) === 'data/CKCC/v1-') {
+            } else if (state.project.slice(0,13) === 'CKCC/v1-') {
       
                 var node = state.project.slice(13,-1);
                 if (OVERLAY_NODES[node]) {
