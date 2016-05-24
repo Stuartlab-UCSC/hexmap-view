@@ -54,7 +54,9 @@ var app = app || {}; // jshint ignore:line
             }
             // The background change requires a new map to show the background.
             createMap();
-            drawHexagons();
+            createHexagons();
+            refreshColors();
+            showOverlayNodes();
         });
  
         // Prepare a tool to change the colorMap
