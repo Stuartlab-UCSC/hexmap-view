@@ -562,10 +562,10 @@ var app = app || {}; // jshint ignore:line
                 if (error) {
                     banner('error', error);
                     updateSortUi('noStats');
-                } else if (result.slice(0,5) === 'Error') {
+                } else if (result.slice(0,5).toLowerCase() === 'error') {
                     banner('error', result);
                     updateSortUi('noStats');
-                } else if (result.slice(0,4) === 'Info') {
+                } else if (result.slice(0,4).toLowerCase() === 'info') {
                     banner('info', result);
                     updateSortUi('noStats');
                 } else {
@@ -586,7 +586,7 @@ var app = app || {}; // jshint ignore:line
         Meteor.call('getTsvFile', filename, ctx.project,
             function (error, parsed) {;
 
-            if (error || parsed.slice(0,5) === 'Error') {
+            if (error || parsed.slice(0,5).toLowerCase() === 'error') {
                 computingTextDisplay();
                 getDynamicStats(focus_attr, opts);
                 return;

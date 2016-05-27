@@ -34,9 +34,8 @@ callPython = function (pythonCallName, opts, callback) {
             result = {code: 1, data: error};
             //TODO we should check stderror as well
         
-        // TODO this should check for any case of these strings
-        } else if (stdout.slice(0,5) === 'Error'
-            || stdout.slice(0,7) === 'Warning') {
+        } else if (stdout.slice(0,5).toLowerCase() === 'error'
+            || stdout.slice(0,7).toLowerCase() === 'warning') {
         
             // Return any errors/warnings captured by the python script
             result = {code: 1, data: stdout};
@@ -67,7 +66,6 @@ Meteor.methods({
         var future = new Future();
 
         // Create temp file if the client wants us to
-        // TODO the python files should create their own temp file
         if (opts.hasOwnProperty('tempFile')) {
             opts.tempFile = writeToTempFile('junk');
         }
@@ -97,8 +95,8 @@ Meteor.methods({
                     result = stdout.toString().slice(0, -1); // remove last newline
 
                 // Return any known errors/warnings to the client
-                if (result.slice(0,5) === 'Error'
-                    || result.slice(0,7) === 'Warning') {
+                if (result.slice(0,5).toLowerCase() === 'error'
+                    || result.slice(0,7).toLowerCase() === 'warning') {
                     fs.unlinkSync(parmFile);
                     future.return(result);
                 } else {
@@ -117,7 +115,6 @@ Meteor.methods({
                         data = readFromJsonFileSync(result);
                     }
                     fs.unlinkSync(parmFile);
-                    //fs.unlinkSync(result); // TODO may not always be a temp file?
                     future.return(data);
                 }
             }

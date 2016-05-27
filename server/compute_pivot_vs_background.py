@@ -293,8 +293,8 @@ def loadData(opts):
 	# This retrieves data from files for any data that is not included in the
 	# parameters passed. This isolates the main routine from data retrieval so
 	# the server can store the data anywhere without bothering the main routine.
-	# This logic should eventually be moved out of this file because we don't
-	# want the python utilities to have to deal with data retrieval.
+	# TODO: This logic should eventually be moved out of this file because we
+	# don't want the python utilities to have to deal with data retrieval.
 	
 	# Load the n-of-1 node data if a file name is provided in the parameters.
 	# Otherwise we assume opts.pivot_data is already loaded.
@@ -314,7 +314,7 @@ def loadData(opts):
 	# if the positions are not provided in the parameters
 	if not hasattr(opts, 'positions'):
 		layout = opts.pivot_data["layout"]
-		file = opts.meta["layouts"][layout]["nodePostSquiggleFile"]
+		file = opts.meta["layouts"][layout]["postSquiggleFile"]
 		input = open(file, 'r')
 		opts.positions = {}
 		for line in input:

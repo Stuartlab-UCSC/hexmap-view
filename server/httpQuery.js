@@ -32,7 +32,7 @@ function passOverlayNodeChecks (dataIn, res) {
     // Validate that certain properties are included
     if (!dataIn.hasOwnProperty('map') && !dataIn.hasOwnProperty('map2')) {
     
-        // TODO use this ?:
+        // TODO should we require authentication and use:
         //  throw new Meteor.Error(403, "Access denied")
 
         respond(400, res, 'Map missing or malformed');
@@ -147,11 +147,11 @@ function overlayNodes (dataIn, res) {
         // Prepend the absolute path for xy positions to the base file name in
         // the metadata.
         file = VIEW_DIR + dataIn.map + '/'
-            + opts.meta.layouts[dataIn.layout].nodePostSquiggleFile;
+            + opts.meta.layouts[dataIn.layout].postSquiggleFile;
         
         // Save the full path name for xy positions in the metadata,
         // just in case it is wanted.
-        opts.meta.layouts[dataIn.layout].nodePostSquiggleFile = file;
+        opts.meta.layouts[dataIn.layout].postSquiggleFile = file;
 
         // Load the xy positions data into the parms to be passed.
         var parsed = readFromTsvFileSync(file);
@@ -207,18 +207,21 @@ function overlayNodes (dataIn, res) {
         respond(200, res, {bookmarks: urls});
         
         // Send email to interested parties
+        var subject = 'tumor map results: ',
+            msg = 'Tumor Map results are ready to view at:\n\n';
+        
+        _.each(emailUrls, function (node, nodeName) {
+            msg += nodeName + ' : ' + node + '\n';
+            subject += node + '  ';
+        });
+            
         if ('email' in dataIn) {
-            var subject = 'tumor map results: ',
-                msg = 'Tumor map results are ready to view. This is an automated email.\n\n';
-            
-            _.each(emailUrls, function (node, nodeName) {
-                msg += nodeName + ' : ' + node + '\n';
-                subject += node + '  ';
-            });
-            
             sendMail(dataIn.email, subject, msg);
-            sendMail('hexmap@ucsc.edu', subject, msg + '\nAlso sent to: ' + dataIn.email);
+            msg += '\nAlso sent to: ' + dataIn.email;
+        } else {
+            msg += '\nNo emails included in request';
         }
+        sendMail('hexmap@ucsc.edu', subject, msg);
 
         /* TODO bookmarks for later
         var state = {

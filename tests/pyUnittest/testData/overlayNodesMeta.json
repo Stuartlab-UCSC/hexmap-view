@@ -3,7 +3,7 @@
    "layouts": {
    		"mRNA": {
    			"featureSpaceFile": "/Users/swat/dev/hexagram/tests/pyUnittest/testData/overlayNodesFeatureSpace.tab",
-   			"nodePostSquiggleFile": "/Users/swat/dev/hexagram/tests/pyUnittest/testData/overlayNodesAssignments0.tab",
+   			"postSquiggleFile": "/Users/swat/dev/hexagram/tests/pyUnittest/testData/overlayNodesAssignments0.tab",
 			"metric": "correlation",
    			"robustness": {
    				"local neighborhood specificity shuffled": "",

@@ -102,9 +102,9 @@ var app = app || {}; // jshint ignore:line
             function (error, result) {
                 if (error) {
                     banner('error', error);
-                } else if (result.slice(0,5) === 'Error') {
+                } else if (result.slice(0,5).toLowerCase() === 'error') {
                     banner('error', result);
-                } else if (result.slice(0,4) === 'Info') {
+                } else if (result.slice(0,4).toLowerCase() === 'info') {
                     banner('info', result);
                 } else {
                     receive_data(result, attr, attr2, opts);
