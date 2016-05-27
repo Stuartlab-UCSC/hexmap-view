@@ -238,6 +238,9 @@ var app = app || {}; // jshint ignore:line
         } else {
             s.load(store);
         }
+        
+        // TODO a hack until bookmarks are going
+        Session.set('overlayNodes', undefined);  // overlay nodes to include
     };
 
     State.prototype.fixUpOldUrls = function (project) {

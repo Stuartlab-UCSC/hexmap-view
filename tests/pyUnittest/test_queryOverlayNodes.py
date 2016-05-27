@@ -32,8 +32,9 @@ class TestQueryOverlayNodes(unittest.TestCase):
         e, errfile = tempfile.mkstemp()
         with open(outfile, 'w') as o:
             e = open(errfile, 'w')
-            curl = ['curl', '-s'] + opts + [s.curlUrl]
-            #print 'curl:', curl
+            curl = ['curl', '-s', '-k'] + opts + [s.curlUrl]
+            #print 'curl:\n', curl, '\n\n'
+# curl -s -k -d '{"map": "CKCC/v1", "nodes": {"Sample-2": {"CTD-2588J6.1": "0", "RP11-433M22.1": "0", "CTD-2588J6.2": "0", "CPHL1P": "0", "RP3-415N12.1": "0", "RP11-181G12.4": "0", "RP11-433M22.2": "0", "SSXP10": "0", "RP11-16E12.2": "2.5424", "PSMA2P3": "0", "CTD-2367A17.1": "0", "RP11-181G12.2": "5.9940", "AC007272.3": "0"}, "Sample-1": {"CTD-2588J6.1": "0", "RP11-433M22.1": "0", "CTD-2588J6.2": "0", "CPHL1P": "0", "RP3-415N12.1": "0", "RP11-181G12.4": "0.5264", "RP11-433M22.2": "0", "SSXP10": "0", "RP11-16E12.2": "2.3112", "PSMA2P3": "0", "CTD-2367A17.1": "0", "RP11-181G12.2": "6.3579", "AC007272.3": "0"}}, "layout": "mRNA"}' -H Content-Type:application/json -X POST -v localhost:3333/query/overlayNodes
             subprocess.check_call(curl, stdout=o, stderr=e);
             e.close()
         with open(outfile, 'r') as o:
@@ -46,7 +47,7 @@ class TestQueryOverlayNodes(unittest.TestCase):
         return {'data': data, 'code': code}
     
     def expectedResults(s):
-        return '{"Sample #1":{"local neighborhood":{"TCGA-4J-AA1J-01":0.9977276,"TCGA-AJ-A3EM-01":0.9890932,"TCGA-DQ-7589-01":0.9929598,"TCGA-HT-7686-01":0.990232,"TCGA-KS-A4IB-01":0.9940576,"TCGA-N7-A4Y5-01":0.9988113},"median metric":0.9935087,"url":"https://tumormap.ucsc.edu/?p=CKCC/v1&x=200.5&y=226.5","x":200.5,"y":226.5},"Sample #2":{"local neighborhood":{"TCGA-4J-AA1J-01":0.9999689,"TCGA-DQ-7589-01":0.9917174,"TCGA-DW-7836-01":0.9886427,"TCGA-KS-A4IB-01":0.9987738,"TCGA-LH-A9QB-06":0.9927174,"TCGA-N7-A4Y5-01":0.9999419},"median metric":0.9957456,"url":"https://tumormap.ucsc.edu/?p=CKCC/v1&x=252.5&y=241.5","x":252.5,"y":241.5}}\n'
+        return '{"Sample-1":{"local neighborhood":{"TCGA-4J-AA1J-01":0.9977276,"TCGA-AJ-A3EM-01":0.9890932,"TCGA-DQ-7589-01":0.9929598,"TCGA-HT-7686-01":0.990232,"TCGA-KS-A4IB-01":0.9940576,"TCGA-N7-A4Y5-01":0.9988113},"median metric":0.9935087,"url":"https://tumormap.ucsc.edu/?p=CKCC/v1&x=200.5&y=226.5","x":200.5,"y":226.5},"Sample-2":{"local neighborhood":{"TCGA-4J-AA1J-01":0.9999689,"TCGA-DQ-7589-01":0.9917174,"TCGA-DW-7836-01":0.9886427,"TCGA-KS-A4IB-01":0.9987738,"TCGA-LH-A9QB-06":0.9927174,"TCGA-N7-A4Y5-01":0.9999419},"median metric":0.9957456,"url":"https://tumormap.ucsc.edu/?p=CKCC/v1&x=252.5&y=241.5","x":252.5,"y":241.5}}\n'
     
     def test_methodCheck(s):
         opts = ['-X', 'GET', '-v']
@@ -122,24 +123,54 @@ class TestQueryOverlayNodes(unittest.TestCase):
         resData = '{"TESTpythonCallStub":"success"}\n';
         opts = ['-d', data, '-H', 'Content-Type:application/json', '-X', 'POST', '-v']
         rc = s.doCurl(opts)
+        
+        #print "rc['code']:", rc['code']
+        #print "rc['data']:", rc['data']
+
         s.assertTrue(rc['code'] == '200')
         s.assertTrue(rc['data'] == resData)
     
     def test_pythonCallGoodData(s):
-        data = '{"TESTpythonCall": "yes", "map": "CKCC/v1", "layout": "mRNA", "nodes": {"node1": {"gene1": "1", "gene2": "2"}, "node2": {"gene1": "3", "gene2": "4"}}}'
+        data = '{"TESTpythonCallGoodData": "yes", "map": "CKCC/v1", "nodes": {"Sample-2": {"CTD-2588J6.1": "0", "RP11-433M22.1": "0", "CTD-2588J6.2": "0", "CPHL1P": "0", "RP3-415N12.1": "0", "RP11-181G12.4": "0", "RP11-433M22.2": "0", "SSXP10": "0", "RP11-16E12.2": "2.5424", "PSMA2P3": "0", "CTD-2367A17.1": "0", "RP11-181G12.2": "5.9940", "AC007272.3": "0"}, "Sample-1": {"CTD-2588J6.1": "0", "RP11-433M22.1": "0", "CTD-2588J6.2": "0", "CPHL1P": "0", "RP3-415N12.1": "0", "RP11-181G12.4": "0.5264", "RP11-433M22.2": "0", "SSXP10": "0", "RP11-16E12.2": "2.3112", "PSMA2P3": "0", "CTD-2367A17.1": "0", "RP11-181G12.2": "6.3579", "AC007272.3": "0"}}, "layout": "mRNA"}'
         resData = s.expectedResults()
         opts = ['-d', data, '-H', 'Content-Type:application/json', '-X', 'POST', '-v']
         rc = s.doCurl(opts)
+        
+        #print "rc['code']:", rc['code']
+        #print "rc['data']:", rc['data']
+
         s.assertTrue(rc['code'] == '200')
         s.assertTrue(rc['data'] == resData)
     
     def test_pythonCallGoodDataBookmark(s):
-        data = '{"TESTpythonCallBookmark": "yes", "map": "CKCC/v1", "layout": "mRNA", "nodes": {"node1": {"gene1": "1", "gene2": "2"}, "node2": {"gene1": "3", "gene2": "4"}}}'
-        resData = '{"bookmarks":["https://tumormap.ucsc.edu/?p=CKCC/v1&x=200.5&y=226.5","https://tumormap.ucsc.edu/?p=CKCC/v1&x=252.5&y=241.5"]}\n'
+        data = '{"TESTpythonCallGoodDataBookmark": "yes", "map": "CKCC/v1", "nodes": {"Sample-2": {"CTD-2588J6.1": "0", "RP11-433M22.1": "0", "CTD-2588J6.2": "0", "CPHL1P": "0", "RP3-415N12.1": "0", "RP11-181G12.4": "0", "RP11-433M22.2": "0", "SSXP10": "0", "RP11-16E12.2": "2.5424", "PSMA2P3": "0", "CTD-2367A17.1": "0", "RP11-181G12.2": "5.9940", "AC007272.3": "0"}, "Sample-1": {"CTD-2588J6.1": "0", "RP11-433M22.1": "0", "CTD-2588J6.2": "0", "CPHL1P": "0", "RP3-415N12.1": "0", "RP11-181G12.4": "0.5264", "RP11-433M22.2": "0", "SSXP10": "0", "RP11-16E12.2": "2.3112", "PSMA2P3": "0", "CTD-2367A17.1": "0", "RP11-181G12.2": "6.3579", "AC007272.3": "0"}}, "layout": "mRNA"}'
+        book1 = '/?&p=CKCC.v1&node=Sample-1&x=200.5&y=226.5'
+        book2 = '/?&p=CKCC.v1&node=Sample-2&x=252.5&y=241.5'
         opts = ['-d', data, '-H', 'Content-Type:application/json', '-X', 'POST', '-v']
         rc = s.doCurl(opts)
+        
+        #print "rc['code']:", rc['code']
+        #print "rc['data']:", rc['data']
+
         s.assertTrue(rc['code'] == '200')
-        s.assertTrue(rc['data'] == resData)
+        s.assertTrue(string.find(rc['data'], book1) > -1)
+        s.assertTrue(string.find(rc['data'], book2) > -1)
+    
+    def test_pythonCallNoFiles(s):
+        # This test relies on data files being in their production directories,
+        # so may not work if the production data changes for CKCC/v1.
+        data = '{"map": "CKCC/v1", "nodes": {"Sample-2": {"CTD-2588J6.1": "0", "RP11-433M22.1": "0", "CTD-2588J6.2": "0", "CPHL1P": "0", "RP3-415N12.1": "0", "RP11-181G12.4": "0", "RP11-433M22.2": "0", "SSXP10": "0", "RP11-16E12.2": "2.5424", "PSMA2P3": "0", "CTD-2367A17.1": "0", "RP11-181G12.2": "5.9940", "AC007272.3": "0"}, "Sample-1": {"CTD-2588J6.1": "0", "RP11-433M22.1": "0", "CTD-2588J6.2": "0", "CPHL1P": "0", "RP3-415N12.1": "0", "RP11-181G12.4": "0.5264", "RP11-433M22.2": "0", "SSXP10": "0", "RP11-16E12.2": "2.3112", "PSMA2P3": "0", "CTD-2367A17.1": "0", "RP11-181G12.2": "6.3579", "AC007272.3": "0"}}, "layout": "mRNA"}'
+        book1 = '/?&p=CKCC.v1&node=Sample-1&x=200.5&y=226.5'
+        book2 = '/?&p=CKCC.v1&node=Sample-2&x=252.5&y=241.5'
+        opts = ['-d', data, '-H', 'Content-Type:application/json', '-X', 'POST', '-v']
+        rc = s.doCurl(opts)
+        
+        #print "rc['code']:", rc['code']
+        #print "rc['data']:", rc['data']
+
+        s.assertTrue(rc['code'] == '200')
+        s.assertTrue(string.find(rc['data'], book1) > -1)
+        s.assertTrue(string.find(rc['data'], book2) > -1)
     
     def test_pythonCallViaBash(s):
         resultsFile = 'overlayNodesResults.json'

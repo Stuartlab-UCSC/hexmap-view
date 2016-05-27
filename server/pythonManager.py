@@ -16,22 +16,22 @@ def pythonWrapper(pythonCallName, jsonRequestFile, serverDir):
     if opts == 1:
         return 1
     
-    if 'TESTpythonCallStub' in opts['data']:
-        return writeJsonResponseData({'TESTpythonCallStub': 'success'});
+    # TODO this test code should not be in here.
+    if 'pivot_data' in opts and 'TESTpythonCallStub' in opts['pivot_data']:
+        print writeJsonResponseData({'TESTpythonCallStub': 'success'});
+        return 0
 
-    # Call the the python script, which writes the results file for now
+    # Call the the python script, which returns the results as a dict
     module = importlib.import_module(pythonCallName, package=None)
-    rc = module.fromNodejs(opts)
-    if rc != 0:
+    result = module.fromNodejs(opts)
+    if result == 1:
         return 1
 
-    # The python script has written the file already, so send the results
-    # filename back to the nodejs caller via stdout.
-    # This may change later as we work out the APIs.
-    print opts['out_file']
-    
+    # Write the results to a temp file and return the file name
+    # to the nodejs caller via stdout.
+    print writeJsonResponseData(result)
     return 0
-    
+
 if __name__ == "__main__" :
     try:
         return_code = pythonWrapper(sys.argv[1], sys.argv[2], sys.argv[3])

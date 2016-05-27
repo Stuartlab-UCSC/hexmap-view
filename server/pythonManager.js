@@ -32,19 +32,27 @@ callPython = function (pythonCallName, opts, callback) {
         
             // Return any errors not captured by the python script
             result = {code: 1, data: error};
+            //TODO we should check stderror as well
+        
+        // TODO this should check for any case of these strings
         } else if (stdout.slice(0,5) === 'Error'
             || stdout.slice(0,7) === 'Warning') {
         
             // Return any errors/warnings captured by the python script
             result = {code: 1, data: stdout};
+         
         } else {
         
-            // Success, so read and parse the results in the json file, returning the data
-            var filename = stdout.toString().slice(0, -1); // remove last newline TODO really?
+            // Success, so read and parse the results in the json file,
+            // returning the data
+            var str = stdout.toString();
+            var filename = str.replace('\n', '')
             var data = readFromJsonFileSync(filename);
-            result = {code: 0, data: data};
+            result = {
+                code: 0,
+                data: readFromJsonFileSync(stdout.toString().replace('\n', '')),
+            }
         }
-        
         callback(result);
     });
 }

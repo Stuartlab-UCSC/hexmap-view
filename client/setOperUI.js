@@ -5,6 +5,10 @@ var app = app || {}; // jshint ignore:line
 
 (function (hex) { // jshint ignore:line
 
+    // Boolean stating whether this is the first time the set operation popup & stats query
+    // has been created so that "Select Layer" Default is added only once
+    var first_opening = true;
+
     // Records number of set-operation clicks
     var set_operation_clicks = 0;
 

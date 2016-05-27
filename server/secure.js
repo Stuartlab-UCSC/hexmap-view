@@ -140,7 +140,7 @@ function removeUser(username) {
 //createRole('dev');
 //removeUsersFromRoles([ 'ynewton@soe.ucsc.edu', 'dmccoll@ucsc.edu', 'swat@soe.ucsc.edu'] , ['Pancan12', 'CKCC']);
 //showUsernames();
-//addUsersToRoles (['mokolodi1@gmail.com'], 'CKCC');
+addUsersToRoles (['josh@soe.ucsc.edu'], 'dev');
 //removeUser('aDeveloperUser@x.x');
 //addUsersToRoles(['x@x.x'],
 //Meteor.users.remove({});
@@ -157,8 +157,8 @@ function sendNewUserMail(user) {
     // Notify the admin of a new user
     var msg = "'New user: "
         + user.emails[0].address
-        + ' at port '
-        + URL_PORT.toString()
+        + ' at '
+        + URL_BASE.toString()
         + "'",
         command =
             'echo '

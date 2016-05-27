@@ -45,7 +45,7 @@ function parseTsv (data) {
     return parsed;
 }
 
-function readFromTsvFileSync (filename) {
+readFromTsvFileSync = function (filename) {
 
     // Parse the data after reading the file
     return parseTsv(fs.readFileSync(filename, 'utf8'));

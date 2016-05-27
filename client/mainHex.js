@@ -2,10 +2,6 @@
 
 var app = app || {}; // jshint ignore:line
 
-DEV = (URL_PORT !== '443' && URL_PORT !== '8443'); // true if on development server, false if not
-layers = {}; // contains almost all information about attributes
-googlemap; // our main googlemap instance
-
 (function (hex) { // jshint ignore:line
     //'use strict';
  

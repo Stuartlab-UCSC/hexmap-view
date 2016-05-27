@@ -83,19 +83,22 @@ saveBookmark = function(state) {
     return id
 }
 
-function sendMail(users, subject, msg) {
+sendMail = function (users, subject, msg) {
 
     // Send mail to user(s) with the given subject and message.
-    // TODO handle email array or singleton
+    
+    // Don't send from localhost, macOS mail doesn't support the 'from' option.
+    if (URL_BASE.indexOf('localhost') > -1) return;
+    
     var command =
         'echo "'
         + msg
         + '" | '
         + 'mail -s "'
         + subject
-        + '" '
-        + users;
-
+        + '" -S from="hexmap@ucsc.edu" '
+        + users.toString();
+    
     exec(command, function (error, stdout, stderr) {
         if (error) {
             console.log('sendMail had an error:', error);
@@ -115,26 +118,61 @@ function overlayNodes (dataIn, res) {
     var opts = {
         neighborhood_size: 6,
         num_jobs: 0,
-        data: dataIn,
+        pivot_data: dataIn,
     };
     
+    var file;
+
+    // TODO test cases should not be in production code
     if (dataIn.TESTbookmarkStub) {
 
         // Return this fake URL for this test
-        respond(200, res, {bookmark: url + "?b=18XFlfJG8ijJUVP_CYIbA3qhvCw5pADF651XTi8haPnE"});
+        respond(200, res, {bookmark: url +
+            "?b=18XFlfJG8ijJUVP_CYIbA3qhvCw5pADF651XTi8haPnE"});
         return;
-    } else if (dataIn.TESTpythonCall || dataIn.TESTpythonCallBookmark) {
+        
+    } else if (dataIn.TESTpythonCallStub
+        || dataIn.TESTpythonCallGoodData
+        || dataIn.TESTpythonCallGoodDataBookmark) {
 
-        // Point to the test data for this test
-        opts.in_pivot = TEST_DATA_DIR + 'overlayNodesQuery.json';
+        // Point to the test metadata file
         opts.in_meta = TEST_DATA_DIR + 'overlayNodesMeta.json';
-        opts.out_file = TEMP_DIR + 'overlayNodesGetXyResults.json';
-        opts.log = TEMP_DIR + 'overlayNodes.log';
+        
     } else {
     
-        // Build up the filenames
-        //TODO
+        // Load the metadata into the parms to be passed.
+        file = LAYOUT_INPUT_DIR + dataIn.map + '/' + 'meta.json';
+        opts.meta = readFromJsonFileSync(file);
+        
+        // Prepend the absolute path for xy positions to the base file name in
+        // the metadata.
+        file = VIEW_DIR + dataIn.map + '/'
+            + opts.meta.layouts[dataIn.layout].nodePostSquiggleFile;
+        
+        // Save the full path name for xy positions in the metadata,
+        // just in case it is wanted.
+        opts.meta.layouts[dataIn.layout].nodePostSquiggleFile = file;
+
+        // Load the xy positions data into the parms to be passed.
+        var parsed = readFromTsvFileSync(file);
+        var pos = {};
+        _.each(parsed, function (line, i) {
+            pos[line[0]] = {};
+            pos[line[0]].x = parseFloat(line[1]);
+            pos[line[0]].y = parseFloat(line[2]);
+        });
+        opts.positions = pos;
+
+        // Save the feature space file name in the parms in the metadata. This
+        // file is too big to put it's data in the parms, so the python code
+        // will read from the file directly for now.
+        opts.meta.layouts[dataIn.layout].featureSpaceFile = FEATURE_SPACE_DIR
+            + dataIn.map + '/'
+            + opts.meta.layouts[dataIn.layout].featureSpaceFile;
     }
+    
+    // Set the log file name
+    opts.log = TEMP_DIR + 'overlayNodes.log';
     
     callPython('compute_pivot_vs_background', opts, function (result) {
         
@@ -143,39 +181,44 @@ function overlayNodes (dataIn, res) {
             return;
         }
         
-        var dataIn = opts.data,
+        var dataIn = opts.pivot_data,
             data = result.data;
         
-        if (dataIn.TESTpythonCallStub || dataIn.TESTpythonCall) {
+        if (dataIn.TESTpythonCallStub || dataIn.TESTpythonCallGoodData) {
             respond(result.code === 0 ? 200 : 500, res, data);
             return;
         }
         
-        // Send the http response to the original caller
-        var urls = _.map(data, function (node) {
-            return node.url;
+        // Build the URLs and sent them to the http caller.
+        var emailUrls = {};
+        var urls = [];
+        _.each(data, function (node, nodeName) {
+            // TODO URL-encode the node ID.
+            // A problem already encountered is '#' terminates the query string.
+            // Does this mean we should URL-decode any query strings we receive?
+            var url = URL_BASE + '/?'
+                + '&p=' + dataIn.map.replace('/', '.')
+                + '&node=' + nodeName
+                + '&x=' + node.x
+                + '&y=' + node.y;
+            emailUrls[nodeName] = url;
+            urls.push(url);
         });
         respond(200, res, {bookmarks: urls});
         
         // Send email to interested parties
+        if ('email' in dataIn) {
+            var subject = 'tumor map results: ',
+                msg = 'Tumor map results are ready to view. This is an automated email.\n\n';
             
-        // TODO for testing then remove
-        dataIn.email = 'hexmap.ucsc.edu';
-        //dataIn.email = ['hexmap.ucsc.edu', 'swat@soe.ucsc.edu'];
-        
-        var subject = 'tumor map results: ',
-            msg = 'The tumor map calculation of overlay node position is complete for map: '
-                + dataIn.map
-                + ', layout: '
-                + dataIn.layout
-                + ' and available for viewing.\n\n';
-        
-        _.each(data, function (node, nodeName) {
-            msg += nodeName + ' : ' + node.url + '\n';
-            subject += node.url + ' ';
-        });
-        
-        sendMail(dataIn.email, subject, msg);
+            _.each(emailUrls, function (node, nodeName) {
+                msg += nodeName + ' : ' + node + '\n';
+                subject += node + '  ';
+            });
+            
+            sendMail(dataIn.email, subject, msg);
+            sendMail('hexmap@ucsc.edu', subject, msg + '\nAlso sent to: ' + dataIn.email);
+        }
 
         /* TODO bookmarks for later
         var state = {
@@ -234,7 +277,6 @@ WebApp.connectHandlers.use("/query/overlayNodes", function(req, res, next) {
     // Process the data in this request
     req.on('end', function () {
     
-        //console.log('jsonDataIn:', jsonDataIn);
         try {
             var dataIn = JSON.parse(jsonDataIn);
         } catch (error) {

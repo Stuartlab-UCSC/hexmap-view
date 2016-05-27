@@ -28,6 +28,7 @@ def parse_args(args):
 	opts, args = parser.parse_args()
 	return (opts);
 
+""" Unused
 def read_tabular(input_file, numeric_flag):
 	data = open(input_file, 'r')
 	init_matrix = []
@@ -56,7 +57,8 @@ def read_tabular(input_file, numeric_flag):
 		matrix = init_matrix
 	
 	return (matrix, col_headers, row_headers)
-	
+"""
+
 def read_tabular2(input_file, numeric_flag):
 	with open(input_file,'r') as f:
 		lines = [l.rstrip('\n').split('\t') for l in f]
@@ -71,10 +73,8 @@ def read_tabular2(input_file, numeric_flag):
 	
 	return (dt, col_headers, row_headers)
 	
-def read_pivot_json(input_file, numeric_flag):
-	with open(input_file) as data_file:    
-		data = json.load(data_file)
-	
+def load_pivot_data(data, numeric_flag, opts):
+
 	data = byteify(data)
 	map = data["map"]
 	layout = data["layout"]
@@ -104,27 +104,17 @@ def byteify(input):
 		return input
 
 def main(opts):
-
-	"""
-	via bash: 
-	opts: {
-		"in_meta": "/Users/swat/dev/hexagram/tests/pyUnittest/testData/overlayNodesMeta.json",
-		"in_pivot": "/Users/swat/dev/hexagram/tests/pyUnittest/testData/overlayNodesQuery.json",
-		"log": "/tmp/overlayNodes.log",
-		"neighborhood_size": "6",
-		"num_jobs": "0",
-		"out_file": "/tmp/overlayNodesResults.json",
-		"project": ""
-	}
-	"""
-
 	start_time = time.time()
 
 	#process input arguments:
-	in_file1 = opts.in_pivot
-	in_meta = opts.in_meta
-	out_file = opts.out_file
+	pivot_data = opts.pivot_data
+	meta = opts.meta
+	positions = opts.positions
 	log_file = opts.log
+	try:
+		out_file = opts.out_file
+	except AttributeError:
+		out_file = ''
 	if len(log_file) > 0:
 		log = open(log_file, 'w')
 	try:
@@ -153,7 +143,7 @@ def main(opts):
 		print >> log, "Using "+num_jobs_str+" CPUs\n"
 		print >> log, "Reading in pivot input ..."
 	curr_time = time.time()
-	dt1,sample_labels1,feature_labels1,map,layout = read_pivot_json(in_file1,True)
+	dt1,sample_labels1,feature_labels1,map,layout = load_pivot_data(pivot_data,True,opts)
 	if len(log_file) > 0:
 		print >> log, str(time.time() - curr_time) + " seconds"
 
@@ -161,16 +151,12 @@ def main(opts):
 	if len(log_file) > 0:
 		print >> log, "Reading in meta data ..."
 	curr_time = time.time()
-	
-	with open(in_meta) as data_file:    
-		meta = json.load(data_file)
-	
+
 	if not(meta["map"] == map):
 		print >> sys.stderr, "ERROR: meta data file does not match the requested map."
 		sys.exit(1)
 	in_file2 = meta["layouts"][layout]["featureSpaceFile"]
 	metric_type = meta["layouts"][layout]["metric"]
-	map_positions = meta["layouts"][layout]["nodePostSquiggleFile"]
 	if not(metric_type in VALID_METRICS):
 		print >> sys.stderr, "ERROR: invalid metric specified in meta file"
 		sys.exit(1)	
@@ -267,17 +253,6 @@ def main(opts):
 	if len(log_file) > 0:
 		print >> log, "Computing (x,y) positions"
 	curr_time = time.time()
-	positions = {}
-	input = open(map_positions, 'r')
-	line_num = 1
-	for line in input:
-		if line_num > 1:
-			line_elems = line.strip().split("\t")
-			positions[line_elems[0]] = {}
-			positions[line_elems[0]]["x"] = float(line_elems[1])
-			positions[line_elems[0]]["y"] = float(line_elems[2])
-		line_num += 1
-	input.close()
 
 	for k in results:
 		neighbors = results[k]['local neighborhood']
@@ -299,28 +274,70 @@ def main(opts):
 	
 	if len(log_file) > 0:
 		print >> log, "Outputting in json format"
-	curr_time = time.time()	
-	with open(out_file, 'w') as fp:
-		json.dump(results, fp, sort_keys = True, indent = 4, ensure_ascii=False)
+	curr_time = time.time()
 	if len(log_file) > 0:
 		print >> log, str(time.time() - curr_time) + " seconds"
 		
 	if len(log_file) > 0:
 		print >> log, "--- %s seconds ---" % (time.time() - start_time)
 		log.close()
+	if out_file == '':
+		return results
+	else:
+		with open(out_file, 'w') as fp:
+			json.dump(results, fp, sort_keys = True, indent = 4, ensure_ascii=False)
+		return 0
 
-	return 0
+def loadData(opts):
 
-def fromNodejs(opts):
+	# This retrieves data from files for any data that is not included in the
+	# parameters passed. This isolates the main routine from data retrieval so
+	# the server can store the data anywhere without bothering the main routine.
+	# This logic should eventually be moved out of this file because we don't
+	# want the python utilities to have to deal with data retrieval.
+	
+	# Load the n-of-1 node data if a file name is provided in the parameters.
+	# Otherwise we assume opts.pivot_data is already loaded.
+	if hasattr(opts, 'in_pivot'):
+		with open(opts.in_pivot) as f:
+			opts.pivot_data = json.load(f)
+		del opts.in_pivot
+
+	# Load the metadata if a file name is provided in the parameters.
+	# Otherwise we assume opts.meta is already loaded
+	if hasattr(opts, 'in_meta'):
+		with open(opts.in_meta) as f:
+			opts.meta = json.load(f)
+		del opts.in_meta
+
+	# Load the xy positions from the file name in the metadata,
+	# if the positions are not provided in the parameters
+	if not hasattr(opts, 'positions'):
+		layout = opts.pivot_data["layout"]
+		file = opts.meta["layouts"][layout]["nodePostSquiggleFile"]
+		input = open(file, 'r')
+		opts.positions = {}
+		for line in input:
+			line_elems = line.strip().split("\t")
+			opts.positions[line_elems[0]] = {}
+			opts.positions[line_elems[0]]["x"] = float(line_elems[1])
+			opts.positions[line_elems[0]]["y"] = float(line_elems[2])
+		input.close()
+
+	return main(opts)
+
+def fromNodejs(optsIn):
 	class Struct:
 		def __init__(self, **entries):
 			self.__dict__.update(entries)
 
-	return main(Struct(**opts))
+	opts = Struct(**optsIn)
+	return loadData(opts)
 
 if __name__ == "__main__" :
 	try:
-		return_code = main(parse_args(sys.argv))
+		# We are being called via the command line
+		return_code = loadData(parse_args(sys.argv))
 	except:
 		traceback.print_exc()
 		return_code = 1

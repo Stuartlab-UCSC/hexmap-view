@@ -33,15 +33,21 @@ Example::
     },
  }
 
-This curl example using the development server::
+This curl example using the development server should work::
 
- curl -H Content-Type:application/json -X POST -d \
- '{"map": "CKCC/v1", "layout": "mRNA", "email": "mok66@gmail.com", "nodes": {"node1": {"gene1": "1", "gene2": "2"}, "node2": {"gene1": "3", "gene2": "4"}}}' \
- https://tumormap.ucsc.edu:8343/query/overlayNodes
+ curl -s -k -d '{"map": "CKCC/v1", "nodes": {"Sample-2": {"CTD-2588J6.1": "0", "RP11-433M22.1":
+ "0", "CTD-2588J6.2": "0", "CPHL1P": "0", "RP3-415N12.1": "0", "RP11-181G12.4": "0",
+ "RP11-433M22.2": "0", "SSXP10": "0", "RP11-16E12.2":  "2.5424", "PSMA2P3": "0", "CTD-2367A17.1":
+ "0", "RP11-181G12.2": "5.9940", "AC007272.3": "0"}, "Sample-1": {"CTD-2588J6.1": "0",
+ "RP11-433M22.1": "0", "CTD-2588J6.2": "0", "CPHL1P": "0", "RP3-415N12.1": "0", "RP11-181G12.4":
+ "0.5264", "RP11-433M22.2": "0", "SSXP10": "0", "RP11-16E12.2": "2.3112",  "PSMA2P3": "0",
+ "CTD-2367A17.1": "0", "RP11-181G12.2": "6.3579", "AC007272.3": "0"}}, "layout": "mRNA"}' -H \
+ Content-Type:application/json -X POST -v https://tumormap.ucsc.edu:8112/query/overlayNodes
 
-should return a bookmark of the form::
+It should return a bookmark of the form::
 
- {"bookmark": "https://tumormap.ucsc.edu:8343/?b=586633986"}
+ {"bookmarks":["https://tumormap.ucsc.edu:8112/?&p=CKCC.v1&node=Sample-1&x=277.5&y=171.5",
+  "https://tumormap.ucsc.edu:8112/?&p=CKCC.v1&node=Sample-2&x=264&y=151"]}
 
 Definitions
 
@@ -80,8 +86,14 @@ Example::
  {
     "map": "CKCC/v1",
     "layout": "mRNA",
+    "emails": [
+        "IamInterested@any.com",
+        "meToo@any.com",
+        ...
+    ],
     "nodes": {
         "mySample1": {
+            "hash": "267831025yhs3fzxwi",
             "x": "42",
             "y": "23",
         },
@@ -93,11 +105,16 @@ Generalized Format::
  {
     "map": <map ID>,
     "layout": <layout>,
+    "emails": [
+        <email>,
+        (1 to N email addresses ...)
+    ],
     "nodes": {
         <node>: {
-                "x": <x-value>,
-                "y": <y-value>,
-            },
+            "hash": <hash-generated-over-data>,
+            "x": <x-value>,
+            "y": <y-value>,
+        },
         (1 to N nodes ...)
     },
  }

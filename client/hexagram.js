@@ -7,36 +7,6 @@ var app = app || {}; // jshint ignore:line
 
 var userDebug = false; // Turn user debugging on/off
 
-// The map width and height in pixels
-var map_size_pix = 256;
-
-var rpc; // holds the remote procedure call object
-
-// This holds a global list of layer pickers in layer order. It is also the
-// authority on what layers are currently selected.
-var layer_pickers = [];
-
-// Records Stats Value from Query
-var stats_value = 0;
-
-// Boolean stating whether this is the first time the set operation popup & stats query
-// has been created so that "Select Layer" Default is added only once
-var first_opening = true;
-var first_opening_stats = true;
-
-// This holds colormaps (objects from layer values to category objects with a
-// name and color). They are stored under the name of the layer they apply to.
-colormaps = {}
-
-// This holds the Google Map that we use for visualization
-googlemap = null;
-
-// How many layer search results should we display at once?
-var SEARCH_PAGE_SIZE = 10;
-
-// The google elements obtained to transform to svg
-var googleElements;
-
 print = function (text) {
     // Print some logging text to the browser console
 

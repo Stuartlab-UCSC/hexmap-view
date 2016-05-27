@@ -44,7 +44,7 @@ def writeJsonResponseData(responseData):
     try:
         fileHandle, filename = tempfile.mkstemp(suffix='.json')
     except:
-        print 'Error:the response file could not be created', '\n'
+        print 'Error: the response file could not be created', '\n'
         return 1
 
     # Write the data to the file as json
@@ -52,11 +52,10 @@ def writeJsonResponseData(responseData):
         with open(filename, 'w') as f:
             json.dump(responseData, f, sort_keys=True, indent=4)
     except:
-        print 'Error:the response data could not be transformed into json format'
+        print 'Error: the response data could not be transformed into json format'
         return 1
 
-    print filename
-    return 0
+    return filename
 
 def callHelpersExample(jsonRequestFile):
 

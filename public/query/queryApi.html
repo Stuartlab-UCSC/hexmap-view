@@ -83,14 +83,20 @@ specific query ID. For testing in development, use
 }
 </pre></div>
 </div>
-<p>This curl example using the development server:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span>curl -H Content-Type:application/json -X POST -d \
-&#39;{&quot;map&quot;: &quot;CKCC/v1&quot;, &quot;layout&quot;: &quot;mRNA&quot;, &quot;email&quot;: &quot;mok66@gmail.com&quot;, &quot;nodes&quot;: {&quot;node1&quot;: {&quot;gene1&quot;: &quot;1&quot;, &quot;gene2&quot;: &quot;2&quot;}, &quot;node2&quot;: {&quot;gene1&quot;: &quot;3&quot;, &quot;gene2&quot;: &quot;4&quot;}}}&#39; \
-https://tumormap.ucsc.edu:8343/query/overlayNodes
+<p>This curl example using the development server should work:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span>curl -s -k -d &#39;{&quot;map&quot;: &quot;CKCC/v1&quot;, &quot;nodes&quot;: {&quot;Sample-2&quot;: {&quot;CTD-2588J6.1&quot;: &quot;0&quot;, &quot;RP11-433M22.1&quot;:
+&quot;0&quot;, &quot;CTD-2588J6.2&quot;: &quot;0&quot;, &quot;CPHL1P&quot;: &quot;0&quot;, &quot;RP3-415N12.1&quot;: &quot;0&quot;, &quot;RP11-181G12.4&quot;: &quot;0&quot;,
+&quot;RP11-433M22.2&quot;: &quot;0&quot;, &quot;SSXP10&quot;: &quot;0&quot;, &quot;RP11-16E12.2&quot;:  &quot;2.5424&quot;, &quot;PSMA2P3&quot;: &quot;0&quot;, &quot;CTD-2367A17.1&quot;:
+&quot;0&quot;, &quot;RP11-181G12.2&quot;: &quot;5.9940&quot;, &quot;AC007272.3&quot;: &quot;0&quot;}, &quot;Sample-1&quot;: {&quot;CTD-2588J6.1&quot;: &quot;0&quot;,
+&quot;RP11-433M22.1&quot;: &quot;0&quot;, &quot;CTD-2588J6.2&quot;: &quot;0&quot;, &quot;CPHL1P&quot;: &quot;0&quot;, &quot;RP3-415N12.1&quot;: &quot;0&quot;, &quot;RP11-181G12.4&quot;:
+&quot;0.5264&quot;, &quot;RP11-433M22.2&quot;: &quot;0&quot;, &quot;SSXP10&quot;: &quot;0&quot;, &quot;RP11-16E12.2&quot;: &quot;2.3112&quot;,  &quot;PSMA2P3&quot;: &quot;0&quot;,
+&quot;CTD-2367A17.1&quot;: &quot;0&quot;, &quot;RP11-181G12.2&quot;: &quot;6.3579&quot;, &quot;AC007272.3&quot;: &quot;0&quot;}}, &quot;layout&quot;: &quot;mRNA&quot;}&#39; -H \
+Content-Type:application/json -X POST -v https://tumormap.ucsc.edu:8112/query/overlayNodes
 </pre></div>
 </div>
-<p>should return a bookmark of the form:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s2">&quot;bookmark&quot;</span><span class="p">:</span> <span class="s2">&quot;https://tumormap.ucsc.edu:8343/?b=586633986&quot;</span><span class="p">}</span>
+<p>It should return a bookmark of the form:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s2">&quot;bookmarks&quot;</span><span class="p">:[</span><span class="s2">&quot;https://tumormap.ucsc.edu:8112/?&amp;p=CKCC.v1&amp;node=Sample-1&amp;x=277.5&amp;y=171.5&quot;</span><span class="p">,</span>
+ <span class="s2">&quot;https://tumormap.ucsc.edu:8113/?&amp;p=CKCC.v1&amp;node=Sample-2&amp;x=264&amp;y=151&quot;</span><span class="p">]}</span>
 </pre></div>
 </div>
 <p>Definitions</p>

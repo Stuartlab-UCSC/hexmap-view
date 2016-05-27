@@ -26,6 +26,9 @@ Python and modules required::
  >>> import scipy
  >>> scipy.__version__
  '0.17.0'
+ >>> import sklearn
+ >>> sklearn.__version__
+ '0.17.1'
 
 Miniconda was used to install these versions..
 
