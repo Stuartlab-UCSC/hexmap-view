@@ -3,6 +3,8 @@
 // Call python utilities from nodejs.
 
 var exec = Npm.require('child_process').exec;
+var Future = Npm.require('fibers/future');
+var fs = Npm.require('fs');
 
 callPython = function (pythonCallName, opts, callback) {
 
