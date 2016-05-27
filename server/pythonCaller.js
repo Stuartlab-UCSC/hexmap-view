@@ -1,6 +1,6 @@
 
-// pythonManager.js
-// Call python utilities from nodejs
+// pythonCaller.js
+// Call python utilities from nodejs.
 
 var exec = Npm.require('child_process').exec;
 
@@ -18,7 +18,7 @@ callPython = function (pythonCallName, opts, callback) {
     var command =
         "python "
         + SERVER_DIR
-        + "pythonManager.py '"
+        + "pythonCaller.py '"
         + pythonCallName
         + "' '"
         + parmFile

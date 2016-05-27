@@ -1,6 +1,6 @@
 #!/usr/bin/env python2.7
 """
-pythonManager.py
+pythonCaller.py
 Prepare to call a python script
 """
 import sys, os, json, copy, csv, math, traceback
