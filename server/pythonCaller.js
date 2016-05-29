@@ -36,8 +36,9 @@ callPython = function (pythonCallName, opts, callback) {
             result = {code: 1, data: error};
             //TODO we should check stderror as well
         
-        } else if (stdout.slice(0,5).toLowerCase() === 'error'
-            || stdout.slice(0,7).toLowerCase() === 'warning') {
+        } else if (typeof stdout === 'string'
+            && (stdout.slice(0,5).toLowerCase() === 'error'
+            || stdout.slice(0,7).toLowerCase() === 'warning')) {
         
             // Return any errors/warnings captured by the python script
             result = {code: 1, data: stdout};
@@ -97,8 +98,9 @@ Meteor.methods({
                     result = stdout.toString().slice(0, -1); // remove last newline
 
                 // Return any known errors/warnings to the client
-                if (result.slice(0,5).toLowerCase() === 'error'
-                    || result.slice(0,7).toLowerCase() === 'warning') {
+                if (typeof result === 'string' &&
+                    (result.slice(0,5).toLowerCase() === 'error'
+                    || result.slice(0,7).toLowerCase() === 'warning')) {
                     fs.unlinkSync(parmFile);
                     future.return(result);
                 } else {

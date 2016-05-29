@@ -133,7 +133,8 @@ var app = app || {}; // jshint ignore:line
  
         Meteor.call('getTsvFile', file, ctx.project, true,
             function (error, tsv) {
-            if (error || tsv.slice(0,5).toLowerCase() === 'error') {
+            if (error || (typeof tsv === 'string'
+                && tsv.slice(0,5).toLowerCase() === 'error')) {
                 banner('error', 'Sorry, that XY position file cannot be found.');
             } else {
                 $(event.target).attr({

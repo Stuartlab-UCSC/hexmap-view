@@ -112,7 +112,8 @@ var app = app || {}; // jshint ignore:line
                 banner('error', 'Sorry, the file containing the windows was not found. (grid_*.tab)')
                 return;
             }
-            if (parsed.slice(0,5).toLowerCase() === 'error') {
+            if (typeof parsed === 'string'
+                && parsed.slice(0,5).toLowerCase() === 'error') {
                 banner('error', parsed);
                 return;
             }
@@ -210,7 +211,8 @@ var app = app || {}; // jshint ignore:line
                     + file + ')');
                 return;
             }
-            if (parsed.slice(0,5).toLowerCase() === 'error') {
+            if (typeof parsed === 'string'
+                && parsed.slice(0,5).toLowerCase() === 'error') {
                 banner('error', parsed);
                 return;
             }
