@@ -2,11 +2,11 @@
 # Start a production server on port 8443
 
 PORT=8443
-DIR=/dir
+DIR=/data
 DB_PORT=27017
 METEORPATH=/data/home/hexmap/.meteor
 
-export ROOT_URL=https://tumormap.ucsc.edu:$PORT
+export ROOT_URL=https://tumormap.ucsc.edu
 export MONGO_URL=mongodb://localhost:$DB_PORT/$PORT
 touch $DIR/$PORT.log
 mv $DIR/$PORT.log $DIR/$PORT.prev.log
