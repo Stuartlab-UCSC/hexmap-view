@@ -8,12 +8,12 @@ var app = app || {}; // jshint ignore:line
 
 (function (hex) {
 
-    DialogHex = function ($el, opts, initFx, destroyFx, helpAnchor) {
+    DialogHex = function ($el, opts, showFx, hideFx, helpAnchor) {
 
         this.$el = $el;
         this.opts = opts;
-        this.initFx = initFx;
-        this.destroyFx = destroyFx;
+        this.showFx = showFx;
+        this.hideFx = hideFx;
         this.$help = $('.help-button');
         this.helpAnchor = helpAnchor;
 
@@ -38,21 +38,9 @@ var app = app || {}; // jshint ignore:line
                 .on('click', self.showHelp);
         }
 
-        DialogHex.prototype.destroyDialog = function () {
+        DialogHex.prototype.hide = function () {
 
-            try {
-                this.destroyFx(); // Call the instance destroy function
-            }
-            catch (error) {
-                $.noop();
-            }
-
-            try {
-                this.$el.dialog('destroy');
-            }
-            catch (error) {
-                $.noop();
-            }
+            this.$el.dialog('destroy');
         }
 
         DialogHex.prototype.init = function () {
@@ -74,8 +62,8 @@ var app = app || {}; // jshint ignore:line
                 //this.initHelp(); // TODO turn this on when we have help
             }
  
-            if (this.initFx) {
-                this.initFx(); // Call the instance init function
+            if (this.showFx) {
+                this.showFx(); // Call the instance init function
             }
         }
 
@@ -87,7 +75,7 @@ var app = app || {}; // jshint ignore:line
                     dialogClass: 'dialog',
                     minHeight: '10em',
                     width: 'resolve',
-                    close: self.destroyDialog,
+                    close: self.hideFx,
             };
 
             // Override the defaults or add options from the caller
@@ -112,12 +100,18 @@ var app = app || {}; // jshint ignore:line
                 .prop('title', this.opts.title)
                 .button()
                 .click(function() {
+                
+                    // Recreate the dialog if the button is pressed while
+                    // a dialog instance is defined.
+                    if (self.$el.dialog('instance')) {
+                        self.hideFx();
+                    }
                     self.show();
                 });
         }
     }
 
-    createDialogHex = function ($button, $el, opts, initFx, destroyFx,
+    createDialogHex = function ($button, $el, opts, showFx, hideFx,
         buttonInitialized, helpAnchor) {
 
         /* Creates an instance of our dialog, which contains a button to open
@@ -127,12 +121,11 @@ var app = app || {}; // jshint ignore:line
          *          where null indicates the button is already initialized
          * @param $el: jquery DOM element of the dialog anchor
          * @param opts: overrides of this class' jquery-ui dialog options
-         * @param initFx: called after the init function of this class
-         * @param destroyFx: called before the destroy function of this class, 
-         *                      optional
+         * @param showFx: called after the show function of this class
+         * @param hideFx: called to destroy the jqueryui dialog
          * @param helpAnchor: the html anchor in the user help doc
          */
-        var instance = new DialogHex($el, opts, initFx, destroyFx, helpAnchor);
+        var instance = new DialogHex($el, opts, showFx, hideFx, helpAnchor);
         if (!buttonInitialized) {
             instance.initButton($button);
         }

@@ -6,6 +6,17 @@
 
 var exec = Npm.require('child_process').exec;
 
+//removeRoles(['dev']);
+//createRole('dev');
+//removeUsersFromRoles(['jstuart@ucsc.edu'] , ['CKCC']);
+//showUsernames();
+//addUsersToRoles (['dlam2@ucsc.edu'] , ['CKCC']);
+//removeUser('hexmap@ucsc.edu');
+//addUsersToRoles(['x@x.x'],
+//Meteor.users.remove({});
+
+showRolesWithUsersAndProject();
+
 function usernamesToUsers (usernamesIn) {
     var usernames = usernamesIn;
     if (typeof usernames === 'string') {
@@ -136,17 +147,7 @@ function removeUser(username) {
     Meteor.users.remove(user[0]);
 }
 
-//removeRoles(['dev']);
-//createRole('dev');
-//removeUsersFromRoles([ 'ynewton@soe.ucsc.edu', 'dmccoll@ucsc.edu', 'swat@soe.ucsc.edu'] , ['Pancan12', 'CKCC']);
-//showUsernames();
-addUsersToRoles (['josh@soe.ucsc.edu'], 'dev');
-//removeUser('aDeveloperUser@x.x');
-//addUsersToRoles(['x@x.x'],
-//Meteor.users.remove({});
-showRolesWithUsersAndProject();
-
-// Possible queries
+// More possible queries
 /*
 showProjectsWithRoles: Show all projects with the role in each
 userRequestRole: A UI for a user to request to join a role

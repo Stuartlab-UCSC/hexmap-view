@@ -37,13 +37,6 @@ var app = app || {}; // jshint ignore:line
         },
     });
  
-    function printPrep(event) {
-        dialogHex.destroyDialog();
- 
-        // TODO don't know why this won't open the native print window
-        window.print();
-    }
- 
     function whenCheckboxChanges() {
  
         if (chk.get('head')) {
@@ -74,7 +67,7 @@ var app = app || {}; // jshint ignore:line
         $legend.show();
     }
 
-    function initContent () {
+    function show () {
  
         $close = $('#pdfClose');
         $head = $('#toolbar, .header');
@@ -95,8 +88,10 @@ var app = app || {}; // jshint ignore:line
             .on('click', closeViewer);
     }
  
-    function beforeDestroy () {
+    function hide () {
         autorun.stop;
+        dialogHex.hide();
+        window.print(); // TODO why does this not display the browser's print window?
     }
 
     initPdf = function () {
@@ -111,8 +106,8 @@ var app = app || {}; // jshint ignore:line
  
         // Define the dialog options & create an instance of DialogHex
         var opts = { title: title };
-        dialogHex = createDialogHex($button, $dialog, opts, initContent,
-            beforeDestroy, true, '#fakeHelpAnchor');
+        dialogHex = createDialogHex($button, $dialog, opts, show,
+            hide, true, '#fakeHelpAnchor');
  
         // Listen for the menu clicked
         $button.on('click', function () {

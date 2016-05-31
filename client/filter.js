@@ -27,6 +27,7 @@ var app = app || {}; // jshint ignore:line
         $dialog,
         $passFilters,
         tagsAutorun,
+        autorun = [],
         tagData,
         hasTagInfo = false;
 
@@ -295,6 +296,22 @@ var app = app || {}; // jshint ignore:line
             $('.header .filter').removeClass('active');
         }
     }
+ 
+    function hide() {
+        _.each(autorun, function (run) {
+            run.stop();
+        });
+        dialogHex.hide();
+    }
+ 
+    function show() {
+ 
+        // Define functions to run when dialog reactive vars change
+        autorun[0] = Tracker.autorun(whenDisplayLayersChange);
+        autorun[1] = Tracker.autorun(whenSortedLayersChange);
+        autorun[2] = Tracker.autorun(whenAllChanges);
+        autorun[3] = Tracker.autorun(whenCheckboxesChange);
+    }
 
     clearAllFilters = function () {
 
@@ -349,15 +366,12 @@ var app = app || {}; // jshint ignore:line
                 chk.set(data.tag, ev.target.checked);
             });
 
-        // Define functions to run when reactive vars change
+        // Define a function to run when the first attribute sort happens
         tagsAutorun = Tracker.autorun(processTags);
-        Tracker.autorun(whenDisplayLayersChange);
-        Tracker.autorun(whenSortedLayersChange);
-        Tracker.autorun(whenAllChanges);
-        Tracker.autorun(whenCheckboxesChange);
 
         // Create an instance of DialogHex
-        dialogHex = createDialogHex($button, $dialog, {title: TITLE});
+        dialogHex = createDialogHex($button, $dialog, {title: TITLE},
+            show, hide);
     }
 })(app);
 

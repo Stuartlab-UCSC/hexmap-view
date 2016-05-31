@@ -134,20 +134,21 @@ var app = app || {}; // jshint ignore:line
 
         if (_.isUndefined(returnMessage)) {
             runIt(attr, attr2);
-            dialogHex.destroyDialog();
+            hide();
         } else {
             banner('error', returnMessage);
         }
 	}
 
-    function justBeforeDestroy() {
+    function hide() {
 
-        // Destroy some things just before the dialog destroy
+        // Destroy some things just before the dialog hide
         list.destroy();
         list = undefined;
         list2.destroy();
         list2 = undefined;
-        // TODO enable the button that displays the dialog
+        
+        dialogHex.hide();
     }
 
     initDiffAnalysis = function () {
@@ -164,7 +165,7 @@ var app = app || {}; // jshint ignore:line
             $('#diffAnalysisDialog'),
             opts,
             show,
-            justBeforeDestroy
+            hide
         );
     }
 })(app);

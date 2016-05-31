@@ -16,7 +16,7 @@ var app = app || {}; // jshint ignore:line
         listSelected,
         listSelected2,
         ui = new ReactiveDict(),
-        enableAutorun;
+        autorun;
 
     // Make the variables in the html templates under our dynamic control here.
     Template.sortUiT.helpers({
@@ -128,6 +128,13 @@ var app = app || {}; // jshint ignore:line
                                     list);
         enableAll();
 
+        // Define an autorun for when UI variables change
+        autorun = Tracker.autorun(function () {
+            ui.get('sortBy');
+            ui.get('layoutAware');
+            enableAll();
+        });
+
         // TODO disable the button that displays the dialog, maybe with a progress wheel
     }
 
@@ -169,22 +176,24 @@ var app = app || {}; // jshint ignore:line
             }
         }
         if (_.isUndefined(returnMessage)) {
-            dialogHex.destroyDialog();
+            hide();
         } else {
             banner('error', returnMessage);
         }
 	}
 
-    function justBeforeDestroy() {
+    function hide() {
 
-        // Destroy some things just before the dialog destroy
+        // Free some memory just before the dialog hide
+        autorun.stop();
         listSelected = list.selected;
         list.destroy();
         list = undefined;
         listSelected2 = list2.selected;
         list2.destroy();
         list2 = undefined;
-        // TODO enable the button that displays the dialog?
+ 
+        dialogHex.hide();
     }
 
     initSortAttrs = function () {
@@ -204,13 +213,6 @@ var app = app || {}; // jshint ignore:line
 
         // Set jquery element names
         $dialog = $('#sort-attributes-dialog');
-
-        // Define some autoruns for when reactive variables change
-        enableAutorun = Tracker.autorun(function () {
-            ui.get('sortBy');
-            ui.get('layoutAware');
-            enableAll();
-        });
 
         // Define some 'delegated' event handlers. Child elements to do not need
         // to exist yet, so we can define handlers once with no worries of
@@ -248,6 +250,6 @@ var app = app || {}; // jshint ignore:line
 
         // Create an instance of DialogHex
         dialogHex = createDialogHex($('#sort-attributes-button'), $dialog, opts,
-            show, justBeforeDestroy);
+            show, hide);
     }
 })(app);
