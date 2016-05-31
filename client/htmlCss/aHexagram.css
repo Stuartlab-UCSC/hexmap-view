@@ -70,7 +70,7 @@ Read as "The content row", distinct from whatever else that element might be.
     z-index: 1;
 }
 
-.listAnchor {
+.layerNameListAnchor {
     width: 20em;
 }
 .dialog {

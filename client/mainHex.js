@@ -135,6 +135,7 @@ var app = app || {}; // jshint ignore:line
                 initShortlist();
                 initLegend();
                 initCoords();
+                initReflect();
                 initLabelTool();
                 initDownload();
                 initColors();

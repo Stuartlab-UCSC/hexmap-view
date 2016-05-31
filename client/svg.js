@@ -11,7 +11,8 @@ var app = app || {}; // jshint ignore:line
 
     var xyMapSize = 5120,
         dims = null,
-        initiated = false;
+        initiated = false,
+        svg;
 
     function get_xySvgMap (latLng, dims) {
 
@@ -92,10 +93,17 @@ var app = app || {}; // jshint ignore:line
         return svg + "</svg>\n";
     }
 
+    function mousedown(event) {
+
+        // The handler for mousedown on the menu option
+        // to prepare the svg first.
+        svg = googleToSvg();
+    }
+
     function click(event) {
 
         // The handler for clicking the menu option
-        var svg = googleToSvg();
+        // to actually download it.
         $(event.target).attr("href",
             "data:text/plain;base64," + window.btoa(svg));
     }
@@ -103,6 +111,8 @@ var app = app || {}; // jshint ignore:line
     initSvg = function () {
         if (initiated) return;
         initiated = true;
-        $('#svgDownload').on('click', click);
+        $('#svgDownload')
+            .on('mousedown', mousedown)
+            .on('click', click);
     }
 })(app);

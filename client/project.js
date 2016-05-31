@@ -147,7 +147,7 @@ var app = app || {}; // jshint ignore:line
   
         $('.login').on('click', $('#login-sign-in-link'), signInClicked);
  
-        // Initialize projects whenever the username changes, including log out
+        // Repopulate projects whenever the username changes, including log out
         Meteor.autorun(function() {
             var x = Meteor.user();
             

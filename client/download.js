@@ -14,6 +14,8 @@ var app = app || {}; // jshint ignore:line
 
 (function (hex) {
     //'use strict';
+ 
+    var xyFile;
 
     initDownloadSelectTool = function () {
 
@@ -126,21 +128,25 @@ var app = app || {}; // jshint ignore:line
         }, 'Export the selection as a list of hexagons', 'mapShow');
     }
 
-    function xyPreSquiggle_click(event) {
+    function xyPreSquiggle_mousedown(eventIn) {
 
-        // Initialize for the xy pre-squiggle positions file
-        var file = 'xyPreSquiggle_' + Session.get('layoutIndex') +'.tab';
+        // Prepare to download the xy pre-squiggle positions file
+        xyFile = 'xyPreSquiggle_' + Session.get('layoutIndex') +'.tab';
+        var event = eventIn;
  
-        Meteor.call('getTsvFile', file, ctx.project, true,
+        Meteor.call('getTsvFile', xyFile, ctx.project, true,
             function (error, tsv) {
             if (error || (typeof tsv === 'string'
                 && tsv.slice(0,5).toLowerCase() === 'error')) {
                 banner('error', 'Sorry, that XY position file cannot be found.');
             } else {
-                $(event.target).attr({
-                    'href': 'data:text/plain;base64,' + window.btoa(tsv),
-                    'download': file,
+                $(event.target).on('click', function (event) {
+                    $(event.target).attr({
+                        'href': 'data:text/plain;base64,' + window.btoa(tsv),
+                    });
+                    $(event.target).off('click');
                 });
+                $(event.target).click();
             }
         });
     }
@@ -152,8 +158,7 @@ var app = app || {}; // jshint ignore:line
             initPdf();
             initSvg();
         }
-        $('#xyPreSquiggle').on('click', xyPreSquiggle_click);
+        $('#xyPreSquiggle').on('mousedown', xyPreSquiggle_mousedown);
     }
-
 })(app);
 

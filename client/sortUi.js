@@ -134,8 +134,6 @@ var app = app || {}; // jshint ignore:line
             ui.get('layoutAware');
             enableAll();
         });
-
-        // TODO disable the button that displays the dialog, maybe with a progress wheel
     }
 
 	 function sortIt () {

@@ -759,7 +759,7 @@ var app = app || {}; // jshint ignore:line
         // Add the layer. Say it is a selection
         add_layer_data(layer_name, data, {
             selection: true,
-                selected: signatures_selected, // Display how many hexes are in
+            selected: signatures_selected, // Display how many hexes are in
             n: signatures_available // And how many have a value at all
         });
         
