@@ -47,6 +47,10 @@ var app = app || {};
  
         // Gather the user input and call the map manager.
         selectionSelected = selectionList.selected;
+ 
+        // Bail if no selection is selected
+        if (_.isUndefined(selectionSelected)) return;
+ 
         var nodeIds = _.keys(layers[selectionList.selected].data);
         mapManager('reflectInAnotherMap', mapId, nodeIds);
 
@@ -74,7 +78,7 @@ var app = app || {};
         var $button = $('#reflectTrigger');
  
         // Initialize our UI variables
-        mapId = 'CKCC/v1 Gene Map';
+        mapId = 'CKCC/v1 Genes';
  
         // Define the dialog options & create an instance of DialogHex
         var opts = {
@@ -94,6 +98,7 @@ var app = app || {};
         Meteor.autorun(function() {
             var user = Meteor.user();
             
+            // TODO this only changes its color, really disable it
             if (user) {
                 $button.removeClass('ui-state-disabled');
             } else {
