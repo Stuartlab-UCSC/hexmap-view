@@ -3,9 +3,9 @@ import pandas as pd
 def topXbinTrans(df,top):
     '''
 
-    output a binary vector 1 for the top t genes, 0 otherwise, will throw away rest of matrix
+
     :param df: a dataframe with a single column
-    :return:
+    :return:outputs a dataframe with single column and same indecies as df, 3 is 'high, 2 is 'middle', and 1 is 'low'
     '''
 
 
@@ -60,7 +60,7 @@ def reflection(parm):
     #grab highest and lowest values and turn into: 3 highest , 2 middle, 1 lowest. 3 and 1 are of particular interest
     res = topXbinTrans(res,TOP)
     #outpath='reflect_ex.tab'
-    res.to_csv(outpath,sep='\t')
+    res.to_csv(outpath,sep='\t') #output is without header
 
     return 0
 
