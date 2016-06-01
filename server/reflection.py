@@ -23,7 +23,7 @@ def reflection(parm):
 
     :param parm: {
                   "datafile": relfection_data_file_name
-                  "directory": relfection_data_file_directory
+                  "directory": relfection_data_file_directory.pi
                   "sample_or_feature" : sample
                   "node_ids" = [ id1,...,idn ]
                   "out_file"=outputfile
@@ -35,13 +35,13 @@ def reflection(parm):
 
     fname = str(parm['datafile'])
     fpath = os.path.join(parm['directory'], fname)
-    outpath = os.path.join(parm['directory'], parm['out_file'])
+    outpath = parm['out_file']
 
     if not os.path.isfile(fpath):
         print "Error:", fname, "not found, so reflection could not be computed\n"
         return 0
 
-    ref_dat = pd.read_csv(fpath,sep='\t',index_col=0)
+    ref_dat = pd.read_pickle(fpath)
 
     #if going from features to samples then need to transpose matrix
     if (parm['sampleOrFeature'] == 'feature'):
