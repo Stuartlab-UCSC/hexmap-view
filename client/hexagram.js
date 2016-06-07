@@ -302,7 +302,7 @@ fill_layer_metadata = function (container, layer_name) {
  
             // Do some transformations to make the displayed labels make more sense
             lookup = {
-                n: "Number of non-empty values",
+                n: "Non-empty values",
                 positives: "Number of ones",
                 inside_yes: "Ones in A",
                 outside_yes: "Ones in background",
@@ -806,7 +806,8 @@ initLayout = function () {
                 continue;
             }
 
-            layouts.push({name: row[0]});
+            layouts.push(row[0]);
+
             if (row.length > 1) {
                 
                 // hack alert: don't know why there is a \r at the end of
@@ -822,7 +823,7 @@ initLayout = function () {
 
         // Transform the layout list into the form wanted by select2
         var data = _.map(layouts, function (layout, i) {
-            return { id: i, text: layout.name }
+            return { id: i, text: layout }
         });
 
         // Create our selection list

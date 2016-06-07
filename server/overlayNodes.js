@@ -2,6 +2,8 @@
 // overlayNodes.js
 // Handle overlayNode requests from the client or query API
 
+var Future = Npm.require('fibers/future');
+
 var url = Meteor.absoluteUrl();
 
 function passOverlayNodeChecks (dataIn, res) {
@@ -15,7 +17,7 @@ function passOverlayNodeChecks (dataIn, res) {
         layout = 'mRNA';
     
     // Validate that certain properties are included
-    if (!dataIn.hasOwnProperty('map') && !dataIn.hasOwnProperty('map2')) {
+    if (!dataIn.hasOwnProperty('map')) {
     
         // TODO should we require authentication and use:
         //  throw new Meteor.Error(403, "Access denied")
@@ -67,13 +69,10 @@ saveBookmark = function(state) {
     return id
 }
 
-overlayNodes = function (dataIn, res) {
+overlayNodes = function (dataIn, res, future) {
     
     // Process the data in the overlayNodes request where dataIn is the
     // request data as a javascript object.
-    
-    // Let the validator send the response on invalid data.
-    if (!passOverlayNodeChecks(dataIn, res)) return;
     
     // Set up some static options for the python call
     var opts = {
@@ -85,14 +84,7 @@ overlayNodes = function (dataIn, res) {
     var file;
 
     // TODO test cases should not be in production code
-    if (dataIn.TESTbookmarkStub) {
-
-        // Return this fake URL for this test
-        respondToHttp(200, res, {bookmark: url +
-            "?b=18XFlfJG8ijJUVP_CYIbA3qhvCw5pADF651XTi8haPnE"});
-        return;
-        
-    } else if (dataIn.TESTpythonCallStub
+    if (dataIn.TESTpythonCallStub
         || dataIn.TESTpythonCallGoodData
         || dataIn.TESTpythonCallGoodDataBookmark) {
 
@@ -135,10 +127,15 @@ overlayNodes = function (dataIn, res) {
     // Set the log file name
     opts.log = TEMP_DIR + 'overlayNodes.log';
     
+    // Save the future for responding to client callers.
+    if (future) opts.future = future;
+    
     callPython('compute_pivot_vs_background', opts, function (result) {
+    
+        var future = opts.future;
         
         if (result.code !== 0) {
-            respondToHttp(500, res, result.data);
+            respondToHttp(500, res, result.data, future);
             return;
         }
         
@@ -146,11 +143,11 @@ overlayNodes = function (dataIn, res) {
             data = result.data;
         
         if (dataIn.TESTpythonCallStub || dataIn.TESTpythonCallGoodData) {
-            respondToHttp(result.code === 0 ? 200 : 500, res, data);
+            respondToHttp(result.code === 0 ? 200 : 500, res, data, future);
             return;
         }
         
-        // Build the URLs and sent them to the http caller.
+        // Build the URLs and send them to the http caller.
         var emailUrls = {};
         var urls = [];
         _.each(data, function (node, nodeName) {
@@ -165,7 +162,7 @@ overlayNodes = function (dataIn, res) {
             emailUrls[nodeName] = url;
             urls.push(url);
         });
-        respondToHttp(200, res, {bookmarks: urls});
+        respondToHttp(200, res, {bookmarks: urls}, future);
         
         // Send email to interested parties
         var subject = 'tumor map results: ',
@@ -192,7 +189,35 @@ overlayNodes = function (dataIn, res) {
             overlayNodes: xyData.nodes,
         };
         var bookmark = saveBookmark(state);
-        respondToHttp(200, res, {bookmark: url + '?b=' + bookmark});
+        respondToHttp(200, res, {bookmark: url + '?b=' + bookmark}, future);
         */
     });
 }
+
+overlayNodesQuery = function (dataIn, res) {
+
+    // Let the validator send the response on invalid data.
+    if (!passOverlayNodeChecks(dataIn, res)) return;
+    
+    // TODO test cases should not be in production code
+    if (dataIn.TESTbookmarkStub) {
+
+        // Return this fake URL for this test
+        respondToHttp(200, res, {bookmark: url +
+            "?b=18XFlfJG8ijJUVP_CYIbA3qhvCw5pADF651XTi8haPnE"});
+        return;
+    }
+    
+    overlayNodes(dataIn, res);
+}
+
+Meteor.methods({
+
+    // For calling from the client
+    overlayNode: function (opts) {
+        this.unblock();
+        var future = new Future();
+        overlayNodes(opts, undefined, future);
+        return future.wait();
+    },
+});

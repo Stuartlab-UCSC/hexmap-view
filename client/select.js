@@ -193,9 +193,6 @@ var app = app || {}; // jshint ignore:line
         // Create a selection polygon & find the hexagons in it
         setCursor(savedCursor);
 
-        // Clear the selection color from the preview hexagons.
-        if (Session.get('showSelecting')) clearPreviewHexagons();
-
         select_list(findHexagonsInPolygon(shape), "user selection");
 
         // Remove the bounding polygons and reset the hover curser for hexagons
@@ -238,8 +235,6 @@ var app = app || {}; // jshint ignore:line
 
         var latLng = event.latLng;
  
-        if (Session.get('showSelecting')) clearPreviewHexagons();
- 
         if (isRectangle) {
             shape.setPath(boundsToPath(startLatLng, latLng));
 
@@ -251,10 +246,6 @@ var app = app || {}; // jshint ignore:line
             }
  
             shape.getPath().push(latLng);
-        }
-        if (Session.get('showSelecting')) {
-            previewHexNames = findHexagonsInPolygon(shape);
-            colorPreviewHexagons();
         }
     }
 
@@ -357,7 +348,7 @@ var app = app || {}; // jshint ignore:line
         // A tool for importing a list of hexes as a selection
         // Make the import form
         var import_form = $("<form/>").attr("title", 
-            "Select by Identifier");
+            "Select by Identifiers");
 
         import_form.append($("<div/>").text("Hexagon IDs, one per line:"));
 
@@ -445,17 +436,6 @@ var app = app || {}; // jshint ignore:line
         }
     }
 
-    // Define the show selecting template helper
-    Template.navBarT.helpers({
-        showSelecting: function () {
-            if (Session.get('showSelecting')) {
-                return "Hide Selecting";
-            } else {
-                return "Show selecting";
-            }
-        }
-    });
-
     findHexagonsInViewport = function () {
  
         return findHexagonsInPolygon(googlemap.getBounds(), true)
@@ -466,15 +446,6 @@ var app = app || {}; // jshint ignore:line
         var $menu = $('#selectMenu');
         $menu.menu({
             select: selected,
-        });
-        
-        Session.set('showSelecting', true);
-        $('#showSelecting').on('click', function () {
-            if (Session.equals('showSelecting', true)) {
-                Session.set('showSelecting', false);
-            } else {
-                Session.set('showSelecting', true);
-            }
         });
     }
 })(app);

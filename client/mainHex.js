@@ -16,7 +16,7 @@ var app = app || {}; // jshint ignore:line
         },
     });
 
-    queryFreeReload = function () {
+   queryFreeReload = function () {
 
         // Strip everything after the query string question mark in the href & reload
         var href = window.location.href
@@ -27,6 +27,10 @@ var app = app || {}; // jshint ignore:line
         } else {
             window.location.reload();
         }
+    }
+
+    bookmarkReload = function (bookmark) {
+        window.location.assign(bookmark);
     }
 
     pageReload = function (page) {
@@ -132,6 +136,7 @@ var app = app || {}; // jshint ignore:line
 
                 // Initialize the background functions.
                 initOverlayNodes();
+                initOverlayNodeUi();
                 initShortlist();
                 initLegend();
                 initCoords();

@@ -16,12 +16,6 @@ var app = app || {}; // jshint ignore:line
     // Give this a value when the user has asked for a project that cannot be found.
     var unFoundProject;
  
-    function getHumanProject (project) {
- 
-        // Transform a project from dir structure to display for humans
-        return project.slice(0, -1);
-	};
-
     // Define a Project class.
     function Project() {};
 

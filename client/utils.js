@@ -14,6 +14,12 @@ var app = app || {}; // jshint ignore:line
         return Math.round(x * m) / m;
     }
 
+    getHumanProject = function (project) {
+ 
+        // Transform a project from dir structure to display for humans
+        return project.slice(0, -1);
+	};
+
     projectNotFound = function (filename) {
         if (!ctx.projectNotFoundNotified) {
 

@@ -153,7 +153,7 @@ def main(opts):
 	curr_time = time.time()
 
 	if not(meta["map"] == map):
-		print >> sys.stderr, "ERROR: meta data file does not match the requested map."
+		print >> sys.stderr, "ERROR: meta data file does not match the requested map. meta[map]:", meta[map], "data[map]:", map
 		sys.exit(1)
 	in_file2 = meta["layouts"][layout]["featureSpaceFile"]
 	metric_type = meta["layouts"][layout]["metric"]
@@ -237,16 +237,16 @@ def main(opts):
 	for i in range(len(x_corr)):
 		sample_dict = dict(zip(sample_labels2, x_corr[i]))
 		results[sample_labels1[i]] = {}
-		results[sample_labels1[i]]['local neighborhood'] = {}
+		results[sample_labels1[i]]['neighbors'] = []
 		neighborhood_metrics = []
 		for n_i in range(neighborhood_size):
 			v=list(sample_dict.values())
 			k=list(sample_dict.keys())
 			m=v.index(max(v))
-			results[sample_labels1[i]]['local neighborhood'][k[m]] = sigDigs(v[m])
+			results[sample_labels1[i]]['neighbors'].append(k[m])
 			neighborhood_metrics.append(v[m])
 			del sample_dict[k[m]]
-		results[sample_labels1[i]]['median metric'] = sigDigs(numpy.median(neighborhood_metrics))
+		#results[sample_labels1[i]]['median metric'] = sigDigs(numpy.median(neighborhood_metrics))
 	if len(log_file) > 0:
 		print >> log, str(time.time() - curr_time) + " seconds"
 		
@@ -255,7 +255,7 @@ def main(opts):
 	curr_time = time.time()
 
 	for k in results:
-		neighbors = results[k]['local neighborhood']
+		neighbors = results[k]['neighbors']
 		x_pos = []
 		y_pos = []		
 		for n in neighbors:
@@ -267,10 +267,8 @@ def main(opts):
 
 		centroid_x = numpy.median(x_pos)
 		centroid_y = numpy.median(y_pos)
-		url = "https://tumormap.ucsc.edu/?p="+map+"&x="+str(centroid_x)+"&y="+str(centroid_y)
 		results[k]['x'] = centroid_x
 		results[k]['y'] = centroid_y
-		results[k]['url'] = url
 	
 	if len(log_file) > 0:
 		print >> log, "Outputting in json format"

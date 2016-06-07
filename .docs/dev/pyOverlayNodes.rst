@@ -17,7 +17,7 @@ Example::
  {
     "map": "CKCC/v1",
     "layout": "mRNA",
-    "emails": [
+    "email": [
         "IamInterested@any.com",
         "meToo@any.com",
         ...
@@ -51,7 +51,8 @@ It should return a bookmark of the form::
 
 Definitions
 
- | *emails* : email addresses where the bookmark will be sent
+ | *neighborNode* : a neighbor node of the given node
+ | *email* : email addresses where the bookmark will be sent
  | *layout* : type of values by which the new node will be placed on the map. e.g., "mRNA"
  | *mapID* : frozen map ID. e.g., "CKCC/v1"
  | *nodes* : the nodes to be placed on the map
@@ -63,7 +64,7 @@ Generalized Format::
  {
     "map": <mapID>,
     "layout": <layout>,
-    "emails": [
+    "email": [
         <email>,
         (1 to N email addresses ...)
     ],
@@ -86,7 +87,7 @@ Example::
  {
     "map": "CKCC/v1",
     "layout": "mRNA",
-    "emails": [
+    "email": [
         "IamInterested@any.com",
         "meToo@any.com",
         ...
@@ -94,6 +95,14 @@ Example::
     "nodes": {
         "mySample1": {
             "hash": "267831025yhs3fzxwi",
+            "neighbors": [
+                "TCGA-HT-7686-01",
+                "TCGA-P5-A780-01", 
+                "TCGA-28-5216-01", 
+                "TCGA-DU-A7TD-01", 
+                "TCGA-06-0187-01", 
+                "TCGA-QR-A70E-01"
+            ],
             "x": "42",
             "y": "23",
         },
@@ -105,13 +114,21 @@ Generalized Format::
  {
     "map": <map ID>,
     "layout": <layout>,
-    "emails": [
+    "email": [
         <email>,
         (1 to N email addresses ...)
     ],
     "nodes": {
         <node>: {
             "hash": <hash-generated-over-data>,
+            "neighbors": [
+                <neighborNode>,
+                <neighborNode>,
+                <neighborNode>,
+                <neighborNode>,
+                <neighborNode>,
+                (1 to N neighborNodes ...)
+            ],
             "x": <x-value>,
             "y": <y-value>,
         },

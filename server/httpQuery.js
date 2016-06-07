@@ -4,7 +4,7 @@
 
 var Future = Npm.require('fibers/future');
 var exec = Future.wrap(Npm.require('child_process').exec);
-// TODO use spawn instead of exec and do we need Future here?
+// TODO use spawn instead of exec
 
 var url = Meteor.absoluteUrl();
 
@@ -37,7 +37,7 @@ WebApp.connectHandlers.use("/query/overlayNodes", function(req, res, next) {
         return;
     }
     
-    var queryFx = overlayNodes;
+    var queryFx = overlayNodesQuery;
     var jsonDataIn = '';
     req.setEncoding('utf8');
     
@@ -84,14 +84,29 @@ sendMail = function (users, subject, msg) {
     });
 }
 
-respondToHttp = function (code, res, msg) {
+respondToHttp = function (code, res, msg, future) {
 
-    // Send a response to the client.
-    var data = msg;
-    if (code === 200) {
-        res.setHeader('Content-Type', 'application/json');
-        data = JSON.stringify(msg);
+    // This responds to an http request or handles a future for those cases
+    // where the client is making the query.
+
+    if (res) {
+    
+        // Send an HTTP response to the client.
+        var data = msg;
+        if (code === 200) {
+            res.setHeader('Content-Type', 'application/json');
+            data = JSON.stringify(msg);
+        }
+        res.writeHead(code);
+        res.end(data + '\n');
+
+    } else if (future) {
+    
+        // Return the message to the client.
+        if (code === 200) {
+            future.return(msg);
+        } else {
+            future.throw(msg);
+        }
     }
-    res.writeHead(code);
-    res.end(data + '\n');
 }

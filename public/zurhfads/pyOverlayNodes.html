@@ -65,7 +65,7 @@ example call and response.</p>
 <div class="highlight-python"><div class="highlight"><pre><span></span>{
    &quot;map&quot;: &quot;CKCC/v1&quot;,
    &quot;layout&quot;: &quot;mRNA&quot;,
-   &quot;emails&quot;: [
+   &quot;email&quot;: [
        &quot;IamInterested@any.com&quot;,
        &quot;meToo@any.com&quot;,
        ...
@@ -101,7 +101,8 @@ Content-Type:application/json -X POST -v https://tumormap.ucsc.edu:8112/query/ov
 <p>Definitions</p>
 <blockquote>
 <div><div class="line-block">
-<div class="line"><em>emails</em> : email addresses where the bookmark will be sent</div>
+<div class="line"><em>neighborNode</em> : a neighbor node of the given node</div>
+<div class="line"><em>email</em> : email addresses where the bookmark will be sent</div>
 <div class="line"><em>layout</em> : type of values by which the new node will be placed on the map. e.g., &#8220;mRNA&#8221;</div>
 <div class="line"><em>mapID</em> : frozen map ID. e.g., &#8220;CKCC/v1&#8221;</div>
 <div class="line"><em>nodes</em> : the nodes to be placed on the map</div>
@@ -113,7 +114,7 @@ Content-Type:application/json -X POST -v https://tumormap.ucsc.edu:8112/query/ov
 <div class="highlight-python"><div class="highlight"><pre><span></span>{
    &quot;map&quot;: &lt;mapID&gt;,
    &quot;layout&quot;: &lt;layout&gt;,
-   &quot;emails&quot;: [
+   &quot;email&quot;: [
        &lt;email&gt;,
        (1 to N email addresses ...)
    ],
@@ -135,7 +136,7 @@ Content-Type:application/json -X POST -v https://tumormap.ucsc.edu:8112/query/ov
 <div class="highlight-python"><div class="highlight"><pre><span></span><span class="p">{</span>
    <span class="s2">&quot;map&quot;</span><span class="p">:</span> <span class="s2">&quot;CKCC/v1&quot;</span><span class="p">,</span>
    <span class="s2">&quot;layout&quot;</span><span class="p">:</span> <span class="s2">&quot;mRNA&quot;</span><span class="p">,</span>
-   <span class="s2">&quot;emails&quot;</span><span class="p">:</span> <span class="p">[</span>
+   <span class="s2">&quot;email&quot;</span><span class="p">:</span> <span class="p">[</span>
        <span class="s2">&quot;IamInterested@any.com&quot;</span><span class="p">,</span>
        <span class="s2">&quot;meToo@any.com&quot;</span><span class="p">,</span>
        <span class="o">...</span>
@@ -143,6 +144,14 @@ Content-Type:application/json -X POST -v https://tumormap.ucsc.edu:8112/query/ov
    <span class="s2">&quot;nodes&quot;</span><span class="p">:</span> <span class="p">{</span>
        <span class="s2">&quot;mySample1&quot;</span><span class="p">:</span> <span class="p">{</span>
            <span class="s2">&quot;hash&quot;</span><span class="p">:</span> <span class="s2">&quot;267831025yhs3fzxwi&quot;</span><span class="p">,</span>
+           <span class="s2">&quot;neighbors&quot;</span><span class="p">:</span> <span class="p">[</span>
+               <span class="s2">&quot;TCGA-HT-7686-01&quot;</span><span class="p">,</span>
+               <span class="s2">&quot;TCGA-P5-A780-01&quot;</span><span class="p">,</span>
+               <span class="s2">&quot;TCGA-28-5216-01&quot;</span><span class="p">,</span>
+               <span class="s2">&quot;TCGA-DU-A7TD-01&quot;</span><span class="p">,</span>
+               <span class="s2">&quot;TCGA-06-0187-01&quot;</span><span class="p">,</span>
+               <span class="s2">&quot;TCGA-QR-A70E-01&quot;</span>
+           <span class="p">],</span>
            <span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="s2">&quot;42&quot;</span><span class="p">,</span>
            <span class="s2">&quot;y&quot;</span><span class="p">:</span> <span class="s2">&quot;23&quot;</span><span class="p">,</span>
        <span class="p">},</span>
@@ -154,13 +163,21 @@ Content-Type:application/json -X POST -v https://tumormap.ucsc.edu:8112/query/ov
 <div class="highlight-python"><div class="highlight"><pre><span></span>{
    &quot;map&quot;: &lt;map ID&gt;,
    &quot;layout&quot;: &lt;layout&gt;,
-   &quot;emails&quot;: [
+   &quot;email&quot;: [
        &lt;email&gt;,
        (1 to N email addresses ...)
    ],
    &quot;nodes&quot;: {
        &lt;node&gt;: {
            &quot;hash&quot;: &lt;hash-generated-over-data&gt;,
+           &quot;neighbors&quot;: [
+               &lt;neighborNode&gt;,
+               &lt;neighborNode&gt;,
+               &lt;neighborNode&gt;,
+               &lt;neighborNode&gt;,
+               &lt;neighborNode&gt;,
+               (1 to N neighborNodes ...)
+           ],
            &quot;x&quot;: &lt;x-value&gt;,
            &quot;y&quot;: &lt;y-value&gt;,
        },

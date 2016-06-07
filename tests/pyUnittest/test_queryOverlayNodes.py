@@ -3,7 +3,7 @@
 # This tests javascript, using python's easer calls to shell commands
 # from here than from mocha
 
-import sys, os, subprocess, json, tempfile
+import sys, os, subprocess, json, tempfile, pprint
 import string
 import unittest
 
@@ -47,8 +47,7 @@ class TestQueryOverlayNodes(unittest.TestCase):
         return {'data': data, 'code': code}
     
     def expectedResults(s):
-        return '{"Sample-1":{"local neighborhood":{"TCGA-4J-AA1J-01":0.9977276,"TCGA-AJ-A3EM-01":0.9890932,"TCGA-DQ-7589-01":0.9929598,"TCGA-HT-7686-01":0.990232,"TCGA-KS-A4IB-01":0.9940576,"TCGA-N7-A4Y5-01":0.9988113},"median metric":0.9935087,"url":"https://tumormap.ucsc.edu/?p=CKCC/v1&x=200.5&y=226.5","x":200.5,"y":226.5},"Sample-2":{"local neighborhood":{"TCGA-4J-AA1J-01":0.9999689,"TCGA-DQ-7589-01":0.9917174,"TCGA-DW-7836-01":0.9886427,"TCGA-KS-A4IB-01":0.9987738,"TCGA-LH-A9QB-06":0.9927174,"TCGA-N7-A4Y5-01":0.9999419},"median metric":0.9957456,"url":"https://tumormap.ucsc.edu/?p=CKCC/v1&x=252.5&y=241.5","x":252.5,"y":241.5}}\n'
-    
+        return '{"Sample-1":{"neighbors":["TCGA-N7-A4Y5-01","TCGA-4J-AA1J-01","TCGA-KS-A4IB-01","TCGA-DQ-7589-01","TCGA-HT-7686-01","TCGA-AJ-A3EM-01"],"x":200.5,"y":226.5},"Sample-2":{"neighbors":["TCGA-4J-AA1J-01","TCGA-N7-A4Y5-01","TCGA-KS-A4IB-01","TCGA-LH-A9QB-06","TCGA-DQ-7589-01","TCGA-DW-7836-01"],"x":252.5,"y":241.5}}';
     def test_methodCheck(s):
         opts = ['-X', 'GET', '-v']
         rc = s.doCurl(opts)
@@ -132,13 +131,9 @@ class TestQueryOverlayNodes(unittest.TestCase):
     
     def test_pythonCallGoodData(s):
         data = '{"TESTpythonCallGoodData": "yes", "map": "CKCC/v1", "nodes": {"Sample-2": {"CTD-2588J6.1": "0", "RP11-433M22.1": "0", "CTD-2588J6.2": "0", "CPHL1P": "0", "RP3-415N12.1": "0", "RP11-181G12.4": "0", "RP11-433M22.2": "0", "SSXP10": "0", "RP11-16E12.2": "2.5424", "PSMA2P3": "0", "CTD-2367A17.1": "0", "RP11-181G12.2": "5.9940", "AC007272.3": "0"}, "Sample-1": {"CTD-2588J6.1": "0", "RP11-433M22.1": "0", "CTD-2588J6.2": "0", "CPHL1P": "0", "RP3-415N12.1": "0", "RP11-181G12.4": "0.5264", "RP11-433M22.2": "0", "SSXP10": "0", "RP11-16E12.2": "2.3112", "PSMA2P3": "0", "CTD-2367A17.1": "0", "RP11-181G12.2": "6.3579", "AC007272.3": "0"}}, "layout": "mRNA"}'
-        resData = s.expectedResults()
+        resData = s.expectedResults() + '\n'
         opts = ['-d', data, '-H', 'Content-Type:application/json', '-X', 'POST', '-v']
         rc = s.doCurl(opts)
-        
-        #print "rc['code']:", rc['code']
-        #print "rc['data']:", rc['data']
-
         s.assertTrue(rc['code'] == '200')
         s.assertTrue(rc['data'] == resData)
     
