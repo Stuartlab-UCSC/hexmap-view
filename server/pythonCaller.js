@@ -16,7 +16,7 @@ callPython = function (pythonCallName, opts, callback) {
     
     // Write the opts to a file as json for reading by the python code.
     var parmFile = writeToTempFile(JSON.stringify(opts));
-    
+    //console.log(parmFile)
     var command =
         "python "
         + SERVER_DIR
@@ -33,6 +33,7 @@ callPython = function (pythonCallName, opts, callback) {
         if (error) {
         
             // Return any errors not captured by the python script
+            //console.trace()
             result = {code: 1, data: error};
             //TODO we should check stderror as well
         
@@ -48,12 +49,13 @@ callPython = function (pythonCallName, opts, callback) {
             // Success, so read and parse the results in the json file,
             // returning the data
             var str = stdout.toString();
-            var filename = str.replace('\n', '')
+            var filename = str.replace('\n', '');
             var data = readFromJsonFileSync(filename);
             result = {
                 code: 0,
-                data: readFromJsonFileSync(stdout.toString().replace('\n', '')),
-            }
+                data: data,  // readFromJsonFileSync(stdout.toString().replace('\n', '')),
+                filename: filename,
+            };
         }
         callback(result);
     });
@@ -91,6 +93,7 @@ Meteor.methods({
 
         exec(command, function (error, stdout, stderr) {
             if (error) {
+                console.trace();
                 future.throw(error);
             } else {
 
@@ -116,7 +119,9 @@ Meteor.methods({
                     } else {
              
                         // Read and parse the json file
+
                         data = readFromJsonFileSync(result);
+                        data.result = result;
                     }
                     fs.unlinkSync(parmFile);
                     future.return(data);
