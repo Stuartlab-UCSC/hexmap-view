@@ -79,7 +79,7 @@ Meteor.methods({
 
             //load parameters specific to reflection python script
             var parameters = {
-                              datapath: '/home/duncan/data/featureSpace/t6similarclrsigned.pi',
+                              datapath: FEATURE_SPACE_DIR + 'pancan12/reflection/pancan12_expr_signedClrscores.pi',
                               toMapId: toMapId,
                               node_ids: nodeIds,
                               out_file: 'trash.csv', //usage is commented out in reflections.py
