@@ -11,10 +11,6 @@ var app = app || {};
         dialogHex,
         $dialog;
 
-    function callMeteorMethodPivotVsBackground (nodeData) {
-        console.log('callMeteorMethodPivotVsBackground nodeData:', nodeData);
-    }
- 
     function validateNodeData (data) {
  
         if (_.isUndefined(data) || _.isNull(data)) {
@@ -31,8 +27,6 @@ var app = app || {};
     }
  
     function showNewNodes (result) {
- 
-        console.log('result:', result);
         bookmarkReload(result.bookmarks[0]);
     }
  
@@ -78,9 +72,7 @@ var app = app || {};
         if (Meteor.user()) {
             opts.email = Meteor.user().username;
         }
- 
-        console.log('calling meteor method with:', opts);
-        
+
         Meteor.call('overlayNode', opts,
             function (error, result) {
                 if (error) {

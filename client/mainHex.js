@@ -30,6 +30,9 @@ var app = app || {}; // jshint ignore:line
     }
 
     bookmarkReload = function (bookmark) {
+        if (bookmark.slice(0,9) === 'localhost') {
+            bookmark = 'http://' + bookmark;
+        }
         window.location.assign(bookmark);
     }
 
