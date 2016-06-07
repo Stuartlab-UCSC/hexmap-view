@@ -145,21 +145,23 @@ var app = app || {}; // jshint ignore:line
         }
     }
 
-    function add_layer_data(layer_name, data, attributes) {
+    add_layer_data = function(layer_name, data, attributes) {
         // Add a layer with the given name, with the given data to the list of 
         // available layers.
+        // Used for selections... more broadly can be used for dynamic layers.
         // Attributes is an object of attributes to copy into the layer.
         // May also be used to replace layers.
-        
         // This holds a boolean for if we're replacing an existing layer.
-        var replacing = (layers[layer_name] != undefined);
+        // Note: layers is a global, for layers on the presented map
+
+        var replacing = (layers[layer_name] !== undefined);
         
         // Store the layer. Just put in the data. with_layer knows what to do if the
         // magnitude isn't filled in.
         layers[layer_name] = {
-            url: undefined,
-            data: data,
-            magnitude: undefined
+            url: undefined, //points to layer datafile
+            data: data,     //actual values
+            magnitude: undefined  //not used for binary
         };
         
         for(var name in attributes) {

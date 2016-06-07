@@ -751,7 +751,7 @@ function mix2 (a, b, c, d, amount1, amount2) {
 
 initLayersArray = function  () {
     Meteor.call('getTsvFile', "layers.tab", ctx.project,
-        function (error, parsed) {;
+        function (error, parsed) {
 
 		// Create a list of layer names ordered by their indices
 		ctx.layer_names_by_index = new Array (Session.get('sortedLayers').length);
@@ -972,7 +972,7 @@ initLayerIndex = function () {
                                        // appropriate value out of the array, so
                                        // we can sort without having a current 
                                        // layout index.
-                positives: layer_positives,
+                positives: layer_positives, //if binary
                 n: layer_count,
             });
 
@@ -995,7 +995,6 @@ initLayerIndex = function () {
 }
     
 initColormaps = function () {
-
     // Download color map information
     Meteor.call('getTsvFile', "colormaps.tab", ctx.project,
         function (error, parsed) {
@@ -1045,8 +1044,9 @@ initColormaps = function () {
             // Store the finished color map in the global object
             colormaps[layer_name] = colormap;
         }
-
         Session.set('initedColormaps', true);
     });
+
+
 }
 })(app);
