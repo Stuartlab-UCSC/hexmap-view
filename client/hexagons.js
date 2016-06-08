@@ -137,6 +137,9 @@ var app = app || {}; // jshint ignore:line
                 return;
             }
 
+            // Show the number of nodes on the UI
+            Session.set('nodeCount', parsed.length);
+
             // This holds the maximum observed x & y
             var max_x = max_y = 0;
 

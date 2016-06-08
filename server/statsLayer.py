@@ -582,6 +582,8 @@ class ForEachLayer(object):
             
             for layerB in s.statsLayers:
 
+                if s.layerA == layerB: continue
+                
                 line = s.layoutIndependent(s, layerB)
                 if line == 'continue': continue
 

@@ -762,6 +762,7 @@ var app = app || {}; // jshint ignore:line
         add_layer_data(layer_name, data, {
             selection: true,
             selected: signatures_selected, // Display how many hexes are in
+            positives: signatures_selected, // TODO get rid of selected someday
             n: signatures_available // And how many have a value at all
         });
         

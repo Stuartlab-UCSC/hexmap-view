@@ -105,6 +105,9 @@ var app = app || {}; // jshint ignore:line
         sort: function () {
             return Session.get('sort');
         },
+        nodeCount: function () {
+            return Session.get('nodeCount');
+        },
     });
 
     function resizeMap () {
