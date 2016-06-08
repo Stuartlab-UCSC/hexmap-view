@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Query API &mdash; Tumor Map Query API</title>
+    <title>Query API &mdash; Tumor Map Web API</title>
     
     <link rel="stylesheet" href="_static/agogo.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -24,17 +24,20 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="Tumor Map Query API" href="index.html" />
+    <link rel="top" title="Tumor Map Web API" href="index.html" />
+    <link rel="next" title="Viewer Input File Formats" href="inputFormats.html" />
     <link rel="prev" title="&lt;no title&gt;" href="index.html" /> 
   </head>
   <body role="document">
     <div class="header-wrapper" role="banner">
       <div class="header">
         <div class="headertitle"><a
-          href="index.html">Tumor Map Query API</a></div>
+          href="index.html">Tumor Map Web API</a></div>
         <div class="rel" role="navigation" aria-label="related navigation">
           <a href="index.html" title="&lt;no title&gt;"
              accesskey="P">previous</a> |
+          <a href="inputFormats.html" title="Viewer Input File Formats"
+             accesskey="N">next</a> |
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a>
         </div>
@@ -96,7 +99,7 @@ Content-Type:application/json -X POST -v https://tumormap.ucsc.edu:8112/query/ov
 </div>
 <p>It should return a bookmark of the form:</p>
 <div class="highlight-python"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s2">&quot;bookmarks&quot;</span><span class="p">:[</span><span class="s2">&quot;https://tumormap.ucsc.edu:8112/?&amp;p=CKCC.v1&amp;node=Sample-1&amp;x=277.5&amp;y=171.5&quot;</span><span class="p">,</span>
- <span class="s2">&quot;https://tumormap.ucsc.edu:8113/?&amp;p=CKCC.v1&amp;node=Sample-2&amp;x=264&amp;y=151&quot;</span><span class="p">]}</span>
+ <span class="s2">&quot;https://tumormap.ucsc.edu:8112/?&amp;p=CKCC.v1&amp;node=Sample-2&amp;x=264&amp;y=151&quot;</span><span class="p">]}</span>
 </pre></div>
 </div>
 <p>Definitions</p>
@@ -173,6 +176,7 @@ Content-Type:application/json -X POST -v https://tumormap.ucsc.edu:8112/query/ov
 <li class="toctree-l2"><a class="reference internal" href="#query-api-overlaynodes">Query API: overlayNodes</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="inputFormats.html">Viewer Input File Formats</a></li>
 </ul>
 
           <div role="search">
@@ -198,6 +202,8 @@ Content-Type:application/json -X POST -v https://tumormap.ucsc.edu:8112/query/ov
           <div role="navigation" aria-label="related navigaton">
             <a href="index.html" title="&lt;no title&gt;"
               >previous</a> |
+            <a href="inputFormats.html" title="Viewer Input File Formats"
+              >next</a> |
             <a href="genindex.html" title="General Index"
               >index</a>
           </div>

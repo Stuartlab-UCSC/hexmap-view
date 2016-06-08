@@ -1,0 +1,217 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Viewer Input File Formats &mdash; Tumor Map Web API</title>
+    
+    <link rel="stylesheet" href="_static/agogo.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Tumor Map Web API" href="index.html" />
+    <link rel="prev" title="Query API" href="queryApi.html" /> 
+  </head>
+  <body role="document">
+    <div class="header-wrapper" role="banner">
+      <div class="header">
+        <div class="headertitle"><a
+          href="index.html">Tumor Map Web API</a></div>
+        <div class="rel" role="navigation" aria-label="related navigation">
+          <a href="queryApi.html" title="Query API"
+             accesskey="P">previous</a> |
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a>
+        </div>
+       </div>
+    </div>
+
+    <div class="content-wrapper">
+      <div class="content">
+        <div class="document">
+            
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="viewer-input-file-formats">
+<h1>Viewer Input File Formats<a class="headerlink" href="#viewer-input-file-formats" title="Permalink to this headline">¶</a></h1>
+<p>This describes formats of input files for the Tumor Map viewer. Lacking an API
+to create maps, this may work for you.</p>
+<p>These are some terms used in the descriptions below:</p>
+<blockquote>
+<div><div class="line-block">
+<div class="line"><em>attribute</em> : an attribute, AKA layer, of the nodes/hexagons</div>
+<div class="line"><em>ID</em> : a unique identifer of a node/hexagon</div>
+<div class="line"><em>layer</em> : an attribute of the nodes/hexagons</div>
+<div class="line"><em>LAYER</em> : the layer index used in file names</div>
+<div class="line"><em>layout</em> : the type of values by which nodes will be placed on the map</div>
+<div class="line"><em>LAYOUT</em> : the layout index used in file names</div>
+<div class="line"><em>node</em> : the thing that will be represented by a hexagon in the viewer</div>
+</div>
+</div></blockquote>
+<div class="section" id="required-files">
+<h2>Required Files<a class="headerlink" href="#required-files" title="Permalink to this headline">¶</a></h2>
+<p>Six types of files are required by the Tumor Map viewer.</p>
+<p><strong>hexNames.tab</strong>: A list of node/hexagon names:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">S1</span>
+<span class="o">...</span>
+</pre></div>
+</div>
+<p><strong>layouts.tab</strong>: Names of the layouts in order of the LAYOUT index used in some
+file names:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span>mRNA seq
+...
+</pre></div>
+</div>
+<p><strong>assignmentsLAYOUT.tab</strong> (1): The xy coordinates from zero to whatever. May be
+of type float. One file per layout:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span>ID     x   y
+S1     42  66
+...
+</pre></div>
+</div>
+<p><strong>Layer_Data_Types.tab</strong>: Lists of attribute data types, mostly. FirstAttribute
+is the attribute to display on the initial map view:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span>FirstAttribute  Tissue
+Continuous      DNA_signature   Apoptosis   ...
+Binary          TP53_mutated   DNA_repair_broken    ...
+Categorical     Subtype Gender  ...
+</pre></div>
+</div>
+<p><strong>layer_LAYER.tab</strong> (1): The attribute values for nodes with a value for this
+attribute. One file per attribute:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span>ID     value
+S1     0.642
+...
+</pre></div>
+</div>
+<p><strong>colormaps.tab</strong> (1): Color mappings to categories of categorical attributes:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span>attribute       index   category        color   index   category    color   index   category    color  ...
+UCEC Subtype    0       Endometrioid    #FF0000 1       Serous      #00FF00 2       Mixed       #FFFF00
+...
+</pre></div>
+</div>
+<p>Note
+(1) Viewer needs to be modified to ignore the headers in these files.</p>
+<p>(TODO: meta.json)</p>
+</div>
+<div class="section" id="optional-file">
+<h2>Optional File<a class="headerlink" href="#optional-file" title="Permalink to this headline">¶</a></h2>
+<p><strong>attribute_tags.tab</strong> (1): Gives tags to attributes used in filtering those
+available for search and display in the attribute list:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span>attribute      keywords (tab separated)
+Tissue     clinical    phenotype
+...
+</pre></div>
+</div>
+</div>
+<div class="section" id="generated-optional-files">
+<h2>Generated Optional Files<a class="headerlink" href="#generated-optional-files" title="Permalink to this headline">¶</a></h2>
+<p>These optional files are generated by the Tumor Map layout code.</p>
+<p><strong>stats_LAYER.tab</strong>: Associative statistics with other attributes, independent
+of the layout.</p>
+<p><strong>statsL_LAYER_LAYOUT.tab</strong>: Associative statistics with other attributes,
+taking the layout into account.</p>
+<p><strong>windows_LAYOUT.tab</strong>: Sampling windows used in layout-aware statistics.</p>
+<p><strong>xyPreSquiggle_LAYOUT.tab</strong>: xy coordinates of nodes prior to being transformed
+into the hexagonal grid. Displayed in the Node Density view.</p>
+<p><strong>neighbors_LAYOUT.tab</strong>: The closest six neighbors to each node. Displayed in
+the Node Density view: Edges.</p>
+<p><strong>grid_LAYOUT.tab</strong>: Adaptive windowing used for the layout-aware statistics.
+Displayed in the Node Density view: Windows.</p>
+<p>The remaining files are unused by the Tumor Map viewer. Maybe something else
+uses them.</p>
+<p><strong>matrices.tab</strong>: Filenames of the attribute scores:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">matrix_0</span><span class="o">.</span><span class="n">tab</span>
+<span class="n">matrix_1</span><span class="o">.</span><span class="n">tab</span>
+<span class="o">...</span>
+</pre></div>
+</div>
+<p><strong>matrix_LAYER.tab</strong>: Attribute scores for nodes:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span>ID     attr0   attr1   attr2   ...
+S1     3       0.485   -1.24   ...
+...
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+        </div>
+        <div class="sidebar">
+          <h3>Table Of Contents</h3>
+          <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="queryApi.html">Query API</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="">Viewer Input File Formats</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#required-files">Required Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#optional-file">Optional File</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#generated-optional-files">Generated Optional Files</a></li>
+</ul>
+</li>
+</ul>
+
+          <div role="search">
+            <h3 style="margin-top: 1.5em;">Search</h3>
+            <form class="search" action="search.html" method="get">
+                <input type="text" name="q" />
+                <input type="submit" value="Go" />
+                <input type="hidden" name="check_keywords" value="yes" />
+                <input type="hidden" name="area" value="default" />
+            </form>
+            <p class="searchtip" style="font-size: 90%">
+                Enter search terms or a module, class or function name.
+            </p>
+          </div>
+        </div>
+        <div class="clearer"></div>
+      </div>
+    </div>
+
+    <div class="footer-wrapper">
+      <div class="footer">
+        <div class="left">
+          <div role="navigation" aria-label="related navigaton">
+            <a href="queryApi.html" title="Query API"
+              >previous</a> |
+            <a href="genindex.html" title="General Index"
+              >index</a>
+          </div>
+          <div role="note" aria-label="source link">
+              <br/>
+              <a href="_sources/inputFormats.txt"
+                rel="nofollow">Show Source</a>
+          </div>
+        </div>
+
+        <div class="right">
+          
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2016, UCSC Tumor Map development team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.5.
+    </div>
+        </div>
+        <div class="clearer"></div>
+      </div>
+    </div>
+
+  </body>
+</html>

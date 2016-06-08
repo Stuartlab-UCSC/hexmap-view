@@ -1,4 +1,4 @@
-.. UCSC Tumor Map Query API master file
+.. UCSC Tumor Map Web API master file
 
 Contents
 
@@ -6,3 +6,4 @@ Contents
    :maxdepth: 2
 
    queryApi
+   inputFormats

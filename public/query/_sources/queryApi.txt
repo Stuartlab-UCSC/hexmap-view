@@ -52,7 +52,7 @@ This curl example using the development server should work::
 It should return a bookmark of the form::
 
  {"bookmarks":["https://tumormap.ucsc.edu:8112/?&p=CKCC.v1&node=Sample-1&x=277.5&y=171.5",
-  "https://tumormap.ucsc.edu:8113/?&p=CKCC.v1&node=Sample-2&x=264&y=151"]}
+  "https://tumormap.ucsc.edu:8112/?&p=CKCC.v1&node=Sample-2&x=264&y=151"]}
 
 Definitions
 
