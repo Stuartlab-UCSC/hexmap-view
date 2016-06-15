@@ -19,7 +19,7 @@ function isDataDir (entry, major) {
         fsStats = fs.statSync(path);
         
     } catch (error) {
-        console.log('Error on getAllData(', major, '):', error);
+        console.log('Error on fs.statSync in isDataDir(', entry, ',', major, ',', path, '):', error);
         return false;
     }
     
@@ -27,7 +27,7 @@ function isDataDir (entry, major) {
         isDir = fsStats.isDirectory();
         
     } catch (error) {
-        console.log('Error on getAllData(', major, '):', error);
+        console.log('Error on fsStats.isDirectory in isDataDir(', entry, ',', major, '):', error);
         return false;
     }
     return isDir;
@@ -35,8 +35,9 @@ function isDataDir (entry, major) {
 
 getDataDirs = function (major) {
 
+    //console.log(major)
     var dirs = getAllData(major);
-    
+
     // Remove any files and hidden dirs
     return _.filter(dirs, function (dir) {
         return (dir.indexOf('.') !== 0) && isDataDir(dir, major);
@@ -52,7 +53,8 @@ function getAllData (major) {
     try {
         results = fs.readdirSync(dir);
     } catch (error) {
-        console.log('Error on getAllData(', major, '):', error);
+        console.log('Error on getAllData(', major, ',', dir, '):', error);
+        console.trace()
         results = undefined;
     }
     return results;
@@ -133,5 +135,9 @@ Meteor.methods({
         getMajors();
         return projects;
     },
+
+    //getMinorProjects: function() {
+
+    //}
     
 });
