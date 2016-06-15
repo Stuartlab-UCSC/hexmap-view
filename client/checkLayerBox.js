@@ -25,9 +25,10 @@ var app = app || {}; // jshint ignore:line
 
         _.each(layers, function (layer){
             attributes = {};
-            //attributes.selection = layer.selection;
+            attributes.selection = layer.selection;
             attributes.n         = layer.n;
             attributes.magnitude = layer.magnitude;
+
 
             add_layer_data(layer.layer_name,layer.data,attributes);
 
@@ -62,10 +63,19 @@ var app = app || {}; // jshint ignore:line
     initLayerBox = function() {
         if ('PAM50' in layers) {
             mapId = 'feature';
-        } else {
+        } else if ('Tissue' in layers) {
             mapId = 'sample';
+            //console.log(colormaps)
+        }else if ('Tissue_Norm' in layers) {
+            mapId = 'nevergood'
+            //mapId = 'GtexSamples';
+            //console.log(colormaps)
+        }  else {
+            mapId = 'nevergood';
+            //mapId = 'GtexFeatures'
         }
-        
+
+        console.log('initLayerBox');
         username = Meteor.user().username;
         Meteor.call('checkLayerBox', username, mapId, function (error, result){
            

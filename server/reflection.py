@@ -15,8 +15,8 @@ def topXbinTrans(df,top):
     nrows = df.shape[0]
     df = df.sort_values(ascending=False)
 
-    df.iloc[0:(top)] = 3
-    df.iloc[nrows-top:nrows] = 2 #
+    df.iloc[0:(top)] = 2
+    df.iloc[nrows-top:nrows] = 0 #
     df.iloc[top:-top] = 1
 
     return pd.Series(df)
@@ -35,25 +35,36 @@ def reflection(parm):
                   }
     :return: writes tab delimited output file, describing the highest and lowest node reflection
     '''
-
+    
+    #bigger matrix requires read in chunks haven't implemented yet.
+    #TODO: implement 'read in chunks' for large dataframes.
+    bigboy = (parm['toMapId'] == 'GtexFeature' or parm['toMapId'] == 'GtexSample')
+    if (bigboy):
+        print "Error: reflection not implemented for GTEx"
+        return 0
+    
     TOP = 150 #this should be an input later, need to talk to Yulia and Josh before getting fancy
 
     fpath = str(parm['datapath'])
     outpath = parm['out_file']
+    node_ids = parm['node_ids']
 
     if not os.path.isfile(fpath):
         print "Error:", fname, "not found, so reflection could not be computed\n"
         return 0
 
     #
-    # read in data to perform query on
     '''
-    fpath = '/home/duncan/PycharmProjects/tumorMap/querrier/TMtoG/6nNquerryMatSampsxovery.pi'
+    fpath = '/home/duncan/data/featureSpace/pancan12/reflection/clrscoresGtex_reflection.csv'
+    res.head()
+    ref_dat.head()
     '''
-    ref_dat = pd.read_pickle(fpath)
 
+    # read in data to perform query on
+    ref_dat = pd.read_pickle(fpath)
+        
     #if going from features to samples then need to transpose matrix
-    if (parm['toMapId'] == 'sample'):
+    if (parm['toMapId'] == 'sample' or parm['toMapId'] == 'GtexSample'):
         ref_dat = ref_dat.transpose()
 
     node_ids = parm['node_ids']
@@ -61,6 +72,7 @@ def reflection(parm):
     '''
     node_ids = ref_dat.columns.values.tolist()[22:45]
     '''
+
     #grab row wise means and standard deviation for querry normalization
     rowmu = ref_dat.mean(axis=1)
     #take sd of each row

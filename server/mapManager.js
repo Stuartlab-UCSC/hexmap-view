@@ -10,9 +10,9 @@ LayerPostOffice = new Mongo.Collection('LayerPostOffice');
 function colorMapMaker(){ //TODO: make a more flexible colorMapMaker (this one only for reflections)
     newColorMap = [];
     newColorMap = [ //this is because index needs to be equal to the category
-        {name:'low',color:'#ce2029',fileColor:'#ce2029'},
+        {name:'low',color:'#32cd32',fileColor:'#32cd32'},
         {name:'middle',color:'#737373',fileColor:'#737373'},
-        {name:'high',color:'#32cd32',fileColor:'#32cd32'}
+        {name:'high',color:'#ce2029',fileColor:'#ce2029'}
                   ];
     return newColorMap;
 };
@@ -49,8 +49,9 @@ Meteor.methods({
         var future = new Future();
 
 
-        var newLayer = LayerMaker(selectionSelected); 
+        var newLayer = LayerMaker(selectionSelected+'Reflect');
         newLayer.colormap = colorMapMaker();
+        console.log(newLayer.colormap);
 
         if (operation === 'test') {
             console.log('testing simple helloworld2');
@@ -75,9 +76,10 @@ Meteor.methods({
                 }
             });
         }
-        if (operation === 'reflection') {
+        if ( operation === 'reflection' && (toMapId === 'feature' || toMapId === 'sample' ) ) {
 
             //load parameters specific to reflection python script
+            console.log(FEATURE_SPACE_DIR + 'pancan12/reflection/pancan12_expr_signedClrscores.pi');
             var parameters = {
                               datapath: FEATURE_SPACE_DIR + 'pancan12/reflection/pancan12_expr_signedClrscores.pi',
                               toMapId: toMapId,
@@ -87,7 +89,27 @@ Meteor.methods({
 
             callPython(operation, parameters, function (result) {
                 if (result) {
+                    //console.log(result)
+                    //console.log('mapManager: ' + operation + ' success');
+                    newLayer.data = result.data;
+                    dropInLayerBox(newLayer,userId,toMapId);
+                }
+            });
 
+        } else if ( operation === 'reflection' && (toMapId === 'GtexFeature' || toMapId === 'GtexSample' ) ) {
+
+            //load parameters specific to reflection python script
+            console.log(FEATURE_SPACE_DIR + 'pancan12/reflection/clrscoresGtex_reflection.csv');
+            var parameters = {
+                datapath: FEATURE_SPACE_DIR + 'pancan12/reflection/clrscoresGtex_reflection.csv',
+                toMapId: toMapId,
+                node_ids: nodeIds,
+                out_file: 'trash.csv', //usage is commented out in reflections.py
+            };
+
+            callPython(operation, parameters, function (result) {
+                if (result) {
+                    //console.log(result);
                     //console.log('mapManager: ' + operation + ' success');
                     newLayer.data = result.data;
                     dropInLayerBox(newLayer,userId,toMapId);
@@ -108,7 +130,7 @@ Meteor.methods({
         var future = new Future();
 
         LayerBox = LayerPostOffice.findOne({user: userId, toMapId: MapId});
-        console.log('LayerBox:', LayerBox);
+        //console.log('LayerBox:', LayerBox);
 
         (LayerBox === undefined) ? future.return(false) : future.return(LayerBox.layers) ;
         //return false if user doesn't have any layers in their box

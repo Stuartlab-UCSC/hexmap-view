@@ -52,12 +52,13 @@ readFromTsvFileSync = function (filename) {
 }
 
 readFromJsonFileSync = function (filename) {
-
+    
     // Parse the data after reading the file
     return JSON.parse(fs.readFileSync(filename, 'utf8'));
 }
 
 readFromJsonBaseFile = function (baseFilename) {
+
     return readFromJsonFileSync(VIEW_DIR + baseFilename);
 }
 
