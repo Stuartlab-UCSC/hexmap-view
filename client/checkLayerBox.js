@@ -75,7 +75,14 @@ var app = app || {}; // jshint ignore:line
             //mapId = 'GtexFeatures'
         }
 
-        console.log('initLayerBox');
+
+        //console.log('initLayerBox');
+
+ 
+        // If no user is logged in, there is no layerBox doc for this
+        if (_.isUndefined(Meteor.user()) || _.isNull(Meteor.user())) return;
+
+        
         username = Meteor.user().username;
         Meteor.call('checkLayerBox', username, mapId, function (error, result){
            
