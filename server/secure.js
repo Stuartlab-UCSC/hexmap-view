@@ -10,7 +10,7 @@ var exec = Npm.require('child_process').exec;
 //createRole('dev');
 //removeUsersFromRoles(['jstuart@ucsc.edu'] , ['CKCC']);
 //showUsernames();
-//addUsersToRoles (['dlam2@ucsc.edu'] , ['CKCC']);
+//addUsersToRoles (['dmccoll@ucsc.edu'] , ['fully-protected']);
 //removeUser('hexmap@ucsc.edu');
 //addUsersToRoles(['x@x.x'],
 //Meteor.users.remove({});

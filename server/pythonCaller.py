@@ -23,6 +23,7 @@ def pythonWrapper(pythonCallName, jsonRequestFile, serverDir):
 
     # Call the the python script, which returns the results as a dict
     module = importlib.import_module(pythonCallName, package=None)
+
     result = module.fromNodejs(opts)
     if result == 1:
         return 1

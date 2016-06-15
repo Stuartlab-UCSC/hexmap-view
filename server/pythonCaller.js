@@ -93,6 +93,7 @@ Meteor.methods({
 
         exec(command, function (error, stdout, stderr) {
             if (error) {
+                //console.log(error);
                 console.trace();
                 future.throw(error);
             } else {
