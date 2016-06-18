@@ -1,5 +1,9 @@
 #!/bin/bash
 # Start the https server on production
 
-NODEPATH=/data/home/hexmap/.meteor/packages/meteor-tool/.1.1.10.ki0ccv++os.linux.x86_64+web.browser+web.cordova/mt-os.linux.x86_64/dev_bundle/bin
-$NODEPATH/node /data/https/https.js &> /data/https.log &
+DIR=/data
+NODE_DIR=/data/home/hexmap/.meteor/packages/meteor-tool/.1.1.10.ki0ccv++os.linux.x86_64+web.browser+web.cordova/mt-os.linux.x86_64/dev_bundle/bin
+
+touch $DIR/https.log
+mv $DIR/https.log $DIR/https.prev.log
+$NODE_DIR/node $DIR/https/https.js &> $DIR/https.log &

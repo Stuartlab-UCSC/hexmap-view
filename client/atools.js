@@ -219,6 +219,12 @@ var app = app || {}; // jshint ignore:line
             Session.set('loadingMap', true);
         }
  
+        // TODO keep the dev features out of production for now
+        if (!DEV) {
+            $('#toolbar .overlayNode').hide();
+            $('#reflectTrigger').hide();
+        }
+ 
         // Set up the link to the map page
         add_tool("hexMap", function() {
             $('.mapPage').click();

@@ -143,12 +143,12 @@ var app = app || {}; // jshint ignore:line
 
                 // Initialize the background functions.
                 initOverlayNodes();
-                initOverlayNodeUi();
+                if (DEV) initOverlayNodeUi();
                 initShortlist();
                 initLayerBox();
                 initLegend();
                 initCoords();
-                initReflect();
+                if (DEV) initReflect();
                 initLabelTool();
                 initDownload();
                 initColors();
