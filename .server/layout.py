@@ -27,6 +27,18 @@ from statsNoLayout import statsNoLayout
 from statsLayout import statsLayout
 import pool
 from topNeighbors import topNeighbors
+#YN 20160620: adding some new dependencies
+import multiprocessing
+import sklearn
+from sklearn import metrics
+from sklearn import decomposition
+from sklearn import manifold
+from sklearn.decomposition import PCA
+from sklearn.decomposition import FastICA
+from sklearn.manifold import TSNE
+from sklearn.manifold import Isomap
+from sklearn.manifold import MDS
+from sklearn.manifold import SpectralEmbedding
 
 def timestamp():
     return str(datetime.datetime.now())[8:-7]
@@ -1768,6 +1780,38 @@ def hexIt(options):
         topNeighbors(options.similarity , options.directory, options.truncation_edges)
 
     print timestamp(), "Visualization generation complete!"
+
+def PCA(dt):	#YN 20160620
+	pca = sklearn.decomposition.PCA(n_components=2)
+	pca.fit(dt)
+	return(pca.transform(dt))
+	
+def tSNE(dt):	#YN 20160620
+	pca = sklearn.decomposition.PCA(n_components=50)
+	dt_pca = pca.fit_transform(numpy.array(dt))
+	model = sklearn.manifold.TSNE(n_components=2, random_state=0)
+	numpy.set_printoptions(suppress=True)
+	return(model.fit_transform(dt_pca))
+
+def tSNE2(dt):	#YN 20160620
+	model = sklearn.manifold.TSNE(n_components=2, random_state=0)
+	numpy.set_printoptions(suppress=True)
+	return(model.fit_transform(dt))
+
+def isomap(dt):	#YN 20160620
+	return(sklearn.manifold.Isomap(N_NEIGHBORS, 2).fit_transform(dt))
+
+def MDS(dt):	#YN 20160620
+	mds = sklearn.manifold.MDS(2, max_iter=100, n_init=1)
+	return(mds.fit_transform(dt))
+
+def SpectralEmbedding(dt):	#YN 20160620
+	se = sklearn.manifold.SpectralEmbedding(n_components=2, n_neighbors=N_NEIGHBORS)
+	return(se.fit_transform(dt))
+
+def ICA(dt):	#YN 20160620
+	ica = sklearn.decomposition.FastICA(n_components=2)
+	return(ica.fit_transform(dt))
 
 def main(args):
     """
