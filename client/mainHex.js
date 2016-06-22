@@ -5,6 +5,8 @@ var app = app || {}; // jshint ignore:line
 (function (hex) { // jshint ignore:line
     //'use strict';
  
+    var VERSION = 'Version 1.0';
+ 
     Template.localStoreT.created = function () {
         // This template is only used to initialize state
         if (_.isNull(ctx)) ctx = initState();
@@ -97,6 +99,13 @@ var app = app || {}; // jshint ignore:line
                 return 'block';
             } else {
                 return 'none';
+            }
+        },
+        version: function () {
+            if (DEV) {
+                return VERSION + ' DEV';
+            } else {
+                return VERSION
             }
         },
     });

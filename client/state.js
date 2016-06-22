@@ -319,7 +319,7 @@ var app = app || {}; // jshint ignore:line
     function initDocs () {
  
         // Show query API doc menu option if user is in dev or CKCC role.
-        Meteor.call('isUserInRole', ['dev', 'CKCC'], function (error, results) {
+        Meteor.call('isUserInRole', ['dev', 'queryAPI'], function (error, results) {
             if (!error && results) {
                 $('.queryDocs').show();
            } else {
@@ -327,17 +327,23 @@ var app = app || {}; // jshint ignore:line
             }
         });
  
-        if (DEV) {
-        
-            // Show dev doc menu option if user is in dev role.
-            Meteor.call('isUserInRole', 'dev', function (error, results) {
-                if (!error && results) {
-                    $('.devDocs').show();
-               } else {
-                    $('.devDocs').hide();
-                }
-            });
-        }
+        // Show createMap doc menu option if user is in createMap or dev role.
+        Meteor.call('isUserInRole', ['dev', 'createMap'], function (error, results) {
+            if (!error && results) {
+                $('.createMapDocs').show();
+           } else {
+                $('.createMapDocs').hide();
+            }
+        });
+ 
+        // Show dev doc menu option if user is in dev and is a dev server
+        Meteor.call('isUserInRole', 'dev', function (error, results) {
+            if (!error && results && DEV) {
+                $('.devDocs').show();
+           } else {
+                $('.devDocs').hide();
+            }
+        });
     }
 
     centerToLatLng = function (centerIn) {

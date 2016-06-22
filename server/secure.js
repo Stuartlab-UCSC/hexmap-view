@@ -8,7 +8,8 @@ var exec = Npm.require('child_process').exec;
 
 //removeRoles(['dev']);
 createRole('omni');
-createRole('mapCreator');
+createRole('createMap');
+createRole('queryAPI');
 //removeUsersFromRoles(['jstuart@ucsc.edu'] , ['CKCC']);
 //showUsernames();
 //addUsersToRoles (['dmccoll@ucsc.edu'] , ['fully-protected']);
