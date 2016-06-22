@@ -20,24 +20,33 @@ initiated by the client.
 
 **create_colormaps.py** :
 
-**layout.py** : was hexagram.py. original code-base and the top executable in generating the
-final input files for the tumor map
-
-**pool.py** : general utility to manage parallel processing
+**layout.py** : generates the final input files for the tumor map
 
 **start/start** : scripts for starting the servers
+
+**tsvToJson_overlayNodes.py** : transform a specifically-formatted tsv file into a json file
+
+
+
+
+
+Utilities called by layout.py
+-----------------------------
 
 **statsLayer.py** calls the stats libraries for one layer. The client uses this
 for dynamic stats and the server uses this for pre-computed stats. This is the
 only file used by the server and client.
 
-**stats.Layout.py** : precomputed layout-aware stats
+**statsLayout.py** : precomputed layout-aware stats
 
 **statsNoLayout.py** : precomputed layout-independent stats
 
-**tsvToJson_overlayNodes.py** : transform a specifically-formatted tsv file into a json file
+**topNeighbors.py**: Find the top N neighbors of each node.
+
+**pool.py** : manages parallel tasks.
 
 **tsv.py** : TSV read and write utility
+
 
 Client-initiated
 ^^^^^^^^^^^^^^^^

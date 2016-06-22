@@ -6,6 +6,8 @@ stream to allow writing TSV data lines and #-delimited comments to that stream,
 and a TsvReader, which can be constructed on a stream and iterated over to
 obtain lists of the values from each non-comment line in the stream.
 
+TODO: What does this do that the python CSV library does not?
+
 TSV is most useful as the basis for other, more tightly specified file formats.
 
 """

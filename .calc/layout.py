@@ -28,35 +28,6 @@ from statsLayout import statsLayout
 import pool
 from topNeighbors import topNeighbors
 
-def timestamp():
-    return str(datetime.datetime.now())[8:-7]
-
-# Global variable to hold opened matrices files
-#matrices = []
-
-# Store global variables in one global context
-class Context:
-    def __init__(s):
-        s.matrices = [] # Opened matrices files
-        s.all_hexagons = {} # Hexagon dicts {layout0: {(x, y): hex_name, ...}, layout1: {(x, y): hex_name, ...}}
-        s.binary_layers = [] # Binary layer_names in the first layout
-        s.continuous_layers = [] # Continuous layer_names in the first layout
-        s.categorical_layers = [] # categorical layer_names in the first layout
-        s.beta_computation_data = {} # data formatted to compute beta values
-
-    def printIt(s):
-        print json.dumps(s, indent=4, sort_keys=True)
-ctx = Context();
-
-def sigDigs(x, sig=7):
-
-    if sig < 1:
-        raise ValueError("number of significant digits must be >= 1")
-
-    # Use %e format to get the n most significant digits, as a string.
-    format = "%." + str(sig-1) + "e"
-    return float(format % x)
-
 def parse_args(args):
     """
     Takes in the command-line arguments list (args), and returns a nice argparse
@@ -80,70 +51,104 @@ def parse_args(args):
     
     # Now add all the options to it
     # Options match the ctdHeatmap tool options as much as possible.
+    # The primary parameters:
     parser.add_argument("similarity", type=str, nargs='+',
-        help="the unopened files of similarity matrices")
+        help="similarity sparse matrix file")
     parser.add_argument("--names", type=str, action="append", default=[],
-        help="human-readable unique names for all the similarity matrices")
+        help="human-readable unique name/label for one the similarity matrix")
     parser.add_argument("--scores", type=str,
         action="append", default=[],
-        help="a TSV to read scores for each signature from")
+        help="values for each signature as TSV")
+    parser.add_argument("--include-singletons", dest="singletons", 
+        action="store_true", default=False,
+        help="add self-edges to retain unconnected points")
+    parser.add_argument("--colormaps", type=str,
+        default=None,
+        help="colormap for categorical attributes as TSV")
+    parser.add_argument("--first_attribute", type=str, default="",
+        help="attribute by which to color the map upon first display")
+    parser.add_argument("--directory", "-d", type=str, default=".",
+        help="directory in which to create other output files")
+        
+    # Lesser used parameters:
+    parser.add_argument("--attributeTags", type=str,
+        default=None,
+        help="tags for filtering attributes for display, as TSV")
+    parser.add_argument("--min-window-nodes", type=int, default=5,
+        help="min nodes per window for layout-aware stats")
+    parser.add_argument("--max-window-nodes", type=int, default=20,
+        help="max nodes per window for layout-aware stats")
+    parser.add_argument("--no-density-stats", dest="clumpinessStats", action="store_false",
+        default=True,
+        help="don't calculate density stats")
+    parser.add_argument("--no-layout-independent-stats", dest="associations", action="store_false",
+        default=True,
+        help="don't calculate layout-independent stats")
+    parser.add_argument("--no-layout-aware-stats", dest="mutualinfo", action="store_false",
+        default=True,
+        help="don't calculate layout-aware stats")
+    parser.add_argument("--truncation_edges", type=int, default=6,
+        help="edges per node for DrL and the directed graph")
+    parser.add_argument("--window_size", type=int, default=20,
+        help="clustering window count is this value squared")
+    parser.add_argument("--drlpath", "-r", type=str,
+        help="DrL binaries")
+        
+    # Rarely used, if ever, parameters:
     parser.add_argument("--raw", type=str, nargs='+',
-        help="the unopened files of raw data matrices")
+        help="raw data matrix file name")
     parser.add_argument("--type", type=str, nargs='+',
         help="the data types of the raw data matrices")
     parser.add_argument("--rawsim", type=str, nargs='+',
         help="correlates the raw data file to its similarity matrix")
-    parser.add_argument("--colormaps", type=str,
-        default=None,
-        help="a TSV defining coloring and value names for discrete scores")
-    parser.add_argument("--attributeTags", type=str,
-        default=None,
-        help="a TSV defining attribute filtering tags")
-    parser.add_argument("--html", "-H", type=str,
-        default="index.html",
-        help="where to write HTML report")
-    parser.add_argument("--directory", "-d", type=str, default=".",
-        help="directory in which to create other output files")
-    parser.add_argument("--drlpath", "-r", type=str,
-        help="directory in which contain drl binaries")
-    parser.add_argument("--title", type=str, default="",
-        help="title of the map, using characters legal in a unix filename")
-    parser.add_argument("--first_attribute", type=str, default="",
-        help="initial attribute to be at the top of the list and in the short list")
-    parser.add_argument("--query", type=str, default=None,
-        help="Galaxy-escaped name of the query signature")
-    parser.add_argument("--window_size", type=int, default=20,
-        help="the square of this is the number of windows to use when looking for clusters")
-    parser.add_argument("--mi_window_size", type=int,
-        help="this parameter is no longer used; an adaptive grid is used instead")
-    parser.add_argument("--mi_window_threshold", type=int, default=5,
-        help="min number of hexagons per window to be included in the calculations for region-based statistics")
-    parser.add_argument("--mi_window_threshold_upper", type=int, default=20,
-        help="max number of hexagons per window to be included in the calculations for region-based statistics")
-    parser.add_argument("--mi_binary_no_binning", action="store_false",
-        dest="mi_binary_binning",
-        help="whether to bin counts from binary layers for region-based stats")
-    parser.add_argument("--truncation_edges", type=int, default=6,
-        help="number of edges for DrL truncate to pass per node, and edges to draw in the directed graph")
-    parser.add_argument("--no-stats", dest="clumpinessStats", action="store_false",
-        default=True,
-        help="disable cluster-finding statistics")
-    parser.add_argument("--no-associations", dest="associations", action="store_false", 
-        default=True,
-        help="disable computation of attribute association statistics")
-    parser.add_argument("--no-mutualinfo", dest="mutualinfo", action="store_false", 
-        default=True,
-        help="disable computation of region-based statistics")
-    parser.add_argument("--include-singletons", dest="singletons", 
-        action="store_true", default=False,
-        help="add self-edges to retain unconnected points")
     parser.add_argument("--directed_graph", dest="directedGraph",
         action="store_true", default=True,
         help="generate the data to draw the directed graph")
+    
+    # Deprecated parameters:
+    parser.add_argument("--mi_window_threshold", type=int, default=5,
+        help="deprecated, use --min-window-nodes instead")
+    parser.add_argument("--mi_window_threshold_upper", type=int, default=20,
+        help="deprecated, use --max-window-nodes instead")
+    parser.add_argument("--no-stats", dest="clumpinessStats", action="store_false",
+        default=True,
+        help="deprecated, use --no-density-stats instead")
+    parser.add_argument("--no-associations", dest="associations", action="store_false", 
+        default=True,
+        help="deprecated, use --no-layout-independent-stats instead")
+    parser.add_argument("--no-mutualinfo", dest="mutualinfo", action="store_false", 
+        default=True,
+        help="deprecated, use --no-layout-aware-stats instead")
 
     a = parser.parse_args(args)
     print "#ARGS",args, a, "raw",a.raw
     return a
+
+def timestamp():
+    return str(datetime.datetime.now())[8:-7]
+
+# Store global variables in one global context
+class Context:
+    def __init__(s):
+        s.matrices = [] # Opened matrices files
+        s.all_hexagons = {} # Hexagon dicts {layout0: {(x, y): hex_name, ...}, layout1: {(x, y): hex_name, ...}}
+        s.binary_layers = [] # Binary layer_names in the first layout
+        s.continuous_layers = [] # Continuous layer_names in the first layout
+        s.categorical_layers = [] # categorical layer_names in the first layout
+        s.beta_computation_data = {} # data formatted to compute beta values
+
+    def printIt(s):
+        print json.dumps(s, indent=4, sort_keys=True)
+ctx = Context();
+
+def sigDigs(x, sig=7):
+
+    if sig < 1:
+        raise ValueError("number of significant digits must be >= 1")
+
+    # Use %e format to get the n most significant digits, as a string.
+    format = "%." + str(sig-1) + "e"
+    return float(format % x)
 
 def hexagon_center(x, y, scale=1.0):
     """
@@ -698,8 +703,6 @@ def determine_layer_data_types (layers, layer_names, options):
     type_writer = tsv.TsvWriter(open(os.path.join(options.directory, 
     "Layer_Data_Types.tab"), "w"))
 
-    if options.title and len(options.title) > 0:
-        type_writer.line("Title", options.title)
     if (options.first_attribute):
         type_writer.line("FirstAttribute", options.first_attribute)
     type_writer.line("Continuous", *ctx.continuous_layers)

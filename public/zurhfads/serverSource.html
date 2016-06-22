@@ -68,18 +68,21 @@ initiated by the client.</p>
 <p><strong>compute_sparse_matrix.py</strong> :</p>
 <p><strong>convert_annotation_to_tumormap_mapping.py</strong> :</p>
 <p><strong>create_colormaps.py</strong> :</p>
-<p><strong>layout.py</strong> : was hexagram.py. original code-base and the top executable in generating the
-final input files for the tumor map</p>
-<p><strong>pool.py</strong> : general utility to manage parallel processing</p>
+<p><strong>layout.py</strong> : generates the final input files for the tumor map</p>
 <p><strong>start/start</strong> : scripts for starting the servers</p>
+<p><strong>tsvToJson_overlayNodes.py</strong> : transform a specifically-formatted tsv file into a json file</p>
+</div>
+</div>
+<div class="section" id="utilities-called-by-layout-py">
+<h1>Utilities called by layout.py<a class="headerlink" href="#utilities-called-by-layout-py" title="Permalink to this headline">¶</a></h1>
 <p><strong>statsLayer.py</strong> calls the stats libraries for one layer. The client uses this
 for dynamic stats and the server uses this for pre-computed stats. This is the
 only file used by the server and client.</p>
-<p><strong>stats.Layout.py</strong> : precomputed layout-aware stats</p>
+<p><strong>statsLayout.py</strong> : precomputed layout-aware stats</p>
 <p><strong>statsNoLayout.py</strong> : precomputed layout-independent stats</p>
-<p><strong>tsvToJson_overlayNodes.py</strong> : transform a specifically-formatted tsv file into a json file</p>
+<p><strong>topNeighbors.py</strong>: Find the top N neighbors of each node.</p>
+<p><strong>pool.py</strong> : manages parallel tasks.</p>
 <p><strong>tsv.py</strong> : TSV read and write utility</p>
-</div>
 <div class="section" id="client-initiated">
 <h2>Client-initiated<a class="headerlink" href="#client-initiated" title="Permalink to this headline">¶</a></h2>
 <p>hexagram/server contains the files that are initiated by the client via Meteor
@@ -119,6 +122,9 @@ only file used by the server and client.</p>
 <li class="toctree-l1"><a class="reference internal" href="clientSource.html">Source: Client</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="">Source: Server</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#server-only">Server only</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="#utilities-called-by-layout-py">Utilities called by layout.py</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#client-initiated">Client-initiated</a></li>
 </ul>
 </li>

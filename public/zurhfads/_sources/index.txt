@@ -3,8 +3,6 @@
 Developer Docs
 ==============
 
-Contents
-
 .. toctree::
    :maxdepth: 2
 

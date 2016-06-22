@@ -179,7 +179,7 @@ overlayNodes = function (dataIn, res, future) {
         } else {
             msg += '\nNo emails included in request';
         }
-        sendMail('hexmap@ucsc.edu', subject, msg);
+        sendMail(ADMIN_EMAIL, subject, msg);
 
         /* TODO bookmarks for later
         var state = {

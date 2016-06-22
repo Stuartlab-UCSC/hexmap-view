@@ -65,17 +65,22 @@ sendMail = function (users, subject, msg) {
 
     // Send mail to user(s) with the given subject and message.
     
-    // Don't send from localhost, macOS mail doesn't support the 'from' option.
-    if (URL_BASE.indexOf('localhost') > -1) return;
-    
     var command =
         'echo "'
         + msg
         + '" | '
         + 'mail -s "'
         + subject
-        + '" -S from="hexmap@ucsc.edu" '
+        + '" -S from="'
+        + ADMIN_EMAIL
+        + '" '
+      //+ '" -S from="hexmap@ucsc.edu" '
         + users.toString();
+    
+    console.log('email:', command);
+    
+    // Don't send from localhost, macOS mail doesn't support the 'from' option.
+    if (URL_BASE.indexOf('localhost') > -1) return;
     
     exec(command, function (error, stdout, stderr) {
         if (error) {

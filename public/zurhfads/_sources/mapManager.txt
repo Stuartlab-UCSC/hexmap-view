@@ -8,6 +8,9 @@ target map database using the source map's node IDs. The translator then does
 some magic to produce values for a list of target node IDs. These IDs and values
 are sent to the target map as a generated attribute.
 
+The below shows the workflow for reflecting a group of samples from a sample
+map onto a gene map.
+
 .. image:: mapManager.png
    :width: 800 px
 

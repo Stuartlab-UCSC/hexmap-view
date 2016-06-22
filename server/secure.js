@@ -7,7 +7,8 @@
 var exec = Npm.require('child_process').exec;
 
 //removeRoles(['dev']);
-//createRole('dev');
+createRole('omni');
+createRole('mapCreator');
 //removeUsersFromRoles(['jstuart@ucsc.edu'] , ['CKCC']);
 //showUsernames();
 //addUsersToRoles (['dmccoll@ucsc.edu'] , ['fully-protected']);
@@ -153,37 +154,18 @@ showProjectsWithRoles: Show all projects with the role in each
 userRequestRole: A UI for a user to request to join a role
 */
 
-function sendNewUserMail(user) {
-    
-    // Notify the admin of a new user
-    var msg = "'New user: "
-        + user.emails[0].address
-        + ' at '
-        + URL_BASE.toString()
-        + "'",
-        command =
-            'echo '
-            + msg
-            + ' | '
-            + 'mail -s '
-            + msg
-            + ' hexmap@ucsc.edu';
-
-    console.log('command:', command);
-    exec(command, function (error, stdout, stderr) {
-        if (error) {
-            console.log('sendNewUserMail had an error:', error);
-        }
-    });
-}
-
 Accounts.onCreateUser(function (options, user) {
 
      // Add a field of 'username' that meteor recognizes as unique
     user.username = user.emails[0].address;
     
     // Send the admin an email.
-    sendNewUserMail(user);
+    var msg = "'New user: "
+        + user.emails[0].address
+        + ' at '
+        + URL_BASE.toString()
+        + "'";
+    sendMail(ADMIN_EMAIL, msg, msg);
     
     // Don't forget to return the new user object.
     return user;
@@ -195,7 +177,7 @@ isUserAuthorized = function (user, role) {
     // user and role are single strings, no arrays.
     // Logs a message when user is not authorized.
     var PUBLIC = 'public',
-        ALL_ACCESS = 'dev';
+        ALL_ACCESS = ['dev', 'omni'];
     
     // Public projects with are viewable by anyone
     if (role === 'public') return true;

@@ -4,6 +4,16 @@ Python API
 The server initiates calls to python scripts, while the python script is a
 responder to the server's requests.
 
+**Python API Helpers**
+
+Use the helper function: readJsonRequestData() to read the json-formatted data
+from the file and convert the json to a python dict.
+
+Use the helper function: writeJsonResponseData() to convert the python data to
+json, write it to a file, and pass the filename back to the caller via stdout.
+
+This file is checked into the repository as server/pythonApiHelpers.py.
+
 **Requests**
 
 Requests and responses have only one parameter: a file name containing the data
@@ -49,7 +59,6 @@ Example::
 **Python API JSON data:**
 
 .. toctree::
-   pyApiHelpers
    pyCreateSubMap
    pyOverlayNodes
    pyStatsDynamic
