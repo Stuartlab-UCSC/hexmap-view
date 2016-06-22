@@ -256,7 +256,7 @@ fill_layer_metadata = function (container, layer_name) {
             text = p + '/' + n + ' (' + (hexCount - n) + ' missing)';
  
             if (n > hexCount) {
-                console.log('bad metadata: layer, n, hexCount',
+                console.log('bad metadata: layer, n, hexCount:',
                     layer_name, layers[layer_name].n, hexCount);
             }
 
@@ -296,7 +296,7 @@ fill_layer_metadata = function (container, layer_name) {
             // Do a sanity check
             if (attribute === 'n'
                 && value_formatted > Object.keys(polygons).length) {
-                console.log('bad metadata: layer, n, hexCount',
+                console.log('bad metadata: layer, n, hexCount:',
                     layer_name, layers[layer_name].n, Object.keys(polygons).length);
             }
  

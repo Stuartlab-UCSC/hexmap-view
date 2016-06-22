@@ -5,14 +5,11 @@ multiple processors
 """
 import multiprocessing, socket, datetime, pprint, traceback
 
-# For sub-processes, use all the processors available, or 32 on juggernaut
+# For sub-processes, use half the processors available
 hostname = socket.gethostname()
-if hostname == 'juggernaut':
-    MAX_JOB_COUNT = 32
-else:
-    MAX_JOB_COUNT = multiprocessing.cpu_count()
-    if MAX_JOB_COUNT < 1:
-        MAX_JOB_COUNT = 8
+MAX_JOB_COUNT = multiprocessing.cpu_count() / 2
+if MAX_JOB_COUNT < 1:
+    MAX_JOB_COUNT = 8
 
 def timestamp():
     return str(datetime.datetime.now())[8:-7]
@@ -49,3 +46,20 @@ def runSubProcesses(jobs):
     pool.join()
 
     return poolResults
+
+"""
+Usage example where ForEachLayer is a function:
+
+        # Handle the stats for each layer, in parallel
+        allLayers = []
+        for layer in parm['statsLayers']:
+            parm['layerA'] = layer
+            parm['layerIndex'] = layerNames.index(layer)
+            allLayers.append(ForEachLayer(parm))
+
+        print pool.hostProcessorMsg()
+        print len(ctx.binary_layers), 'subprocesses to run, one per layer.'
+
+        pool.runSubProcesses(allLayers)
+"""
+

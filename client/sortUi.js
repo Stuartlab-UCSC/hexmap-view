@@ -6,7 +6,7 @@ var app = app || {}; // jshint ignore:line
 (function (hex) { // jshint ignore:line
     //'use strict';
 
-    var title = 'Sort Attributes',
+    var title = 'Sort Attributes by Associative Statistics',
         FOCUS_LIST_LABEL = 'Attribute A:', //was 'Focus attribute:',
         DIFF_LIST_LABEL = 'Attribute A:',
         dialogHex,
