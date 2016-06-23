@@ -1,3 +1,4 @@
+#!/usr/bin/python2.7
 #Yulia Newton
 #python2.7 filter_out_lowest_varying_genes.py --in_file input.tab --filter_level .2 --out_file test.tab
 

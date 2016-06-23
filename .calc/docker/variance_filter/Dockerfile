@@ -12,20 +12,12 @@ MAINTAINER Yulia Newton <ynewton@soe.ucsc.edu>
 USER root
 RUN apt-get -m update && apt-get install -y python wget unzip 
 
-COPY 
+COPY filter_out_lowest_varying_genes.py /usr/local/bin/
+RUN chmod a+x /usr/local/bin/filter_out_lowest_varying_genes.py
 
-WORKDIR /home
-
-# Get the essentials
-#RUN apt-get update && install -y \
-#	r-base
-
-
-# get wrapper_scripts
-RUN  git clone https://github.com/ynewton/docker_wrappers.git
-RUN mkdir /data
-WORKDIR /data 
+# switch back to the ubuntu user so this tool (and the files written) are not owned by root
+RUN groupadd -r -g 1000 ubuntu && useradd -r -g ubuntu -u 1000 ubuntu
+USER ubuntu
 
 #python2.7 filter_out_lowest_varying_genes.py --in_file input.tab --filter_level .2 --out_file test.tab
-ENTRYPOINT ["sh", "/home/docker_wrappers/varfilter_wrapper.sh"]
-CMD [""]
+CMD ["/bin/bash"]
