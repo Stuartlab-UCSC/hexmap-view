@@ -1,9 +1,10 @@
 #Yulia Newton
-#python2.7 compute_sparse_matrix.py --in_file temp.tab --top 10 --metric correlation --output_type sparse --out_file temp.out.tab
+#python2.7 compute_sparse_matrix.py --in_file temp.tab --top 10 --metric correlation --output_type sparse --out_file temp.out.tab --log log.tab --num_jobs 0
 
-import optparse, sys, os
+import optparse, sys #, os
 import operator
 import numpy
+import multiprocessing
 import sklearn
 from sklearn import metrics
 #import scipy
@@ -44,26 +45,19 @@ def read_tabular(input_file, numeric_flag):
 			features = line_elems[1:]
 			features = [x if x != "NA" else "0" for x in features]
 			features = [x if len(x) != 0 else "0" for x in features]
+			features = [x if x != "0.0000" else "0" for x in features]
 			init_matrix.append(features)
 			
 		line_num += 1
+	data.close()
 	
 	if numeric_flag:
-		matrix = [map(float,x) for x in init_matrix]
+		#matrix = [map(float,x) for x in init_matrix]
+		matrix = [[float(y) for y in x] for x in init_matrix]
 	else:
 		matrix = init_matrix
 	return (matrix, col_headers, row_headers)
 	
-def sample_compare(x,y,metric_type):
-	if metric_type == "SPEARMAN":
-		return(scipy.stats.spearmanr(x, y)[0])
-	elif metric_type == "PEARSON":
-		return(scipy.stats.pearson(x, y)[0])
-	elif metric_type == "KENDALL":
-		return(scipy.stats.kendalltau(x, y)[0])
-	else:
-		print >> sys.stderr, "ERROR: Invalid metric type specified."
-
 def main():
 	start_time = time.time()
 	
@@ -73,8 +67,10 @@ def main():
 	parser.add_option("--metric", dest="metric", action="store", default="", help="")
 	parser.add_option("--output_type", dest="output_type", action="store", default="", help="")
 	parser.add_option("--out_file", dest="out_file", action="store", default="", help="")
+	parser.add_option("--log", dest="log", action="store", default="", help="")
+	parser.add_option("--num_jobs", dest="num_jobs", action="store", default="0", help="http://scikit-learn.org/stable/modules/generated/sklearn.metrics.pairwise.pairwise_distances.html")
 	opts, args = parser.parse_args()
-
+	
 	#process input arguments:
 	in_file = opts.in_file
 	#metric_type = opts.metric.upper()
@@ -82,6 +78,20 @@ def main():
 	output_type = opts.output_type.upper()
 	top = int(opts.top)
 	out_file = opts.out_file
+	log_file = opts.log
+	if len(log_file) > 0:
+		log = open(log_file, 'w')
+	try:
+		num_jobs = int(opts.num_jobs)
+	except:
+		print >> sys.stderr, "ERROR: num_jobs must be an integer."
+	if num_jobs == 0:
+		num_jobs = multiprocessing.cpu_count() / 2
+		num_jobs_str = str(num_jobs)
+	elif num_jobs < 0:
+		num_jobs_str = str(multiprocessing.cpu_count() + num_jobs)
+	else:
+		num_jobs_str = str(num_jobs)
 	
 	if not(metric_type in VALID_METRICS):
 		print >> sys.stderr, "ERROR: invalid metric"
@@ -92,18 +102,33 @@ def main():
 		sys.exit(1)		
 
 	#read the matrix and store in a dictionary:
-	print >> sys.stderr, "Reading in input..."
+	#print >> sys.stderr, "Reading in input..."
+	if len(log_file) > 0:
+		print >> log, "Number of CPUs is "+str(multiprocessing.cpu_count())
+		print >> log, "Using "+num_jobs_str+" CPUs"
+		print >> log, "Reading in input..."
+	curr_time = time.time()
 	dt,sample_labels,feature_labels = read_tabular(in_file,True)
 	#dt_t = [list(i) for i in zip(*dt)]	#rows are samples and columns are features now
 	dt_t = numpy.transpose(dt)
+	if len(log_file) > 0:
+		print >> log, str(time.time() - curr_time) + " seconds"
 	
-	print >> sys.stderr, "Computing similarities..."
-	x_corr = sklearn.metrics.pairwise.pairwise_distances(X=dt_t, Y=None, metric=metric_type, n_jobs=1)
+	#print >> sys.stderr, "Computing similarities..."
+	if len(log_file) > 0:
+		print >> log, "Computing similarities..."
+	curr_time = time.time()
+	x_corr = sklearn.metrics.pairwise.pairwise_distances(X=dt_t, Y=None, metric=metric_type, n_jobs=num_jobs)
 	x_corr = 1 - x_corr		#because computes the distance, need to convert to similarity
+	if len(log_file) > 0:
+		print >> log, str(time.time() - curr_time) + " seconds"
 	
 	#print >> sys.stderr, str(len(x_corr))+" x "+str(len(x_corr[0]))
 	
-	print >> sys.stderr, "Outputting "+output_type.lower()+" matrix..."
+	#print >> sys.stderr, "Outputting "+output_type.lower()+" matrix..."
+	if len(log_file) > 0:
+		print >> log, "Outputting "+output_type.lower()+" matrix..."
+	curr_time = time.time()
 	output = open(out_file, 'w')
 	if output_type == "SPARSE":
 		for i in range(len(x_corr)):
@@ -124,105 +149,13 @@ def main():
 			value_str = [str(x) for x in x_corr[i]]
 			print >> output, sample_labels[i]+"\t"+"\t".join(value_str)
 			
-	output.close()	
-	
-	'''print >> sys.stderr, "Outputting sparse matrix..."
-	output = open(out_file, 'w')
-	for i in range(len(x_corr)):
-		print >> sys.stderr, i
-		sample_dict = dict(zip(sample_labels, x_corr[i]))
-		del sample_dict[sample_labels[i]]	#remove self comparison
-		sorted_neighbors= sorted(sample_dict.items(), key=operator.itemgetter(1),reverse=True)
-		for n_i in range(0,top):
-			n = sorted_neighbors[n_i]
-			print >> output, sample_labels[i]+"\t"+n[0]+"\t"+str(n[1])
-			print >> sys.stderr, "\t"+str(n_i)			
-	output.close()'''
-		
-	'''print >> sys.stderr, "Computing similrities..."
-	x = numpy.array(dt, numpy.float)
-	x_df = pandas.DataFrame(data=x, index=None, columns=None, dtype=None, copy=False)	
-	if metric_type == "PEARSON":
-		x_corr = x_df.corr(method='pearson', min_periods=1)
-	elif metric_type == "SPEARMAN":
-		x_corr = x_df.corr(method='spearman', min_periods=1)
-	elif metric_type == "KENDALL":
-		x_corr = x_df.corr(method='kendall', min_periods=1)
-		
-	print >> sys.stderr, "Outputting sparse matrix..."
-	output = open(out_file, 'w')
-	for i in range(len(x_corr)):
-		sample_dict = dict(zip(sample_labels, x_corr[i]))
-		del sample_dict[sample_labels[i]]	#remove self comparison
-		sorted_neighbors= sorted(sample_dict.items(), key=operator.itemgetter(1),reverse=True)
-		neighbor_count = 1
-		for n in sorted_neighbors:
-			print >> output, sample_labels[i]+"\t"+n[0]+"\t"+str(n[1])
-			neighbor_count += 1
-			if neighbor_count > top:
-				exit
-	output.close()'''
-		
-	''' Some old code # 1:
-	dt_corr = numpy.corrcoef(dt, y=None, rowvar=1, bias=0, ddof=None)
-	'''
-	
-	''' Some old code # 2:	
-	#compute similarity neighbourhoods:
-	print >> sys.stderr, "Computing similrities..."
-	sample_cmpr = {}	#dictionary of samples, each sample contains the top X neighbor samples
-	for i in range(len(dt_t)):	#go through every row/sample
-		sample1_dt = dt_t[i]
-		sample1 = sample_labels[i]
-		
-		if not(sample1 in sample_cmpr):
-			sample_cmpr[sample1] = {}
-		
-		for j in range(i,len(dt_t)):	#nested loop through all the samples (pair-wise)
-			if j > i:	#avoid self comparison and computing twice
-				print >> sys.stderr, "("+str(i)+", "+str(j)+")"
-				
-				sample2_dt = dt_t[j]
-				sample2 = sample_labels[j]
-				
-				if not(sample2 in sample_cmpr):
-					sample_cmpr[sample2] = {}
-				
-				#if sample1 in sample_cmpr[sample2]:		#already has been computed
-				#	metric = sample_cmpr[sample2][sample1]
-				#else:
-				metric = sample_compare(sample1_dt,sample2_dt,metric_type)
-				
-				if len(sample_cmpr[sample1]) < top:	#keep top X neighbors, if less than X then just add this one
-					sample_cmpr[sample1][sample2] = metric
-				else:	#already have the top X neighbors; is this neighbor closer than one of the stored ones?
-					sorted_sample1 = sorted(sample_cmpr[sample1].items(), key=operator.itemgetter(1))
-					if metric > sorted_sample1[0][1]:	#replace the smallest neighbor with this one
-						sample_to_remove = sorted_sample1[0][0]
-						sample_cmpr[sample1][sample2] = metric
-						del sample_cmpr[sample1][sample_to_remove]
-						
-				if len(sample_cmpr[sample2]) < top:	#keep top X neighbors, if less than X then just add this one
-					sample_cmpr[sample2][sample1] = metric
-				else:	#already have the top X neighbors; is this neighbor closer than one of the stored ones?
-					sorted_sample2 = sorted(sample_cmpr[sample2].items(), key=operator.itemgetter(1))
-					if metric > sorted_sample2[0][1]:	#replace the smallest neighbor with this one
-						sample_to_remove = sorted_sample2[0][0]
-						sample_cmpr[sample2][sample1] = metric
-						del sample_cmpr[sample2][sample_to_remove]					
-
-	#output sparse matrix:
-	output = open(out_file, 'w')
-	print >> sys.stderr, "Outputting sparse matrix..."
-	for s in sample_cmpr.keys():
-		s_neighbors = sample_cmpr[s]
-		sorted_neighbors= sorted(s_neighbors.items(), key=operator.itemgetter(1),reverse=True)
-		for n in sorted_neighbors:
-			print >> output, s+"\t"+n[0]+"\t"+str(n[1])
-
 	output.close()
-	'''
+	if len(log_file) > 0:
+		print >> log, str(time.time() - curr_time) + " seconds"
 	
-	print >> sys.stderr, "--- %s seconds ---" % (time.time() - start_time)
+	#print >> sys.stderr, "--- %s seconds ---" % (time.time() - start_time)
+	if len(log_file) > 0:
+		print >> log, "--- %s seconds ---" % (time.time() - start_time)
+		log.close()
 
 main()

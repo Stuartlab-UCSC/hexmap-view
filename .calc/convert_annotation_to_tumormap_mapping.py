@@ -115,3 +115,4 @@ for a in attribute_dict.keys():
 		for v in a_vals:
 			if not(v in a_vals_check):
 				print >> sys.stderr, v +" value of "+a+" attribute in colormaps is not present in the data"
+
