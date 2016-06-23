@@ -35,10 +35,6 @@ div.document div.highlight {
     background-color: transparent;
 }
 
-body {
-    overflow-x: hidden;
-}
-
 div.header-wrapper,
 div.footer-wrapper {
     border: inherit;

@@ -1,5 +1,5 @@
 make clean
-d='../../public/zurhfads/'
+d='../../public/dev/'
 rm -rf $d/*
 make html
 mv _build/html/* $d
