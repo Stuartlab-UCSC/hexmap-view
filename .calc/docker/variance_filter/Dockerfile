@@ -5,9 +5,14 @@
 # Run with: sudo docker run -v , <IO_folder>:/home/datadir -i -t ynewton/varfilter —in_file /data/input.tab input.tab -filter_level .2 -out_file /data/test.tab
 
 # Use ubuntu
-FROM aarjunrao/ubuntu
+FROM ubuntu:14.04
 
-MAINTAINER Yulia Newton ynewton@soe.ucsc.edu; yulia.newton@gmail.com
+MAINTAINER Yulia Newton <ynewton@soe.ucsc.edu>
+
+USER root
+RUN apt-get -m update && apt-get install -y python wget unzip 
+
+COPY 
 
 WORKDIR /home
 
