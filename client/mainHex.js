@@ -5,6 +5,8 @@ var app = app || {}; // jshint ignore:line
 (function (hex) { // jshint ignore:line
     //'use strict';
  
+    var VERSION = 'Version 1.0';
+ 
     Template.localStoreT.created = function () {
         // This template is only used to initialize state
         if (_.isNull(ctx)) ctx = initState();
@@ -99,6 +101,13 @@ var app = app || {}; // jshint ignore:line
                 return 'none';
             }
         },
+        version: function () {
+            if (DEV) {
+                return VERSION + ' DEV';
+            } else {
+                return VERSION
+            }
+        },
     });
 
     Template.headerT.helpers({
@@ -143,12 +152,12 @@ var app = app || {}; // jshint ignore:line
 
                 // Initialize the background functions.
                 initOverlayNodes();
-                initOverlayNodeUi();
+                if (DEV) initOverlayNodeUi();
                 initShortlist();
                 initLayerBox();
                 initLegend();
                 initCoords();
-                initReflect();
+                if (DEV) initReflect();
                 initLabelTool();
                 initDownload();
                 initColors();

@@ -6,13 +6,13 @@
 
 var exec = Npm.require('child_process').exec;
 
-//removeRoles(['dev']);
-//createRole('dev');
-//removeUsersFromRoles(['jstuart@ucsc.edu'] , ['CKCC']);
+//removeRoles(['Pancan12']);
+//createRole('viewAll');
+//createRole('CIRM');
+//removeUsersFromRoles(['jstuart@ucsc.edu'], ['dev', 'Pancan12']);
 //showUsernames();
-//addUsersToRoles (['dmccoll@ucsc.edu'] , ['fully-protected']);
+//addUsersToRoles (['mcrchopra@gmail.com'] , ['dev']);
 //removeUser('hexmap@ucsc.edu');
-//addUsersToRoles(['x@x.x'],
 //Meteor.users.remove({});
 
 showRolesWithUsersAndProject();
@@ -61,7 +61,7 @@ function showRolesWithUsersAndProject () {
         if (!role) {
         
             // Make a fake role so we print those projects with no role
-            role = 'fully-protected';
+            role = 'none, only dev and viewAll may view';
             if (roles.indexOf(role) < 0) {
                 roles.push(role);
             }
@@ -74,7 +74,7 @@ function showRolesWithUsersAndProject () {
     });
 
     // Print for each role, its users and projects
-    console.log('\nRoles, users, projects:');
+    console.log('\nRoles, users, projects: ---------------------------');
     var noRoleUsers = getAllUsernames();
     _.each(roles, function (role) {
         var users = Roles.getUsersInRole(role).fetch();
@@ -85,9 +85,7 @@ function showRolesWithUsersAndProject () {
             }
             return user.username;
         });
-        console.log('Role:', role);
-        console.log('  Usernames:', usernames);
-        console.log('  Projects:', roleProjects[role]);
+        console.log('Role:', role, '\n  Usernames:', usernames, '\n  Projects:', roleProjects[role]);
     });
     console.log('Users without a role:', noRoleUsers);
 }
@@ -153,37 +151,18 @@ showProjectsWithRoles: Show all projects with the role in each
 userRequestRole: A UI for a user to request to join a role
 */
 
-function sendNewUserMail(user) {
-    
-    // Notify the admin of a new user
-    var msg = "'New user: "
-        + user.emails[0].address
-        + ' at '
-        + URL_BASE.toString()
-        + "'",
-        command =
-            'echo '
-            + msg
-            + ' | '
-            + 'mail -s '
-            + msg
-            + ' hexmap@ucsc.edu';
-
-    console.log('command:', command);
-    exec(command, function (error, stdout, stderr) {
-        if (error) {
-            console.log('sendNewUserMail had an error:', error);
-        }
-    });
-}
-
 Accounts.onCreateUser(function (options, user) {
 
      // Add a field of 'username' that meteor recognizes as unique
     user.username = user.emails[0].address;
     
     // Send the admin an email.
-    sendNewUserMail(user);
+    var msg = "'New user: "
+        + user.emails[0].address
+        + ' at '
+        + URL_BASE.toString()
+        + "'";
+    sendMail(ADMIN_EMAIL, msg, msg);
     
     // Don't forget to return the new user object.
     return user;
@@ -195,7 +174,7 @@ isUserAuthorized = function (user, role) {
     // user and role are single strings, no arrays.
     // Logs a message when user is not authorized.
     var PUBLIC = 'public',
-        ALL_ACCESS = 'dev';
+        ALL_ACCESS = ['dev', 'omni'];
     
     // Public projects with are viewable by anyone
     if (role === 'public') return true;

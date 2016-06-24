@@ -1,9 +1,5 @@
 make clean
 d='../../public/query/'
-echo 'd'
-echo $d
 rm -rf $d/*
-cp -R _static/*  $d/_static
-cp -R _templates/*  $d/_templates
-sphinx-build . $d
-
+make html
+mv _build/html/* $d

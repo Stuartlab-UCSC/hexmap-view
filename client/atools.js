@@ -201,6 +201,7 @@ var app = app || {}; // jshint ignore:line
             $('body').find('.mapShow, .gridShow').hide();
             $('body').find('.homeShow').show();
             Session.set('loadingMap', false);
+            $('body').css('overflow-y', 'auto');
  
         } else if (Session.equals('page', 'mapPage')) {
             $('body').find('.homeShow, .gridShow').hide();
@@ -210,6 +211,7 @@ var app = app || {}; // jshint ignore:line
             initSelect();
             $('.selectMenuLabel, #selectMenu').show();
             Session.set('loadingMap', true);
+            $('body').css('overflow-y', 'hidden');
  
         } else if (Session.equals('page', 'gridPage')) {
             $('body').find('.homeShow, .mapShow').hide();
@@ -217,6 +219,13 @@ var app = app || {}; // jshint ignore:line
             $('.mapLayout').removeClass('ui-state-disabled');
             $('.methods').addClass('ui-state-disabled');
             Session.set('loadingMap', true);
+            $('body').css('overflow-y', 'hidden');
+        }
+ 
+        // TODO keep the dev features out of production for now
+        if (!DEV) {
+            $('#toolbar .overlayNode').hide();
+            $('#reflectTrigger').hide();
         }
  
         // Set up the link to the map page

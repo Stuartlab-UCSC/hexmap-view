@@ -1,0 +1,166 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Generate Layout &amp; Statistics &mdash; Tumor Map Creation</title>
+    
+    <link rel="stylesheet" href="_static/agogo.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Tumor Map Creation" href="index.html" />
+    <link rel="next" title="Viewer Input Files" href="i5_viewer.html" />
+    <link rel="prev" title="Layout Input Files" href="i3_layoutInputFiles.html" /> 
+  </head>
+  <body role="document">
+    <div class="header-wrapper" role="banner">
+      <div class="header">
+        <div class="headertitle"><a
+          href="index.html">Tumor Map Creation</a></div>
+        <div class="rel" role="navigation" aria-label="related navigation">
+          <a href="i3_layoutInputFiles.html" title="Layout Input Files"
+             accesskey="P">previous</a> |
+          <a href="i5_viewer.html" title="Viewer Input Files"
+             accesskey="N">next</a> |
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a>
+        </div>
+       </div>
+    </div>
+
+    <div class="content-wrapper">
+      <div class="content">
+        <div class="document">
+            
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="generate-layout-statistics">
+<h1>Generate Layout &amp; Statistics<a class="headerlink" href="#generate-layout-statistics" title="Permalink to this headline">¶</a></h1>
+<p>This describes the layout utility that finds
+positions for the nodes based on similarity scores and generates associative
+statistics.</p>
+<div class="section" id="layout-py">
+<h2>layout.py<a class="headerlink" href="#layout-py" title="Permalink to this headline">¶</a></h2>
+<p>Here is an example script with typical parameters to generate input for the Tumor Map viewer:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span>BASE_DIR = /cirm/tumorMap/data
+INPUT_DIR = $BASE_DIR/layoutInput/project/subProject
+OUTPUT_DIR = $BASE_DIR/view/project/subProject
+
+layout.py \
+   $INPUT_DIR/layout_sparse_mrna_data.tab \         # similarity sparse matrix file
+   $INPUT_DIR/layout_sparse_methylation_data.tab \  # similarity sparse matrix file
+   --names mRNA \                                   # unique ID/label for a layout
+   --names Methylation \                            # unique ID/label for a layout
+   --scores $INPUT_DIR/attributes_clinical.tsv \    # values for each signature
+   --scores $INPUT_DIR/attributes_mutations.tsv \   # values for each signature
+   --include-singletons \                           # add self-edges to retain unconnected points
+   --colormaps $INPUT_DIR/colormaps.tab \           # colormap for categorical attributes
+   --first_attribute Tissue \                       # attribute by which to color the map upon first display
+   --directory $OUTPUT_DIR \                        # layout and statistical output files
+</pre></div>
+</div>
+<p>The first two parameters are two different sparse matrix data files.
+There should be one of these for each layout.</p>
+<p><em>names</em> are the labels that will show up on the UI for the two
+layouts above.</p>
+<p><em>scores</em> are the attribute files and there may be more than one of these.</p>
+<p>These are some lesser used parameters:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="o">--</span><span class="n">attributeTags</span>                <span class="c1"># tags for filtering and searching for attributes</span>
+<span class="o">--</span><span class="nb">min</span><span class="o">-</span><span class="n">window</span><span class="o">-</span><span class="n">nodes</span>             <span class="c1"># min nodes per window for layout-aware stats</span>
+<span class="o">--</span><span class="nb">max</span><span class="o">-</span><span class="n">window</span><span class="o">-</span><span class="n">nodes</span>             <span class="c1"># max nodes per window for layout-aware stats</span>
+<span class="o">--</span><span class="n">no</span><span class="o">-</span><span class="n">density</span><span class="o">-</span><span class="n">stats</span>             <span class="c1"># don&#39;t calculate density stats</span>
+<span class="o">--</span><span class="n">no</span><span class="o">-</span><span class="n">layout</span><span class="o">-</span><span class="n">independent</span><span class="o">-</span><span class="n">stats</span>  <span class="c1"># don&#39;t calculate layout-independent stats</span>
+<span class="o">--</span><span class="n">no</span><span class="o">-</span><span class="n">layout</span><span class="o">-</span><span class="n">aware</span><span class="o">-</span><span class="n">stats</span>        <span class="c1"># don&#39;t calculate layout-aware stats</span>
+<span class="o">--</span><span class="n">truncation_edges</span>             <span class="c1"># edges per node for DrL and the directed graph</span>
+<span class="o">--</span><span class="n">windowSize</span>                   <span class="c1"># clustering window count is this value squared</span>
+<span class="o">--</span><span class="n">drlpath</span>                      <span class="c1"># DrL binaries</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+        </div>
+        <div class="sidebar">
+          <h3>Table Of Contents</h3>
+          <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="i1_yourData.html">Your Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="i2_formatForLayout.html">Prepare for Layout</a></li>
+<li class="toctree-l1"><a class="reference internal" href="i3_layoutInputFiles.html">Layout Input Files</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="">Generate Layout &amp; Statistics</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#layout-py">layout.py</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="i5_viewer.html">Viewer Input Files</a></li>
+</ul>
+
+          <div role="search">
+            <h3 style="margin-top: 1.5em;">Search</h3>
+            <form class="search" action="search.html" method="get">
+                <input type="text" name="q" />
+                <input type="submit" value="Go" />
+                <input type="hidden" name="check_keywords" value="yes" />
+                <input type="hidden" name="area" value="default" />
+            </form>
+            <p class="searchtip" style="font-size: 90%">
+                Enter search terms or a module, class or function name.
+            </p>
+          </div>
+        </div>
+        <div class="clearer"></div>
+      </div>
+    </div>
+
+    <div class="footer-wrapper">
+      <div class="footer">
+        <div class="left">
+          <div role="navigation" aria-label="related navigaton">
+            <a href="i3_layoutInputFiles.html" title="Layout Input Files"
+              >previous</a> |
+            <a href="i5_viewer.html" title="Viewer Input Files"
+              >next</a> |
+            <a href="genindex.html" title="General Index"
+              >index</a>
+          </div>
+          <div role="note" aria-label="source link">
+              <br/>
+              <a href="_sources/i4_genLayoutAndStats.txt"
+                rel="nofollow">Show Source</a>
+          </div>
+        </div>
+
+        <div class="right">
+          
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2016, UCSC Tumor Map development team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.5.
+    </div>
+        </div>
+        <div class="clearer"></div>
+      </div>
+    </div>
+
+  </body>
+</html>
