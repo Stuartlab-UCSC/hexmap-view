@@ -165,7 +165,7 @@ var app = app || {}; // jshint ignore:line
             }
         };
 
-        // Createe the select2 object
+        // Create the select2 object
         $el.select2(opts);
 
         // Set the default selection
