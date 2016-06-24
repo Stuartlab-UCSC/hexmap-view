@@ -6,15 +6,13 @@
 
 var exec = Npm.require('child_process').exec;
 
-//removeRoles(['dev']);
-createRole('omni');
-createRole('createMap');
-createRole('queryAPI');
-//removeUsersFromRoles(['jstuart@ucsc.edu'] , ['CKCC']);
+//removeRoles(['Pancan12']);
+//createRole('viewAll');
+//createRole('CIRM');
+//removeUsersFromRoles(['jstuart@ucsc.edu'], ['dev', 'Pancan12']);
 //showUsernames();
-//addUsersToRoles (['dmccoll@ucsc.edu'] , ['fully-protected']);
+//addUsersToRoles (['mcrchopra@gmail.com'] , ['dev']);
 //removeUser('hexmap@ucsc.edu');
-//addUsersToRoles(['x@x.x'],
 //Meteor.users.remove({});
 
 showRolesWithUsersAndProject();
@@ -63,7 +61,7 @@ function showRolesWithUsersAndProject () {
         if (!role) {
         
             // Make a fake role so we print those projects with no role
-            role = 'fully-protected';
+            role = 'none, only dev and viewAll may view';
             if (roles.indexOf(role) < 0) {
                 roles.push(role);
             }
@@ -76,7 +74,7 @@ function showRolesWithUsersAndProject () {
     });
 
     // Print for each role, its users and projects
-    console.log('\nRoles, users, projects:');
+    console.log('\nRoles, users, projects: ---------------------------');
     var noRoleUsers = getAllUsernames();
     _.each(roles, function (role) {
         var users = Roles.getUsersInRole(role).fetch();
@@ -87,9 +85,7 @@ function showRolesWithUsersAndProject () {
             }
             return user.username;
         });
-        console.log('Role:', role);
-        console.log('  Usernames:', usernames);
-        console.log('  Projects:', roleProjects[role]);
+        console.log('Role:', role, '\n  Usernames:', usernames, '\n  Projects:', roleProjects[role]);
     });
     console.log('Users without a role:', noRoleUsers);
 }
