@@ -3,6 +3,7 @@
 
 PORT=8113
 DIR=/cluster/home/swat/hexmap
+
 echo 'cleaning directory'
 rm -rf $DIR/$PORT/*
 echo 'untarring'
