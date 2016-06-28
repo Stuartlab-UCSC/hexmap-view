@@ -15,6 +15,9 @@ RUN apt-get -m update && apt-get install -y python wget unzip
 COPY filter_out_lowest_varying_genes.py /usr/local/bin/
 RUN chmod a+x /usr/local/bin/filter_out_lowest_varying_genes.py
 
+COPY test.tab /usr/local/
+RUN chmod a+r /usr/local/test.tab
+
 # switch back to the ubuntu user so this tool (and the files written) are not owned by root
 RUN groupadd -r -g 1000 ubuntu && useradd -r -g ubuntu -u 1000 ubuntu
 USER ubuntu
