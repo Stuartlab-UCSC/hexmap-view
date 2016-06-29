@@ -9,7 +9,7 @@ METEOR=/data/home/hexmap/.meteor  # the meteor installation
 export ROOT_URL=https://tumormap.ucsc.edu:$HTTPS_PORT # the user's view of the URL
 
 export MONGO_URL=mongodb://localhost:$DB_PORT/$PORT
-touch $HEX/$PORT.log
-mv $HEX/$PORT.log $HEX/$PORT.prev.log
-cd $HEX/$PORT
-$METEOR/meteor --port $PORT --settings $HEX/settings.json &> $HEX/$PORT.log &
+touch $HEX/www.log
+mv $HEX/www.log $HEX/www.prev.log
+cd $HEX/www
+$METEOR/meteor --port $PORT --settings $HEX/settings.json &> $HEX/www.log &

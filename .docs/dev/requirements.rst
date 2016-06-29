@@ -1,5 +1,5 @@
-Requirements
-============
+Requirements & Installation
+===========================
 
 Our servers
 -----------
@@ -40,7 +40,7 @@ listed above::
 
  conda install numpy=1.10.4 scipy=0.17.0 statsmodels=0.6.1 scikit-learn=0.17.1
 
-DRL graph layout [1]
+DrL graph layout [1]
 --------------------
 
 Install::
@@ -57,62 +57,76 @@ Install::
 (TODO:  check this in somehow with yulia's changes)
 
 
-Meteor
-------
+Web application deployment
+--------------------------
 
-Meteor is a full-stack web application environment. This is only neede if you
-will be modifying the UI.
+After all of the above tools have been installed, these steps will bring up the server.
 
-https://www.meteor.com/install
+Substitute your directories for these tokens:
 
+*HEXSRC* : directory of sources from the code repository
 
-Bring-up
---------
-
-After all of the above have been installed, these steps will bring up the server.
-
-Substitute your directories for this tokens:
-
-*HEXAGRAM* : directory of hexagram sources
-
-*HEX* : directory from which pages will be served
+*HEX* : directory from which code will be run
 
 *DATA* : directory for your data
 
 *DB* : directory for your database
 
+*CONDA* : miniconda install directory
+
+*DRL* : DrL layout install directory
+
+** : your
+
+
 **Create directories**
 
 Create some directories::
 
- mkdir HEX
+ mkdir -P HEX/www
  mkdir DB
  mkdir -p DATA/featureSpace DATA/layoutInput DATA/view
 
+
+**Copy source code to run directory**
+
+ cd *HEXSRC*
+ cp -R .meteor client lib public server *HEX*/www
+ cp -R .calc *HEX*/calc
+
+
 **Environment variables**
 
-Set some environment variables using full paths::
+Set some environment variables::
 
- export PYTHONPATH=HEX/.calc:HEX/server
- export PATH=DRL/bin:$PATH
+ export PYTHONPATH=HEX/calc:HEX/server
+ export PATH=CONDA/bin:DRL/bin:$PATH
+
 
 **Customize the Run Scripts**
 
-Copy these from *HEXAGRAM*/.bin to your *HEX* directory and modify them to
-match your environment.
+Copy some scripts and modify them to match your environment.
 
-startDb
+ cd *HEXSRC*/.bin
+ cp runDb runHex settings.json *HEX*
 
-startHex
+Make run* executable.
 
-settings.json
-
-Make start* executable.
 
 **Start the servers**::
 
- nohup startDB &
- nohup startHex &
+ nohup runDB &
+ nohup runHex &
+
+
+Meteor
+------
+
+Meteor is a full-stack web application environment. This is only needed if you
+will be modifying the UI.
+
+https://www.meteor.com/install
+
 
 Sphinx
 ------

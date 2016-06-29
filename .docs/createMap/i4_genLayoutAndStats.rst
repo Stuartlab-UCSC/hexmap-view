@@ -15,7 +15,7 @@ Here is an example script with typical parameters to generate input for the Tumo
  INPUT_DIR = $BASE_DIR/layoutInput/project/subProject
  OUTPUT_DIR = $BASE_DIR/view/project/subProject
 
- layout.py \
+ python2.7 *HEX*/calc/layout.py \
     $INPUT_DIR/layout_sparse_mrna_data.tab \         # similarity sparse matrix file
     $INPUT_DIR/layout_sparse_methylation_data.tab \  # similarity sparse matrix file
     --names mRNA \                                   # unique ID/label for a layout
