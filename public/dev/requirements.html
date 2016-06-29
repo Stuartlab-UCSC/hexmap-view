@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Requirements &mdash; Tumor Map Developer Documentation</title>
+    <title>Requirements &amp; Installation &mdash; Tumor Map Developer Documentation</title>
     
     <link rel="stylesheet" href="_static/agogo.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -52,8 +52,8 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="requirements">
-<h1>Requirements<a class="headerlink" href="#requirements" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="requirements-installation">
+<h1>Requirements &amp; Installation<a class="headerlink" href="#requirements-installation" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="our-servers">
 <h2>Our servers<a class="headerlink" href="#our-servers" title="Permalink to this headline">¶</a></h2>
 <p><a class="reference external" href="https://tumormap.ucsc.edu">https://tumormap.ucsc.edu</a> is the public server residing on the virtual
@@ -89,7 +89,7 @@ listed above:</p>
 </div>
 </div>
 <div class="section" id="drl-graph-layout-1">
-<h2>DRL graph layout [1]<a class="headerlink" href="#drl-graph-layout-1" title="Permalink to this headline">¶</a></h2>
+<h2>DrL graph layout [1]<a class="headerlink" href="#drl-graph-layout-1" title="Permalink to this headline">¶</a></h2>
 <p>Install:</p>
 <div class="highlight-python"><div class="highlight"><pre><span></span>wget https://bitbucket.org/adam_novak/drl-graph-layout/get/c41341de8058.zip
 #alternatively:
@@ -103,45 +103,52 @@ ls ../bin
 </div>
 <p>(TODO:  check this in somehow with yulia&#8217;s changes)</p>
 </div>
-<div class="section" id="meteor">
-<h2>Meteor<a class="headerlink" href="#meteor" title="Permalink to this headline">¶</a></h2>
-<p>Meteor is a full-stack web application environment. This is only neede if you
-will be modifying the UI.</p>
-<p><a class="reference external" href="https://www.meteor.com/install">https://www.meteor.com/install</a></p>
-</div>
-<div class="section" id="bring-up">
-<h2>Bring-up<a class="headerlink" href="#bring-up" title="Permalink to this headline">¶</a></h2>
-<p>After all of the above have been installed, these steps will bring up the server.</p>
-<p>Substitute your directories for this tokens:</p>
-<p><em>HEXAGRAM</em> : directory of hexagram sources</p>
-<p><em>HEX</em> : directory from which pages will be served</p>
+<div class="section" id="web-application-deployment">
+<h2>Web application deployment<a class="headerlink" href="#web-application-deployment" title="Permalink to this headline">¶</a></h2>
+<p>After all of the above tools have been installed, these steps will bring up the server.</p>
+<p>Substitute your directories for these tokens:</p>
+<p><em>HEXSRC</em> : directory of sources from the code repository</p>
+<p><em>HEX</em> : directory from which code will be run</p>
 <p><em>DATA</em> : directory for your data</p>
 <p><em>DB</em> : directory for your database</p>
+<p><em>CONDA</em> : miniconda install directory</p>
+<p><em>DRL</em> : DrL layout install directory</p>
+<p>** : your</p>
 <p><strong>Create directories</strong></p>
 <p>Create some directories:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span>mkdir HEX
+<div class="highlight-python"><div class="highlight"><pre><span></span>mkdir -P HEX/www
 mkdir DB
 mkdir -p DATA/featureSpace DATA/layoutInput DATA/view
 </pre></div>
 </div>
+<p><strong>Copy source code to run directory</strong></p>
+<blockquote>
+<div>cd <em>HEXSRC</em>
+cp -R .meteor client lib public server <em>HEX</em>/www
+cp -R .calc <em>HEX</em>/calc</div></blockquote>
 <p><strong>Environment variables</strong></p>
-<p>Set some environment variables using full paths:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span>export PYTHONPATH=HEX/.calc:HEX/server
-export PATH=DRL/bin:$PATH
+<p>Set some environment variables:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span>export PYTHONPATH=HEX/calc:HEX/server
+export PATH=CONDA/bin:DRL/bin:$PATH
 </pre></div>
 </div>
 <p><strong>Customize the Run Scripts</strong></p>
-<p>Copy these from <em>HEXAGRAM</em>/.bin to your <em>HEX</em> directory and modify them to
-match your environment.</p>
-<p>startDb</p>
-<p>startHex</p>
-<p>settings.json</p>
-<p>Make start* executable.</p>
+<p>Copy some scripts and modify them to match your environment.</p>
+<blockquote>
+<div>cd <em>HEXSRC</em>/.bin
+cp runDb runHex settings.json <em>HEX</em></div></blockquote>
+<p>Make run* executable.</p>
 <p><strong>Start the servers</strong>:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span>nohup startDB &amp;
-nohup startHex &amp;
+<div class="highlight-python"><div class="highlight"><pre><span></span>nohup runDB &amp;
+nohup runHex &amp;
 </pre></div>
 </div>
+</div>
+<div class="section" id="meteor">
+<h2>Meteor<a class="headerlink" href="#meteor" title="Permalink to this headline">¶</a></h2>
+<p>Meteor is a full-stack web application environment. This is only needed if you
+will be modifying the UI.</p>
+<p><a class="reference external" href="https://www.meteor.com/install">https://www.meteor.com/install</a></p>
 </div>
 <div class="section" id="sphinx">
 <h2>Sphinx<a class="headerlink" href="#sphinx" title="Permalink to this headline">¶</a></h2>
@@ -172,12 +179,12 @@ Applications.</p>
 <li class="toctree-l1"><a class="reference internal" href="serverSource.html">Source: Server</a></li>
 <li class="toctree-l1"><a class="reference internal" href="serverSource.html#utilities-called-by-layout-py">Utilities called by layout.py</a></li>
 <li class="toctree-l1"><a class="reference internal" href="repository.html">Code Repository</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="">Requirements</a><ul>
+<li class="toctree-l1 current"><a class="current reference internal" href="">Requirements &amp; Installation</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#our-servers">Our servers</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#python-and-modules">Python and modules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#drl-graph-layout-1">DRL graph layout [1]</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#drl-graph-layout-1">DrL graph layout [1]</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#web-application-deployment">Web application deployment</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#meteor">Meteor</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#bring-up">Bring-up</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#sphinx">Sphinx</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#references">References</a></li>
 </ul>
