@@ -35,6 +35,7 @@ callPython = function (pythonCallName, opts, callback) {
             // Return any errors not captured by the python script
             //console.trace()
             result = {code: 1, data: error};
+            console.log('error from python call:',error)
             //TODO we should check stderror as well
         
         } else if (typeof stdout === 'string'

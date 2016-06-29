@@ -29,66 +29,47 @@ def reflection(parm):
 
     :param parm: {
                   "datapath": relfection_data_file_name
-                  "toMapId" : 'sample' or 'feature'
+                  "featOrSamp" : 'sample' or 'feature' this descrobes the node_ids
                   "node_ids" = [ id1,...,idn ]
                   "out_file"=outputfile_path
                   }
-    :return: writes tab delimited output file, describing the highest and lowest node reflection
+    :return:
     '''
     
-    #bigger matrix requires read in chunks haven't implemented yet.
-    #TODO: implement 'read in chunks' for large dataframes.
-    bigboy = (parm['toMapId'] == 'GtexFeature' or parm['toMapId'] == 'GtexSample')
-    if (bigboy):
-        print "Error: reflection not implemented for GTEx"
-        return 0
-    
-    TOP = 150 #this should be an input later, need to talk to Yulia and Josh before getting fancy
+
+    #TODO: implement 'read in chunks' for large dataframes. or find a good way to do it
+
+    TOP = 150 #TODO: this should be an input later, need to talk to Yulia and Josh before getting fancy
 
     fpath = str(parm['datapath'])
-    outpath = parm['out_file']
     node_ids = parm['node_ids']
 
     if not os.path.isfile(fpath):
-        print "Error:", fname, "not found, so reflection could not be computed\n"
+        print "Error:", fpath, "not found, so reflection could not be computed\n"
         return 0
 
-    #
-    '''
-    fpath = '/home/duncan/data/featureSpace/pancan12/reflection/clrscoresGtex_reflection.csv'
-    res.head()
-    ref_dat.head()
-    '''
-
     # read in data to perform query on
-    ref_dat = pd.read_pickle(fpath)
+    #ref_dat = pd.read_pickle(fpath)
+    ref_dat = pd.read_csv(fpath,index_col=0)
         
     #if going from features to samples then need to transpose matrix
-    if (parm['toMapId'] == 'sample' or parm['toMapId'] == 'GtexSample'):
+    if (parm['featOrSamp'] == 'feature'):
         ref_dat = ref_dat.transpose()
 
     node_ids = parm['node_ids']
-
-    '''
-    node_ids = ref_dat.columns.values.tolist()[22:45]
-    '''
 
     #grab row wise means and standard deviation for querry normalization
     rowmu = ref_dat.mean(axis=1)
     #take sd of each row
     rowstd = ref_dat.std(axis=1)
 
-    #write the result to out_file name
+    #calculate raw scores
     res = ( (ref_dat[node_ids].mean(axis=1) - rowmu) / rowstd)#
 
     #grab highest and lowest values and turn into: 3 highest , 2 middle, 1 lowest. 3 and 1 are of particular interest
     res = topXbinTrans(res,TOP).to_dict()
 
-    #outpath='reflect_ex.tab'
-    #res.to_csv(outpath,sep='\t') #output is without header
-
     return res
-    #return 0
 
 if __name__ == "__main__" :
     try:

@@ -22,7 +22,6 @@ class TestPearson(unittest.TestCase):
                 s.directory = outDir
                 s.drlpath = None
                 s.html = 'test.dat'
-                s.mi_binary_binning = False # True
                 s.mi_window_size = 25
                 s.mi_window_threshold = 4 # 30
                 s.mutualinfo = True

@@ -1,0 +1,8 @@
+{
+  "public": {
+    "URL_BASE": "https://tumormap.ucsc.edu",
+    "FEATURE_SPACE_DIR": "/data/data/featureSpace/",
+    "LAYOUT_INPUT_DIR": "/data/data/layoutInput/",
+    "VIEW_DIR": "/data/data/view/"
+  }
+}
