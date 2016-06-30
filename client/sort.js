@@ -532,12 +532,12 @@ var app = app || {}; // jshint ignore:line
             dynamicData = dynamicDataIn;
         }
         var layer;
-        for (var i = 0; i < ctx.bin_layers.length; i++) {
-            layer = ctx.bin_layers[i];
-            if (layers[layer].hasOwnProperty('selection')) {
-                dynamicData[layer] = layers[layer].data;
+        _.each(layers, function (layer, layerName) {
+            if (layer.selection) {
+               dynamicData[layerName] = layer.data;
             }
-        }
+        });
+
         return dynamicData;
     }
 
