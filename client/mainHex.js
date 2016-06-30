@@ -79,7 +79,7 @@ var app = app || {}; // jshint ignore:line
             }
         });
         initProject();
-        GoogleMaps.load();
+        GoogleMaps.load({ key: 'AIzaSyBb8AJUB4x-xxdUCnjzb-Xbcg0-T1mPw3I' });  // browser key
         initTools();
     });
 
