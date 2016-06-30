@@ -2,7 +2,7 @@
 # Start the mongoDb daemon on production
 
 PORT=27017   # the port the database listens on
-HEX=/data    # the root dir of your server installation
+HEX=/data    # directory of this script, just above the www directory
 DB=/data/db  # the location of the database
 # the location of the mongo binary way deep inside your .meteor directory:
 MONGO_BIN=/HEX/home/hexmap/.meteor/packages/meteor-tool/.1.1.10.ki0ccv++os.linux.x86_64+web.browser+web.cordova/mt-os.linux.x86_64/dev_bundle/mongodb/bin

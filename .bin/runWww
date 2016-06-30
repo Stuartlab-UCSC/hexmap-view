@@ -4,7 +4,7 @@
 PORT=8443       # port on which the server will listen
 HTTPS_PORT=443  # https proxy port if using https, otherwise the same as PORT
 DB_PORT=27017   # port on which the database will listen
-HEX=/data       # directory from which pages will be served
+HEX=/data       # directory of this script, just above the www directory
 METEOR=/data/home/hexmap/.meteor  # the meteor installation
 export ROOT_URL=https://tumormap.ucsc.edu:$HTTPS_PORT # the user's view of the URL
 
