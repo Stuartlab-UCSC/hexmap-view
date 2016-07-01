@@ -177,7 +177,40 @@ git pull
 <div class="highlight-python"><div class="highlight"><pre><span></span>git push
 </pre></div>
 </div>
-<p>Good luck</p>
+</div>
+</div>
+<div class="section" id="releasing-a-new-version">
+<h2>Releasing a new version<a class="headerlink" href="#releasing-a-new-version" title="Permalink to this headline">¶</a></h2>
+<p>Be sure your local dev branch has the latest.
+Update your master branch from the origin, and merge dev into it:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span>git checkout master
+git pull
+git fetch # sometimes this is needed for the master branch
+git merge dev
+</pre></div>
+</div>
+<p>Do sanity testing, change the version:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span>vi mainHex.js # edit VERSION
+</pre></div>
+</div>
+<p>Copy to production and sanity test there, make any changes needed, commit and tag it:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span>git commit
+git tag v1.0
+git push
+git push v1.0
+</pre></div>
+</div>
+<p>Merge master to dev:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span>git checkout dev
+git pull
+git merge master
+git push
+</pre></div>
+</div>
+<p>Some other handy git commands:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span>git branch -r
+git ls-remote --tags
+</pre></div>
 </div>
 </div>
 </div>
@@ -200,6 +233,7 @@ git pull
 <li class="toctree-l1 current"><a class="current reference internal" href="">Code Repository</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#repository-branches">Repository branches</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#a-git-quick-start">A git quick start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#releasing-a-new-version">Releasing a new version</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="requirements.html">Requirements &amp; Installation</a></li>

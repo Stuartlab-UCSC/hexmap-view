@@ -1,20 +1,11 @@
 Requirements & Installation
 ===========================
 
-Our servers
------------
-
-https://tumormap.ucsc.edu is the public server residing on the virtual
-machine called hexmap.sdsc.edu, running on the standard https port: 443. User,
-'hexmap' should be used to update this server.
-
-https://hexmap.sdsc.edu:8343 is the development server.
-
-
-Python and modules
+Required libraries
 ------------------
 
-Python and modules required::
+**Python and modules**
+::
 
  Python 2.7.10
  ...
@@ -40,8 +31,8 @@ listed above::
 
  conda install numpy=1.10.4 scipy=0.17.0 statsmodels=0.6.1 scikit-learn=0.17.1
 
-DrL graph layout [1]
---------------------
+
+**DrL graph layout [1]**
 
 Install::
 
@@ -66,11 +57,13 @@ Substitute your directories for these tokens:
 
 *HEXSRC* : directory of sources from the code repository
 
-*HEX* : directory from which code will be run
+*HEX* : directory from which server code will be run
 
 *DATA* : directory for your data
 
 *DB* : directory for your database
+
+*METEOR_SUBDIR* : the base binary directory specific to the meteor version
 
 *CONDA* : miniconda install directory
 
@@ -88,42 +81,47 @@ Create some directories::
  mkdir -p DATA/featureSpace DATA/layoutInput DATA/view
 
 
-**Copy source code to run directory**
+**Copy source code to the server directory**::
 
- cd *HEXSRC*
- cp -R .meteor client lib public server *HEX*/www
+ cd HEXSRC
+ cp -R .meteor client lib public server HEX/www
  cp -R .calc *HEX*/calc
 
 
-**Environment variables**
+**Environment variables**::
 
-Set some environment variables::
+ # Map creators need these:
+ export HEXMAP=HEX
+ export PYTHONPATH=$HEXMAP/calc:$HEXMAP/www/server
+ export PATH=./:DRL:$PATH
 
- export PYTHONPATH=HEX/calc:HEX/server
- export PATH=CONDA/bin:DRL/bin:$PATH
+ # Developers need these.
+ BASE=$HOME/.meteor/packages/meteor-tool/METEOR_VERSION/dev_bundle
+ NPM_NODE=$BASE/bin
+ MONGO=$BASE/mongodb/bin
+ CONDA=$HOME/packages/miniconda2/bin
+ export PATH=$CONDA:$MONGO:$NPM_NODE:$PATH
 
 
-**Customize the Run Scripts**
+**Customize the Run Scripts**::
 
 Copy some scripts and modify them to match your environment.
 
- cd *HEXSRC*/.bin
+ cd HEXSRC/.bin
  cp runDb runHex settings.json *HEX*
-
-Make run* executable.
 
 
 **Start the servers**::
 
- nohup runDB &
- nohup runHex &
+ nohup runDB
+ nohup runWww
 
 
 Meteor
 ------
 
-Meteor is a full-stack web application environment. This is only needed if you
-will be modifying the UI.
+Meteor is a full-stack web application environment. This only needs to be
+installed if you will be modifying the UI.
 
 https://www.meteor.com/install
 

@@ -12,10 +12,38 @@ var exec = Npm.require('child_process').exec;
 //removeUsersFromRoles(['jstuart@ucsc.edu'], ['dev', 'Pancan12']);
 //showUsernames();
 //addUsersToRoles (['mcrchopra@gmail.com'] , ['dev']);
-//removeUser('hexmap@ucsc.edu');
-//Meteor.users.remove({});
+//removeUser('terra666@baymoon.com');
+//var users = [
+//    {email: 'swat@soe.ucsc.edu', roles: ['dev']},
+//];
+//createUsers(users);
+
 
 showRolesWithUsersAndProject();
+
+Accounts.emailTemplates.from = 'Hexmap Admin<hexmap@ucsc.edu>';
+
+function createUsers(users) {
+    _.each(users, function (user) {
+        try {
+
+            var id = Accounts.createUser({
+                email: user.email,
+                username: user.email,
+                password: "adsqry75984",
+            });
+
+            if (user.roles.length > 0) {
+                Roles.addUsersToRoles(id, user.roles);
+            }
+           
+            // have not see this work yet
+            Accounts.sendResetPasswordEmail(id, [user.email]);
+    
+        } catch (error) {
+        }
+    });
+}
 
 function usernamesToUsers (usernamesIn) {
     var usernames = usernamesIn;

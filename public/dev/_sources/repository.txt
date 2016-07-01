@@ -143,4 +143,40 @@ merge your branch into dev. We'll use 'mine' as your own branch in this example.
 
  git push
 
-Good luck
+Releasing a new version
+.......................
+
+Be sure your local dev branch has the latest.
+Update your master branch from the origin, and merge dev into it::
+
+ git checkout master
+ git pull
+ git fetch # sometimes this is needed for the master branch
+ git merge dev
+
+Do sanity testing, change the version::
+
+ vi mainHex.js # edit VERSION
+
+Copy to production and sanity test there, make any changes needed, commit and tag it::
+
+ git commit
+ git tag v1.0
+ git push
+ git push v1.0
+
+Merge master to dev::
+
+ git checkout dev
+ git pull
+ git merge master
+ git push
+
+Some other handy git commands::
+
+ git branch -r
+ git ls-remote --tags
+
+
+
+
