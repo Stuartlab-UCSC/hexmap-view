@@ -12,10 +12,10 @@ layout.py
 Here is an example script with typical parameters to generate input for the Tumor Map viewer::
 
  BASE_DIR = /cirm/tumorMap/data
- INPUT_DIR = $BASE_DIR/layoutInput/project/subProject
+ INPUT_DIR = $BASE_DIR/layoutInput/project/subProject # substitute project & subproject with yours
  OUTPUT_DIR = $BASE_DIR/view/project/subProject
 
- python2.7 *HEX*/calc/layout.py \
+ python2.7 $HEXMAP/calc/layout.py \
     $INPUT_DIR/layout_sparse_mrna_data.tab \         # similarity sparse matrix file
     $INPUT_DIR/layout_sparse_methylation_data.tab \  # similarity sparse matrix file
     --names mRNA \                                   # unique ID/label for a layout

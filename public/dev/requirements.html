@@ -54,16 +54,9 @@
             
   <div class="section" id="requirements-installation">
 <h1>Requirements &amp; Installation<a class="headerlink" href="#requirements-installation" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="our-servers">
-<h2>Our servers<a class="headerlink" href="#our-servers" title="Permalink to this headline">¶</a></h2>
-<p><a class="reference external" href="https://tumormap.ucsc.edu">https://tumormap.ucsc.edu</a> is the public server residing on the virtual
-machine called hexmap.sdsc.edu, running on the standard https port: 443. User,
-&#8216;hexmap&#8217; should be used to update this server.</p>
-<p><a class="reference external" href="https://hexmap.sdsc.edu:8343">https://hexmap.sdsc.edu:8343</a> is the development server.</p>
-</div>
-<div class="section" id="python-and-modules">
-<h2>Python and modules<a class="headerlink" href="#python-and-modules" title="Permalink to this headline">¶</a></h2>
-<p>Python and modules required:</p>
+<div class="section" id="required-libraries">
+<h2>Required libraries<a class="headerlink" href="#required-libraries" title="Permalink to this headline">¶</a></h2>
+<p><strong>Python and modules</strong></p>
 <div class="highlight-python"><div class="highlight"><pre><span></span>Python 2.7.10
 ...
 &gt;&gt;&gt; import statsmodels
@@ -87,9 +80,7 @@ listed above:</p>
 <div class="highlight-python"><div class="highlight"><pre><span></span>conda install numpy=1.10.4 scipy=0.17.0 statsmodels=0.6.1 scikit-learn=0.17.1
 </pre></div>
 </div>
-</div>
-<div class="section" id="drl-graph-layout-1">
-<h2>DrL graph layout [1]<a class="headerlink" href="#drl-graph-layout-1" title="Permalink to this headline">¶</a></h2>
+<p><strong>DrL graph layout [1]</strong></p>
 <p>Install:</p>
 <div class="highlight-python"><div class="highlight"><pre><span></span>wget https://bitbucket.org/adam_novak/drl-graph-layout/get/c41341de8058.zip
 #alternatively:
@@ -108,9 +99,10 @@ ls ../bin
 <p>After all of the above tools have been installed, these steps will bring up the server.</p>
 <p>Substitute your directories for these tokens:</p>
 <p><em>HEXSRC</em> : directory of sources from the code repository</p>
-<p><em>HEX</em> : directory from which code will be run</p>
+<p><em>HEX</em> : directory from which server code will be run</p>
 <p><em>DATA</em> : directory for your data</p>
 <p><em>DB</em> : directory for your database</p>
+<p><em>METEOR_SUBDIR</em> : the base binary directory specific to the meteor version</p>
 <p><em>CONDA</em> : miniconda install directory</p>
 <p><em>DRL</em> : DrL layout install directory</p>
 <p>** : your</p>
@@ -121,33 +113,41 @@ mkdir DB
 mkdir -p DATA/featureSpace DATA/layoutInput DATA/view
 </pre></div>
 </div>
-<p><strong>Copy source code to run directory</strong></p>
-<blockquote>
-<div>cd <em>HEXSRC</em>
-cp -R .meteor client lib public server <em>HEX</em>/www
-cp -R .calc <em>HEX</em>/calc</div></blockquote>
-<p><strong>Environment variables</strong></p>
-<p>Set some environment variables:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span>export PYTHONPATH=HEX/calc:HEX/server
-export PATH=CONDA/bin:DRL/bin:$PATH
+<p><strong>Copy source code to the server directory</strong>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span>cd HEXSRC
+cp -R .meteor client lib public server HEX/www
+cp -R .calc *HEX*/calc
 </pre></div>
 </div>
-<p><strong>Customize the Run Scripts</strong></p>
+<p><strong>Environment variables</strong>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span># Map creators need these:
+export HEXMAP=HEX
+export PYTHONPATH=$HEXMAP/calc:$HEXMAP/www/server
+export PATH=./:DRL:$PATH
+
+# Developers need these.
+BASE=$HOME/.meteor/packages/meteor-tool/METEOR_VERSION/dev_bundle
+NPM_NODE=$BASE/bin
+MONGO=$BASE/mongodb/bin
+CONDA=$HOME/packages/miniconda2/bin
+export PATH=$CONDA:$MONGO:$NPM_NODE:$PATH
+</pre></div>
+</div>
+<p><strong>Customize the Run Scripts</strong>:</p>
 <p>Copy some scripts and modify them to match your environment.</p>
 <blockquote>
-<div>cd <em>HEXSRC</em>/.bin
+<div>cd HEXSRC/.bin
 cp runDb runHex settings.json <em>HEX</em></div></blockquote>
-<p>Make run* executable.</p>
 <p><strong>Start the servers</strong>:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span>nohup runDB &amp;
-nohup runHex &amp;
+<div class="highlight-python"><div class="highlight"><pre><span></span>nohup runDB
+nohup runWww
 </pre></div>
 </div>
 </div>
 <div class="section" id="meteor">
 <h2>Meteor<a class="headerlink" href="#meteor" title="Permalink to this headline">¶</a></h2>
-<p>Meteor is a full-stack web application environment. This is only needed if you
-will be modifying the UI.</p>
+<p>Meteor is a full-stack web application environment. This only needs to be
+installed if you will be modifying the UI.</p>
 <p><a class="reference external" href="https://www.meteor.com/install">https://www.meteor.com/install</a></p>
 </div>
 <div class="section" id="sphinx">
@@ -180,9 +180,7 @@ Applications.</p>
 <li class="toctree-l1"><a class="reference internal" href="serverSource.html#utilities-called-by-layout-py">Utilities called by layout.py</a></li>
 <li class="toctree-l1"><a class="reference internal" href="repository.html">Code Repository</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="">Requirements &amp; Installation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#our-servers">Our servers</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#python-and-modules">Python and modules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#drl-graph-layout-1">DrL graph layout [1]</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#required-libraries">Required libraries</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#web-application-deployment">Web application deployment</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#meteor">Meteor</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#sphinx">Sphinx</a></li>
