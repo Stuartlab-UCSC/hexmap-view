@@ -1,0 +1,117 @@
+<template name='sortUiT'>
+    <form id="sort-attributes-dialog" style='display:none'>
+        <table>
+            <tr>
+                <td class='dialog-label' style='vertical-align:top'>
+                    Sort by:
+                </td>
+                <td class='dialog-value'>
+                     <label>
+                        <input type='radio' name='sortBy' class='sortByFocus' id='sortByFocus' checked='{{focusSort}}' />
+                        Focus attribute
+                    </label>
+                    <br>
+                    <label>
+                        <input type='radio' name='sortBy' class='sortByDiff' id='sortByDiff' checked='{{diffSort}}' />
+                        Differential attributes
+                    </label>
+                    <br>
+                    <label>
+                        <input type='radio' name='sortBy' class='sortByDensity' id='sortByDensity' checked='{{densitySort}}' />
+                        Density of attributes
+                    </label>
+                </td>
+            </tr>
+            <tr>
+                <td class='dialog-label' style='vertical-align:top'>
+                    Layout:
+                </td>
+                <td class='dialog-value'>
+                    <input type="radio" class='based' name="region-sample-based" id="sample-based" value="sample-based" checked={{layoutIgnore}} />
+                    <label for="sample-based">Layout independent</label><br/>
+                    <input type="radio" class='based'  name="region-sample-based" id="region-based" value="region-based" checked={{layoutAware}} />
+                    <label for="region-based" class='based'>Layout aware</label>
+                </td>
+            </tr>
+            <tr>
+                <td class='dialog-label corr' style='vertical-align:top'>
+                    Correlation:
+                </td>
+                <td class='dialog-value'>
+                    <input type="radio" class='corr' name="corr" id="corrPos" value="positive" checked={{corrPos}} />
+                    <label for="corrPos" class='corr'>Positive</label><br/>
+                    <input type="radio" class='corr' name="corr" id="corrNeg" value="negative" checked={{corrNeg}} />
+                    <label for="corrNeg" class='corr'>Negative</label>
+                </td>
+            </tr>
+            <tr>
+                <td class='dialog-label listLabel' style='line-height:36px'>
+                    {{listLabel}}
+                </td>
+                <td class='dialog-value listAnchor layerNameListAnchor'>
+                    {{>layerNameList}}
+                </td>
+            </tr>
+            <tr>
+                <td class='dialog-label listLabel2' style='line-height:36px'>
+                    Attribute B:
+                </td>
+                <td class='dialog-value listAnchor2 layerNameListAnchor'>
+                    {{>layerNameList}}
+                </td>
+            </tr>
+        </table>
+    </form> <!-- sort-attributes-dialog -->
+
+    <div id='sort-attributes-help-dialog' title="Sort Help" style='display:none'>
+        <div>
+            <p>
+                <b>Attributes included:</b> Attributes included in the statistics
+                and sort are those with Label (yes/no) values. Attributes not
+                included are those:
+                <ul><li>
+                    with a value type of Category or Numeric</li><li>
+                    defined by a set (Venn diagram) operation</li><li>
+                    defined by selecting samples in a region with the Select tool</li><li>
+                    defined by selecting samples with the Import tool
+                </li></ul>
+            </p>
+            <p>
+                <b>Focus attribute:</b> Attributes are sorted
+                in terms of association with the focus attribute. The list
+                contains attributes from the Short List with Label (yes/no)
+                values, and not those defined by a set (Venn diagram) operation.
+            </p>
+            <p>
+                <b>Sort attributes as Sample-based:</b> The statistics for
+                the sort are calculated without taking the map layout into
+                account. The chi-Squared test is used.
+            </p>
+            <p>
+                <b>Sort attributes as Region-based:</b> The statistics for
+                the sort are calculated while taking the map layout into
+                account.
+            </p>
+            <p>
+                Mutual information statistics are calculated by examining the
+                presence of two attributes within regions across the tumor
+                map. Region-based statistics will help you find attributes that
+                can be mutually exclusive but invoke similar pathways 
+                as indicated by the proximity of tumors with these attributes 
+                on the map.
+            </p>
+            <p>
+                <b>Correlation:</b>
+                Region-based statistics are calculated only for layers that are
+                significantly correlated or anticorrelated with the focus attribute.
+            </p>
+            <p style='display:none'>
+                <b>All Attributes: WARNING:</b>
+                Selecting all attributes will result in a single list of sorted attributes 
+                that have been ranked with results from statistics tests. Comparisons
+                may not be accurate. It is recommended to compare focus attribute to
+                different data types one at a time, e.g. using one statistics test.
+            </p>
+        </div>
+    </div> <!-- help-dialog -->
+</template>

@@ -1,0 +1,45 @@
+<body>
+    <div class="dialogDiv" id="colorMapDiv" title='ColorMap' style='display:none'>
+        <table id='colorTable'>
+            <thead>
+                <tr>
+                    <td>Attribute</td>
+                    <td>Category</td>
+                    <td>Color</td>
+                    <td>...</td>
+                </tr>
+            </thead>
+            <tbody>
+                {{> colormapT}}
+                <tr><td colspan=5 style='font-size:0.9em;padding:0.3em;text-align:left'>
+                    Hint: Restore a color from the colormaps file by emptying the text-box.
+                </td></tr>
+            </tbody>
+        </table>
+        <a download='colormaps.tab' href='used later' style='display:none'>
+            A hidden download file link. The "download" attribute makes the
+             browser save it, and the href data URI holds the data.
+        </a>
+    </div>
+</body>
+
+<template name="colormapT">
+    {{#each colorArray}}
+        <tr class='tr {{this.selected}}'>
+            <td title='{{this.name}}'>
+                {{this.name}}:
+            </td>
+            {{#each this.cats}}
+                <td title='{{this.name}} of {{this.layer}}'>
+                    {{this.name}}:
+                </td>
+                <td>
+                    <input title='{{this.name}} of {{this.layer}}'
+                        value='{{this.operVal}}'
+                        style='background-color:{{this.operVal}}'
+                        class='td {{this.dark}} {{this.isFileVal}} {{this.shaking}}'>
+                </td>
+            {{/each}}
+        </tr>
+    {{/each}}
+</template>

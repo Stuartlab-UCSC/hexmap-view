@@ -1,0 +1,199 @@
+
+
+.gridPage .stacker {
+    line-height: 2.1em;
+}
+
+.cyber-slug {
+    height: 30px;
+    margin-top: 0.1em;
+    margin-right:0.5em;
+}
+
+.title {
+    font-size: 1.2em;
+    font-weight: bold;
+    margin-left: 0;
+    padding-right: 0.5em;
+    padding-top: 0.5em;
+    line-height: 1em;
+}
+
+#project,
+#s2id_project {
+    width: 15em;
+}
+
+#menus {
+    display: none;
+    margin-left: 1em;
+}
+
+#menus.ui-widget.ui-menu,
+#selectMenu.ui-widget.ui-menu,
+#helpMenu.ui-widget.ui-menu {
+    height: 100%;
+    font-size: 0.8em;
+    line-height: 2.2em;
+    border: none;
+}
+
+#menus .ui-widget.ui-menu,
+#selectMenu .ui-widget.ui-menu,
+#helpMenu .ui-widget.ui-menu {
+    border: none;
+    padding: 0;
+    margin: 0;
+    z-index: 200;
+    box-shadow: 4px 4px 4px #aaaaaa;
+}
+
+
+#helpMenu {
+    width: 5em;
+}
+
+#helpMenu ul {
+    width: 11em;
+}
+
+#menus .ui-menu-item a {
+    padding-left: 0.7em;
+}
+
+.ui-widget .ui-menu-item {
+    border: none;
+    cursor: pointer;
+}
+
+.ui-widget .ui-menu-item.primary {
+    padding: 0.65em;
+}
+
+.ui-widget .ui-menu-item.ui-state-focus:not(.primary) {
+    background: #cccccc;
+}
+
+.menu-more.ui-icon.ui-icon-triangle-1-s {
+    display: inline-block;
+    vertical-align: middle;
+    margin-left: -0.3em;
+}
+
+#menus .primary .ui-icon-blank {
+    display: none;
+}
+
+.ui-menu .ui-icon.vertical {
+    position: static;
+}
+
+.selectMenuLabel {
+    font-size: 1em;
+    padding-top: 0.2em;
+    padding-left: 4em;
+}
+
+.login.stacker.right {
+    font-size: 1em;
+    margin-right: 8em;
+    padding-top: 0.2em;
+    padding-left: 0.5em;
+    padding-right: 0.5em;
+}
+
+#login-buttons a,
+.accounts-dialog a {
+    text-decoration: none;
+}
+
+#banner.row {
+    position: fixed;
+    top: 0;
+    height: 2.2em;
+    line-height: 2.5em;
+    font-weight: bold;
+    text-align: center;
+    z-index: 101;
+    display: none;
+}
+
+#pdfDialog .element {
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    margin: 5px;
+}
+
+#pdfClose {
+    display: none;
+    background-color: white;
+    background-image: url("close.svg");
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    height: 24px;
+    width: 24px;
+    position: fixed;
+    top: 1em;
+    right: 1em;
+    z-index: 9999;
+}
+
+#pdfWhiteOutGoogle {
+    background-color: black;
+    height: 52px;
+    width: 132px;
+    position: fixed;
+    z-index: 1000000000;
+    bottom: -200px;
+}
+
+#pdfDialog .element.head {
+    background-image: url("pdfHeader.png");
+    width: 313px;
+    height: 40px;
+}
+
+#pdfDialog .element.map {
+    background-image: url("pdfMap.png");
+    width: 250px;
+    height: 150px;
+}
+
+#pdfDialog .element.legend {
+    background-image:url("pdfLegend.png");
+    width: 50px;
+    height: 150px;
+    background-position: 0 25%;
+}
+
+#pdfDialog .inputWrap {
+    background-color: #dddddd;
+    height: 30px;
+    width: 30px;
+    border: red solid 3px;
+    border-radius: 17px;
+    margin: auto;
+    position: relative;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+#pdfDialog input {
+    margin: auto;
+    position: relative;
+    top: 50%;
+    transform: translateY(-50%);
+    display: block;
+}
+
+#loadingMap {
+    width: 20px;
+    height: 20px;
+    margin-top: 5px;
+    -webkit-animation: sweep 1s infinite linear;
+    animation: sweep 1s infinite linear;
+    border-radius:20px;
+    border-bottom:3px solid white;
+}
+@-webkit-keyframes sweep { to { -webkit-transform: rotate(360deg); } }
+@keyframes sweep { to { transform: rotate(360deg); } }

@@ -1,0 +1,27 @@
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"></meta>
+    <meta name="viewport" content="maximum-scale=1.0"></meta>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1"></meta>
+    <title>UCSC Tumor Map</title>
+    <link rel="icon" href="/favicon.ico?v=2" type="image/x-icon" />
+    <!-- Google Analytics -->
+        <script>
+            window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+            ga('create', 'UA-76132249-1', 'auto');
+            ga('send', 'pageview');
+        </script>
+        <script async src='https://www.google-analytics.com/analytics.js'></script>
+    <!-- End Google Analytics -->
+</head>
+<body>
+    {{> Template.dynamic template=page }}
+    {{> localStoreT}}
+    <div id='pdfClose'></div>
+    <a href="" class="homePage" style='display:none'></a>
+    <a href="" class="mapPage" style='display:none'></a>
+    <a href="" class="gridPage" style='display:none'></a>
+    <img class="help-button help question-sign" src='/question-sign.svg' style='display:none'>
+</body>
+
+<template name="localStoreT">
+</template>

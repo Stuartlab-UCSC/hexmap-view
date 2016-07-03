@@ -1,0 +1,137 @@
+<template name='navBarT'>
+    <div class="tools row" id="toolbar">
+        <img src="/cyber-slug.svg" class="stacker cyber-slug"/>
+
+        <!-- main menu -->
+        <ul id='menus' class='stacker'>
+        
+            <li class='primary mapShow gridShow' data-sel='home' style='display:inline'>Home</li>
+            
+            <li class='primary hexMap homeShow' data-sel='hexMap' style='display:inline'>Map</li>
+
+            <li id='viewMenu' class='primary mapShow gridShow' style='display:inline'>
+                View
+                <img src='/caret-down.png' style='height:8px'>
+                <ul>
+                    <li data-sel='hexMap' class='mapLayout' title = 'Main map'>&nbsp;
+                        Map Layout
+                    </li>
+                    <li data-sel='methods' class='methods' title = 'Map of nodes before final layout'>&nbsp;
+                        Node Density&nbsp;&nbsp;
+                    </li>
+                    <li class='mapShow'>
+                        <a id='reflectTrigger'>
+                            Map Reflection&nbsp;&nbsp;
+                        </a>
+                    </li>
+                    <li data-sel='overlayNode' class='overlayNode mapShow'>&nbsp;
+                        New Nodes
+                    </li>
+                    <hr class='gridShow'>
+                    <li data-sel='viewEdges' class='gridShow' title = 'Directed graph of node relationships'>&nbsp;
+                        {{viewEdges}} Edges
+                    </li>
+                    <li data-sel='viewWindows' class='gridShow' title = 'Adaptive windows for layout-aware stats'>&nbsp;
+                        {{viewWindows}} Windows
+                    </li>
+                </ul>
+            </li>
+            
+            <li id='downloadMenu' class='primary mapShow gridShow' style='display:inline'>
+                Download
+                <img src='/caret-down.png' style='height:8px'>
+                <ul>
+                    <li class='mapShow' data-sel='hexagonNames' title = 'Download the hexagon identifiers'>&nbsp;
+                        Identifiers&nbsp;&nbsp;
+                    </li>
+                    <li class='mapShow' >
+                        <a id='pdfDownload' download='hexmap.pdf'
+                            href='data:text/plain;base64'
+                            title = 'Download the page in PDF format'>
+                            PDF
+                        </a>
+                    </li>
+                    <li class='mapShow' >
+                        <a id='svgDownload' download='hexmap.svg'
+                            href='data:text/plain;base64'
+                            title = 'Download the map in SVG format'>
+                            SVG
+                        </a>
+                    </li>
+                    <li class='mapShow gridShow' >
+                        <a id='xyPreSquiggle' download='hexmapXy.tab'
+                            title = 'Download xy coordinates of nodes before squiggling into hexagons'>
+                            XY Positions&nbsp;&nbsp;
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            
+            <li class='primary mapShow' style='display:inline'>
+                Colors
+                <img src='/caret-down.png' style='height:8px'>
+                <ul style='top:0px;left:0px'>
+                    <li id='background'>&nbsp;&nbsp;{{background}} Background&nbsp;&nbsp;</li>
+                    <li data-sel='colormap'>&nbsp;&nbsp;Colormap</li>
+                </ul>
+            </li>
+            
+            <li class='primary mapShow' data-sel='addText' style='display:inline'>Label</li>
+        </ul>
+
+        <!-- select menu -->
+        <span class='selectMenuLabel stacker' style='display:none'>Select by:</span>
+        <ul id='selectMenu' class='stacker' style='display:none'>
+            <li data-sel='rectangle' class='primary' title='Select hexagons using a rectangular region' style='display:inline'>
+                Rectangle
+            </li>
+            <li data-sel='polygon' class='primary' title='Select hexagons using a polygonal region' style='display:inline'>
+                Polygon
+            </li>
+            <li data-sel='import' class='primary' title='Enter identifiers to create a selection of hexagons' style='display:inline'>
+                Identifier
+            </li>
+        </ul>
+        
+        <!-- help -->
+        <ul id='helpMenu' class='stacker right'>
+            <li style='padding-left:1em;padding-right:4em'>
+                Help
+                <img src='/caret-down.png' style='height:8px'>
+                <ul>
+                    <li>
+                        <a href="/help.pdf" target='_blank'>&nbsp;User Guide</a>
+                    </li>
+                    <li>
+                        <a href="https://groups.google.com/a/ucsc.edu/forum/#!forum/hex" target='_blank'>&nbsp;Discussion Group&nbsp;&nbsp;</a>
+                    </li>
+                    <li>
+                        <a href="mailto:hex@ucsc.edu">&nbsp;Email Group</a>
+                    </li>
+                    <hr>
+                    <li class='queryDocs'>
+                        <a href='/query/index.html' target='_blank'>&nbsp;Query APIs</a>
+                    </li>
+                    <li class='createMapDocs'>
+                        <a href='/createMap/index.html' target='_blank'>&nbsp;Map Creation</a>
+                    </li>
+                    <li class='devDocs'>
+                        <a href='/zurhfads/index.html' target='_blank'>&nbsp;Development</a>
+                    </li>
+                    <li class='version'>&nbsp;
+                        {{ version }}
+                    </li>
+                </ul>
+            </li>
+        </ul>
+        
+         <!-- loading snake -->
+        <div id="loadingMap" class='stacker' style="display:{{loadingMap}}"></div>
+
+         <!-- login -->
+        <span class="login right stacker">
+            {{> loginButtons}}
+        </span>
+        
+    </div>
+</template>

@@ -1,0 +1,77 @@
+/*
+ * custom.css
+ *
+ * Overrides the theme options in conf.py that either don't work or don't exist
+ */
+
+h1, h2, h3, h4,
+pre, xmp, plaintext, listing,
+div.sidebar li.toctree-l1 a {
+    color: #05366B; /* ucsc pages blue font */
+}
+
+div.sidebar li.toctree-l1 a, input,
+textarea, keygen, select, button {
+    background-color: rgba(255, 255, 255, 1);
+}
+
+pre, xmp, plaintext, listing {
+    background-color: rgba(255, 255, 255, 0.7);
+}
+
+div.header .headertitle a,
+div.header div.rel a,
+body div.header div.rel,
+div.footer, div.footer a {
+    color: #E7E5D7, /* ucsc pages tan; */
+}
+
+div.content-wrapper {
+  background-color: #E7E5D7;
+}
+
+div.document div.highlight {
+    border: none;
+    background-color: transparent;
+}
+
+body {
+    overflow-x: hidden;
+}
+
+div.header-wrapper,
+div.footer-wrapper {
+    border: inherit;
+}
+
+div.header,
+div.content,
+div.footer {
+    padding-left: 1em;
+    padding-right: 1em;
+}
+
+div.document {
+    width: 50em;
+}
+
+div.document ul {
+    margin: 0.2em 1.5em;
+}
+
+.sidebar {
+    margin-right: 1em;
+    padding-right: 1em;
+}
+
+pre, xmp, plaintext, listing {
+    line-height: 1.5;
+    font-family: "Lucida Console", Monaco, monospace;
+    font-size: 80%;
+    padding: 5px 7px;
+}
+
+input, textarea, keygen, select, button {
+    font: inherit;
+}
+

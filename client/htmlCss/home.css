@@ -1,0 +1,52 @@
+
+#homePage {
+    padding: 1.5em 3em;
+}
+
+#homePage .mapTitle {
+    padding: 0.3em 0.5em;
+    vertical-align: top;
+    line-height: 1.1em;
+    text-decoration: none;
+}
+
+#homePage .allProjects {
+    display: inline-block;
+    vertical-align: top;
+    padding-bottom: 1em;
+    padding-right: 2em;
+}
+
+#homePage .project {
+    float: left;
+    display: inline-block;
+    margin: 1em;
+}
+
+#homePage .thumbnail {
+    display: inline-block;
+    text-align: center;
+    background-color: white;
+    vertical-align: top;
+}
+
+#homePage .thumbnail img {
+    height: 300px;
+}
+
+#homePage .thumbnail img:hover {
+    height: 298px;
+    border: blue 1px solid;
+}
+
+#homePage h3 {
+    font-size: 1.3em;
+    margin-top: 0.6em;
+    margin-bottom: 0;
+}
+
+#homePage p {
+    margin-top: 0.3em;
+    margin-bottom: 0.3em;
+}
+

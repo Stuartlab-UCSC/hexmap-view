@@ -1,0 +1,15 @@
+#!/bin/bash
+# Start the hex server on production
+
+PORT=8443
+HTTPS_PORT=443
+DB_PORT=27017
+DIR=/data
+METEOR_DIR=/data/home/hexmap/.meteor
+
+export ROOT_URL=https://tumormap.ucsc.edu:$HTTPS_PORT
+export MONGO_URL=mongodb://localhost:$DB_PORT/$PORT
+touch $DIR/$PORT.log
+mv $DIR/$PORT.log $DIR/$PORT.prev.log
+cd $DIR/$PORT
+$METEOR_DIR/meteor --port $PORT &> $DIR/$PORT.log &

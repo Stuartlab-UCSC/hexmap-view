@@ -1,0 +1,31 @@
+<template name='mapPage'>
+    <div id='mapPage'>
+
+        {{> navBarT}}
+        {{> headerT}}
+        {{> mapContentT}}
+        
+        <div class="row" id="banner"></div>
+    </div>
+</template>
+
+<template name='mapContentT'>
+    <div class="mapShow content" id="mapContent">
+        <div class="key">
+            <canvas id="color-key" width="125"></canvas>
+            <div class="label" id="low-both">Low</div>
+            <div class="label" id="high-x">High</div>
+            <div class="label y" id="high-y">High</div>
+            <div class="label axis" id="x-axis"></div>
+            <div id="y-axis-holder">
+                <div id="y-axis-cell">
+                    <div class="label axis" id="y-axis"></div>
+                </div>
+            </div>
+        </div>
+        <div id="visualization">
+        </div>
+        <div id='pdfWhiteOutGoogle' style='height: 52px;width: 132px;'></div>
+        {{>markerInfoWindow}}
+    </div>
+</template>

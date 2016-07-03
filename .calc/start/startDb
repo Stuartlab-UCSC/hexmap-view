@@ -1,0 +1,14 @@
+#!/bin/bash
+# Start the mongoDb daemon on production
+
+PORT=27017
+DIR=/data
+MONGO_DIR=/data/home/hexmap/.meteor/packages/meteor-tool/.1.1.10.ki0ccv++os.linux.x86_64+web.browser+web.cordova/mt-os.linux.x86_64/dev_bundle/mongodb/bin
+
+touch $DIR/db.log
+mv $DIR/db.log $DIR/db.old.log &&
+$MONGO_DIR/mongod \
+        --bind_ip 127.0.0.1 \
+        --port $PORT \
+        --dbpath $DIR/db \
+        &> $DIR/db.log &

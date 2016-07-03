@@ -1,0 +1,160 @@
+/* Code for fancy expandy side panels in the shortlist */
+
+.shortlist {
+    right: 0;
+    width: 21em;
+    overflow: visible;
+}
+.shortlistSpacer {
+    width: 20em;
+    height: 1px;
+}
+
+.shortlist .panel-holder {
+    overflow: hidden;
+    height: 4.75em;
+    max-height: 6em;
+    top: 2.2em;
+    right: 0;
+    width: 20em;
+    position: fixed;
+    z-index: 100;
+    transition: max-height 100ms;
+}
+
+/* When a holder gets moused over, open it up to 100% window height */
+.shortlist .panel-holder:hover {
+    height: auto;
+    max-height: 100%;
+    bottom: 0;
+}
+
+.shortlist .panel {
+    position: relative;
+    top: 0;
+    left: 0;
+    height: 100%;
+    border-radius: 10px;
+    border: 1px solid gray;
+    z-index: 100;
+}
+
+.shortlist .panel-contents {
+    overflow-y: auto;
+    overflow-x: hidden;
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    top: 1em;
+}
+
+.shortlist .panel-title {
+    text-align: center;
+    padding-top: 0.2em;
+    font-weight: bold;
+    height: 1em;
+}
+
+.shortlist-controls {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 2em;
+    background-image: url("resize-vertical.svg");
+    background-size: 24px 24px;
+    background-repeat: no-repeat;
+    background-position: 50% 30px;
+    border-radius: 5px;
+    padding: 5px;
+}
+
+.shortlist-entry {
+    position: relative;
+    height: auto;
+    width: auto;
+    border-radius: 5px;
+    padding: 5px;
+    padding-left: 3em;
+    margin: 0.5em;
+    word-wrap: break-word;
+}
+
+.shortlist-controls {
+    cursor: grab;
+    cursor: -moz-grab;
+    cursor: -webkit-grab;
+}
+
+.shortlist-controls:activate {
+    cursor: grabbing;
+    cursor: -moz-grabbing;
+    cursor: -webkit-grabbing;
+}
+
+.shortlist-entry:after {
+    content: "";
+    display: block;
+    clear: both;
+}
+
+/* Filtering stuff */
+
+.shortlist .filter,
+.shortlist .file-new {
+    height: 16px;
+    width: 16px;
+    padding: 3px;
+    line-height: 1em;
+    vertical-align: middle;
+}
+.shortlist .filter {
+    height: 18px;
+    width: 18px;
+    padding: 4px;
+    padding-right: 0;
+}
+.shortlist .file-new {
+    margin-left: 0.3em;
+}
+.shortlist .filter-threshold {
+    width: 5em;
+    padding-left: 0.5em;
+    border: 1px solid #aaa;
+}
+.shortlist .filter-value {
+    width: 10em;
+    font-size: 0.8em;
+    padding-left: 0.5em;
+}
+.shortlist .select2-container .select2-choice {
+	height: 1.4em;
+	line-height: 1.4em;
+}
+.shortlist .select2-container .select2-choice b {
+	margin-top: -4px;
+	height: 16px;
+}
+.shortlist .filter-holder {
+    vertical-align: middle;
+    float: left;
+	text-align: left;
+	width: 14.5em;
+}
+
+.shortlist .save-filter {
+    float: right;
+	display: none;
+    border: 1px solid #888;
+}
+
+/* These are the layer scaling sliders */
+.shortlist .range-slider {
+    width: 10em;
+    margin-left: 0.3em;
+    margin-right: 0.3em;
+    margin-top: 0.5em;
+}
+
+

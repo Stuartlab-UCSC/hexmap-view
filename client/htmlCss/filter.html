@@ -1,0 +1,93 @@
+<template name='filterT'>
+    <form>
+    <table class='filterDialog' style='display:none'>
+        <tr>
+            <td class='dialog-label'>Passing:</td>
+            <td class='dialog-value passFilters'>
+                <span> {{ display }} </span>
+                <span> of </span>
+                <span> {{ total }} </span>
+            </td>
+         </tr>
+        <tr style='display:none'>
+            <td></td>
+            <td class='dialog-value'>
+                <span class='clear'>Reset</span>
+            </td>
+         </tr>
+         <tr>
+            <td class='dialog-label' style='vertical-align:top'>
+                Values:
+            </td>
+            <td class='dialog-value'>
+                {{#each dataTypeList}}
+                    <div class='bar'>
+                        <label>
+                            <input data-tag='{{this}}' type="checkbox" checked='{{checked}}'/>
+                            {{label}}
+                        </label>
+                        <span class='count'>{{count}}</span>
+                        <div style='clear:both'></div>
+                    </div>
+                {{/each}}
+            </td>
+         </tr>
+         <tr style='display:none'>
+            <td class='dialog-label' style='vertical-align:middle'>
+                With:
+            </td>
+            <td class='dialog-value'>
+                <span class='anyAll'></span>
+                <span>of the following tags:</span>
+            </td>
+         </tr>
+         
+         <tr style='display:{{tagDisplay}}'>
+            <td class='dialog-label' style='vertical-align:top'>
+                Tags:
+            </td>
+            <td class='dialog-value'>
+                <div class='bar'>
+                    <label style='font-style:italic'>
+                        <input data-tag='allTags' type="checkbox" checked='{{allTagschecked}}'/>
+                        All tags
+                    </label>
+                    <div style='clear:both'></div>
+                </div>
+                {{#each tagList}}
+                    <div class='bar'>
+                        <label>
+                            <input data-tag='{{this}}' type="checkbox" checked='{{checked}}'/>
+                            {{label}}
+                        </label>
+                        <span class='count'>{{count}}</span>
+                        <div style='clear:both'></div>
+                    </div>
+                {{/each}}
+                <div class='bar'>
+                    <label style='font-style:italic'>
+                        <input data-tag='untagged' type="checkbox" checked='{{untaggedChecked}}'/>
+                        Untagged
+                    </label>
+                    <span class='count'>{{untaggedCount}}</span>
+                    <div style='clear:both'></div>
+                </div>
+            </td>
+         </tr>
+         <tr>
+            <td class='dialog-label' style='vertical-align:top'>
+                Save:
+            </td>
+            <td class='dialog-value'>
+                <div class='bar'>
+                    <label style='font-style:italic'>
+                        <input data-tag='save' type="checkbox" checked='{{savechecked}}'/>
+                        Retain filters across sorts
+                    </label>
+                    <div style='clear:both'></div>
+                </div>
+            </td>
+        </tr>
+    </table>
+    </form>
+</template>

@@ -1,0 +1,140 @@
+/* Browsing stuff */
+
+.header {
+    display: inline-block;
+    border-bottom: 1px solid black;
+    width: 100%;
+    position: relative;
+}
+
+.header .layer-row {
+    position: relative;
+}
+
+#layout-row .stacker {
+    padding-top: 0.4em;
+}
+
+.layer-row .stacker {
+    line-height: 2.7em;
+}
+
+#s2id_project .select2-choice span.noProject {
+    color: #999;
+}
+
+#s2id_search {
+    padding-top: 0.45em;
+    margin-right: 0.5em;
+    width: 15em;
+}
+
+#search {
+    width: 29em;
+}
+
+.layer-entry {
+    padding-right: 20px;
+}
+
+.layer-name {
+    /* Force silly underscore names into shape */
+    word-wrap: break-word;
+}
+
+.layer-metadata {
+    font-size: 0.65em;
+}
+
+.headerButton {
+    height: 24px;
+    width: 24px;
+    padding: 3px;
+    margin: 0.3em;
+    border: 1px solid #aaaaaa;
+}
+#diffAnalysisButton {
+    height: 28px;
+    width: 28px;
+    padding: 1px;
+}
+.headerButton.filter,
+.headerButton.filterCaution {
+    height: 20px;
+    width: 20px;
+    padding: 5px;
+    margin-left: 0;
+    display: none;
+}
+.headerButton.filter.active,
+.headerButton.filterCaution.active {
+    display: block;
+}
+
+.passFilters.stacker {
+    margin-left: 0;
+    min-width: 7em;
+}
+
+#sortText {
+    line-height: 2.6em;
+    margin-left: 0;
+}
+
+/* ***************** layout **************** */
+
+/*
+#layout-row {
+    margin-top: -0.3em;
+}
+*/
+
+#s2id_project,
+#s2id_layout-search {
+    padding-top: 0.2em;
+}
+#s2id_layout-search {
+    width: 15em;
+}
+
+#layout-search {
+    width: 29em;
+}
+
+.layout-entry {
+    padding-right: 20px;
+}
+
+layout-name {
+    /* Force silly underscore names into shape */
+    word-wrap: break-word;
+}
+
+#layout-row {
+    position: relative;
+}
+
+#coords {
+    position: fixed;
+    left: 550px;
+    display: none;
+    text-align: left;
+    padding-right: 0.3em;
+    background: #eee;
+    margin-top: 0.1em;
+    width: 19em;
+    z-index: 1000;
+}
+#coords td {
+    text-align: right;
+    padding: 0;
+    width: 2.3em;
+}
+#coords td:first-child {
+    padding-right: 0.3em;
+    width: 5em;
+}
+#coords td:nth-child(4) {
+    font-size: 0.7em;
+    width: 8em;
+}

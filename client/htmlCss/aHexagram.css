@@ -1,0 +1,192 @@
+/*
+aHexagram.css
+
+This file needs to load just after library css files, meteor loads in 
+alphabetical order, hence the file name.
+*/
+
+html,
+body,
+#mapPage {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+}
+
+.row {
+    display: inline-block;
+    width: 100%;
+    vertical-align: middle;
+}
+
+/* These are all supposed to stack against the left end of a row. */
+.stacker {
+    float: left;
+    margin-left: 0.5em;
+    line-height: 1.8em;
+    vertical-align: middle;
+}
+
+/* Except these which stack against the right end of a row. */
+.stacker.right {
+    float: right;
+    margin-left: 0;
+    margin-right: 0.5em;
+}
+
+/*
+The visualization element needs to take up all available space.
+*/
+#visualization, #gridMap {
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+}
+
+#gridMap .gm-style {
+    background-color: #fff;
+}
+
+/*
+.select2-results .select2-highlighted {
+    background-image: url("right.svg");
+    background-repeat: no-repeat;
+    background-position: right center;
+}
+*/
+
+/*
+Read as "The content row", distinct from whatever else that element might be.
+*/
+.content {
+    position: relative;
+    top: 0px;
+    height: 300px;
+    z-index: 1;
+}
+
+.layerNameListAnchor {
+    width: 20em;
+}
+.dialog {
+    font-size: 0.9em;
+}
+
+.dialogDiv {
+    min-height: 3em;
+    padding: 0.5em;
+}
+
+.dialog-label,
+.dialog-value {
+	text-align: right;
+	font-weight: normal;
+	vertical-align: middle;
+	padding: 0.3em;
+	white-space: nowrap;
+}
+
+.dialog-value {
+	text-align: left;
+}
+
+/* Popups for ordering up stats operations. */
+.dropdown {
+    display:none;
+    width: 25em;
+    overflow: visible;
+    width:370px;
+    height: 160px;
+    margin-left: 21em;
+    top: 68px;
+    position: fixed;
+    border-radius: 10px;
+    border: 1px solid gray;
+    background: white;
+    z-index: 100;
+}
+
+.dropdown-title {
+    text-align: center;
+}
+
+.dropdown-body {
+    padding: 5px;
+    text-align: center;
+}
+
+.cancel {
+    float: right;
+    margin-right: 5px;
+}
+
+.help-button {
+    position: absolute;
+    right: 30px;
+    top: 5px;
+    height: 20px;
+    cursor: pointer;
+}
+
+.help-dialog {
+    display: none;
+}
+
+.help-text {
+    width: 30em;
+    max-height: 30em;
+    overflow: auto;
+}
+
+.checkbox-labels {
+	font-size: 0.6em;
+}
+
+.radio-label, .radio-clear {
+    margin-right: 0.1em;
+    margin-left: 0.1em;
+}
+
+/* This is the info window/infocard styling */
+
+.infocard {
+    word-break: break-all;
+    cursor: text;
+}
+
+.info-row {
+    margin-bottom: 0.1em;
+}
+
+.info-key {
+    text-align: left;
+    font-weight: bold;
+}
+
+.info-value {
+    text-align: left;
+}
+
+/* Tool stuff */
+textarea {
+    width: 100%;
+}
+textarea.import {
+    height: 10em;
+    font-size: 10pt;
+}
+
+input.import {
+    width: 100%;
+}
+
+.inlineMessage,
+.redMessage {
+    font-size: 0.8em;
+    font-style: italic;
+}

@@ -1,0 +1,52 @@
+
+/* The color editor */
+
+#colorTable {
+    width: 100%;
+    font-size: 0.9em;
+    overflow: scroll;
+}
+#colorTable thead {
+    font-size: 1.2em;
+}
+#colorTable tbody tr:nth-child(odd) {
+	background: #f4f4f4;
+}
+#colorTable tbody tr.selected {
+	background: #dddddd;
+}
+#colorTable td {
+    padding: 0.2em 0.4em;
+    text-align: right;
+    max-width: 10em;
+    white-space: nowrap;
+    overflow-x: hidden;
+}
+#colorTable td:first-child {
+    max-width: 13em;
+}
+#colorTable td span {
+    padding: 0.2em 0.4em;
+}
+#colorTable input {
+    width: 6em;
+    color: black;
+}
+#colorTable input.dark:not(.isFileVal) {
+    color: white;
+}
+#colorTable input.isFileVal {
+    font-style: italic;
+    color: #777777;
+}
+#colorTable input.isFileVal.dark {
+    color: #bbbbbb;
+}
+#colorTable input.empty {
+    font-style: italic;
+    color: #777777;
+}
+#colorTable input.empty.dark {
+    color: #bbbbbb;
+}
+

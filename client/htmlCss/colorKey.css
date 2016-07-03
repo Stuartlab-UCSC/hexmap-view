@@ -1,0 +1,81 @@
+
+/* This is the color key */
+.key {
+    overflow: visible;
+    position: absolute;
+    z-index: 3;
+    top: 28px;
+    right: 28px;
+    width: 175px;
+    display: none;
+    pointer-events: none;
+}
+
+#color-key {
+    width: 125px;
+    position: absolute;
+    display: block;
+    left:25px;
+    top: 25px;
+    border: 1px solid white;
+}
+
+.label {
+    color: white;
+}
+
+.axis {
+    word-wrap: break-word;
+}
+
+#low-both {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+}
+
+#high-x {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+}
+
+#high-y {
+    position: absolute;
+    left: 0;
+    top: 0;
+}
+
+#x-axis {
+    position: absolute;
+    top: 180px;
+    width: 150px;
+    margin: auto;
+    text-align: center;
+    font-size: 0.9em;
+}
+
+/* 
+    Complicated table centering thing from 
+    http://blog.themeforest.net/tutorials/vertical-centering-with-css/
+*/
+
+#y-axis-holder {
+    display: table;
+    right: 180px;
+    width: 150px;
+    top: 0;
+    height: 100%;
+    position: absolute;
+}
+
+#y-axis-cell {
+    display: table-cell;
+    vertical-align: middle;
+}
+
+#y-axis {
+    text-align: right;
+    font-size: 0.9em;
+}
+
