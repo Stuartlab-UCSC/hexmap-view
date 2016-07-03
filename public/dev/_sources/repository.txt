@@ -143,32 +143,53 @@ merge your branch into dev. We'll use 'mine' as your own branch in this example.
 
  git push
 
+
+
 Releasing a new version
 .......................
 
-Be sure your local dev branch has the latest.
-Update your master branch from the origin, and merge dev into it::
+The release branch merges go like this, starting in the lower left corner:
 
- git checkout master
- git pull
- git fetch # sometimes this is needed for the master branch
- git merge dev
+.. image:: release.png
+   :width: 300 px
 
-Do sanity testing, change the version::
+.
 
- vi mainHex.js # edit VERSION
-
-Copy to production and sanity test there, make any changes needed, commit and tag it::
-
- git commit
- git tag v1.0
- git push
- git push v1.0
-
-Merge master to dev::
+**#1**. Check out the dev branch and update it.
+Check out the master branch, update and merge in dev::
 
  git checkout dev
  git pull
+ git checkout master
+ git pull
+ git merge dev
+
+**#2**. Sanity test, update the remote master branch and create a release branch::
+
+ git push
+ git checkout v1.0_branch
+
+**#3**. Change the version and cherry pick any changes you want in dev
+that were committed after the point of version branching::
+
+ vi mainHex.js # edit VERSION
+ git cherry-pick <list-of-commit-IDs>
+
+**#4**. Sanity test, make fixes, tag, update the remote version branch::
+
+ git push
+ git tag v1.0
+ git push v1.0
+
+**#5**. Merge the version branch into the master branch::
+
+ git checkout master
+ git merge v1.0_branch
+ git push
+
+**#6**. Merge the master branch into dev::
+
+ git checkout dev
  git merge master
  git push
 

@@ -103,9 +103,9 @@ Create some directories::
  export PATH=$CONDA:$MONGO:$NPM_NODE:$PATH
 
 
-**Customize the Run Scripts**::
+**Customize the Run Scripts**
 
-Copy some scripts and modify them to match your environment.
+Copy some scripts and modify them to match your environment::
 
  cd HEXSRC/.bin
  cp runDb runHex settings.json *HEX*

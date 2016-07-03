@@ -79,7 +79,8 @@ var app = app || {}; // jshint ignore:line
             }
         });
         initProject();
-        GoogleMaps.load({ key: 'AIzaSyBb8AJUB4x-xxdUCnjzb-Xbcg0-T1mPw3I' });  // browser key
+        
+        GoogleMaps.load({ key: GOOGLE_API_KEY });  // browser API key
         initTools();
     });
 
