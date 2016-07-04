@@ -1,15 +1,15 @@
 #!/bin/bash
 # Start the hex server on production
 
-PORT=8443       # port on which the server will listen
-HTTPS_PORT=443  # https proxy port if using https, otherwise the same as PORT
-DB_PORT=27017   # port on which the database will listen
-HEX=/data       # directory of this script, just above the www directory
+PORT=8443       # Port on which the server listens
+HTTPS_PORT=443  # Https proxy port if using https, otherwise the same as PORT
+DB_PORT=27017   # Port on which the database listens
+HEXMAP=/data    # Directory of this script, just above the www directory
 METEOR=/data/home/hexmap/.meteor  # the meteor installation
-export ROOT_URL=https://tumormap.ucsc.edu:$HTTPS_PORT # the user's view of the URL
+export ROOT_URL=https://tumormap.ucsc.edu:$HTTPS_PORT # User's view of the URL
 
 export MONGO_URL=mongodb://localhost:$DB_PORT/$PORT
-touch $HEX/www.log
-mv $HEX/www.log $HEX/www.prev.log
-cd $HEX/www
-$METEOR/meteor --port $PORT --settings $HEX/settings.json &> $HEX/www.log &
+touch $HEXMAP/www.log
+mv $HEXMAP/www.log $HEXMAP/www.prev.log
+cd $HEXMAP/www
+$METEOR/meteor --port $PORT --settings $HEXMAP/settings.json &> $HEXMAP/www.log &
