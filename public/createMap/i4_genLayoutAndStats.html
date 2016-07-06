@@ -60,40 +60,31 @@ statistics.</p>
 <div class="section" id="layout-py">
 <h2>layout.py<a class="headerlink" href="#layout-py" title="Permalink to this headline">¶</a></h2>
 <p>Here is an example script with typical parameters to generate input for the Tumor Map viewer:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span>BASE_DIR = /cirm/tumorMap/data
-INPUT_DIR = $BASE_DIR/layoutInput/project/subProject # substitute project &amp; subproject with yours
-OUTPUT_DIR = $BASE_DIR/view/project/subProject
+<div class="highlight-python"><div class="highlight"><pre><span></span>BASE_DIR=/data/hexmap/data
+INPUT_DIR=$BASE_DIR/layoutInput/QuakeBrain
+OUTPUT_DIR=$BASE_DIR/view/QuakeBrain
 
 python2.7 $HEXMAP/calc/layout.py \
-   $INPUT_DIR/layout_sparse_mrna_data.tab \         # similarity sparse matrix file
-   $INPUT_DIR/layout_sparse_methylation_data.tab \  # similarity sparse matrix file
-   --names mRNA \                                   # unique ID/label for a layout
-   --names Methylation \                            # unique ID/label for a layout
-   --scores $INPUT_DIR/attributes_clinical.tsv \    # values for each signature
-   --scores $INPUT_DIR/attributes_mutations.tsv \   # values for each signature
-   --include-singletons \                           # add self-edges to retain unconnected points
-   --colormaps $INPUT_DIR/colormaps.tab \           # colormap for categorical attributes
-   --first_attribute Tissue \                       # attribute by which to color the map upon first display
-   --directory $OUTPUT_DIR \                        # layout and statistical output files
+   $INPUT_DIR/layout_sparse_mrna_data.tab \
+   $INPUT_DIR/layout_sparse_methylation_data.tab \
+   --names mRNA \
+   --names Methylation \
+   --scores $INPUT_DIR/attributes_clinical.tsv \
+   --scores $INPUT_DIR/attributes_mutations.tsv \
+   --include-singletons \
+   --colormaps $INPUT_DIR/colormaps.tab \
+   --first_attribute Tissue \
+   --directory $OUTPUT_DIR
 </pre></div>
 </div>
-<p>The first two parameters are two different sparse matrix data files.
+<p>Where the first two parameters are two different sparse matrix data files.
 There should be one of these for each layout.</p>
-<p><em>names</em> are the labels that will show up on the UI for the two
-layouts above.</p>
-<p><em>scores</em> are the attribute files and there may be more than one of these.</p>
-<p>These are some lesser used parameters:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="o">--</span><span class="n">attributeTags</span>                <span class="c1"># tags for filtering and searching for attributes</span>
-<span class="o">--</span><span class="nb">min</span><span class="o">-</span><span class="n">window</span><span class="o">-</span><span class="n">nodes</span>             <span class="c1"># min nodes per window for layout-aware stats</span>
-<span class="o">--</span><span class="nb">max</span><span class="o">-</span><span class="n">window</span><span class="o">-</span><span class="n">nodes</span>             <span class="c1"># max nodes per window for layout-aware stats</span>
-<span class="o">--</span><span class="n">no</span><span class="o">-</span><span class="n">density</span><span class="o">-</span><span class="n">stats</span>             <span class="c1"># don&#39;t calculate density stats</span>
-<span class="o">--</span><span class="n">no</span><span class="o">-</span><span class="n">layout</span><span class="o">-</span><span class="n">independent</span><span class="o">-</span><span class="n">stats</span>  <span class="c1"># don&#39;t calculate layout-independent stats</span>
-<span class="o">--</span><span class="n">no</span><span class="o">-</span><span class="n">layout</span><span class="o">-</span><span class="n">aware</span><span class="o">-</span><span class="n">stats</span>        <span class="c1"># don&#39;t calculate layout-aware stats</span>
-<span class="o">--</span><span class="n">truncation_edges</span>             <span class="c1"># edges per node for DrL and the directed graph</span>
-<span class="o">--</span><span class="n">windowSize</span>                   <span class="c1"># clustering window count is this value squared</span>
-<span class="o">--</span><span class="n">drlpath</span>                      <span class="c1"># DrL binaries</span>
-</pre></div>
-</div>
+<p><strong>names</strong>: unique ID/label for a layout</p>
+<p><strong>scores</strong>:  values for each signature</p>
+<p><strong>include-singletons</strong>: add self-edges to retain unconnected points</p>
+<p><strong>colormaps</strong>: colormap for categorical attributes</p>
+<p><strong>first_attribute</strong>: attribute by which to color the map upon first display</p>
+<p><strong>directory</strong>: layout and statistical output files</p>
 </div>
 </div>
 

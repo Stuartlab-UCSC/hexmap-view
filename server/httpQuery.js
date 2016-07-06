@@ -61,34 +61,6 @@ WebApp.connectHandlers.use("/query/overlayNodes", function(req, res, next) {
     });
 });
 
-sendMail = function (users, subject, msg) {
-
-    // Send mail to user(s) with the given subject and message.
-    
-    var command =
-        'echo "'
-        + msg
-        + '" | '
-        + 'mail -s "'
-        + subject
-        + '" -S from="'
-        + ADMIN_EMAIL
-        + '" '
-      //+ '" -S from="hexmap@ucsc.edu" '
-        + users.toString();
-    
-    console.log('email:', command);
-    
-    // Don't send from localhost, macOS mail doesn't support the 'from' option.
-    if (URL_BASE.indexOf('localhost') > -1) return;
-    
-    exec(command, function (error, stdout, stderr) {
-        if (error) {
-            console.log('sendMail had an error:', error);
-        }
-    });
-}
-
 respondToHttp = function (code, res, msg, future) {
 
     // This responds to an http request or handles a future for those cases

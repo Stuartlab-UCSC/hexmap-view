@@ -96,16 +96,17 @@ Create some directories::
  export PATH=./:DRL:$PATH
 
  # Developers need these.
+ METEOR=$HOME/.meteor
  BASE=$HOME/.meteor/packages/meteor-tool/METEOR_VERSION/dev_bundle
  NPM_NODE=$BASE/bin
  MONGO=$BASE/mongodb/bin
  CONDA=$HOME/packages/miniconda2/bin
- export PATH=$CONDA:$MONGO:$NPM_NODE:$PATH
+ export PATH=./:$PYTHONPATH:$CONDA:$MONGO:$METEOR:$NPM_NODE:$PATH
 
 
-**Customize the Run Scripts**::
+**Customize the Run Scripts**
 
-Copy some scripts and modify them to match your environment.
+Copy some scripts and modify them to match your environment::
 
  cd HEXSRC/.bin
  cp runDb runHex settings.json *HEX*

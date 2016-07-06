@@ -126,18 +126,20 @@ export PYTHONPATH=$HEXMAP/calc:$HEXMAP/www/server
 export PATH=./:DRL:$PATH
 
 # Developers need these.
+METEOR=$HOME/.meteor
 BASE=$HOME/.meteor/packages/meteor-tool/METEOR_VERSION/dev_bundle
 NPM_NODE=$BASE/bin
 MONGO=$BASE/mongodb/bin
 CONDA=$HOME/packages/miniconda2/bin
-export PATH=$CONDA:$MONGO:$NPM_NODE:$PATH
+export PATH=./:$PYTHONPATH:$CONDA:$MONGO:$METEOR:$NPM_NODE:$PATH
 </pre></div>
 </div>
-<p><strong>Customize the Run Scripts</strong>:</p>
-<p>Copy some scripts and modify them to match your environment.</p>
-<blockquote>
-<div>cd HEXSRC/.bin
-cp runDb runHex settings.json <em>HEX</em></div></blockquote>
+<p><strong>Customize the Run Scripts</strong></p>
+<p>Copy some scripts and modify them to match your environment:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span>cd HEXSRC/.bin
+cp runDb runHex settings.json *HEX*
+</pre></div>
+</div>
 <p><strong>Start the servers</strong>:</p>
 <div class="highlight-python"><div class="highlight"><pre><span></span>nohup runDB
 nohup runWww
