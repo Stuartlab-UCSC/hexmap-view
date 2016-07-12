@@ -27,18 +27,18 @@ from statsNoLayout import statsNoLayout
 from statsLayout import statsLayout
 import pool
 from topNeighbors import topNeighbors
-#YN 20160620: adding some new dependencies
-import multiprocessing
-import sklearn
-from sklearn import metrics
-from sklearn import decomposition
-from sklearn import manifold
-from sklearn.decomposition import PCA
-from sklearn.decomposition import FastICA
-from sklearn.manifold import TSNE
-from sklearn.manifold import Isomap
-from sklearn.manifold import MDS
-from sklearn.manifold import SpectralEmbedding
+from compute_sparse_matrix import read_tabular2
+from compute_sparse_matrix import read_tabular
+from compute_sparse_matrix import compute_similarities
+from compute_sparse_matrix import extract_similarities
+import StringIO, gc
+from compute_layout import computePCA
+from compute_layout import computetSNE
+from compute_layout import computeisomap
+from compute_layout import computeMDS
+from compute_layout import computeICA
+from compute_layout import computeSpectralEmbedding
+from sklearn import preprocessing
 
 def parse_args(args):
     """
@@ -64,8 +64,18 @@ def parse_args(args):
     # Now add all the options to it
     # Options match the ctdHeatmap tool options as much as possible.
     # The primary parameters:
-    parser.add_argument("similarity", type=str, nargs='+',
+    parser.add_argument("--similarity", nargs='+',action = 'append',
         help="similarity sparse matrix file")
+    parser.add_argument("--similarity_full", nargs='+',action = 'append',
+        help="similarity full matrix file")
+    parser.add_argument("--genomic", nargs='+',action = 'append',
+        help="full genomic matrix")
+    parser.add_argument("--metric", nargs='+',action = 'append',
+        help="metric corresponding to the genomic matrix of the same index")
+    parser.add_argument("--layout_method", type=str, default="DrL",
+        help="DrL, tSNE, MDS, PCA, ICA, isomap, spectralembedding")
+    parser.add_argument("--preprocess_method", type=str, default="",
+        help="Preprocessing methods for genomic data when tSNE, MDS, PCA, ICA, isomap, or spectralembedding methods are used; valid options are: standardize, normalize")
     parser.add_argument("--names", type=str, action="append", default=[],
         help="human-readable unique name/label for one the similarity matrix")
     parser.add_argument("--scores", type=str,
@@ -153,8 +163,13 @@ class Context:
         print json.dumps(s, indent=4, sort_keys=True)
 ctx = Context();
 
-def sigDigs(x, sig=7):
+class InvalidAction(Exception):
+    def __init__(self, value):
+        self.value = value
+    def __str__(self):
+        return repr(self.value)
 
+def sigDigs(x, sig=7):
     if sig < 1:
         raise ValueError("number of significant digits must be >= 1")
 
@@ -740,9 +755,9 @@ def open_matrices(names):
     # 'r' is the argument stating that the file will be read-only
     for i, similarity_filename in enumerate(names):
         print 'Opening Matrix', i, similarity_filename
+        
         matrix_file = tsv.TsvReader(open(similarity_filename, "r"))
         ctx.matrices.append(matrix_file)
-
 
 def compute_beta (coords, PCA, index, options):
     """
@@ -1075,7 +1090,7 @@ def drl_similarity_functions(matrix, index, options):
     coord_reader.close()
 
     # Delete our temporary directory.
-    shutil.rmtree(drl_directory)
+    #shutil.rmtree(drl_directory)
 
     print timestamp(), '============== drl computations completed for layout:', index, '=============='
 
@@ -1183,7 +1198,7 @@ def write_similarity_names(options):
     """
     Write the human names and file names of the similarity matrices so that 
     the tumor map UI can use them.
-    """
+    """    
     with open(os.path.join(options.directory, 'layouts.tab'), 'w') as f:
         f = csv.writer(f, delimiter='\t', lineterminator='\n')
         for i, name in enumerate(options.names):
@@ -1304,6 +1319,15 @@ def copy_files_for_UI(options, layer_files, layers, layer_positives, clumpiness_
     colormaps_writer.close()
 
 def hexIt(options):
+    #This is probably a bad way to do this but it was a quick and dirty way to store certain arguments as list and not list of lists
+    if not (options.similarity == None):
+        options.similarity = [val for sublist in options.similarity for val in sublist]
+    if not (options.similarity_full == None):
+        options.similarity_full = [val for sublist in options.similarity_full for val in sublist]
+    if not (options.genomic == None):
+        options.genomic = [val for sublist in options.genomic for val in sublist]
+    if not (options.metric == None):
+        options.metric = [val for sublist in options.metric for val in sublist]
 
     # Set some global context values
     ctx.extract_coords = extract_coords
@@ -1323,25 +1347,100 @@ def hexIt(options):
     print "Writing matrix names..."
     # We must write the file names for hexagram.js to access.
     write_similarity_names(options)
+    
+    # The nodes list stores the list of nodes for each matrix
+    # We must keep track of each set of nodes
+    nodes_multiple = []
+    print "Created nodes_multiple list..."
 
     print "About to open matrices..."
 
     # We have file names stored in options.similarity
     # We must open the files and store them in matrices list for access
-    open_matrices(options.similarity)
+    if options.layout_method.upper() in ['TSNE', 'MDS', 'PCA', 'ICA', 'ISOMAP', 'SPECTRALEMBEDDING']:
+        for i, genomic_filename in enumerate(options.genomic):
+            print 'Opening genomic matrix', i, genomic_filename
+            dt,sample_labels,feature_labels = read_tabular2(genomic_filename, True)
+            print str(len(dt))+" x "+str(len(dt[0]))
+            #preprocess the data:
+            if not(options.preprocess_method == None or len(options.preprocess_method) == 0):
+                if options.preprocess_method.upper() == "STANDARDIZE":
+                    dt_preprocessed = preprocessing.scale(dt)
+                    dt = dt_preprocessed
+                elif options.preprocess_method.upper() == "NORMALIZE":
+                    dt_preprocessed = preprocessing.normalize(dt, norm='l2')
+                    dt = dt_preprocessed
+                else:
+                    raise InvalidAction("Invalid preprocessing method")
+            dt_t = numpy.transpose(dt)
+            if options.layout_method.upper() == "PCA":
+                nodes_multiple.append(computePCA(dt_t,sample_labels))
+            elif options.layout_method.upper() == "TSNE":
+                nodes_multiple.append(computetSNE(dt_t,sample_labels))
+            elif options.layout_method.upper() == "ISOMAP":
+                nodes_multiple.append(computeisomap(dt_t,sample_labels,options.truncation_edges))
+            elif options.layout_method.upper() == "MDS":
+                nodes_multiple.append(computeMDS(dt_t,sample_labels))
+            elif options.layout_method.upper() == "SPECTRALEMBEDDING":
+                nodes_multiple.append(computeSpectralEmbedding(dt_t,sample_labels, options.truncation_edges))
+            elif options.layout_method.upper() == "ICA":
+                nodes_multiple.append(computeICA(dt_t,sample_labels))
+            else:
+                raise InvalidAction("Invalid layout method is provided")
+    else:    #'DRL'
+        print 'DRL method'
+        print options.similarity
+        print options.genomic
+        print options.similarity_full
+        if not (options.genomic == None):    #full genomic matrix given
+            print "Genomic matrices"
+            for i, genomic_filename in enumerate(options.genomic):
+                print 'Opening Matrix', i, genomic_filename
+                dt,sample_labels,feature_labels = read_tabular2(genomic_filename, True)
+                print str(len(dt))+" x "+str(len(dt[0]))
+                dt_t = numpy.transpose(dt)
+                result = compute_similarities(dt=dt_t, sample_labels=sample_labels, metric_type=options.metric[i], num_jobs=-1, output_type="SPARSE", top=6, log=None)
+                result_stream = StringIO.StringIO(result)
+                matrix_file = tsv.TsvReader(result_stream)
+                ctx.matrices.append(matrix_file)
+            
+        elif not (options.similarity_full == None):    #full similarity matrix given
+            print "Similarity matrices"
+            for i, similarity_filename in enumerate(options.similarity_full):
+                print 'Opening Matrix', i, similarity_filename
+                dt,sample_labels,feature_labels = read_tabular2(similarity_filename, True)
+                print str(len(dt))+" x "+str(len(dt[0]))
+                result = extract_similarities(dt=dt, sample_labels=sample_labels, top=6, log=None)
+                result_stream = StringIO.StringIO(result)
+                matrix_file = tsv.TsvReader(result_stream)
+                ctx.matrices.append(matrix_file)
+            
+        elif not (options.similarity == None):        #sparse similarity matrix given
+            print "Sparse similarity matrices"
+            open_matrices(options.similarity)
+            print options.similarity
+        else:    #no matrix is given
+            raise InvalidAction("Invalid matrix input is provided")
+            
+        # Index for drl.tab and drl.layout file naming. With indexes we can match
+        # file names, to matrices, to drl output files.
+        #print "length of ctx.matrices = "+str(len(ctx.matrices))
+        for index, i in enumerate (ctx.matrices):
+            print "enumerating ctx.matrices "+str(index)
+            nodes_multiple.append (drl_similarity_functions(i, index, options))
 
     print "Opened matrices..."
-
-    # The nodes list stores the list of nodes for each matrix
-    # We must keep track of each set of nodes
-    nodes_multiple = []
-
-    print "Created nodes_multiple list..."
+    #print len(nodes_multiple[0])
+    print nodes_multiple
 
     # Index for drl.tab and drl.layout file naming. With indexes we can match
     # file names, to matrices, to drl output files.
-    for index, i in enumerate (ctx.matrices):
-        nodes_multiple.append (drl_similarity_functions(i, index, options))
+    #print "length of ctx.matrices = "+str(len(ctx.matrices))
+    #for index, i in enumerate (ctx.matrices):
+    #    print "enumerating ctx.matrices "+str(index)
+    #    nodes_multiple.append (drl_similarity_functions(i, index, options))
+    #print "nodes_multiple:"
+    #print nodes_multiple
 
     # Compute Hexagam Assignments for each similarity matrix's drl output,
     # which is found in nodes_multiple.
@@ -1511,29 +1610,64 @@ def hexIt(options):
     # layout.
     clumpiness_scores = []
     
-    if len(layer_names) > 0 and options.clumpinessStats:
-        # We want to do clumpiness scores. We skip it when there are no layers,
-        # so we don't try to join a never-used multiprocessing pool, which
-        # seems to hang.
-        
-        print "We need to run density statistics for {} layouts".format(
-            len(options.similarity))
-        
-        for layout_index in xrange(len(options.similarity)):
-            # Do the clumpiness statistics for each layout.
-            
-            clumpiness_scores.append(run_clumpiness_statistics(layers, 
-                layer_names, options.window_size, layout_index))
-        
-    else:
-        # We aren't doing any stats.
-        
-        print "Skipping density statistics."
-        
-        # Set everything's clumpiness score to -inf.
+    if options.layout_method.upper() in ['TSNE', 'MDS', 'PCA', 'ICA', 'ISOMAP', 'SPECTRALEMBEDDING']:
         clumpiness_scores = [collections.defaultdict(lambda: float("-inf")) 
-            for _ in options.similarity]
-    
+                        for _ in options.genomic]
+    else:
+        if len(layer_names) > 0 and options.clumpinessStats:
+            # We want to do clumpiness scores. We skip it when there are no layers,
+            # so we don't try to join a never-used multiprocessing pool, which
+            # seems to hang.
+            if options.layout_method.upper() in ['TSNE', 'MDS', 'PCA', 'ICA', 'ISOMAP', 'SPECTRALEMBEDDING']:
+                    print "We need to run density statistics for {} layouts".format(
+                        len(options.genomic))
+                    for layout_index in xrange(len(options.genomic)):
+                        # Do the clumpiness statistics for each layout.
+                        clumpiness_scores.append(run_clumpiness_statistics(layers, 
+                            layer_names, options.window_size, layout_index))
+            else:    #'DRL'
+                if not (options.genomic == None):    #full genomic matrix given
+                    print "We need to run density statistics for {} layouts".format(
+                        len(options.genomic))
+                    for layout_index in xrange(len(options.genomic)):
+                        # Do the clumpiness statistics for each layout.
+                        clumpiness_scores.append(run_clumpiness_statistics(layers, 
+                            layer_names, options.window_size, layout_index))
+                elif not (options.similarity_full == None):    #full similarity matrix given
+                    print "We need to run density statistics for {} layouts".format(
+                        len(options.similarity_full))     
+                    for layout_index in xrange(len(options.similarity_full)):
+                        # Do the clumpiness statistics for each layout.
+                        clumpiness_scores.append(run_clumpiness_statistics(layers, 
+                            layer_names, options.window_size, layout_index))
+                elif not (options.similarity == None):        #sparse similarity matrix given
+                    print "We need to run density statistics for {} layouts".format(
+                        len(options.similarity))
+                    for layout_index in xrange(len(options.similarity)):
+                        # Do the clumpiness statistics for each layout.
+                        clumpiness_scores.append(run_clumpiness_statistics(layers, 
+                            layer_names, options.window_size, layout_index))
+                else:    #no matrix is given
+                    raise InvalidAction("Invalid matrix input is provided")
+        
+        else:
+            # We aren't doing any stats.
+            print "Skipping density statistics."        
+            if not (options.genomic == None):    #full genomic matrix given
+                # Set everything's clumpiness score to -inf.
+                clumpiness_scores = [collections.defaultdict(lambda: float("-inf")) 
+                    for _ in options.genomic]
+            elif not (options.similarity_full == None):    #full similarity matrix given
+                # Set everything's clumpiness score to -inf.
+                clumpiness_scores = [collections.defaultdict(lambda: float("-inf")) 
+                    for _ in options.similarity_full]            
+            elif not (options.similarity == None):        #sparse similarity matrix given
+                # Set everything's clumpiness score to -inf.
+                clumpiness_scores = [collections.defaultdict(lambda: float("-inf")) 
+                    for _ in options.similarity]
+            else:    #no matrix is given
+                raise InvalidAction("Invalid matrix input is provided")
+            
     # Sort Layers According to Data Type
     determine_layer_data_types (layers, layer_names, options)
 
@@ -1779,42 +1913,75 @@ def hexIt(options):
     statsLayout(options.directory, layers, layer_names, nodes_multiple, ctx, options)
 
     # Find the top neighbors of each node
-    if options.directedGraph:
-        topNeighbors(options.similarity , options.directory, options.truncation_edges)
+    if options.layout_method.upper() in ['TSNE', 'MDS', 'PCA', 'ICA', 'ISOMAP', 'SPECTRALEMBEDDING']:
+            if options.directedGraph:
+                topNeighbors(options.genomic, options.directory, options.truncation_edges)
+    else:    #'DRL'
+        if not (options.genomic == None):    #full genomic matrix given
+            if options.directedGraph:
+                topNeighbors(options.genomic, options.directory, options.truncation_edges)
+        elif not (options.similarity_full == None):    #full similarity matrix given
+            if options.directedGraph:
+                topNeighbors(options.similarity_full, options.directory, options.truncation_edges)
+        elif not (options.similarity == None):        #sparse similarity matrix given
+            if options.directedGraph:
+                topNeighbors(options.similarity, options.directory, options.truncation_edges)
+        else:    #no matrix is given
+            raise InvalidAction("Invalid matrix input is provided")
 
     print timestamp(), "Visualization generation complete!"
 
-def PCA(dt):	#YN 20160620
-	pca = sklearn.decomposition.PCA(n_components=2)
-	pca.fit(dt)
-	return(pca.transform(dt))
-	
-def tSNE(dt):	#YN 20160620
-	pca = sklearn.decomposition.PCA(n_components=50)
-	dt_pca = pca.fit_transform(numpy.array(dt))
-	model = sklearn.manifold.TSNE(n_components=2, random_state=0)
-	numpy.set_printoptions(suppress=True)
-	return(model.fit_transform(dt_pca))
+def PCA(dt):    #YN 20160620
+    pca = sklearn.decomposition.PCA(n_components=2)
+    pca.fit(dt)
+    return(pca.transform(dt))
+    
+def tSNE(dt):    #YN 20160620
+    pca = sklearn.decomposition.PCA(n_components=50)
+    dt_pca = pca.fit_transform(numpy.array(dt))
+    model = sklearn.manifold.TSNE(n_components=2, random_state=0)
+    numpy.set_printoptions(suppress=True)
+    return(model.fit_transform(dt_pca))
 
-def tSNE2(dt):	#YN 20160620
-	model = sklearn.manifold.TSNE(n_components=2, random_state=0)
-	numpy.set_printoptions(suppress=True)
-	return(model.fit_transform(dt))
+def tSNE2(dt):    #YN 20160620
+    model = sklearn.manifold.TSNE(n_components=2, random_state=0)
+    numpy.set_printoptions(suppress=True)
+    return(model.fit_transform(dt))
 
-def isomap(dt):	#YN 20160620
-	return(sklearn.manifold.Isomap(N_NEIGHBORS, 2).fit_transform(dt))
+def isomap(dt):    #YN 20160620
+    return(sklearn.manifold.Isomap(N_NEIGHBORS, 2).fit_transform(dt))
 
-def MDS(dt):	#YN 20160620
-	mds = sklearn.manifold.MDS(2, max_iter=100, n_init=1)
-	return(mds.fit_transform(dt))
+def MDS(dt):    #YN 20160620
+    mds = sklearn.manifold.MDS(2, max_iter=100, n_init=1)
+    return(mds.fit_transform(dt))
 
-def SpectralEmbedding(dt):	#YN 20160620
-	se = sklearn.manifold.SpectralEmbedding(n_components=2, n_neighbors=N_NEIGHBORS)
-	return(se.fit_transform(dt))
+def SpectralEmbedding(dt):    #YN 20160620
+    se = sklearn.manifold.SpectralEmbedding(n_components=2, n_neighbors=N_NEIGHBORS)
+    return(se.fit_transform(dt))
 
-def ICA(dt):	#YN 20160620
-	ica = sklearn.decomposition.FastICA(n_components=2)
-	return(ica.fit_transform(dt))
+def ICA(dt):    #YN 20160620
+    ica = sklearn.decomposition.FastICA(n_components=2)
+    return(ica.fit_transform(dt))
+    
+def compute_silhouette(coordinates, *args):        #YN 20160629: compute average silhouette score for an arbitrary group of nodes
+                                                #coordinates is a dictionary; example: {sample1: {"x": 200, "y": 300}, sample2: {"x": 250, "y": 175}, ...}
+                                                #args is simply 2 or more lists of samples that are present in the coordinates dictionary
+    if(len(args) < 2):
+        raise Exception('Invalid number of groupings have been specified. At least two groups are required.')
+        
+    clust_count = 1
+    cluster_assignments = []
+    samples = []
+    for a in args:
+        cluster_assignments.append([clust_count]*len(a))
+        samples.append(a)
+        clust_count += 1
+    cluster_assignments_lst = [item for sublist in cluster_assignments for item in sublist]
+    samples_lst = [item for sublist in samples for item in sublist]
+    features = []
+    for s in samples_lst:
+        features.append(numpy.array([coordinates[s]["x"], coordinates[s]["y"]]))
+    return(sklearn.metrics.silhouette_score(numpy.array(features), numpy.array(cluster_assignments_lst), metric='euclidean', sample_size=1000, random_state=None))    
 
 def main(args):
     """
