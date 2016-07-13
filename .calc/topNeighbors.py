@@ -59,6 +59,33 @@ def topNeighbors(similarity, directory, topIn):
             fOut.writerow([node0] + map(lambda x: x[1], tops))
     print timestamp(), 'Found top neighbors'
 
+def topNeighbors_from_sparse(sparse, out_directory, topIn, i):
+    top = int(topIn)
+    #print sparse
+    
+    elem_dict = {}
+    elems = []
+    for line in sparse.split("\n"):
+        if len(line) > 0:
+            line_elems = line.split("\t")
+            if not (line_elems[0] in elem_dict):
+                elem_dict[line_elems[0]] = []
+            elem_dict[line_elems[0]].append(line_elems[1])
+            if not(line_elems[0] in elems):
+                elems.append(line_elems[0])
+    
+    output = open(os.path.join(out_directory, 'neighbors_' + str(i) + '.tab'), 'w')
+    for e in elems:
+        if len(elem_dict[e]) < top:
+            this_top = len(elem_dict[e])
+        else:
+            this_top = top
+        print >> output, "\t".join(elem_dict[e][0:this_top])
+    
+    output.close()
+    
+    print timestamp(), 'Found top neighbors'
+
 def main(args):
     print timestamp(), 'Finding top neighbors'
     sys.stdout.flush()
