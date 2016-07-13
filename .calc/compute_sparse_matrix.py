@@ -1,23 +1,32 @@
 #Yulia Newton
 #python2.7 compute_sparse_matrix.py --in_file temp.tab --top 10 --metric correlation --output_type sparse --out_file temp.out.tab --log log.tab --num_jobs 0
 
-import optparse, sys #, os
-import operator
-import numpy
-import multiprocessing
-import sklearn
+import argparse, sys, operator, numpy, multiprocessing, sklearn, time
 from sklearn import metrics
-#import scipy
-#from scipy import stats
-import time
-#import pandas
-#from pandas import DataFrame
-#VALID_METRICS = ['PEARSON', 'SPEARMAN', 'KENDALL']
 VALID_METRICS = ['canberra','cosine','euclidean','manhattan','chebyshev','correlation','hamming','jaccard','rogerstanimoto']
 VALID_OUTPUT_TYPE = ['SPARSE','FULL']
-#VALID_METRICS = ['euclidean', 'l2', 'l1', 'manhattan', 'cityblock','braycurtis', 'canberra', 'chebyshev', 
-#'correlation','cosine', 'dice', 'hamming', 'jaccard', 'kulsinski','mahalanobis', 'matching', 'minkowski', 
-#'rogerstanimoto','russellrao', 'seuclidean', 'sokalmichener','sokalsneath', 'sqeuclidean', 'yule', "wminkowski"]
+
+def parse_args(args):
+	args = args[1:]
+	parser = argparse.ArgumentParser(description=__doc__, 
+		formatter_class=argparse.RawDescriptionHelpFormatter)
+
+	parser.add_argument("--in_file", type=str,
+		help="input file name (matrix formatted genomic data)")
+	parser.add_argument("--top", type=int, default=6,
+		help="number of top neighbors to use in DrL layout")
+	parser.add_argument("--metric", type=str, default="correlation",
+		help="valid metrics: canberra,cosine,euclidean,manhattan,chebyshev,correlation,hamming,jaccard,rogerstanimoto")
+	parser.add_argument("--output_type",type=str, default="sparse",
+		help="either sparse or full")
+	parser.add_argument("--log",type=str, default="",
+		help="if not specified or an empty value then no log file is created")
+	parser.add_argument("--num_jobs",type=int, default=-1,
+		help="number of CPUs to use for similarity computation")
+	parser.add_argument("--out_file", type=str,
+		help="output file name")		
+   
+	return parser.parse_args(args)    
 
 def read_tabular(input_file, numeric_flag):
 	'''data = open(input_file, 'r')
@@ -57,20 +66,96 @@ def read_tabular(input_file, numeric_flag):
 	else:
 		matrix = init_matrix
 	return (matrix, col_headers, row_headers)
+
+def read_tabular2(input_file, numeric_flag):	#YN 20160629, a faster (still TBD) version of the above function but doesn't do invalid value conversion
+	with open(input_file,'r') as f:
+		lines = [l.rstrip('\n').split('\t') for l in f]
+
+	col_headers = lines[0][1:]
+	row_headers = [l[0] for l in lines[1:]]
+	if numeric_flag:
+		dt = [map(float,l[1:]) for l in lines[1:]]
+	else:
+		dt = [l[1:] for l in lines[1:]]
+
+	return (dt, col_headers, row_headers)
+
+def read_coordinates(input_file):	#assumes the first line is the column headers
+	input = open(input_file, 'r')
+	line_num = 1
+	coords = []
+	nodes = []
+	for line in input:
+		if line_num > 1:
+			line_elems = line.strip().split("\t")
+			if len(line_elems) == 3:
+				coords.append([line_elems[1], line_elems[2]])
+				nodes.append(line_elems[0])
+		
+		line_num += 1
 	
-def main():
+	input.close()
+	return (dict(zip(nodes, [tuple(val) for val in coords])))
+	
+def extract_similarities(dt, sample_labels, top, log):
+	if not(log == None):
+		print >> log, "Outputting sparse matrix..."
+	curr_time = time.time()
+	output = ""
+	for i in range(len(dt)):
+		sample_dict = dict(zip(sample_labels, dt[i]))
+		del sample_dict[sample_labels[i]]	#remove self comparison
+		for n_i in range(top):
+			v=list(sample_dict.values())
+			k=list(sample_dict.keys())
+			m=v.index(max(v))
+			output = output + sample_labels[i]+"\t"+k[m]+"\t"+str(v[m]) + "\n"
+			del sample_dict[k[m]]
+			
+	if not(log == None):
+		print >> log, str(time.time() - curr_time) + " seconds"
+	return(output)	
+
+def compute_similarities(dt, sample_labels, metric_type, num_jobs, output_type, top, log):
+	if not(log == None):
+		print >> log, "Computing similarities..."
+	curr_time = time.time()
+	x_corr = sklearn.metrics.pairwise.pairwise_distances(X=dt, Y=None, metric=metric_type, n_jobs=num_jobs)
+	x_corr = 1 - x_corr		#because computes the distance, need to convert to similarity
+	print "Resulting similarity matrix: "+str(len(x_corr))+" x "+str(len(x_corr[0]))
+	if not(log == None):
+		print >> log, str(time.time() - curr_time) + " seconds"
+		
+	if not(log == None):
+		print >> log, "Outputting "+output_type.lower()+" matrix..."
+	curr_time = time.time()
+	output = ""
+	if output_type == "SPARSE":
+		for i in range(len(x_corr)):
+			sample_dict = dict(zip(sample_labels, x_corr[i]))
+			del sample_dict[sample_labels[i]]	#remove self comparison
+			for n_i in range(top):
+				v=list(sample_dict.values())
+				k=list(sample_dict.keys())
+				m=v.index(max(v))
+				output = output + "\n" + sample_labels[i]+"\t"+k[m]+"\t"+str(v[m])
+				del sample_dict[k[m]]
+	elif output_type == "FULL":
+		output = "sample\t"+"\t".join(sample_labels)
+		for i in range(len(x_corr)):
+			value_str = [str(x) for x in x_corr[i]]
+			output = output + sample_labels[i]+"\t"+"\t".join(value_str) + "\n"
+			
+	if not(log == None):
+		print >> log, str(time.time() - curr_time) + " seconds"
+	return(output)
+	
+def main(args):
 	start_time = time.time()
-	
-	parser = optparse.OptionParser()
-	parser.add_option("--in_file", dest="in_file", action="store", default="", help="")
-	parser.add_option("--top", dest="top", action="store", default="", help="")
-	parser.add_option("--metric", dest="metric", action="store", default="", help="")
-	parser.add_option("--output_type", dest="output_type", action="store", default="", help="")
-	parser.add_option("--out_file", dest="out_file", action="store", default="", help="")
-	parser.add_option("--log", dest="log", action="store", default="", help="")
-	parser.add_option("--num_jobs", dest="num_jobs", action="store", default="0", help="http://scikit-learn.org/stable/modules/generated/sklearn.metrics.pairwise.pairwise_distances.html")
-	opts, args = parser.parse_args()
-	
+
+	sys.stdout.flush()
+	opts = parse_args(args)
+			
 	#process input arguments:
 	in_file = opts.in_file
 	#metric_type = opts.metric.upper()
@@ -79,6 +164,7 @@ def main():
 	top = int(opts.top)
 	out_file = opts.out_file
 	log_file = opts.log
+	log = None
 	if len(log_file) > 0:
 		log = open(log_file, 'w')
 	try:
@@ -102,8 +188,7 @@ def main():
 		sys.exit(1)		
 
 	#read the matrix and store in a dictionary:
-	#print >> sys.stderr, "Reading in input..."
-	if len(log_file) > 0:
+	if not(log == None):
 		print >> log, "Number of CPUs is "+str(multiprocessing.cpu_count())
 		print >> log, "Using "+num_jobs_str+" CPUs"
 		print >> log, "Reading in input..."
@@ -111,51 +196,29 @@ def main():
 	dt,sample_labels,feature_labels = read_tabular(in_file,True)
 	#dt_t = [list(i) for i in zip(*dt)]	#rows are samples and columns are features now
 	dt_t = numpy.transpose(dt)
-	if len(log_file) > 0:
+	if not(log == None):
 		print >> log, str(time.time() - curr_time) + " seconds"
 	
-	#print >> sys.stderr, "Computing similarities..."
-	if len(log_file) > 0:
-		print >> log, "Computing similarities..."
-	curr_time = time.time()
-	x_corr = sklearn.metrics.pairwise.pairwise_distances(X=dt_t, Y=None, metric=metric_type, n_jobs=num_jobs)
-	x_corr = 1 - x_corr		#because computes the distance, need to convert to similarity
-	if len(log_file) > 0:
-		print >> log, str(time.time() - curr_time) + " seconds"
-	
-	#print >> sys.stderr, str(len(x_corr))+" x "+str(len(x_corr[0]))
-	
-	#print >> sys.stderr, "Outputting "+output_type.lower()+" matrix..."
-	if len(log_file) > 0:
-		print >> log, "Outputting "+output_type.lower()+" matrix..."
-	curr_time = time.time()
+	result = compute_similarities(dt_t, sample_labels, metric_type, num_jobs, output_type, top, log)
 	output = open(out_file, 'w')
-	if output_type == "SPARSE":
-		for i in range(len(x_corr)):
-			#print >> sys.stderr, i
-			sample_dict = dict(zip(sample_labels, x_corr[i]))
-			del sample_dict[sample_labels[i]]	#remove self comparison
-			#sorted_neighbors = [(value, key) for key, value in sample_dict.items()]
-			for n_i in range(top):
-				v=list(sample_dict.values())
-				k=list(sample_dict.keys())
-				m=v.index(max(v))
-				#print >> sys.stderr, m
-				print >> output, sample_labels[i]+"\t"+k[m]+"\t"+str(v[m])
-				del sample_dict[k[m]]
-	elif output_type == "FULL":
-		print >> output, "sample\t"+"\t".join(sample_labels)
-		for i in range(len(x_corr)):
-			value_str = [str(x) for x in x_corr[i]]
-			print >> output, sample_labels[i]+"\t"+"\t".join(value_str)
-			
+	print >> output, result
 	output.close()
-	if len(log_file) > 0:
-		print >> log, str(time.time() - curr_time) + " seconds"
 	
 	#print >> sys.stderr, "--- %s seconds ---" % (time.time() - start_time)
-	if len(log_file) > 0:
+	if not(log == None):
 		print >> log, "--- %s seconds ---" % (time.time() - start_time)
 		log.close()
+	
+	return(0)	#if got to this point with no errors or exceptions then succeeded; there's probably a better way to go about this return
 
-main()
+if __name__ == "__main__" :
+	try:
+		# Get the return code to return
+		# Don't just exit with it because sys.exit works by exceptions.
+		return_code = main(sys.argv)
+	except:
+		#traceback.print_exc()
+		# Return a definite number and not some unspecified error code.
+		return_code = 1
+		
+	sys.exit(return_code)

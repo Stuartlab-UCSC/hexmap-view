@@ -109,3 +109,4 @@ class TsvReader(object):
         """
         
         self.stream.close()
+        
