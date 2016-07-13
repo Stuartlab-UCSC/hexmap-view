@@ -77,8 +77,8 @@ def computePCA(dt, sample_labels):
 	model = pca.transform(dt)
 	return(dict(zip(sample_labels, [tuple(val) for val in model])))
 
-def computetSNE(dt, sample_labels):
-	pca = sklearn.decomposition.PCA(n_components=11)
+def computetSNE(dt, sample_labels, dim):
+	pca = sklearn.decomposition.PCA(n_components=dim)
 	dt_pca = pca.fit_transform(numpy.array(dt))
 	model = sklearn.manifold.TSNE(n_components=2, random_state=0,n_iter=1000,perplexity=30)
 	numpy.set_printoptions(suppress=True)

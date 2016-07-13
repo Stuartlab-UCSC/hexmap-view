@@ -79,6 +79,23 @@ def read_tabular2(input_file, numeric_flag):	#YN 20160629, a faster (still TBD) 
 		dt = [l[1:] for l in lines[1:]]
 
 	return (dt, col_headers, row_headers)
+
+def read_coordinates(input_file):	#assumes the first line is the column headers
+	input = open(input_file, 'r')
+	line_num = 1
+	coords = []
+	nodes = []
+	for line in input:
+		if line_num > 1:
+			line_elems = line.strip().split("\t")
+			if len(line_elems) == 3:
+				coords.append([line_elems[1], line_elems[2]])
+				nodes.append(line_elems[0])
+		
+		line_num += 1
+	
+	input.close()
+	return (dict(zip(nodes, [tuple(val) for val in coords])))
 	
 def extract_similarities(dt, sample_labels, top, log):
 	if not(log == None):
@@ -92,7 +109,7 @@ def extract_similarities(dt, sample_labels, top, log):
 			v=list(sample_dict.values())
 			k=list(sample_dict.keys())
 			m=v.index(max(v))
-			output = output + "\n" + sample_labels[i]+"\t"+k[m]+"\t"+str(v[m])
+			output = output + sample_labels[i]+"\t"+k[m]+"\t"+str(v[m]) + "\n"
 			del sample_dict[k[m]]
 			
 	if not(log == None):
@@ -127,7 +144,7 @@ def compute_similarities(dt, sample_labels, metric_type, num_jobs, output_type, 
 		output = "sample\t"+"\t".join(sample_labels)
 		for i in range(len(x_corr)):
 			value_str = [str(x) for x in x_corr[i]]
-			output = output + "\n" + sample_labels[i]+"\t"+"\t".join(value_str)
+			output = output + sample_labels[i]+"\t"+"\t".join(value_str) + "\n"
 			
 	if not(log == None):
 		print >> log, str(time.time() - curr_time) + " seconds"

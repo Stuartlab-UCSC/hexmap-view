@@ -27,6 +27,7 @@ from statsNoLayout import statsNoLayout
 from statsLayout import statsLayout
 import pool
 from topNeighbors import topNeighbors
+from topNeighbors import topNeighbors_from_sparse
 from compute_sparse_matrix import read_tabular2
 from compute_sparse_matrix import read_tabular
 from compute_sparse_matrix import compute_similarities
@@ -38,6 +39,7 @@ from compute_layout import computeisomap
 from compute_layout import computeMDS
 from compute_layout import computeICA
 from compute_layout import computeSpectralEmbedding
+from compute_sparse_matrix import read_coordinates
 from sklearn import preprocessing
 
 def parse_args(args):
@@ -70,12 +72,16 @@ def parse_args(args):
         help="similarity full matrix file")
     parser.add_argument("--genomic", nargs='+',action = 'append',
         help="full genomic matrix")
+    parser.add_argument("--coordinates", nargs='+',action = 'append',
+        help="file containing coordinates for the samples")
     parser.add_argument("--metric", nargs='+',action = 'append',
         help="metric corresponding to the genomic matrix of the same index")
     parser.add_argument("--layout_method", type=str, default="DrL",
         help="DrL, tSNE, MDS, PCA, ICA, isomap, spectralembedding")
     parser.add_argument("--preprocess_method", type=str, default="",
         help="Preprocessing methods for genomic data when tSNE, MDS, PCA, ICA, isomap, or spectralembedding methods are used; valid options are: standardize, normalize")
+    parser.add_argument("--tsne_pca_dimensions", type=str, default="11",
+        help="Number of PCA dimensions to reduce data to prior to performing t-SNE")
     parser.add_argument("--names", type=str, action="append", default=[],
         help="human-readable unique name/label for one the similarity matrix")
     parser.add_argument("--scores", type=str,
@@ -158,6 +164,7 @@ class Context:
         s.continuous_layers = [] # Continuous layer_names in the first layout
         s.categorical_layers = [] # categorical layer_names in the first layout
         s.beta_computation_data = {} # data formatted to compute beta values
+        s.sparse = []
 
     def printIt(s):
         print json.dumps(s, indent=4, sort_keys=True)
@@ -758,6 +765,10 @@ def open_matrices(names):
         
         matrix_file = tsv.TsvReader(open(similarity_filename, "r"))
         ctx.matrices.append(matrix_file)
+        
+        with open(similarity_filename,'r') as f:
+            lines = [l.rstrip('\n') for l in f]
+        ctx.sparse.append("\n".join(lines))
 
 def compute_beta (coords, PCA, index, options):
     """
@@ -1328,6 +1339,8 @@ def hexIt(options):
         options.genomic = [val for sublist in options.genomic for val in sublist]
     if not (options.metric == None):
         options.metric = [val for sublist in options.metric for val in sublist]
+    if not (options.coordinates == None):
+        options.coordinates = [val for sublist in options.coordinates for val in sublist]
 
     # Set some global context values
     ctx.extract_coords = extract_coords
@@ -1357,82 +1370,130 @@ def hexIt(options):
 
     # We have file names stored in options.similarity
     # We must open the files and store them in matrices list for access
-    if options.layout_method.upper() in ['TSNE', 'MDS', 'PCA', 'ICA', 'ISOMAP', 'SPECTRALEMBEDDING']:
-        for i, genomic_filename in enumerate(options.genomic):
-            print 'Opening genomic matrix', i, genomic_filename
-            dt,sample_labels,feature_labels = read_tabular2(genomic_filename, True)
-            print str(len(dt))+" x "+str(len(dt[0]))
-            #preprocess the data:
-            if not(options.preprocess_method == None or len(options.preprocess_method) == 0):
-                if options.preprocess_method.upper() == "STANDARDIZE":
-                    dt_preprocessed = preprocessing.scale(dt)
-                    dt = dt_preprocessed
-                elif options.preprocess_method.upper() == "NORMALIZE":
-                    dt_preprocessed = preprocessing.normalize(dt, norm='l2')
-                    dt = dt_preprocessed
-                else:
-                    raise InvalidAction("Invalid preprocessing method")
-            dt_t = numpy.transpose(dt)
-            if options.layout_method.upper() == "PCA":
-                nodes_multiple.append(computePCA(dt_t,sample_labels))
-            elif options.layout_method.upper() == "TSNE":
-                nodes_multiple.append(computetSNE(dt_t,sample_labels))
-            elif options.layout_method.upper() == "ISOMAP":
-                nodes_multiple.append(computeisomap(dt_t,sample_labels,options.truncation_edges))
-            elif options.layout_method.upper() == "MDS":
-                nodes_multiple.append(computeMDS(dt_t,sample_labels))
-            elif options.layout_method.upper() == "SPECTRALEMBEDDING":
-                nodes_multiple.append(computeSpectralEmbedding(dt_t,sample_labels, options.truncation_edges))
-            elif options.layout_method.upper() == "ICA":
-                nodes_multiple.append(computeICA(dt_t,sample_labels))
-            else:
-                raise InvalidAction("Invalid layout method is provided")
-    else:    #'DRL'
-        print 'DRL method'
-        print options.similarity
-        print options.genomic
-        print options.similarity_full
-        if not (options.genomic == None):    #full genomic matrix given
-            print "Genomic matrices"
+    if not(options.coordinates == None):
+        for i, coords_filename in enumerate(options.coordinates):
+            coord = read_coordinates(coords_filename)
+            nodes_multiple.append(coord)
+            coord_lst = [list(x) for x in coord.values()]
+            eucl = scipy.spatial.distance.squareform(scipy.spatial.distance.pdist(coord_lst, metric='euclidean', p=2, w=None, V=None, VI=None))
+            eucl_sparse = extract_similarities(dt=eucl, sample_labels=coord.keys(), top=options.truncation_edges, log=None)
+            ctx.sparse.append(eucl_sparse)
+    
+    else:
+        if options.layout_method.upper() in ['TSNE', 'MDS', 'PCA', 'ICA', 'ISOMAP', 'SPECTRALEMBEDDING']:
             for i, genomic_filename in enumerate(options.genomic):
-                print 'Opening Matrix', i, genomic_filename
+                print 'Opening genomic matrix', i, genomic_filename
                 dt,sample_labels,feature_labels = read_tabular2(genomic_filename, True)
                 print str(len(dt))+" x "+str(len(dt[0]))
+                #preprocess the data:
+                if not(options.preprocess_method == None or len(options.preprocess_method) == 0):
+                    if options.preprocess_method.upper() == "STANDARDIZE":
+                        dt_preprocessed = preprocessing.scale(dt)
+                        dt = dt_preprocessed
+                    elif options.preprocess_method.upper() == "NORMALIZE":
+                        dt_preprocessed = preprocessing.normalize(dt, norm='l2')
+                        dt = dt_preprocessed
+                    else:
+                        raise InvalidAction("Invalid preprocessing method")
                 dt_t = numpy.transpose(dt)
-                result = compute_similarities(dt=dt_t, sample_labels=sample_labels, metric_type=options.metric[i], num_jobs=-1, output_type="SPARSE", top=6, log=None)
-                result_stream = StringIO.StringIO(result)
-                matrix_file = tsv.TsvReader(result_stream)
-                ctx.matrices.append(matrix_file)
-            
-        elif not (options.similarity_full == None):    #full similarity matrix given
-            print "Similarity matrices"
-            for i, similarity_filename in enumerate(options.similarity_full):
-                print 'Opening Matrix', i, similarity_filename
-                dt,sample_labels,feature_labels = read_tabular2(similarity_filename, True)
-                print str(len(dt))+" x "+str(len(dt[0]))
-                result = extract_similarities(dt=dt, sample_labels=sample_labels, top=6, log=None)
-                result_stream = StringIO.StringIO(result)
-                matrix_file = tsv.TsvReader(result_stream)
-                ctx.matrices.append(matrix_file)
-            
-        elif not (options.similarity == None):        #sparse similarity matrix given
-            print "Sparse similarity matrices"
-            open_matrices(options.similarity)
+                if options.layout_method.upper() == "PCA":
+                    coord = computePCA(dt_t,sample_labels)
+                    nodes_multiple.append(coord)
+                    coord_lst = [list(x) for x in coord.values()]
+                    eucl = scipy.spatial.distance.squareform(scipy.spatial.distance.pdist(coord_lst, metric='euclidean', p=2, w=None, V=None, VI=None))
+                    eucl_sparse = extract_similarities(dt=eucl, sample_labels=coord.keys(), top=options.truncation_edges, log=None)
+                    ctx.sparse.append(eucl_sparse)                    
+                    
+                elif options.layout_method.upper() == "TSNE":
+                    coord = computetSNE(dt_t,sample_labels, int(options.tsne_pca_dimensions))
+                    nodes_multiple.append(coord)
+                    coord_lst = [list(x) for x in coord.values()]
+                    eucl = scipy.spatial.distance.squareform(scipy.spatial.distance.pdist(coord_lst, metric='euclidean', p=2, w=None, V=None, VI=None))
+                    eucl_sparse = extract_similarities(dt=eucl, sample_labels=coord.keys(), top=options.truncation_edges, log=None)
+                    ctx.sparse.append(eucl_sparse)
+                    
+                elif options.layout_method.upper() == "ISOMAP":
+                    coord = computeisomap(dt_t,sample_labels,options.truncation_edges)
+                    nodes_multiple.append(coord)
+                    coord_lst = [list(x) for x in coord.values()]
+                    eucl = scipy.spatial.distance.squareform(scipy.spatial.distance.pdist(coord_lst, metric='euclidean', p=2, w=None, V=None, VI=None))
+                    eucl_sparse = extract_similarities(dt=eucl, sample_labels=coord.keys(), top=options.truncation_edges, log=None)
+                    ctx.sparse.append(eucl_sparse)
+                    
+                elif options.layout_method.upper() == "MDS":
+                    coord = computeMDS(dt_t,sample_labels)
+                    nodes_multiple.append(coord)
+                    coord_lst = [list(x) for x in coord.values()]
+                    eucl = scipy.spatial.distance.squareform(scipy.spatial.distance.pdist(coord_lst, metric='euclidean', p=2, w=None, V=None, VI=None))
+                    eucl_sparse = extract_similarities(dt=eucl, sample_labels=coord.keys(), top=options.truncation_edges, log=None)
+                    ctx.sparse.append(eucl_sparse)
+                    
+                elif options.layout_method.upper() == "SPECTRALEMBEDDING":
+                    coord = computeSpectralEmbedding(dt_t,sample_labels, options.truncation_edges)
+                    nodes_multiple.append(coord)
+                    coord_lst = [list(x) for x in coord.values()]
+                    eucl = scipy.spatial.distance.squareform(scipy.spatial.distance.pdist(coord_lst, metric='euclidean', p=2, w=None, V=None, VI=None))
+                    eucl_sparse = extract_similarities(dt=eucl, sample_labels=coord.keys(), top=options.truncation_edges, log=None)
+                    ctx.sparse.append(eucl_sparse)
+                    
+                elif options.layout_method.upper() == "ICA":
+                    coord = computeICA(dt_t,sample_labels)
+                    nodes_multiple.append(coord)
+                    coord_lst = [list(x) for x in coord.values()]
+                    eucl = scipy.spatial.distance.squareform(scipy.spatial.distance.pdist(coord_lst, metric='euclidean', p=2, w=None, V=None, VI=None))
+                    eucl_sparse = extract_similarities(dt=eucl, sample_labels=coord.keys(), top=options.truncation_edges, log=None)
+                    ctx.sparse.append(eucl_sparse)
+                    
+                else:
+                    raise InvalidAction("Invalid layout method is provided")
+        else:    #'DRL'
+            print 'DRL method'
             print options.similarity
-        else:    #no matrix is given
-            raise InvalidAction("Invalid matrix input is provided")
+            print options.genomic
+            print options.similarity_full
+            if not (options.genomic == None):    #full genomic matrix given
+                print "Genomic matrices"
+                for i, genomic_filename in enumerate(options.genomic):
+                    print 'Opening Matrix', i, genomic_filename
+                    dt,sample_labels,feature_labels = read_tabular2(genomic_filename, True)
+                    print str(len(dt))+" x "+str(len(dt[0]))
+                    dt_t = numpy.transpose(dt)
+                    result = compute_similarities(dt=dt_t, sample_labels=sample_labels, metric_type=options.metric[i], num_jobs=-1, output_type="SPARSE", top=6, log=None)
+                    result_stream = StringIO.StringIO(result)
+                    matrix_file = tsv.TsvReader(result_stream)
+                    ctx.matrices.append(matrix_file)
+                    ctx.sparse.append(result)
             
-        # Index for drl.tab and drl.layout file naming. With indexes we can match
-        # file names, to matrices, to drl output files.
-        #print "length of ctx.matrices = "+str(len(ctx.matrices))
-        for index, i in enumerate (ctx.matrices):
-            print "enumerating ctx.matrices "+str(index)
-            nodes_multiple.append (drl_similarity_functions(i, index, options))
+            elif not (options.similarity_full == None):    #full similarity matrix given
+                print "Similarity matrices"
+                for i, similarity_filename in enumerate(options.similarity_full):
+                    print 'Opening Matrix', i, similarity_filename
+                    dt,sample_labels,feature_labels = read_tabular2(similarity_filename, True)
+                    print str(len(dt))+" x "+str(len(dt[0]))
+                    result = extract_similarities(dt=dt, sample_labels=sample_labels, top=6, log=None)
+                    result_stream = StringIO.StringIO(result)
+                    matrix_file = tsv.TsvReader(result_stream)
+                    ctx.matrices.append(matrix_file)
+                    ctx.sparse.append(result)
+            
+            elif not (options.similarity == None):        #sparse similarity matrix given
+                print "Sparse similarity matrices"
+                open_matrices(options.similarity)
+                print options.similarity
+            else:    #no matrix is given
+                raise InvalidAction("Invalid matrix input is provided")
+            
+            # Index for drl.tab and drl.layout file naming. With indexes we can match
+            # file names, to matrices, to drl output files.
+            #print "length of ctx.matrices = "+str(len(ctx.matrices))
+            for index, i in enumerate (ctx.matrices):
+                print "enumerating ctx.matrices "+str(index)
+                nodes_multiple.append (drl_similarity_functions(i, index, options))
 
     print "Opened matrices..."
     #print len(nodes_multiple[0])
-    print nodes_multiple
-
+    #print nodes_multiple
+    
     # Index for drl.tab and drl.layout file naming. With indexes we can match
     # file names, to matrices, to drl output files.
     #print "length of ctx.matrices = "+str(len(ctx.matrices))
@@ -1610,7 +1671,7 @@ def hexIt(options):
     # layout.
     clumpiness_scores = []
     
-    if options.layout_method.upper() in ['TSNE', 'MDS', 'PCA', 'ICA', 'ISOMAP', 'SPECTRALEMBEDDING']:
+    if options.layout_method.upper() in ['TSNE', 'MDS', 'PCA', 'ICA', 'ISOMAP', 'SPECTRALEMBEDDING'] or not(options.coordinates == None):
         clumpiness_scores = [collections.defaultdict(lambda: float("-inf")) 
                         for _ in options.genomic]
     else:
@@ -1913,21 +1974,33 @@ def hexIt(options):
     statsLayout(options.directory, layers, layer_names, nodes_multiple, ctx, options)
 
     # Find the top neighbors of each node
-    if options.layout_method.upper() in ['TSNE', 'MDS', 'PCA', 'ICA', 'ISOMAP', 'SPECTRALEMBEDDING']:
-            if options.directedGraph:
-                topNeighbors(options.genomic, options.directory, options.truncation_edges)
-    else:    #'DRL'
-        if not (options.genomic == None):    #full genomic matrix given
-            if options.directedGraph:
-                topNeighbors(options.genomic, options.directory, options.truncation_edges)
-        elif not (options.similarity_full == None):    #full similarity matrix given
-            if options.directedGraph:
-                topNeighbors(options.similarity_full, options.directory, options.truncation_edges)
-        elif not (options.similarity == None):        #sparse similarity matrix given
-            if options.directedGraph:
-                topNeighbors(options.similarity, options.directory, options.truncation_edges)
-        else:    #no matrix is given
-            raise InvalidAction("Invalid matrix input is provided")
+    if not(options.coordinates == None):
+        for index, i in enumerate(ctx.sparse):
+            topNeighbors_from_sparse(ctx.sparse[index], options.directory, options.truncation_edges, index)
+    else:
+        if options.layout_method.upper() in ['TSNE', 'MDS', 'PCA', 'ICA', 'ISOMAP', 'SPECTRALEMBEDDING']:
+                if options.directedGraph:
+                    #topNeighbors(options.genomic, options.directory, options.truncation_edges)
+                    for index, i in enumerate(ctx.sparse):
+                        topNeighbors_from_sparse(ctx.sparse[index], options.directory, options.truncation_edges, index)
+        else:    #'DRL'
+            if not (options.genomic == None):    #full genomic matrix given
+                if options.directedGraph:
+                    #topNeighbors(options.genomic, options.directory, options.truncation_edges)
+                    for index, i in enumerate(ctx.sparse):
+                        topNeighbors_from_sparse(ctx.sparse[index], options.directory, options.truncation_edges, index)
+            elif not (options.similarity_full == None):    #full similarity matrix given
+                if options.directedGraph:
+                    #topNeighbors(options.similarity_full, options.directory, options.truncation_edges)
+                    for index, i in enumerate(ctx.sparse):
+                        topNeighbors_from_sparse(ctx.sparse[index], options.directory, options.truncation_edges, index)
+            elif not (options.similarity == None):        #sparse similarity matrix given
+                if options.directedGraph:
+                    topNeighbors(options.similarity, options.directory, options.truncation_edges)
+                    for index, i in enumerate(ctx.sparse):
+                        topNeighbors_from_sparse(ctx.sparse[index], options.directory, options.truncation_edges, index)
+            else:    #no matrix is given
+                raise InvalidAction("Invalid matrix input is provided")
 
     print timestamp(), "Visualization generation complete!"
 
@@ -1981,7 +2054,7 @@ def compute_silhouette(coordinates, *args):        #YN 20160629: compute average
     features = []
     for s in samples_lst:
         features.append(numpy.array([coordinates[s]["x"], coordinates[s]["y"]]))
-    return(sklearn.metrics.silhouette_score(numpy.array(features), numpy.array(cluster_assignments_lst), metric='euclidean', sample_size=1000, random_state=None))    
+    return(sklearn.metrics.silhouette_score(numpy.array(features), numpy.array(cluster_assignments_lst), metric='euclidean', sample_size=1000, random_state=None))
 
 def main(args):
     """
