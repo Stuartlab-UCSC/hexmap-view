@@ -6,7 +6,8 @@ var app = app || {}; // jshint ignore:line
 
 
 (function (hex) { // jshint ignore:line
-    
+    LayerPostOffice = new Mongo.Collection('LayerPostOffice');
+
     function JsonLayer(layer){
         //puts together two parallel arrays and makes a single Json data layer
         vals = layer.data.values;
@@ -60,26 +61,103 @@ var app = app || {}; // jshint ignore:line
 
         
     }
+    /*
+    // so far failed attempt
+    mapId = 'Pancan12mRNA/GeneMap/';
+    username = 'duncmc831@gmail.com ';
+    LayerBoxHandle2 = Meteor.subscribe('userLayerBox',username, mapId);
+
+    Tracker.autorun( function() {
+         if (LayerBoxHandle2.ready()){
+         //LayerBox = LayerPostOffice.findOne();
+         console.log('ready');
+         // receive_layers(LayerBox.layers);
+         }
+    });
+    */
+
+    /*
+    if (ctx.project && Meteor.user().username) {
+        mapId = ctx.project;
+        username = Meteor.user().username;
+        Meteor.subscribe('userLayerBox', username, mapId);
+        LayerBox = LayerPostOffice.find();
+        LayerBox.observeChanges({
+            changed: function (id, fields) {
+                console.log('checkLayerBox: Users layerBox Doc updated: id, feilds:',id, fields)
+            }
+        });
+    }
+    */
 
     initLayerBox = function() {
-        
-        mapId = ctx.project;
- 
+
         // If no user is logged in, there is no layerBox doc for this
         if (_.isUndefined(Meteor.user()) || _.isNull(Meteor.user())) return;
-        
+
+        //variables needed for querry
+        mapId = ctx.project;
         username = Meteor.user().username;
-        
-        Meteor.call('checkLayerBox', username, mapId, function (error, result){
-           
-                if (error) {
-                    banner('error', error);
-                } else if (result) {
-                    //console.log(result); //good for seeing what's in user's layerbox
-                    receive_layers(result);
-                }
-            
+
+
+        //subscribe to LayerBox and stuff in shortlist when ready.
+
+        LayerBoxHandle = Meteor.subscribe('userLayerBox',username,mapId
+        /*
+        Tracker.autorun(function(){
+            if (LayerBoxHandle.ready()){
+                LayerBox = LayerPostOffice.findOne();
+                console.log(LayerBox);
+               // receive_layers(LayerBox.layers);
+            }
+        }); */
+            ,
+            {
+                onReady: function () {
+
+                    console.log('Subscription to Layerbox ready: Grabbing Doc');
+
+                    LayerBoxDoc = LayerPostOffice.findOne();
+
+                    //console.log(LayerBox);
+                    receive_layers(LayerBoxDoc.layers);
+                },
+                onError: function () { console.log("onError: subscribe to LayerBox"); }
+            }
+        );
+
+        LayerBox = LayerPostOffice.find();
+        LayerBox.observeChanges({
+            changed: function (id, fields) {
+                console.log('checkLayerBox: Users layerBox Doc updated: id, feilds:',id, fields);
+                receive_layers(fields.layers);
+            }
         });
+
+        //
+
+        //LayerPostOffice = new Mongo.Collection('LayerPostOffice'); //defined here following stack overflow template, I like at top of file
+
+
+
+
+        //console.log("called initLayerBox: LayerBox contents, handle.ready():",LayerBox,handle.ready());
+        //
+
+        /*
+         Meteor.call('checkLayerBox', username, mapId, function (error, result){
+
+         if (error) {
+         banner('error', error);
+         } else if (result) {
+         //console.log(result); //good for seeing what's in user's layerbox
+         receive_layers(result);
+         }
+
+         });
+         */
         /*Meteor.call('emptyLayerBox',username,mapId,function (error,result){})*/
-    }
+    };
+
+
 })(app);

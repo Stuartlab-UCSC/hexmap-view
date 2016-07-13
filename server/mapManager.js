@@ -5,8 +5,10 @@ var Fiber = Npm.require('fibers');
 var Future = Npm.require('fibers/future');
 var fs = Npm.require('fs');
 
-LayerPostOffice = new Mongo.Collection('LayerPostOffice');
+//LayerPostOffice = new Mongo.Collection('LayerPostOffice');
 ManagerFileCabinet = new Mongo.Collection('ManagerFileCabinet');
+LayerPostOffice = new Mongo.Collection('LayerPostOffice');
+
 initManagerHelper();
 
 
@@ -186,6 +188,7 @@ Meteor.methods({
     }
 });
 
+/*
 Meteor.methods({
     checkLayerBox: function (userId, MapId) {
         //TODO, this should be done via publish and subscribe, not by calling a server function as is
@@ -199,6 +202,18 @@ Meteor.methods({
 
         return future.wait();
     }
+});
+*/
+
+Meteor.publish('userLayerBox', function(userId, currMapId) {
+    if(!this.userId) { return this.ready() }
+
+    //this.changed(LayerPostOffice,LayerPostOffice.findOne({user: userId, toMapId: currMapId})._id) };
+
+    console.log('mapManager: published user specific LayerBox: UserId,currMap:', userId, currMapId);
+    LayerBoxCursor = LayerPostOffice.find({user: userId, toMapId: currMapId}); //must be cursor
+
+    return LayerBoxCursor;
 });
 
 Meteor.publish('reflectionToMapIds', function(currMapId) {
