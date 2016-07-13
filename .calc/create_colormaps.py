@@ -27,8 +27,29 @@ def MidSort(lst):	#http://www.8bitrobot.com/media/uploads/2011/09/colorgen.txt
 	ret.extend(interleaved)
 	return ret
 
-def color_gen(num):	#http://www.8bitrobot.com/media/uploads/2011/09/colorgen.txt
+def color_brew_8_1(num):
+	# http://colorbrewer2.org Qualitative, 9-class Set1, minus the grey
+	cols = [
+		'e41a1c', '377eb8', '4daf4a', '984ea3', 'ff7f00', '#ffff33', 'a65628', 'f781bf'
+	]
+	return cols[:num]
+
+def color_brew_11_3(num):
+	# http://colorbrewer2.org Qualitative, 12-class Set3, minus the grey
+	cols = [
+		'8dd3c7', 'ffffb3', 'bebada', 'fb8072', '80b1d3', 'fdb462', 'b3de69', 'fccde5', 'bc80bd', 'ccebc5', 'ffed6f'
+	]
+	return cols[:num]
+
+def color_gen(numIn, method):	#http://www.8bitrobot.com/media/uploads/2011/09/colorgen.txt
+
+	if method == '11_3' and numIn < 12:
+		return color_brew_11_3(numIn)
+	elif method == '8_1' and numIn < 8:
+		return color_brew_8_1(numIn)
+
 	# Build list of points on a line (0 to 255) to use as color 'ticks'
+	num = numIn + 1
 	max = 255
 	segs = int(num**(Decimal("1.0")/3))
 	step = int(max/segs)
@@ -52,7 +73,7 @@ def color_gen(num):	#http://www.8bitrobot.com/media/uploads/2011/09/colorgen.txt
 					if c not in colors:
 						colors.append(c)
 						total += 1
-	return colors
+	return colors[1:]
 
 def main():
 	parser = optparse.OptionParser()
@@ -91,11 +112,11 @@ def main():
 			a_vals.remove('')
 		if 'NA' in a_vals:
 			a_vals.remove('NA')
-		
-		cols = []
+
 		#cols = get_spaced_colors(len(a_vals)+1)
-		cols = color_gen(len(a_vals)+1)
-		cols = cols[1:]	#first color returned is always black, just removing it for right now, might utilize later
+		cols = color_gen(len(a_vals), 'orig')
+		#cols = color_gen(len(a_vals), '11_3')
+		#cols = color_gen(len(a_vals), '8_1')
 		#print a
 		#print a_vals
 		#print cols

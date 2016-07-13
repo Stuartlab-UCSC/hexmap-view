@@ -54,7 +54,7 @@ with_layer = function (layer_name, callback) {
     var layer = layers[layer_name];
 
         if (layer == undefined) {
-            console.log('TODO layer is undefined for', layer_name, '. This should not happen if state is correct');
+            console.log('TODO layer is undefined for', layer_name, '. State is probably corrupted so clear your browser cache.');
             return true;
         }
 		var data_val = layer.data;

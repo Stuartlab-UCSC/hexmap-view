@@ -1,5 +1,5 @@
-Python API
-==========
+Python API, internal
+====================
 
 The server initiates calls to python scripts, while the python script is a
 responder to the server's requests.

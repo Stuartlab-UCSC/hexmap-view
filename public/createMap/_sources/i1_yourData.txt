@@ -26,6 +26,6 @@ These should be tab-separated values containing attribute labels across the top
 with sample IDs as the first column, like::
 
  ID   Subtype   TP63_ mutated   Apoptosis   ...
- S1   1         0               45
- S2   3         1               40
+ S1   LumB      0               45
+ S2   Basal     1               40
  ...
