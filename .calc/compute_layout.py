@@ -19,6 +19,22 @@ import time
 VALID_METHODS = ['tsne', 'pca', 'isomap', 'mds', 'spectralembedding', 'ica']
 N_NEIGHBORS = 6
 
+def parse_args(args):
+	args = args[1:]
+	parser = argparse.ArgumentParser(description=__doc__, 
+		formatter_class=argparse.RawDescriptionHelpFormatter)
+
+	parser.add_argument("--in_file", type=str,
+		help="input file name (matrix formatted genomic data)")
+	parser.add_argument("--method", type=int, default=6,
+		help="layout method")
+	parser.add_argument("--log",type=str, default="",
+		help="if not specified or an empty value then no log file is created")
+	parser.add_argument("--out_file", type=str,
+		help="output file name")		
+   
+	return parser.parse_args(args)	
+
 def read_tabular(input_file, numeric_flag):
 	'''data = open(input_file, 'r')
 	line = data.readline()
@@ -143,15 +159,11 @@ def ICA(dt):
 	ica = sklearn.decomposition.FastICA(n_components=2)
 	return(ica.fit_transform(dt))
 
-def main():
+def main(args):
 	start_time = time.time()
 	
-	parser = optparse.OptionParser()
-	parser.add_option("--in_file", dest="in_file", action="store", default="", help="")
-	parser.add_option("--method", dest="method", action="store", default="", help="")
-	parser.add_option("--out_file", dest="out_file", action="store", default="", help="")
-	parser.add_option("--log", dest="log", action="store", default="", help="")
-	opts, args = parser.parse_args()
+	sys.stdout.flush()
+	opts = parse_args(args)	
 	
 	#process input arguments:
 	in_file = opts.in_file

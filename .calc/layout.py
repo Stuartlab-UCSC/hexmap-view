@@ -41,6 +41,9 @@ from compute_layout import computeICA
 from compute_layout import computeSpectralEmbedding
 from compute_sparse_matrix import read_coordinates
 from sklearn import preprocessing
+from create_colormaps import create_colormaps_file
+from create_colormaps import cat_files
+from convert_annotation_to_tumormap_mapping import convert_attributes_colormaps_mapping
 
 def parse_args(args):
     """
@@ -1077,7 +1080,7 @@ def drl_similarity_functions(matrix, index, options):
     print timestamp(), "DrL: Restoring names..."
     sys.stdout.flush()
     if options.drlpath:
-        subprocess.check_call(["recoord", drl_basename], env={"PATH": options.drlpath}) 
+        subprocess.check_call(["recoord", drl_basename], env={"PATH": options.drlpath})
     else:
         subprocess.check_call(["recoord", drl_basename]) 
         
@@ -1341,7 +1344,33 @@ def hexIt(options):
         options.metric = [val for sublist in options.metric for val in sublist]
     if not (options.coordinates == None):
         options.coordinates = [val for sublist in options.coordinates for val in sublist]
-
+    
+    #if no colormaps file is specified then assume it needs to be created and annotations need to be converted to tumor map mappings:
+    if options.colormaps == None:
+        new_score_files = []
+        combine_files = []
+        for i, attribute_filename in enumerate(options.scores):
+            #create colormaps file for each attributes/score file:
+            create_colormaps_file(options.scores[i], os.path.join(options.directory, 'colormaps_' + str(i) + '.tab'))
+            print "finished creating colormaps"
+            combine_files.append(os.path.join(options.directory, 'colormaps_' + str(i) + '.tab'))
+            #convert the atributes/scores file to the tumor map numeric mappings:
+            convert_attributes_colormaps_mapping(in_colormap=os.path.join(options.directory, 'colormaps_' + str(i) + '.tab'), in_attributes=options.scores[i], filter_attributes_flag='F', output=os.path.join(options.directory, 'tm_converted_attributes_' + str(i) + '.tab'))
+            print "finished converting annotations"
+            #store the new mapped file for the downstream code to use to build the map(s):
+            new_score_files.append(os.path.join(options.directory, 'tm_converted_attributes_' + str(i) + '.tab'))
+            
+        options.scores = new_score_files
+        #combine the colormaps files into a single file:
+        #print "rolling all colormaps into "+os.path.join(options.directory, 'colormaps_all.tab')
+        cat_files(";".join(combine_files), os.path.join(options.directory, 'colormaps_all.tab'))
+        options.colormaps = os.path.join(options.directory, 'colormaps_all.tab')
+        #options.colormaps = os.path.join(options.directory, 'colormaps_0.tab')
+        #print "options.scores:"
+        #print options.scores
+        #print "options.colormaps:"
+        #print options.colormaps
+    
     # Set some global context values
     ctx.extract_coords = extract_coords
     ctx.timestamp = timestamp

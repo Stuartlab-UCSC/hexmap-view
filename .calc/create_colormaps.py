@@ -8,6 +8,17 @@ import sys, os, optparse, colorsys, math, itertools
 import numpy as np
 from decimal import *
 
+def parse_args(args):
+	args = args[1:]
+	parser = argparse.ArgumentParser(description=__doc__, 
+		formatter_class=argparse.RawDescriptionHelpFormatter)
+
+	parser.add_argument("--in_attributes", type=str,
+		help="attributes table file")
+	parser.add_argument("--out_file", type=str,
+		help="output file name")		
+   
+	return parser.parse_args(args)	
 
 def get_spaced_colors(n):	#appropriated someone else's implementation from the StockOverflow (need to place the URL here)
 	max_value = 16581375 #255**3
@@ -54,16 +65,7 @@ def color_gen(num):	#http://www.8bitrobot.com/media/uploads/2011/09/colorgen.txt
 						total += 1
 	return colors
 
-def main():
-	parser = optparse.OptionParser()
-	parser.add_option("--in_attributes", dest="in_attributes", action="store", default="", help="")
-	parser.add_option("--out_file", dest="out_file", action="store", default="", help="")
-	opts, args = parser.parse_args()
-	
-	#process input arguments:
-	in_attributes = opts.in_attributes
-	out_file = opts.out_file
-
+def create_colormaps_file(in_attributes, out_file):
 	#read input file (tabular attributes file):
 	input = open(in_attributes, "r")
 	line_num = 1
@@ -96,9 +98,7 @@ def main():
 		#cols = get_spaced_colors(len(a_vals)+1)
 		cols = color_gen(len(a_vals)+1)
 		cols = cols[1:]	#first color returned is always black, just removing it for right now, might utilize later
-		#print a
-		#print a_vals
-		#print cols
+
 		
 		colormaps_line = a
 		a_vals = list(a_vals)
@@ -111,7 +111,38 @@ def main():
 			colormaps_line = colormaps_line  + "\t" + str(a_v_i) + "\t" + a_v_v + "\t#" + a_v_c_hex.upper()
 			
 		print >> output, colormaps_line
+
+def cat_files(inputs, out_file):
+	input_files = inputs.split(";")
+	output = open(out_file, "w")
+	for f in input_files:
+		input = open(f, "r")
+		for line in input:
+			output.write(line)
+			#print >> output, line.strip()
+		input.close()
+	output.close()
+
+def main(args):
+	sys.stdout.flush()
+	opts = parse_args(args)
+	
+	#process input arguments:
+	in_attributes = opts.in_attributes
+	out_file = opts.out_file
+
+	create_colormaps_file(in_attributes, out_file)
 		
 	output.close()
-	
-main()
+
+if __name__ == "__main__" :
+	try:
+		# Get the return code to return
+		# Don't just exit with it because sys.exit works by exceptions.
+		return_code = main(sys.argv)
+	except:
+		#traceback.print_exc()
+		# Return a definite number and not some unspecified error code.
+		return_code = 1
+		
+	sys.exit(return_code)
