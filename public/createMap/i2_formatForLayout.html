@@ -101,7 +101,9 @@ export PATH=$DRL:$PATH
 </div>
 <div class="section" id="remove-single-value-attributes-py">
 <h2>remove_single_value_attributes.py<a class="headerlink" href="#remove-single-value-attributes-py" title="Permalink to this headline">¶</a></h2>
-<p>This will remove any attribute columns where all the values are identical.</p>
+<p>This is optional and will remove any attribute columns that are empty or
+where all the values are identical. This just makes finding useful attributes
+easier in the viewer.</p>
 <p>An example:</p>
 <div class="highlight-python"><div class="highlight"><pre><span></span>python2.7 $HEXMAP/.calc/remove_single_value_attributes.py \
    meta1_IDs_first.tab \

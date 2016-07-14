@@ -66,7 +66,9 @@ Where:
 remove_single_value_attributes.py
 ---------------------------------
 
-This will remove any attribute columns where all the values are identical.
+This is optional and will remove any attribute columns that are empty or
+where all the values are identical. This just makes finding useful attributes
+easier in the viewer.
 
 An example::
 
