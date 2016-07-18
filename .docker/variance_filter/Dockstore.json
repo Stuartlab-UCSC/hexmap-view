@@ -1,0 +1,11 @@
+{
+  "filter_level": 0.2,
+  "out_file": {
+    "path": "/tmp/output.tsv",
+    "class": "File"
+  },
+  "in_file": {
+    "path": "",
+    "class": "File"
+  }
+}
