@@ -6,6 +6,7 @@
 
 # Use ubuntu
 FROM ubuntu:14.04
+FROM continuumio/anaconda
 
 MAINTAINER Yulia Newton <ynewton@soe.ucsc.edu>
 
@@ -15,12 +16,14 @@ RUN apt-get -m update && apt-get install -y python wget unzip
 COPY filter_out_lowest_varying_genes.py /usr/local/bin/
 RUN chmod a+x /usr/local/bin/filter_out_lowest_varying_genes.py
 
-COPY test.tab /usr/local/
-RUN chmod a+r /usr/local/test.tab
+COPY input.tab /usr/local/
+RUN chmod a+r /usr/local/input.tab
+
+RUN chmod -R a+w /usr/local/
 
 # switch back to the ubuntu user so this tool (and the files written) are not owned by root
 RUN groupadd -r -g 1000 ubuntu && useradd -r -g ubuntu -u 1000 ubuntu
 USER ubuntu
 
-#python2.7 filter_out_lowest_varying_genes.py --in_file input.tab --filter_level .2 --out_file test.tab
+RUN python /usr/local/bin/filter_out_lowest_varying_genes.py --in_file /usr/local/input.tab --filter_level .2 --out_file /usr/local/output.tab
 CMD ["/bin/bash"]

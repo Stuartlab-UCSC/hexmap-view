@@ -10,16 +10,16 @@ description: |
     Usage:
     # fetch CWL
     TODO
-    $> dockstore cwl --entry quay.io/briandoconnor/dockstore-tool-bamstats:1.25-3 > Dockstore.cwl
+    $> dockstore tool cwl --entry quay.io/hexmap_ucsc/hexagram_variance_filter:1.0 > Dockstore.cwl
     # make a runtime JSON template and edit it (or use the content of sample_configs.json in this git repo)
-    $> dockstore convert cwl2json --cwl Dockstore.cwl > Dockstore.json
+    $> dockstore tool convert cwl2json --cwl Dockstore.cwl > Dockstore.json
     # run it locally with the Dockstore CLI
-    $> dockstore launch --entry quay.io/briandoconnor/dockstore-tool-bamstats:1.25-3 \
+    $> dockstore tool launch --entry quay.io/hexmap_ucsc/hexagram_variance_filter:1.0 \
         --json Dockstore.json
     ```
 
 dct:creator:
-  "@id": "http://orcid.org/TODO/"
+  "@id": "http://orcid.org/0000-0002-6874-4335/"
   foaf:name: Yulia Newton
   foaf:mbox: "mailto:yulia.newton@gmail.com"
 
@@ -37,15 +37,15 @@ hints:
 inputs:
   - id: "#in_file"
     type: File
-    description: "input file in matrix forma (genomic matrix)"
+    description: "input file in matrix format (genomic matrix)"
     inputBinding:
       position: 1
       prefix: "--in_file"
 
   - id: "#filter_level"
-    type: float
-    default: .2
-    description: "Proportion of samples with lowest variance to filter out"
+    type: string
+    default: "0.2"
+    description: "Proportion of genes with lowest variance to filter out"
     inputBinding:
       position: 2
       prefix: "--filter_level"
@@ -57,4 +57,4 @@ outputs:
       glob: output.tsv
     description: "A tsv file that contains filtered version of the input matrix."
 
-baseCommand: ["/bin/bash", "/usr/local/bin/filter_out_lowest_varying_genes.py", "--out_file", "output.tsv"]
+baseCommand: ["/opt/conda/bin/python", "/usr/local/bin/filter_out_lowest_varying_genes.py", "--out_file", "output.tsv"]
