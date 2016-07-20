@@ -1346,7 +1346,7 @@ def hexIt(options):
         options.coordinates = [val for sublist in options.coordinates for val in sublist]
     
     #if no colormaps file is specified then assume it needs to be created and annotations need to be converted to tumor map mappings:
-    if options.colormaps == None:
+    if options.colormaps == None and not(options.scores == None):    #if attributes are not specified then there's no colormaps to create
         new_score_files = []
         combine_files = []
         for i, attribute_filename in enumerate(options.scores):
@@ -1355,7 +1355,7 @@ def hexIt(options):
             print "finished creating colormaps"
             combine_files.append(os.path.join(options.directory, 'colormaps_' + str(i) + '.tab'))
             #convert the atributes/scores file to the tumor map numeric mappings:
-            convert_attributes_colormaps_mapping(in_colormap=os.path.join(options.directory, 'colormaps_' + str(i) + '.tab'), in_attributes=options.scores[i], filter_attributes_flag='F', output=os.path.join(options.directory, 'tm_converted_attributes_' + str(i) + '.tab'))
+            convert_attributes_colormaps_mapping(in_colormap=os.path.join(options.directory, 'colormaps_' + str(i) + '.tab'), in_attributes=options.scores[i], filter_attributes_flag=False, output=os.path.join(options.directory, 'tm_converted_attributes_' + str(i) + '.tab'))
             print "finished converting annotations"
             #store the new mapped file for the downstream code to use to build the map(s):
             new_score_files.append(os.path.join(options.directory, 'tm_converted_attributes_' + str(i) + '.tab'))
@@ -1370,6 +1370,13 @@ def hexIt(options):
         #print options.scores
         #print "options.colormaps:"
         #print options.colormaps
+    
+    if len(options.first_attribute) == 0:    #first attribute is not specified; just use the first attribute in the first file
+        if not(options.scores == None):    #maybe it was not specified because there are no attributes
+            with open(options.scores[0], 'r') as f:
+                first_line_elems = f.readline().split("\t")
+                options.first_attribute = first_line_elems[1]
+    print "Setting first attribute to " + options.first_attribute
     
     # Set some global context values
     ctx.extract_coords = extract_coords

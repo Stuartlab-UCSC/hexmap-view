@@ -7,6 +7,7 @@
 import sys, os, optparse, colorsys, math, itertools
 import numpy as np
 from decimal import *
+import re
 
 def parse_args(args):
 	args = args[1:]
@@ -114,22 +115,29 @@ def create_colormaps_file(in_attributes, out_file):
 			a_vals.remove('')
 		if 'NA' in a_vals:
 			a_vals.remove('NA')
-
-		#cols = get_spaced_colors(len(a_vals)+1)
-		cols = color_gen(len(a_vals), 'orig')
-		colormaps_line = a
-		a_vals = list(a_vals)
-		for a_v_i in range(len(a_vals)):
-			#a_v_c = cols[a_v_i]
-			#a_v_c_hex = '#%02x%02x%02x' % a_v_c	#this trick is from http://stackoverflow.com/questions/3380726/converting-a-rgb-color-tuple-to-a-six-digit-code-in-python
+		
+		#figure out the type of the variable and only create mapping for categorical variables:
+		#if all(type(x)==int or type(x)==float or type(x)==long for x in a_vals):	#variable is continuous
+		if len(a_vals) == 2 and all((x == "1" or x == "0") for x in a_vals):	#variable is binary
+			print a +" attribute is treated as binary"
+		elif all(re.match( '^[-+]?(([0-9]+([.][0-9]*)?)|(([0-9]*[.])?[0-9]+))$', x) for x in a_vals):
+			print a + " attribute is treated as continuous"
+		else:	#convert
+			#cols = get_spaced_colors(len(a_vals)+1)
+			cols = color_gen(len(a_vals), 'orig')
+			colormaps_line = a
+			a_vals = list(a_vals)
+			for a_v_i in range(len(a_vals)):
+				#a_v_c = cols[a_v_i]
+				#a_v_c_hex = '#%02x%02x%02x' % a_v_c	#this trick is from http://stackoverflow.com/questions/3380726/converting-a-rgb-color-tuple-to-a-six-digit-code-in-python
 			
-			a_v_c_hex = cols[a_v_i]
-			a_v_v = a_vals[a_v_i]
-			colormaps_line = colormaps_line  + "\t" + str(a_v_i) + "\t" + a_v_v + "\t#" + a_v_c_hex.upper()
+				a_v_c_hex = cols[a_v_i]
+				a_v_v = a_vals[a_v_i]
+				colormaps_line = colormaps_line  + "\t" + str(a_v_i) + "\t" + a_v_v + "\t#" + a_v_c_hex.upper()
 			
 		print >> output, colormaps_line
 
-def cat_files(inputs, out_file):
+def cat_files(inputs, out_file):	#concatenate multiple colormaps files
 	input_files = inputs.split(";")
 	output = open(out_file, "w")
 	for f in input_files:
