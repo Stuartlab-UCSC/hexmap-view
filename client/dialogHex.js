@@ -21,7 +21,7 @@ var app = app || {}; // jshint ignore:line
 
             // TODO This should bring up the help doc in another window
             // scrolled to the specific anchor.
-            alert('Sorry, no help here yet for "' + opts.title + '"');
+            alert('Sorry, no help here yet.');
         }
 
         DialogHex.prototype.initHelp = function () {
@@ -59,7 +59,7 @@ var app = app || {}; // jshint ignore:line
             .find('span').hide();
 
             if (this.helpAnchor) {
-                //this.initHelp(); // TODO turn this on when we have help
+                this.initHelp();
             }
  
             if (this.showFx) {
@@ -123,6 +123,7 @@ var app = app || {}; // jshint ignore:line
          * @param opts: overrides of this class' jquery-ui dialog options
          * @param showFx: called after the show function of this class
          * @param hideFx: called to destroy the jqueryui dialog
+         * @param buttonInitialized: trigger button has already been initialized
          * @param helpAnchor: the html anchor in the user help doc
          */
         var instance = new DialogHex($el, opts, showFx, hideFx, helpAnchor);

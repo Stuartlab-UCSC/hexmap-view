@@ -1,110 +1,193 @@
 
-
-.gridPage .stacker {
-    line-height: 2.1em;
+#navBar {
+    width: 100%;
+    display: inline-block;
 }
 
-.cyber-slug {
-    height: 30px;
-    margin-top: 0.1em;
-    margin-right:0.5em;
+#navBar * {
+    z-index: 2000;
 }
 
-.title {
-    font-size: 1.2em;
-    font-weight: bold;
-    margin-left: 0;
-    padding-right: 0.5em;
-    padding-top: 0.5em;
-    line-height: 1em;
+#navBar a {
+    text-decoration: none;
+    color: black;
 }
 
-#project,
-#s2id_project {
-    width: 15em;
+#navBar > ul {
+    width: 100%;
+    color: white;
 }
 
-#menus {
-    display: none;
-    margin-left: 1em;
-}
-
-#menus.ui-widget.ui-menu,
-#selectMenu.ui-widget.ui-menu,
-#helpMenu.ui-widget.ui-menu {
-    height: 100%;
-    font-size: 0.8em;
-    line-height: 2.2em;
-    border: none;
-}
-
-#menus .ui-widget.ui-menu,
-#selectMenu .ui-widget.ui-menu,
-#helpMenu .ui-widget.ui-menu {
-    border: none;
-    padding: 0;
-    margin: 0;
+#navBar > ul li {
     z-index: 200;
+}
+
+#navBar ul {
+    margin: 0;
+    padding: 0;
     box-shadow: 4px 4px 4px #aaaaaa;
 }
 
+#navBar li {
+    float: left;
+    position: relative;
+    list-style: none;
+    padding: 0.3em 0.5em;
+}
 
-#helpMenu {
+#navBar li.disabled,
+#navBar .tutorials {
+    color: grey;
+}
+
+#navBar > ul > li {
+    width: 4em;
+}
+
+#navBar .cyber-slug {
+    height: 2.3em;
+    padding-left: 0.4em;
+    padding-right: 0.3em;
+    padding-top: 0.2em;
+    padding-bottom: 0.2em;
+    margin-bottom: -1em;
+    float: left;
+}
+
+#navBar > ul > li.home {
+    width: 5em;
+    margin-left: 2em;
+}
+
+#navBar > ul > li.selectMenu {
     width: 5em;
 }
 
-#helpMenu ul {
-    width: 11em;
+#navBar > ul > li:hover,
+#navBar #login-buttons:hover {
+    color: black;
 }
 
-#menus .ui-menu-item a {
-    padding-left: 0.7em;
+#navBar ul.file li {
+    width: 6em;
 }
 
-.ui-widget .ui-menu-item {
-    border: none;
-    cursor: pointer;
+#navBar ul.download li {
+    width: 6.5em;
 }
 
-.ui-widget .ui-menu-item.primary {
-    padding: 0.65em;
+#navBar ul.edit li {
+    width: 9.5em;
 }
 
-.ui-widget .ui-menu-item.ui-state-focus:not(.primary) {
-    background: #cccccc;
+#navBar ul.select li {
+    width: 7em;
 }
 
-.menu-more.ui-icon.ui-icon-triangle-1-s {
-    display: inline-block;
-    vertical-align: middle;
-    margin-left: -0.3em;
+#navBar ul.view li,
+#navBar ul.data li {
+    width: 8em;
 }
 
-#menus .primary .ui-icon-blank {
-    display: none;
+#navBar .tutorials,
+#navBar li.help li {
+    width: 9em;
 }
 
-.ui-menu .ui-icon.vertical {
-    position: static;
-}
-
-.selectMenuLabel {
+#navBar li.login {
+    color: white;
+    float: right;
+    width: 18em;
     font-size: 1em;
-    padding-top: 0.2em;
-    padding-left: 4em;
-}
-
-.login.stacker.right {
-    font-size: 1em;
-    margin-right: 8em;
     padding-top: 0.2em;
     padding-left: 0.5em;
     padding-right: 0.5em;
 }
 
-#login-buttons a,
-.accounts-dialog a {
-    text-decoration: none;
+#navBar li.login,
+#navBar li.login a.login-link-text {
+    color: white;
+}
+
+#navBar li.login:hover,
+#navBar li.login:hover a.login-link-text {
+    color: black;
+    background: white;
+}
+
+#navBar * {
+    cursor: pointer;
+}
+
+#navBar .disabled,
+#navBar .tutorials,
+#navBar .version,
+#navBar .cyber-slug,
+#navBar .login,
+#navBar .login * {
+    cursor: auto;
+}
+
+#navBar #login-buttons,
+#navBar .login-form-sign-in,
+#navBar .login-link-text {
+    cursor: pointer;
+}
+
+#navBar ul ul {
+    position: absolute;
+    left: 0;
+    top: 100%;
+    visibility: hidden;
+    color: black;
+}
+
+#navBar ul ul ul {
+    left: 100%;
+    top: 0;
+}
+
+#navBar hr {
+    margin: 0;
+}
+
+#navBar ul ul,
+#navBar li:hover,
+#navBar li:hover li {
+    background: #ddd;
+}
+
+#navBar li:hover > ul {
+    visibility: visible;
+}
+
+#navBar li li:hover,
+#navBar li li:hover li{
+    background: #bbb;
+}
+
+#navBar li li.disabled:hover,
+#navBar li li:hover li.disabled {
+    background: #ddd;
+}
+
+#navBar li:hover hr,
+#navBar li:hover li.tutorial,
+#navBar li:hover li.version {
+    background: #ddd;
+}
+
+#navBar li li li:hover:not(.disabled) {
+    background: #999;
+}
+
+.gridPage .stacker {
+    line-height: 2.1em;
+}
+
+#project,
+#s2id_project {
+    width: 15em;
 }
 
 #banner.row {

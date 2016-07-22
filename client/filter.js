@@ -372,6 +372,12 @@ var app = app || {}; // jshint ignore:line
         // Create an instance of DialogHex
         dialogHex = createDialogHex($button, $dialog, {title: TITLE},
             show, hide);
+ 
+        // Create a link from the navBar
+        add_tool("filterAttributes", function(ev) {
+            $button.click();
+            tool_activity(false);
+        }, 'Filter attributes');
     }
 })(app);
 

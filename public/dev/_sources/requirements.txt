@@ -45,7 +45,9 @@ Install::
  make
  ls ../bin
 
-(TODO:  check this in somehow with yulia's changes)
+Set your path to include the DrL binaries::
+
+ export PATH=./:DRL:$PATH
 
 
 Web application deployment
