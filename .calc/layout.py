@@ -1336,14 +1336,18 @@ def hexIt(options):
     #This is probably a bad way to do this but it was a quick and dirty way to store certain arguments as list and not list of lists
     if not (options.similarity == None):
         options.similarity = [val for sublist in options.similarity for val in sublist]
+        print "Using sparse similarity"
     if not (options.similarity_full == None):
         options.similarity_full = [val for sublist in options.similarity_full for val in sublist]
+        print "Using full similarity"
     if not (options.genomic == None):
         options.genomic = [val for sublist in options.genomic for val in sublist]
+        print "Using full genomic"
     if not (options.metric == None):
         options.metric = [val for sublist in options.metric for val in sublist]
     if not (options.coordinates == None):
         options.coordinates = [val for sublist in options.coordinates for val in sublist]
+        print "Using coordinates"
     
     #if no colormaps file is specified then assume it needs to be created and annotations need to be converted to tumor map mappings:
     if options.colormaps == None and not(options.scores == None):    #if attributes are not specified then there's no colormaps to create
@@ -1527,6 +1531,7 @@ def hexIt(options):
                 nodes_multiple.append (drl_similarity_functions(i, index, options))
 
     print "Opened matrices..."
+    print nodes_multiple
     #print len(nodes_multiple[0])
     #print nodes_multiple
     
@@ -1708,8 +1713,7 @@ def hexIt(options):
     clumpiness_scores = []
     
     if options.layout_method.upper() in ['TSNE', 'MDS', 'PCA', 'ICA', 'ISOMAP', 'SPECTRALEMBEDDING'] or not(options.coordinates == None):
-        clumpiness_scores = [collections.defaultdict(lambda: float("-inf")) 
-                        for _ in options.genomic]
+        clumpiness_scores = [collections.defaultdict(lambda: float("-inf")) for _ in options.coordinates]
     else:
         if len(layer_names) > 0 and options.clumpinessStats:
             # We want to do clumpiness scores. We skip it when there are no layers,

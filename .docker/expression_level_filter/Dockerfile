@@ -8,7 +8,7 @@
 # docker run -it -v `pwd`:/home/ubuntu quay.io/hexmap_ucsc/hexagram_expression_filter:1.0 /bin/bash
 
 # Use ubuntu
-FROM ubuntu:14.04
+#FROM ubuntu:14.04
 FROM continuumio/anaconda
 
 MAINTAINER Yulia Newton <ynewton@soe.ucsc.edu>
@@ -28,5 +28,5 @@ RUN chmod -R a+w /usr/local/
 RUN groupadd -r -g 1000 ubuntu && useradd -r -g ubuntu -u 1000 ubuntu
 USER ubuntu
 
-RUN python /usr/local/bin/filter_out_genes_unexpressed_in_most_samples.py --in_file /usr/local/mRNA_test.tab --proportion_unexpressed 0.8 --out_file /usr/local/output.tab
+#RUN python /usr/local/bin/filter_out_genes_unexpressed_in_most_samples.py --in_file /usr/local/mRNA_test.tab --proportion_unexpressed 0.8 --out_file /usr/local/output.tab
 CMD ["/bin/bash"]

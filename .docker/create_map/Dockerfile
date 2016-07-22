@@ -9,16 +9,27 @@
 
 # Use ubuntu
 FROM ubuntu:14.04
-FROM continuumio/anaconda
+#FROM continuumio/anaconda
 
 MAINTAINER Yulia Newton <ynewton@soe.ucsc.edu>
 
 USER root
 RUN apt-get -m update && apt-get install -y python wget unzip
-RUN apt-get install -qq build-essential
+#RUN apt-get install -qq build-essential
+
+RUN wget --quiet bash http://repo.continuum.io/archive/Anaconda2-4.1.1-Linux-x86_64.sh -O ~/anaconda.sh
+#RUN chmod a+x ~/anaconda.sh
+#RUN bash ~/anaconda.sh
+
+#RUN echo 'export PATH=/opt/conda/bin:$PATH' > /etc/profile.d/conda.sh && \
+#    wget --quiet https://repo.continuum.io/archive/Anaconda2-4.1.1-Linux-x86_64.sh -O ~/anaconda.sh && \
+#    /bin/bash ~/anaconda.sh -b -p /opt/conda && \
+#    rm ~/anaconda.sh
+#ENV PATH /opt/conda/bin:$PATH
 
 #get Tumor Map code:
 RUN git clone https://github.com/ucscHexmap/hexagram.git
+RUN cp /hexagram/server/statsLayer.py /hexagram/.calc/.
 RUN chmod a+x hexagram/.calc/*
 RUN chmod a+x hexagram/.bin/*
 
@@ -41,15 +52,16 @@ RUN chmod a+r /usr/local/mRNA_test.tab
 COPY test_attributes.tab /usr/local/
 RUN chmod a+r /usr/local/test_attributes.tab
 
-#COPY run_map /usr/local/
-#RUN chmod a+x run_map
+COPY run_map /usr/local/
+RUN chmod a+x /usr/local/run_map
 
 RUN chmod a+w /usr/local/
+RUN mkdir /usr/local/map/
+RUN chmod a+rw /usr/local/map/
+
 
 # switch back to the ubuntu user so this tool (and the files written) are not owned by root
 RUN groupadd -r -g 1000 ubuntu && useradd -r -g ubuntu -u 1000 ubuntu
 USER ubuntu
-
-#run map creation using a shell script
 
 CMD ["/bin/bash"]

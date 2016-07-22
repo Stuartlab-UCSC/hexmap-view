@@ -5,7 +5,7 @@
     "class": "File"
   },
   "in_file": {
-    "path": "https://raw.githubusercontent.com/ucscHexmap/hexagram/dev/.docker/variance_filter/mRNA_test.tab",
+    "path": "https://raw.githubusercontent.com/ucscHexmap/hexagram/dev/.docker/expression_level_filter/mRNA_test.tab",
     "class": "File"
   }
 }

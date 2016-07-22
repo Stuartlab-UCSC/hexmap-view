@@ -5,7 +5,7 @@ id: "ExpressionFilter"
 label: "ExpressionFilter tool"
 cwlVersion: cwl:draft-3
 description: |
-    A Docker container for the variance filter command. See https://github.com/ucscHexmap/hexagram/tree/dev/.calc/docker/expression_level_filter for more information.
+    A Docker container for the variance filter command. See https://github.com/ucscHexmap/hexagram/tree/dev/.docker/expression_level_filter for more information.
     ```
     Usage:
     # fetch CWL
@@ -16,6 +16,9 @@ description: |
     # run it locally with the Dockstore CLI
     $> dockstore tool launch --entry quay.io/briandoconnor/dockstore-tool-bamstats:1.25-3 \
         --json Dockstore.json
+        
+        Look at:
+        common-workflow-language
     ```
 
 dct:creator:
@@ -57,4 +60,4 @@ outputs:
       glob: output.tsv
     description: "A tsv file that contains filtered version of the input matrix."
 
-baseCommand: ["/opt/conda/bin/python", "/usr/local/bin/filter_out_genes_unexpressed_in_most_samples.py", "--out_file", "output.tsv"]
+baseCommand: ["python", "/usr/local/bin/filter_out_genes_unexpressed_in_most_samples.py", "--out_file", "output.tsv"]

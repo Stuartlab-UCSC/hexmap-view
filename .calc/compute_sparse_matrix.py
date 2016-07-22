@@ -89,7 +89,7 @@ def read_coordinates(input_file):	#assumes the first line is the column headers
 		if line_num > 1:
 			line_elems = line.strip().split("\t")
 			if len(line_elems) == 3:
-				coords.append([line_elems[1], line_elems[2]])
+				coords.append([float(line_elems[1]), float(line_elems[2])])
 				nodes.append(line_elems[0])
 		
 		line_num += 1
