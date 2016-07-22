@@ -41,8 +41,6 @@ var app = app || {}; // jshint ignore:line
     pageReload = function (page) {
         Session.set('page', page);
  
-        // Hide parts of the nav bar so it doesn't flash
-        $('#menus, .selectMenuLabel, #selectMenu').hide();
         queryFreeReload();
     }
 
@@ -70,6 +68,8 @@ var app = app || {}; // jshint ignore:line
 
     Template.homePage.onRendered(function () {
         initTools();
+        Meteor.setTimeout(initCreateMap, 100);
+        //initCreateMap();
     });
 
     Template.mapPage.onRendered(function () {
@@ -124,7 +124,7 @@ var app = app || {}; // jshint ignore:line
         // Set the initial map size and capture any resize window event so
         // the map gets resized too.
         var windowHt = $(window).height(),
-            navHt = $('#toolbar').height(),
+            navHt = $('#navBar').height(),
             headerHt = $('#header').height();
         $('#mapContent').height(windowHt - navHt - headerHt - 1);
         $('#gridContent').height(windowHt - navHt);
@@ -163,6 +163,7 @@ var app = app || {}; // jshint ignore:line
                 initColors();
                 initInfoWindow();
                 initSetOperations();
+                initCreateMap();
                 //initDiffAnalysis();
             }, 0);
         }
@@ -231,7 +232,7 @@ var app = app || {}; // jshint ignore:line
         setTimeout(function () { // The timeout allows the google libs to load
             resizeMap();
             $(window).resize(resizeMap);
-            $('#shortlist-holder').css('top', $('#toolbar').height());
+            $('#shortlist-holder').css('top', $('#navBar').height());
             ctx.center = centerToLatLng(ctx.center);
             Session.set('initedMapContainer', true);
         }, 0);
@@ -242,6 +243,7 @@ var app = app || {}; // jshint ignore:line
             $(window).resize(resizeMap);
             ctx.gridCenter = centerToLatLng(ctx.gridCenter);
             initGrid();
+            initCreateMap();
             
             // Resize the map to fill the available space
             Meteor.setTimeout(resizeMap, 0);

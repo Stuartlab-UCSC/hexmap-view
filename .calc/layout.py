@@ -152,7 +152,7 @@ def parse_args(args):
         help="deprecated, use --no-layout-aware-stats instead")
 
     a = parser.parse_args(args)
-    print "#ARGS",args, a, "raw",a.raw
+    print "Parameters after defaults applied" a
     return a
 
 def timestamp():

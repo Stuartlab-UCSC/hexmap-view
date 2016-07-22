@@ -411,7 +411,7 @@ var app = app || {}; // jshint ignore:line
 
     function selected (ev, ui) {
 
-        // This executes when one of the select toolbar buttons is pressed.
+        // This executes when one of the select navBar buttons is pressed.
         var tool = ui.item.data('sel');
  
         // Let the tool handler know this is active so another tool cannot be
@@ -441,11 +441,4 @@ var app = app || {}; // jshint ignore:line
         return findHexagonsInPolygon(googlemap.getBounds(), true)
     }
 
-    initSelect = function () {
-
-        var $menu = $('#selectMenu');
-        $menu.menu({
-            select: selected,
-        });
-    }
 })(app);

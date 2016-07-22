@@ -126,13 +126,15 @@ var app = app || {}; // jshint ignore:line
         // No need to add a tool twice
         if (callbacks[tool_name]) return;
 
-        // Add the hover text and class to the menu option belonging to this tool
-        $('#toolbar').find('[data-sel="tool_name"]')
-            .attr('title', hover_text)
-            .addClass(klass);
-
         // Save the callback
         callbacks[tool_name] = callback;
+
+        // Add the hover text and class to the menu option belonging to this tool
+        var id = '#navBar .' + tool_name
+        $(id)
+            .on('click', callbacks[tool_name])
+            .attr('title', hover_text)
+            .addClass(klass);
     }
 
     initLabelTool = function () {
@@ -177,7 +179,7 @@ var app = app || {}; // jshint ignore:line
                 // Cleanup: de-select ourselves.
                     tool_activity(false);
             });
-        }, 'Add text to the map', 'mapShow');
+        }, 'Add a label to the map', 'mapShow');
 
     }
  
@@ -185,6 +187,7 @@ var app = app || {}; // jshint ignore:line
  
         // Call the callback for this menu option click
         var tool = ui.item.data('sel');
+        console.log('tool', tool);
         if (callbacks[tool]) {
             callbacks[tool](ev);
         }
@@ -196,71 +199,55 @@ var app = app || {}; // jshint ignore:line
  
     initTools = function () {
  
-        // Initialize the toolbar/navbar.
+        // Initialize for the page we are on.
         if (Session.equals('page', 'homePage')) {
             $('body').find('.mapShow, .gridShow').hide();
             $('body').find('.homeShow').show();
+            if (!DEV) {
+                $('#navBar .fileMenu').hide();
+            }
             Session.set('loadingMap', false);
             $('body').css('overflow-y', 'auto');
  
         } else if (Session.equals('page', 'mapPage')) {
             $('body').find('.homeShow, .gridShow').hide();
             $('body').find('.mapShow').show();
-            $('.mapLayout').addClass('ui-state-disabled');
-            $('.methods').removeClass('ui-state-disabled');
-            initSelect();
-            $('.selectMenuLabel, #selectMenu').show();
+            $('.mapLayout').addClass('disabled');
+            $('.gridPage').removeClass('disabled');
             Session.set('loadingMap', true);
             $('body').css('overflow-y', 'hidden');
  
         } else if (Session.equals('page', 'gridPage')) {
             $('body').find('.homeShow, .mapShow').hide();
             $('body').find('.gridShow').show();
-            $('.mapLayout').removeClass('ui-state-disabled');
-            $('.methods').addClass('ui-state-disabled');
+            $('.mapLayout').removeClass('disabled');
+            $('.gridPage').addClass('disabled');
             Session.set('loadingMap', true);
             $('body').css('overflow-y', 'hidden');
         }
  
-        // TODO keep the dev features out of production for now
-        if (!DEV) {
-            $('#toolbar .overlayNode').hide();
-            $('#reflectTrigger').hide();
+        // TODO keep the dev features out of production
+        if (DEV) {
+            $('#navBar .overlayNode, #navBar .createMap, #navBar .tutorials')
+                .addClass('disabled');
+        } else {
+            $('#navBar .overlayNode, #navBar .createMap, #navBar .tutorials')
+                .hide();
         }
  
         // Set up the link to the map page
-        add_tool("hexMap", function() {
-            $('.mapPage').click();
-            tool_activity(false);
-        });
+        add_tool("mapLayout", function(ev) {
+            if (!$(ev.target).hasClass('disabled')) {
+                $('.mapPage').click();
+                tool_activity(false);
+            }
+        }, 'Main map page');
  
         // Set up the link to the home page
-        add_tool("home", function() {
+        add_tool("home", function(ev) {
             $('.homePage').click();
             tool_activity(false);
         });
- 
-        // Create a link to the methods
-        add_tool("methods", function() {
-            $('.gridPage').click();
-            tool_activity(false);
-        });
- 
-        $('#menus')
-            .menu({
-                position: { my: "left top", at: "left bottom-7" },
-                icons: { submenu: "ui-icon-blank" },
-                select: selected,
-            })
-            .show();
-        $('#helpMenu')
-            .menu({
-                position: { my: "left top", at: "left bottom-7" },
-                icons: { submenu: "ui-icon-blank" },
-                select: selected,
-                position: { my: "right top", at: "right+60 bottom" },
-            })
-            .show();
     }
 })(app);
 

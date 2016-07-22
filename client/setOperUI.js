@@ -301,6 +301,15 @@ var app = app || {}; // jshint ignore:line
 
     function create_set_operation_pick_list(value,layer_object) {
 
+ 
+        // Create a link to the methods
+        add_tool("methods", function(ev) {
+            if (!$(ev.target).hasClass('disabled')) {
+                $('.gridPage').click();
+                tool_activity(false);
+            }
+        }, 'Map of nodes before final layout');
+
         // We must create a drop down containing the data values for the selected
         // layer.
 
@@ -371,6 +380,12 @@ var app = app || {}; // jshint ignore:line
             }		
         
         });
+ 
+        // Create a link from the navBar
+        add_tool("setOperations", function(ev) {
+            $('#set-operation').click();
+            tool_activity(false);
+        }, 'Calculate set operation');
         
         // Computation of Set Operations
         var compute_button = document.getElementsByClassName ("compute-button");
