@@ -8,23 +8,19 @@
 # docker run -it -v `pwd`:/home/ubuntu quay.io/hexmap_ucsc/hexagram_create_map:1.0 /bin/bash
 
 # Use ubuntu
-FROM ubuntu:14.04
-#FROM continuumio/anaconda
+#FROM ubuntu:14.04
+# Use anaconda docker image:
+FROM continuumio/anaconda
 
 MAINTAINER Yulia Newton <ynewton@soe.ucsc.edu>
 
 USER root
-RUN apt-get -m update && apt-get install -y python wget unzip
-#RUN apt-get install -qq build-essential
+RUN apt-get -m update && apt-get install -y python wget unzip && apt-get install -qq vim && apt-get install -qq build-essential
 
-RUN wget --quiet bash http://repo.continuum.io/archive/Anaconda2-4.1.1-Linux-x86_64.sh -O ~/anaconda.sh
+#Below is my attempt at installing anaconda on ubuntu; didn't get it to work successfully yet; if used need to uncomment from ubuntu and comment from anaconda:
+#RUN wget --quiet bash http://repo.continuum.io/archive/Anaconda2-4.1.1-Linux-x86_64.sh -O ~/anaconda.sh
 #RUN chmod a+x ~/anaconda.sh
-#RUN bash ~/anaconda.sh
-
-#RUN echo 'export PATH=/opt/conda/bin:$PATH' > /etc/profile.d/conda.sh && \
-#    wget --quiet https://repo.continuum.io/archive/Anaconda2-4.1.1-Linux-x86_64.sh -O ~/anaconda.sh && \
-#    /bin/bash ~/anaconda.sh -b -p /opt/conda && \
-#    rm ~/anaconda.sh
+#RUN usr/local/bin/bash ~/anaconda.sh -b -p /opt/conda
 #ENV PATH /opt/conda/bin:$PATH
 
 #get Tumor Map code:
@@ -55,13 +51,12 @@ RUN chmod a+r /usr/local/test_attributes.tab
 COPY run_map /usr/local/
 RUN chmod a+x /usr/local/run_map
 
-RUN chmod a+w /usr/local/
+RUN chmod -R a+w /usr/local/
 RUN mkdir /usr/local/map/
 RUN chmod a+rw /usr/local/map/
 
-
 # switch back to the ubuntu user so this tool (and the files written) are not owned by root
-RUN groupadd -r -g 1000 ubuntu && useradd -r -g ubuntu -u 1000 ubuntu
-USER ubuntu
+#RUN groupadd -r -g 1000 ubuntu && useradd -r -g ubuntu -u 1000 ubuntu
+#USER ubuntu
 
 CMD ["/bin/bash"]

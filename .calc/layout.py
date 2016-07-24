@@ -152,7 +152,8 @@ def parse_args(args):
         help="deprecated, use --no-layout-aware-stats instead")
 
     a = parser.parse_args(args)
-    print "Parameters after defaults applied" a
+    print "Parameters after defaults applied"
+    print a
     return a
 
 def timestamp():
@@ -1712,7 +1713,8 @@ def hexIt(options):
     # layout.
     clumpiness_scores = []
     
-    if options.layout_method.upper() in ['TSNE', 'MDS', 'PCA', 'ICA', 'ISOMAP', 'SPECTRALEMBEDDING'] or not(options.coordinates == None):
+    if not(options.coordinates == None):
+        #options.layout_method.upper() in ['TSNE', 'MDS', 'PCA', 'ICA', 'ISOMAP', 'SPECTRALEMBEDDING'] or 
         clumpiness_scores = [collections.defaultdict(lambda: float("-inf")) for _ in options.coordinates]
     else:
         if len(layer_names) > 0 and options.clumpinessStats:
