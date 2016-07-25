@@ -70,14 +70,12 @@ def read_tabular(input_file, numeric_flag):
 def read_tabular2(input_file, numeric_flag):	#YN 20160629, a faster (still TBD) version of the above function but doesn't do invalid value conversion
 	with open(input_file,'r') as f:
 		lines = [l.rstrip('\n').split('\t') for l in f]
-
 	col_headers = lines[0][1:]
 	row_headers = [l[0] for l in lines[1:]]
 	if numeric_flag:
 		dt = [map(float,l[1:]) for l in lines[1:]]
 	else:
 		dt = [l[1:] for l in lines[1:]]
-
 	return (dt, col_headers, row_headers)
 
 def read_coordinates(input_file):	#assumes the first line is the column headers
@@ -125,11 +123,11 @@ def compute_similarities(dt, sample_labels, metric_type, num_jobs, output_type, 
 	print "Resulting similarity matrix: "+str(len(x_corr))+" x "+str(len(x_corr[0]))
 	if not(log == None):
 		print >> log, str(time.time() - curr_time) + " seconds"
-		
 	if not(log == None):
 		print >> log, "Outputting "+output_type.lower()+" matrix..."
 	curr_time = time.time()
 	output = ""
+	print output_type
 	if output_type == "SPARSE":
 		for i in range(len(x_corr)):
 			sample_dict = dict(zip(sample_labels, x_corr[i]))
@@ -145,7 +143,6 @@ def compute_similarities(dt, sample_labels, metric_type, num_jobs, output_type, 
 		for i in range(len(x_corr)):
 			value_str = [str(x) for x in x_corr[i]]
 			output = output + sample_labels[i]+"\t"+"\t".join(value_str) + "\n"
-			
 	if not(log == None):
 		print >> log, str(time.time() - curr_time) + " seconds"
 	return(output)

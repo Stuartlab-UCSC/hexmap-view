@@ -24,7 +24,7 @@ RUN apt-get -m update && apt-get install -y python wget unzip && apt-get install
 #ENV PATH /opt/conda/bin:$PATH
 
 #get Tumor Map code:
-RUN git clone https://github.com/ucscHexmap/hexagram.git
+RUN git clone -b dev https://github.com/ucscHexmap/hexagram.git
 RUN cp /hexagram/server/statsLayer.py /hexagram/.calc/.
 RUN chmod a+x hexagram/.calc/*
 RUN chmod a+x hexagram/.bin/*
@@ -39,11 +39,15 @@ RUN cd adam_novak-drl-graph-layout-c41341de8058/src/
 RUN /usr/bin/make -C /adam_novak-drl-graph-layout-c41341de8058/src
 RUN chmod a+x adam_novak-drl-graph-layout-c41341de8058/bin/*
 #RUN export PATH=./:DRL:$PATH
-RUN export PATH=adam_novak-drl-graph-layout-c41341de8058/bin/:$PATH
+#RUN export PATH=adam_novak-drl-graph-layout-c41341de8058/bin/:$PATH
+ENV PATH /adam_novak-drl-graph-layout-c41341de8058/bin/:$PATH
 
 #copy files and setup permissions:
 COPY mRNA_test.tab /usr/local/
 RUN chmod a+r /usr/local/mRNA_test.tab
+
+COPY layout.mRNA.tab /usr/local/
+RUN chmod a+r /usr/local/layout.mRNA.tab
 
 COPY test_attributes.tab /usr/local/
 RUN chmod a+r /usr/local/test_attributes.tab

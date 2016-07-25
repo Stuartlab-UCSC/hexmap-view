@@ -1532,7 +1532,7 @@ def hexIt(options):
                 nodes_multiple.append (drl_similarity_functions(i, index, options))
 
     print "Opened matrices..."
-    print nodes_multiple
+    #print nodes_multiple
     #print len(nodes_multiple[0])
     #print nodes_multiple
     
