@@ -135,7 +135,6 @@ var app = app || {}; // jshint ignore:line
     Session.set('initialiedLayers', false);
     Session.set('initedColormaps', false);
     var checkUiDrawn = Tracker.autorun(isUiDrawn);
-    
     function isUiDrawn () {
         if (Session.get('initedHexagons') &&
             Session.get('retrievedLayerInfo') &&
@@ -164,6 +163,7 @@ var app = app || {}; // jshint ignore:line
                 initInfoWindow();
                 initSetOperations();
                 initCreateMap();
+                initSelect();
                 //initDiffAnalysis();
             }, 0);
         }
