@@ -182,17 +182,7 @@ var app = app || {}; // jshint ignore:line
         }, 'Add a label to the map', 'mapShow');
 
     }
- 
-    function selected (ev, ui) {
- 
-        // Call the callback for this menu option click
-        var tool = ui.item.data('sel');
-        console.log('tool', tool);
-        if (callbacks[tool]) {
-            callbacks[tool](ev);
-        }
-    }
- 
+
     function whenPageChanges () {
         var page = Session.get('page');
     }
