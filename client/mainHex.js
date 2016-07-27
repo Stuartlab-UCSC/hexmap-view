@@ -152,9 +152,9 @@ var app = app || {}; // jshint ignore:line
                 // Initialize the background functions.
                 initOverlayNodes();
                 if (DEV) initOverlayNodeUi();
+                initLegend();
                 initShortlist();
                 initLayerBox();
-                initLegend();
                 initCoords();
                 initReflect();
                 initLabelTool();
@@ -181,7 +181,9 @@ var app = app || {}; // jshint ignore:line
             initSortAttrs();
             initFilter();
             initLayerLists();
- 
+
+
+
             Session.set('retrievedLayerInfo', true);
         }
     }
