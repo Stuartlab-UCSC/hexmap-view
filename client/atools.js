@@ -225,6 +225,22 @@ var app = app || {}; // jshint ignore:line
                 .hide();
         }
  
+        // Set up a special thumbnail for paper reviewers
+        Tracker.autorun(function () {
+            var user = Meteor.user();
+            var thumbnail = $('div.Pancan12thumbnail');
+            
+            Meteor.call('isUserAuthorized', 'Pancan12',
+                function (error, result) {
+                    if (result) {
+                        thumbnail.show();
+                    } else {
+                        thumbnail.hide();
+                    }
+                }
+            );
+        });
+ 
         // Set up the link to the map page
         add_tool("mapLayout", function(ev) {
             if (!$(ev.target).hasClass('disabled')) {
