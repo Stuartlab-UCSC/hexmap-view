@@ -70,7 +70,7 @@ var app = app || {}; // jshint ignore:line
     function show () {
  
         $close = $('#pdfClose');
-        $head = $('#toolbar, .header');
+        $head = $('#navBar, .header');
         $map = $('#visualization, #whiteOutGoogle');
         $legend = $('.key');
 
@@ -107,7 +107,7 @@ var app = app || {}; // jshint ignore:line
         // Define the dialog options & create an instance of DialogHex
         var opts = { title: title };
         dialogHex = createDialogHex($button, $dialog, opts, show,
-            hide, true, '#fakeHelpAnchor');
+            hide, true);
  
         // Listen for the menu clicked
         $button.on('click', function () {

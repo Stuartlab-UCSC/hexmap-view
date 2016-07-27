@@ -6,13 +6,13 @@ const httpProxy = require('http-proxy');
 const fs = require('fs');
 const KEY = DIR + 'tumormap.key';
 const CERT = DIR + 'tumormap.crt';
-//const PATH_TO_CHAIN = DIR + 'chain.crt';
+const PATH_TO_CHAIN = DIR + 'chain.crt';
 
 var options = {
     ssl: {
         key: fs.readFileSync(KEY, 'utf8'),
         cert: fs.readFileSync(CERT, 'utf8'),
-        //ca : fs.readFileSync(PATH_TO_CHAIN, 'utf8'),
+        ca : fs.readFileSync(PATH_TO_CHAIN, 'utf8')
     },
     target : "http://tumormap.ucsc.edu:" + TARGET_PORT,
     secure: true, // Depends on your needs, could be false.

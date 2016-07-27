@@ -6,22 +6,46 @@
 
 var exec = Npm.require('child_process').exec;
 
-//removeRoles(['Pancan12']);
+//createRole('dev');
 //createRole('viewAll');
+//createRole('queryAPI');
+//createRole('dev');
 //createRole('CIRM');
+//removeRoles(['Pancan12']);
 //removeUsersFromRoles(['jstuart@ucsc.edu'], ['dev', 'Pancan12']);
 //showUsernames();
 //addUsersToRoles (['mcrchopra@gmail.com'] , ['dev']);
-//removeUser('terra666@baymoon.com');
+//removeUser('hexmap@ucsc.edu');
 //var users = [
-//    {email: 'swat@soe.ucsc.edu', roles: ['dev']},
+//    {email: 'hexmap@ucsc.edu', roles: ['dev']},
 //];
 //createUsers(users);
 
-
 showRolesWithUsersAndProject();
 
-Accounts.emailTemplates.from = 'Hexmap Admin<hexmap@ucsc.edu>';
+function sendEnrollmentEmail(username) {
+    var user = usernamesToUsers(username);
+    var token = Random.secret();
+    var date = new Date();
+    var tokenRecord = {
+        token: token,
+        email: user.username,
+        when: date
+    };
+    Meteor.users.update(user._id, {$set: {
+        "services.password.reset": tokenRecord
+    }});
+
+    // Before emailing, update user object with new token
+    Meteor._ensure(user, 'services', 'password').reset = tokenRecord;
+    var enrollAccountUrl = Accounts.urls.enrollAccount(token);
+    var subject = 'An account has been created for you on ' + URL_BASE.toString();
+    var msg = subject + '\n' +
+              'Please set your password at: \n\n' +
+              enrollAccountUrl
+ 
+    sendMail(username, subject, msg);
+}
 
 function createUsers(users) {
     _.each(users, function (user) {
@@ -32,15 +56,14 @@ function createUsers(users) {
                 username: user.email,
                 password: "adsqry75984",
             });
-
             if (user.roles.length > 0) {
                 Roles.addUsersToRoles(id, user.roles);
             }
+            sendEnrollmentEmail(user.email);
            
-            // have not see this work yet
-            Accounts.sendResetPasswordEmail(id, [user.email]);
-    
         } catch (error) {
+            console.log('error on createUsers:', error);
+            console.trace();
         }
     });
 }
@@ -50,9 +73,13 @@ function usernamesToUsers (usernamesIn) {
     if (typeof usernames === 'string') {
         usernames = [usernamesIn];
     }
-    return _.map(usernames, function (username) {
+    var array = _.map(usernames, function (username) {
         return Accounts.findUserByUsername(username)
     });
+    if (typeof usernamesIn === 'string') {
+        return array[0]
+    }
+    return array;
 }
 
 function addUsersToRoles (usernames, roles) {
@@ -170,7 +197,7 @@ function createRole(newRoleName) {
 
 function removeUser(username) {
     var user = usernamesToUsers(username);
-    Meteor.users.remove(user[0]);
+    Meteor.users.remove(user);
 }
 
 // More possible queries

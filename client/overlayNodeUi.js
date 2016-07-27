@@ -136,17 +136,17 @@ var app = app || {};
     initOverlayNodeUi = function () {
 
         $dialog = $('#overlayNode');
-        var $trigger = $('#toolbar .overlayNode');
+        var $trigger = $('#menu_overlayNode');
  
         // Create an instance of DialogHex
         var opts = { title: title };
         dialogHex = createDialogHex($('#overlayNodeTrigger'), $dialog, opts,
-            show, hide, true, '#fakeHelpAnchor');
+            show, hide, true);
  
         // Create a link from the menu
         add_tool('overlayNode', createWindow, title);
  
-                // Enable/Disable the menu option whenever the username changes,
+        // Enable/Disable the menu option whenever the username changes,
         // including log out.
         Meteor.autorun(function() {
             var user = Meteor.user();
@@ -154,9 +154,9 @@ var app = app || {};
             // Only logged in users get to do this because we use their username
             // to send an email.
             if (user) {
-                $trigger.removeClass('ui-state-disabled');
+                $trigger.removeClass('disabled');
             } else {
-                $trigger.addClass('ui-state-disabled');
+                $trigger.addClass('disabled');
             }
         });
 

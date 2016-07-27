@@ -121,7 +121,8 @@ var app = app || {};
 	}
  
     function hide() {
-        
+ 
+        // TODO: do we need to free map select vars as well?
         selectionSelected = selectionList.selected;
         selectionList.destroy();
         selectionList = undefined;
@@ -148,7 +149,7 @@ var app = app || {};
         };
 
         $dialog = $('#reflectDialog');
-        var $button = $('#reflectTrigger');
+        var $button = $('.reflectTrigger');
  
         // Initialize our UI variables
         
@@ -158,23 +159,23 @@ var app = app || {};
             buttons: [{ text: 'Reflect', click: mapIt }],
         };
         dialogHex = createDialogHex($button, $dialog, opts, show,
-            hide, true, '#fakeHelpAnchor');
+            hide, true);
  
         // Listen for the menu clicked
-        $button.on('click', function () {
-            dialogHex.show();
-        });
+        add_tool("reflectTrigger", function(ev) {
+            if (!$(ev.target).hasClass('disabled')) {
+                dialogHex.show();
+            }
+        }, 'Reflect nodes onto another map');
  
         // Enable/Disable the menu option whenever the username changes,
         // including log out.
         Meteor.autorun(function() {
             var user = Meteor.user();
-            
-            // TODO this only changes its color, really disable it
             if (user) {
-                $button.removeClass('ui-state-disabled');
+                $button.removeClass('disabled');
             } else {
-                $button.addClass('ui-state-disabled');
+                $button.addClass('disabled');
             }
         });
     }

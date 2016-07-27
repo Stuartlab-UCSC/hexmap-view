@@ -1,5 +1,4 @@
 Query API
 =========
 
-The Query API is described in the
-`Query API Document <../query/index.html>`_
+`The public Query API is described here <../query/index.html>`_

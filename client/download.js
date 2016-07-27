@@ -125,9 +125,10 @@ var app = app || {}; // jshint ignore:line
                         tool_activity(false);
                 }
             });
-        }, 'Export the selection as a list of hexagons', 'mapShow');
+        }, 'Export the selection as a list of hexagon IDs', 'mapShow');
     }
 
+    var timeout;
     function xyPreSquiggle_mousedown(eventIn) {
 
         // Prepare to download the xy pre-squiggle positions file
@@ -144,7 +145,10 @@ var app = app || {}; // jshint ignore:line
                     $(event.target).attr({
                         'href': 'data:text/plain;base64,' + window.btoa(tsv),
                     });
-                    $(event.target).off('click');
+                    timeout = Meteor.setTimeout(function (){
+                        $(event.target).off('click');
+                        Meteor.clearTimeout(timeout);
+                    }, 10);
                 });
                 $(event.target).click();
             }

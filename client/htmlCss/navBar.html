@@ -1,137 +1,163 @@
 <template name='navBarT'>
-    <div class="tools row" id="toolbar">
-        <img src="/cyber-slug.svg" class="stacker cyber-slug"/>
-
-        <!-- main menu -->
-        <ul id='menus' class='stacker'>
-        
-            <li class='primary mapShow gridShow' data-sel='home' style='display:inline'>Home</li>
+    <div id='navBar'>
+        <img src="/cyber-slug.svg" class="cyber-slug"/>
+        <ul>
+            <li class='home mapShow gridShow homeShow'>Home</li>
             
-            <li class='primary hexMap homeShow' data-sel='hexMap' style='display:inline'>Map</li>
+            <li class='fileMenu'>
+                File
+                <img src='/caret-down.png' style='height:8px'>
+                <ul class='file'>
+                    <li class='createMap'>
+                        Create Map
+                    </li>
+                    <li class='mapShow gridShow'>
+                        Download
+                        <img src='/caret-down.png' style='height:8px'>
+                        <ul class='download'>
+                            <li class='hexagonNames mapShow'>
+                                Node IDs
+                            </li>
+                            <li class='mapShow' >
+                                <a id='pdfDownload' download='hexmap.pdf'
+                                    href='data:text/plain;base64'
+                                    title = 'Download the page in PDF format'>
+                                    PDF
+                                </a>
+                            </li>
+                            <li class='mapShow' >
+                                <a id='svgDownload' download='hexmap.svg'
+                                    href='data:text/plain;base64'
+                                    title = 'Download the map in SVG format'>
+                                    SVG
+                                </a>
+                            </li>
+                            <li class='mapShow gridShow' >
+                                <a id='xyPreSquiggle' download='hexmapXy.tab'
+                                    title = 'Download xy coordinates of nodes before squiggling into hexagons'>
+                                    XY Positions
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+            
+            <li class='mapShow'>
+                Edit
+                <img src='/caret-down.png' style='height:8px'>
+                <ul class='edit'>
+                    <li id='background'>
+                        {{background}} Background
+                    </li>
+                    <li class='colormap'>
+                        Colormap
+                    </li>
+                    <li class='addText'>
+                        Add Label
+                    </li>
+                    <li class='overlayNode mapShow'>
+                        Add Nodes
+                    </li>
+                </ul>
+            </li>
+            
+            <!-- select menu -->
+            <li class='selectMenu mapShow'>
+                Select
+                <img src='/caret-down.png' style='height:8px'>
+                <ul class='select'>
+                    <li class='rectangle' title='Select hexagons using a rectangular region'>
+                        by Rectangle
+                    </li>
+                    <li class='polygon' title='Select hexagons using a polygonal region'>
+                        by Polygon
+                    </li>
+                    <li class='import' title='Enter identifiers to create a selection of hexagons'>
+                        by Node IDs
+                    </li>
+                </ul>
+            </li>
 
-            <li id='viewMenu' class='primary mapShow gridShow' style='display:inline'>
+            <li class='mapShow gridShow homeShow'>
                 View
                 <img src='/caret-down.png' style='height:8px'>
-                <ul>
-                    <li data-sel='hexMap' class='mapLayout' title = 'Main map'>&nbsp;
+                <ul class='view'>
+                    <li class='mapLayout mapShow gridShow homeShow'>
                         Map Layout
                     </li>
-                    <li data-sel='methods' class='methods' title = 'Map of nodes before final layout'>&nbsp;
-                        Node Density&nbsp;&nbsp;
+                    <li class='gridPage mapShow gridShow'>
+                        Node Density
                     </li>
-                    <li class='mapShow'>
-                        <a id='reflectTrigger'>
-                            Map Reflection&nbsp;&nbsp;
-                        </a>
+                    <li class='disabled gridShow'>
+                        <hr>
                     </li>
-                    <li data-sel='overlayNode' class='overlayNode mapShow'>&nbsp;
-                        New Nodes
-                    </li>
-                    <hr class='gridShow'>
-                    <li data-sel='viewEdges' class='gridShow' title = 'Directed graph of node relationships'>&nbsp;
+                    <li class='viewEdges gridShow'>
                         {{viewEdges}} Edges
                     </li>
-                    <li data-sel='viewWindows' class='gridShow' title = 'Adaptive windows for layout-aware stats'>&nbsp;
+                    <li class='viewWindows gridShow'>
                         {{viewWindows}} Windows
                     </li>
                 </ul>
             </li>
-            
-            <li id='downloadMenu' class='primary mapShow gridShow' style='display:inline'>
-                Download
-                <img src='/caret-down.png' style='height:8px'>
-                <ul>
-                    <li class='mapShow' data-sel='hexagonNames' title = 'Download the hexagon identifiers'>&nbsp;
-                        Identifiers&nbsp;&nbsp;
-                    </li>
-                    <li class='mapShow' >
-                        <a id='pdfDownload' download='hexmap.pdf'
-                            href='data:text/plain;base64'
-                            title = 'Download the page in PDF format'>
-                            PDF
-                        </a>
-                    </li>
-                    <li class='mapShow' >
-                        <a id='svgDownload' download='hexmap.svg'
-                            href='data:text/plain;base64'
-                            title = 'Download the map in SVG format'>
-                            SVG
-                        </a>
-                    </li>
-                    <li class='mapShow gridShow' >
-                        <a id='xyPreSquiggle' download='hexmapXy.tab'
-                            title = 'Download xy coordinates of nodes before squiggling into hexagons'>
-                            XY Positions&nbsp;&nbsp;
-                        </a>
-                    </li>
-                </ul>
-            </li>
-            
-            <li class='primary mapShow' style='display:inline'>
-                Colors
-                <img src='/caret-down.png' style='height:8px'>
-                <ul style='top:0px;left:0px'>
-                    <li id='background'>&nbsp;&nbsp;{{background}} Background&nbsp;&nbsp;</li>
-                    <li data-sel='colormap'>&nbsp;&nbsp;Colormap</li>
-                </ul>
-            </li>
-            
-            <li class='primary mapShow' data-sel='addText' style='display:inline'>Label</li>
-        </ul>
 
-        <!-- select menu -->
-        <span class='selectMenuLabel stacker' style='display:none'>Select by:</span>
-        <ul id='selectMenu' class='stacker' style='display:none'>
-            <li data-sel='rectangle' class='primary' title='Select hexagons using a rectangular region' style='display:inline'>
-                Rectangle
+            <li class='mapShow'>
+                Data
+                <img src='/caret-down.png' style='height:8px'>
+                <ul class='data'>
+                    <li class='statsSort'>
+                        Stats &amp; Sort
+                    </li>
+                    <li class='setOperations'>
+                        Set Operations
+                    </li>
+                    <li class='reflectTrigger'>
+                        Map Reflection
+                    </li>
+                    <li class='filterAttributes'>
+                        Filter Attributes
+                    </li>
+                </ul>
             </li>
-            <li data-sel='polygon' class='primary' title='Select hexagons using a polygonal region' style='display:inline'>
-                Polygon
-            </li>
-            <li data-sel='import' class='primary' title='Enter identifiers to create a selection of hexagons' style='display:inline'>
-                Identifier
-            </li>
-        </ul>
-        
-        <!-- help -->
-        <ul id='helpMenu' class='stacker right'>
-            <li style='padding-left:1em;padding-right:4em'>
+            
+            <li class='help'>
                 Help
                 <img src='/caret-down.png' style='height:8px'>
                 <ul>
                     <li>
-                        <a href="/help.pdf" target='_blank'>&nbsp;User Guide</a>
+                        <a href="/help.pdf" target='_blank'>User Guide</a>
+                    </li>
+                    <li class='tutorials'>
+                        <a class='tutorials' href='/help.pdf' target='_blank'>Tutorials</a>
                     </li>
                     <li>
-                        <a href="https://groups.google.com/a/ucsc.edu/forum/#!forum/hex" target='_blank'>&nbsp;Discussion Group&nbsp;&nbsp;</a>
+                        <a href="https://groups.google.com/a/ucsc.edu/forum/#!forum/hex" target='_blank'>Discussion Group</a>
                     </li>
                     <li>
-                        <a href="mailto:hex@ucsc.edu">&nbsp;Email Group</a>
+                        <a href="mailto:hex@ucsc.edu">Email Group</a>
                     </li>
-                    <hr>
+                    <li class='disabled'>
+                        <hr>
+                    </li>
                     <li class='queryDocs'>
-                        <a href='/query/index.html' target='_blank'>&nbsp;Query APIs</a>
+                        <a href='/query/index.html' target='_blank'>Query APIs</a>
                     </li>
                     <li class='createMapDocs'>
-                        <a href='/createMap/index.html' target='_blank'>&nbsp;Map Creation</a>
+                        <a href='/createMap/index.html' target='_blank'>Map Creation</a>
                     </li>
                     <li class='devDocs'>
-                        <a href='/zurhfads/index.html' target='_blank'>&nbsp;Development</a>
+                        <a href='/dev/index.html' target='_blank'>Development</a>
                     </li>
-                    <li class='version'>&nbsp;
+                    <li class='version'>
                         {{ version }}
                     </li>
                 </ul>
             </li>
-        </ul>
-        
-         <!-- loading snake -->
-        <div id="loadingMap" class='stacker' style="display:{{loadingMap}}"></div>
 
-         <!-- login -->
-        <span class="login right stacker">
-            {{> loginButtons}}
-        </span>
-        
+            <!-- login -->
+            <li class='login'>
+                {{> loginButtons}}
+            </li>
+        </ul>
     </div>
 </template>

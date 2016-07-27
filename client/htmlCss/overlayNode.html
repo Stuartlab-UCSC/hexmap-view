@@ -1,35 +1,43 @@
 <template name='overlayNodeT'>
     <form id="overlayNode" style='display:none'>
-    <table >
-        <tr>
-            <td colspan=4 class='dialog-value' style='text-align:center'>
-                <input class='file' type='file'>
-            </td>
-        </tr>
-        <tr class='inlineMessage'>
-            <td class='filename dialog-value' colspan=4 style='padding-top:1em'>
-                Upload a tab-separated file of the form:
-            </td>
-        </tr>
-        <tr class='inlineMessage'>
-            <td>feature</td>
-            <td>node_ID_1</td>
-            <td>node_ID_2</td>
-            <td>...</td>
-        </tr>
-        <tr class='inlineMessage'>
-            <td>TP53_mutation</td>
-            <td>value</td>
-            <td>value</td>
-        </tr>
-        <tr class='inlineMessage'>
-            <td>TP53_deletion</td>
-            <td>value</td>
-            <td>value</td>
-        </tr>
-        <tr class='inlineMessage'>
-            <td>...</td>
-        </tr>
-    </table>
+        <table >
+            {{> featureFileT }}
+        </table>
     </form>
+</template>
+
+<template name='featureFileT'>
+    <tr>
+        <td class='dialog-label'>
+            Feature data:
+        </td>
+        <td colspan=2 class='dialog-value' style='text-align:center'>
+            <input class='file' type='file'>
+        </td>
+    </tr>
+<!--
+    <tr class='inlineMessage'>
+        <td class='filename dialog-value' colspan=4 style='padding-top:1em'>
+            Upload a tab-separated file with node IDs across the<br>top and feature names in the first column, like:
+        </td>
+    </tr>
+    <tr class='inlineMessage'>
+        <td>feature</td>
+        <td>node1</td>
+        <td>node2&nbsp;&nbsp;&nbsp;...</td>
+    </tr>
+    <tr class='inlineMessage'>
+        <td>TP53</td>
+        <td>value</td>
+        <td>value</td>
+    </tr>
+    <tr class='inlineMessage'>
+        <td>FOXM1</td>
+        <td>value</td>
+        <td>value</td>
+    </tr>
+    <tr class='inlineMessage'>
+        <td>...</td>
+    </tr>
+-->
 </template>

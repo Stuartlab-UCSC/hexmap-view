@@ -409,13 +409,13 @@ var app = app || {}; // jshint ignore:line
         });
     }
 
-    function selected (ev, ui) {
+    function clicked(ev) {
 
-        // This executes when one of the select toolbar buttons is pressed.
-        var tool = ui.item.data('sel');
+        // This executes when one of the select navBar buttons is pressed.
+        var $tool = $(ev.target);
  
-        // Let the tool handler know this is active so another tool cannot be
-        // made active.
+        // Let the tool handler know this is active so another map tool cannot
+        // be made active.
         tool_activity(true);
 
         // Set the selection color depending on the background
@@ -423,11 +423,11 @@ var app = app || {}; // jshint ignore:line
             ? 'black'
             : 'white';
 
-        if (tool === 'rectangle') {
+        if ($tool.hasClass('rectangle')) {
             isRectangle = true;
             setUpShapeSelect();
 
-        } else if (tool === 'polygon') {
+        } else if ($tool.hasClass('polygon')) {
             isRectangle = false;
             setUpShapeSelect();
 
@@ -440,12 +440,10 @@ var app = app || {}; // jshint ignore:line
  
         return findHexagonsInPolygon(googlemap.getBounds(), true)
     }
-
+ 
     initSelect = function () {
-
-        var $menu = $('#selectMenu');
-        $menu.menu({
-            select: selected,
-        });
+        $('#navBar .rectangle, #navBar .polygon, #navBar .import')
+            .on('click', clicked);
     }
+
 })(app);

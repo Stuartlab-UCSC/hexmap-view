@@ -613,11 +613,19 @@ var app = app || {}; // jshint ignore:line
         // Initalize utilities not dependent on the initial UI draw
         initInfoWindow (gridMap);
         initDownload();
-
+ 
+        // Create a link to the methods
+        add_tool("methods", function(ev) {
+            if (!$(ev.target).hasClass('disabled')) {
+                $('.gridPage').click();
+                tool_activity(false);
+            }
+        }, 'Map of nodes before final layout');
+ 
         // Register a callback for the view graph menu click
-        add_tool("viewEdges", viewEdgesMenuClick);
+        add_tool("viewEdges", viewEdgesMenuClick, 'Directed graph of node relationships');
 
         // Register a callback for the view windows menu click
-        add_tool("viewWindows", viewWindowsMenuClick);
+        add_tool("viewWindows", viewWindowsMenuClick, 'Adaptive windows for layout-aware stats');
     }
 })(app);

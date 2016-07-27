@@ -1,0 +1,85 @@
+<template name='createMapT'>
+    <form id="createMapDialog" style='display:none'>
+        <table>
+            {{> featureFileT }}
+            {{> attributeFileT }}
+            <tr>
+                <td class='dialog-label'>
+                    Layout method:
+                </td>
+                <td colspan=2 class='dialog-value'>
+                    <div class='methodAnchor' style='width:10em'></div>
+                </td>
+            </tr>
+            <tr>
+                <td class='dialog-value' colspan=2>
+                    <hr style='border-color:#eee'>
+                </td>
+            </tr>
+            <tr>
+                <td class='dialog-value' colspan=2 style='font-size:0.8em'>
+                    <a class='advancedTrigger' href='#'>
+                        {{ advancedLabel }}
+                    </a>
+                    <img class='question-sign' src='/question-sign.svg' style='height:16px'>
+                </td>
+            </tr>
+        </table>
+        <table style='display:{{ advancedDisplay }}'>
+            <tr>
+                <td class='dialog-label' style='vertical-align:top'>
+                    Handle as integer values<br>rather than categories:
+                </td>
+                <td class='dialog-value' colspan=2>
+                    <textarea class='contInt' rows='3'>
+                    </textarea>
+                </td>
+            </tr>
+            <tr>
+                <td class='dialog-label' style='vertical-align:top'>
+                    Handle as 2 category values<br>rather than binary values:
+                </td>
+                <td class='dialog-value' colspan=2>
+                    <textarea class='twoValCat' rows='3'>
+                    </textarea>
+                </td>
+            </tr>
+        </table>
+    </form>
+</template>
+
+<template name='attributeFileT'>
+    <tr>
+        <td class='dialog-label'>
+            Attribute data:
+        </td>
+        <td colspan=2 class='dialog-value' style='text-align:center'>
+            <input class='file' type='file'>
+        </td>
+    </tr>
+<!--
+    <tr class='inlineMessage'>
+        <td class='filename dialog-value' colspan=4 style='padding-top:1em'>
+            Upload a tab-separated file with attribute names<br>across the top and node IDs in the first column, like:
+        </td>
+    </tr>
+    <tr class='inlineMessage'>
+        <td>ID</td>
+        <td>Subtype</td>
+        <td>TP53_mutation&nbsp;&nbsp;&nbsp;...</td>
+    </tr>
+    <tr class='inlineMessage'>
+        <td>node1</td>
+        <td>LumB</td>
+        <td>0</td>
+    </tr>
+    <tr class='inlineMessage'>
+        <td>node2</td>
+        <td>Basal</td>
+        <td>1</td>
+    </tr>
+    <tr class='inlineMessage'>
+        <td>...</td>
+    </tr>
+-->
+</template>

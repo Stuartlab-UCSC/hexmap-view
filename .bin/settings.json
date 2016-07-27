@@ -4,6 +4,7 @@
     "FEATURE_SPACE_DIR": "/data/data/featureSpace/",
     "LAYOUT_INPUT_DIR": "/data/data/layoutInput/",
     "VIEW_DIR": "/data/data/view/",
+    "GOOGLE_API_KEY": "AIzaSyBb8AJUB4x-xxdUCnjzb-Xbcg0-T1mPw3I",
     "ADMIN_EMAIL": "hexmap@ucsc.edu"
   }
 }

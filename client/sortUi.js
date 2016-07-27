@@ -249,5 +249,13 @@ var app = app || {}; // jshint ignore:line
         // Create an instance of DialogHex
         dialogHex = createDialogHex($('#sort-attributes-button'), $dialog, opts,
             show, hide);
+ 
+        // Create a link from the navBar
+        add_tool("statsSort", function(ev) {
+            $('#sort-attributes-button').click();
+            tool_activity(false);
+        }, 'Sort attributes by associative statistics');
+        
+
     }
 })(app);
