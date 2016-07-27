@@ -5,6 +5,7 @@ var app = app || {};
 
 (function (hex) {
     //'use strict';
+    Windows = new Mongo.Collection('Windows');
 
     var title = 'Reflect on Another Map',
         dialogHex,
@@ -15,7 +16,9 @@ var app = app || {};
         selectionList,
         toMapIdList,
         selectionSelected = ''; // Selected selection from the list of selections
-    
+    //was in initReflect() but was getting called with wrong ctx.project when going to a new map
+
+
     function show () {
 
         // Show the contents of the dialog, once per trigger button click
@@ -45,11 +48,14 @@ var app = app || {};
         // Define the event handler for the selecting in the list
         $mapAnchor.on('change', function (ev) {
             toMapId = ev.target.value;
+
         });
+
     }
 
     function mapManager (operation, featOrSamp, nodeIds) {
         //this function seems redundant, could do below insidde mapit
+        /*
         console.log('Called mapManager stub with:',
             '\n    username:', Meteor.user().username,
             '\n    operation:', operation,
@@ -59,7 +65,7 @@ var app = app || {};
             '\n    nodeIds:', nodeIds,
             '\n    selection:', selectionSelected,
             '\n    FeatureSpaceDir:', FEATURE_SPACE_DIR);
-
+        */
         //console.log(ctx)
         userId=Meteor.user().username;
 
@@ -71,11 +77,27 @@ var app = app || {};
                 console.log('Mapmanager: Operation ' + operation + ' success');
             }
         });
-        
+        //console.log(Windows.findOne({mapId: toMapId}));
+
+
+        Meteor.call("isWindowOpen",Meteor.user().username, toMapId, function(error,result){
+            //console.log(res);
+            // no errors are returned
+            if(!result) { //result is simply true if the toMapId window  is opened.
+                //console.log(result);
+                pathPeices = toMapId.split('/');
+                major = pathPeices[0]; //
+                minor = pathPeices[1];
+                window.open(URL_BASE + '/?p=' + major + '.' + minor)// opens new window
+            }
+
+
+        });
     }
 
     function mapIt () {
-        
+
+
         //TODO:this is an arguement for the manager's script, the Manager should figure this out
         featOrSamp = ManagerAddressBook.findOne().featureOrSample;
 
@@ -110,9 +132,20 @@ var app = app || {};
 
         
         mapId = ctx.project;
-        
+
+        Meteor.subscribe('PeekInWindow', Meteor.user().username);
+
         //subscribe to address book
         Meteor.subscribe('reflectionToMapIds',mapId);
+
+        //keep track of windows open
+        Meteor.subscribe('OpenedWindow',Meteor.user().username,ctx.project);
+        //console.log('WindowDoc inced');
+        // Create a listener to know when to save state
+
+        window.onbeforeunload = function() {
+            Meteor.subscribe('ClosedWindow',Meteor.user().username,mapId);
+        };
 
         $dialog = $('#reflectDialog');
         var $button = $('#reflectTrigger');

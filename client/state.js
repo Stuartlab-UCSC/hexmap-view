@@ -6,6 +6,7 @@ var app = app || {}; // jshint ignore:line
 (function (hex) { // jshint ignore:line
     //'use strict';
 
+
     // Global across this app
     DISABLED_COLOR = '#aaaaaa';
 
@@ -175,8 +176,10 @@ var app = app || {}; // jshint ignore:line
         // Overwrite the previous state in localStorage
         window['localStorage'].removeItem(s.storeName);
         window['localStorage'].setItem(s.storeName, JSON.stringify(store));
- 
+
+        console.log(Meteor.user().username)
         //console.log('save store:', store);
+
     };
  
     State.prototype.load = function (store) {
@@ -202,6 +205,10 @@ var app = app || {}; // jshint ignore:line
                 Session.set(key, val);
             }
         });
+        //console.log(this); //logs the state
+        //console.log(Meteor.user().username);
+        //Meteor.subscribe('OpenWindow',Meteor.user().username,),
+
     };
  
     State.prototype.loadFromBookmark = function (bookmark) {
@@ -415,7 +422,9 @@ var app = app || {}; // jshint ignore:line
             var x = Meteor.user();
             initDocs();
         });
-
+        //console.log(Meteor.user().username);
+        //increment window counter
+        //Meteor.subscribe('OpenedWindow',Meteor.user().username,s.project);
         return s;
     };
 })(app);
