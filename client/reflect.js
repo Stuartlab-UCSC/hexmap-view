@@ -15,6 +15,7 @@ var app = app || {};
         toMapId,
         selectionList,
         toMapIdList,
+        lastUser,
         selectionSelected = ''; // Selected selection from the list of selections
     //was in initReflect() but was getting called with wrong ctx.project when going to a new map
 
@@ -131,26 +132,44 @@ var app = app || {};
 
     initReflect = function () {
 
-        
-        mapId = ctx.project;
-
-        Meteor.subscribe('PeekInWindow', Meteor.user().username);
-
-        //subscribe to address book
-        Meteor.subscribe('reflectionToMapIds',mapId);
-
-        //keep track of windows open
-        Meteor.subscribe('OpenedWindow',Meteor.user().username,ctx.project);
-        //console.log('WindowDoc inced');
-        // Create a listener to know when to save state
-
-        window.onbeforeunload = function() {
-            Meteor.subscribe('ClosedWindow',Meteor.user().username,mapId);
-        };
-
         $dialog = $('#reflectDialog');
         var $button = $('.reflectTrigger');
- 
+
+        Tracker.autorun(function () {
+
+            if (lastUser) {
+                Meteor.subscribe('ClosedWindow',lastUser.username, mapId);
+            }
+
+            var user = Meteor.user();
+
+            // Save the user for processing when it changes
+            lastUser = user;
+
+            if (user) {
+
+                //subscribe to address book
+                Meteor.subscribe('reflectionToMapIds',ctx.project);
+
+                //keep track of windows open
+                Meteor.subscribe('OpenedWindow',user.username,ctx.project);
+                //console.log('WindowDoc inced');
+                // Create a listener to know when to save state
+
+                window.onbeforeunload = function() {
+                    Meteor.subscribe('ClosedWindow',user.username,mapId);
+                };
+
+                $button.removeClass('disabled');
+            } else {
+
+                // No user logged in
+                $button.addClass('disabled');
+            }
+
+            // Save the map ID for processing when it changes
+            mapId = ctx.project;
+        });
         // Initialize our UI variables
         
         // Define the dialog options & create an instance of DialogHex
@@ -167,16 +186,6 @@ var app = app || {};
                 dialogHex.show();
             }
         }, 'Reflect nodes onto another map');
- 
-        // Enable/Disable the menu option whenever the username changes,
-        // including log out.
-        Meteor.autorun(function() {
-            var user = Meteor.user();
-            if (user) {
-                $button.removeClass('disabled');
-            } else {
-                $button.addClass('disabled');
-            }
-        });
+
     }
 })(app);

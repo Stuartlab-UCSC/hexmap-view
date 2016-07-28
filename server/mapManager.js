@@ -26,6 +26,35 @@ function initManagerHelper() {
     //if the helper databases are empty put the minimal needed inside them.
     //console.log('mapManager: initManagerHelper called');
     //console.log('mapManager: initManagerHelper called: addy truth value', !ManagerAddressBook.findOne({}));
+
+    /*
+    TODO: this block of code will read in the required mapManager information from a file. 
+    Currently mapManager info is hardcoded (see below)
+    fs.readFile('/home/duncan/Desktop/TumorMap/TumorMapDevBranch/hexagram/.bin/managerInit.json', 'utf-8', function(err,dat){
+        if (err){//
+
+            console.log("settings.json file not found, mapManager and reflection functionality may not be available")
+        } else {
+            var settingsObj = JSON.parse(dat);
+
+            //Look Into the addressBook database and add any that are not present
+            addresses = settingsObj.ManagerAddressBook;
+
+            console.log(addresses)
+
+            _.each(addresses,function(index,item){
+               if(ManagerAddressBook.findOne({mapId:item.mapId})){
+                   console.log('found it')
+               }
+            });
+
+
+            
+            //console.log(settingsObj)
+        }
+    });
+    */
+
     if ( !ManagerAddressBook.findOne({}) ){
         addAddressEntry('Pancan12/SampleMap/','reflection', ['Pancan12/GeneMap/']);
         addAddressEntry('Pancan12/GeneMap/','reflection', ['Pancan12/SampleMap/']);
@@ -248,7 +277,8 @@ Meteor.publish('userLayerBox', function(userId, currMapId) {
 // a state database that keeps track of how many and which windows are opened by a client
 // We keep track of this so that the manager can open a new window if desired
 Meteor.publish('OpenedWindow', function(userId,mapId) {
-    if(!this.userId) { return this.stop() }
+    if(!this.userId) { return this.stop() } //prevents update if user isn't signed in
+
     //if we don't have a window open then make an entry
     if( !Windows.findOne({user: userId, "maps.mapId": mapId}) ) {
         Windows.upsert({user: userId}, {$push : { maps : {mapId: mapId, count : 1 } }} )
@@ -260,7 +290,7 @@ Meteor.publish('OpenedWindow', function(userId,mapId) {
 });
 
 Meteor.publish('ClosedWindow', function(userId,mapId) {
-    if(!this.userId) { return this.stop() }
+    //if(!this.userId) { return this.stop() } we need this function to be called when the user is not signed in
 
     //decrement the count of users window by one, delete entry if all windows closed
     Windows.update({user: userId,"maps.mapId":mapId},{$inc : {"maps.$.count": -1} } )
@@ -271,6 +301,20 @@ Meteor.publish('ClosedWindow', function(userId,mapId) {
     //console.log('user',userId, 'has just closed a window for', mapId);
 
     return this.stop();
+});
+Meteor.methods({
+    isWindowOpen: function (userId, mapId) {
+        this.unblock();
+        var future = new Future();
+        //look to see if an entry is there, if so check if count == 0. If not there then window not opened
+        if (Windows.findOne({user: userId, "maps.mapId": mapId})) {
+            //console.log('toMapId:',mapId,'found, isOpen returning:',_.isUndefined(Windows.findOne({user: userId, "maps.mapId": mapId, "maps.count": 0})));
+            future.return (_.isUndefined(Windows.findOne({user: userId, "maps.mapId": mapId, "maps.count": 0})) );
+        } else {
+            future.return(false);
+        }
+        return future.wait()
+    }
 });
 //end Windows collection manipulators
 
@@ -293,17 +337,3 @@ Meteor.methods({
     }
 });
 
-Meteor.methods({
-    isWindowOpen: function (userId, mapId) {
-        this.unblock();
-        var future = new Future();
-        //look to see if an entry is there, if so check if count == 0. If not there then window not opened
-        if (Windows.findOne({user: userId, "maps.mapId": mapId})) {
-            //console.log('toMapId:',mapId,'found, isOpen returning:',_.isUndefined(Windows.findOne({user: userId, "maps.mapId": mapId, "maps.count": 0})));
-            future.return (_.isUndefined(Windows.findOne({user: userId, "maps.mapId": mapId, "maps.count": 0})) );
-        } else {
-            future.return(false);
-        }
-        return future.wait()
-    }
-});
