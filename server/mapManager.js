@@ -277,7 +277,7 @@ Meteor.publish('userLayerBox', function(userId, currMapId) {
 // a state database that keeps track of how many and which windows are opened by a client
 // We keep track of this so that the manager can open a new window if desired
 Meteor.publish('OpenedWindow', function(userId,mapId) {
-    if(!this.userId) { return this.stop() } //prevents update if user isn't signed in
+    if(!this.userId || ! userId || ! mapId) { return this.stop() } //prevents update if user isn't signed in, or not on defined map
 
     //if we don't have a window open then make an entry
     if( !Windows.findOne({user: userId, "maps.mapId": mapId}) ) {
