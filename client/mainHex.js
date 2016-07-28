@@ -181,9 +181,6 @@ var app = app || {}; // jshint ignore:line
             initSortAttrs();
             initFilter();
             initLayerLists();
-
-
-
             Session.set('retrievedLayerInfo', true);
         }
     }

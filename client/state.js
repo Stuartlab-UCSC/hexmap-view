@@ -6,7 +6,6 @@ var app = app || {}; // jshint ignore:line
 (function (hex) { // jshint ignore:line
     //'use strict';
 
-
     // Global across this app
     DISABLED_COLOR = '#aaaaaa';
 
@@ -18,7 +17,8 @@ var app = app || {}; // jshint ignore:line
             focus_attr: null,
             color: 'inherit',
             background: 'inherit',
-        };
+        },
+        storageSupported;
  
     function getUrlParms() {
         var parms = location.search.substr(1);
@@ -131,26 +131,28 @@ var app = app || {}; // jshint ignore:line
         s.zoom = 2;  // Map zoom level where 2 means zoomed in by 2 levels
     }
 
-    State.prototype.save = function (newProject) {
+    State.prototype.save = function () {
  
         // Save state by writing it to local browser store.
-        // newProject is optional.
+        if (!storageSupported) {
+            return;
+        }
         var s = this,
             store = {},
-            index,
-            isNewProject = !_.isUndefined(newProject);
+            index;
 
-        if (s.alreadySaved) {
+        // If we have a new project, clear any state related to the old project
+        if (s.project !== s.lastProject) {
+            Session.set('page', 'mapPage');
+            s.lastProject = s.project;
+            s.setProjectDefaults();
+ 
+        } else if (s.alreadySaved) {
+ 
+            // We may have already saved this because ?
             return;
         }
         s.alreadySaved = true;
-
-        // If we have a new project, clear any state related to the old project
-        if (isNewProject) {
-            Session.set('page', 'mapPage');
-            s.project = newProject;
-            s.setProjectDefaults();
-        }
 
         // Find all of the vars to be saved by walking though our localStorage list
         _.each(s.localStorage.known, function (key) {
@@ -177,9 +179,7 @@ var app = app || {}; // jshint ignore:line
         window['localStorage'].removeItem(s.storeName);
         window['localStorage'].setItem(s.storeName, JSON.stringify(store));
 
-        console.log(Meteor.user().username)
         //console.log('save store:', store);
-
     };
  
     State.prototype.load = function (store) {
@@ -205,10 +205,7 @@ var app = app || {}; // jshint ignore:line
                 Session.set(key, val);
             }
         });
-        //console.log(this); //logs the state
-        //console.log(Meteor.user().username);
-        //Meteor.subscribe('OpenWindow',Meteor.user().username,),
-
+        s.lastProject = s.project;
     };
  
     State.prototype.loadFromBookmark = function (bookmark) {
@@ -385,7 +382,7 @@ var app = app || {}; // jshint ignore:line
     }
  
     initState = function () { // jshint ignore:line
-        var storageSupported = checkLocalStore();
+        storageSupported = checkLocalStore();
         var s = new State();
         s.setProjectDefaults();
 
@@ -422,9 +419,7 @@ var app = app || {}; // jshint ignore:line
             var x = Meteor.user();
             initDocs();
         });
-        //console.log(Meteor.user().username);
-        //increment window counter
-        //Meteor.subscribe('OpenedWindow',Meteor.user().username,s.project);
+ 
         return s;
     };
 })(app);
