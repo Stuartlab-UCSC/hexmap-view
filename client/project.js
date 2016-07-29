@@ -120,12 +120,6 @@ var app = app || {}; // jshint ignore:line
             }, mSecs);
 	};
  
-    loadProject = function (project) {
-        ctx.project = project;
-        ctx.save();
-        queryFreeReload();
-    }
- 
     initProject = function () { // jshint ignore:line
   
         $('.login').on('click', $('#login-sign-in-link'), signInClicked);
