@@ -17,7 +17,6 @@ body {
 /* COLORS */
 /*
 #E7E5D7, rgb(231,229,215)  ucsc pages tan
-#05366B  ucsc pages blue font
 #2B5E91  ucsc pages blue background
 #E0E0FF  shortlist lavender
 #FFE0FF  shortlist pink
@@ -51,8 +50,18 @@ body,
     background: #FFE0FF;
 }
 
-#homePage .mapTitle {
+#homePage .mapTitle,
+#homePage h3,
+#homePage a {
     color: #2B5E91;
+}
+
+#homePage a {
+    text-decoration: none;
+}
+
+#homePage a:hover {
+    text-decoration: underline;
 }
 
 /* BANNER BOOTSTRAP COLORS */
