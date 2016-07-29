@@ -370,7 +370,7 @@ var app = app || {}; // jshint ignore:line
         tagsAutorun = Tracker.autorun(processTags);
 
         // Create an instance of DialogHex
-        dialogHex = createDialogHex($button, $dialog, {title: TITLE},
+        dialogHex = createDialogHex(undefined, $button, $dialog, {title: TITLE},
             show, hide);
  
         // Create a link from the navBar

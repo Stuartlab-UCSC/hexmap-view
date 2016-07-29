@@ -223,12 +223,13 @@ Accounts.onCreateUser(function (options, user) {
     return user;
 });
 
-isUserAuthorized = function (user, role) {
+isUserAuthorized = function (role) {
 
     // Determine if a user is authorized based on this role.
     // user and role are single strings, no arrays.
     // Logs a message when user is not authorized.
-    var PUBLIC = 'public',
+    var user = Meteor.user(),
+        PUBLIC = 'public',
         ALL_ACCESS = ['dev', 'viewAll'];
     
     // Public projects with are viewable by anyone
@@ -257,6 +258,6 @@ Meteor.methods({
     },
     
     isUserAuthorized: function (role) {
-        return isUserAuthorized(Meteor.user(), role);
+        return isUserAuthorized(role);
     },
 });

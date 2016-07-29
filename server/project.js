@@ -106,7 +106,6 @@ function getMajors () {
 
     // Get the major directory names
     projects = {};
-    var user = Meteor.user();
     var majors1 = getDataDirs();
     
     // There are no projects at all.
@@ -117,8 +116,8 @@ function getMajors () {
     _.each(majors1, function(major) {
         var role = getProjectRole(major);
            
-        // Authorize depending on user and her role.
-        if (isUserAuthorized(user, role)) {
+        // Authorize depending on user's role.
+        if (isUserAuthorized(role)) {
             majors.push(major);
         }
     });

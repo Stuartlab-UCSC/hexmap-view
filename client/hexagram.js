@@ -381,6 +381,7 @@ initMap = function () {
     // Initialize the google map and create the hexagon assignments
     createMap();
     createHexagons();
+    refreshColors();
 }
 
 have_colormap = function (colormap_name) {

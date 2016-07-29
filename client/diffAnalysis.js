@@ -160,7 +160,7 @@ var app = app || {}; // jshint ignore:line
             title: title,
             buttons: [{ text: 'Run', click: runCheck }],
         };
-        dialogHex = createDialogHex(
+        dialogHex = createDialogHex(undefined, 
             $('#diffAnalysisButton'),
             $('#diffAnalysisDialog'),
             opts,
