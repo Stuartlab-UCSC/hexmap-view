@@ -225,17 +225,17 @@ var app = app || {}; // jshint ignore:line
                 .hide();
         }
  
-        // Set up a special thumbnail for paper reviewers
+        // Special for paper reviewers
         Tracker.autorun(function () {
             var user = Meteor.user();
-            var thumbnail = $('div.Pancan12thumbnail');
+            var reviewerOnly = $('.reviewers');
             
             Meteor.call('isUserAuthorized', 'Pancan12',
                 function (error, result) {
                     if (result) {
-                        thumbnail.show();
+                        reviewerOnly.show();
                     } else {
-                        thumbnail.hide();
+                        reviewerOnly.hide();
                     }
                 }
             );
