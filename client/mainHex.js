@@ -44,13 +44,6 @@ var app = app || {}; // jshint ignore:line
         queryFreeReload();
     }
 
-    loadProject = function (project) {
-        ctx.project = project;
-        Session.set('page', 'mapPage');
-        ctx.save();
-        queryFreeReload();
-    }
- 
     Template.body.events({
 
         // Reload so global variables get reset and release memory
