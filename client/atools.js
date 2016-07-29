@@ -202,7 +202,7 @@ var app = app || {}; // jshint ignore:line
         } else if (Session.equals('page', 'mapPage')) {
             $('body').find('.homeShow, .gridShow').hide();
             $('body').find('.mapShow').show();
-            $('.mapLayout').addClass('disabled');
+            $('.mapLayout, .reflectTrigger').addClass('disabled');
             $('.gridPage').removeClass('disabled');
             Session.set('loadingMap', true);
             $('body').css('overflow-y', 'hidden');

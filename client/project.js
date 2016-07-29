@@ -53,10 +53,7 @@ var app = app || {}; // jshint ignore:line
                 $('#s2id_project .select2-choice span').removeClass('noProject');
 
                 // The select2 id of the thing clicked is event.val
-                // Save the dir to session storage and reload the app
-                ctx.project = event.val;
-                ctx.save();
-                queryFreeReload();
+                loadProject(event.val);
             });
 
         // Is the context project on our list?
@@ -106,13 +103,6 @@ var app = app || {}; // jshint ignore:line
                 .removeClass('noProject');
             Session.set('initedProject', true);
          }
- /*
-         if (!ctx.project) {
- 
-            // Turn off the snake
-            Session.set('loadingMap', false);
-         }
-         */
 	};
  
     function signInClicked(count) {
@@ -129,6 +119,12 @@ var app = app || {}; // jshint ignore:line
                 }
             }, mSecs);
 	};
+ 
+    loadProject = function (project) {
+        ctx.project = project;
+        ctx.save();
+        queryFreeReload();
+    }
  
     initProject = function () { // jshint ignore:line
   

@@ -9,6 +9,7 @@ var app = app || {};
 
     var title = 'Reflect on Another Map',
         dialogHex,
+        $button,
         $dialog,
         mapId,
         mapIdList,
@@ -17,6 +18,7 @@ var app = app || {};
         selectionList,
         toMapIdList,
         lastUser,
+        subscribedToMaps = false,
         selectionSelected = ''; // option selected from the selection list
 
     function show () {
@@ -106,17 +108,17 @@ var app = app || {};
  
     function getToMapIds() {
  
+        // OnReady function for subscription to reflectionToMapIds.
+ 
         // grab array for possible maps to reflect to
-        var mapIds,
-            addressEntry = ManagerAddressBook.findOne();
+        var addressEntry = ManagerAddressBook.findOne();
         if (addressEntry) {
-            mapIds = addressEntry.toMapIds;
+            toMapIds = addressEntry.toMapIds;
         }
  
-        if (!addressEntry || !mapIds || mapIds.length < 1) {
-            return undefined;
+        if (addressEntry && toMapIds && toMapIds.length > 0) {
+            $button.removeClass('disabled');
         }
-        return mapIds;
     }
  
     function userChange () {
@@ -135,7 +137,10 @@ var app = app || {};
         if (user) {
 
             //subscribe to address book
-            Meteor.subscribe('reflectionToMapIds',ctx.project);
+            if (!subscribedToMaps) {
+                Meteor.subscribe('reflectionToMapIds',ctx.project, getToMapIds);
+                subscribedToMaps = true;
+            }
 
             //keep track of windows open
             Meteor.subscribe('OpenedWindow',user.username,ctx.project);
@@ -153,43 +158,29 @@ var app = app || {};
 
     initReflect = function () {
  
+        $button = $('.reflectTrigger');
+        $dialog = $('#reflectDialog');
         Tracker.autorun(userChange);
+
+        // Define the dialog options & create an instance of DialogHex
+        var opts = {
+            title: title,
+            buttons: [{ text: 'Reflect', click: mapIt }],
+        };
+        dialogHex = createDialogHex({
+            $button: $button,
+            $el: $dialog,
+            opts: opts,
+            showFx: show,
+            hideFx: hide,
+            buttonInitialized: true,
+        });
  
-        // Give the subscriptions a chance to complete
-        Meteor.setTimeout(function () {
-
-            var $button = $('.reflectTrigger');
-     
-            // If there are no target maps for this map, we cannot reflect.
-            toMapIds = getToMapIds();
-            if (!toMapIds) {
-                $button.addClass('disabled');
-                return;
+        // Listen for the menu clicked
+        add_tool("reflectTrigger", function(ev) {
+            if (!$(ev.target).hasClass('disabled')) {
+                dialogHex.show();
             }
-     
-            $button.removeClass('disabled');
-            $dialog = $('#reflectDialog');
-
-            // Define the dialog options & create an instance of DialogHex
-            var opts = {
-                title: title,
-                buttons: [{ text: 'Reflect', click: mapIt }],
-            };
-            dialogHex = createDialogHex({
-                $button: $button,
-                $el: $dialog,
-                opts: opts,
-                showFx: show,
-                hideFx: hide,
-                buttonInitialized: true,
-            });
-     
-            // Listen for the menu clicked
-            add_tool("reflectTrigger", function(ev) {
-                if (!$(ev.target).hasClass('disabled')) {
-                    dialogHex.show();
-                }
-            }, 'Reflect nodes onto another map');
-        }, 3000);
+        }, 'Reflect nodes onto another map');
     }
 })(app);

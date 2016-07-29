@@ -58,8 +58,7 @@ var app = app || {}; // jshint ignore:line
 
         "click .thumbnail": function (ev){
             var project = $(ev.currentTarget).data('project') + '/';
-            ctx.save(project);
-            queryFreeReload();
+            loadProject(project);
         },
         "click .gridPage": function() {
             pageReload('gridPage');
