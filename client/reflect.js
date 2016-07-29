@@ -33,6 +33,13 @@ var app = app || {};
 
         var $mapAnchor = $('#reflectDialog .mapIdAnchor');
         mapIdList = createOurSelect2($mapAnchor, {data: data}, 6);
+ 
+        // TODO this should be set to the last selected toMapId
+        toMapId = toMapIds[0]
+        $mapAnchor.select2("val", toMapId);
+ 
+        console.log('toMapId', toMapId);
+
         $mapAnchor.show();
 
         // The selection selector.
@@ -74,7 +81,6 @@ var app = app || {};
 
     function mapIt () {
 
-
         //TODO:this is an arguement for the manager's script, the Manager should figure this out
         featOrSamp = ManagerAddressBook.findOne().featureOrSample;
 
@@ -110,6 +116,10 @@ var app = app || {};
  
         // OnReady function for subscription to reflectionToMapIds.
  
+        // For now, only allow mRNA, the first layout for reflection
+        // so keep the menu option disabled
+        if (!Session.equals('layoutIndex', 0)) return;
+ 
         // grab array for possible maps to reflect to
         var addressEntry = ManagerAddressBook.findOne();
         if (addressEntry) {
@@ -118,6 +128,20 @@ var app = app || {};
  
         if (addressEntry && toMapIds && toMapIds.length > 0) {
             $button.removeClass('disabled');
+        } else {
+            $button.addClass('disabled');
+        }
+    }
+ 
+    function layoutChange () {
+ 
+        // For now we only have reflect available on layout 0: mRNA
+        var layoutIndex = Session.get('layoutIndex');
+ 
+        if (layoutIndex < 1 && toMapIds && toMapIds.length > 0) {
+            $button.removeClass('disabled');
+        } else {
+            $button.addClass('disabled');
         }
     }
  
@@ -161,6 +185,7 @@ var app = app || {};
         $button = $('.reflectTrigger');
         $dialog = $('#reflectDialog');
         Tracker.autorun(userChange);
+        Tracker.autorun(layoutChange);
 
         // Define the dialog options & create an instance of DialogHex
         var opts = {
