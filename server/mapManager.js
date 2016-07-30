@@ -306,13 +306,21 @@ Meteor.methods({
     isWindowOpen: function (userId, mapId) {
         this.unblock();
         var future = new Future();
-        //look to see if an entry is there, if so check if count == 0. If not there then window not opened
-        if (Windows.findOne({user: userId, "maps.mapId": mapId})) {
-            //console.log('toMapId:',mapId,'found, isOpen returning:',_.isUndefined(Windows.findOne({user: userId, "maps.mapId": mapId, "maps.count": 0})));
-            future.return (_.isUndefined(Windows.findOne({user: userId, "maps.mapId": mapId, "maps.count": 0})) );
-        } else {
-            future.return(false);
-        }
+
+        var userWindowsDoc = Windows.findOne({user: userId, "maps.mapId": mapId});
+        var isOpen = false; //switch to flip if user has the window of interest open
+
+        //look to see if the document's maps array contains a mapId whose count is not 0, if so its open
+        _.each(userWindowsDoc.maps,function (val,key,list){
+
+            if (val["mapId"] == mapId && val["count"] != 0){ //flip switch and return
+                isOpen = true;
+                future.return(isOpen)
+            }
+        });
+
+        if (!isOpen) {future.return(false);}
+
         return future.wait()
     }
 });
