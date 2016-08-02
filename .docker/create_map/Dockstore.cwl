@@ -1,21 +1,20 @@
 #!/usr/bin/env cwl-runner
 
 class: CommandLineTool
-id: "VarFilter"
-label: "VarFilter tool"
+id: "CreateMap tool"
+label: "CreateMap tool"
 cwlVersion: cwl:draft-3
 description: |
-    A Docker container for the variance filter command. See https://github.com/ucscHexmap/hexagram/tree/dev/.calc/docker/variance_filter for more information.
+    A Docker container for the create map tool. See https://github.com/ucscHexmap/hexagram/tree/dev/.calc/docker/create_map for more information.
     ```
     Usage:
     # fetch CWL
     TODO
-    $> dockstore tool cwl --entry quay.io/hexmap_ucsc/hexagram_variance_filter:1.0 > Dockstore.cwl
+    $> dockstore tool cwl --entry quay.io/hexmap_ucsc/hexagram_create_map:1.0 > Dockstore.cwl
     # make a runtime JSON template and edit it (or use the content of sample_configs.json in this git repo)
     $> dockstore tool convert cwl2json --cwl Dockstore.cwl > Dockstore.json
     # run it locally with the Dockstore CLI
-    $> dockstore tool launch --entry quay.io/hexmap_ucsc/hexagram_variance_filter:1.0 \
-        --json Dockstore.json
+    $> dockstore tool launch --entry quay.io/hexmap_ucsc/hexagram_create_map:1.0 --json Dockstore.json
     ```
 
 dct:creator:
@@ -25,7 +24,7 @@ dct:creator:
 
 requirements:
   - class: DockerRequirement
-    dockerPull: "quay.io/hexmap_ucsc/hexagram_variance_filter:1.0"
+    dockerPull: "quay.io/hexmap_ucsc/create_map:1.0"
 
 hints:
   - class: ResourceRequirement
@@ -35,26 +34,59 @@ hints:
     description: "the process requires at least 4G of RAM"
 
 inputs:
-  - id: "#in_file"
+  - id: "#similarity"
     type: File
-    description: "input file in matrix format (genomic matrix)"
+    description: "sparse similarity"
     inputBinding:
       position: 1
-      prefix: "--in_file"
+      prefix: "--similarity"
 
-  - id: "#filter_level"
+  - id: "#names"
     type: string
-    default: "0.2"
-    description: "Proportion of genes with lowest variance to filter out"
+    description: "Layout names corresponding to the similarity matrices (more than one allowed)"
     inputBinding:
       position: 2
-      prefix: "--filter_level"
+      prefix: "--names"
 
-outputs:
-  - id: "#out_file"
+  - id: "#scores"
     type: File
-    outputBinding:
-      glob: output.tsv
-    description: "A tsv file that contains filtered version of the input matrix."
+    description: "Attributes and annotations file(s)"
+    inputBinding:
+      position: 3
+      prefix: "--scores"
 
-baseCommand: ["/opt/conda/bin/python", "/usr/local/bin/filter_out_lowest_varying_genes.py", "--out_file", "output.tsv"]
+  - id: "#truncation_edges"
+    type: string
+    default: "6"
+    description: "Number of truncation edges"
+    inputBinding:
+      position: 4
+      prefix: "--truncation_edges"
+
+  - id: "#layout_method"
+    type: string
+    default: "DrL"
+    description: "Layout method"
+    inputBinding:
+      position: 5
+      prefix: "--layout_method"
+
+  - id: "#directory"
+    type: string
+    default: "/usr/local/map/"
+    description: "output directory for the files"
+    inputBinding:
+      position: 6
+      prefix: "--directory"
+
+  - id: "#include-singletons"
+    type: boolean
+    default: true
+    description: "flag to include singletons"
+    inputBinding:
+      position: 7
+      prefix: "--include-singletons"
+
+outputs: []
+
+baseCommand: ["/opt/conda/bin/python", "/hexagram/.calc/layout.py", ">", "paper.log"]

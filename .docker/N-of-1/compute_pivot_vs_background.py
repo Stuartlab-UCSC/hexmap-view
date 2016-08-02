@@ -56,7 +56,7 @@ def read_tabular2(input_file, numeric_flag):
 	return (dt, col_headers, row_headers)
 	
 def read_pivot_json(input_file, numeric_flag):
-	with open(input_file) as data_file:    
+	with open(input_file) as data_file:
 		data = json.load(data_file)
 	
 	data = byteify(data)

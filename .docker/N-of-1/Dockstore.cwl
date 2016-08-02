@@ -1,11 +1,11 @@
 #!/usr/bin/env cwl-runner
 
 class: CommandLineTool
-id: "VarFilter"
-label: "VarFilter tool"
+id: "N-of-1 tool"
+label: "N-of-1 tool"
 cwlVersion: cwl:draft-3
 description: |
-    A Docker container for the variance filter command. See https://github.com/ucscHexmap/hexagram/tree/dev/.calc/docker/variance_filter for more information.
+    A Docker container for the N-of-1 tool. See https://github.com/ucscHexmap/hexagram/tree/dev/.calc/docker/N-of-1 for more information.
     ```
     Usage:
     # fetch CWL
@@ -25,7 +25,7 @@ dct:creator:
 
 requirements:
   - class: DockerRequirement
-    dockerPull: "quay.io/hexmap_ucsc/hexagram_variance_filter:1.0"
+    dockerPull: "quay.io/hexmap_ucsc/n_of_1:1.0"
 
 hints:
   - class: ResourceRequirement
@@ -42,19 +42,56 @@ inputs:
       position: 1
       prefix: "--in_pivot"
 
-  - id: "#filter_level"
-    type: string
-    default: "0.2"
-    description: "Proportion of genes with lowest variance to filter out"
+  - id: "#in_background"
+    type: File
+    description: "background matrix"
     inputBinding:
       position: 2
-      prefix: "--filter_level"
+      prefix: "--in_background"
+
+  - id: "#in_coordinates"
+    type: File
+    description: "coordinates of the nodes in the background matrix"
+    inputBinding:
+      position: 3
+      prefix: "--in_coordinates"
+
+  - id: "#metric"
+    type: string
+    default: "correlation"
+    description: "Metric for comparing pivot to background"
+    inputBinding:
+      position: 4
+      prefix: "--metric"
+      
+  - id: "#num_jobs"
+    type: string
+    default: "-1"
+    description: "Number of processors to use"
+    inputBinding:
+      position: 5
+      prefix: "--num_jobs"
+      
+  - id: "#neighborhood_size"
+    type: string
+    default: "6"
+    description: "Size of the neighborhood"
+    inputBinding:
+      position: 6
+      prefix: "--neighborhood_size"
 
 outputs:
   - id: "#out_file"
     type: File
     outputBinding:
-      glob: output.tsv
-    description: "A tsv file that contains filtered version of the input matrix."
+      glob: output.json
+    description: "A json file that contains positioning information about the pivot."
 
-baseCommand: ["/opt/conda/bin/python", "/usr/local/bin/filter_out_lowest_varying_genes.py", "--out_file", "output.tsv"]
+  - id: "#log"
+    type: File
+    outputBinding:
+      glob: log.tab
+    description: "Log file that has some details about the run."
+
+
+baseCommand: ["/opt/conda/bin/python", "/usr/local/bin/compute_pivot_vs_background2.py", "--out_file", "output.json", "--log", "log.tab"]

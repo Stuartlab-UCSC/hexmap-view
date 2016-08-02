@@ -73,8 +73,8 @@ def parse_args(args):
         help="similarity sparse matrix file")
     parser.add_argument("--similarity_full", nargs='+',action = 'append',
         help="similarity full matrix file")
-    parser.add_argument("--genomic", nargs='+',action = 'append',
-        help="full genomic matrix")
+    parser.add_argument("--feature_space", nargs='+',action = 'append',
+        help="full feature space (genomic) matrix")
     parser.add_argument("--coordinates", nargs='+',action = 'append',
         help="file containing coordinates for the samples")
     parser.add_argument("--metric", nargs='+',action = 'append',
@@ -1341,9 +1341,9 @@ def hexIt(options):
     if not (options.similarity_full == None):
         options.similarity_full = [val for sublist in options.similarity_full for val in sublist]
         print "Using full similarity"
-    if not (options.genomic == None):
-        options.genomic = [val for sublist in options.genomic for val in sublist]
-        print "Using full genomic"
+    if not (options.feature_space == None):
+        options.feature_space = [val for sublist in options.feature_space for val in sublist]
+        print "Using full feature space"
     if not (options.metric == None):
         options.metric = [val for sublist in options.metric for val in sublist]
     if not (options.coordinates == None):
@@ -1422,8 +1422,8 @@ def hexIt(options):
     
     else:
         if options.layout_method.upper() in ['TSNE', 'MDS', 'PCA', 'ICA', 'ISOMAP', 'SPECTRALEMBEDDING']:
-            for i, genomic_filename in enumerate(options.genomic):
-                print 'Opening genomic matrix', i, genomic_filename
+            for i, genomic_filename in enumerate(options.feature_space):
+                print 'Opening feature space matrix', i, genomic_filename
                 dt,sample_labels,feature_labels = read_tabular2(genomic_filename, True)
                 print str(len(dt))+" x "+str(len(dt[0]))
                 #preprocess the data:
@@ -1490,11 +1490,11 @@ def hexIt(options):
         else:    #'DRL'
             print 'DRL method'
             print options.similarity
-            print options.genomic
+            print options.feature_space
             print options.similarity_full
-            if not (options.genomic == None):    #full genomic matrix given
-                print "Genomic matrices"
-                for i, genomic_filename in enumerate(options.genomic):
+            if not (options.feature_space == None):    #full feature space matrix given
+                print "Feature matrices"
+                for i, genomic_filename in enumerate(options.feature_space):
                     print 'Opening Matrix', i, genomic_filename
                     dt,sample_labels,feature_labels = read_tabular2(genomic_filename, True)
                     print str(len(dt))+" x "+str(len(dt[0]))
@@ -1723,16 +1723,16 @@ def hexIt(options):
             # seems to hang.
             if options.layout_method.upper() in ['TSNE', 'MDS', 'PCA', 'ICA', 'ISOMAP', 'SPECTRALEMBEDDING']:
                     print "We need to run density statistics for {} layouts".format(
-                        len(options.genomic))
-                    for layout_index in xrange(len(options.genomic)):
+                        len(options.feature_space))
+                    for layout_index in xrange(len(options.feature_space)):
                         # Do the clumpiness statistics for each layout.
                         clumpiness_scores.append(run_clumpiness_statistics(layers, 
                             layer_names, options.window_size, layout_index))
             else:    #'DRL'
-                if not (options.genomic == None):    #full genomic matrix given
+                if not (options.feature_space == None):    #full feature matrix given
                     print "We need to run density statistics for {} layouts".format(
-                        len(options.genomic))
-                    for layout_index in xrange(len(options.genomic)):
+                        len(options.feature_space))
+                    for layout_index in xrange(len(options.feature_space)):
                         # Do the clumpiness statistics for each layout.
                         clumpiness_scores.append(run_clumpiness_statistics(layers, 
                             layer_names, options.window_size, layout_index))
@@ -1756,10 +1756,10 @@ def hexIt(options):
         else:
             # We aren't doing any stats.
             print "Skipping density statistics."        
-            if not (options.genomic == None):    #full genomic matrix given
+            if not (options.feature_space == None):    #full feature matrix given
                 # Set everything's clumpiness score to -inf.
                 clumpiness_scores = [collections.defaultdict(lambda: float("-inf")) 
-                    for _ in options.genomic]
+                    for _ in options.feature_space]
             elif not (options.similarity_full == None):    #full similarity matrix given
                 # Set everything's clumpiness score to -inf.
                 clumpiness_scores = [collections.defaultdict(lambda: float("-inf")) 
@@ -2022,13 +2022,13 @@ def hexIt(options):
     else:
         if options.layout_method.upper() in ['TSNE', 'MDS', 'PCA', 'ICA', 'ISOMAP', 'SPECTRALEMBEDDING']:
                 if options.directedGraph:
-                    #topNeighbors(options.genomic, options.directory, options.truncation_edges)
+                    #topNeighbors(options.feature_space, options.directory, options.truncation_edges)
                     for index, i in enumerate(ctx.sparse):
                         topNeighbors_from_sparse(ctx.sparse[index], options.directory, options.truncation_edges, index)
         else:    #'DRL'
-            if not (options.genomic == None):    #full genomic matrix given
+            if not (options.feature_space == None):    #full feature space matrix given
                 if options.directedGraph:
-                    #topNeighbors(options.genomic, options.directory, options.truncation_edges)
+                    #topNeighbors(options.feature_space, options.directory, options.truncation_edges)
                     for index, i in enumerate(ctx.sparse):
                         topNeighbors_from_sparse(ctx.sparse[index], options.directory, options.truncation_edges, index)
             elif not (options.similarity_full == None):    #full similarity matrix given

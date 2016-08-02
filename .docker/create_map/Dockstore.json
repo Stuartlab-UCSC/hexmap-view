@@ -1,0 +1,15 @@
+{
+  "names": "fill me in",
+  "scores": {
+    "path": "fill me in",
+    "class": "File"
+  },
+  "truncation_edges": "fill me in",
+  "similarity": {
+    "path": "fill me in",
+    "class": "File"
+  },
+  "include-singletons": false,
+  "layout_method": "fill me in",
+  "directory": "fill me in"
+}

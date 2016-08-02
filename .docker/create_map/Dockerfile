@@ -52,8 +52,11 @@ RUN chmod a+r /usr/local/layout.mRNA.tab
 COPY test_attributes.tab /usr/local/
 RUN chmod a+r /usr/local/test_attributes.tab
 
-COPY run_map /usr/local/
-RUN chmod a+x /usr/local/run_map
+COPY run_map_genomic /usr/local/
+RUN chmod a+x /usr/local/run_map_genomic
+
+COPY run_map_sparse /usr/local/
+RUN chmod a+x /usr/local/run_map_sparse
 
 RUN chmod -R a+w /usr/local/
 RUN mkdir /usr/local/map/
