@@ -202,7 +202,7 @@ var app = app || {}; // jshint ignore:line
         } else if (Session.equals('page', 'mapPage')) {
             $('body').find('.homeShow, .gridShow').hide();
             $('body').find('.mapShow').show();
-            $('.mapLayout').addClass('disabled');
+            $('.mapLayout, .reflectTrigger').addClass('disabled');
             $('.gridPage').removeClass('disabled');
             Session.set('loadingMap', true);
             $('body').css('overflow-y', 'hidden');
@@ -224,6 +224,22 @@ var app = app || {}; // jshint ignore:line
             $('#navBar .overlayNode, #navBar .createMap, #navBar .tutorials')
                 .hide();
         }
+ 
+        // Set up a special thumbnail for paper reviewers
+        Tracker.autorun(function () {
+            var user = Meteor.user();
+            var thumbnail = $('div.Pancan12thumbnail');
+            
+            Meteor.call('isUserAuthorized', 'Pancan12',
+                function (error, result) {
+                    if (result) {
+                        thumbnail.show();
+                    } else {
+                        thumbnail.hide();
+                    }
+                }
+            );
+        });
  
         // Set up the link to the map page
         add_tool("mapLayout", function(ev) {

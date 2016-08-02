@@ -14,8 +14,8 @@ var exec = Npm.require('child_process').exec;
 //removeRoles(['Pancan12']);
 //removeUsersFromRoles(['jstuart@ucsc.edu'], ['dev', 'Pancan12']);
 //showUsernames();
-//addUsersToRoles (['mcrchopra@gmail.com'] , ['dev']);
-//removeUser('hexmap@ucsc.edu');
+//addUsersToRoles (['reviewer@unknown'] , ['Pancan12']);
+//removeUser('reviewer@');
 //var users = [
 //    {email: 'hexmap@ucsc.edu', roles: ['dev']},
 //];
@@ -223,13 +223,14 @@ Accounts.onCreateUser(function (options, user) {
     return user;
 });
 
-isUserAuthorized = function (user, role) {
+isUserAuthorized = function (role) {
 
     // Determine if a user is authorized based on this role.
     // user and role are single strings, no arrays.
     // Logs a message when user is not authorized.
-    var PUBLIC = 'public',
-        ALL_ACCESS = ['dev', 'omni'];
+    var user = Meteor.user(),
+        PUBLIC = 'public',
+        ALL_ACCESS = ['dev', 'viewAll'];
     
     // Public projects with are viewable by anyone
     if (role === 'public') return true;
@@ -254,5 +255,9 @@ Meteor.methods({
 
     isUserInRole: function (role) {
         return Roles.userIsInRole(Meteor.user(), role);
+    },
+    
+    isUserAuthorized: function (role) {
+        return isUserAuthorized(role);
     },
 });

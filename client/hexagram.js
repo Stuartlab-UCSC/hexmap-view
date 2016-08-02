@@ -381,6 +381,7 @@ initMap = function () {
     // Initialize the google map and create the hexagon assignments
     createMap();
     createHexagons();
+    refreshColors();
 }
 
 have_colormap = function (colormap_name) {
@@ -839,6 +840,12 @@ initLayout = function () {
             console.log('layout', layouts[Session.get('layoutIndex')]);
             createMap();
             initHexagons(true);
+            
+            // Update density stats to this layout and
+            // resort the list to the default of density
+            find_clumpiness_stats(Session.get('layoutIndex'));
+            Session.set('sort', ctx.defaultSort());
+            updateLonglist();
         });
         Session.set('initedLayout', true);
     });

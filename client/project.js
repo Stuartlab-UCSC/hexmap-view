@@ -8,13 +8,10 @@ var app = app || {}; // jshint ignore:line
     //'use strict';
  
     // Placeholder text when no project is selected
-    var PLACEHOLDER_TEXT = 'Select Project...';
+    var PLACEHOLDER_TEXT = 'Select a Map...';
  
     // This will be an instance of this Project class.
     var project;
- 
-    // Give this a value when the user has asked for a project that cannot be found.
-    var unFoundProject;
  
     // Define a Project class.
     function Project() {};
@@ -56,12 +53,7 @@ var app = app || {}; // jshint ignore:line
                 $('#s2id_project .select2-choice span').removeClass('noProject');
 
                 // The select2 id of the thing clicked is event.val
-                // Save the dir to session storage and reload the app
-                if (event.val !== ctx.project) {
-                    ctx.save(event.val);
-                    queryFreeReload();
-                }
-            
+                loadProject(event.val);
             });
 
         // Is the context project on our list?
@@ -84,26 +76,23 @@ var app = app || {}; // jshint ignore:line
         setHeightSelect2($('#project'));
 
         // If a protected project was loaded before and the new user is not
-        // authorized to see it, or there is no one logged in, load the default.
+        // authorized to see it, or there is no one logged in, give a message
+        // to the user.
         if (!projectOnList) {
  
             // The project may be protected and has been loaded before under an
             // authorized account and is either in the user's saved state or
             // is a parameter in the URL.
  
-            // Lock the user out of this project
-            unFoundProject = ctx.project;
-            ctx.project = undefined;
- 
             // Set the project to the placeholder
             $('#s2id_project .select2-choice span')
                 .text(PLACEHOLDER_TEXT)
                 .addClass('noProject');
 
-            alert('Please sign in to see project "' 
-                + getHumanProject(unFoundProject) + '".\n');
+            alert('Please sign in to see map "'
+                + getHumanProject(ctx.project) + '".\nOr select another map.');
  
-        } else if (ctx.project) {
+        } else {
 
             // Select the current project in the UI
             $('#project').select2("val", ctx.project);
@@ -113,12 +102,6 @@ var app = app || {}; // jshint ignore:line
                 .text(getHumanProject(ctx.project))
                 .removeClass('noProject');
             Session.set('initedProject', true);
-         }
- 
-         if (!ctx.project) {
- 
-            // Turn off the snake
-            Session.set('loadingMap', false);
          }
 	};
  
@@ -143,16 +126,10 @@ var app = app || {}; // jshint ignore:line
  
         // Repopulate projects whenever the username changes, including log out
         Meteor.autorun(function() {
-            var x = Meteor.user();
+            var user = Meteor.user();
             
             if (!project) {
                 project = new Project();
-            }
-            
-            if (unFoundProject) {
-                // Set the project requested to be found again now that the
-                // user's login status has changed.
-                ctx.project = unFoundProject;
             }
             
             Meteor.call('getProjects', function (error, projects) {

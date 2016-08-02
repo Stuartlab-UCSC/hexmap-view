@@ -247,7 +247,7 @@ var app = app || {}; // jshint ignore:line
         };
 
         // Create an instance of DialogHex
-        dialogHex = createDialogHex($('#sort-attributes-button'), $dialog, opts,
+        dialogHex = createDialogHex(undefined, $('#sort-attributes-button'), $dialog, opts,
             show, hide);
  
         // Create a link from the navBar

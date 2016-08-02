@@ -8,14 +8,23 @@ var app = app || {}; // jshint ignore:line
 
 (function (hex) {
 
-    DialogHex = function ($el, opts, showFx, hideFx, helpAnchor) {
+    DialogHex = function (parms, $el, opts, showFx, hideFx, helpAnchor) {
 
-        this.$el = $el;
-        this.opts = opts;
-        this.showFx = showFx;
-        this.hideFx = hideFx;
+        if (parms) {
+            this.$el = parms.$el ? parms.$el : undefined;
+            this.opts = parms.opts ? parms.opts : undefined;
+            this.showFx = parms.showFx ? parms.showFx : undefined;
+            this.hideFx = parms.hideFx ? parms.hideFx : undefined;
+            this.helpAnchor = parms.helpAnchor ? parms.helpAnchor : undefined;
+ 
+        } else {
+            this.$el = $el;
+            this.opts = opts;
+            this.showFx = showFx;
+            this.hideFx = hideFx;
+            this.helpAnchor = helpAnchor;
+        }
         this.$help = $('.help-button');
-        this.helpAnchor = helpAnchor;
 
         DialogHex.prototype.showHelp = function () {
 
@@ -40,7 +49,11 @@ var app = app || {}; // jshint ignore:line
 
         DialogHex.prototype.hide = function () {
 
-            this.$el.dialog('destroy');
+            try {
+                this.$el.dialog('destroy');
+            } catch (er) {
+                // The dialog may not have been initialized
+            }
         }
 
         DialogHex.prototype.init = function () {
@@ -68,7 +81,7 @@ var app = app || {}; // jshint ignore:line
         }
 
         DialogHex.prototype.show = function () {
-
+ 
             // Initialize the dialog options to our favorite defaults
             var self = this,
                 opts = {
@@ -111,12 +124,15 @@ var app = app || {}; // jshint ignore:line
         }
     }
 
-    createDialogHex = function ($button, $el, opts, showFx, hideFx,
+    createDialogHex = function (parms, $button, $el, opts, showFx, hideFx,
         buttonInitialized, helpAnchor) {
 
         /* Creates an instance of our dialog, which contains a button to open
          * the dialog in addition to a dialog
          *
+         * @param parms: the preferred way to pass parms. if defined, the rest 
+         *               of the parms are ignored. If undefined the parms are
+         *               passed in separately following this parm
          * @param $button: jquery DOM element of the dialog activator
          *          where null indicates the button is already initialized
          * @param $el: jquery DOM element of the dialog anchor
@@ -126,10 +142,18 @@ var app = app || {}; // jshint ignore:line
          * @param buttonInitialized: trigger button has already been initialized
          * @param helpAnchor: the html anchor in the user help doc
          */
-        var instance = new DialogHex($el, opts, showFx, hideFx, helpAnchor);
-        if (!buttonInitialized) {
-            instance.initButton($button);
+        var instance = new DialogHex(parms, $el, opts, showFx, hideFx, helpAnchor);
+        if (parms) {
+ 
+            if (!parms.buttonInitialized) {
+                instance.initButton(parms.$button);
+            }
+        } else {
+            if (!buttonInitialized) {
+                instance.initButton($button);
+            }
         }
+
         return instance;
     }
 })(app);

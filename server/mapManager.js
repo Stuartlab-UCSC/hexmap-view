@@ -5,8 +5,11 @@ var Fiber = Npm.require('fibers');
 var Future = Npm.require('fibers/future');
 var fs = Npm.require('fs');
 
-LayerPostOffice = new Mongo.Collection('LayerPostOffice');
+//LayerPostOffice = new Mongo.Collection('LayerPostOffice');
 ManagerFileCabinet = new Mongo.Collection('ManagerFileCabinet');
+LayerPostOffice = new Mongo.Collection('LayerPostOffice');
+Windows = new Mongo.Collection('Windows'); //a simple state tracker for how many windows are up
+
 initManagerHelper();
 
 
@@ -21,11 +24,42 @@ function addAddressEntry(mapId,operation, allowedToMapIds){
 function initManagerHelper() {
     //TODO: better way to make sure that helper entries are inside the database
     //if the helper databases are empty put the minimal needed inside them.
-    console.log('mapManager: initManagerHelper called');
-    console.log('mapManager: initManagerHelper called: addy truth value', !ManagerAddressBook.findOne({}));
+    //console.log('mapManager: initManagerHelper called');
+    //console.log('mapManager: initManagerHelper called: addy truth value', !ManagerAddressBook.findOne({}));
+
+    /*
+    TODO: this block of code will read in the required mapManager information from a file. 
+    Currently mapManager info is hardcoded (see below)
+    fs.readFile('/home/duncan/Desktop/TumorMap/TumorMapDevBranch/hexagram/.bin/managerInit.json', 'utf-8', function(err,dat){
+        if (err){//
+
+            console.log("settings.json file not found, mapManager and reflection functionality may not be available")
+        } else {
+            var settingsObj = JSON.parse(dat);
+
+            //Look Into the addressBook database and add any that are not present
+            addresses = settingsObj.ManagerAddressBook;
+
+            console.log(addresses)
+
+            _.each(addresses,function(index,item){
+               if(ManagerAddressBook.findOne({mapId:item.mapId})){
+                   console.log('found it')
+               }
+            });
+
+
+            
+            //console.log(settingsObj)
+        }
+    });
+    */
+
     if ( !ManagerAddressBook.findOne({}) ){
-        addAddressEntry('Pancan12mRNA/SampleMap/','reflection', ['Pancan12mRNA/GeneMap/']);
-        addAddressEntry('Pancan12mRNA/GeneMap/','reflection', ['Pancan12mRNA/SampleMap/']);
+        addAddressEntry('Pancan12/SampleMap/','reflection', ['Pancan12/GeneMap/']);
+        addAddressEntry('Pancan12/GeneMap/','reflection', ['Pancan12/SampleMap/']);
+        addAddressEntry('dmccoll_MESO/GeneMap/','reflection', ['dmccoll_MESO/SampleMap/']);
+        addAddressEntry('dmccoll_MESO/SampleMap/','reflection', ['dmccoll_MESO/GeneMap/']);
         console.log('mapManager: initManagerHelper called: addresses added');
 
     };
@@ -34,7 +68,7 @@ function initManagerHelper() {
         ManagerFileCabinet.insert(
             {
                 "operation" : "reflection",
-                "mapId" : "Pancan12mRNA/SampleMap/",
+                "mapId" : "Pancan12/SampleMap/",
                 "opts" : undefined,
                 "args" : [
                     "datapath",
@@ -49,7 +83,7 @@ function initManagerHelper() {
         ManagerFileCabinet.insert(
             {
                 "operation" : "reflection",
-                "mapId" : "Pancan12mRNA/GeneMap/",
+                "mapId" : "Pancan12/GeneMap/",
                 "opts" : undefined,
                 "args" : [
                     "datapath",
@@ -61,7 +95,37 @@ function initManagerHelper() {
             }
 
         );
-        console.log('mapManager: initManagerHelper called: FileCab added');
+        ManagerFileCabinet.insert(
+            {
+                "operation" : "reflection",
+                "mapId" : "dmccoll_MESO/GeneMap/",
+                "opts" : undefined,
+                "args" : [
+                    "datapath",
+                    "featOrSamp",
+                    "node_ids"
+                ],
+                "datapath" : "reflection/clrMeso.csv",
+                "featOrSamp" : "feature"
+            }
+
+        );
+        ManagerFileCabinet.insert(
+            {
+                "operation" : "reflection",
+                "mapId" : "dmccoll_MESO/SampleMap/",
+                "opts" : undefined,
+                "args" : [
+                    "datapath",
+                    "featOrSamp",
+                    "node_ids"
+                ],
+                "datapath" : "reflection/clrMeso.csv",
+                "featOrSamp" : "sample"
+            }
+
+        );
+        //console.log('mapManager: initManagerHelper called: FileCab added');
     };
 }
 function colorMapMaker(){
@@ -82,7 +146,7 @@ function LayerMaker(layer_name,datalocation){
     //newLayer.url        = datalocation;
     newLayer.selection  = true;
     newLayer.n          = 300;
-    magnitude = 3;
+    magnitude = 3;//TODO: should this be 2?
     return newLayer
 };
 
@@ -142,13 +206,15 @@ function parmMaker(mapId,operation,argsObj) {
     });
 
     if(parm.datapath){
-        //TODO: need to call over and get the project major so isn't hard coded
-        parm.datapath = FEATURE_SPACE_DIR + 'Pancan12mRNA/' + parm.datapath;
+        //TODO: this may cause a problem if you are reflecting outside of the major directory, for example
+        // TODO: cont: geneMap -> geneMap instance. Will need a refactoring of the databases to make this smooth
+        parm.datapath = FEATURE_SPACE_DIR + mapId.split('/')[0] + '/' + parm.datapath;
     }
 
     return parm;
 
 }
+
 Meteor.methods({
 
     // For calling python functions from the client
@@ -179,6 +245,7 @@ Meteor.methods({
         } else  {
 
             console.log('Incorrect toMapId input into mapManager');
+            
         }
 
         return future.wait();
@@ -186,25 +253,85 @@ Meteor.methods({
     }
 });
 
+//subscribe is in checkLayerBox.js
+Meteor.publish('userLayerBox', function(userId, currMapId) {
+    if(!this.userId) { return this.ready() }
+
+    //If layerbox is empty put something in there so client can observe (in checkLayerBox.js: initLayerBox)
+    if( ! LayerPostOffice.findOne({user: userId, toMapId: currMapId}) ) {
+        //console.log('mapManager: No layerbox found, making empty entry');
+        emptyLayers=[];
+        LayerPostOffice.insert({user: userId, toMapId: currMapId, layers: emptyLayers});
+    } 
+    
+    //console.log('mapManager: published user specific LayerBox: UserId,currMap:', userId, currMapId);
+    LayerBoxCursor = LayerPostOffice.find({user: userId, toMapId: currMapId}); //must be cursor
+    //allways return Cursor from publish
+    return LayerBoxCursor;
+});
+
+
+
+//The following 2 publish functions are for manipulating the Windows database.
+// the windows database is
+// a state database that keeps track of how many and which windows are opened by a client
+// We keep track of this so that the manager can open a new window if desired
+Meteor.publish('OpenedWindow', function(userId,mapId) {
+    if(!this.userId || ! userId || ! mapId) { return this.stop() } //prevents update if user isn't signed in, or not on defined map
+
+    //if we don't have a window open then make an entry
+    if( !Windows.findOne({user: userId, "maps.mapId": mapId}) ) {
+        Windows.upsert({user: userId}, {$push : { maps : {mapId: mapId, count : 1 } }} )
+    } else { //otherwise update
+        Windows.update( {user: userId,"maps.mapId":mapId}, {$inc : {"maps.$.count": 1} } )
+    }
+    //console.log('user',userId, 'has just opened a window for', mapId);
+    return this.stop();
+});
+
+Meteor.publish('ClosedWindow', function(userId,mapId) {
+    //if(!this.userId) { return this.stop() } we need this function to be called when the user is not signed in
+
+    //decrement the count of users window by one, delete entry if all windows closed
+    Windows.update({user: userId,"maps.mapId":mapId},{$inc : {"maps.$.count": -1} } )
+
+    //if (Windows.findOne({user: userId, "maps.mapId": mapId, "maps.count": 0} )){
+    //    Windows.update({user: userId},{$pull : {"maps.mapId": mapId, "maps.count":0} } )
+    //}
+    //console.log('user',userId, 'has just closed a window for', mapId);
+
+    return this.stop();
+});
 Meteor.methods({
-    checkLayerBox: function (userId, MapId) {
-        //TODO, this should be done via publish and subscribe, not by calling a server function as is
+    isWindowOpen: function (userId, mapId) {
         this.unblock();
         var future = new Future();
 
-        LayerBox = LayerPostOffice.findOne({user: userId, toMapId: MapId});
+        var userWindowsDoc = Windows.findOne({user: userId, "maps.mapId": mapId});
+        var isOpen = false; //switch to flip if user has the window of interest open
 
-        //return false if user doesn't have any layers in their box
-        (LayerBox === undefined) ? future.return(false) : future.return(LayerBox.layers) ;
+        //look to see if the document's maps array contains a mapId whose count is not 0, if so its open
+        _.each(userWindowsDoc.maps,function (val,key,list){
 
-        return future.wait();
+            if (val["mapId"] == mapId && val["count"] != 0){ //flip switch and return
+                isOpen = true;
+                future.return(isOpen)
+            }
+        });
+
+        if (!isOpen) {future.return(false);}
+
+        return future.wait()
     }
 });
+//end Windows collection manipulators
 
+//acccess the address database so that user is presented with where they can 'reflect' to.
 Meteor.publish('reflectionToMapIds', function(currMapId) {
     return ManagerAddressBook.find({mapId: currMapId, operation: 'reflection'});
 });
 
+//TODO: this should be publish-subscribe too (not that it matters, but a user could access this function from console)
 Meteor.methods({
 
     emptyLayerBox: function (userId, MapId) {
@@ -217,3 +344,4 @@ Meteor.methods({
         return future.wait();
     }
 });
+

@@ -44,6 +44,13 @@ var app = app || {}; // jshint ignore:line
         queryFreeReload();
     }
 
+    loadProject = function (project) {
+        ctx.project = project;
+        Session.set('page', 'mapPage');
+        ctx.save();
+        queryFreeReload();
+    }
+ 
     Template.body.events({
 
         // Reload so global variables get reset and release memory
@@ -58,8 +65,7 @@ var app = app || {}; // jshint ignore:line
 
         "click .thumbnail": function (ev){
             var project = $(ev.currentTarget).data('project') + '/';
-            ctx.save(project);
-            queryFreeReload();
+            loadProject(project);
         },
         "click .gridPage": function() {
             pageReload('gridPage');
@@ -152,11 +158,11 @@ var app = app || {}; // jshint ignore:line
                 // Initialize the background functions.
                 initOverlayNodes();
                 if (DEV) initOverlayNodeUi();
+                initLegend();
                 initShortlist();
                 initLayerBox();
-                initLegend();
                 initCoords();
-                if (DEV) initReflect();
+                initReflect();
                 initLabelTool();
                 initDownload();
                 initColors();
@@ -181,7 +187,6 @@ var app = app || {}; // jshint ignore:line
             initSortAttrs();
             initFilter();
             initLayerLists();
- 
             Session.set('retrievedLayerInfo', true);
         }
     }

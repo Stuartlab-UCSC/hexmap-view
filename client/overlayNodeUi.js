@@ -140,7 +140,7 @@ var app = app || {};
  
         // Create an instance of DialogHex
         var opts = { title: title };
-        dialogHex = createDialogHex($('#overlayNodeTrigger'), $dialog, opts,
+        dialogHex = createDialogHex(undefined, $('#overlayNodeTrigger'), $dialog, opts,
             show, hide, true);
  
         // Create a link from the menu

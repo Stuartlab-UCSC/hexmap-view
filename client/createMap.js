@@ -87,7 +87,7 @@ var app = app || {};
             title: title,
             buttons: [{ text: 'Create', click: createIt }],
         };
-        dialogHex = createDialogHex($button, $dialog, opts, show,
+        dialogHex = createDialogHex(undefined, $button, $dialog, opts, show,
             hide, true, '#fakeHelpAnchor');
  
         // Listen for the menu clicked

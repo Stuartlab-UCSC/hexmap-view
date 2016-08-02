@@ -6,7 +6,8 @@ var app = app || {}; // jshint ignore:line
 
 
 (function (hex) { // jshint ignore:line
-    
+    LayerPostOffice = new Mongo.Collection('LayerPostOffice');
+
     function JsonLayer(layer){
         //puts together two parallel arrays and makes a single Json data layer
         vals = layer.data.values;
@@ -18,7 +19,7 @@ var app = app || {}; // jshint ignore:line
         }
         return Json
     }
-    
+
     function receive_layers(layers){
         //iterate through layers and place them in the shortlist
         _.each(layers, function (layer){
@@ -62,24 +63,48 @@ var app = app || {}; // jshint ignore:line
     }
 
     initLayerBox = function() {
-        
-        mapId = ctx.project;
- 
+
         // If no user is logged in, there is no layerBox doc for this
         if (_.isUndefined(Meteor.user()) || _.isNull(Meteor.user())) return;
-        
+
+        //variables needed for querry
+        mapId = ctx.project;
         username = Meteor.user().username;
-        
-        Meteor.call('checkLayerBox', username, mapId, function (error, result){
-           
-                if (error) {
-                    banner('error', error);
-                } else if (result) {
-                    //console.log(result); //good for seeing what's in user's layerbox
-                    receive_layers(result);
-                }
-            
-        });
-        /*Meteor.call('emptyLayerBox',username,mapId,function (error,result){})*/
-    }
+
+        //Meteor.subscribe('makeBox',username,mapId);
+        //subscribe to LayerBox and stuff in shortlist when ready.
+
+        //first thing when it's ready is display on map
+        LayerBoxHandle = Meteor.subscribe('userLayerBox',username,mapId,
+            {
+                onReady: function () {
+
+                    //console.log('Subscription to Layerbox ready: Grabbing Doc');
+
+                    LayerBoxDoc = LayerPostOffice.findOne();
+
+                    //console.log(LayerBox);
+                    if (LayerBoxDoc) {
+                        receive_layers(LayerBoxDoc.layers);
+                    }
+                },
+                onError: function (error) { console.log("onError: subscribe to LayerBox",error); }
+            }
+        );
+
+        //now observe for any changes and display them
+        LayerBoxCurser = LayerPostOffice.find();
+        //console.log(LayerBoxCurser);
+        LayerBoxCurser.observeChanges({
+            //console.log('checkLayerBox: observing Layerbox');
+            changed: function (id, fields) {
+                //console.log('checkLayerBox: Users layerBox Doc updated: id, feilds:',id, fields);
+                receive_layers(fields.layers);
+                banner('info','You now have a new reflection in your short list')
+            }
+        })
+
+    };
+
+
 })(app);

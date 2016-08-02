@@ -63,8 +63,12 @@ def reflection(parm):
     #take sd of each row
     rowstd = ref_dat.std(axis=1)
 
-    #calculate raw scores
+    #calculate raw scores, store in dataframe
     res = ( (ref_dat[node_ids].mean(axis=1) - rowmu) / rowstd)#
+
+    #NA's are filled with 0, 0 should be the most nuetral value
+    # if not done NA's will pop up in the top LOW category
+    res.fillna(value=0,inplace=True)
 
     #grab highest and lowest values and turn into: 3 highest , 2 middle, 1 lowest. 3 and 1 are of particular interest
     res = topXbinTrans(res,TOP).to_dict()

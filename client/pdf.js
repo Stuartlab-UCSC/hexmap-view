@@ -106,7 +106,7 @@ var app = app || {}; // jshint ignore:line
  
         // Define the dialog options & create an instance of DialogHex
         var opts = { title: title };
-        dialogHex = createDialogHex($button, $dialog, opts, show,
+        dialogHex = createDialogHex(undefined, $button, $dialog, opts, show,
             hide, true);
  
         // Listen for the menu clicked
