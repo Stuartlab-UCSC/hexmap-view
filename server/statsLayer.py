@@ -493,8 +493,9 @@ class ForEachLayer(object):
                 if b: total_b += 1	#increment if b has 1
 
         #YN 20160802: changed to only compute layout aware stats for pairs of binary attributes where the counts of value 1 are comparable in both attributes
-        #if there are more than 10 1's in attribute B then compute stats, else skip:
-        if total_b >= 10:
+        #if number of 1s in attribute B is at least 5% of number of 1s in attribute A then compute stats, else skip:
+        ratio = float(total_b) / float(total_a)
+        if ratio >= 0.05:
             try:
                 # Call the stats library function
                 # Pearson call returns like so:
