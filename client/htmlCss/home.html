@@ -60,43 +60,14 @@
         <ul>
             <li>
                 Get started with Pancan12
-                <ul>
-                    <li>
-                        <a href='/useCases/u1/UseCase1.html' target='_blank'>
-                            How do I view the Pancan12 Tumor Map?</a>
-                    </li>
-                    <li>
-                        <a href='/useCases/u2/UseCase2.html' target='_blank'>
-                            How are colors customized and an image downloaded?</a>
-                    </li>
-                    <li>
-                        <a href='/useCases/u3/UseCase3.html' target='_blank'>
-                            Which samples share a particular genomic alteration of interest?</a>
-                    </li>
-                    <li>
-                        <a href='/useCases/u4/UseCase4.html' target='_blank'>
-                            How are custom annotations created?</a>
-                    </li>
-                    <li>
-                        <a href='/useCases/u5/UseCase5.html' target='_blank'>
-                            What is the top differentiating attribute for squamous-like bladder cancer?</a>
-                    </li>
-                    <li>
-                        <a href='/useCases/u6/UseCase6.html' target='_blank'>
-                            Which genomic events distinguish one subtype of cancer from another?</a>
-                    </li>
-                    <li>
-                        <a href='/useCases/u7/UseCase7.html' target='_blank'>
-                            Which genes and pathways drive clustering of basal breast tumors?</a>
-                    </li>
-                </ul>
+                {{> tutorialMenuT }}
             </li>
             <li>
                 <a href='/help.pdf' target='_blank'>Gliomas map User Guide</a>
             </li>
             <li>
                 You may also ask for help via
-                <a href="mailto:hexmap@ucsc.edu">email</a>
+                <a href="mailto:hex@ucsc.edu">email</a>
             </li>
             <li style='display:none'>
                 Some of the map controls have a
@@ -123,7 +94,9 @@
     <p>
         We provide visualization of genomic samples that share common molecular
         profiles, allowing multiple platforms and data types to be combined
-        to view sample relationships in multiple omic spaces.
+        to view sample relationships in multiple omic spaces. We want this tool
+        to help you by revealing patterns, answering questions and creating new
+        questions.
     </p>
 
     <h3>
@@ -288,8 +261,7 @@
 </div>
 
 <p style='font-size:0.7em'>
-    (v0.9.2 rc2)
+    ({{ version }})
 </p>
 </div>
 </template>
-

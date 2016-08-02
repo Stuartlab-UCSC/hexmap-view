@@ -218,10 +218,10 @@ var app = app || {}; // jshint ignore:line
  
         // TODO keep the dev features out of production
         if (DEV) {
-            $('#navBar .overlayNode, #navBar .createMap, #navBar .tutorials')
+            $('#navBar .overlayNode, #navBar .createMap')
                 .addClass('disabled');
         } else {
-            $('#navBar .overlayNode, #navBar .createMap, #navBar .tutorials')
+            $('#navBar .overlayNode, #navBar .createMap')
                 .hide();
         }
  

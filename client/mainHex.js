@@ -116,6 +116,16 @@ var app = app || {}; // jshint ignore:line
         },
     });
 
+    Template.homePage.helpers({
+        version: function () {
+            if (DEV) {
+                return VERSION + ' DEV';
+            } else {
+                return VERSION
+            }
+        },
+    });
+
     Template.headerT.helpers({
         sort: function () {
             return Session.get('sort');

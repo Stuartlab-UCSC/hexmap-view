@@ -12,3 +12,4 @@ Map Creation
    i3_layoutInputFiles
    i4_genLayoutAndStats
    i5_viewer
+   i6_server
