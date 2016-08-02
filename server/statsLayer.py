@@ -493,11 +493,8 @@ class ForEachLayer(object):
                 if b: total_b += 1	#increment if b has 1
 
         #YN 20160802: changed to only compute layout aware stats for pairs of binary attributes where the counts of value 1 are comparable in both attributes
-        #if the total count of attribute A/B with value 1 is fewer than 10 then don't compute the statistic:
-        if total_a < 10 or total_b < 10:
-            correlation = float('NaN')
-            pValue = 1
-        else:
+        #if there are more than 10 1's in attribute B then compute stats, else skip:
+        if total_b >= 10:
             try:
                 # Call the stats library function
                 # Pearson call returns like so:
@@ -507,6 +504,9 @@ class ForEachLayer(object):
             except Exception:
                 correlation = float('NaN')
                 pValue = 1
+        else:
+            correlation = float('NaN')
+            pValue = 1
 
         return [layerB, sigDigs(correlation), sigDigs(pValue)]
 
