@@ -467,6 +467,11 @@ class ForEachLayer(object):
 
         # Find nodes with an attribute value of one.
         # Nodes are the x,y coordinates of hexagons before squiggling
+        
+        #YN 20160802: changed to only compute layout aware stats for pairs of binary attributes where the counts of value 1 are comparable in both attributes
+        #keep track of total counts of value 1 in the attributes A and B:
+        total_a = 0
+        total_b = 0
         for i, nodes in enumerate(s.windowNodes):
             for node in nodes:
 
@@ -481,16 +486,27 @@ class ForEachLayer(object):
                 if not (a and b):
                     if a: A[i] += 1
                     if b: B[i] += 1
+                
+                #YN 20160802: changed to only compute layout aware stats for pairs of binary attributes where the counts of value 1 are comparable in both attributes
+                #keep track of total counts of value 1 in the attributes A and B:
+                if a: total_a += 1	#increment if a has 1
+                if b: total_b += 1	#increment if b has 1
 
-        # Call the stats library function
-        try:
-            # Pearson call returns like so:
-            #   [Pearsons-correlation-coefficient, 2-tailed-p-value]
-            # http://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.pearsonr.html
-            correlation, pValue = scipy.stats.pearsonr(A, B)
-        except Exception:
+        #YN 20160802: changed to only compute layout aware stats for pairs of binary attributes where the counts of value 1 are comparable in both attributes
+        #if the total count of attribute A/B with value 1 is fewer than 10 then don't compute the statistic:
+        if total_a < 10 or total_b < 10:
             correlation = float('NaN')
             pValue = 1
+        else:
+            try:
+                # Call the stats library function
+                # Pearson call returns like so:
+                #   [Pearsons-correlation-coefficient, 2-tailed-p-value]
+                # http://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.pearsonr.html
+                correlation, pValue = scipy.stats.pearsonr(A, B)
+            except Exception:
+                correlation = float('NaN')
+                pValue = 1
 
         return [layerB, sigDigs(correlation), sigDigs(pValue)]
 
