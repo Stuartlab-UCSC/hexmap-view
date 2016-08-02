@@ -881,11 +881,13 @@ var app = app || {}; // jshint ignore:line
 
             // Get the layer name
             var layer_name = $(element).data("layer");
-            
-            // We only consider layers that are turned on & have their filter enabled.
-            if (!$(element).find('.layer-on').is(":checked")
-                && filterControl.equals(layer_name, true)) {
 
+            // This is the checkbox value that determines if we use this layer's
+            // filter
+            if (filterControl.equals(layer_name, true)) {
+
+                // Put the layer in if its checkbox is checked.
+                
                 // This will hold our filter function. Start with a no-op filter.
                 var filter_function = function(value) {
                     return true;
