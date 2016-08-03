@@ -69,8 +69,9 @@ function initManagerHelper() {
             {
                 "operation" : "reflection",
                 "mapId" : "Pancan12/SampleMap/",
+                "toMapId" : "Pancan12/GeneMap",
                 "opts" : undefined,
-                "args" : [
+                "args" : [ //this is how the parmMaker knows which parameters to look for
                     "datapath",
                     "featOrSamp",
                     "node_ids"
@@ -84,6 +85,7 @@ function initManagerHelper() {
             {
                 "operation" : "reflection",
                 "mapId" : "Pancan12/GeneMap/",
+                "toMapId" : "Pancan12/SampleMap/",
                 "opts" : undefined,
                 "args" : [
                     "datapath",
@@ -99,6 +101,7 @@ function initManagerHelper() {
             {
                 "operation" : "reflection",
                 "mapId" : "dmccoll_MESO/GeneMap/",
+                "toMapId" : "dmccoll_MESO/SampleMap/",
                 "opts" : undefined,
                 "args" : [
                     "datapath",
@@ -114,6 +117,7 @@ function initManagerHelper() {
             {
                 "operation" : "reflection",
                 "mapId" : "dmccoll_MESO/SampleMap/",
+                "toMapId" : "dmccoll_MESO/GeneMap/",
                 "opts" : undefined,
                 "args" : [
                     "datapath",
@@ -178,9 +182,9 @@ function dropInLayerBox(layerData,user,toMapId){
 
 }
 
-function parmMaker(mapId,operation,argsObj) {
+function parmMaker(mapId,toMapId, operation,argsObj) {
     //function that access the File Cabinet in order to produce a parmameter Json for python script.
-    scriptDoc = ManagerFileCabinet.findOne({operation: operation , mapId: mapId});
+    scriptDoc = ManagerFileCabinet.findOne({operation: operation , mapId: mapId,toMapId: toMapId});
     parm = {};
     //TODO: make cleaner by using precedence and writing over if necessary (?)
     //go through the necessary arguments
@@ -233,7 +237,7 @@ Meteor.methods({
             //load parameters specific to reflection python script
             //console.log("MapManager.js: parmMaker:",parmMaker(mapId,operation,{node_ids: nodeIds}));
             userArgs = {node_ids : nodeIds};
-            parameters = parmMaker(mapId,operation, userArgs);
+            parameters = parmMaker(mapId,toMapId, operation, userArgs);
             //console.log(parameters);
             callPython(operation, parameters, function (result) {
                 if (result) {
@@ -302,6 +306,13 @@ Meteor.publish('ClosedWindow', function(userId,mapId) {
 
     return this.stop();
 });
+
+//deletes a layer (specified by layer_name) from a (userId, mapId) LayerBox entry
+Meteor.publish('deleteLayer',function(userId,mapId,layer_name) {
+    if(!this.userId) { return this.stop() } // if not logged in function won't do anything
+
+    LayerPostOffice.update({user: userId, toMapId: mapId},{$pull: {layers: {layer_name: layer_name}}});
+});
 Meteor.methods({
     isWindowOpen: function (userId, mapId) {
         this.unblock();
@@ -313,9 +324,9 @@ Meteor.methods({
         //look to see if the document's maps array contains a mapId whose count is not 0, if so its open
         _.each(userWindowsDoc.maps,function (val,key,list){
 
-            if (val["mapId"] == mapId && val["count"] != 0){ //flip switch and return
+            if (val["mapId"] === mapId && !(val["count"] === 0) ){ //flip switch and return
                 isOpen = true;
-                future.return(isOpen)
+                future.return(true)
             }
         });
 
