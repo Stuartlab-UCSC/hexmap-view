@@ -32,11 +32,10 @@
     float: left;
     position: relative;
     list-style: none;
-    padding: 0.3em 0.5em;
+    padding: 0.4em 0.5em;
 }
 
-#navBar li.disabled,
-#navBar .tutorials {
+#navBar li.disabled {
     color: grey;
 }
 
@@ -89,9 +88,12 @@
     width: 8em;
 }
 
-#navBar .tutorials,
-#navBar li.help li {
-    width: 9em;
+#navBar ul.help > li {
+    width: 7em;
+}
+
+#navBar ul.tutorial > li {
+    width: 38em;
 }
 
 #navBar li.login {
@@ -120,7 +122,6 @@
 }
 
 #navBar .disabled,
-#navBar .tutorials,
 #navBar .version,
 #navBar .cyber-slug,
 #navBar .login,
@@ -172,7 +173,6 @@
 }
 
 #navBar li:hover hr,
-#navBar li:hover li.tutorial,
 #navBar li:hover li.version {
     background: #ddd;
 }

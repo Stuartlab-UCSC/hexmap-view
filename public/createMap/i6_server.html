@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Generate Layout &amp; Statistics &mdash; Tumor Map Creation</title>
+    <title>Servers &mdash; Tumor Map Creation</title>
     
     <link rel="stylesheet" href="_static/agogo.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -25,8 +25,7 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="top" title="Tumor Map Creation" href="index.html" />
-    <link rel="next" title="Viewer Input Files" href="i5_viewer.html" />
-    <link rel="prev" title="Layout Input Files" href="i3_layoutInputFiles.html" /> 
+    <link rel="prev" title="Viewer Input Files" href="i5_viewer.html" /> 
   </head>
   <body role="document">
     <div class="header-wrapper" role="banner">
@@ -34,10 +33,8 @@
         <div class="headertitle"><a
           href="index.html">Tumor Map Creation</a></div>
         <div class="rel" role="navigation" aria-label="related navigation">
-          <a href="i3_layoutInputFiles.html" title="Layout Input Files"
-             accesskey="P">previous</a> |
           <a href="i5_viewer.html" title="Viewer Input Files"
-             accesskey="N">next</a> |
+             accesskey="P">previous</a> |
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a>
         </div>
@@ -52,39 +49,42 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="generate-layout-statistics">
-<h1>Generate Layout &amp; Statistics<a class="headerlink" href="#generate-layout-statistics" title="Permalink to this headline">¶</a></h1>
-<p>This describes the layout utility that finds
-positions for the nodes based on similarity scores and generates associative
-statistics.</p>
-<div class="section" id="layout-py">
-<h2>layout.py<a class="headerlink" href="#layout-py" title="Permalink to this headline">¶</a></h2>
-<p>Here is an example script with typical parameters to generate input for the Tumor Map viewer:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span>BASE_DIR=/data/hexmap/data
-INPUT_DIR=$BASE_DIR/layoutInput/QuakeBrain
-OUTPUT_DIR=$BASE_DIR/view/QuakeBrain
-
-python2.7 $HEXMAP/calc/layout.py \
-   $INPUT_DIR/layout_sparse_mrna_data.tab \
-   $INPUT_DIR/layout_sparse_methylation_data.tab \
-   --names mRNA \
-   --names Methylation \
-   --scores $INPUT_DIR/attributes_clinical.tsv \
-   --scores $INPUT_DIR/attributes_mutations.tsv \
-   --include-singletons \
-   --colormaps $INPUT_DIR/colormaps.tab \
-   --first_attribute Tissue \
-   --directory $OUTPUT_DIR
+  <div class="section" id="servers">
+<h1>Servers<a class="headerlink" href="#servers" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="log-files">
+<h2>Log files<a class="headerlink" href="#log-files" title="Permalink to this headline">¶</a></h2>
+<p>The log files of the database and HTTP servers are below.
+Replace <em>HEXMAP</em> with your the installation directory:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">HEXMAP</span><span class="o">/</span><span class="n">db</span><span class="o">.</span><span class="n">log</span>
+<span class="n">HEXMAP</span><span class="o">/</span><span class="n">www</span><span class="o">.</span><span class="n">log</span>
 </pre></div>
 </div>
-<p>Where the first two parameters are two different sparse matrix data files.
-There should be one of these for each layout.</p>
-<p><strong>names</strong>: unique ID/label for a layout</p>
-<p><strong>scores</strong>:  values for each signature</p>
-<p><strong>include-singletons</strong>: add self-edges to retain unconnected points</p>
-<p><strong>colormaps</strong>: colormap for categorical attributes</p>
-<p><strong>first_attribute</strong>: attribute by which to color the map upon first display</p>
-<p><strong>directory</strong>: layout and statistical output files</p>
+</div>
+<div class="section" id="checking-processes">
+<h2>Checking processes<a class="headerlink" href="#checking-processes" title="Permalink to this headline">¶</a></h2>
+<p>Check for running servers by searching for the port number in <em>ps</em> output.
+For example if the HTTP server runs on port 8113:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span>$ps -eaf | grep 8113
+hexmap      .../mongod --bind_ip 127.0.0.1 --port 28113 --dbpath .../hexmap/server/db
+hexmap      .../node  .../index.js --port 8113 --settings .../hexmap/server/settings.json
+$
+</pre></div>
+</div>
+<p>The first process is the MongoDB server listening on port 28113, while
+the second process is the HTTP server.</p>
+</div>
+<div class="section" id="starting-the-servers">
+<h2>Starting the servers<a class="headerlink" href="#starting-the-servers" title="Permalink to this headline">¶</a></h2>
+<p>The database server must be up before starting the HTTP server.
+Start the servers with the commands below:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span>nohup runDB
+nohup runWww
+</pre></div>
+</div>
+</div>
+<div class="section" id="stopping-the-servers">
+<h2>Stopping the servers<a class="headerlink" href="#stopping-the-servers" title="Permalink to this headline">¶</a></h2>
+<p>A kill command with no options is the best way to stop the processes.</p>
 </div>
 </div>
 
@@ -100,12 +100,15 @@ There should be one of these for each layout.</p>
 <li class="toctree-l1"><a class="reference internal" href="i1_yourData.html">Your Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="i2_formatForLayout.html">Prepare for Layout</a></li>
 <li class="toctree-l1"><a class="reference internal" href="i3_layoutInputFiles.html">Layout Input Files</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="">Generate Layout &amp; Statistics</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#layout-py">layout.py</a></li>
+<li class="toctree-l1"><a class="reference internal" href="i4_genLayoutAndStats.html">Generate Layout &amp; Statistics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="i5_viewer.html">Viewer Input Files</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="">Servers</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#log-files">Log files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#checking-processes">Checking processes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#starting-the-servers">Starting the servers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#stopping-the-servers">Stopping the servers</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="i5_viewer.html">Viewer Input Files</a></li>
-<li class="toctree-l1"><a class="reference internal" href="i6_server.html">Servers</a></li>
 </ul>
 
           <div role="search">
@@ -129,16 +132,14 @@ There should be one of these for each layout.</p>
       <div class="footer">
         <div class="left">
           <div role="navigation" aria-label="related navigaton">
-            <a href="i3_layoutInputFiles.html" title="Layout Input Files"
-              >previous</a> |
             <a href="i5_viewer.html" title="Viewer Input Files"
-              >next</a> |
+              >previous</a> |
             <a href="genindex.html" title="General Index"
               >index</a>
           </div>
           <div role="note" aria-label="source link">
               <br/>
-              <a href="_sources/i4_genLayoutAndStats.txt"
+              <a href="_sources/i6_server.txt"
                 rel="nofollow">Show Source</a>
           </div>
         </div>

@@ -86,7 +86,8 @@ class ForEachLayer(object):
                 # layerIndex was provided, probably from the precomputed stats
                 filename = 'stats_' + str(parm['layerIndex']) + '.tab'
                 s.file = os.path.join(parm['directory'], filename)
-
+   """
+    # not used anymore
     @staticmethod
     def findSignificancyCutoff(s, layerName):
 
@@ -98,8 +99,7 @@ class ForEachLayer(object):
             return min(len(ones), len(zeros)) / 10
         else:
             return float('inf')
-    """
-    # not used anymore
+    
     @staticmethod
     def hasEnoughCounts(s, table, layerB):
 
@@ -595,7 +595,8 @@ class ForEachLayer(object):
 
             # for layout-independent stats
  
-            s.significancyCutoffA = s.findSignificancyCutoff(s, s.layerA)
+            # unused:
+            #s.significancyCutoffA = s.findSignificancyCutoff(s, s.layerA)
             
             for layerB in s.statsLayers:
 

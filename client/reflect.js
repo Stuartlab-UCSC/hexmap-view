@@ -116,6 +116,8 @@ var app = app || {};
  
         // OnReady function for subscription to reflectionToMapIds.
  
+        console.log('reflect.js: getToMapIds()');
+
         // For now, only allow mRNA, the first layout for reflection
         // so keep the menu option disabled
         if (!Session.equals('layoutIndex', 0)) return;
@@ -162,6 +164,7 @@ var app = app || {};
 
             //subscribe to address book
             if (!subscribedToMaps) {
+                console.log('reflect.js subscribing to reflectionToMapIds');
                 Meteor.subscribe('reflectionToMapIds',ctx.project, getToMapIds);
                 subscribedToMaps = true;
             }
