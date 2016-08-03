@@ -10,12 +10,11 @@ description: |
     Usage:
     # fetch CWL
     TODO
-    $> dockstore tool cwl --entry quay.io/hexmap_ucsc/hexagram_variance_filter:1.0 > Dockstore.cwl
+    $> dockstore tool cwl --entry quay.io/hexmap_ucsc/n_of_1:1.0 > Dockstore.cwl
     # make a runtime JSON template and edit it (or use the content of sample_configs.json in this git repo)
     $> dockstore tool convert cwl2json --cwl Dockstore.cwl > Dockstore.json
     # run it locally with the Dockstore CLI
-    $> dockstore tool launch --entry quay.io/hexmap_ucsc/hexagram_variance_filter:1.0 \
-        --json Dockstore.json
+    $> dockstore tool launch --entry quay.io/hexmap_ucsc/n_of_1:1.0 --json Dockstore.json
     ```
 
 dct:creator:

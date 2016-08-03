@@ -1,11 +1,11 @@
 {
   "in_background": {
-    "path": "/Users/ynewton/school/ucsc/projects/stuart_lab/hexagram/.docker/N-of-1/mRNA_background_test.tab",
+    "path": "https://raw.githubusercontent.com/ucscHexmap/hexagram/dev/.docker/N-of-1/mRNA_background_test.tab",
     "class": "File"
   },
   "neighborhood_size": "6",
   "in_coordinates": {
-    "path": "/Users/ynewton/school/ucsc/projects/stuart_lab/hexagram/.docker/N-of-1/xy_positions.tab",
+    "path": "https://raw.githubusercontent.com/ucscHexmap/hexagram/dev/.docker/N-of-1/xy_positions.tab",
     "class": "File"
   },
   "metric": "correlation",
@@ -19,7 +19,7 @@
   },
   "num_jobs": "-1",
   "in_pivot": {
-    "path": "/Users/ynewton/school/ucsc/projects/stuart_lab/hexagram/.docker/N-of-1/test_overlayNode_request.json",
+    "path": "https://raw.githubusercontent.com/ucscHexmap/hexagram/dev/.docker/N-of-1/test_overlayNode_request.json",
     "class": "File"
   }
 }

@@ -80,8 +80,8 @@ inputs:
       prefix: "--directory"
 
   - id: "#include-singletons"
-    type: boolean
-    default: true
+    type: string
+    default: ""
     description: "flag to include singletons"
     inputBinding:
       position: 7
@@ -89,4 +89,4 @@ inputs:
 
 outputs: []
 
-baseCommand: ["/opt/conda/bin/python", "/hexagram/.calc/layout.py", ">", "paper.log"]
+baseCommand: ["python", "/hexagram/.calc/layout.py"]

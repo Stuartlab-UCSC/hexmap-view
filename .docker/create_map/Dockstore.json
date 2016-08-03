@@ -1,15 +1,15 @@
 {
-  "names": "fill me in",
+  "names": "Test",
   "scores": {
-    "path": "fill me in",
+    "path": "https://raw.githubusercontent.com/ucscHexmap/hexagram/dev/.docker/create_map/test_attributes.tab",
     "class": "File"
   },
-  "truncation_edges": "fill me in",
+  "truncation_edges": "6",
   "similarity": {
-    "path": "fill me in",
+    "path": "https://raw.githubusercontent.com/ucscHexmap/hexagram/dev/.docker/create_map/layout.mRNA.tab",
     "class": "File"
   },
-  "include-singletons": false,
-  "layout_method": "fill me in",
-  "directory": "fill me in"
+  "include-singletons": "",
+  "layout_method": "DrL",
+  "directory": "/tmp/map/"
 }
