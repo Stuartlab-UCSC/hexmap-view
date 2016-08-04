@@ -126,7 +126,7 @@ var app = app || {}; // jshint ignore:line
         s.gridZoom = 2;  // Zoom level of the grid
         Session.set('layouts', []);  // Map layouts maintained in order of entry
         Session.set('layoutIndex', null);
-        //Session.set('overlayNodes', undefined);  // overlay nodes to include
+        Session.set('overlayNodes', undefined);  // overlay nodes to include
         Session.set('shortlist', []); // Array of layer names in the shortlist
         s.zoom = 2;  // Map zoom level where 2 means zoomed in by 2 levels
     }
@@ -206,7 +206,15 @@ var app = app || {}; // jshint ignore:line
             }
         });
         s.lastProject = s.project;
-    };
+ 
+        // TODO a special hack until we get bookmarks going: load
+        // the hard-coded overlay node data specific to this project
+        if (s.project.slice(0,13) === 'Youngwook/ori') {
+            Session.set('overlayNodes', OVERLAY_NODES_YOUNGWOOK_ORIGINAL);
+        } else if (s.project.slice(0,13) === 'Youngwook/exp') {
+            Session.set('overlayNodes', OVERLAY_NODES_YOUNGWOOK_EXPONENTIAL_NORMALIZATION);
+        }
+    }
  
     State.prototype.loadFromBookmark = function (bookmark) {
  
@@ -244,7 +252,7 @@ var app = app || {}; // jshint ignore:line
         }
         
         // TODO a hack until bookmarks are going
-        Session.set('overlayNodes', undefined);  // overlay nodes to include
+        //Session.set('overlayNodes', undefined);  // overlay nodes to include
     };
 
     State.prototype.fixUpOldUrls = function (project) {

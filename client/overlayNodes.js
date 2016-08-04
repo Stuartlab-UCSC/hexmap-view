@@ -166,8 +166,34 @@ var app = app || {}; // jshint ignore:line
         $markerInfoWindow = $('#markerInfoWindow');
     }
  
-    OVERLAY_NODES = {
+    OVERLAY_NODES_YOUNGWOOK_ORIGINAL = {
+        'sd01': { x: 240.5, y: 235.0},
+        'sd02': { x: 128.0, y: 292.0},
+        'sd03': { x: 228.0, y: 318.5},
+        'sd04': { x: 113.5, y: 110.5},
+        'sd05': { x: 132.5, y: 314.0},
+        'sd06': { x: 227.5, y: 364.0},
+        'sd07': { x: 141.5, y: 307.5},
+        'sd08': { x: 258.0, y: 246.0},
+        'sd09': { x: 259.0, y: 221.0},
+        'sd10': { x: 128.0, y: 293.5},
+    }
  
+    OVERLAY_NODES_YOUNGWOOK_EXPONENTIAL_NORMALIZATION = {
+        'sd01': { x: 252.0, y: 236.5},
+        'sd02': { x: 247.5, y: 236.5},
+        'sd03': { x: 257.0, y: 236.5},
+        'sd04': { x: 149.0, y: 114.0},
+        'sd05': { x: 234.5, y: 239.0},
+        'sd06': { x: 255.5, y: 240.0},
+        'sd07': { x: 255.5, y: 236.5},
+        'sd08': { x: 255.5, y: 239.5},
+        'sd09': { x: 255.5, y: 242.0},
+        'sd10': { x: 255.5, y: 239.5},
+    }
+ 
+    OVERLAY_NODES = {
+
         // PNOC
         'PNOC003-009': { x: 64.5, y: 228.3333333,},
         'PNOC003-011': { x: 43, y: 227.1666667 },
