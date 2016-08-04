@@ -69,7 +69,7 @@ function initManagerHelper() {
             {
                 "operation" : "reflection",
                 "mapId" : "Pancan12/SampleMap/",
-                "toMapId" : "Pancan12/GeneMap",
+                "toMapId" : "Pancan12/GeneMap/",
                 "opts" : undefined,
                 "args" : [ //this is how the parmMaker knows which parameters to look for
                     "datapath",
@@ -185,6 +185,7 @@ function dropInLayerBox(layerData,user,toMapId){
 function parmMaker(mapId,toMapId, operation,argsObj) {
     //function that access the File Cabinet in order to produce a parmameter Json for python script.
     scriptDoc = ManagerFileCabinet.findOne({operation: operation , mapId: mapId,toMapId: toMapId});
+
     parm = {};
     //TODO: make cleaner by using precedence and writing over if necessary (?)
     //go through the necessary arguments
@@ -235,7 +236,6 @@ Meteor.methods({
         if ( operation === 'reflection' ) {
 
             //load parameters specific to reflection python script
-            //console.log("MapManager.js: parmMaker:",parmMaker(mapId,operation,{node_ids: nodeIds}));
             userArgs = {node_ids : nodeIds};
             parameters = parmMaker(mapId,toMapId, operation, userArgs);
             //console.log(parameters);
