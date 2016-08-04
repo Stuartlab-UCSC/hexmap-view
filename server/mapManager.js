@@ -322,14 +322,16 @@ Meteor.methods({
         var isOpen = false; //switch to flip if user has the window of interest open
 
         //look to see if the document's maps array contains a mapId whose count is not 0, if so its open
-        _.each(userWindowsDoc.maps,function (val,key,list){
 
-            if (val["mapId"] === mapId && !(val["count"] === 0) ){ //flip switch and return
-                isOpen = true;
-                future.return(true)
-            }
-        });
+        if (userWindowsDoc) {
+            _.each(userWindowsDoc.maps, function (val, key, list) {
 
+                if (val["mapId"] === mapId && !(val["count"] === 0)) { //flip switch and return
+                    isOpen = true;
+                    future.return(true)
+                }
+            });
+        }
         if (!isOpen) {future.return(false);}
 
         return future.wait()
