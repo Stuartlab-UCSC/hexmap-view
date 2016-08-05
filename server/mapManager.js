@@ -276,6 +276,25 @@ Meteor.publish('userLayerBox', function(userId, currMapId) {
 
 
 
+//Helper function for Windows database
+function getWindowCount(WindowsDoc,mapId){
+    /*
+    Input is windows document from the Windows collection.
+    Returns how many windows are open for a given mapId
+     */
+    var count = 0;
+
+    if (WindowsDoc) {
+        _.each(WindowsDoc.maps, function (val, key, list) {
+            if (val["mapId"] === mapId) { //flip switch and return
+                count = val["count"]
+            }
+        });
+    }
+
+    return count;
+
+};
 //The following 2 publish functions are for manipulating the Windows database.
 // the windows database is
 // a state database that keeps track of how many and which windows are opened by a client
@@ -296,13 +315,10 @@ Meteor.publish('OpenedWindow', function(userId,mapId) {
 Meteor.publish('ClosedWindow', function(userId,mapId) {
     //if(!this.userId) { return this.stop() } we need this function to be called when the user is not signed in
 
-    //decrement the count of users window by one, delete entry if all windows closed
-    Windows.update({user: userId,"maps.mapId":mapId},{$inc : {"maps.$.count": -1} } )
-
-    //if (Windows.findOne({user: userId, "maps.mapId": mapId, "maps.count": 0} )){
-    //    Windows.update({user: userId},{$pull : {"maps.mapId": mapId, "maps.count":0} } )
-    //}
-    //console.log('user',userId, 'has just closed a window for', mapId);
+    //Decrement count, and make sure it is never negative
+    if (getWindowCount(Windows.findOne({user: userId,"maps.mapId":mapId}),mapId) > 0){
+        Windows.update({user: userId,"maps.mapId":mapId},{$inc : {"maps.$.count": -1} } )
+    };
 
     return this.stop();
 });
@@ -319,20 +335,8 @@ Meteor.methods({
         var future = new Future();
 
         var userWindowsDoc = Windows.findOne({user: userId, "maps.mapId": mapId});
-        var isOpen = false; //switch to flip if user has the window of interest open
 
-        //look to see if the document's maps array contains a mapId whose count is not 0, if so its open
-
-        if (userWindowsDoc) {
-            _.each(userWindowsDoc.maps, function (val, key, list) {
-
-                if (val["mapId"] === mapId && !(val["count"] === 0)) { //flip switch and return
-                    isOpen = true;
-                    future.return(true)
-                }
-            });
-        }
-        if (!isOpen) {future.return(false);}
+        future.return(getWindowCount(userWindowsDoc,mapId) !== 0);
 
         return future.wait()
     }
