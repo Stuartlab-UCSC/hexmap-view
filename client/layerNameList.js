@@ -65,8 +65,12 @@ var app = app || {}; // jshint ignore:line
             // Apply the filters to the shortlist
             var list = this.filterer(filter);
 
-            // If at least 2 attributes must be in the list
-            // and there are less than 2, give a message rather than a list
+            // If all of these are true:
+            //    - there is already a layerNamelist in the window
+            //    - we want two different default values in the lists
+            //    - there is only one attribute available for the list
+            // Then tell the user to select another group so the user has two
+            // different attributes available.
             if (this.firstList && list.length < 2) {
                 // We assume 2 lists means they are both filtered by selections
                 this.message.set('Select another group of hexagons');
@@ -74,7 +78,7 @@ var app = app || {}; // jshint ignore:line
             // Give a message rather than a list if there are no layers in the list
             } else if (list.length < 1) {
                 if (filter.binary) {
-                    this.message.set('Add label attribute to shortlist');
+                    this.message.set('Add a binary attribute to shortlist');
                 } else if (filter.selection) {
                     this.message.set('Select a group of hexagons');
                 } else {
@@ -110,7 +114,7 @@ var app = app || {}; // jshint ignore:line
         LayerNameList.prototype.enable = function (enabled, filter) {
 
             // Enable or disable this list. If enabling, also populate the list
-            // Valid filters are:
+            // Current filters handled are:
             //      binary: true: only include binary layers
             //      selection: true: only include selection layers
 
@@ -225,6 +229,14 @@ var app = app || {}; // jshint ignore:line
     createLayerNameList = function ($anchor, $label, selected, firstList) {
 
         // Creates an instance of the LayerNameList.
+        // @param: $anchor: the parent jquery dom element of this list
+        // @param: $label: the jquery dom element of the list label, used
+        //                 if/when we want to disable this list
+        // @param: selected: the initially selected option
+        // @param: firstList: optional. the first list if this is creating a
+        //                    second list where we want the default selection
+        //                    different between the two lists
+
         var instance = new LayerNameList($anchor, $label, selected, firstList);
         instance.init($anchor);
         return instance;

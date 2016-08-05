@@ -136,13 +136,7 @@ var app = app || {}; // jshint ignore:line
             }
             
             if(!found) {
-                // It's new. Add it to the shortlist
-                shortlist.push(layer_name);
-                Session.set('shortlist', shortlist);
-                
-                // Update the UI to reflect this. This may redraw the view.
-                updateShortlist();
-                
+                updateShortlist(layer_name);
             }
             
             // Don't actually change the selection.

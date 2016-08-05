@@ -324,8 +324,10 @@ var app = app || {}; // jshint ignore:line
     }
 
     function make_shortlist_ui (layer_name) {
+ 
+        // Makes a shortlist DOM element for one layer.
 
-        // Skip this if the layers data does not yet exist for this layer
+        // Skip this if this layer's data does not yet exist
         if (!layers[layer_name]) return;
 
         // Return a jQuery element representing the layer with the given name in
@@ -426,16 +428,11 @@ var app = app || {}; // jshint ignore:line
         // Run the removal process
         remove_link.click(function() {
 
-            // Remove this layer from the shortlist
-            var short = Session.get('shortlist').slice();
-            short.splice(short.indexOf(layer_name), 1);
-            Session.set('shortlist', short);
-            
             // Remove this from the DOM
             root.remove();
 
             // Make the UI match the list.
-            updateShortlist();
+            updateShortlist(layer_name, true);
             if(checkbox.is(":checked") || filterControl.equals(layer_name, true)) {
                 // Refresh the colors since we were selected (as coloring or filter)
                 // before removal.
@@ -449,16 +446,12 @@ var app = app || {}; // jshint ignore:line
         if(layers[layer_name].selection) {
             // Run the deletion process
             delete_link.click(function() {
-                // Remove this layer from the shortlist
-                var short = Session.get('shortlist').slice(); // var b = a.slice();
-                short.splice(short.indexOf(layer_name), 1);
-                Session.set('shortlist', short);
 
                 // Remove this from the DOM
                 root.remove();
 
                 // Make the UI match the list.
-                updateShortlist();
+                updateShortlist(layer_name, true);
                 if(checkbox.is(":checked") || filterControl.equals(layer_name, true)) {
                     // Refresh the colors since we were selected (as coloring or filter)
                     // before removal.
@@ -519,10 +512,22 @@ var app = app || {}; // jshint ignore:line
         return root;
     }
 
-    updateShortlist = function () {
+    updateShortlist = function (layer_name, remove) {
+ 
         // Go through the shortlist and make sure each layer there has an entry in 
         // the shortlist UI, and that each UI element has an entry in the shortlist.
         // Also make sure the metadata for all existing layers is up to date.
+        // layer_name is optional. If layer_name is already in the list, we'll
+        // update the short list with the layer's current data.
+ 
+        // Update the shortlist layer names array
+        var list = Session.get('shortlist').slice();
+        if (remove) {
+            list.splice(list.indexOf(layer_name), 1);
+        } else if (layer_name && list.indexOf(layer_name) < 0) {
+            list.push(layer_name);
+        }
+        Session.set('shortlist', list);
 
         // Clear the existing DOM list
         shortlist_ui = {};
@@ -938,8 +943,7 @@ var app = app || {}; // jshint ignore:line
         firstLayerAutorun = Tracker.autorun(function () {
             var first = Session.get('first_layer');
             if (!_.isUndefined(first) && Session.get('shortlist').length < 1) {
-                Session.set('shortlist', [first]);
-                updateShortlist();
+                updateShortlist(first);
             }
         });
     }

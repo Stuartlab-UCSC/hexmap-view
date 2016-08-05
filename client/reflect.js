@@ -46,7 +46,7 @@ var app = app || {};
         selectionList = createLayerNameList($('#reflectDialog .layerNameListAnchor'),
                                     $('#reflectDialog .selectionListLabel'),
                                     selectionSelected);
-        selectionList.enable(true, {selection: true});
+        selectionList.enable(true, {binary: true});
 
         // Define the event handler for the selecting in the list
         $mapAnchor.on('change', function (ev) {
@@ -115,8 +115,6 @@ var app = app || {};
     function getToMapIds() {
  
         // OnReady function for subscription to reflectionToMapIds.
- 
-        console.log('reflect.js: getToMapIds()');
 
         // For now, only allow mRNA, the first layout for reflection
         // so keep the menu option disabled
@@ -164,7 +162,6 @@ var app = app || {};
 
             //subscribe to address book
             if (!subscribedToMaps) {
-                console.log('reflect.js subscribing to reflectionToMapIds');
                 Meteor.subscribe('reflectionToMapIds',ctx.project, getToMapIds);
                 subscribedToMaps = true;
             }

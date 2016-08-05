@@ -35,19 +35,7 @@ var app = app || {}; // jshint ignore:line
 
             // Update the browse UI with the new layer.
             updateLonglist();
-            var shortlist = Session.get('shortlist').slice();
-            shortlist_push = true;
-            if (shortlist_push !== false) {
-                // Immediately shortlist it if the attribute is being created for
-                // the first time.
-                shortlist.push(layer.layer_name);
-                Session.set('shortlist', shortlist);
-                updateShortlist();
-            } else if (shortlist.indexOf(layer.layer_name) >= 0) {
-                // Immediately update shortlist it if the attribute is being loaded
-                // and has been declared as part of the shortlist.
-                updateShortlist();
-            }
+            updateShortlist(layer.layer_name);
             colormap = layer.colormap;
             //console.log(colormap);
             _.each(colormap,function(mapentry){

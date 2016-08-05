@@ -136,7 +136,7 @@ var app = app || {};
     initOverlayNodeUi = function () {
 
         $dialog = $('#overlayNode');
-        var $trigger = $('#menu_overlayNode');
+        var $trigger = $('#navBar .overlayNode');
  
         // Create an instance of DialogHex
         var opts = { title: title };

@@ -6,7 +6,7 @@ var app = app || {}; // jshint ignore:line
 (function (hex) {
 
     var TITLE = 'Filter Attributes',
-        BIN_LABEL = 'Labels (yes/no)',
+        BIN_LABEL = 'Binary',
         CAT_LABEL = 'Category',
         CONT_LABEL = 'Numeric',
         UNTAGGED_LABEL = 'Untagged attributes',
