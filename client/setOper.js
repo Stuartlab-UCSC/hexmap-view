@@ -97,7 +97,7 @@ var app = app || {}; // jshint ignore:line
             }
         
             // Add this new layer to the shortlist
-            var layer_name = select_list(nodeIds, set_type, new_layer_name);
+            var layer_name = create_dynamic_binary_layer (nodeIds, new_layer_name);
 
             // Store current session info about the newly created attributes
             var recorded_set_attr = [];
@@ -520,7 +520,6 @@ var app = app || {}; // jshint ignore:line
             tool_activity(false);
         }, 'Calculate set operation');
         
-        // Computation of Set Operations
         var compute_button = document.getElementsByClassName ("compute-button");
         compute_button[0].onclick = compute_button_clicked;
     }

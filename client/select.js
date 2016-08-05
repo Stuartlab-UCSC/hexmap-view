@@ -193,7 +193,7 @@ var app = app || {}; // jshint ignore:line
         // Create a selection polygon & find the hexagons in it
         setCursor(savedCursor);
 
-        select_list(findHexagonsInPolygon(shape), "user selection");
+        create_dynamic_binary_layer(findHexagonsInPolygon(shape));
 
         // Remove the bounding polygons and reset the hover curser for hexagons
         shape.setMap(null);
@@ -332,7 +332,7 @@ var app = app || {}; // jshint ignore:line
         
             // Add a selection with as many of the requested hexes as actually exist and
             // pass the current filters.
-            select_list(to_select);
+            create_dynamic_binary_layer(to_select);
 
         // TODO future use
         } else if (to_select.length > 0) {

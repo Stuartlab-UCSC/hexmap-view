@@ -16,19 +16,12 @@ var app = app || {}; // jshint ignore:line
     var MAX_DISPLAYED_LAYERS = 2;
     var initialized = false;
 
-    // This holds the next selection number to use. Start at 1 since the user
-    // sees these.
-    var selection_next_id = 1;
-
     var scrollTop = 0; // Save scroll position while select from filter
     var filterControl = new ReactiveDict(); // To show or hide the filter area
     var filterSelector = new ReactiveDict(); // Discrete data-type filter value
     var filterThreshold = new ReactiveDict(); // Continuous data-type filter value
 
     var firstLayerAutorun; // Runs when the first layer is set or shortlist layers changes
-
-    // Boolean for Creating Layer from Filter
-    var created = false;
 
     function reset_slider(layer_name, shortlist_entry) {
         // Given a layer name and a shortlist UI entry jQuery element, reset the 
@@ -188,7 +181,7 @@ var app = app || {}; // jshint ignore:line
         // Don't sort because our caller does that when they're done adding layers.
     }
 
-     function filterControlChanged (ev, filter_value, filter_threshold, save_filter) {
+    function filterControlChanged (ev, filter_value, filter_threshold, save_filter) {
 
         // Functionality for turning filtering on and off
         var layer_name = $(ev.target).data().layer_name;
@@ -212,6 +205,8 @@ var app = app || {}; // jshint ignore:line
                         filter_value.show();
                     }
                     filter_threshold.hide();
+                    save_filter.show();
+                        
                 } else {
 
                     // Not a discrete layer, so we take a threshold.
@@ -223,8 +218,6 @@ var app = app || {}; // jshint ignore:line
                     }
                 }
                 
-                save_filter.show();
-                        
                 save_filter.button().click(function() {
 
                     // Configure Save Filter Buttons
@@ -240,20 +233,22 @@ var app = app || {}; // jshint ignore:line
                         }		
                     }
 
-                    // Create Layer
-                    if (created == false) {
-                        select_list (signatures, "user selection");	
-                        created = true;
+                    // Suggest a name for this new layer
+                    if (have_colormap(layer_name)) {
+                        var category = colormaps[layer_name][value];
+                        if (category) {
+                            value = category.name;
+                        }
                     }
-                    // TODO the below is negating the above
-                    created = false;			
+                    var name = layer_name + ': ' + String(value);
+                    
+                    create_dynamic_binary_layer (signatures, name);
                 });
      
                 refreshColors();
             });
         } else {
 
-            created = false;
             // Hide the filtering settings
             if (USE_SELECT2_FOR_FILTER) {
                 filter_value.select2("container").hide();
@@ -589,207 +584,151 @@ var app = app || {}; // jshint ignore:line
         });
     }
 
-    function selectSetOperList(to_select, function_type, new_layer_name) {
-
-        // Prepare the set operation selection for adding to the long & shortlists
-        var layer_name,
-            default_name = {
-                "intersection": "L1 ∩ L2",
-                "union": "L1 U L2",
-                "set difference": "L1 \\ L2",
-                "symmetric difference": "L1 ∆ L2",
-                "absolute complement": "Not: L1",
-            };
-
-        // Give the user a chance to name the layer
-        if (new_layer_name === undefined) {
-            var text = prompt('Please provide a label for your ' + function_type,
-                default_name[function_type]);
-             if (text != null) {
-                layer_name = text;
-             }
-             if (!text) {
-                return undefined;
-             }
-        } else {
-            layer_name = new_layer_name;
+    function make_layer_name_unique (layer_name) {
+ 
+        var name = layer_name,
+            seq = 1;
+ 
+        // Special case a default selection label
+        if (layer_name === 'Selection 1') {
+            seq = 2;
         }
-
-        // Build the data for this layer with ones for those hexes in to_select
-        // and zeros in the rest
-        var data = {},
-            signatures_available = 0;
-        _.each(polygons, function (val, hex) {
-            if (to_select.indexOf(hex) > -1) {
-                data[hex] = 1;
-            } else {
-                data[hex] = 0;
+ 
+        // Keep looking for a name until it is unique
+        while (true) {
+ 
+            // We're done if the name is unique
+            if (layers[name] === undefined) break;
+     
+            // Remove the last sequence number applied if there was one
+            var last_suffix = ' ' + String(seq - 1);
+            start = name.length - last_suffix.length;
+            if (name.slice(start) === last_suffix) {
+                name = name.slice(0, start);
             }
-            signatures_available += 1;
-        });
 
-        return {layer_name: layer_name,
-                data: data,
-                signatures_available: signatures_available};
+            // Add the new sequence number.
+            name = name + ' ' + String(seq);
+            seq += 1;
+        }
+        return name;
     }
+ 
+    function ask_user_to_name_layer(layer_name, dup_name) {
+ 
+        // Give the user a chance to name the layer
+        var promptString = (dup_name)
+                            ? dup_name + ' is in use, how about this one?'
+                            : 'Please provide a label for this new layer',
+            text = prompt(promptString, layer_name).trim();
+        if (text) {
+            return text;
+        } else {
+            return undefined;
+        }
+    }
+ 
+    function let_user_name_layer(layer_name) {
+ 
+        var name = layer_name;
+ 
+        // if no layer name was supplied, assume this is a selection
+        if (!name) {
+            name = 'Selection 1';
+        } else {
+            name = name.trim();
+        }
+ 
+        // Start with a unique name as a suggestion
+        name = make_layer_name_unique(name);
+ 
+        var unique_name,
+            dup_name;
+ 
+        // Keep asking the user for a name until it is unique or she cancels
+        while (true) {
+            name = ask_user_to_name_layer(name, dup_name);
+            
+            // We're done if she cancels
+            if (name === undefined) break;
+ 
+            unique_name = make_layer_name_unique(name);
+            
+            // We're done if the name is unique
+            if (unique_name === name) break;
 
-    select_list = function (to_select, function_type, layer_names, new_layer_name,
-        shortlist_push) {
-        // Given an array of signature names, add a new selection layer containing
-        // just those hexes. Only looks at hexes that are not filtered out by the
-        // currently selected filters.
-        
-        // function_type is an optional parameter. If no variable is passed for the 
-        // function_type undefined then the value will be undefined and the
-        // default "selection + #" title will be assigned to the shortlist element.
+            // Suggest another unique name
+            dup_name = name;
+            name = unique_name;
+        }
+        return name;
+    }
+ 
+    create_dynamic_binary_layer = function (nodeIds, new_layer_name) {
+ 
+        // Given an array of node IDs, add a new binary layer containing ones
+        // for those nodes and zeroes for the rest. So every node will have a
+        // value in this new layer.
+        //
+        // new_layer_name is an optional parameter. If no name is passed,
+        // "selection + #" will be suggested as the layer name.
 
-        // If layer_names is undefined, the "selection + #" will also apply as a
-        // default. However, if a value i.e. "intersection" is passed 
-        // for function_type, the layer_names will be used along with the 
-        // function_type to assign the correct title. 
-        
-        // Is this selection the result of a set operation?
-        var setOperation = function_type === 'intersection'
-            || function_type === 'union'
-            || function_type === 'set difference'
-            || function_type === 'symmetric difference'
-            || function_type === 'absolute complement';
-
-        if (to_select.length < 1) {
-            banner('warn', setOperation
-                ? "No hexagons were selected as a result of the set operation"
-                : "No hexagons were selected. Maybe part of your selection area wrapped around googlemap's world"
-                );
+        if (nodeIds.length < 1) {
+            banner('warn', "No hexagons were selected.");
             return;
         }
 
-        var layer_name;
-        // How many signatures get selected?
-        var signatures_selected = 0;
-
-        // If this is the result of a set operation...
-        if (setOperation) {
-
-            // Exclude filters for set operation results
-            var r = selectSetOperList(to_select, function_type, new_layer_name);
-            if (_.isUndefined(r) || r.layer_name === null) return;
-
-            layer_name = r.layer_name;
-            data = r.data;
-            signatures_available = r.signatures_available;
-            signatures_selected = to_select.length;
-
-        } else {
-            // Make the requested signature list into an object for quick membership
-            // checking. This holds true if a signature was requested, undefined
-            // otherwise.
-            var wanted = {};
-            for(var i = 0; i < to_select.length; i++) {
-                wanted[to_select[i]] = true;
+        // Build the data for this layer with ones for those nodeIDs in the
+        // given node list and zeros in the rest
+        var data = {};
+        _.each(polygons, function (val, nodeID) {
+            if (nodeIds.indexOf(nodeID) > -1) {
+                data[nodeID] = 1;
+            } else {
+                data[nodeID] = 0;
             }
-            
-            // This is the data object for the layer: from signature names to 1/0
-            var data = {};
-            
-            // How many signatures will we have any mention of in this layer
-            var signatures_available = 0;
-            
-            // Start it out with 0 for each signature. Otherwise we will have missing
-            // data for signatures not passing the filters.
-            for(var signature in polygons) {
-                data[signature] = 0;
-                signatures_available += 1;
-            }
-
-            // This holds the filters we're going to use to restrict our selection
-            var filters = get_current_filters();
-
-            // Go get the list of signatures passing the filters and come back.
-            var noneSelected = false;
-            with_filtered_signatures(filters, function(signatures) { 
-
-                // How many signatures get selected?
-                signatures_selected = 0;
-             
-                for(var i = 0; i < signatures.length; i++) {
-                    if(wanted[signatures[i]]) {
-                        // This signature is both allowed by the filters and requested.
-                        data[signatures[i]] = 1;
-                        signatures_selected++;           
-                    }
-                }
-
-                // Complain if no hexagons were selected after applying the filters
-                if (signatures_selected < 1) {
-                    banner('warn', 'No hexagons are selected after applying the filters.');
-                    noneSelected = true;
-                    return;
-                }
-
-                // Default Values for Optional Parameters
-                if (function_type === undefined && layer_names === undefined){
-                    layer_name = "Selection " + selection_next_id;
-                    selection_next_id++;
-                }
-
-                if (new_layer_name === undefined) {
-                    // If a name hasn't already been prescribed through a previous
-                    // session.
-                    if (function_type == "user selection"){
-                         var text = prompt("Please provide a label for your selection",
-                         "Selection " + selection_next_id);
-                         // Give a different suggested name each time.
-                         // TODO: what if they start naming their things the same on
-                         // purpose? Validate layer names.
-                         selection_next_id++;
-                         if (text != null){
-                            layer_name = text;
-                         }
-                         if (!text) {
-                            noneSelected = true;
-                            return;
-                         }
-                    }
-
-                    // saved filter for layer name
-                    if (function_type == "save") {
-                        layer_name =  "(" + layer_names[0] + ")";
-                    }
-                } else {
-                    // Layer name already exists. User is loading a previous session.
-                    layer_name = new_layer_name;
-                }
-            });
-            if (noneSelected) return;
-        }
-
-        // Add the layer. Say it is a selection
-        add_layer_data(layer_name, data, {
-            selection: true,
-            selected: signatures_selected, // Display how many hexes are in
-            positives: signatures_selected, // TODO get rid of selected someday
-            n: signatures_available // And how many have a value at all
         });
-        
-        // Update the browse UI with the new layer.
-        updateLonglist();
-        var shortlist = Session.get('shortlist').slice();
-        if (shortlist_push !== false) {
-            // Immediately shortlist it if the attribute is being created for
-            // the first time.
-            shortlist.push(layer_name);
-            Session.set('shortlist', shortlist);
-            updateShortlist();
-        } else if (shortlist.indexOf(layer_name) >= 0) {
-            // Immediately update shortlist it if the attribute is being loaded
-            // and has been declared as part of the shortlist.
-            updateShortlist();
-        }
-        new_layer_name = layer_name;
+ 
+        var positives = _.filter(data, function (nodeValue) {
+                return nodeValue > 0;
+            });
 
-        return (new_layer_name);
+        var name = let_user_name_layer(new_layer_name);
+ 
+        if (name) {
+ 
+            // Add the layer
+            add_layer_data(name, data, {
+                selection: true,
+                selected: positives.length, // Display how many hexes are in
+                positives: positives.length, // TODO someday simplify selection, selected & positives
+                n: _.keys(data).length // And how many have a value, which is all in this case
+            });
+            
+            // Update the browse UI with the new layer.
+            updateShortlist(name);
+        }
+ 
+        return (name);
     }
 
+    create_dynamic_category_layer = function (layer_name, data, attributes,
+            colormap) {
+ 
+        // @param: layer_name: layer name for the global layers object
+        // @param: data: data for the global layers
+        // @param: attributes: attributes for the global layers. At least these
+        //                     should be included for now:
+        //                         selection
+        //                         n
+        //                         magnitude
+        // @param: colormap: the colormap for this layer, required for now
+ 
+        add_layer_data(layer_name, data, attributes);
+        updateShortlist(layer_name);
+        colormaps[layer_name] = colormap;
+    }
+ 
     get_current_layers = function () {
         // Returns an array of the string names of the layers that are currently
         // supposed to be displayed, according to the shortlist UI.
@@ -887,9 +826,10 @@ var app = app || {}; // jshint ignore:line
             // Get the layer name
             var layer_name = $(element).data("layer");
 
-            // This is the checkbox value that determines if we use this layer's
-            // filter
-            if (filterControl.equals(layer_name, true)) {
+            // They 'on' checkbox and the filter checkbos must be checked
+            // to apply a filter
+            var $on = $(element).find(".layer-on");
+            if (filterControl.equals(layer_name, true) && $on.is(":checked")) {
 
                 // Put the layer in if its checkbox is checked.
                 
