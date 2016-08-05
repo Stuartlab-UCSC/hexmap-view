@@ -15,6 +15,139 @@ var app = app || {}; // jshint ignore:line
     // Hack: Keep global variable to tell when load session computation is complete
     var set_operation_complete = false;
 
+ 
+    var set_types = [
+        'na',
+        'intersection',
+        'union',
+        'set difference',
+        'symmetric difference',
+        'absolute complement',
+    ];
+
+    function compute_set_operation (values, layer_names, set_type) {
+ 
+        // A function that will take a list of layer names that have been
+        // selected for a set operation. Fetches the respective layers and list
+        // of node ids. Then compares data elements of the same node id between
+        // both layers. Adds these hexes to a new layer for visualization
+        // @param: values: values used to select nodes to include in the operation
+        // @param: layer_names: the layer names to use in this set operation
+        // @param: set_type: the set operation to perform
+        //
+
+        with_layers (layer_names, function (set_layers) {
+            //Array of signatures 
+            var nodeIds = [];
+        
+            // Gather the resulting node IDs using the given set operation
+            for (hex in polygons) {
+                if (set_type === 'intersection') {
+                    if (set_layers[0].data[hex] === values[0]
+                            && set_layers[1].data[hex] === values[1]) {
+                        nodeIds.push(hex);
+                    }
+
+                } else if (set_type === 'union') {
+                    if (set_layers[0].data[hex] === values[0]
+                            || set_layers[1].data[hex] === values[1]) {
+                        nodeIds.push(hex);
+                    }
+
+                } else if (set_type === 'set difference') {
+                    if (set_layers[0].data[hex] === values[0]
+                            && set_layers[1].data[hex] !== values[1]) {
+                        nodeIds.push(hex);
+                    }
+                
+                } else if (set_type === 'symmetric difference') {
+                    // TODO test
+                    if (set_layers[0].data[hex] === values[0]
+                            && set_layers[1].data[hex] !== values[1]) {
+                        nodeIds.push(hex);
+                    }
+                    if (set_layers[0].data[hex] !== values[0]
+                          && set_layers[1].data[hex] === values[1]){
+                        nodeIds.push(hex);
+                    }
+
+                } else if (set_type === 'absolute complement') {
+                    if (set_layers[0].data[hex] !== values[0]) {
+                        nodeIds.push(hex);
+                    }
+                }
+            }
+
+            // Create a default label for this dynamic layer
+            var new_layer_name;
+            if (set_type === 'intersection') {
+                new_layer_name = layer_names[0] + ' n ' + layer_names[1];
+
+            } else if (set_type === 'union') {
+                new_layer_name = layer_names[0] + ' U ' + layer_names[1];
+
+            } else if (set_type === 'set difference') {
+                new_layer_name = layer_names[0] + ' \\ ' + layer_names[1];
+            
+            } else if (set_type === 'symmetric difference') {
+                new_layer_name = layer_names[0] + ' ∆ ' + layer_names[1];
+
+            } else if (set_type === 'absolute complement') {
+                new_layer_name = 'Not: ' + layer_names[0];
+            }
+        
+            // Add this new layer to the shortlist
+            var layer_name = select_list(nodeIds, set_type, new_layer_name);
+
+            // Store current session info about the newly created attributes
+            var recorded_set_attr = [];
+            for (var i = 0; i < ctx.created_attr.length; i++) {
+                var existing_name = ctx.created_attr[i].l_name;
+                recorded_set_attr.push(existing_name);
+            }
+            if (layer_name in recorded_set_attr == false && layer_name != undefined){
+                ctx.created_attr.push({"set":set_type,
+                                                "l_name":layer_name,
+                                                "layers":layer_names,
+                                                "val":values,
+                                                "keep": true
+                });
+            }
+        });
+    }
+
+    function compute_button_clicked () {
+        var layer_names = [];
+        var layer_values = [];
+
+        // First layer name and values
+        var drop_down_layers = document.getElementsByClassName("set-operation-value");
+        var drop_down_data_values = document.getElementsByClassName("set-operation-layer-value");
+
+        // Set operation
+        var function_type = document.getElementById("set-operations-list");
+        var selected_function = function_type.selectedIndex;
+
+        var selected_index = drop_down_layers[0].selectedIndex;
+        layer_names.push(drop_down_layers[0].options[selected_index].text);	
+
+        var selected_index = drop_down_data_values[0].selectedIndex;
+        layer_values.push(Number(drop_down_data_values[0].options[selected_index].value));
+
+        // Second layer name and values
+        if (selected_function != 5) {
+            var selected_index = drop_down_data_values[1].selectedIndex;
+            layer_values.push(Number(drop_down_data_values[1].options[selected_index].value));
+            var selected_index = drop_down_layers[1].selectedIndex;
+            layer_names.push(drop_down_layers[1].options[selected_index].text);
+        }
+
+        compute_set_operation(layer_values, layer_names, set_types[selected_function]);
+
+        print (ctx.created_attr);
+        reset_set_operations();
+    };
+
     // Set Operation GUI
     function get_set_operation_selection () {
         // For the new drop-down GUI for set operation selection
@@ -389,57 +522,6 @@ var app = app || {}; // jshint ignore:line
         
         // Computation of Set Operations
         var compute_button = document.getElementsByClassName ("compute-button");
-        compute_button[0].onclick = function () {
-            var layer_names = [];
-            var layer_values = [];
-            var layer_values_text = [];
-
-            // First layer name and values
-            var drop_down_layers = document.getElementsByClassName("set-operation-value");
-            var drop_down_data_values = document.getElementsByClassName("set-operation-layer-value");
-
-            // Set operation
-            var function_type = document.getElementById("set-operations-list");
-            var selected_function = function_type.selectedIndex;
-
-            var selected_index = drop_down_layers[0].selectedIndex;
-            layer_names.push(drop_down_layers[0].options[selected_index].text);	
-
-            var selected_index = drop_down_data_values[0].selectedIndex;
-            layer_values.push(drop_down_data_values[0].options[selected_index].value);	
-            layer_values_text.push(drop_down_data_values[0].options[selected_index].text);
-
-            // Second layer name and values
-            if (selected_function != 5) {
-                var selected_index = drop_down_data_values[1].selectedIndex;
-                layer_values.push(drop_down_data_values[1].options[selected_index].value);	
-                layer_values_text.push(drop_down_data_values[1].options[selected_index].text);
-                var selected_index = drop_down_layers[1].selectedIndex;
-                layer_names.push(drop_down_layers[1].options[selected_index].text);
-            }
-            
-            switch (selected_function) {
-                case 1:
-                    compute_intersection(layer_values, layer_names);
-                    break;
-                case 2:
-                    compute_union(layer_values, layer_names);
-                    break;
-                case 3:
-                    compute_set_difference(layer_values, layer_names);
-                    break;
-                case 4:
-                    compute_symmetric_difference(layer_values, layer_names);
-                    break;
-                case 5:
-                    compute_absolute_complement(layer_values, layer_names);
-                    break
-                default:
-                    banner ("Set Theory Error");
-            }
-            
-            print (ctx.created_attr);
-            reset_set_operations();
-        };
-    };
+        compute_button[0].onclick = compute_button_clicked;
+    }
 })(app);
