@@ -2,7 +2,7 @@
 # Start the hex server on CIRM
 
 PORT=8113        # Port on which the server listens
-HTTPS_PORT=8112  # Https proxy port if using https, otherwise the same as PORT
+HTTPS_PORT=8113  # Https proxy port if using https, otherwise the same as PORT
 DB_PORT=28113    # Port on which the database listens
 HEXMAP=/data/hexmap/server     # Directory of this script, just above the www directory
 METEOR=/pod/home/swat/.meteor  # the meteor installation
