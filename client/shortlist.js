@@ -365,12 +365,6 @@ var app = app || {}; // jshint ignore:line
         // This will remove the attribute from the shortlist and list of layers
         // This is important for saving/loading so that the user is not constantly
         // confronted with a list of created attributes that they no longer want.
-        if(layers[layer_name].selection) {
-            delete_link = $("<a/>").addClass("delete").attr("href", "#").text("Ø");
-            delete_link.attr("title", "Delete Attribute");
-            controls.append(delete_link);
-        }
-        
         var contents = $("<div/>").addClass("shortlist-contents");
         
         // Add the layer name
@@ -423,6 +417,11 @@ var app = app || {}; // jshint ignore:line
         // Run the removal process
         remove_link.click(function() {
 
+            // If this layer has a delete function, do that
+            if (layers[layer_name].removeFx) {
+                layers[layer_name].removeFx(layer_name);
+            }
+
             // Remove this from the DOM
             root.remove();
 
@@ -433,47 +432,13 @@ var app = app || {}; // jshint ignore:line
                 // before removal.
                 refreshColors();
             }
-
-        });
-
-        // Only peform delete link action if this is a "selection", a user
-        // selection or a set theory defined attribute
-        if(layers[layer_name].selection) {
-            // Run the deletion process
-            delete_link.click(function() {
-
-                // Remove this from the DOM
-                root.remove();
-
-                // Make the UI match the list.
-                updateShortlist(layer_name, true);
-                if(checkbox.is(":checked") || filterControl.equals(layer_name, true)) {
-                    // Refresh the colors since we were selected (as coloring or filter)
-                    // before removal.
-                    refreshColors();
-                }
-
-                // Remove from layers lists and data type list
-                var sorted = Session.get('sortedLayers').slice();
-                sorted.splice(sorted.indexOf(layer_name), 1);
-                Session.set('sortedLayers', sorted);
-
+        
+            // Handle dynamic layers
+            if (layers[layer_name].selection) {
                 delete layers[layer_name];
                 removeFromDataTypeList(layer_name);
-                Session.set('sort', ctx.defaultSort());
-
-                // Alter "keep" property of the created attribute
-                for (var i = 0; i < ctx.created_attr.length; i++) {
-                    if (ctx.created_attr[i].l_name == layer_name) {
-                        ctx.created_attr[i].keep = false;
-                        break;
-                    }
-                }
-            
-                // Update the browse UI with the new layer.
-                updateLonglist();
-            });
-        }
+            }
+        });
 
         // Configure the range slider
         
