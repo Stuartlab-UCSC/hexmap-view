@@ -20,6 +20,15 @@ var app = app || {}; // jshint ignore:line
         return Json
     }
 
+    function remove_layer(layer_name) {
+        var user = Meteor.user();
+        if (user) {
+            console.log('checkLayerBox.js: remove_layer(', layer_name, ')');
+            Meteor.subscribe(
+                'deleteLayer', user.username, ctx.project, layer_name);
+        }
+    }
+
     function receive_layers(layers){
         //iterate through layers and place them in the shortlist
         _.each(layers, function (layer){
@@ -27,6 +36,7 @@ var app = app || {}; // jshint ignore:line
             attributes.selection = layer.selection;
             attributes.n         = layer.n;
             attributes.magnitude = layer.magnitude;
+            attributes.removeFx  = remove_layer;
 
             // make Json out of parallel arrays, avoids '.' in mongoDB
             layer.data = JsonLayer(layer);

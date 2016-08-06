@@ -230,7 +230,8 @@ fill_layer_metadata = function (container, layer_name) {
         if(attribute == "data" || attribute == "url" || 
             attribute == "magnitude" || attribute == "minimum" || 
             attribute == "maximum" || attribute == "selection" || 
-            attribute == "clumpiness_array" || attribute == "tags") {
+            attribute == "clumpiness_array" || attribute == "tags" ||
+            attribute == "removeFx") {
             
             // Skip things we don't want to display
             // TODO: Ought to maybe have all metadata in its own object?
@@ -852,9 +853,6 @@ initLayout = function () {
 }
 
 initHex = function () {
-
-    // Attributes created via a select or set operation
-	ctx.created_attr = [];
 
     // Initialize some operating values
 

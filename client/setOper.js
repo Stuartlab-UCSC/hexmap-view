@@ -98,21 +98,6 @@ var app = app || {}; // jshint ignore:line
         
             // Add this new layer to the shortlist
             var layer_name = create_dynamic_binary_layer (nodeIds, new_layer_name);
-
-            // Store current session info about the newly created attributes
-            var recorded_set_attr = [];
-            for (var i = 0; i < ctx.created_attr.length; i++) {
-                var existing_name = ctx.created_attr[i].l_name;
-                recorded_set_attr.push(existing_name);
-            }
-            if (layer_name in recorded_set_attr == false && layer_name != undefined){
-                ctx.created_attr.push({"set":set_type,
-                                                "l_name":layer_name,
-                                                "layers":layer_names,
-                                                "val":values,
-                                                "keep": true
-                });
-            }
         });
     }
 
@@ -144,7 +129,6 @@ var app = app || {}; // jshint ignore:line
 
         compute_set_operation(layer_values, layer_names, set_types[selected_function]);
 
-        print (ctx.created_attr);
         reset_set_operations();
     };
 
