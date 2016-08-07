@@ -91,8 +91,11 @@ var app = app || {}; // jshint ignore:line
             //console.log('checkLayerBox: observing Layerbox');
             changed: function (id, fields) {
                 //console.log('checkLayerBox: Users layerBox Doc updated: id, feilds:',id, fields);
-                receive_layers(fields.layers);
-                banner('info','You now have a new reflection in your short list')
+
+                if (fields.lastChange === 'inserted') {
+                    receive_layers(fields.layers);
+                    banner('info', 'You now have a new reflection in your short list')
+                }
             }
         })
 

@@ -176,7 +176,7 @@ function dropInLayerBox(layerData,user,toMapId){
     Fiber( function (){
         user=user;
         layerData.data = arrayLayer(layerData);
-        LayerPostOffice.upsert({user:user,toMapId:toMapId},{$push: {layers : layerData}});
+        LayerPostOffice.update({user:user,toMapId:toMapId},{$set: {lastChange: 'inserted'}, $push: {layers : layerData}});
 
     }).run();
 
@@ -265,7 +265,7 @@ Meteor.publish('userLayerBox', function(userId, currMapId) {
     if( ! LayerPostOffice.findOne({user: userId, toMapId: currMapId}) ) {
         //console.log('mapManager: No layerbox found, making empty entry');
         emptyLayers=[];
-        LayerPostOffice.insert({user: userId, toMapId: currMapId, layers: emptyLayers});
+        LayerPostOffice.insert({user: userId, toMapId: currMapId, layers: emptyLayers,lastChange:"created"});
     } 
     
     //console.log('mapManager: published user specific LayerBox: UserId,currMap:', userId, currMapId);
@@ -327,7 +327,7 @@ Meteor.publish('ClosedWindow', function(userId,mapId) {
 Meteor.publish('deleteLayer',function(userId,mapId,layer_name) {
     if(!this.userId) { return this.stop() } // if not logged in function won't do anything
 
-    LayerPostOffice.update({user: userId, toMapId: mapId},{$pull: {layers: {layer_name: layer_name}}});
+    LayerPostOffice.update({user: userId, toMapId: mapId},{$set : { lastChange: "removed"}, $pull: {layers: {layer_name: layer_name}} });
 });
 Meteor.methods({
     isWindowOpen: function (userId, mapId) {
