@@ -23,6 +23,7 @@ var app = app || {}; // jshint ignore:line
         // Strip everything after the query string question mark in the href & reload
         var href = window.location.href
             quest = href.indexOf('?');
+        ctx.save();
         if (quest > -1) {
             href = href.slice(0, href.indexOf('?'));
             window.location.assign(href);
@@ -57,7 +58,7 @@ var app = app || {}; // jshint ignore:line
         // TODO we should not require a reload, however we don't yet have a
         // method to clear the appropriate state and reload does this for us
         "click .homePage": function () {
-            Session.set('page', 'homePage');
+            pageReload('homePage');
         },
         "click .mapPage": function() {
             pageReload('mapPage');

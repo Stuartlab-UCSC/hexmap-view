@@ -51,7 +51,6 @@ var app = app || {}; // jshint ignore:line
         // Let the user know the status and give the UI a chance to update
         Meteor.setTimeout(function () {
             var d = new Date();
-            console.log(d.getMinutes(), d.getSeconds(), d.getMilliseconds(), msg);
         }, 0);
     }
  

@@ -142,7 +142,7 @@ var app = app || {}; // jshint ignore:line
             index;
 
         // If we have a new project, clear any state related to the old project
-        if (s.project !== s.lastProject) {
+        if (s.lastProject && s.project !== s.lastProject) {
             Session.set('page', 'mapPage');
             s.lastProject = s.project;
             s.setProjectDefaults();

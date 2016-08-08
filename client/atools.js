@@ -189,7 +189,8 @@ var app = app || {}; // jshint ignore:line
  
     initTools = function () {
  
-        // Initialize for the page we are on.
+        // Initialize for the page we are on, first enabling all
+        $('#navBar *').removeClass('disabled');
         if (Session.equals('page', 'homePage')) {
             $('body').find('.mapShow, .gridShow').hide();
             $('body').find('.homeShow').show();
@@ -203,14 +204,12 @@ var app = app || {}; // jshint ignore:line
             $('body').find('.homeShow, .gridShow').hide();
             $('body').find('.mapShow').show();
             $('.mapLayout, .reflectTrigger').addClass('disabled');
-            $('.gridPage').removeClass('disabled');
             Session.set('loadingMap', true);
             $('body').css('overflow-y', 'hidden');
  
         } else if (Session.equals('page', 'gridPage')) {
             $('body').find('.homeShow, .mapShow').hide();
             $('body').find('.gridShow').show();
-            $('.mapLayout').removeClass('disabled');
             $('.gridPage').addClass('disabled');
             Session.set('loadingMap', true);
             $('body').css('overflow-y', 'hidden');
