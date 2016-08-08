@@ -11,6 +11,8 @@
 #navBar a {
     text-decoration: none;
     color: black;
+    display: block;
+    width: 100%;
 }
 
 #navBar > ul {
