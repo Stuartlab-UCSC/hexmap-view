@@ -20,6 +20,8 @@ var app = app || {}; // jshint ignore:line
 
    queryFreeReload = function () {
 
+        Session.set('loadingMap', true);
+
         // Strip everything after the query string question mark in the href & reload
         var href = window.location.href
             quest = href.indexOf('?');

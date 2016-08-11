@@ -86,7 +86,8 @@ class ForEachLayer(object):
                 # layerIndex was provided, probably from the precomputed stats
                 filename = 'stats_' + str(parm['layerIndex']) + '.tab'
                 s.file = os.path.join(parm['directory'], filename)
-   """
+
+    """
     # not used anymore
     @staticmethod
     def findSignificancyCutoff(s, layerName):
