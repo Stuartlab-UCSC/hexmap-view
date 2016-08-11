@@ -90,9 +90,10 @@ var app = app || {}; // jshint ignore:line
         LayerBoxCurser.observeChanges({
             //console.log('checkLayerBox: observing Layerbox');
             changed: function (id, fields) {
-                //console.log('checkLayerBox: Users layerBox Doc updated: id, feilds:',id, fields);
 
-                if (fields.lastChange === 'inserted') {
+                //console.log('checkLayerBox: Users layerBox Doc updated: id, feilds:',id, fields);
+                //console.log(LayerPostOffice.findOne().lastChange)
+                if (LayerPostOffice.findOne().lastChange === 'inserted') {
                     receive_layers(fields.layers);
                     banner('info', 'You now have a new reflection in your short list')
                 }
