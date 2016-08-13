@@ -1,5 +1,6 @@
 /*
- * histogram.js
+ * gChart.js 
+ * For use of google charts
  */
 var app = app || {}; // jshint ignore:line
 
