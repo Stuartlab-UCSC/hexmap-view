@@ -11,18 +11,42 @@
 </template>
 
 <template name='shortlistEntryT'>
-    <table>
-        <tr>
-            <td class='shortlist-controls-cell' style='vertical-align:top'>
-            </td>
-            <td class='shortlist-contents-cell' style='vertical-align:top'>
-            </td>
-        </tr>
-        <tr>
-            <td class='filter-controls-cell' style='vertical-align:top'>
-            </td>
-            <td class='filter-contents-cell' style='vertical-align:top'>
-            </td>
-        </tr>
-    </table>
+    {{#each layer}}
+        <div class='shortlist-entry' data-layer='{{ this }}'>
+            <table>
+                <tr>
+                    <td class='shortlist-controls-cell'>
+                        <div class='shortlist-controls'>
+                            <a class='remove' href='#' title='Remove from Shortlist'>
+                            X
+                            </a>
+                            <input type='checkbox' class='layer-on' />
+                        </div>
+                    </td>
+                    <td class='shortlist-contents-cell'>
+                        <div>{{ this }}</div>
+                        <div class='metadata-holder'>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td class='filter-controls-cell'>
+                        <img class='filter' data-layer='{{ this }}' src='filter.svg' title='Filter values' />
+                    </td>
+                    <td class='filter-contents-cell' style='display:{{ filter_display }}'>
+                        <select class='filter-value' value={{ filter_value }} style='display:{{ filter_value_display }}'></select>
+                        <div class='range' style='display:{{ filter_range_display }}'>
+                            <div class='range-slider' value={{ range }} data-layer='{{ this }}'></div>
+                            <div class='range-display'>
+                                <span>{{ low }}</span>
+                                to
+                                <span>{{ high }}</span>
+                            </div>
+                            <img src='file-new.svg' class='save-filter' title='Save filter as layer'/>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    {{/each}}
 </template>

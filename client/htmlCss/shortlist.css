@@ -56,6 +56,19 @@
     height: 1em;
 }
 
+/* Shortlist Entry */
+
+.shortlist-entry {
+    display: inline-block;
+    position: relative;
+    border-radius: 5px;
+    padding: 5px;
+    margin: 0.5em;
+    word-wrap: break-word;
+}
+.shortlist-entry td {
+    vertical-align: top;
+}
 .shortlist-controls {
     width: 2em;
     height: 3em;
@@ -69,33 +82,11 @@
     cursor: -moz-grab;
     cursor: -webkit-grab;
 }
-
 .shortlist-controls:activate {
     cursor: grabbing;
     cursor: -moz-grabbing;
     cursor: -webkit-grabbing;
 }
-
-.shortlist-entry {
-    display: inline-block;
-    position: relative;
-    border-radius: 5px;
-    padding: 5px;
-    //padding-left: 3em;
-    margin: 0.5em;
-    word-wrap: break-word;
-}
-
-/*
-.shortlist-entry:after {
-    content: "";
-    display: block;
-    clear: both;
-}
-*/
-
-/* Filtering stuff */
-
 .shortlist-entry .filter,
 .shortlist-entry .filterCaution {
     height: 16px;
@@ -103,8 +94,17 @@
     padding: 3px;
     border: 1px solid #aaaaaa;
 }
-
-
+.shortlist .filter-value {
+    width: 10em;
+    font-size: 0.8em;
+    padding-left: 0.5em;
+}
+.shortlist .range-slider {
+    width: 12.5em;
+    margin-left: 0;
+    margin-right: 0;
+    margin-top: 0.3em;
+}
 .shortlist .save-filter {
     height: 16px;
     width: 16px;
@@ -115,27 +115,3 @@
     float: right;
     border: 1px solid #888;
 }
-
-.shortlist .filter-value {
-    width: 10em;
-    font-size: 0.8em;
-    padding-left: 0.5em;
-}
-.shortlist .select2-container .select2-choice {
-	height: 1.4em;
-	line-height: 1.4em;
-}
-.shortlist .select2-container .select2-choice b {
-	margin-top: -4px;
-	height: 16px;
-}
-
-/* These are the layer scaling sliders */
-.shortlist .range-slider {
-    width: 12.5em;
-    margin-left: 0;
-    margin-right: 0;
-    margin-top: 0.3em;
-}
-
-

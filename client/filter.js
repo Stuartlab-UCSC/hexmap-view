@@ -289,11 +289,11 @@ var app = app || {}; // jshint ignore:line
         // Set the button icon color depending on whether the display layers
         // length is the same as that of sorted layers.
         if (Session.get('displayLayers').length === sorted.length) {
-            $('.header .filter').addClass('active');
-            $('.header .filterCaution').removeClass('active');
+            $('.header .layer-row .filter').addClass('active');
+            $('.header .layer-row .filterCaution').removeClass('active');
         } else {
-            $('.header .filterCaution').addClass('active');
-            $('.header .filter').removeClass('active');
+            $('.header .layer-row .filterCaution').addClass('active');
+            $('.header .layer-row .filter').removeClass('active');
         }
     }
  
@@ -354,10 +354,10 @@ var app = app || {}; // jshint ignore:line
 
         // Save jquery element names
         $dialog = $('.filterDialog');
-        $button = $('.header .filter, .header .filterCaution');
+        $button = $('.header .layer-row .filter, .header .layer-row .filterCaution');
         $passFilters = $('.passFilters');
 
-        $('.header .filter').addClass('active');
+        $('.header .layer-row .filter').addClass('active');
 
         // Set delegated event handlers just once
         $dialog
