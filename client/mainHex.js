@@ -149,7 +149,7 @@ var app = app || {}; // jshint ignore:line
         $('#gridContent').height(windowHt - navHt);
     }
 
-    // Autotracker to find when the basic UI is drawn
+    // Phase 6 init: Autotracker to find when the basic UI is drawn
     Session.set('initedHexagons', false);
     Session.set('initialiedLayers', false);
     Session.set('initedColormaps', false);
@@ -188,7 +188,7 @@ var app = app || {}; // jshint ignore:line
         }
     }
  
-    // Autotracker to find when the layers are initialized
+    // Phase 5 init: Autotracker to find when the layers are initialized
     Session.set('initedLayerTypes', false);
     Session.set('initedLayersArray', false);
     var checkInitLayers = Tracker.autorun(areLayersInitialized);
@@ -204,7 +204,7 @@ var app = app || {}; // jshint ignore:line
         }
     }
 
-    // Autotracker to find when the layer index is initialized
+    // Phase 4 init: Autotracker to find when the layer index is initialized
     Session.set('initedLayerIndex', false);
     var checkInitLayerIndex = Tracker.autorun(isLayerIndexInitialized);
     function isLayerIndexInitialized () {
@@ -215,7 +215,7 @@ var app = app || {}; // jshint ignore:line
         }
     }
  
-    // Autotracker to find when the layout is initialized
+    // Phase 3 init: Autotracker to find when the layout is initialized
     Session.set('initedLayout', false);
     var checkInitLayout = Tracker.autorun(isLayoutInitialized);
     function isLayoutInitialized () {
@@ -226,7 +226,7 @@ var app = app || {}; // jshint ignore:line
         }
     }
  
-    // Autotracker to find when the map prep is complete
+    // Phase 2 init: Autotracker to find when the map prep is complete
     Session.set('initedProject', false);
     Session.set('initedMapContainer', false);
     Session.get('initedMapType', false);

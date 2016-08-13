@@ -57,31 +57,14 @@
 }
 
 .shortlist-controls {
-    position: absolute;
-    left: 0;
-    top: 0;
-    bottom: 0;
     width: 2em;
+    height: 3em;
+    margin-right: 0;
     background-image: url("resize-vertical.svg");
     background-size: 24px 24px;
     background-repeat: no-repeat;
-    background-position: 50% 30px;
+    background-position: 0px 23px;
     border-radius: 5px;
-    padding: 5px;
-}
-
-.shortlist-entry {
-    position: relative;
-    height: auto;
-    width: auto;
-    border-radius: 5px;
-    padding: 5px;
-    padding-left: 3em;
-    margin: 0.5em;
-    word-wrap: break-word;
-}
-
-.shortlist-controls {
     cursor: grab;
     cursor: -moz-grab;
     cursor: -webkit-grab;
@@ -93,36 +76,60 @@
     cursor: -webkit-grabbing;
 }
 
+.shortlist-entry {
+    display: inline-block;
+    position: relative;
+    border-radius: 5px;
+    padding: 5px;
+    //padding-left: 3em;
+    margin: 0.5em;
+    word-wrap: break-word;
+}
+
+/*
 .shortlist-entry:after {
     content: "";
     display: block;
     clear: both;
 }
+*/
 
 /* Filtering stuff */
 
-.shortlist .filter,
-.shortlist .file-new {
-    height: 16px;
-    width: 16px;
-    padding: 3px;
+/*.headerButton.filter,
+.headerButton.filterCaution {
+    height: 20px;
+    width: 20px;
+    padding: 5px;
+    margin-left: 0;
+    display: none;
+}
+.headerButton.filter.active,
+.headerButton.filterCaution.active {
+    display: block;
+}
+
+*/
+
+.shortlist .filter {
     line-height: 1em;
     vertical-align: middle;
-}
-.shortlist .filter {
     height: 18px;
     width: 18px;
     padding: 4px;
     padding-right: 0;
 }
-.shortlist .file-new {
+.shortlist .save-filter {
+    height: 16px;
+    width: 16px;
+    padding: 3px;
+    line-height: 1em;
+    vertical-align: middle;
     margin-left: 0.3em;
+    float: right;
+    border: 1px solid #888;
 }
-.shortlist .filter-threshold {
-    width: 5em;
-    padding-left: 0.5em;
-    border: 1px solid #aaa;
-}
+
 .shortlist .filter-value {
     width: 10em;
     font-size: 0.8em;
@@ -138,23 +145,16 @@
 }
 .shortlist .filter-holder {
     vertical-align: middle;
-    float: left;
 	text-align: left;
 	width: 14.5em;
 }
 
-.shortlist .save-filter {
-    float: right;
-	display: none;
-    border: 1px solid #888;
-}
-
 /* These are the layer scaling sliders */
 .shortlist .range-slider {
-    width: 10em;
-    margin-left: 0.3em;
-    margin-right: 0.3em;
-    margin-top: 0.5em;
+    width: 12.5em;
+    margin-left: 0;
+    margin-right: 0;
+    margin-top: 0.3em;
 }
 
 

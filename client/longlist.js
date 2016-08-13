@@ -136,7 +136,7 @@ var app = app || {}; // jshint ignore:line
             }
             
             if(!found) {
-                updateShortlist(layer_name);
+                update_shortlist(layer_name);
             }
             
             // Don't actually change the selection.

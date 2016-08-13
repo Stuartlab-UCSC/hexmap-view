@@ -10,44 +10,19 @@
     </div>
 </template>
 
-<!-- FUTURE USE
-<template name='shortlistEntry'>
-    <div class='shortlist-entry {{selectionClass}}' data-layer='{{layer_name}}'>
-        <div class='shortlist-controls'>
-            <a class='remove' href='#' title='"Remove from shortlist"'>
-                X
-            </a>
-            <input type='checkbox' class='layer-on' checked='{{OnChecked}}' /}
-        </div>
-        <div class='shortlist-contents'>
-            <span>{{layer_name}}</span>
-            <div class='metadata-holder'></div>
-
-            {{> shortlistFilter}}
-            
-             <div class='settings'>
-                <div class='stacker'>
-                    <div class='range range-slider'></div>
-                </div>
-                <div class='stacker'>
-                    <div class='range range-display'>
-                        <span class='low'>{{low}}</span>
-                        <span>to</span>
-                        <span class='high'>{{high}}</span>
-                    </div>
-                </div>
-             </div>
-        </div>
-    </div>
+<template name='shortlistEntryT'>
+    <table>
+        <tr>
+            <td class='shortlist-controls-cell' style='vertical-align:top'>
+            </td>
+            <td class='shortlist-contents-cell' style='vertical-align:top'>
+            </td>
+        </tr>
+        <tr>
+            <td class='filter-controls-cell'>
+            </td>
+            <td class='filter-contents-cell'>
+            </td>
+        </tr>
+    </table>
 </template>
-
-<template name='shortlistFilter'>
-    <div class='filter-holder'>
-        <img class='filter' src='{{filterImg}}' title='Filter on attribute' />
-        <input type='checkbox' checked={{checked}} />
-        <input class='filter-threshold' val={{threshold}} style='display:{{thresholdDisplay}}' />
-        <div class='filter-value' style='display:{{selectDisplay}}'>{{value}}</div>
-        <img class='save-filter' src='{{newLayerImg}}' title='Save filter as attribute' style='display:{{display}}' />
-     </div>
-</template>
--->

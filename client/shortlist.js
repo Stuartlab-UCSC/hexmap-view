@@ -18,8 +18,7 @@ var app = app || {}; // jshint ignore:line
 
     var scrollTop = 0; // Save scroll position while select from filter
     var filterControl = new ReactiveDict(); // To show or hide the filter area
-    var filterSelector = new ReactiveDict(); // Discrete data-type filter value
-    var filterThreshold = new ReactiveDict(); // Continuous data-type filter value
+    var filterValue = new ReactiveDict(); // filter value(s)
 
     var firstLayerAutorun; // Runs when the first layer is set or shortlist layers changes
 
@@ -31,55 +30,47 @@ var app = app || {}; // jshint ignore:line
             
         // We need to set its boundaries to the min and max of the data set
         with_layer(layer_name, function(layer) {
-            if(have_colormap(layer_name)) {
-                // This is a colormap, so don't use the range slider at all.
-                // We couldn't know this before because the colormap may need to be 
-                // auto-detected upon download.
-                shortlist_entry.find(".range").hide();
-                return;
-            } else {
-                // We need the range slider
-                shortlist_entry.find(".range").show();
+        
+            // We need the range slider
+            shortlist_entry.find(".range").show();
             
-                // We want to do some fancy layer bounds guessing. In general, the
-                // bounds should be at +/- the largest-magnitude value.
-                var minBound = -layer.magnitude;
-                var maxBound = layer.magnitude;
-                
-                if(layer.maximum <= 1) {
-                    if(layer.minimum >= 0) {
-                        // If it's a 0 to 1 layer, set bounds at 0 and 1
-                        minBound = 0;
-                        maxBound = 1;
-                    } else if(layer.minimum >= -1) {
-                        // If it's a -1 to 1 layer, set bounds at -1 and 1
-                        minBound = -1;
-                        maxBound = 1;
-                    }
+            var minBound = layer.minimum;
+            var maxBound = layer.maximum;
+/*
+            // TODO What sort of bounds do we want?
+            
+            // We want to do some fancy layer bounds guessing. In general, the
+            // bounds should be at +/- the largest-magnitude value.
+            var minBound = -layer.magnitude;
+            var maxBound = layer.magnitude;
+            
+            if(layer.maximum <= 1) {
+                if(layer.minimum >= 0) {
+                    // If it's a 0 to 1 layer, set bounds at 0 and 1
+                    minBound = 0;
+                    maxBound = 1;
+                } else if(layer.minimum >= -1) {
+                    // If it's a -1 to 1 layer, set bounds at -1 and 1
+                    minBound = -1;
+                    maxBound = 1;
                 }
-                
-                // Else, leave bounds at +/- magnitude.
-                
-                // Set the min and max.
-                shortlist_entry.find(".range-slider").slider("option", "min", 
-                    minBound);
-                shortlist_entry.find(".range-slider").slider("option", "max", 
-                    maxBound);
-                
-                // Set slider to autoscale to detected range.
-                shortlist_entry.find(".range-slider").slider("values", 
-                    [minBound, maxBound]);
-                    
-                print("Scaled to range " + minBound + " to " + maxBound);
-                    
-                // Refresh the colors in case this changed anything
-                refreshColors();
             }
             
+            // Else, leave bounds at +/- magnitude.
+*/
+            // Set the min, max and current value.
+            shortlist_entry.find(".range-slider")
+                .slider("option", "min", minBound)
+                .slider("option", "max",  maxBound)
+                .slider("values", [minBound, maxBound]);
+                
+            // Initialize the values stored
+            filterValue.set(layer_name, [minBound, maxBound]);
+            refreshColors();
         });
     }
 
-    function createFilterSelector (layer_name, layer, filter_value) {
+    function create_filter_select_options (layer_name, layer, filter_value) {
 
         // Create the value filter dropdown for discrete values,
         // If we have not yet created it.
@@ -127,12 +118,12 @@ var app = app || {}; // jshint ignore:line
 
             // Select the appropriate option on first opening and update the UI
             filter_value.val(first);
-            filterSelector.set(layer_name, parseInt(first));
+            filterValue.set(layer_name, parseInt(first));
             refreshColors();
 
             // Define the event handler for selecting an item
             filter_value.on('change', function (ev) {
-                filterSelector.set(layer_name, parseInt(ev.target.value));
+                filterValue.set(layer_name, parseInt(ev.target.value));
                 refreshColors();
             });
         }
@@ -181,68 +172,65 @@ var app = app || {}; // jshint ignore:line
         // Don't sort because our caller does that when they're done adding layers.
     }
 
-    function filterControlChanged (ev, filter_value, filter_threshold, save_filter) {
+    function filter_control_changed (ev, $filter_contents, save_filter) {
 
         // Functionality for turning filtering on and off
         var layer_name = $(ev.target).data().layer_name;
         filterControl.set(layer_name, ev.target.checked);
-        if(filterControl.equals(layer_name, true)) {
+        if (filterControl.equals(layer_name, true)) {
 
             // First, figure out what kind of filter settings we take based on 
             // what kind of layer we are.
-            with_layer(layer_name, function(layer) {
+            with_layer (layer_name, function (layer) {
+            
                 if(have_colormap(layer_name)) {
 
                     // A discrete layer so show the value picker.
 
                     // If the select2 has not been created yet, create it
+                    var filter_value = $filter_contents.find('.filter-value');
                     if (!filter_value.hasClass('select2-offscreen')) {
-                        createFilterSelector(layer_name, layer, filter_value);
-                    }
-                    if (USE_SELECT2_FOR_FILTER) {
-                        filter_value.select2("container").show();
-                    } else {
-                        filter_value.show();
-                    }
-                    filter_threshold.hide();
-                    save_filter.show();
-                        
-                } else {
-
-                    // Not a discrete layer, so we take a threshold.
-                    filter_threshold.show();
-                    if (USE_SELECT2_FOR_FILTER) {
-                        filter_value.select2("container").hide();
-                    } else {
-                        filter_value.hide();
+                        create_filter_select_options(layer_name, layer, filter_value);
                     }
                 }
                 
+                $filter_contents.show();
+
                 save_filter.button().click(function() {
 
-                    // Configure Save Filter Buttons
+                    // Clicking on the save button creates a dynamic layer
+                    var value = filterValue.get(layer_name),
+                        layer = layers[layer_name],
+                        nodeIds = [];
+                    
+                    if (ctx.cont_layers.indexOf(layer_name) > -1) {
 
-                    // Get selected value
-                    var value = filterSelector.get(layer_name);
-                    var signatures = [];
+                        // Get the range values
+                        nodesIds = _.filter(_.keys(polygons), function (nodeId) {
+                            return (layer.data[nodeId] >= value[0]
+                                    && layer.data[nodeId] <= value[1]);
+                        });
+                        value = value[0].toString() + ' to ' + value[1].toString();
 
-                    // Gather Tumor-ID Signatures with value and push to "signatures"
-                    for (hex in polygons){
-                        if (layer.data[hex] == value){
-                                signatures.push(hex);
-                        }		
-                    }
-
-                    // Suggest a name for this new layer
-                    if (have_colormap(layer_name)) {
+                    } else { // Binary and categorical layers
+                    
+                        // Gather Tumor-ID Signatures with the value
+                        nodeIds = _.filter(_.keys(polygons), function (nodeId) {
+                            return (layer.data[nodeId] === value);
+                        });
+ 
+                        // Find the category label for the new layer name
                         var category = colormaps[layer_name][value];
                         if (category) {
                             value = category.name;
                         }
                     }
-                    var name = layer_name + ': ' + String(value);
                     
-                    create_dynamic_binary_layer (signatures, name);
+                    // Suggest a name for this new layer
+                    var name = layer_name + ': ' + value.toString();
+                    
+                    // Create the dynamic layer
+                    create_dynamic_binary_layer (nodeIds, name);
                 });
      
                 refreshColors();
@@ -250,23 +238,15 @@ var app = app || {}; // jshint ignore:line
         } else {
 
             // Hide the filtering settings
-            if (USE_SELECT2_FOR_FILTER) {
-                filter_value.select2("container").hide();
-            } else {
-                filter_value.hide();
-            }
-            filter_threshold.hide();
-            save_filter.hide();
+            $filter_contents.hide();
 
             // Refresh the colors since we're no longer filtering on this layer.
             refreshColors();
         }
     }
 
-    function createFilterUi (layer_name) {
-        // Add a div to hold the filtering stuff so it wraps together.
-        var filter_holder = $("<div/>").addClass("filter-holder");
-        
+    function create_filter_button (layer_name, root) {
+ 
         // Add an image label for the filter control.
         // TODO: put this in a label
         var filter_image = $("<img/>").attr("src", "filter.svg");
@@ -277,71 +257,116 @@ var app = app || {}; // jshint ignore:line
         var filter_control = $("<input/>").attr("type", "checkbox");
         filter_control.addClass("filter-on");
         filter_control.data('layer_name', layer_name);
-        filter_holder.append(filter_image);
-        filter_holder.append(filter_control);
         filterControl.set(layer_name, false);
+ 
+        root.find('.filter-controls-cell')
+            .append(filter_image)
+            .append(filter_control);
+ 
+        return filter_control;
+    }
 
-        // Add a text input to specify a filtering threshold for continuous layers
-        var filter_threshold = $("<input/>").addClass("filter-threshold");
-        // Initialize to a reasonable value.
-        filter_threshold.val(0);
-        filter_holder.append(filter_threshold);
-        filter_threshold.hide();
-
-        filter_threshold.keyup(function (ev) {
-            filterThreshold.set(layer_name, parseInt(ev.target.value));
-            refreshColors(1000);
-        });
-
+    function create_selector (layer_name, root) {
+ 
         // Add a select input to pick from a discrete list of values to filter on
         if (USE_SELECT2_FOR_FILTER) {
             var filter_value = $("<div/>").addClass("filter-value");
         } else {
             var filter_value = $("<select/>").addClass("filter-value");
         }
+ 
+        return filter_value;
+    }
 
-        filter_holder.append(filter_value);
-        filter_value.hide();
+    function create_range_slider (layer_name, root) {
+ 
+        // Add a slider for setting the min and max for drawing
+        var slider = $("<div/>").addClass("range range-slider");
+ 
+        // And a box that tells us what we have selected in the slider.
+        var display = $("<div/>").addClass("range range-display");
+        display.append($("<span/>").addClass("low"))
+            .append(" to ")
+            .append($("<span/>").addClass("high"));
 
-        // Create a handler for the filter control being turned on and off
-        filter_control.change(function (ev) {
-            filterControlChanged(ev, filter_value, filter_threshold, save_filter);
+        // Configure the range slider
+        
+        // First we need a function to update the range display, which we will run 
+        // on change and while sliding (to catch both user-initiated and 
+        // programmatic changes).
+        var update_display = function(event, ui) {
+ 
+            // Update the values below the slider
+            display.find('.low').text(ui.values[0].toExponential(1));
+            display.find('.high').text(ui.values[1].toExponential(1));
+        }
+ 
+        var update_filter = function (event, ui) {
+
+            // The user has finished sliding
+            var min = ui.values[0],
+                max = ui.values[1],
+                range = [min, max],
+                $root = $(event.target).parents('.shortlist-entry'),
+                layer_name = $root.data('layer');
+            filterValue.set(layer_name, range);
+            refreshColors();
+        }
+ 
+        slider.slider({
+            range: true,
+            min: -1,
+            max: 1,
+            height: 10,
+            values: [-1, 1],
+            step: 1E-9, // Ought to be fine enough
+            slide: update_display,
+            change: update_display,
+            stop: update_filter,
         });
+        
+        // When we have time, go figure out whether the slider should be here, and 
+        // what its end values should be.
+        reset_slider(layer_name, root);
+ 
+        var settings = $("<div/>").addClass("settings");
+        settings
+            .append($("<div/>").addClass("stacker").append(slider))
+            .append($("<div/>").addClass("stacker").append(display));
+ 
+        return settings;
+    }
+
+    function create_filter (layer_name, root) {
+ 
+        // Add a div to hold the filtering stuff so it wraps together.
+        var contents = root.find('.filter-contents-cell');
+        contents.hide();
+
+        // Add filter depending on layer data type
+        if (ctx.cont_layers.indexOf(layer_name) > -1) {
+            contents.append(create_range_slider(layer_name, root));
+        } else {
+            var filter_value = create_selector(layer_name, root);
+            contents.append(filter_value);
+        }
 
         // Add a image for the save function
         var save_filter = $("<img/>").attr("src", "file-new.svg");
         save_filter.addClass("save-filter");
-        save_filter.addClass("file-new");
         save_filter.attr("title", "Save Filter as Layer");
-        filter_holder.append(save_filter);
-
-        return filter_holder;
+        contents.append(save_filter);
+ 
+        // Create a handler for the filter control being turned on and off
+        create_filter_button(layer_name, root).change(function (ev) {
+            filter_control_changed(ev, contents, save_filter);
+        });
     }
 
-    function make_shortlist_ui (layer_name) {
- 
-        // Makes a shortlist DOM element for one layer.
+    function create_controls (layer_name, root) {
 
-        // Skip this if this layer's data does not yet exist
-        if (!layers[layer_name]) return;
-
-        // Return a jQuery element representing the layer with the given name in
-        // the shortlist UI.
-
-        // This holds the root element for this shortlist UI entry
-        var root = $("<div/>").addClass("shortlist-entry");
-        root.data("layer", layer_name);
-        
-        // If this is a selection, give the layer a special class
-        // TODO: Justify not having to use with_layer because this is always known 
-        // client-side
-        if(layers[layer_name].selection) {
-            root.addClass("selection");
-        }
-        
-        // We have some configuration stuff and then the div from the dropdown
-        // This holds all the config stuff
-        var controls = $("<div/>").addClass("shortlist-controls");
+        // This is the button control panel of the shortlist
+        var controls = root.find('.shortlist-controls-cell');
         var moveIcon = 'resize-vertical.svg';
         controls.css('background-image', 'url(' + moveIcon + ')');
         
@@ -352,54 +377,9 @@ var app = app || {}; // jshint ignore:line
 
         // Add a checkbox for whether this is enabled or not
         var checkbox = $("<input/>").attr("type", "checkbox").addClass("layer-on");
-        
         controls.append(checkbox);
-        
-        root.append(controls);
 
-        /* TODO If we no longer want to remove selections without also removing them
-                from the long list, use this logic for selections for the normal 
-                remove button, and remove this section
-        */
-        // If this a selection, add a special delete attribute link
-        // This will remove the attribute from the shortlist and list of layers
-        // This is important for saving/loading so that the user is not constantly
-        // confronted with a list of created attributes that they no longer want.
-        var contents = $("<div/>").addClass("shortlist-contents");
-        
-        // Add the layer name
-        contents.append($("<span/>").text(layer_name));
-        
-        // Add all of the metadata. This is a div to hold it
-        var metadata_holder = $("<div/>").addClass("metadata-holder");
-        
-        // Fill it in
-        fill_layer_metadata(metadata_holder, layer_name);
-
-        contents.append(metadata_holder);
-
-        // Create and add the filter holder to the shortlist content pane
-        contents.append(createFilterUi(layer_name));
-
-        // Add a div to contain layer settings
-        var settings = $("<div/>").addClass("settings");
-        
-        // Add a slider for setting the min and max for drawing
-        var range_slider = $("<div/>").addClass("range range-slider");
-        settings.append($("<div/>").addClass("stacker").append(range_slider));
-        
-        // And a box that tells us what we have selected in the slider.
-        var range_display = $("<div/>").addClass("range range-display");
-        range_display.append($("<span/>").addClass("low"));
-        range_display.append(" to ");
-        range_display.append($("<span/>").addClass("high"));
-        settings.append($("<div/>").addClass("stacker").append(range_display));
-        
-        contents.append(settings);
-        
-        root.append(contents);
-        
-        // Handle enabling and disabling
+        // Handle enabling and disabling the layer
         checkbox.change(function() {
             if($(this).is(":checked") && get_current_layers().length > 
                 MAX_DISPLAYED_LAYERS) {
@@ -414,7 +394,7 @@ var app = app || {}; // jshint ignore:line
             refreshColors();
         });
         
-        // Run the removal process
+        // Handle the removal from the short list
         remove_link.click(function() {
 
             // If this layer has a delete function, do that
@@ -426,7 +406,7 @@ var app = app || {}; // jshint ignore:line
             root.remove();
 
             // Make the UI match the list.
-            updateShortlist(layer_name, true);
+            update_shortlist(layer_name, true);
             if(checkbox.is(":checked") || filterControl.equals(layer_name, true)) {
                 // Refresh the colors since we were selected (as coloring or filter)
                 // before removal.
@@ -438,41 +418,58 @@ var app = app || {}; // jshint ignore:line
                 delete layers[layer_name];
                 removeFromDataTypeList(layer_name);
             }
-        });
 
-        // Configure the range slider
-        
-        // First we need a function to update the range display, which we will run 
-        // on change and while sliding (to catch both user-initiated and 
-        //programmatic changes).
-        var update_range_display = function(event, ui) {
-            range_display.find(".low").text(ui.values[0].toExponential(1));
-            range_display.find(".high").text(ui.values[1].toExponential(1));
-        }
-        
-        range_slider.slider({
-            range: true,
-            min: -1,
-            max: 1,
-            values: [-1, 1],
-            step: 1E-9, // Ought to be fine enough
-            slide: update_range_display,
-            change: update_range_display,
-            stop: function(event, ui) {
-                // The user has finished sliding
-                // Refresh the colors. We will be asked for our values
-                refreshColors();
-            }
         });
+    }
+
+    function create_shortlist_entry (layer_name) {
+ 
+        // Makes a shortlist DOM element for one layer.
+
+        // Skip this if this layer's data does not yet exist
+        if (!layers[layer_name]) return;
+
+        // This holds the root element for this shortlist UI entry
+        var root = $("<div/>").addClass("shortlist-entry");
+        root.data("layer", layer_name);
         
-        // When we have time, go figure out whether the slider should be here, and 
-        // what its end values should be.
-        reset_slider(layer_name, root);
+        // If this is a selection, give the layer a special class
+        // TODO: Justify not having to use with_layer because this is always known 
+        // client-side
+        if(layers[layer_name].selection) {
+            root.addClass("selection");
+        }
+ 
+        // Load the shortlist entry template
+        Blaze.render(Template.shortlistEntryT, root[0]);
+
+        // Create the button control panel
+        create_controls(layer_name, root);
+
+        // Make a handle for the contents cell
+        var contents = root.find('.shortlist-contents-cell');
         
+        // Add the layer name
+        contents.append($("<span/>").text(layer_name));
+        
+        // Add all of the metadata
+        var metadata_holder = $("<div/>").addClass("metadata-holder");
+        fill_layer_metadata(metadata_holder, layer_name);
+        contents.append(metadata_holder);
+ 
+        // Create the histogram
+        if (ctx.cont_layers.indexOf(layer_name) > -1) {
+            var histogram = newHistogram(layer_name);
+            contents.append(histogram);
+        }
+
+        // Create the filter control panel button and content
+        create_filter(layer_name, root);
+
         return root;
     }
 
-    updateShortlist = function (layer_name, remove) {
+    update_shortlist = function (layer_name, remove) {
  
         // Go through the shortlist and make sure each layer there has an entry in 
         // the shortlist UI, and that each UI element has an entry in the shortlist.
@@ -527,7 +524,7 @@ var app = app || {}; // jshint ignore:line
             if(shortlist_ui[layer_name] === false) {
 
                  // Create a DOM element for this shortlist layer
-                 shortlist_ui[layer_name] = make_shortlist_ui(layer_name);
+                 shortlist_ui[layer_name] = create_shortlist_entry(layer_name);
                  $("#shortlist").prepend(shortlist_ui[layer_name]);
  
                 if (shortlist_ui[layer_name]) {
@@ -585,9 +582,9 @@ var app = app || {}; // jshint ignore:line
         var promptString = (dup_name)
                             ? dup_name + ' is in use, how about this one?'
                             : 'Please provide a label for this new layer',
-            text = prompt(promptString, layer_name).trim();
+            text = prompt(promptString, layer_name);
         if (text) {
-            return text;
+            return text.trim();
         } else {
             return undefined;
         }
@@ -671,7 +668,7 @@ var app = app || {}; // jshint ignore:line
             });
             
             // Update the browse UI with the new layer.
-            updateShortlist(name);
+            update_shortlist(name);
         }
  
         return (name);
@@ -690,7 +687,7 @@ var app = app || {}; // jshint ignore:line
         // @param: colormap: the colormap for this layer, required for now
  
         add_layer_data(layer_name, data, attributes);
-        updateShortlist(layer_name);
+        update_shortlist(layer_name);
         colormaps[layer_name] = colormap;
     }
  
@@ -723,9 +720,8 @@ var app = app || {}; // jshint ignore:line
     }
 
     with_filtered_signatures = function (filters, callback) {
-        // Takes an array of filters, as produced by get_current_filters. Signatures 
-        // pass a filter if the filter's layer has a value >0 for that signature. 
-        // Computes an  array of all signatures passing all filters, and passes that
+        // Takes an array of filters, as produced by get_current_filters.
+        // Computes an array of all signatures passing all filters, and passes that
         // to the given callback.
         
         // TODO: Re-organize this to do filters one at a time, recursively, like a 
@@ -749,7 +745,7 @@ var app = app || {}; // jshint ignore:line
                 
                 // This holds whether we pass all the filters
                 var pass = true;
-                
+
                 for(var i = 0; i < filter_layers.length; i++) {
 
                     // For each filtering layer
@@ -759,6 +755,7 @@ var app = app || {}; // jshint ignore:line
                         // If the signature fails the filter function for the layer,
                         // skip the signature.
                         pass = false;
+
                         break;
                     }
                 }
@@ -804,22 +801,19 @@ var app = app || {}; // jshint ignore:line
                 }
 
                 // Define the functions and values to use for filtering
-                // If this layer has a colormap it has discrete values
-                if (have_colormap(layer_name)) {
-
-                    // Use a discrete value match.
-                    var desired = filterSelector.get(layer_name);
-                    
+                var desired = filterValue.get(layer_name);
+                
+                if (ctx.cont_layers.indexOf(layer_name) > -1) {
+                
+                     // Use a range for continuous values.
                     filter_function = function(value) {
-                        return value == desired;
+                         return (value >= desired[0] && value <= desired[1]);
                     }
                 } else {
 
-                     // Use a threshold for continuous values.
-                    var threshold = filterThreshold.get(layer_name);
-
+                    // Use a discrete value match.
                     filter_function = function(value) {
-                        return value > threshold;
+                        return (value === desired);
                     }
                 }
 
@@ -846,10 +840,14 @@ var app = app || {}; // jshint ignore:line
         initialized = true;
         
         firstLayerAutorun = Tracker.autorun(function () {
-            var first = Session.get('first_layer');
-            if (!_.isUndefined(first) && Session.get('shortlist').length < 1) {
-                updateShortlist(first);
-            }
+        
+            var first = Session.get('first_layer'),
+                shortlist = Session.get('shortlist');
+                
+            if (!_.isUndefined(first) && shortlist.length < 1) {
+                firstLayerAutorun.stop();
+                update_shortlist(first);
+             }
         });
     }
 })(app);

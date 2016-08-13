@@ -237,7 +237,7 @@ var app = app || {}; // jshint ignore:line
         }
         clearAllFilters();
         updateLonglist();
-        updateShortlist();
+        update_shortlist();
  
         // Skip the banner on the first sort
         if (Session.equals('firstSort', false)) {
