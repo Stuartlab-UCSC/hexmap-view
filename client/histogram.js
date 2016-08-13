@@ -27,17 +27,21 @@ var app = app || {}; // jshint ignore:line
             // Return the container so it will be added to the DOM tree
             return $histogram;
         }
-
         return drawHistogram(layer_name, $histogram);
     }
 
     function drawHistogram(layer_name, $histogram) {
  
-        var layer = layers[layer_name],
-            dataVals = _.zip(_.keys(layer.data), _.values(layer.data)),
-            sorted = _.sortBy(dataVals, function(row){ return row[1]; }),
-            dataArray = [['Node', '']].concat(sorted),
-            data = google.visualization.arrayToDataTable(dataArray),
+        with_layer(layer_name, function () {
+            var layer = layers[layer_name],
+                data,
+                data1,
+                options;
+     
+            data1 = _.zip(_.keys(layer.data), _.values(layer.data)),
+            data = _.sortBy(data1, function(row){ return row[1]; }),
+            data1 = [['Node', '']].concat(data),
+            data = google.visualization.arrayToDataTable(data1),
             options = {
                 backgroundColor: 'transparent',
                 bar: { gap: 0 },
@@ -55,9 +59,11 @@ var app = app || {}; // jshint ignore:line
                     textPosition: 'none',
                 },
             };
-        var chart = new google.visualization.Histogram($histogram[0]);
-        chart.draw(data, options);
- 
+            var chart = new google.visualization.Histogram($histogram[0]);
+            chart.draw(data, options);
+        });
+        
+        // Return the container so it will be added to the DOM tree
         return $histogram;
       }
 })(app);

@@ -176,7 +176,7 @@ var app = app || {}; // jshint ignore:line
 
         // Functionality for turning filtering on and off
         var layer_name = $(ev.target).data().layer_name;
-        filterControl.set(layer_name, ev.target.checked);
+        filterControl.set(layer_name, !filterControl.get(layer_name));
         if (filterControl.equals(layer_name, true)) {
 
             // First, figure out what kind of filter settings we take based on 
@@ -243,27 +243,6 @@ var app = app || {}; // jshint ignore:line
             // Refresh the colors since we're no longer filtering on this layer.
             refreshColors();
         }
-    }
-
-    function create_filter_button (layer_name, root) {
- 
-        // Add an image label for the filter control.
-        // TODO: put this in a label
-        var filter_image = $("<img/>").attr("src", "filter.svg");
-        filter_image.attr("title", "Filter on Layer");
-        filter_image.addClass("filter");
-        
-        // Add a control for filtering
-        var filter_control = $("<input/>").attr("type", "checkbox");
-        filter_control.addClass("filter-on");
-        filter_control.data('layer_name', layer_name);
-        filterControl.set(layer_name, false);
- 
-        root.find('.filter-controls-cell')
-            .append(filter_image)
-            .append(filter_control);
- 
-        return filter_control;
     }
 
     function create_selector (layer_name, root) {
@@ -357,18 +336,26 @@ var app = app || {}; // jshint ignore:line
         save_filter.attr("title", "Save Filter as Layer");
         contents.append(save_filter);
  
-        // Create a handler for the filter control being turned on and off
-        create_filter_button(layer_name, root).change(function (ev) {
-            filter_control_changed(ev, contents, save_filter);
-        });
+        // Add a control for toggling display of filter elements
+        var filter_control = $('<img />');
+        filter_control
+            .attr({ src: 'filter.svg', title: 'Filter values' })
+            .addClass("filter-on filter")
+            .data('layer_name', layer_name)
+            .click(function (ev) {
+                    filter_control_changed(ev, contents, save_filter);
+                })
+            .button();
+        root.find('.filter-controls-cell').append(filter_control);
+        filterControl.set(layer_name, false);
     }
 
     function create_controls (layer_name, root) {
 
         // This is the button control panel of the shortlist
-        var controls = root.find('.shortlist-controls-cell');
-        var moveIcon = 'resize-vertical.svg';
-        controls.css('background-image', 'url(' + moveIcon + ')');
+       var controls = $('<div />');
+        root.find('.shortlist-controls-cell').append(controls);
+        controls.addClass('shortlist-controls');
         
         // Add a remove link
         var remove_link = $("<a/>").addClass("remove").attr("href", "#").text("X");

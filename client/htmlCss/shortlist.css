@@ -96,29 +96,15 @@
 
 /* Filtering stuff */
 
-/*.headerButton.filter,
-.headerButton.filterCaution {
-    height: 20px;
-    width: 20px;
-    padding: 5px;
-    margin-left: 0;
-    display: none;
-}
-.headerButton.filter.active,
-.headerButton.filterCaution.active {
-    display: block;
+.shortlist-entry .filter,
+.shortlist-entry .filterCaution {
+    height: 16px;
+    width: 16px;
+    padding: 3px;
+    border: 1px solid #aaaaaa;
 }
 
-*/
 
-.shortlist .filter {
-    line-height: 1em;
-    vertical-align: middle;
-    height: 18px;
-    width: 18px;
-    padding: 4px;
-    padding-right: 0;
-}
 .shortlist .save-filter {
     height: 16px;
     width: 16px;
@@ -142,11 +128,6 @@
 .shortlist .select2-container .select2-choice b {
 	margin-top: -4px;
 	height: 16px;
-}
-.shortlist .filter-holder {
-    vertical-align: middle;
-	text-align: left;
-	width: 14.5em;
 }
 
 /* These are the layer scaling sliders */
