@@ -845,7 +845,6 @@ var app = app || {}; // jshint ignore:line
                 shortlist = Session.get('shortlist');
                 
             if (!_.isUndefined(first) && shortlist.length < 1) {
-                firstLayerAutorun.stop();
                 update_shortlist(first);
              }
         });
