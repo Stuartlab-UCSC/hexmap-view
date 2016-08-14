@@ -20,48 +20,50 @@ var app = app || {}; // jshint ignore:line
     var template = {}; // The template for each layer
 
     var firstLayerAutorun; // Runs when the first layer is set or shortlist layers changes
+ 
+    function get_range_value (layer_name, i) {
+        var vals = filterValue.get(layer_name.toString());
+        if (vals && vals[i]) {
+            return vals[i].toExponential(1);
+        } else {
+            return i ? 'low' : 'high';
+        }
+    }
 
     Template.shortlistEntryT.helpers({
         shortlist: function () {
             return Session.get('shortlist');
         },
         filter_display: function () {
-            return (filterShow.get(this.toString())) ? 'block' : 'none';
+            return (filterShow.get(this)) ? 'initial' : 'none';
+        },
+        filter_row_display: function () {
+            return (filterShow.get(this)) ? 'table-row' : 'none';
         },
         filter_value_display: function () {
-            return (ctx.cont_layers.indexOf(this.toString()) > -1)
-                    ? 'none' : 'block';
+            return (is_continuous(this)) ? 'none' : 'initial';
         },
         filter_value: function () {
             return filterValue.get(this);
         },
         range: function () {
-            var vals = filterValue.get('layer_name');
-             if (_.isUndefined(vals)) {
-                return [0,0];
-            } else {
-                return vals;
-            }
+            var vals = filterValue.get(this);
+            return (_.isUndefined(vals)) ? [0,0] : vals;
         },
         filter_range_display: function () {
-            return (ctx.cont_layers.indexOf(this.toString()) > -1)
-                    ? 'block' : 'none';
+            return (is_continuous(this)) ? 'initial' : 'none';
+        },
+        filter_histogram_display: function () {
+            return (is_continuous(this)) ? 'block' : 'none';
+        },
+        filter_range_slider_display: function () {
+            return (is_continuous(this)) ? 'inline-block' : 'none';
         },
         low: function () {
-            var vals = filterValue.get(this);
-            if (_.isUndefined(vals)) {
-                return 'min';
-            } else {
-                return vals[0].toExponential(1);
-            }
+            return get_range_value(this, 0);
         },
         high: function () {
-            var vals = filterValue.get(this);
-            if (_.isUndefined(vals)) {
-                return 'max';
-            } else {
-                return vals[1].toExponential(1);
-            }
+            return get_range_value(this, 1);
         },
     })
 /*
@@ -166,7 +168,7 @@ var app = app || {}; // jshint ignore:line
             // what kind of layer we are.
             with_layer (layer_name, function (layer) {
             
-                if (ctx.cont_layers.indexOf(layer_name) > -1) {
+                if (is_continuous(layer_name)) {
                 
                     // Add a range slider if one is not there yet
                     if (root.find('.ui-slider-range').length < 1) {
@@ -188,7 +190,7 @@ var app = app || {}; // jshint ignore:line
                         layer = layers[layer_name],
                         nodeIds = [];
                     
-                    if (ctx.cont_layers.indexOf(layer_name) > -1) {
+                    if (is_continuous(layer_name)) {
 
                         // Get the range values
                         nodesIds = _.filter(_.keys(polygons), function (nodeId) {
@@ -364,22 +366,19 @@ var app = app || {}; // jshint ignore:line
         create_controls(layer_name, root);
 
         // Make a handle for the contents cell
-        var contents = root.find('.shortlist-contents-cell');
+        var contents = root.find('.contents-cell');
         
         // Add all of the metadata
         var metadata_holder = root.find('.metadata-holder');
         fill_layer_metadata(metadata_holder, layer_name);
  
         // Create the histogram
-        if (ctx.cont_layers.indexOf(layer_name) > -1) {
-            var histogram = newHistogram(layer_name);
-            contents.append(histogram);
+        if (is_continuous(layer_name)) {
+            newHistogram(layer_name, root.find('.histogram'));
         }
 
         // Create the filter button for toggling display of filter elements
-        root.find('.filter')
-            .click(filter_control_changed)
-            .button();
+        root.find('.filter').button().click(filter_control_changed);
     }
  
     function create_shortlist_entry (layer_name) {
@@ -396,7 +395,7 @@ var app = app || {}; // jshint ignore:line
         template[layer_name] = Blaze.renderWithData(
             Template.shortlistEntryT, {layer: [layer_name]}, $('#shortlist')[0]);
 
-        // This is the root element for this shortlist UI entry
+        // This is the root element of this shortlist UI entry
         var root = $('#shortlist')
             .find('.shortlist-entry[data-layer="' + layer_name + '"]');
 
@@ -485,7 +484,7 @@ var app = app || {}; // jshint ignore:line
         $("#shortlist").sortable({
             update: refreshColors,
             // Sort by the part with the lines icon, so we can still select text.
-            handle: ".shortlist-controls" 
+            handle: ".controls" 
         });
     }
 
@@ -746,7 +745,7 @@ var app = app || {}; // jshint ignore:line
                 // Define the functions and values to use for filtering
                 var desired = filterValue.get(layer_name);
                 
-                if (ctx.cont_layers.indexOf(layer_name) > -1) {
+                if (is_continuous(layer_name)) {
                 
                      // Use a range for continuous values.
                     filter_function = function(value) {

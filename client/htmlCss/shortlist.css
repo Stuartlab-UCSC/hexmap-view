@@ -1,13 +1,14 @@
 /* Code for fancy expandy side panels in the shortlist */
 
+.shortlistSpacer {
+    width: 19.5em;
+    height: 1px;
+}
+
 .shortlist {
     right: 0;
     width: 21em;
     overflow: visible;
-}
-.shortlistSpacer {
-    width: 20em;
-    height: 1px;
 }
 
 .shortlist .panel-holder {
@@ -15,6 +16,7 @@
     height: 4.75em;
     max-height: 6em;
     top: 2.2em;
+    bottom: 0;
     right: 0;
     width: 20em;
     position: fixed;
@@ -39,6 +41,11 @@
     z-index: 100;
 }
 
+.shortlist .panel-title {
+    text-align: center;
+    padding-top: 0.2em;
+}
+
 .shortlist .panel-contents {
     overflow-y: auto;
     overflow-x: hidden;
@@ -46,14 +53,7 @@
     left: 0;
     right: 0;
     bottom: 0;
-    top: 1em;
-}
-
-.shortlist .panel-title {
-    text-align: center;
-    padding-top: 0.2em;
-    font-weight: bold;
-    height: 1em;
+    top: 1.1em;
 }
 
 /* Shortlist Entry */
@@ -61,57 +61,119 @@
 .shortlist-entry {
     display: inline-block;
     position: relative;
+    width: 17.5em;
     border-radius: 5px;
-    padding: 5px;
+    padding: 0.3em;
     margin: 0.5em;
+    margin-bottom: 0;
     word-wrap: break-word;
 }
+
+.shortlist-entry table {
+   width: 100%;
+}
+
+.shortlist-entry tr,
+.shortlist-entry td {
+    padding: 0;
+}
+
 .shortlist-entry td {
     vertical-align: top;
 }
-.shortlist-controls {
-    width: 2em;
-    height: 3em;
-    margin-right: 0;
+
+.shortlist-entry td:nth-child(2) {
+    text-align: left;
+    width: 100%;
+}
+
+.shortlist-entry .controls {
+    min-height: 2.7em;
     background-image: url("resize-vertical.svg");
-    background-size: 24px 24px;
+    background-size: 1.2em 1.2em;
     background-repeat: no-repeat;
-    background-position: 0px 23px;
-    border-radius: 5px;
+    background-position: 0 1.4em;
     cursor: grab;
     cursor: -moz-grab;
     cursor: -webkit-grab;
+    white-space: nowrap;
 }
-.shortlist-controls:activate {
+
+.shortlist-entry .controls:activate {
     cursor: grabbing;
     cursor: -moz-grabbing;
     cursor: -webkit-grabbing;
 }
+
+.shortlist-entry .histogram {
+    height: 2em;
+}
+
 .shortlist-entry .filter,
-.shortlist-entry .filterCaution {
-    height: 16px;
-    width: 16px;
+.shortlist-entry .filterCaution,
+.shortlist-entry .save-filter {
+    height: 0.8em;
+    width: 0.8em;
     padding: 3px;
+    margin: 0;
     border: 1px solid #aaaaaa;
 }
-.shortlist .filter-value {
-    width: 10em;
-    font-size: 0.8em;
+
+.shortlist-entry .save-filter {
+    margin-left: 0.4em;
+}
+
+.shortlist-entry .filter-value {
+    /*font-size: 0.8em; */
+    max-width: 13em;
     padding-left: 0.5em;
 }
-.shortlist .range-slider {
-    width: 12.5em;
-    margin-left: 0;
-    margin-right: 0;
-    margin-top: 0.3em;
+
+.shortlist-entry .range-slider {
+    /* font-size and width should be the same as the histgram */
+    font-size: 1em;
+    height: 0.2em;
+    top: -0.7em;
 }
-.shortlist .save-filter {
-    height: 16px;
-    width: 16px;
-    padding: 3px;
-    line-height: 1em;
-    vertical-align: middle;
-    margin-left: 0.3em;
+
+.shortlist-entry .histogram,
+.shortlist-entry .range-slider {
+    width: 12.7em;
+}
+
+/* The entire sider bar */
+.ui-slider.ui-widget-content {
+    border: none;
+    background: none;
+    background-color: #ccc;
+}
+/* The active part of the slider bar */
+.ui-slider-range.ui-widget-header.ui-corner-all {
+    border: none;
+    background: none;
+    background-color: white;
+}
+
+.ui-slider .ui-slider-handle {
+    width: 0.8em;
+    height: 0.8em;
+    border-color: #888;
+}
+.ui-slider-handle.ui-corner-all {
+    border-radius: 0.8em;
+}
+
+.shortlist-entry .range-low,
+.shortlist-entry .range-high {
+    font-size: 0.8em;
+    margin-top: -1em;
+}
+
+.shortlist-entry .range-low {
+    float: left;
+}
+
+.shortlist-entry .range-high {
     float: right;
-    border: 1px solid #888;
+    margin-right: 2em;
 }
