@@ -135,6 +135,10 @@ def parse_args(args):
     parser.add_argument("--directed_graph", dest="directedGraph",
         action="store_true", default=True,
         help="generate the data to draw the directed graph")
+    parser.add_argument("--output_zip", type=str, default="",
+        help="compress the output files into a zip file")
+    parser.add_argument("--output_tar", type=str, default="",
+        help="compress the output files into a tar file")
     
     # Deprecated parameters:
     parser.add_argument("--mi_window_threshold", type=int, default=5,
@@ -1360,6 +1364,7 @@ def hexIt(options):
             print "finished creating colormaps"
             combine_files.append(os.path.join(options.directory, 'colormaps_' + str(i) + '.tab'))
             #convert the atributes/scores file to the tumor map numeric mappings:
+            print "converting annotations to the new mappings"
             convert_attributes_colormaps_mapping(in_colormap=os.path.join(options.directory, 'colormaps_' + str(i) + '.tab'), in_attributes=options.scores[i], filter_attributes_flag=False, output=os.path.join(options.directory, 'tm_converted_attributes_' + str(i) + '.tab'))
             print "finished converting annotations"
             #store the new mapped file for the downstream code to use to build the map(s):
@@ -2045,6 +2050,23 @@ def hexIt(options):
                 raise InvalidAction("Invalid matrix input is provided")
 
     print timestamp(), "Visualization generation complete!"
+    
+    if len(options.output_zip) > 0:
+        print "Writing the output to a zip file "+options.output_zip
+        import zipfile
+        zip_name = zipfile.ZipFile(options.output_zip, 'w',zipfile.ZIP_DEFLATED)
+        for root, dirs, files in os.walk(options.directory):
+            for file in files:
+                zip_name.write(os.path.join(root, file))
+        zipf.close()
+        print "Done writing a tar file"
+    
+    if len(options.output_tar) > 0:	#note that possible to both tar and zip by specifying different output files for each
+        print "Writing the output to a tar file "+options.output_tar
+        import tarfile
+        with tarfile.open(options.output_tar, "w:gz") as tar:
+            tar.add(options.directory, arcname=os.path.basename(options.directory))
+        print "Done writing a tar file"
 
 def PCA(dt):    #YN 20160620
     pca = sklearn.decomposition.PCA(n_components=2)

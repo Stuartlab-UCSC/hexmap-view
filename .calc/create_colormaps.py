@@ -4,7 +4,7 @@
 #./create_colormaps.py --in_attributes attr.tab --out_file colormaps.tab
 #python2.7 create_colormaps.py --in_attributes attr.tab --out_file colormaps.tab
 
-import sys, os, optparse, colorsys, math, itertools
+import sys, os, optparse, colorsys, math, itertools, argparse
 import numpy as np
 from decimal import *
 import re
@@ -135,7 +135,7 @@ def create_colormaps_file(in_attributes, out_file):
 				a_v_v = a_vals[a_v_i]
 				colormaps_line = colormaps_line  + "\t" + str(a_v_i) + "\t" + a_v_v + "\t#" + a_v_c_hex.upper()
 			
-		print >> output, colormaps_line
+			print >> output, colormaps_line
 
 def cat_files(inputs, out_file):	#concatenate multiple colormaps files
 	input_files = inputs.split(";")
