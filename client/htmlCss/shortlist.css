@@ -86,21 +86,23 @@
 }
 
 .shortlist-entry .controls {
-    min-height: 2.7em;
-    background-image: url("resize-vertical.svg");
-    background-size: 1.2em 1.2em;
-    background-repeat: no-repeat;
-    background-position: 0 1.4em;
     cursor: grab;
     cursor: -moz-grab;
     cursor: -webkit-grab;
     white-space: nowrap;
 }
 
-.shortlist-entry .controls:activate {
+.shortlist-entry .controls:active {
     cursor: grabbing;
     cursor: -moz-grabbing;
     cursor: -webkit-grabbing;
+}
+.shortlist-entry .move {
+    height: 1.3em;
+    width: 1.3em;
+    padding: 3px;
+    padding-left: 0;
+    margin: 0;
 }
 
 .shortlist-entry .histogram {
@@ -122,13 +124,12 @@
 }
 
 .shortlist-entry .filter-value {
-    /*font-size: 0.8em; */
     max-width: 13em;
     padding-left: 0.5em;
 }
 
 .shortlist-entry .range-slider {
-    /* font-size and width should be the same as the histgram */
+    /* font-size should be the same as the histogram */
     font-size: 1em;
     height: 0.2em;
     top: -0.7em;
@@ -195,9 +196,5 @@
 }
 
 .ui-slider-handle.ui-corner-all {
-    border-radius: 0.8em;
+    border-radius: 0.5em;
 }
-
-
-
-

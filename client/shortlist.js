@@ -164,8 +164,12 @@ var app = app || {}; // jshint ignore:line
         var save_filter = root.find('.save-filter');
         filterShow.set(layer_name, !filterShow.get(layer_name));
         if (filterShow.equals(layer_name, true)) {
+ 
+            // Move the filter button down to the filter controls
+            // to eliminate blank space betweeen main content and filter content
+            root.find('.filter-controls-cell').append(root.find('.filter'));
 
-            // First, figure out what kind of filter settings we take based on 
+            // Figure out what kind of filter settings we take based on
             // what kind of layer we are.
             with_layer (layer_name, function (layer) {
             
@@ -225,6 +229,12 @@ var app = app || {}; // jshint ignore:line
                 refreshColors();
             });
         } else {
+
+            // Move the filter button up to the main controls to eliminate
+            // blank space betweeen main control and filter control
+            Meteor.setTimeout(function () {
+                root.find('.controls').append(root.find('.filter'));
+            }, 0);
 
             // Refresh the colors since we're no longer filtering on this layer.
             refreshColors();
@@ -289,31 +299,26 @@ var app = app || {}; // jshint ignore:line
         }
     }
  
-    function get_layer_root (layer_name) {
- 
-        // Find the layer's root element
-        return $('#shortlist').find(
-            ".shortlist-entry[data-layer='" + layer_name + "'] ");
-    }
- 
     function create_range_slider (layer_name, root) {
  
         var layer = layers[layer_name];
  
         // Handler to update the range display
-        var val_range = layer.maximum - layer.minimum;
+        var min = layer.minimum,
+            max = layer.maximum,
+            span = max - min;
         var update_display = function(event, ui) {
-            filterValue.set('layer_name', [ui.values[0], ui.values[1]]);
+            var low = ui.values[0],
+                high = ui.values[1];
+            filterValue.set(layer_name, [low, high]);
  
             // Set the width of the low and high masks
-            var x_range = $(event.target).width(),
-                root = get_layer_root(layer_name),
-                half_handle = root.find('.range-slider span:first').width()/2,
-                width = (ui.values[0] / val_range) * x_range - half_handle;
-
-            root.find('.low_mask').width(width);
-            width = x_range - (ui.values[1] / val_range) * x_range + half_handle;
-            root.find('.high_mask').width(width);
+            var x_span = $(event.target).width(),
+                x_low_width = Math.abs(low - min) / span * x_span,
+                x_high_width = Math.abs(max - high) / span * x_span;
+ 
+            root.find('.low_mask').width(x_low_width);
+            root.find('.high_mask').width(x_high_width);
         }
  
         // Handler to apply the filter after the user has finished sliding
@@ -344,7 +349,13 @@ var app = app || {}; // jshint ignore:line
         // This is the button control panel of the shortlist
  
         // Handle enabling and disabling the layer
-        root.find('.layer-on').change(function () {
+ 
+        console.log('adding layer-on change handler');
+ 
+        root.find('.layer-on').on('change', function () {
+        
+            console.log('get_current_layers()', get_current_layers());
+            
             if ($(this).is(":checked")
                     && get_current_layers().length > MAX_DISPLAYED_LAYERS) {
                     
@@ -378,6 +389,9 @@ var app = app || {}; // jshint ignore:line
                 delete layers[layer_name];
                 removeFromDataTypeList(layer_name);
             }
+            
+            // Clear any google chart associated with this layer
+            clear_google_chart(layer_name);
         });
     }
  
@@ -386,9 +400,6 @@ var app = app || {}; // jshint ignore:line
         // Create the button control panel
         create_controls(layer_name, root);
 
-        // Make a handle for the contents cell
-        var contents = root.find('.contents-cell');
-        
         // Add all of the metadata
         var metadata_holder = root.find('.metadata-holder');
         fill_layer_metadata(metadata_holder, layer_name);

@@ -183,6 +183,7 @@ var app = app || {}; // jshint ignore:line
                 initSetOperations();
                 initCreateMap();
                 initSelect();
+                initGchart();
                 //initDiffAnalysis();
             }, 0);
         }

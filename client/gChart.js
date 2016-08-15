@@ -8,7 +8,9 @@ var app = app || {}; // jshint ignore:line
     //'use strict';
  
     var load = new ReactiveVar('notLoaded'), // notLoaded, loading, loaded
-        charts = [];
+        appReady = new ReactiveVar(false),
+        chartQueue = [], // A queue of charts to draw
+        charts = {}; // A chart handle for each layer used to free it
 
     function drawHistogram(layer_name, histogram) {
  
@@ -28,14 +30,20 @@ var app = app || {}; // jshint ignore:line
                         right: 0,
                         top: 0,
                     },
-                    hAxis: {gridlines: {color: 'transparent'}},
+                    enableInteractivity: false,
+                    hAxis: {
+                        //gridlines: {color: 'transparent'},
+                        ticks: [0],
+                    },
+                    histogram: { hideBucketItems: true, },
                     legend: { position: 'none' },
                     vAxis: {
                         gridlines: {color: 'transparent'},
                         textPosition: 'none',
                     },
                 };
-            new google.visualization.Histogram(histogram).draw(data, options);
+            charts[layer_name] = new google.visualization.Histogram(histogram)
+                                    .draw(data, options);
         });
     }
 
@@ -47,6 +55,13 @@ var app = app || {}; // jshint ignore:line
         google.charts.setOnLoadCallback(function () {
             load.set('loaded');
         });
+    }
+ 
+    clear_google_chart = function (layer_name) {
+        if (charts[layer_name]) {
+            charts[layer_name].clearChart();
+            delete charts[layer_name];
+        }
     }
  
     newHistogram = function (layer_name, $histogram) {
@@ -65,17 +80,22 @@ var app = app || {}; // jshint ignore:line
         }
 
         // Save the chart data to be drawn after google charts is loaded
-        charts.push({ layer_name: layer_name, histogram: histogram });
+        chartQueue.push({ layer_name: layer_name, histogram: histogram });
  
         // When google charts is loaded, draw those waiting to be drawn
         Tracker.autorun(function (comp) {
         
-            if (load.get() === 'loaded') {
+            if (load.get() === 'loaded' && appReady.get()) {
                 comp.stop();
-                _.each(charts, function (chart) {
+                _.each(chartQueue, function (chart) {
                     drawHistogram(chart.layer_name, chart.histogram);
                 });
+                chartQueue = undefined;
             }
         });
     }
+ 
+    initGchart = function () {
+        appReady.set(true);
+    };
 })(app);

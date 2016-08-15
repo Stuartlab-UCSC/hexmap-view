@@ -19,7 +19,9 @@
                         <a class='remove' href='#' title='Remove from Shortlist'>
                         X
                         </a>
-                        <input type='checkbox' class='layer-on' />
+                        <input type='checkbox' class='layer-on' /><br>
+                        <img class='move' src='resize-vertical.svg' title='Move entry up or down' /><br>
+                        <img class='filter' data-layer='{{ this }}' src='filter.svg' title='Filter values' />
                     </div>
                 </td>
                 <td class='contents-cell'>
@@ -30,7 +32,6 @@
             </tr>
             <tr>
                 <td class='filter-controls-cell'>
-                    <img class='filter' data-layer='{{ this }}' src='filter.svg' title='Filter values' />
                 </td>
                 <td class='filter-contents-cell' style='display:{{ filter_display }}'>
                     <select class='filter-value' value={{ filter_value }} style='display:{{ filter_value_display }}'></select>
