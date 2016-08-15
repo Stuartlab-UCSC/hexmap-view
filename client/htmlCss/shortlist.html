@@ -12,41 +12,42 @@
 
 <template name='shortlistEntryT'>
     {{#each layer}}
-        <div class='shortlist-entry' data-layer='{{ this }}'>
-            <table class='table'>
-                <tr>
-                    <td class='controls-cell'>
-                        <div class='controls'>
-                            <a class='remove' href='#' title='Remove from Shortlist'>
-                            X
-                            </a>
-                            <input type='checkbox' class='layer-on' />
-                        </div>
-                    </td>
-                    <td class='contents-cell'>
-                        <div>{{ this }}</div>
-                        <div class='metadata-holder'></div>
-                        <div class='histogram' style='display:{{ filter_histogram_display }}'></div>
-                    </td>
-                </tr>
-                <tr>
-                    <td class='filter-controls-cell'>
-                        <img class='filter' data-layer='{{ this }}' src='filter.svg' title='Filter values' />
-                    </td>
-                    <td class='filter-contents-cell' style='display:{{ filter_display }}'>
-                        <select class='filter-value' value={{ filter_value }} style='display:{{ filter_value_display }}'></select>
-                        <div class='range-slider' value={{ range }} data-layer='{{ this }}' style='display:{{ filter_range_slider_display }}'></div>
-                        <img class='save-filter' data-layer='{{ this }}' src='file-new.svg' title='Save filter as an attribute' />
-                    </td>
-                </tr>
-                <tr style='display:{{ filter_row_display }}'>
-                    <td></td>
-                    <td style='display:{{ filter_range_display }}'>
-                        <span class='range-low'>{{ low }}</span>
-                        <span class='range-high'>{{ high }}</span>
-                    </td>
-                </tr>
-            </table>
-        </div>
+        <table class='shortlist-entry table' data-layer='{{ this }}'>
+            <tr>
+                <td class='controls-cell'>
+                    <div class='controls'>
+                        <a class='remove' href='#' title='Remove from Shortlist'>
+                        X
+                        </a>
+                        <input type='checkbox' class='layer-on' />
+                    </div>
+                </td>
+                <td class='contents-cell'>
+                    <div>{{ this }}</div>
+                    <div class='metadata-holder'></div>
+                    <div class='histogram' style='display:{{ filter_histogram_display }}'></div>
+                </td>
+            </tr>
+            <tr>
+                <td class='filter-controls-cell'>
+                    <img class='filter' data-layer='{{ this }}' src='filter.svg' title='Filter values' />
+                </td>
+                <td class='filter-contents-cell' style='display:{{ filter_display }}'>
+                    <select class='filter-value' value={{ filter_value }} style='display:{{ filter_value_display }}'></select>
+                    <div class='range-slider' value={{ range }} data-layer='{{ this }}' style='display:{{ filter_range_slider_display }}'>
+                        <div class='low_mask mask'></div>
+                        <div class='high_mask mask'></div>
+                    </div>
+                    <img class='save-filter' data-layer='{{ this }}' src='file-new.svg' title='Save filter as an attribute' />
+                </td>
+            </tr>
+            <tr style='display:{{ filter_row_display }}'>
+                <td></td>
+                <td style='display:{{ filter_range_display }}'>
+                    <span class='range-low'>{{ low }}</span>
+                    <span class='range-high'>{{ high }}</span>
+                </td>
+            </tr>
+        </table>
     {{/each}}
 </template>

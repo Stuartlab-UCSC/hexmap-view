@@ -13,8 +13,10 @@
 
 .shortlist .panel-holder {
     overflow: hidden;
+    
     height: 4.75em;
     max-height: 6em;
+    
     top: 2.2em;
     bottom: 0;
     right: 0;
@@ -67,10 +69,6 @@
     margin: 0.5em;
     margin-bottom: 0;
     word-wrap: break-word;
-}
-
-.shortlist-entry table {
-   width: 100%;
 }
 
 .shortlist-entry tr,
@@ -141,6 +139,38 @@
     width: 12.7em;
 }
 
+.shortlist-entry .range-low,
+.shortlist-entry .range-high {
+    font-size: 0.8em;
+    margin-top: -1em;
+}
+
+.shortlist-entry .range-low {
+    float: left;
+}
+
+.shortlist-entry .range-high {
+    float: right;
+    margin-right: 2em;
+}
+
+.shortlist-entry .mask {
+    position: absolute;
+    height: 2.4em;
+    width: 0;
+    left: 0em;
+    bottom: 0em;
+    background-color: #555;
+    opacity: 0.5;
+}
+
+.shortlist-entry .high_mask {
+    left: auto;
+    right: 0em;
+}
+
+/* The below could apply to any future slider on the UI
+
 /* The entire sider bar */
 .ui-slider.ui-widget-content {
     border: none;
@@ -157,23 +187,17 @@
 .ui-slider .ui-slider-handle {
     width: 0.8em;
     height: 0.8em;
-    border-color: #888;
+    border-color: #aaa;
 }
+
+.ui-slider-horizontal .ui-slider-handle {
+    margin-left: -0.4em;
+}
+
 .ui-slider-handle.ui-corner-all {
     border-radius: 0.8em;
 }
 
-.shortlist-entry .range-low,
-.shortlist-entry .range-high {
-    font-size: 0.8em;
-    margin-top: -1em;
-}
 
-.shortlist-entry .range-low {
-    float: left;
-}
 
-.shortlist-entry .range-high {
-    float: right;
-    margin-right: 2em;
-}
+

@@ -17,6 +17,7 @@ var app = app || {}; // jshint ignore:line
     var scrollTop = 0; // Save scroll position while select from filter
     var filterShow = new ReactiveDict(); // To show or hide the filter area
     var filterValue = new ReactiveDict(); // filter value(s)
+ 
     var template = {}; // The template for each layer
 
     var firstLayerAutorun; // Runs when the first layer is set or shortlist layers changes
@@ -193,11 +194,12 @@ var app = app || {}; // jshint ignore:line
                     if (is_continuous(layer_name)) {
 
                         // Get the range values
-                        nodesIds = _.filter(_.keys(polygons), function (nodeId) {
+                        nodeIds = _.filter(_.keys(polygons), function (nodeId) {
                             return (layer.data[nodeId] >= value[0]
                                     && layer.data[nodeId] <= value[1]);
                         });
-                        value = value[0].toString() + ' to ' + value[1].toString();
+                        value = value[0].toExponential(1).toString()
+                            + ' to ' + value[1].toExponential(1).toString();
 
                     } else { // Binary and categorical layers
                     
@@ -287,11 +289,31 @@ var app = app || {}; // jshint ignore:line
         }
     }
  
+    function get_layer_root (layer_name) {
+ 
+        // Find the layer's root element
+        return $('#shortlist').find(
+            ".shortlist-entry[data-layer='" + layer_name + "'] ");
+    }
+ 
     function create_range_slider (layer_name, root) {
  
+        var layer = layers[layer_name];
+ 
         // Handler to update the range display
+        var val_range = layer.maximum - layer.minimum;
         var update_display = function(event, ui) {
             filterValue.set('layer_name', [ui.values[0], ui.values[1]]);
+ 
+            // Set the width of the low and high masks
+            var x_range = $(event.target).width(),
+                root = get_layer_root(layer_name),
+                half_handle = root.find('.range-slider span:first').width()/2,
+                width = (ui.values[0] / val_range) * x_range - half_handle;
+
+            root.find('.low_mask').width(width);
+            width = x_range - (ui.values[1] / val_range) * x_range + half_handle;
+            root.find('.high_mask').width(width);
         }
  
         // Handler to apply the filter after the user has finished sliding
@@ -301,7 +323,6 @@ var app = app || {}; // jshint ignore:line
         }
  
         // Create the slider
-        var layer = layers[layer_name];
         root.find('.range-slider').slider({
             range: true,
             min: layer.minimum,
@@ -775,7 +796,7 @@ var app = app || {}; // jshint ignore:line
         // entry. Assumes the layer has a shortlist UI entry.
         var range = filterValue.get(layer_name);
         if (_.isUndefined(range)) {
-            return [layers[layer_name].minium, layers[layer_name].maximum];
+            return [layers[layer_name].minimum, layers[layer_name].maximum];
         } else {
             return range;
         }
