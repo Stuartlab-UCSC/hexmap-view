@@ -16,7 +16,7 @@ Re-uses sample code and documentation from
 
 DEV = False; # True if in development mode, False if not
 
-import argparse, sys, os, itertools, math, numpy, subprocess, shutil, tempfile
+import argparse, sys, os, itertools, math, numpy, subprocess, shutil, tempfile, glob
 import collections, traceback, numpy, time, datetime, pprint
 import scipy.stats, scipy.linalg, scipy.misc
 import time, socket
@@ -2055,11 +2055,10 @@ def hexIt(options):
         print "Writing the output to a zip file "+options.output_zip
         import zipfile
         zip_name = zipfile.ZipFile(options.output_zip, 'w',zipfile.ZIP_DEFLATED)
-        for root, dirs, files in os.walk(options.directory):
-            for file in files:
-                zip_name.write(os.path.join(root, file))
-        zipf.close()
-        print "Done writing a tar file"
+        for file in glob.glob(os.path.join(options.directory, "*")):
+            zip_name.write(file, os.path.basename(file))
+        zip_name.close()
+        print "Done writing a zip file"
     
     if len(options.output_tar) > 0:	#note that possible to both tar and zip by specifying different output files for each
         print "Writing the output to a tar file "+options.output_tar
