@@ -251,7 +251,7 @@ var app = app || {}; // jshint ignore:line
         setTimeout(function () { // The timeout allows the google libs to load
             resizeMap();
             $(window).resize(resizeMap);
-            $('#shortlist-holder').css('top', $('#navBar').height());
+            $('#shortlist_holder').css('top', $('#navBar').height());
             ctx.center = centerToLatLng(ctx.center);
             Session.set('initedMapContainer', true);
         }, 0);

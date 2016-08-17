@@ -11,7 +11,7 @@
     overflow: visible;
 }
 
-.shortlist .panel-holder {
+.shortlist .panel_holder {
     overflow: hidden;
     
     height: 4.75em;
@@ -27,7 +27,7 @@
 }
 
 /* When a holder gets moused over, open it up to 100% window height */
-.shortlist .panel-holder:hover {
+.shortlist .panel_holder:hover {
     height: auto;
     max-height: 100%;
     bottom: 0;
@@ -43,12 +43,12 @@
     z-index: 100;
 }
 
-.shortlist .panel-title {
+.shortlist .panel_title {
     text-align: center;
     padding-top: 0.2em;
 }
 
-.shortlist .panel-contents {
+.shortlist .panel_contents {
     overflow-y: auto;
     overflow-x: hidden;
     position: absolute;
@@ -60,7 +60,7 @@
 
 /* Shortlist Entry */
 
-.shortlist-entry {
+.shortlist_entry {
     display: inline-block;
     position: relative;
     width: 17.5em;
@@ -71,33 +71,33 @@
     word-wrap: break-word;
 }
 
-.shortlist-entry tr,
-.shortlist-entry td {
+.shortlist_entry tr,
+.shortlist_entry td {
     padding: 0;
 }
 
-.shortlist-entry td {
+.shortlist_entry td {
     vertical-align: top;
 }
 
-.shortlist-entry td:nth-child(2) {
+.shortlist_entry td:nth-child(2) {
     text-align: left;
     width: 100%;
 }
 
-.shortlist-entry .controls {
+.shortlist_entry .controls {
     cursor: grab;
     cursor: -moz-grab;
     cursor: -webkit-grab;
     white-space: nowrap;
 }
 
-.shortlist-entry .controls:active {
+.shortlist_entry .controls:active {
     cursor: grabbing;
     cursor: -moz-grabbing;
     cursor: -webkit-grabbing;
 }
-.shortlist-entry .move {
+.shortlist_entry .move {
     height: 1.3em;
     width: 1.3em;
     padding: 3px;
@@ -105,9 +105,9 @@
     margin: 0;
 }
 
-.shortlist-entry .filter,
-.shortlist-entry .filterCaution,
-.shortlist-entry .save-filter {
+.shortlist_entry .filter,
+.shortlist_entry .filterCaution,
+.shortlist_entry .save_filter {
     height: 0.8em;
     width: 0.8em;
     padding: 3px;
@@ -116,16 +116,16 @@
     position: relative;
 }
 
-.shortlist-entry .range-values {
+.shortlist_entry .range_values {
     position: relative;
 }
 
-.shortlist-entry .chart {
+.shortlist_entry .chart {
     height: 2em;
     margin-top: 0.2em;
 }
 
-.shortlist-entry .zero_tick {
+.shortlist_entry .zero_tick {
     position: absolute;
     height: 0.6em;
     width: 1px;
@@ -134,7 +134,7 @@
     background-color: #555555;
 }
 
-.shortlist-entry .zero {
+.shortlist_entry .zero {
     position: absolute;
     font-size: 0.6em;
     left: 1em;
@@ -142,39 +142,39 @@
     color: #555555;
 }
 
-.shortlist-entry .filter-value {
+.shortlist_entry .filter_value {
     max-width: 13em;
     padding-left: 0.5em;
 }
 
-.shortlist-entry .range-slider {
+.shortlist_entry .range_slider {
     /* font-size should be the same as the chart */
     font-size: 1em;
     height: 0.2em;
     top: -0.4em;
 }
 
-.shortlist-entry .chart,
-.shortlist-entry .range-slider {
+.shortlist_entry .chart,
+.shortlist_entry .range_slider {
     width: 12.7em;
 }
 
-.shortlist-entry .range-low,
-.shortlist-entry .range-high {
+.shortlist_entry .range_low,
+.shortlist_entry .range_high {
     font-size: 0.8em;
     margin-top: -0.1em;
 }
 
-.shortlist-entry .range-low {
+.shortlist_entry .range_low {
     float: left;
 }
 
-.shortlist-entry .range-high {
+.shortlist_entry .range_high {
     float: right;
     margin-right: 2em;
 }
 
-.shortlist-entry .mask {
+.shortlist_entry .mask {
     position: absolute;
     height: 1.85em;
     width: 0;
@@ -184,12 +184,12 @@
     opacity: 0.5;
 }
 
-.shortlist-entry .high_mask {
+.shortlist_entry .high_mask {
     left: auto;
     right: 0em;
 }
 
-.shortlist-entry .save-filter {
+.shortlist_entry .save_filter {
     margin-left: 0.4em;
 }
 

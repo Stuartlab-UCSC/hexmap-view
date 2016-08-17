@@ -109,7 +109,7 @@ var app = app || {}; // jshint ignore:line
             
             // Else, leave bounds at +/- magnitude.
             // Set the min, max and current value.
-            shortlist_entry.find(".range-slider")
+            shortlist_entry.find(".range_slider")
                 .slider("option", "min", minBound)
                 .slider("option", "max",  maxBound)
                 .slider("values", [minBound, maxBound]);
@@ -166,15 +166,15 @@ var app = app || {}; // jshint ignore:line
 
         // Functionality for turning filtering on and off
         var layer_name = $(ev.target).data().layer;
-        var root = $(ev.target).parents('.shortlist-entry');
-        var filter_contents = root.find('.filter-contents-cell')
-        var save_filter = root.find('.save-filter');
+        var root = $(ev.target).parents('.shortlist_entry');
+        var filter_contents = root.find('.filter_contents_cell')
+        var save_filter = root.find('.save_filter');
         filterShow.set(layer_name, !filterShow.get(layer_name));
         if (filterShow.equals(layer_name, true)) {
  
             // Move the filter button down to the filter controls
             // to eliminate blank space betweeen main content and filter content
-            //root.find('.filter-controls-cell').append(root.find('.filter'));
+            //root.find('.filter_controls_cell').append(root.find('.filter'));
 
             // Figure out what kind of filter settings we take based on
             // what kind of layer we are.
@@ -189,7 +189,7 @@ var app = app || {}; // jshint ignore:line
                 } else {
 
                     // Add a value picker if one is not there yet
-                    var filter_value = filter_contents.find('.filter-value');
+                    var filter_value = filter_contents.find('.filter_value');
                     if (!filter_value.hasClass('select2-offscreen')) {
                         create_filter_select_options(layer_name, layer, filter_value);
                     }
@@ -336,7 +336,7 @@ var app = app || {}; // jshint ignore:line
         }
  
         // Create the slider
-        root.find('.range-slider').slider({
+        root.find('.range_slider').slider({
             range: true,
             min: min,
             max: max,
@@ -355,9 +355,9 @@ var app = app || {}; // jshint ignore:line
  
         // Handle enabling and disabling the layer
  
-        console.log('adding layer-on change handler');
+        console.log('adding layer_on change handler');
  
-        root.find('.layer-on').on('change', function () {
+        root.find('.layer_on').on('change', function () {
         
             console.log('get_current_layers()', get_current_layers());
             
@@ -402,7 +402,7 @@ var app = app || {}; // jshint ignore:line
  
     function find_root_of_entry (layer_name) {
         // $("ul").find(el + "[data-slide='" + current +"']");
-        return $('.shortlist-entry[data-layer="' + layer_name + '"]');;
+        return $('.shortlist_entry[data-layer="' + layer_name + '"]');;
     }
  
     function create_shortlist_entry_with_data (layer_name, root) {
@@ -411,7 +411,7 @@ var app = app || {}; // jshint ignore:line
         create_controls(layer_name, root);
 
         // Add all of the metadata
-        var metadata_holder = root.find('.metadata-holder');
+        var metadata_holder = root.find('.metadata_holder');
         fill_layer_metadata(metadata_holder, layer_name);
  
         // Create the chart
@@ -463,7 +463,7 @@ var app = app || {}; // jshint ignore:line
 
         // This is the root element of this shortlist UI entry
         var root = $('#shortlist')
-            .find('.shortlist-entry[data-layer="' + layer_name + '"]');
+            .find('.shortlist_entry[data-layer="' + layer_name + '"]');
 
         // Is this is a selection ?
         if (layers[layer_name].selection) {
@@ -516,7 +516,7 @@ var app = app || {}; // jshint ignore:line
                 
                 // Update the metadata in the element. It make have changed due
                 // to new statistics info.
-                fill_layer_metadata($(element).find(".metadata-holder"), 
+                fill_layer_metadata($(element).find(".metadata_holder"), 
                     $(element).data("layer"));
             } else {
             
@@ -539,7 +539,7 @@ var app = app || {}; // jshint ignore:line
  
                     // If the DOM element was created, show its colors on the
                     // map if the number showing is not yet maxed out.
-                    shortlist_ui[layer_name].find(".layer-on").click();
+                    shortlist_ui[layer_name].find(".layer_on").click();
                 }
             }
         }
@@ -711,7 +711,7 @@ var app = app || {}; // jshint ignore:line
         
         $("#shortlist").children().each(function(index, element) {
             // This holds the checkbox that determines if we use this layer
-            var checkbox = $(element).find(".layer-on");
+            var checkbox = $(element).find(".layer_on");
             if(checkbox.is(":checked")) {
                 // Put the layer in if its checkbox is checked.
                 current_layers.push($(element).data("layer"));
@@ -798,7 +798,7 @@ var app = app || {}; // jshint ignore:line
 
             // They 'on' checkbox and the filter checkbos must be checked
             // to apply a filter
-            var $on = $(element).find(".layer-on");
+            var $on = $(element).find(".layer_on");
             if (filterShow.equals(layer_name, true) && $on.is(":checked")) {
 
                 // Put the layer in if its checkbox is checked.
