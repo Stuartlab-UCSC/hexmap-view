@@ -12,27 +12,87 @@ var app = app || {}; // jshint ignore:line
         chartQueue = [], // A queue of charts to draw
         charts = {}; // A chart handle for each layer used to free it
 
-    function drawHistogram(layer_name, histogram) {
- 
+
+
+    function drawBarChart (layer_name, container) {
+
         with_layer(layer_name, function () {
-            var layer = layers[layer_name],
-                arrays = _.zip(_.keys(layer.data), _.values(layer.data)),
-                //sorted = _.sortBy(arrays, function(row){ return row[1]; }),
-                withHeaders = [['Node', '']].concat(arrays),
-                data = google.visualization.arrayToDataTable(withHeaders),
-                options = {
+                
+            // Find counts of each category
+            var counts = [];
+            _.each(_.values(layers[layer_name].data), function(cat) {
+                if (counts[cat]) {
+                    counts[cat] += 1;
+                } else {
+                    counts[cat] = 1;
+                }
+            });
+
+            // Fill any undefined array values with zero
+            var filled = []
+            for (i = 0; i < counts.length; i += 1) {
+                filled[i] = (counts[i]) ? counts[i] : 0;
+            }
+            // Find the bar colors
+            if (is_binary(layer_name)) {
+                colors = ['#555555', COLOR_BINARY_ON];
+            } else {
+                var colormap = colormaps[layer_name];
+                colors = _.map(colormap, function (cat) {
+                    return cat.color.hexString();
+                });
+            }
+            
+            // Format the data as google chart wants
+            var arrays = _.map(filled, function (count, i) {
+                return [i.toString(), count, colors[i]];
+            });
+
+            // Add the headers to the top of the data
+            var withHeaders = [['Category', 'Count', { role: 'style' }]]
+                                .concat(arrays);
+            
+            var data = google.visualization.arrayToDataTable(withHeaders);
+
+            var options = {
                     backgroundColor: 'transparent',
-                    bar: { gap: 0 },
                     chartArea: {
-                        backgroundColor: 'transparent',
                         bottom: 5,
                         left: 0,
                         right: 0,
                         top: 0,
                     },
                     enableInteractivity: false,
+                    legend: { position: 'none' },
+                    vAxis: {
+                        gridlines: {color: 'transparent'},
+                        textPosition: 'none',
+                    },
+                };
+            charts[layer_name] = new google.visualization.ColumnChart(container)
+                                    .draw(data, options);
+        });
+    }
+ 
+    function drawHistogram (layer_name, container) {
+ 
+        with_layer(layer_name, function () {
+            var layer = layers[layer_name],
+                arrays = _.zip(_.keys(layer.data), _.values(layer.data)),
+                withHeaders = [['Node', '']].concat(arrays),
+                data = google.visualization.arrayToDataTable(withHeaders),
+                options = {
+                    backgroundColor: 'transparent',
+                    bar: { gap: 0 },
+                    chartArea: {
+                        bottom: 5,
+                        left: 0,
+                        right: 0,
+                        top: 0,
+                    },
+                    colors: ['#555555'],
+                    enableInteractivity: false,
                     hAxis: {
-                        //gridlines: {color: 'transparent'},
                         ticks: [0],
                     },
                     histogram: { hideBucketItems: true, },
@@ -42,7 +102,7 @@ var app = app || {}; // jshint ignore:line
                         textPosition: 'none',
                     },
                 };
-            charts[layer_name] = new google.visualization.Histogram(histogram)
+            charts[layer_name] = new google.visualization.Histogram(container)
                                     .draw(data, options);
         });
     }
@@ -64,14 +124,18 @@ var app = app || {}; // jshint ignore:line
         }
     }
  
-    newHistogram = function (layer_name, $histogram) {
+    newGchart = function (layer_name, $container, type) {
  
         var status = load.get(),
-            histogram = $histogram[0];
+            container = $container[0];
 
         // If google charts is loaded, just draw it
         if (status ==='loaded') {
-            drawHistogram(layer_name, histogram);
+            if (type === 'histogram') {
+                drawHistogram(layer_name, container);
+            } else {
+                drawBarChart(layer_name, container);
+            }
             return;
 
         // If google charts has not yet been asked to load, then load it
@@ -80,15 +144,24 @@ var app = app || {}; // jshint ignore:line
         }
 
         // Save the chart data to be drawn after google charts is loaded
-        chartQueue.push({ layer_name: layer_name, histogram: histogram });
+        chartQueue.push({
+            layer_name: layer_name,
+            container: container,
+            type: type,
+        });
  
-        // When google charts is loaded, draw those waiting to be drawn
+        // After google charts is loaded, draw those waiting to be drawn
         Tracker.autorun(function (comp) {
         
             if (load.get() === 'loaded' && appReady.get()) {
                 comp.stop();
                 _.each(chartQueue, function (chart) {
-                    drawHistogram(chart.layer_name, chart.histogram);
+                    if (chart.type === 'histogram') {
+                        drawHistogram(chart.layer_name, chart.container);
+                       
+                    } else { // Assume bar chart
+                        drawBarChart(chart.layer_name, chart.container);
+                    }
                 });
                 chartQueue = undefined;
             }

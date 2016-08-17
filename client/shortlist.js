@@ -15,8 +15,9 @@ var app = app || {}; // jshint ignore:line
     var initialized = false;
 
     var scrollTop = 0; // Save scroll position while select from filter
+    var layerActive = new ReactiveDict(); // is this layer is active or not
     var filterShow = new ReactiveDict(); // To show or hide the filter area
-    var filterValue = new ReactiveDict(); // filter value(s)
+    var filterValue = new ReactiveDict(); // filter value(s) for range or category
  
     var template = {}; // The template for each layer
 
@@ -25,7 +26,7 @@ var app = app || {}; // jshint ignore:line
     function get_range_value (layer_name, i) {
         var vals = filterValue.get(layer_name.toString());
         if (vals && vals[i]) {
-            return vals[i].toExponential(1);
+            return Number(vals[i]).toExponential(1);
         } else {
             return i ? 'low' : 'high';
         }
@@ -35,11 +36,23 @@ var app = app || {}; // jshint ignore:line
         shortlist: function () {
             return Session.get('shortlist');
         },
+        range_value_display: function () {
+            return (is_continuous(this)) ? 'initial' : 'none';
+        },
+        filter_row_top: function () {
+            return (is_continuous(this)) ? '0' : '0';
+        },
+        
+        filter_image: function () {
+            var name = this.toString();
+            // TODO this should also check for this layer being active
+            // for the orange filter to show
+            return (filterShow.get(name)) 
+                //&& get_current_layers().indexOf(name) > -1)
+                        ? 'filterCaution.svg' : 'filter.svg';
+        },
         filter_display: function () {
             return (filterShow.get(this)) ? 'initial' : 'none';
-        },
-        filter_row_display: function () {
-            return (filterShow.get(this)) ? 'table-row' : 'none';
         },
         filter_value_display: function () {
             return (is_continuous(this)) ? 'none' : 'initial';
@@ -51,13 +64,7 @@ var app = app || {}; // jshint ignore:line
             var vals = filterValue.get(this);
             return (_.isUndefined(vals)) ? [0,0] : vals;
         },
-        filter_range_display: function () {
-            return (is_continuous(this)) ? 'initial' : 'none';
-        },
-        filter_histogram_display: function () {
-            return (is_continuous(this)) ? 'block' : 'none';
-        },
-        filter_range_slider_display: function () {
+        slider_display: function () {
             return (is_continuous(this)) ? 'inline-block' : 'none';
         },
         low: function () {
@@ -167,7 +174,7 @@ var app = app || {}; // jshint ignore:line
  
             // Move the filter button down to the filter controls
             // to eliminate blank space betweeen main content and filter content
-            root.find('.filter-controls-cell').append(root.find('.filter'));
+            //root.find('.filter-controls-cell').append(root.find('.filter'));
 
             // Figure out what kind of filter settings we take based on
             // what kind of layer we are.
@@ -232,9 +239,9 @@ var app = app || {}; // jshint ignore:line
 
             // Move the filter button up to the main controls to eliminate
             // blank space betweeen main control and filter control
-            Meteor.setTimeout(function () {
-                root.find('.controls').append(root.find('.filter'));
-            }, 0);
+            //Meteor.setTimeout(function () {
+            //    root.find('.controls').append(root.find('.filter'));
+            //}, 0);
 
             // Refresh the colors since we're no longer filtering on this layer.
             refreshColors();
@@ -301,12 +308,12 @@ var app = app || {}; // jshint ignore:line
  
     function create_range_slider (layer_name, root) {
  
-        var layer = layers[layer_name];
- 
-        // Handler to update the range display
-        var min = layer.minimum,
+        var layer = layers[layer_name],
+            min = layer.minimum,
             max = layer.maximum,
             span = max - min;
+ 
+        // Handle a slider handle moving
         var update_display = function(event, ui) {
             var low = ui.values[0],
                 high = ui.values[1];
@@ -319,6 +326,7 @@ var app = app || {}; // jshint ignore:line
  
             root.find('.low_mask').width(x_low_width);
             root.find('.high_mask').width(x_high_width);
+ 
         }
  
         // Handler to apply the filter after the user has finished sliding
@@ -330,18 +338,15 @@ var app = app || {}; // jshint ignore:line
         // Create the slider
         root.find('.range-slider').slider({
             range: true,
-            min: layer.minimum,
-            max: layer.maximum,
-            values: [layer.minimum, layer.maximum],
+            min: min,
+            max: max,
+            values: [min, max],
             height: 10,
             step: 1E-9, // Ought to be fine enough
             slide: update_display,
             change: update_display,
             stop: update_filter,
         });
- 
-        // Set the initial value
-        filterValue.set(layer_name, [layer.minimum, layer.maximum]);
     }
 
     function create_controls (layer_name, root) {
@@ -395,6 +400,11 @@ var app = app || {}; // jshint ignore:line
         });
     }
  
+    function find_root_of_entry (layer_name) {
+        // $("ul").find(el + "[data-slide='" + current +"']");
+        return $('.shortlist-entry[data-layer="' + layer_name + '"]');;
+    }
+ 
     function create_shortlist_entry_with_data (layer_name, root) {
  
         // Create the button control panel
@@ -404,11 +414,34 @@ var app = app || {}; // jshint ignore:line
         var metadata_holder = root.find('.metadata-holder');
         fill_layer_metadata(metadata_holder, layer_name);
  
-        // Create the histogram
+        // Create the chart
         if (is_continuous(layer_name)) {
-            newHistogram(layer_name, root.find('.histogram'));
-        }
+            newGchart(layer_name, root.find('.chart'), 'histogram');
+            filterValue.set(layer_name, [
+                layers[layer_name].minimum.toExponential(1),
+                layers[layer_name].maximum.toExponential(1)
+            ]);
+ 
+            // Put a tick on zero if zero is in the range.
+            // The dom object needs to be drawn already so we can see the offset.
+            var min = layers[layer_name].minimum,
+                max = layers[layer_name].maximum;
+            if (0 > min && 0 < max) {
+                Meteor.setTimeout(function () {
+                    var root = find_root_of_entry(layer_name),
+                        chart = root.find('.chart'),
+                        x_min = chart.offset().left,
+                        x_span = chart.width(),
+                        x_low_width = -min / (max - min) * x_span;
+                    root.find('.zero_tick').css('left', x_low_width);
+                    root.find('.zero').css('left', x_low_width -9);
+                }, 500);
+            }
 
+        } else {
+            newGchart(layer_name, root.find('.chart'), 'barChart');
+        }
+ 
         // Create the filter button for toggling display of filter elements
         root.find('.filter').button().click(filter_control_changed);
     }
@@ -421,6 +454,7 @@ var app = app || {}; // jshint ignore:line
         if (!layers[layer_name]) return;
  
         // Initialize some vars used in the template
+        layerActive.set(layer_name, true);
         filterShow.set(layer_name, false);
 
         // Load the shortlist entry template, passing the layer name

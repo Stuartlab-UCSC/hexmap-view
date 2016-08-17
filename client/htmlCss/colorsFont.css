@@ -43,11 +43,11 @@ body,
 }
 
 .shortlist-entry {
-    background: #E0E0FF;
+    background: #eeeeee; /* #E0E0FF; */
 }
 
 .shortlist-entry.selection {
-    background: #FFE0FF;
+    background: #fff0ff; /* #FFE0FF; */
 }
 
 #homePage .mapTitle,

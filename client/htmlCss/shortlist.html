@@ -21,13 +21,19 @@
                         </a>
                         <input type='checkbox' class='layer-on' /><br>
                         <img class='move' src='resize-vertical.svg' title='Move entry up or down' /><br>
-                        <img class='filter' data-layer='{{ this }}' src='filter.svg' title='Filter values' />
+                        <img class='filter' data-layer='{{ this }}' src='{{ filter_image }}' title='Filter values' />
                     </div>
                 </td>
                 <td class='contents-cell'>
                     <div>{{ this }}</div>
                     <div class='metadata-holder'></div>
-                    <div class='histogram' style='display:{{ filter_histogram_display }}'></div>
+                    <div class='chart'></div>
+                    <div class='range-values' style='display:{{ range_value_display }}'>
+                        <div class='zero_tick'></div>
+                        <div class='zero'>0</div>
+                        <div class='range-low'>{{ low }}</div>
+                        <div class='range-high'>{{ high }}</div>
+                    </div>
                 </td>
             </tr>
             <tr>
@@ -35,18 +41,11 @@
                 </td>
                 <td class='filter-contents-cell' style='display:{{ filter_display }}'>
                     <select class='filter-value' value={{ filter_value }} style='display:{{ filter_value_display }}'></select>
-                    <div class='range-slider' value={{ range }} data-layer='{{ this }}' style='display:{{ filter_range_slider_display }}'>
+                    <div class='range-slider' value={{ range }} data-layer='{{ this }}' style='display:{{ slider_display }}'>
                         <div class='low_mask mask'></div>
                         <div class='high_mask mask'></div>
                     </div>
                     <img class='save-filter' data-layer='{{ this }}' src='file-new.svg' title='Save filter as an attribute' />
-                </td>
-            </tr>
-            <tr style='display:{{ filter_row_display }}'>
-                <td></td>
-                <td style='display:{{ filter_range_display }}'>
-                    <span class='range-low'>{{ low }}</span>
-                    <span class='range-high'>{{ high }}</span>
                 </td>
             </tr>
         </table>

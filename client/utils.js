@@ -10,6 +10,14 @@ var app = app || {}; // jshint ignore:line
         return (ctx.cont_layers.indexOf(layer_name.toString()) > -1);
     }
  
+    is_categorical = function (layer_name) {
+        return (ctx.cat_layers.indexOf(layer_name.toString()) > -1);
+    }
+ 
+    is_binary = function (layer_name) {
+        return (ctx.bin_layers.indexOf(layer_name.toString()) > -1);
+    }
+ 
     round = function (x, n) {
         if (!n) {
             n = 0;
