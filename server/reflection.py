@@ -45,6 +45,8 @@ def reflection(parm):
     node_ids = parm['node_ids']
 
     if not os.path.isfile(fpath):
+        #TODO: Need better way for error, this error actually 
+        # gets dumped into mongo
         print "Error:", fpath, "not found, so reflection could not be computed\n"
         return 0
 
@@ -56,7 +58,17 @@ def reflection(parm):
     if (parm['featOrSamp'] == 'feature'):
         ref_dat = ref_dat.transpose()
 
-    node_ids = parm['node_ids']
+    #Ignore any node_ids passed that are not in the reflection matrix
+    node_ids = [node for node in node_ids if node in ref_dat.columns.values.tolist() ]
+
+    if (len(node_ids) ==0):
+        print "Error:", fpath, "none of the nodes selected were in the reflection matrix\n"
+        return 0
+
+    #TODO: For efficency sake we could store the below calcs of mean and std 
+    # and only read
+    # in the necessary columns, we'd need to store a transpose though
+    # or get fancy some other way
 
     #grab row wise means and standard deviation for querry normalization
     rowmu = ref_dat.mean(axis=1)

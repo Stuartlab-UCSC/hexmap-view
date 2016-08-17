@@ -1,7 +1,7 @@
 #Yulia Newton
 #python2.7 convert_annotation_to_tumormap_mapping.py --in_colormap clin_all.datafreeze.tumormap.colormaps.tab --in_attributes clin_all.datafreeze.heatmaps.tab --filter_attributes_flag TRUE --output temp7.tab
 
-import optparse, sys, os, glob
+import optparse, argparse, sys, os, glob
 from itertools import imap
 import itertools
 
@@ -12,7 +12,7 @@ def parse_args(args):
 
 	parser.add_argument("--in_colormap", type=str,
 		help="colormaps file")
-	parser.add_argument("--in_attributes", type=int, default=6,
+	parser.add_argument("--in_attributes", type=str,
 		help="attributes file to convert to the colormaps mappings")
 	parser.add_argument("--filter_attributes_flag",type=str, default="False",
 		help="filter out attributes for which the mapping is not present in the colormaps file (valid values: True, T, False, F)")
@@ -27,19 +27,20 @@ def convert_attributes_colormaps_mapping(in_colormap, in_attributes, filter_attr
 	colormap = open(in_colormap, 'r')
 	for line in colormap:
 		line_elems = line.strip().split("\t")
-		attribute_dict[line_elems[0]] = {}
+		if len(line_elems) > 0:
+			attribute_dict[line_elems[0]] = {}
 	
-		mapping_elems = line_elems[1:]
-		mapping_numeric = mapping_elems[::3]
-		mapping_elems = mapping_elems[1:]
-		mapping_labels = mapping_elems[::3]
+			mapping_elems = line_elems[1:]
+			mapping_numeric = mapping_elems[::3]
+			mapping_elems = mapping_elems[1:]
+			mapping_labels = mapping_elems[::3]
 	
-		if not(len(mapping_numeric) == len(mapping_labels)):
-			print >> sys.stderr, "ERROR: invlaid mapping on line "+line_elems[0]
-			sys.exit(1)
+			if not(len(mapping_numeric) == len(mapping_labels)):
+				print "ERROR: invlaid mapping on line "+line_elems[0]
+				sys.exit(1)
 	
-		for i in range(len(mapping_numeric)):
-			attribute_dict[line_elems[0]][mapping_labels[i]] = mapping_numeric[i]
+			for i in range(len(mapping_numeric)):
+				attribute_dict[line_elems[0]][mapping_labels[i]] = mapping_numeric[i]
 
 	colormap.close()
 
@@ -50,7 +51,7 @@ def convert_attributes_colormaps_mapping(in_colormap, in_attributes, filter_attr
 	attribute_indices = []
 	check_attribute_values = {}
 	for line in attributes:
-		line_elems = line.strip().split("\t")
+		line_elems = line.replace("\n","").split("\t")
 		if line_num == 0:
 			attribute_names = line_elems[1:]
 			if filter_attributes_flag == False:
@@ -89,7 +90,7 @@ def convert_attributes_colormaps_mapping(in_colormap, in_attributes, filter_attr
 							e_v_i = ""
 						else:
 							if not(e_v in attribute_dict[a]) and (len(e_v) > 0) and not(e_v == "NA"):
-								print >> sys.stderr, "ERROR: attribute "+a+" contains a value that has no mapping: "+e_v
+								print "ERROR: attribute "+a+" contains a value that has no mapping: "+e_v
 								sys.exit(1)
 											
 							e_v_i = attribute_dict[a][e_v]
@@ -112,7 +113,7 @@ def convert_attributes_colormaps_mapping(in_colormap, in_attributes, filter_attr
 			a_vals_check = check_attribute_values[a]
 			for v in a_vals:
 				if not(v in a_vals_check):
-					print >> sys.stderr, v +" value of "+a+" attribute in colormaps is not present in the data"
+					print v +" value of "+a+" attribute in colormaps is not present in the data"
 
 def main(args):	
 	sys.stdout.flush()
