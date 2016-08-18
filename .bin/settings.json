@@ -1,10 +1,111 @@
 {
   "public": {
-    "URL_BASE": "https://tumormap.ucsc.edu",
-    "FEATURE_SPACE_DIR": "/data/data/featureSpace/",
-    "LAYOUT_INPUT_DIR": "/data/data/layoutInput/",
-    "VIEW_DIR": "/data/data/view/",
+    "DEV": true,
+    "URL_BASE": "http://localhost:2347",
+    "FEATURE_SPACE_DIR": "/home/duncan/data/featureSpace/",
+    "LAYOUT_INPUT_DIR": "/home/duncan/data/layoutInput/",
+    "VIEW_DIR": "/home/duncan/data/view/",
     "GOOGLE_API_KEY": "AIzaSyBb8AJUB4x-xxdUCnjzb-Xbcg0-T1mPw3I",
     "ADMIN_EMAIL": "hexmap@ucsc.edu"
-  }
+  },
+  "server": 
+   {
+    "mapManagerHelper": 
+    {
+     "ManagerAddressBook": 
+      [
+       {
+        "mapId"     : "Pancan12/SampleMap/",
+        "operation" : "reflection",
+        "toMapIds"  : 
+         [ 
+          "Pancan12/GeneMap/"
+         ]
+       }, 
+       {
+        "mapId"     : "Pancan12/GeneMap/",
+        "operation" : "reflection",
+        "toMapIds"  : 
+         [ 
+          "Pancan12/SampleMap/"
+         ]
+       },
+       {
+        "mapId" : "dmccoll_MESO/GeneMap/",
+        "operation" : "reflection",
+        "toMapIds" : 
+         [ 
+          "dmccoll_MESO/SampleMap/"
+         ]
+       },
+       {
+        "mapId" : "dmccoll_MESO/SampleMap/",
+        "operation" : "reflection",
+        "toMapIds" : 
+         [ 
+          "dmccoll_MESO/GeneMap/"
+         ]
+       }
+      ],
+    "ManagerFileCabinet":
+      [
+       {
+        "operation" : "reflection",
+        "mapId" : "Pancan12/SampleMap/",
+        "toMapId" : "Pancan12/GeneMap/",
+        "opts" : null,
+        "args" : 
+         [ 
+          "datapath", 
+          "featOrSamp", 
+          "node_ids"
+         ],
+        "datapath" : "reflection/pancan12_expr_signedClrscores.csv",
+        "featOrSamp" : "sample"
+       },
+       {
+        "operation" : "reflection",
+        "mapId" : "Pancan12/GeneMap/",
+        "toMapId" : "Pancan12/SampleMap/",
+        "opts" : null,
+        "args" : 
+         [ 
+          "datapath", 
+          "featOrSamp", 
+          "node_ids"
+         ],
+        "datapath" : "reflection/pancan12_expr_signedClrscores.csv",
+        "featOrSamp" : "feature"
+       },
+       {
+        "operation" : "reflection",
+        "mapId" : "dmccoll_MESO/GeneMap/",
+        "toMapId" : "dmccoll_MESO/SampleMap/",
+        "opts" : null,
+        "args" : 
+         [ 
+          "datapath", 
+          "featOrSamp", 
+          "node_ids"
+         ],
+        "datapath" : "reflection/clrMeso.csv",
+        "featOrSamp" : "feature"
+       },
+       {
+        "operation" : "reflection",
+        "mapId" : "dmccoll_MESO/SampleMap/",
+        "toMapId" : "dmccoll_MESO/GeneMap/",
+        "opts" : null,
+        "args" : 
+         [ 
+          "datapath", 
+          "featOrSamp", 
+          "node_ids"
+         ],
+        "datapath" : "reflection/clrMeso.csv",
+        "featOrSamp" : "sample"
+       }
+      ]       
+     }
+   }
 }
