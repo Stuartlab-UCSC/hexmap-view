@@ -219,7 +219,7 @@ var app = app || {}; // jshint ignore:line
 
         // Resize the legend along with the window
         $(window).resize(function () {
-            current_layers = get_current_layers();
+            current_layers = get_active_layers();
             with_layers(current_layers, function(retrieved_layers) {
                 redraw_legend(retrieved_layers, current_layers);
             });

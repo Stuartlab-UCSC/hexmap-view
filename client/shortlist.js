@@ -15,7 +15,8 @@ var app = app || {}; // jshint ignore:line
     var initialized = false;
 
     var scrollTop = 0; // Save scroll position while select from filter
-    var layerActive = new ReactiveDict(); // is this layer is active or not
+    var active_layers = new ReactiveVar([]); // Layers currently displaying their colors
+    var zeroShow = new ReactiveDict(); // To show or hide the zero tick mark
     var filterShow = new ReactiveDict(); // To show or hide the filter area
     var filterValue = new ReactiveDict(); // filter value(s) for range or category
  
@@ -31,13 +32,33 @@ var app = app || {}; // jshint ignore:line
             return i ? 'low' : 'high';
         }
     }
+ 
+    function is_layer_active(layer_name) {
+        var active = active_layers.get()
+        return (active.length > 0 && active.indexOf(layer_name) > -1);
+    }
 
     Template.shortlistEntryT.helpers({
         shortlist: function () {
             return Session.get('shortlist');
         },
+        is_primary: function () {
+            var name = this.toString(),
+                active = active_layers.get();
+            return (active && active.length > 0 && active[0] === name)
+                ? 'initial' : 'none';
+        },
+        is_secondary: function () {
+            var name = this.toString(),
+                active = active_layers.get();
+            return (active && active.length > 1 && active[1] === name)
+                ? 'initial' : 'none';
+        },
         range_value_display: function () {
             return (is_continuous(this)) ? 'initial' : 'none';
+        },
+        zero_display: function () {
+            return (zeroShow.get(this)) ? 'initial' : 'none';
         },
         filter_row_top: function () {
             return (is_continuous(this)) ? '0' : '0';
@@ -45,11 +66,8 @@ var app = app || {}; // jshint ignore:line
         
         filter_image: function () {
             var name = this.toString();
-            // TODO this should also check for this layer being active
-            // for the orange filter to show
-            return (filterShow.get(name)) 
-                //&& get_current_layers().indexOf(name) > -1)
-                        ? 'filterCaution.svg' : 'filter.svg';
+            return (filterShow.get(name) && is_layer_active(name))
+                ? 'filterCaution.svg' : 'filter.svg';
         },
         filter_display: function () {
             return (filterShow.get(this)) ? 'initial' : 'none';
@@ -119,7 +137,7 @@ var app = app || {}; // jshint ignore:line
         });
     }
 */
-    add_layer_data = function(layer_name, data, attributes) {
+    function add_layer_data (layer_name, data, attributes) {
         // Add a layer with the given name, with the given data to the list of 
         // available layers.
         // Used for selections... more broadly can be used for dynamic layers.
@@ -172,10 +190,6 @@ var app = app || {}; // jshint ignore:line
         filterShow.set(layer_name, !filterShow.get(layer_name));
         if (filterShow.equals(layer_name, true)) {
  
-            // Move the filter button down to the filter controls
-            // to eliminate blank space betweeen main content and filter content
-            //root.find('.filter_controls_cell').append(root.find('.filter'));
-
             // Figure out what kind of filter settings we take based on
             // what kind of layer we are.
             with_layer (layer_name, function (layer) {
@@ -236,12 +250,6 @@ var app = app || {}; // jshint ignore:line
                 refreshColors();
             });
         } else {
-
-            // Move the filter button up to the main controls to eliminate
-            // blank space betweeen main control and filter control
-            //Meteor.setTimeout(function () {
-            //    root.find('.controls').append(root.find('.filter'));
-            //}, 0);
 
             // Refresh the colors since we're no longer filtering on this layer.
             refreshColors();
@@ -353,22 +361,50 @@ var app = app || {}; // jshint ignore:line
 
         // This is the button control panel of the shortlist
  
-        // Handle enabling and disabling the layer
+        // Make this new entry the primary active, dropping any secondary
+        active_layers.set([layer_name]);
  
-        console.log('adding layer_on change handler');
- 
-        root.find('.layer_on').on('change', function () {
+        // Handle the click of the primary button
+        root.find('.primary').on('click', function () {
         
-            console.log('get_current_layers()', get_current_layers());
-            
-            if ($(this).is(":checked")
-                    && get_current_layers().length > MAX_DISPLAYED_LAYERS) {
-                    
-                // Enabling this checkbox puts us over the edge, so un-check it
-                $(this).prop("checked", false);
+            var index = active_layers.get().indexOf(layer_name);
                 
-                // Skip the color refresh
-                return;
+            // If this layer is already primary, just return
+            if (index === 0) return;
+                
+            // Otherwise this layer is either secondary, or not active.
+            // Either way make it primary, removing any secondary
+            active_layers.set([layer_name]);
+            refreshColors();
+        });
+            
+        // Handle the click of the secondary button
+        root.find('.secondary').on('click', function () {
+           var active = active_layers.get().slice(0),
+                index = active.indexOf(layer_name);
+                
+            // If this layer is already secondary, remove it from secondary
+            if (index === 1) {
+                active_layers.set(active.slice(0, 1));
+                
+            // If this layer is primary...
+            } else if (index === 0) {
+                
+                // If there is no secondary, do nothing
+                if (active.length < 2) return;
+                
+                // Otherwise there is a secondary, so switch them
+                active_layers.set([active[1], active[0]]);
+                
+            // If there is a primary, but not this layer,
+            // replace/add this layer as secondary
+            } else if (active.length > 0) {
+                active_layers.set([active[0], layer_name]);
+                
+            // Otherwise there is no primary.
+            // We should never get here, but handle in just in case
+            } else {
+                active_layers.set([layer_name]);
             }
             refreshColors();
         });
@@ -401,7 +437,6 @@ var app = app || {}; // jshint ignore:line
     }
  
     function find_root_of_entry (layer_name) {
-        // $("ul").find(el + "[data-slide='" + current +"']");
         return $('.shortlist_entry[data-layer="' + layer_name + '"]');;
     }
  
@@ -427,6 +462,7 @@ var app = app || {}; // jshint ignore:line
             var min = layers[layer_name].minimum,
                 max = layers[layer_name].maximum;
             if (0 > min && 0 < max) {
+                zeroShow.set(layer_name, true);
                 Meteor.setTimeout(function () {
                     var root = find_root_of_entry(layer_name),
                         chart = root.find('.chart'),
@@ -436,6 +472,8 @@ var app = app || {}; // jshint ignore:line
                     root.find('.zero_tick').css('left', x_low_width);
                     root.find('.zero').css('left', x_low_width -9);
                 }, 500);
+            } else {
+                zeroShow.set(layer_name, false);
             }
 
         } else {
@@ -454,7 +492,6 @@ var app = app || {}; // jshint ignore:line
         if (!layers[layer_name]) return;
  
         // Initialize some vars used in the template
-        layerActive.set(layer_name, true);
         filterShow.set(layer_name, false);
 
         // Load the shortlist entry template, passing the layer name
@@ -534,13 +571,6 @@ var app = app || {}; // jshint ignore:line
                  // Create a DOM element for this shortlist layer
                  shortlist_ui[layer_name] = create_shortlist_entry(layer_name);
                  $("#shortlist").prepend(shortlist_ui[layer_name]);
- 
-                if (shortlist_ui[layer_name]) {
- 
-                    // If the DOM element was created, show its colors on the
-                    // map if the number showing is not yet maxed out.
-                    shortlist_ui[layer_name].find(".layer_on").click();
-                }
             }
         }
         
@@ -699,32 +729,10 @@ var app = app || {}; // jshint ignore:line
         colormaps[layer_name] = colormap;
     }
  
-    get_current_layers = function () {
+    get_active_layers = function () {
         // Returns an array of the string names of the layers that are currently
-        // supposed to be displayed, according to the shortlist UI.
-        // Not responsible for enforcing maximum selected layers limit.
-        // TODO why don't we keep track of this dynamically rather than when asked?
-        
-        // This holds a list of the string names of the currently selected layers,
-        // in order.
-        var current_layers = [];
-        
-        $("#shortlist").children().each(function(index, element) {
-            // This holds the checkbox that determines if we use this layer
-            var checkbox = $(element).find(".layer_on");
-            if(checkbox.is(":checked")) {
-                // Put the layer in if its checkbox is checked.
-                current_layers.push($(element).data("layer"));
-            }
-        });
-        
-        // Return things in reverse order relative to the UI.
-        // Thus, layer-added layers will be "secondary", and e.g. selecting 
-        // something with only tissue up behaves as you might expect, highlighting 
-        // those things.
-        current_layers.reverse();
-        
-        return current_layers;
+        // displaying their colors.
+        return active_layers.get();
     }
 
     with_filtered_signatures = function (filters, callback) {
@@ -787,22 +795,16 @@ var app = app || {}; // jshint ignore:line
         // that returns true or false, given a value from that layer.
         var current_filters = [];
         
-        $("#shortlist").children().each(function(index, element) {
+        _.each(shortlist, function (layer_name) {
 
             // Go through all the shortlist entries.
             // This function is also the scope used for filtering function config 
             // variables.
 
-            // Get the layer name
-            var layer_name = $(element).data("layer");
+            // if the filter is showing and the layer is active, apply a filter
+            if (filterShow.equals(layer_name, true)
+                    && active_layers.indexOf(layer_name) > -1) {
 
-            // They 'on' checkbox and the filter checkbos must be checked
-            // to apply a filter
-            var $on = $(element).find(".layer_on");
-            if (filterShow.equals(layer_name, true) && $on.is(":checked")) {
-
-                // Put the layer in if its checkbox is checked.
-                
                 // This will hold our filter function. Start with a no-op filter.
                 var filter_function = function(value) {
                     return true;
@@ -850,7 +852,8 @@ var app = app || {}; // jshint ignore:line
     initShortlist = function () {
         if (initialized) return;
         initialized = true;
-        
+        active_layers.set([]);
+ 
         firstLayerAutorun = Tracker.autorun(function () {
         
             var first = Session.get('first_layer'),

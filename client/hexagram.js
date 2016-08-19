@@ -442,7 +442,7 @@ function refreshColorsInner() {
     
     // This holds a list of the string names of the currently selected layers,
     // in order.
-    var current_layers = get_current_layers();
+    var current_layers = get_active_layers();
     
     // This holds all the current filters
     var filters = get_current_filters();

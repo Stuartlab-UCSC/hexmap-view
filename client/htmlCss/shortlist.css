@@ -63,7 +63,7 @@
 .shortlist_entry {
     display: inline-block;
     position: relative;
-    width: 17.5em;
+    width: 18.35em;
     border-radius: 5px;
     padding: 0.3em;
     margin: 0.5em;
@@ -80,16 +80,10 @@
     vertical-align: top;
 }
 
-.shortlist_entry td:nth-child(2) {
-    text-align: left;
-    width: 100%;
-}
-
 .shortlist_entry .controls {
     cursor: grab;
     cursor: -moz-grab;
     cursor: -webkit-grab;
-    white-space: nowrap;
 }
 
 .shortlist_entry .controls:active {
@@ -97,6 +91,12 @@
     cursor: -moz-grabbing;
     cursor: -webkit-grabbing;
 }
+
+.shortlist_entry .isPrimary,
+.shortlist_entry .isSecondary {
+    display: none;
+}
+
 .shortlist_entry .move {
     height: 1.3em;
     width: 1.3em;
@@ -114,6 +114,32 @@
     margin: 0;
     border: 1px solid #aaaaaa;
     position: relative;
+}
+
+.shortlist_entry .contents_cell {
+    text-align: left;
+    width: 100%;
+    position: relative;
+}
+
+.shortlist_entry .float_controls {
+    display: none;
+    position: absolute;
+    right: 0;
+    padding: 0.4em;
+    padding-top: 0.25em;
+    padding-bottom: 0.07em;
+}
+
+.shortlist_entry:hover .float_controls {
+    display: block;
+}
+
+.shortlist_entry .circle {
+    height: 1em;
+    width: 1em;
+    padding: 0px;
+    margin: 0;
 }
 
 .shortlist_entry .range_values {

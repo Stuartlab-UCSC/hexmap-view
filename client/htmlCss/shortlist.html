@@ -16,21 +16,24 @@
             <tr>
                 <td class='controls_cell'>
                     <div class='controls'>
-                        <a class='remove' href='#' title='Remove from Shortlist'>
-                        X
-                        </a>
-                        <input type='checkbox' class='layer_on' /><br>
-                        <img class='move' src='resize-vertical.svg' title='Move entry up or down' /><br>
+                        <img class='isPrimary circle' src='primary.png' style='display:{{ is_primary }}' title='This is the primary variable' />
+                        <img class='isSecondary circle' src='secondary.png' style='display:{{ is_secondary }}' title='This is the secondary variable' />
+                        <img class='move' src='resize-vertical.svg' title='Move entry up or down' />
                         <img class='filter' data-layer='{{ this }}' src='{{ filter_image }}' title='Filter values' />
                     </div>
                 </td>
                 <td class='contents_cell'>
                     <div>{{ this }}</div>
+                    <div class='float_controls'>
+                        <img class='primary circle' src='primary.png' title='Display as primary variable' />
+                        <img class='secondary circle' src='secondary.png' title='Display as secondary variable' />
+                        <img class='remove circle' src='remove-sign.svg' title='Remove this attribute from the shortlist' />
+                    </div>
                     <div class='metadata_holder'></div>
                     <div class='chart'></div>
                     <div class='range_values' style='display:{{ range_value_display }}'>
-                        <div class='zero_tick'></div>
-                        <div class='zero'>0</div>
+                        <div class='zero_tick' style='display:{{ zero_display }}'></div>
+                        <div class='zero' style='display:{{ zero_display }}'>0</div>
                         <div class='range_low'>{{ low }}</div>
                         <div class='range_high'>{{ high }}</div>
                     </div>
