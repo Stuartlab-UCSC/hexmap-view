@@ -63,7 +63,7 @@ var app = app || {}; // jshint ignore:line
         // This holds a list of the string names of the currently selected layers,
         // in order.
         // Just use everything on the shortlist.
-        var current_layers = Session.get('shortlist');
+        var current_layers = Session.get('shortlist').slice();
         
         // Obtain the layer objects (mapping from signatures/hex labels to colors)
         with_layers(current_layers, function(retrieved_layers) { 

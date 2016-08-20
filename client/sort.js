@@ -154,7 +154,19 @@ var app = app || {}; // jshint ignore:line
         var type_value = Session.get('sort').type,
             layer_array = Session.get('sortedLayers');
 
+        // If layers are not loaded yet, we have nothing to sort
         if (layer_array.length === 0) return;
+ 
+        // If the user did not define a 'first layer', define it now.
+        if (Session.equals('first_layer', undefined)) {
+ 
+            // Use the first layer of the default sort as our 'first layer'
+            layer_array.sort(finalCompare);
+            Session.set('first_layer', layer_array[0]);
+ 
+            // Now sort the way the user requested
+            sort_layers();
+        }
 
         if (type_value == "layout-aware-positive") {
             layer_array.sort(positiveCorrelationCompare);
@@ -178,18 +190,10 @@ var app = app || {}; // jshint ignore:line
             // The default sort, by density/clumpiness
             layer_array.sort(finalCompare);
 
-            // If we don't have a first layer by now assign the one with the
-            // highest density score as the first layer.
-            if (_.isUndefined(Session.get('first_layer'))
-                && !_.isNull(layer_array[0])) {
-                Session.set('first_layer', layer_array[0]);
-            } else {
-            
-                // move the 'First' attribute to the top
-                var first = Session.get('first_layer');
-                layer_array.splice(layer_array.indexOf(first), 1);
-                layer_array.unshift(first);
-            }
+            // Move the 'First' attribute to the top of the sorted layers
+            var first = Session.get('first_layer');
+            layer_array.splice(layer_array.indexOf(first), 1);
+            layer_array.unshift(first);
         }
         Session.set('sortedLayers', layer_array);
     }

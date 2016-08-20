@@ -983,19 +983,6 @@ initLayerIndex = function () {
             });
 
         }
-
-		// Find the best 1st Attribute for sorts and initializing the shortlist
-        // By now we assume the layers.tab file has been processed, which may
-        // specify a first layer/attribute. If one was not supplied there, and
-        // we find the standard sort layer, use that as first.
-        if (_.isUndefined(Session.get('first_layer'))) {
-            if (layers['Tissue']) {
-                Session.set('first_layer', 'Tissue');
-            } else if (layers['tissue']) {
-                Session.set('first_layer', 'tissue');
-            }
-        }
-
         Session.set('initedLayerIndex', true);
     });
 }

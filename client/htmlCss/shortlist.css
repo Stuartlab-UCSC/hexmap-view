@@ -44,8 +44,22 @@
 }
 
 .shortlist .panel_title {
-    text-align: center;
-    padding-top: 0.2em;
+    position: absolute;
+    top: 0.2em;
+    text-align: left;
+    padding-left: 3em;
+}
+
+.shortlist .on_top {
+    float: right;
+    margin: 0.6em;
+}
+
+.shortlist .on_top_label {
+    float: right;
+    font-size: 0.6em;
+    padding-right: 2em;
+    padding-top: 0.5em;
 }
 
 .shortlist .panel_contents {
@@ -136,8 +150,8 @@
 }
 
 .shortlist_entry .circle {
-    height: 1em;
-    width: 1em;
+    height: 1.25em;
+    width: 1.25em;
     padding: 0px;
     margin: 0;
 }
@@ -153,6 +167,7 @@
 
 .shortlist_entry .zero_tick {
     position: absolute;
+    display: hidden;
     height: 0.6em;
     width: 1px;
     left: 1em;
@@ -162,6 +177,7 @@
 
 .shortlist_entry .zero {
     position: absolute;
+    display: hidden;
     font-size: 0.6em;
     left: 1em;
     top: -0.55em;

@@ -15,14 +15,13 @@ var app = app || {}; // jshint ignore:line
     var initialized = false;
 
     var scrollTop = 0; // Save scroll position while select from filter
+    var on_top = new ReactiveVar('');
     var active_layers = new ReactiveVar([]); // Layers currently displaying their colors
     var zeroShow = new ReactiveDict(); // To show or hide the zero tick mark
     var filterShow = new ReactiveDict(); // To show or hide the filter area
     var filterValue = new ReactiveDict(); // filter value(s) for range or category
  
     var template = {}; // The template for each layer
-
-    var firstLayerAutorun; // Runs when the first layer is set or shortlist layers changes
  
     function get_range_value (layer_name, i) {
         var vals = filterValue.get(layer_name.toString());
@@ -37,6 +36,12 @@ var app = app || {}; // jshint ignore:line
         var active = active_layers.get()
         return (active.length > 0 && active.indexOf(layer_name) > -1);
     }
+
+    Template.shortlist.helpers({
+        on_top: function () {
+            return (on_top.get()) ? 'checked' : '';
+        },
+    })
 
     Template.shortlistEntryT.helpers({
         shortlist: function () {
@@ -417,13 +422,8 @@ var app = app || {}; // jshint ignore:line
                 layers[layer_name].removeFx(layer_name);
             }
 
-            // Remove this from the template & DOM
+            // Remove this layer's template
             delete template[layer_name];
-            root.remove();
-
-            // Make the UI match the list.
-            update_shortlist(layer_name, true);
-            refreshColors();
         
             // Handle dynamic layers
             if (layers[layer_name].selection) {
@@ -433,6 +433,9 @@ var app = app || {}; // jshint ignore:line
             
             // Clear any google chart associated with this layer
             clear_google_chart(layer_name);
+
+            // Finally, update the shortlist.
+            update_shortlist(layer_name, true);
         });
     }
  
@@ -514,74 +517,39 @@ var app = app || {}; // jshint ignore:line
         return root;
     }
 
+     function update_metadata () {
+ 
+        // Update the metadata for each layer in the shortlist
+        // TODO: make the metadata updates reactive
+        _.each(Session.get('shortlist'), function(layer_name) {
+            var root = find_root_of_entry(layer_name);
+                fill_layer_metadata(root.find(".metadata_holder"), layer_name);
+        });
+    }
+
     update_shortlist = function (layer_name, remove) {
  
-        // Go through the shortlist and make sure each layer there has an entry in 
-        // the shortlist UI, and that each UI element has an entry in the shortlist.
-        // Also make sure the metadata for all existing layers is up to date.
-        // layer_name is optional. If layer_name is already in the list, we'll
-        // update the short list with the layer's current data.
+        // Update the shortlist and refresh the colors
+        var shortlist = Session.get('shortlist').slice();
  
-        // Update the shortlist layer names array
-        var list = Session.get('shortlist').slice();
-        if (remove) {
-            list.splice(list.indexOf(layer_name), 1);
-        } else if (layer_name && list.indexOf(layer_name) < 0) {
-            list.push(layer_name);
-        }
-        Session.set('shortlist', list);
-
-        // Clear the existing DOM list
-        shortlist_ui = {};
-
-        // Get the list of shortlist layer names
-        var shortlist = Session.get('shortlist');
-
-        // For each shortlist name, put a false in the DOM list
-        for(var i = 0; i < shortlist.length; i++) {
-            shortlist_ui[shortlist[i]] = false;
-        }
+        // If a layer name is supplied, either add or remove the entry
+        if (layer_name) {
+            if (remove) {
+                shortlist.splice(shortlist.indexOf(layer_name), 1);
+                find_root_of_entry(layer_name).remove();
  
-        // For each DOM element in the DOM list...
-        $("#shortlist").children().each(function(index, element) {
-        
-            // If the DOM element's layer name is still in the shortlist...
-            if(shortlist_ui[$(element).data("layer")] === false) {
-                
-                // Save the element in the DOM list
-                shortlist_ui[$(element).data("layer")] = $(element);
-                
-                // Update the metadata in the element. It make have changed due
-                // to new statistics info.
-                fill_layer_metadata($(element).find(".metadata_holder"), 
-                    $(element).data("layer"));
-            } else {
-            
-                // The DOM element isn't in the DOM list, so get rid of it.
-                $(element).remove();
+            } else if (layer_name && shortlist.indexOf(layer_name) < 0) {
+     
+                // Add the layer to the top of the list
+                shortlist.splice(0, 0, layer_name);
+                $('#shortlist').prepend(create_shortlist_entry(layer_name));
             }
-        });
- 
-        // For each layer name in the DOM list...
-        for(var layer_name in shortlist_ui) {
- 
-            // If the layer name does not have a DOM element...
-            if(shortlist_ui[layer_name] === false) {
-
-                 // Create a DOM element for this shortlist layer
-                 shortlist_ui[layer_name] = create_shortlist_entry(layer_name);
-                 $("#shortlist").prepend(shortlist_ui[layer_name]);
-            }
+            Session.set('shortlist', shortlist);
         }
-        
-        // Make things re-orderable
-        // Be sure to re-draw the view if the order changes, after the user puts 
-        // things down.
-        $("#shortlist").sortable({
-            update: refreshColors,
-            // Sort by the part with the lines icon, so we can still select text.
-            handle: ".controls" 
-        });
+ 
+        // Refresh the colors and the metadata in case a sort updated it
+        refreshColors();
+        update_metadata();
     }
 
     function make_layer_name_unique (layer_name) {
@@ -854,14 +822,54 @@ var app = app || {}; // jshint ignore:line
         initialized = true;
         active_layers.set([]);
  
-        firstLayerAutorun = Tracker.autorun(function () {
+        // Set up the flag to always put the active layers at the top of the list
+        on_top.set('');
+        $('.shortlist .on_top').on('click', function (ev) {
+            on_top.set('$(ev.target.checked)');
+        });
+ 
+        // Make the shortlist entries re-orderable
+        // Be sure to re-draw the view if the order changes, after the user puts 
+        // things down.
+        $("#shortlist").sortable({
+            update: function () {
+            
+                // Update the shortlist with the new order and refresh
+                var shortlist = _.map($("#shortlist").children(), function (el, i) {
+                     return $(el).data("layer");
+                });
+                Session.set('shortlist', shortlist);
+                refreshColors();
+            },
+            // Use the controls area as the handle to move entries.
+            // This allows the user to select any text in the entry
+            handle: ".controls"
+        });
+
+        Tracker.autorun(function (comp) {
         
             var first = Session.get('first_layer'),
-                shortlist = Session.get('shortlist');
-                
-            if (!_.isUndefined(first) && shortlist.length < 1) {
-                update_shortlist(first);
-             }
+                sorted_layers = Session.get('sortedLayers');
+
+            if (sorted_layers.length > 0) {
+            
+             // We only need to run this to initialize the shortlist UI
+                comp.stop();
+            
+                var shortlist = Session.get('shortlist').slice();
+                    
+                // Add the 'first layer' to the shortlist if it is empty
+                if (shortlist.length < 1) {
+                    shortlist = [first];
+                    Session.set('shortlist', shortlist);
+                }
+
+                _.each(shortlist, function (layer_name) {
+                    $('#shortlist').append(create_shortlist_entry(layer_name));
+                });
+                refreshColors();
+                update_metadata();
+            }
         });
     }
 })(app);
