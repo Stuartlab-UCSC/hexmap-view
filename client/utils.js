@@ -6,6 +6,40 @@ var app = app || {}; // jshint ignore:line
 (function (hex) { // jshint ignore:line
     //'use strict';
 
+    session = function (prefix, operation, name,  val) {
+ 
+        // Perform a get, set, or equals on a state variable with a prefix.
+        // This allow us to simulate a reactiveDict functionality in a Session
+        // variable. We want a Session variable so the value will be preserved
+        // across hot code pushes.
+        var key;
+ 
+        // Build the key from the prefix and name
+        if (prefix === 'filter_show') {
+            key = 'shortlist_filter_show_' + name;
+        } else if (prefix === 'filter_value') {
+            key = 'shortlist_filter_value_' + name;
+        } else {
+            banner('error', 'Illegal key on session()');
+            console.trace();
+        }
+ 
+        // Lack of operation means this is a get
+        if (operation === 'get') {
+            return Session.get(key);
+
+        } else if (operation === 'equals') {
+            return Session.equals(key, val);
+
+        } else if (operation === 'set') {
+            Session.set(key, val);
+
+        } else {
+            banner('error', 'Illegal operation on session()');
+            console.trace();
+        }
+    }
+ 
     is_continuous = function (layer_name) {
         return (ctx.cont_layers.indexOf(layer_name.toString()) > -1);
     }

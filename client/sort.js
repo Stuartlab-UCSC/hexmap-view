@@ -7,7 +7,8 @@ var app = app || {}; // jshint ignore:line
 (function (hex) { // jshint ignore:line
     //'use strict';
 
-    var computingText = 'Computing statistics now...';
+    var computingText = 'Computing statistics now...',
+        firstSort = true;
 
     function finalCompare(a, b) {
 
@@ -241,15 +242,15 @@ var app = app || {}; // jshint ignore:line
         }
         clearAllFilters();
         updateLonglist();
-        update_shortlist();
+        update_shortlist_metadata();
  
         // Skip the banner on the first sort
-        if (Session.equals('firstSort', false)) {
+        if (firstSort) {
+            firstSort = false;
+        } else {
             if (type !== 'noStats') {
                 banner('info', 'Now sorted by ' + text + elapsed);
             }
-        } else {
-           Session.set('firstSort', false);
         }
     }
 

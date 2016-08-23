@@ -6,6 +6,8 @@ var app = app || {}; // jshint ignore:line
 (function (hex) { // jshint ignore:line
     //'use strict';
 
+    // TODO: these should all be Session vars so they will survive a hot code push!
+ 
     // Global across this app
     DISABLED_COLOR = '#aaaaaa';
 
@@ -71,7 +73,7 @@ var app = app || {}; // jshint ignore:line
         s.uParm = getUrlParms();
 
         s.localStorage = {
-            // Contains all of the non-project state we want to save
+            // Contains the non-project state we want to save with unique keys
             all: [
                 'page',
                 'project',
@@ -79,31 +81,40 @@ var app = app || {}; // jshint ignore:line
                 'viewWindows',
             ],
 
-            // Contains all of the project state we want to save
+            // Contains the project state we want to save with unique keys
             project: [
+                'active_layers',
                 'background',
                 'center',
+                //'dynamic_layers', // not yet
                 'first_layer',
                 'gridCenter',
                 'gridZoom',
                 'layoutIndex',
                 'overlayNodes',
-                //'layouts', // We use this for a project, but don't save it
                 'shortlist',
+                'shortlist_on_top',
                 'zoom',
             ],
+ 
+            // Contains the state we want to save with keys that require a label
+            // appended to make the key unique
+            key_prefixes: [
+                'shortlist_filter_show_',
+                'shortlist_filter_value_',
+            ]
         }
-        s.localStorage.known = s.localStorage.all.concat(s.localStorage.project);
+ 
+        s.localStorage.unique_keys = s.localStorage.all.concat(s.localStorage.project);
         s.alreadySaved = false;
 
-        // Non-project variables maintained in the meteor session
+        // Reactive variables maintained in global state and not project-specific
         Session.setDefault('page', DEFAULT_PAGE);
         Session.setDefault('sort', DEFAULT_SORT); // Default sort message & type
         Session.setDefault('viewEdges', false); // Display of directed graph or not
         Session.setDefault('viewWindows', false); // Display of stats windows or not
-        Session.set('firstSort', true);
-
-        // Variables maintained in this state object, with defaults.
+ 
+        // Non-reactive vars maintained in global state and not project-specific
         s.project = DEFAULT_PROJECT;  // The project data to load
     }
 
@@ -118,9 +129,11 @@ var app = app || {}; // jshint ignore:line
     State.prototype.setProjectDefaults = function () {
         var s = this;
 
-        // Project variables maintaineds in this state object, with defaults.
-        Session.setDefault('background', 'black');  // Visualization background color
-        s.center = null; // google map center
+        // Project variables maintained in this state object, with defaults.
+        Session.set('active_layers', []); // Array of layer names displaying their colors
+        Session.setDefault('background', 'black');  // Main map background color
+        s.center = null; // main google map center
+        Session.set('dynamic_layers', []); // Dynamic layers dict or array ? TODO
         Session.set('first_layer', undefined); // first to be displayed in shortlist
         s.gridCenter = null; // grid map center
         s.gridZoom = 2;  // Zoom level of the grid
@@ -128,6 +141,7 @@ var app = app || {}; // jshint ignore:line
         Session.set('layoutIndex', null);
         Session.set('overlayNodes', undefined);  // overlay nodes to include
         Session.set('shortlist', []); // Array of layer names in the shortlist
+        Session.set('shortlist_on_top', false); // true = maintain actives at the top of the list
         s.zoom = 2;  // Map zoom level where 2 means zoomed in by 2 levels
     }
 
@@ -154,8 +168,8 @@ var app = app || {}; // jshint ignore:line
         }
         s.alreadySaved = true;
 
-        // Find all of the vars to be saved by walking though our localStorage list
-        _.each(s.localStorage.known, function (key) {
+        // Walk though our list of unique keys and save those
+        _.each(s.localStorage.unique_keys, function (key) {
 
             // If this is a Session var we want to store it there
             if (!Session.equals(key, undefined)) {
@@ -175,6 +189,21 @@ var app = app || {}; // jshint ignore:line
             }
         });
 
+        // Walk though our list of key prefixes and save those with their full key
+        _.each(s.localStorage.key_prefixes, function (key_prefix) {
+            var prefix_len = key_prefix.length;
+            
+            // Find any session keys with this prefix
+            var keys = _.find(_.keys(Session.keys), function (key) {
+                return (key.slice(0, prefix_len) === key_prefix);
+            });
+            
+            // Save each session var with this key prefix
+            _.each(keys, function (key) {
+                store[key] = Session.get(key);
+            });
+        });
+
         // Overwrite the previous state in localStorage
         window['localStorage'].removeItem(s.storeName);
         window['localStorage'].setItem(s.storeName, JSON.stringify(store));
@@ -190,21 +219,31 @@ var app = app || {}; // jshint ignore:line
         var s = this;
         _.each(store, function (val, key) {
 
-            // Skip those we don't know
-            if (s.localStorage.known.indexOf(key) < 0) {
-                return;
-            }
+            // Load any vars with unique keys
+            if (s.localStorage.unique_keys.indexOf(key) > -1) {
             
-            // Load this object's vars into this state if maintained in this
-            // state rather than in a Session var
-            if (!_.isUndefined(s[key])) {
-                s[key] = val;
+                // Load this object's vars into this state if maintained in this
+                // state rather than in a Session var
+                if (!_.isUndefined(s[key])) {
+                    s[key] = val;
 
-            // Otherwise assume this is a Session var and load it into there
+                // Otherwise assume this is a Session var and load it into there
+                } else {
+                    Session.set(key, val);
+                }
+               
+            // This is not a unique key we recognize, so check for key prefixes
+            // that we recognize
             } else {
-                Session.set(key, val);
+                _.each(s.localStorage.key_prefixes , function (key_prefix) {
+                    var prefix_len = key_prefix.length;
+                    if (key.slice(0, key_prefix.length) === key_prefix) {
+                       Session.set(key, val);
+                    }
+                });
             }
         });
+ 
         s.lastProject = s.project;
  
         // TODO a special hack until we get bookmarks going: load

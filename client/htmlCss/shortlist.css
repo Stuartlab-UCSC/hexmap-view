@@ -143,6 +143,7 @@
     padding: 0.4em;
     padding-top: 0.25em;
     padding-bottom: 0.07em;
+    z-index: 200;
 }
 
 .shortlist_entry:hover .float_controls {

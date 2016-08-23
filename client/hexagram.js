@@ -382,7 +382,6 @@ initMap = function () {
     // Initialize the google map and create the hexagon assignments
     createMap();
     createHexagons();
-    refreshColors();
 }
 
 have_colormap = function (colormap_name) {
@@ -422,6 +421,7 @@ function get_range_position(score, low, high) {
 var refreshColorsHandle;
 
 refreshColors = function (delay) {
+
     // Schedule the view to be redrawn after the current event finishes.
     
     // Get rid of the previous redraw request, if there was one. We only want 
@@ -433,7 +433,8 @@ refreshColors = function (delay) {
 }
 
 function refreshColorsInner() {
-    // Make the view display the correct hexagons in the colors of the current 
+
+    // Make the view display the correct hexagons in the colors of the current
     // layer(s), as read from the values of the layer pickers in the global
     // layer pickers array.
     // All pickers must have selected layers that are in the object of 

@@ -157,7 +157,6 @@ var app = app || {}; // jshint ignore:line
             Session.set('initedHexagons', true);
             if (draw) {
                 createHexagons();
-                refreshColors();
             }
         });
     }

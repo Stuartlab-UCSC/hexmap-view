@@ -123,21 +123,7 @@ var app = app || {}; // jshint ignore:line
             var layer_name = event.val;
             
             // User chose this layer. Add it to the global shortlist.
-            
-            // Only add to the shortlist if it isn't already there
-            // Was it already there?
-            var found = false,
-                shortlist = Session.get('shortlist').slice();
-            for (var j = 0; j < shortlist.length; j++) {
-                if (shortlist[j] === layer_name) {
-                    found = true;
-                    break;
-                }
-            }
-            
-            if(!found) {
-                update_shortlist(layer_name);
-            }
+            update_shortlist(layer_name);
             
             // Don't actually change the selection.
             // This keeps the dropdown open when we click.

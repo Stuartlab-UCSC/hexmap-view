@@ -4,8 +4,10 @@
             <div class="panel">
                 <div>
                     <span class="panel_title">Short List</span>
-                    <label class='on_top_label' for='shortlist_on_top'>Move active to top</label>
+                    <!--
+                    <label class='on_top_label' for='shortlist_on_top'>Active on top</label>
                     <input class='on_top' id='shortlist_on_top' type=checkbox {{ on_top_check }} />
+                    -->
                 </div>
                 <div id="shortlist" class="panel_contents">
                 </div>
@@ -20,8 +22,8 @@
             <tr>
                 <td class='controls_cell'>
                     <div class='controls'>
-                        <img class='isPrimary circle' src='one.png' style='display:{{ is_primary }}' title='This is the primary variable' />
-                        <img class='isSecondary circle' src='two.png' style='display:{{ is_secondary }}' title='This is the secondary variable' />
+                        <img class='isPrimary circle' src='{{ primary_icon }}' style='display:{{ is_primary }}' title='This is the primary variable' />
+                        <img class='isSecondary circle' src='{{ secondary_icon }}' style='display:{{ is_secondary }}' title='This is the secondary variable' />
                         <img class='move' src='resize-vertical.svg' title='Move entry up or down' />
                         <img class='filter' data-layer='{{ this }}' src='{{ filter_image }}' title='Filter values' />
                     </div>
@@ -29,8 +31,8 @@
                 <td class='contents_cell'>
                     <div>{{ this }}</div>
                     <div class='float_controls'>
-                        <img class='primary circle' src='one.png' title='Display as primary variable' />
-                        <img class='secondary circle' src='two.png' title='Display as secondary variable' />
+                        <img class='primary circle' src='{{ primary_icon }}' title='Display as primary variable' />
+                        <img class='secondary circle' src='{{ secondary_icon }}' title='Display as secondary variable' />
                         <img class='remove circle' src='remove-sign.svg' title='Remove this attribute from the shortlist' />
                     </div>
                     <div class='metadata_holder'></div>
