@@ -94,7 +94,18 @@ var app = app || {};
         });
     }
 
-    function mapIt () {
+    function tell_user_about_subset(have_data_count, request_count) {
+ 
+        // Tell the user that not all of the nodes had data.
+        var message = have_data_count.toSting() +
+                            ' of ' +
+                            request_count.toString() +
+                            ' requested nodes have data to reflect.\n' +
+                            'Reflect just those?';
+        alert(message);
+    }
+ 
+   function mapIt () {
 
         //TODO:this is an arguement for the manager's script, the Manager should figure this out
         featOrSamp = ManagerAddressBook.findOne().featureOrSample;
@@ -111,11 +122,26 @@ var app = app || {};
                 if (val === 1)  nodeIds.push(key);
             }
         );
-        //calls client's Map manager (redundant?)
-        mapManager('reflection', featOrSamp, nodeIds);
-
+ 
+        // Request the map manager to reflect using these nodes,
+        // and receive a count of nodes that had data.
+        var have_data_count = mapManager('reflection', featOrSamp, nodeIds);
         banner('info', 'Your other map will update shortly.');
         hide();
+ 
+        // Duncan,
+        //   I guessed that you would want to return a count of nodes with
+        //   data from this map manager request.
+        //   I took the path of least resistence and just notify the user that
+        //   not all nodes will be used in the reflection. So the user does not
+        //   get a chance to cancel the request. We can change that to a
+        //   cancel/OK question if that works better.
+        //   I didn't test it either ;)
+ 
+        // If some of the nodes don't have data, let the user know.
+        if (have_data_count < nodeIds.length) {
+            tell_user_about_subset(have_data_count, nodeIds.length);
+        }
 	}
  
     function hide() {
