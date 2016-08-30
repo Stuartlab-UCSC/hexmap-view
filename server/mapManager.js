@@ -22,116 +22,28 @@ function addAddressEntry(mapId,operation, allowedToMapIds){
 }
 
 function initManagerHelper() {
-    //TODO: better way to make sure that helper entries are inside the database
-    //if the helper databases are empty put the minimal needed inside them.
-    //console.log('mapManager: initManagerHelper called');
-    //console.log('mapManager: initManagerHelper called: addy truth value', !ManagerAddressBook.findOne({}));
+    //This function initializes the databases needed for map information transfer.
+    // Initialized by reading from Meteor's settings.json file
+    // erases old db entiries and starts fresh everytime the server is booted
 
-    /*
-    TODO: this block of code will read in the required mapManager information from a file. 
-    Currently mapManager info is hardcoded (see below)
-    fs.readFile('/home/duncan/Desktop/TumorMap/TumorMapDevBranch/hexagram/.bin/managerInit.json', 'utf-8', function(err,dat){
-        if (err){//
+    //remove old dbs
+    Windows.remove({});
+    ManagerAddressBook.remove({});
+    ManagerFileCabinet.remove({});
 
-            console.log("settings.json file not found, mapManager and reflection functionality may not be available")
-        } else {
-            var settingsObj = JSON.parse(dat);
-
-            //Look Into the addressBook database and add any that are not present
-            addresses = settingsObj.ManagerAddressBook;
-
-            console.log(addresses)
-
-            _.each(addresses,function(index,item){
-               if(ManagerAddressBook.findOne({mapId:item.mapId})){
-                   console.log('found it')
-               }
-            });
-
-
-            
-            //console.log(settingsObj)
-        }
+    //walk through and insert ManangerAddressBook entries
+    var addyentries = Meteor.settings.server.mapManagerHelper.ManagerAddressBook;
+    _.each(addyentries,function(entry){
+        ManagerAddressBook.insert(entry);
     });
-    */
 
-    if ( !ManagerAddressBook.findOne({}) ){
-        addAddressEntry('Pancan12/SampleMap/','reflection', ['Pancan12/GeneMap/']);
-        addAddressEntry('Pancan12/GeneMap/','reflection', ['Pancan12/SampleMap/']);
-        addAddressEntry('dmccoll_MESO/GeneMap/','reflection', ['dmccoll_MESO/SampleMap/']);
-        addAddressEntry('dmccoll_MESO/SampleMap/','reflection', ['dmccoll_MESO/GeneMap/']);
-        console.log('mapManager: initManagerHelper called: addresses added');
+    //walk through and insert ManagerFileCabinet entries
+    var cabinentEntries = Meteor.settings.server.mapManagerHelper.ManagerFileCabinet;
+    _.each(cabinentEntries,function(entry){
+        ManagerFileCabinet.insert(entry);
+    });
 
-    };
-
-    if ( !ManagerFileCabinet.findOne({}) ){
-        ManagerFileCabinet.insert(
-            {
-                "operation" : "reflection",
-                "mapId" : "Pancan12/SampleMap/",
-                "toMapId" : "Pancan12/GeneMap/",
-                "opts" : undefined,
-                "args" : [ //this is how the parmMaker knows which parameters to look for
-                    "datapath",
-                    "featOrSamp",
-                    "node_ids"
-                ],
-                "datapath" : "reflection/pancan12_expr_signedClrscores.csv",
-                "featOrSamp" : "sample"
-            }
-
-        );
-        ManagerFileCabinet.insert(
-            {
-                "operation" : "reflection",
-                "mapId" : "Pancan12/GeneMap/",
-                "toMapId" : "Pancan12/SampleMap/",
-                "opts" : undefined,
-                "args" : [
-                    "datapath",
-                    "featOrSamp",
-                    "node_ids"
-                ],
-                "datapath" : "reflection/pancan12_expr_signedClrscores.csv",
-                "featOrSamp" : "feature"
-            }
-
-        );
-        ManagerFileCabinet.insert(
-            {
-                "operation" : "reflection",
-                "mapId" : "dmccoll_MESO/GeneMap/",
-                "toMapId" : "dmccoll_MESO/SampleMap/",
-                "opts" : undefined,
-                "args" : [
-                    "datapath",
-                    "featOrSamp",
-                    "node_ids"
-                ],
-                "datapath" : "reflection/clrMeso.csv",
-                "featOrSamp" : "feature"
-            }
-
-        );
-        ManagerFileCabinet.insert(
-            {
-                "operation" : "reflection",
-                "mapId" : "dmccoll_MESO/SampleMap/",
-                "toMapId" : "dmccoll_MESO/GeneMap/",
-                "opts" : undefined,
-                "args" : [
-                    "datapath",
-                    "featOrSamp",
-                    "node_ids"
-                ],
-                "datapath" : "reflection/clrMeso.csv",
-                "featOrSamp" : "sample"
-            }
-
-        );
-        //console.log('mapManager: initManagerHelper called: FileCab added');
-    };
-}
+};
 function colorMapMaker(){
     //TODO: make a more flexible colorMapMaker (this one only for reflections)
     newColorMap = [];
@@ -169,6 +81,7 @@ function arrayLayer(layerData){
     return {node_ids: nodes, values: vals}
 
 }
+
 function dropInLayerBox(layerData,user,toMapId){
     //changing terminology of Mailbox to layerbox
     //looking for all layer data you would need.

@@ -13,8 +13,7 @@ var app = app || {}; // jshint ignore:line
         this.selected = selected;
         this.firstList = firstList;
         this.message = new ReactiveVar();
-        this.filter = {},
-        this.shortListUpdateCount;
+        this.filter = {};
 
         LayerNameList.prototype.filterer = function (filter) {
 
@@ -36,7 +35,9 @@ var app = app || {}; // jshint ignore:line
                 list = _.filter(list,
                     function (layerName) {
                         try {
-                            return (layers[layerName].hasOwnProperty('selection'));
+                            return (
+                                layers[layerName].hasOwnProperty('selection')
+                                    && ctx.bin_layers.indexOf(layerName) > -1);
                         }
                         catch (error) {
                             console.log('TODO layerName is in some list, but not in layers:', layerName);
@@ -113,10 +114,10 @@ var app = app || {}; // jshint ignore:line
 
         LayerNameList.prototype.enable = function (enabled, filter) {
 
-            // Enable or disable this list. If enabling, also populate the list
+            // Enable or disable this list. If enabling, also populates the list
             // Current filters handled are:
             //      binary: true: only include binary layers
-            //      selection: true: only include selection layers
+            //      selection: true: only include binary selection layers
 
             if (_.isUndefined(enabled)) {
 
@@ -202,18 +203,14 @@ var app = app || {}; // jshint ignore:line
             this.message.set('');
 
             this.emulateTrackerForClass();
+ 
+            // Whenever the shortlist changes and the list is enabled,
+            // run the filter check again to see if anything passes.
             this.shortlistAutorun = Tracker.autorun(function () {
-                // TODO an abuse of meteor session vars, because this is called
-                // at times when the session var is not updated
-                var count = Session.get('shortlistUiUpdated');
-                if (_.isUndefined(self.shortListUpdateCount)) {
-                    self.shortListUpdateCount = count;
-                    self.enable();
-                } else {
-                    if (count !== self.shortListUpdateCount) {
-                        self.shortListUpdateCount = count;
-                        self.enable();
-                    }
+            
+                var shortlist = Session.get('shortlist');
+                if (self.enabled) {
+                    self.enable(true, self.filter);
                 }
             });
 

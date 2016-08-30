@@ -78,6 +78,7 @@ var app = app || {}; // jshint ignore:line
             if (this.showFx) {
                 this.showFx(); // Call the instance init function
             }
+            this.$el.dialog('open');
         }
 
         DialogHex.prototype.show = function () {
@@ -87,7 +88,11 @@ var app = app || {}; // jshint ignore:line
                 opts = {
                     dialogClass: 'dialog',
                     minHeight: '10em',
+ 
+                    // 'resolve' seems to be an undocumented value that
+                    // shrink-wraps the dialog around the content
                     width: 'resolve',
+                    autoOpen: false,
                     close: self.hideFx,
             };
 

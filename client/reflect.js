@@ -12,11 +12,11 @@ var app = app || {};
         $button,
         $dialog,
         mapId,
-        mapIdList,
         toMapId,
         toMapIds,
+        dataType,
+        dataTypes,
         selectionList,
-        toMapIdList,
         lastUser,
         subscribedToMaps = false,
         selectionSelected = ''; // option selected from the selection list
@@ -25,33 +25,48 @@ var app = app || {};
 
         // Show the contents of the dialog, once per trigger button click
  
-        //make Json for showing the possible maps to send reflection to
-        var data = [];
+        // Create the target map selector
+ 
+        // Put the data in the format the selector wants
+        var mapIdData = [];
         toMapIds.forEach(function(mapId){
-            data.push({id: mapId, text: mapId});
+            mapIdData.push({id: mapId, text: mapId});
         });
 
         var $mapAnchor = $('#reflectDialog .mapIdAnchor');
-        mapIdList = createOurSelect2($mapAnchor, {data: data}, 6);
+        createOurSelect2($mapAnchor, {data: mapIdData}, toMapId);
  
-        // TODO this should be set to the last selected toMapId
-        toMapId = toMapIds[0]
-        $mapAnchor.select2("val", toMapId);
- 
-        console.log('toMapId', toMapId);
-
         $mapAnchor.show();
 
-        // The selection selector.
+        // Define the event handler for selecting in the list
+        $mapAnchor.on('change', function (ev) {
+            toMapId = ev.target.value;
+            console.log('toMapId', toMapId);
+        });
+
+        // Create the layer name selector.
         selectionList = createLayerNameList($('#reflectDialog .layerNameListAnchor'),
                                     $('#reflectDialog .selectionListLabel'),
                                     selectionSelected);
         selectionList.enable(true, {binary: true});
 
-        // Define the event handler for the selecting in the list
-        $mapAnchor.on('change', function (ev) {
-            toMapId = ev.target.value;
+        // Create the data type selector
+ 
+        // Put the data in the format the selector wants
+        var dataTypeData = [];
+        dataTypes.forEach(function(type){
+            dataTypeData.push({id: type, text: type});
+        });
 
+        var $dataTypeAnchor = $('#reflectDialog .dataTypeAnchor');
+        createOurSelect2($dataTypeAnchor, {data: dataTypeData}, dataType);
+ 
+        $dataTypeAnchor.show();
+
+        // Define the event handler for selecting in the list
+        $dataTypeAnchor.on('change', function (ev) {
+            dataType = ev.target.value;
+            console.log('data type selected:', dataType);
         });
     }
 
@@ -79,7 +94,18 @@ var app = app || {};
         });
     }
 
-    function mapIt () {
+    function tell_user_about_subset(have_data_count, request_count) {
+ 
+        // Tell the user that not all of the nodes had data.
+        var message = have_data_count.toSting() +
+                            ' of ' +
+                            request_count.toString() +
+                            ' requested nodes have data to reflect.\n' +
+                            'Reflect just those?';
+        alert(message);
+    }
+ 
+   function mapIt () {
 
         //TODO:this is an arguement for the manager's script, the Manager should figure this out
         featOrSamp = ManagerAddressBook.findOne().featureOrSample;
@@ -96,16 +122,31 @@ var app = app || {};
                 if (val === 1)  nodeIds.push(key);
             }
         );
-        //calls client's Map manager (redundant?)
-        mapManager('reflection', featOrSamp, nodeIds);
-
+ 
+        // Request the map manager to reflect using these nodes,
+        // and receive a count of nodes that had data.
+        var have_data_count = mapManager('reflection', featOrSamp, nodeIds);
         banner('info', 'Your other map will update shortly.');
         hide();
+ 
+        // Duncan,
+        //   I guessed that you would want to return a count of nodes with
+        //   data from this map manager request.
+        //   I took the path of least resistence and just notify the user that
+        //   not all nodes will be used in the reflection. So the user does not
+        //   get a chance to cancel the request. We can change that to a
+        //   cancel/OK question if that works better.
+        //   I didn't test it either ;)
+ 
+        // If some of the nodes don't have data, let the user know.
+        if (have_data_count < nodeIds.length) {
+            tell_user_about_subset(have_data_count, nodeIds.length);
+        }
 	}
  
     function hide() {
  
-        // TODO: do we need to free map select vars as well?
+        // Free some things, then hide the dialog
         selectionSelected = selectionList.selected;
         selectionList.destroy();
         selectionList = undefined;
@@ -127,6 +168,10 @@ var app = app || {};
         }
  
         if (addressEntry && toMapIds && toMapIds.length > 0) {
+ 
+            // We have map IDs, so initialize the selected target map
+            // and enable the trigger to open the reflection dialog
+            toMapId = toMapIds[0]
             $button.removeClass('disabled');
         } else {
             $button.addClass('disabled');
@@ -165,11 +210,17 @@ var app = app || {};
                 Meteor.subscribe('reflectionToMapIds',ctx.project, getToMapIds);
                 subscribedToMaps = true;
             }
+ 
+            // Duncan, I'll let you fill this in with a subscription or whatever.
+            // For now I'll just return a couple for testing. And you should
+            // initialize dataType something like I did for toMapId
+            dataTypes = ['mRNA', 'CNV'];
+            dataType = dataTypes[0];
 
             //keep track of windows open
             Meteor.subscribe('OpenedWindow',user.username,ctx.project);
-            // TODO: Create a listener to know when to save state ?
 
+            // Just before the page is closed, update the DB
             window.onbeforeunload = function() {
                 Meteor.subscribe('ClosedWindow',user.username,mapId);
             };
