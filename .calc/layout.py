@@ -1177,7 +1177,8 @@ def compute_hexagram_assignments(nodes, index, options):
     # Normalize the placement badness layer
     # This holds the max placement badness
     max_placement_badness = max(placement_badnesses.itervalues())
-    print "Max placement badness: {}".format(max_placement_badness)
+    if DEV:
+        print "Max placement badness: {}".format(max_placement_badness)
 
     if max_placement_badness != 0:
         # Normalize by the max if possible.

@@ -60,6 +60,9 @@ var app = app || {}; // jshint ignore:line
         secondary_icon: function () {
             return 'secondary.png';
         },
+        remove_icon: function () {
+            return 'close.svg'; // remove-sign.svg
+        },
         range_value_display: function () {
             return (is_continuous(this)) ? 'initial' : 'none';
         },
@@ -762,6 +765,7 @@ var app = app || {}; // jshint ignore:line
         //                         magnitude
         // @param: colormap: the colormap for this layer, required for now
  
+        attributes.minimum = 0;
         add_layer_data(layer_name, data, attributes);
         update_shortlist(layer_name);
         colormaps[layer_name] = colormap;
