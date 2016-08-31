@@ -10,6 +10,17 @@
                     -->
                 </div>
                 <div id="shortlist" class="panel_contents">
+                    <div class='dynamic_controls' style='display:none'>
+                        <div class='active_controls float_controls'>
+                            <img class='primary circle' src='{{ primary_icon }}' title='Display as primary variable' />
+                            <img class='secondary circle' src='{{ secondary_icon }}' title='Display as secondary variable' />
+                        </div>
+                        <div class='remove_holder float_controls'>
+                            <img class='remove circle' src='{{ remove_icon}}' title='Remove this attribute from the shortlist' />
+                        </div>
+                        <img class='isPrimary circle' src='{{ primary_icon }}' style='display:{{ is_primary }}' title='This is the primary variable' />
+                        <img class='isSecondary circle' src='{{ secondary_icon }}' style='display:{{ is_secondary }}' title='This is the secondary variable' />
+                    </div>
                 </div>
             </div>
         </div>
@@ -21,22 +32,13 @@
         <div class='shortlist_entry' data-layer='{{ this }}'>
         
             <div class='controls'>
-                <img class='isPrimary circle' src='{{ primary_icon }}' style='display:{{ is_primary }}' title='This is the primary variable' />
-                <img class='isSecondary circle' src='{{ secondary_icon }}' style='display:{{ is_secondary }}' title='This is the secondary variable' />
                 <img class='move' src='resize-vertical.svg' title='Move entry up or down' />
                 <img class='filter' data-layer='{{ this }}' src='{{ filter_image }}' title='Filter values' />
             </div>
 
-             <div class='contents_cell'>
+             <div class='contents'>
                 <div>{{ this }}</div>
                 <div class='metadata_holder'></div>
-                <div class='active_controls float_controls'>
-                    <img class='primary circle' src='{{ primary_icon }}' title='Display as primary variable' />
-                    <img class='secondary circle' src='{{ secondary_icon }}' title='Display as secondary variable' />
-                </div>
-                <div class='remove_holder float_controls'>
-                    <img class='remove circle' src='{{ remove_icon}}' title='Remove this attribute from the shortlist' />
-                </div>
                 
                 <div class='chart_holder'>
                     <div class='chart'></div>
@@ -48,7 +50,7 @@
                             <div class='range_high'>{{ high }}</div>
                         </div>
                     </div>
-                    <div class='filter_contents_cell' style='display:{{ filter_display }}'>
+                    <div class='filter_contents' style='display:{{ filter_display }}'>
                         <select class='filter_value' value={{ filter_value }} style='display:{{ filter_value_display }}'></select>
                         <div class='range_slider' value={{ range }} data-layer='{{ this }}' style='display:{{ slider_display }}'>
                             <div class='low_mask mask'></div>

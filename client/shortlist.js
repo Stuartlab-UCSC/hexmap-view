@@ -17,6 +17,9 @@ var app = app || {}; // jshint ignore:line
     var scrollTop = 0; // Save scroll position while select from filter
     var zeroShow = new ReactiveDict(); // To show or hide the zero tick mark
     var template = {}; // A template for each layer
+    var $shortlist; // The shortlist DOM element
+    var $dynamic_controls; // The control DOM elements that come and go
+    var $float_controls; // The floating control DOM elements
  
     function get_range_value (layer_name, i) {
         var vals = session('filter_value', 'get', layer_name.toString());
@@ -36,24 +39,6 @@ var app = app || {}; // jshint ignore:line
         on_top: function () {
             return (Session.get('shortlist_on_top')) ? 'checked' : '';
         },
-    })
-
-    Template.shortlistEntryT.helpers({
-        shortlist: function () {
-            return Session.get('shortlist');
-        },
-        is_primary: function () {
-            var name = this.toString(),
-                active = Session.get('active_layers');
-            return (active && active.length > 0 && active[0] === name)
-                ? 'initial' : 'none';
-        },
-        is_secondary: function () {
-            var name = this.toString(),
-                active = Session.get('active_layers');
-            return (active && active.length > 1 && active[1] === name)
-                ? 'initial' : 'none';
-        },
         primary_icon: function () {
             return 'primary.png';
         },
@@ -62,6 +47,12 @@ var app = app || {}; // jshint ignore:line
         },
         remove_icon: function () {
             return 'close.svg'; // remove-sign.svg
+        },
+    })
+
+    Template.shortlistEntryT.helpers({
+        shortlist: function () {
+            return Session.get('shortlist');
         },
         range_value_display: function () {
             return (is_continuous(this)) ? 'initial' : 'none';
@@ -195,7 +186,7 @@ var app = app || {}; // jshint ignore:line
         // Functionality for turning filtering on and off
         var layer_name = $(ev.target).data().layer;
         var root = $(ev.target).parents('.shortlist_entry');
-        var filter_contents = root.find('.filter_contents_cell')
+        var filter_contents = root.find('.filter_contents')
         var save_filter = root.find('.save_filter');
  
         session('filter_show', 'set', layer_name,
@@ -374,105 +365,12 @@ var app = app || {}; // jshint ignore:line
         });
     }
 
-    function create_controls (layer_name, root) {
-
-        // This is the button control panel of the shortlist
- 
-        // Handle the click of the primary button
-        root.find('.primary').on('click', function () {
-        
-            var index = Session.get('active_layers').indexOf(layer_name);
-                
-            // If this layer is already primary, just return
-            if (index === 0) return;
-                
-            // If top flag is set,
-            // move the layer from the current position to the first
-            //move_entry(layer_name, 1);
-            
-            // Otherwise this layer is either secondary, or not active.
-            // Either way make it primary, removing any secondary
-            Session.set('active_layers', [layer_name]);
-            
-        });
- 
-        // Handle the click of the secondary button
-        root.find('.secondary').on('click', function () {
-           var active = Session.get('active_layers').slice(0),
-                index = active.indexOf(layer_name);
-                
-            // If this layer is already secondary, remove it from secondary
-            if (index === 1) {
-                active = active.slice(0, 1);
-                
-            // If this layer is primary...
-            } else if (index === 0) {
-                
-                // If there is no secondary, do nothing
-                if (active.length < 2) return;
-                
-                // There is a secondary,
-                // so make this secondary, and that one primary
-                active = [active[1], active[0]];
-                
-                // If top flag is set, move this to the 2nd position
-                //move_entry(layer_name, 2);
-                
-            // If there is a primary, but not this layer,
-            // replace/add this layer as secondary
-            } else if (active.length > 0) {
-                active = [active[0], layer_name];
-                
-                // If top flag is set, move this to the 2nd position
-                //move_entry(layer_name, 2);
-                                
-            // There is no primary.
-            // so make this primary instead of the requested secondary
-            } else {
-                active = [layer_name];
-                
-                // If top flag is set, move this to the 1st position
-                //move_entry(layer_name, 1);
-            }
-            
-            // Update the active layers state and refresh the colors
-            Session.set('active_layers', active);
-        });
-        
-        // Handle the removal from the short list
-        root.find('.remove').click(function() {
-
-            // If this layer has a delete function, do that
-            if (layers[layer_name].removeFx) {
-                layers[layer_name].removeFx(layer_name);
-            }
-
-            // Handle dynamic layers
-            if (layers[layer_name].selection) {
-                delete layers[layer_name];
-                removeFromDataTypeList(layer_name);
-            }
-            
-            // Clear any google chart associated with this layer
-            clear_google_chart(layer_name);
-            
-            // Update the shortlist state variable and UI.
-            update_shortlist(layer_name, true);
-            
-            // Remove this layer's shortlist entry template
-            delete template[layer_name];
-        });
-    }
- 
-    function find_root_of_entry (layer_name) {
+    function get_root_from_layer_name (layer_name) {
         return $('.shortlist_entry[data-layer="' + layer_name + '"]');;
     }
  
     function create_shortlist_entry_with_data (layer_name, root) {
  
-        // Create the button control panel
-        create_controls(layer_name, root);
-
         // Add all of the metadata
         fill_layer_metadata(root.find('.metadata_holder'), layer_name);
  
@@ -491,7 +389,7 @@ var app = app || {}; // jshint ignore:line
             if (0 > min && 0 < max) {
                 zeroShow.set(layer_name, true);
                 Meteor.setTimeout(function () {
-                    var root = find_root_of_entry(layer_name),
+                    var root = get_root_from_layer_name(layer_name),
                         chart = root.find('.chart'),
                         x_min = chart.offset().left,
                         x_span = chart.width(),
@@ -522,10 +420,10 @@ var app = app || {}; // jshint ignore:line
 
         // Load the shortlist entry template, passing the layer name
         template[layer_name] = Blaze.renderWithData(
-            Template.shortlistEntryT, {layer: [layer_name]}, $('#shortlist')[0]);
+            Template.shortlistEntryT, {layer: [layer_name]}, $shortlist[0]);
 
         // This is the root element of this shortlist UI entry
-        var root = find_root_of_entry(layer_name);
+        var root = get_root_from_layer_name(layer_name);
 
         // Is this is a selection ?
         if (layers[layer_name].selection) {
@@ -536,6 +434,17 @@ var app = app || {}; // jshint ignore:line
                 create_shortlist_entry_with_data (layer_name, root);
             });
         }
+ 
+        // On mouse entering the shortlist entry, show the floating controls
+        root.on('mouseenter', function (ev) {
+            root.append($float_controls);
+        });
+ 
+        // On mouse leaving the shortlist entry, hide the floating controls
+        root.on('mouseleave', function (ev) {
+            $float_controls.detach();
+        });
+ 
         return root;
     }
 
@@ -544,7 +453,7 @@ var app = app || {}; // jshint ignore:line
         // Update the metadata for each layer in the shortlist
         // TODO: make the metadata updates reactive
         _.each(Session.get('shortlist'), function(layer_name) {
-            var root = find_root_of_entry(layer_name);
+            var root = get_root_from_layer_name(layer_name);
                 fill_layer_metadata(root.find(".metadata_holder"), layer_name);
         });
     }
@@ -556,7 +465,7 @@ var app = app || {}; // jshint ignore:line
         // function.
         var shortlist = Session.get('shortlist').slice(),
             active = Session.get('active_layers').slice(),
-            root = find_root_of_entry(layer_name);
+            root = get_root_from_layer_name(layer_name);
  
         if (remove) {
             shortlist.splice(shortlist.indexOf(layer_name), 1);
@@ -601,12 +510,12 @@ var app = app || {}; // jshint ignore:line
                 shortlist.splice(index, 1);
  
                 // Move the entry  to the top from it's current position
-                $('#shortlist').prepend(root);
+                $shortlist.prepend(root);
  
             } else {
  
                 // The layer is not yet in the shortlist
-                $('#shortlist').prepend(create_shortlist_entry(layer_name));
+                $shortlist.prepend(create_shortlist_entry(layer_name));
             }
 
             // Add the layer to the top of the shortlist start variable
@@ -893,11 +802,11 @@ var app = app || {}; // jshint ignore:line
     }
 
     function make_sortable () {
-        $("#shortlist").sortable({
+        $shortlist.sortable({
             update: function () {
             
                 // Update the shortlist UI with the new order and refresh
-                var shortlist = _.map($("#shortlist").children(), function (el, i) {
+                var shortlist = _.map($shortlist.children(), function (el, i) {
                      return $(el).data("layer");
                 });
                 Session.set('shortlist', shortlist);
@@ -908,6 +817,150 @@ var app = app || {}; // jshint ignore:line
         });
     }
 
+    function get_root_from_child (child) {
+        return child.parents('.shortlist_entry')
+    }
+
+    function get_layer_name_from_root (root) {
+        return root.data('layer');
+    }
+
+    function get_layer_name_from_child (child) {
+        return get_layer_name_from_root(get_root_from_child (child));
+    }
+
+    function when_active_layers_change () {
+ 
+        // When the active layers change update the primary and secondary
+        // indicators on the UI.
+        var active = Session.get('active_layers'),
+            length = active.length;
+ 
+        // For each of primary index and secondary index...
+        _.each([0, 1], function (index) {
+        
+            if (length > index) {
+     
+                // There is an active so attach the icon to the layer's
+                // shortlist entry.
+                $anchor = get_root_from_layer_name(active[index])
+                    .find('.controls');
+     
+            } else {
+     
+                // There is no active, so hide the icon.
+                $anchor = $dynamic_controls;
+            }
+            
+            $anchor.prepend($shortlist.find(
+                index === 0 ? '.isPrimary' : '.isSecondary'));
+        });
+    }
+
+    function create_float_controls (layer_name, root) {
+
+        // This is the floating button control panel that appears when
+        // a shortlist entry is hovered upon.
+ 
+ 
+        // Handle the click of the primary button
+        $shortlist.find('.primary').on('click', function (ev) {
+            var layer_name = get_layer_name_from_child($(ev.target)),
+                index = Session.get('active_layers').indexOf(layer_name);
+                
+             // If this layer is already primary, just return
+            if (index === 0) return;
+                
+            // If top flag is set,
+            // move the layer from the current position to the first
+            //move_entry(layer_name, 1);
+            
+            // Otherwise this layer is either secondary, or not active.
+            // Either way make it primary, removing any secondary
+            Session.set('active_layers', [layer_name]);
+            
+        });
+ 
+        // Handle the click of the secondary button
+        $shortlist.find('.secondary').on('click', function (ev) {
+            var active = Session.get('active_layers').slice(0),
+                layer_name = get_layer_name_from_child($(ev.target)),
+                index = active.indexOf(layer_name);
+                
+            // If this layer is already secondary, remove it from secondary
+            if (index === 1) {
+                active = active.slice(0, 1);
+                
+            // If this layer is primary...
+            } else if (index === 0) {
+                
+                // If there is no secondary, do nothing
+                if (active.length < 2) return;
+                
+                // There is a secondary,
+                // so make this secondary, and that one primary
+                active = [active[1], active[0]];
+                
+                // If top flag is set, move this to the 2nd position
+                //move_entry(layer_name, 2);
+                
+            // If there is a primary, but not this layer,
+            // replace/add this layer as secondary
+            } else if (active.length > 0) {
+                active = [active[0], layer_name];
+                
+                // If top flag is set, move this to the 2nd position
+                //move_entry(layer_name, 2);
+                                
+            // There is no primary.
+            // so make this primary instead of the requested secondary
+            } else {
+                active = [layer_name];
+                
+                // If top flag is set, move this to the 1st position
+                //move_entry(layer_name, 1);
+            }
+            
+            // Update the active layers state and refresh the colors
+            Session.set('active_layers', active);
+        });
+ 
+        // Handle the removal from the short list
+        $shortlist.find('.remove').on('click', function(ev) {
+            var layer_name = get_layer_name_from_child($(ev.target));
+
+            // If this layer has a delete function, do that
+            if (layers[layer_name].removeFx) {
+                layers[layer_name].removeFx(layer_name);
+            }
+
+            // Handle dynamic layers
+            if (layers[layer_name].selection) {
+                delete layers[layer_name];
+                removeFromDataTypeList(layer_name);
+            }
+            
+            // Move all of the dynamic controls to a holding place so they
+            // don't get removed from the DOM
+            $dynamic_controls
+                .append($float_controls)
+                .append($shortlist.find('.isPrimary'))
+                .append($shortlist.find('.isSecondary'));
+            
+            // Clear any google chart associated with this layer
+            clear_google_chart(layer_name);
+            
+            // Update the shortlist state variable and UI.
+            update_shortlist(layer_name, true);
+            
+            // Remove this layer's shortlist entry template
+            delete template[layer_name];
+        });
+ 
+        // Run this whenever the active list changes
+        Tracker.autorun(when_active_layers_change);
+    }
+ 
     function complete_initialization (comp) {
     
         // Autorun to execute when the first layer is set
@@ -915,38 +968,42 @@ var app = app || {}; // jshint ignore:line
         var first = Session.get('first_layer'),
             sorted_layers = Session.get('sortedLayers');
 
-        if (sorted_layers.length > 0) {
+        if (sorted_layers.length < 1) return;
         
-            // We only need to run this once to initialize the shortlist UI
-            comp.stop();
-        
-            var shortlist = Session.get('shortlist').slice();
-                
-            // If the shortlist is empty add the 'first layer to it and
-            // initialize the active_layers.
-            // Add the 'first layer' to the shortlist if it is empty
-            if (shortlist.length < 1) {
-                shortlist = [first];
-                Session.set('shortlist', shortlist);
-            }
+        // We only need to run this once to initialize the shortlist UI
+        comp.stop();
+         
+        // Initialize some handy variables
+        $shortlist = $('#shortlist');
+        $dynamic_controls = $shortlist.find('.dynamic_controls');
+        $float_controls = $shortlist.find('.float_controls');
 
-            // Add each layer in the shortlist to the UI
-            _.each(shortlist, function (layer_name) {
-                $('#shortlist').append(create_shortlist_entry(layer_name));
-            });
+        var shortlist = Session.get('shortlist').slice();
             
-            // Set the shortlist metadata resulting from the initial sort
-            update_shortlist_metadata();
-            
-            // Make the shortlist entries re-orderable
-            make_sortable();
- 
-            // If there are no active layers, make the first entry active
-            var active = Session.get('active_layers');
-            var shortlist = Session.get('shortlist');
-            if (active.length < 1 && shortlist.length > 0) {
-                Session.set('active_layers', [shortlist[0]]);
-            }
+        // If the shortlist is empty add the 'first layer to it and
+        // initialize the active_layers.
+        // Add the 'first layer' to the shortlist if it is empty
+        if (shortlist.length < 1) {
+            shortlist = [first];
+            Session.set('shortlist', shortlist);
+        }
+
+        // Add each layer in the shortlist to the UI
+        _.each(shortlist, function (layer_name) {
+            $shortlist.append(create_shortlist_entry(layer_name));
+        });
+        
+        // Set the shortlist metadata resulting from the initial sort
+        update_shortlist_metadata();
+        
+        // Make the shortlist entries re-orderable
+        make_sortable();
+
+        // If there are no active layers, make the first entry active
+        var active = Session.get('active_layers');
+        var shortlist = Session.get('shortlist');
+        if (active.length < 1 && shortlist.length > 0) {
+            Session.set('active_layers', [shortlist[0]]);
         }
     }
 
@@ -971,5 +1028,8 @@ var app = app || {}; // jshint ignore:line
             var x = Session.get('active_layers');
             refreshColors();
         });
+ 
+        // Create the controls that move from entry to entry
+        create_float_controls();
     }
 })(app);
