@@ -848,6 +848,8 @@ initLayout = function () {
             find_clumpiness_stats(Session.get('layoutIndex'));
             Session.set('sort', ctx.defaultSort());
             updateLonglist();
+            
+            Meteor.setTimeout(refreshColors, 100);
         });
         Session.set('initedLayout', true);
     });
