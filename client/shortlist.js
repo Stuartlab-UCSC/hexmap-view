@@ -20,6 +20,7 @@ var app = app || {}; // jshint ignore:line
     var $shortlist; // The shortlist DOM element
     var $dynamic_controls; // The control DOM elements that come and go
     var $float_controls; // The floating control DOM elements
+    var selection_prefix = 'Selection';
  
     function get_range_value (layer_name, i) {
         var vals = session('filter_value', 'get', layer_name.toString());
@@ -478,24 +479,6 @@ var app = app || {}; // jshint ignore:line
                 // Update the active layers by removing this layer
                 active.splice(index, 1); // Remove this from the active
 
-                // If this was the primary active...
-                if (index === 0) {
-
-                    // Set the first entry as the primary active,
-                    // dropping any secondary active
-                    if (shortlist.length > 0) {
-                        active = [shortlist[0]];
-
-                    // The shortlist is empty, so nothing can be active
-                    } else {
-                        active = [];
-                    }
-                } else { // This layer was the secondary active
-
-                    // Drop the secondary active
-                    active = [active[0]];
-                }
-
                 // Update our state variable
                 Session.set('active_layers', active);
             }
@@ -536,12 +519,18 @@ var app = app || {}; // jshint ignore:line
 
     function make_layer_name_unique (layer_name) {
  
-        var name = layer_name,
-            seq = 1;
+        // We're done if the name is unique
+        if (layers[layer_name] === undefined) return layer_name;
+
+        var suffix,
+            last_suffix,
+            name = layer_name,
+            seq = 1,
+            is_selection_name = false;
  
-        // Special case a default selection label
-        if (layer_name === 'Selection 1') {
-            seq = 2;
+        // Special case a default selection layer name
+        if (name.startsWith(selection_prefix)) {
+            name = selection_prefix;
         }
  
         // Keep looking for a name until it is unique
@@ -549,16 +538,17 @@ var app = app || {}; // jshint ignore:line
  
             // We're done if the name is unique
             if (layers[name] === undefined) break;
-     
-            // Remove the last sequence number applied if there was one
-            var last_suffix = ' ' + String(seq - 1);
-            start = name.length - last_suffix.length;
-            if (name.slice(start) === last_suffix) {
-                name = name.slice(0, start);
-            }
 
-            // Add the new sequence number.
-            name = name + ' ' + String(seq);
+            // Find any previously tried sequence suffix
+            if (seq > 1) {
+                last_suffix = ' ' + (seq - 1);
+                if (name.endsWith(last_suffix)) {
+ 
+                    // Remove the existing sequence suffix
+                    name = name.slice(0, name.length - last_suffix.length);
+                }
+            }
+            name += ' ' + seq;
             seq += 1;
         }
         return name;
@@ -584,7 +574,7 @@ var app = app || {}; // jshint ignore:line
  
         // if no layer name was supplied, assume this is a selection
         if (!name) {
-            name = 'Selection 1';
+            name = selection_prefix;
         } else {
             name = name.trim();
         }
@@ -602,9 +592,8 @@ var app = app || {}; // jshint ignore:line
             // We're done if she cancels
             if (name === undefined) break;
  
-            unique_name = make_layer_name_unique(name);
-            
             // We're done if the name is unique
+            unique_name = make_layer_name_unique(name);
             if (unique_name === name) break;
 
             // Suggest another unique name
@@ -866,19 +855,30 @@ var app = app || {}; // jshint ignore:line
         // Handle the click of the primary button
         $shortlist.find('.primary').on('click', function (ev) {
             var layer_name = get_layer_name_from_child($(ev.target)),
-                index = Session.get('active_layers').indexOf(layer_name);
+                active = Session.get('active_layers').slice(0),
+                index = active.indexOf(layer_name);
                 
-             // If this layer is already primary, just return
-            if (index === 0) return;
                 
             // If top flag is set,
             // move the layer from the current position to the first
             //move_entry(layer_name, 1);
             
-            // Otherwise this layer is either secondary, or not active.
-            // Either way make it primary, removing any secondary
-            Session.set('active_layers', [layer_name]);
-            
+             // If this layer is already primary, so remove it as primary.
+             // This has a side effect of setting any secondary to primary.
+            if (index === 0) {
+                active.splice(0, 1);
+
+            // If this layer is secondary, set it as primary.
+            // Make it primary, retaining any secondary.
+            } else if (index === 1) {
+                active = [layer_name];
+                
+            // This layer is not currently active, so make it primary
+            // preserving any secondary.
+            } else {
+                active.splice(0, 1, layer_name)
+            }
+            Session.set('active_layers', active);
         });
  
         // Handle the click of the secondary button
