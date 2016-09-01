@@ -115,6 +115,9 @@ var app = app || {}; // jshint ignore:line
         $search.parent().on('select2-open', function () {
             var results = $('#select2-drop .select2-results');
             results.css('max-height', $(window).height() - results.offset().top - 15);
+            
+            // Allow the rest of the UI to remain active
+            $('#select2-drop-mask').css('display', 'none');
         });
 
         // Handle result selection
@@ -128,6 +131,12 @@ var app = app || {}; // jshint ignore:line
             // Don't actually change the selection.
             // This keeps the dropdown open when we click.
             event.preventDefault();
+        });
+ 
+        // Make the dropdown close if there is a click anywhere on the screen
+        // other than the dropdown and search box
+        $(window).on('mousedown', function (ev) {
+            $("#search").select2("close");
         });
     };
 })(app);
