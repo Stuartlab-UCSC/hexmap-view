@@ -47,11 +47,16 @@ var app = app || {}; // jshint ignore:line
             var arrays = _.map(filled, function (count, i) {
                 return [i.toString(), count, colors[i]];
             });
-
+        
+            // If there is no data, there is no chart to draw
+            if (arrays.length < 1) {
+                return;
+            }
+            
             // Add the headers to the top of the data
             var withHeaders = [['Category', 'Count', { role: 'style' }]]
                                 .concat(arrays);
-            
+                   
             var data = google.visualization.arrayToDataTable(withHeaders);
 
             var options = {
@@ -102,6 +107,12 @@ var app = app || {}; // jshint ignore:line
                         textPosition: 'none',
                     },
                 };
+            
+            // If there is no data, there is no chart to draw
+            if (arrays.length < 1) {
+                return;
+            }
+
             charts[layer_name] = new google.visualization.Histogram(container)
                                     .draw(data, options);
         });
