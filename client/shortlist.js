@@ -15,6 +15,7 @@ var app = app || {}; // jshint ignore:line
     var initialized = false;
 
     var scrollTop = 0; // Save scroll position while select from filter
+    var range_extents = new ReactiveDict(); // to show the min & max values of a continuous layer
     var zeroShow = new ReactiveDict(); // To show or hide the zero tick mark
     var template = {}; // A template for each layer
     var $shortlist; // The shortlist DOM element
@@ -22,10 +23,19 @@ var app = app || {}; // jshint ignore:line
     var $float_controls; // The floating control DOM elements
     var selection_prefix = 'Selection';
  
+    function get_range_extents (layer_name, i) {
+        var vals = range_extents.get(layer_name.toString());
+        if (vals && vals[i]) {
+            return vals[i];
+        } else {
+            return i ? 'low' : 'high';
+        }
+    }
+ 
     function get_range_value (layer_name, i) {
         var vals = session('filter_value', 'get', layer_name.toString());
         if (vals && vals[i]) {
-            return Number(vals[i]).toExponential(1);
+            return vals[i];
         } else {
             return i ? 'low' : 'high';
         }
@@ -61,10 +71,6 @@ var app = app || {}; // jshint ignore:line
         zero_display: function () {
             return (zeroShow.get(this)) ? 'initial' : 'none';
         },
-        filter_row_top: function () {
-            return (is_continuous(this)) ? '0' : '0';
-        },
-        
         filter_image: function () {
             var name = this.toString();
             return (session('filter_show', 'get', name) && is_layer_active(name))
@@ -87,10 +93,22 @@ var app = app || {}; // jshint ignore:line
             return (is_continuous(this)) ? 'inline-block' : 'none';
         },
         low: function () {
-            return get_range_value(this, 0);
+            var val;
+            if (session('filter_show', 'get', this)) {
+                val = get_range_value(this, 0);
+            } else {
+                val = get_range_extents(this, 0);
+            }
+            return Number(val).toExponential(1);
         },
         high: function () {
-            return get_range_value(this, 1);
+            var val;
+            if (session('filter_show', 'get', this)) {
+                val = get_range_value(this, 1);
+            } else {
+                val = get_range_extents(this, 1);
+            }
+            return Number(val).toExponential(1);
         },
     })
 /*
@@ -378,9 +396,17 @@ var app = app || {}; // jshint ignore:line
         // Create the chart
         if (is_continuous(layer_name)) {
             newGchart(layer_name, root.find('.chart'), 'histogram');
+ 
+            // Set the dynamic range values tied to the slider
             session('filter_value', 'set', layer_name, [
-                layers[layer_name].minimum.toExponential(1),
-                layers[layer_name].maximum.toExponential(1)
+                layers[layer_name].minimum,
+                layers[layer_name].maximum
+            ]);
+ 
+            // Set the extents of the range
+            range_extents.set(layer_name, [
+                layers[layer_name].minimum,
+                layers[layer_name].maximum
             ]);
  
             // Put a tick on zero if zero is in the range.
