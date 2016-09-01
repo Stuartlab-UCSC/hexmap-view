@@ -136,13 +136,13 @@ var app = app || {}; // jshint ignore:line
         Session.set('dynamic_layers', []); // Dynamic layers dict or array ? TODO
         Session.set('first_layer', undefined); // first to be displayed in shortlist
         s.gridCenter = null; // grid map center
-        s.gridZoom = 2;  // Zoom level of the grid
+        s.gridZoom = 3;  // Zoom level of the grid
         Session.set('layouts', []);  // Map layouts maintained in order of entry
         Session.set('layoutIndex', null);
         Session.set('overlayNodes', undefined);  // overlay nodes to include
         Session.set('shortlist', []); // Array of layer names in the shortlist
         Session.set('shortlist_on_top', false); // true = maintain actives at the top of the list
-        s.zoom = 2;  // Map zoom level where 2 means zoomed in by 2 levels
+        s.zoom = 3;  // Map zoom level where 3 means zoomed in by 3 levels
     }
 
     State.prototype.save = function () {

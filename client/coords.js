@@ -46,7 +46,7 @@ var app = app || {}; // jshint ignore:line
     // Global: specifies a distance to shift the whole grid down and right from
     // the top left corner of the map. This lets us keep the whole thing away
     // from the edges of the "earth", where Google Maps likes to wrap.
-    XY_OFFSET = XY_WORLD_SIZE / 4;
+    XY_OFFSET = XY_WORLD_SIZE / 2.7;
 
     // Global: scaling factor from input coordinates to xy world coordinates.
     xyScale = 1;
@@ -112,7 +112,7 @@ var app = app || {}; // jshint ignore:line
 
         // Find the scaling factor to convert xyHex to xyWorld
         maxXy = Math.max(maxX, maxY);
-        xyScale = (XY_WORLD_SIZE / 2) / maxXy;
+        xyScale = (XY_WORLD_SIZE / 4) / maxXy;
         maxXy = Math.round(maxXy);
 
         // Set the input coords range display
