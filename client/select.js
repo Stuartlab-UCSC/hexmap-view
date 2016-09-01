@@ -145,6 +145,23 @@ var app = app || {}; // jshint ignore:line
             new google.maps.LatLng(latLng1.lat(), latLng2.lng()),
         ];
     }
+ 
+    function resetEverything () {
+ 
+        // Remove all of the google map handlers
+        if (startHandle) startHandle.remove();
+        if (stopHandle) stopHandle.remove();
+        if (moveHandle) moveHandle.remove();
+        if (midHandle) midHandle.remove();
+ 
+        // Restore the saved cursor
+        if (savedCursor) setCursor(savedCursor);
+ 
+        // Remove the bounding polygons and reset the hover curser for hexagons
+        if (shape) shape.setMap(null);
+        shape = null;
+        hexagonCursor(true);
+    }
 
     function finishSelect (event) {
 
@@ -157,12 +174,6 @@ var app = app || {}; // jshint ignore:line
 
         // Handle the final event of the selection
 
-        // Don't trigger this handler again
-        stopHandle.remove();
-
-        // Stop the dynamic preview updates.
-        moveHandle.remove();
-
         // The end of the selection
         var latLng = event.latLng;
 
@@ -172,9 +183,6 @@ var app = app || {}; // jshint ignore:line
             shape.setPath(boundsToPath(startLatLng, latLng));
 
         } else { // polygon
-
-            // Don't trigger a mid-point click again.
-            midHandle.remove();
 
             // Add the last point of the polygon
             shape.getPath().push(event.latLng);
@@ -191,14 +199,9 @@ var app = app || {}; // jshint ignore:line
         }, 500);
 
         // Create a selection polygon & find the hexagons in it
-        setCursor(savedCursor);
-
         create_dynamic_binary_layer(findHexagonsInPolygon(shape));
 
-        // Remove the bounding polygons and reset the hover curser for hexagons
-        shape.setMap(null);
-        shape = null;
-        hexagonCursor(true);
+        resetEverything();
     }
 
     function midSelect (event) {
@@ -412,6 +415,8 @@ var app = app || {}; // jshint ignore:line
     function clicked(ev) {
 
         // This executes when one of the select navBar buttons is pressed.
+ 
+        resetEverything();
         var $tool = $(ev.target);
  
         // Let the tool handler know this is active so another map tool cannot
@@ -422,7 +427,7 @@ var app = app || {}; // jshint ignore:line
         color = (Session.equals('background', 'white'))
             ? 'black'
             : 'white';
-
+ 
         if ($tool.hasClass('rectangle')) {
             isRectangle = true;
             setUpShapeSelect();
