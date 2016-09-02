@@ -51,13 +51,13 @@ var app = app || {}; // jshint ignore:line
             return (Session.get('shortlist_on_top')) ? 'checked' : '';
         },
         primary_icon: function () {
-            return 'primary.png';
+            return '/icons/primary.png';
         },
         secondary_icon: function () {
-            return 'secondary.png';
+            return '/icons/secondary.png';
         },
         remove_icon: function () {
-            return 'close.svg'; // remove-sign.svg
+            return '/icons/close.svg';
         },
     })
 
@@ -74,7 +74,7 @@ var app = app || {}; // jshint ignore:line
         filter_image: function () {
             var name = this.toString();
             return (session('filter_show', 'get', name) && is_layer_active(name))
-                ? 'filterCaution.svg' : 'filter.svg';
+                ? '/icons/filter-hot.svg' : '/icons/filter.svg';
         },
         filter_display: function () {
             return (session('filter_show', 'get', this))  ? 'initial' : 'none';

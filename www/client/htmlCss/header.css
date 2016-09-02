@@ -59,7 +59,7 @@
     padding: 1px;
 }
 .headerButton.filter,
-.headerButton.filterCaution {
+.headerButton.filter-hot {
     height: 20px;
     width: 20px;
     padding: 5px;
@@ -67,7 +67,7 @@
     display: none;
 }
 .headerButton.filter.active,
-.headerButton.filterCaution.active {
+.headerButton.filter-hot.active {
     display: block;
 }
 

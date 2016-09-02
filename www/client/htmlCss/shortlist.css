@@ -140,7 +140,7 @@
 }
 
 .shortlist_entry .filter,
-.shortlist_entry .filterCaution,
+.shortlist_entry .filter-hot,
 .shortlist_entry .save_filter {
     height: 0.8em;
     width: 0.8em;
@@ -151,7 +151,7 @@
 }
 
 .shortlist_entry .filter,
-.shortlist_entry .filterCaution {
+.shortlist_entry .filter-hot {
     position: absolute;
     bottom: 0.3em;
     left: 0.3em;

@@ -212,7 +212,7 @@
 #pdfClose {
     display: none;
     background-color: white;
-    background-image: url("close.svg");
+    background-image: url("/icons/close.svg");
     background-size: 100% 100%;
     background-repeat: no-repeat;
     height: 24px;

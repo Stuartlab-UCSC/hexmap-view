@@ -290,9 +290,9 @@ var app = app || {}; // jshint ignore:line
         // length is the same as that of sorted layers.
         if (Session.get('displayLayers').length === sorted.length) {
             $('.header .layer-row .filter').addClass('active');
-            $('.header .layer-row .filterCaution').removeClass('active');
+            $('.header .layer-row .filter-hot').removeClass('active');
         } else {
-            $('.header .layer-row .filterCaution').addClass('active');
+            $('.header .layer-row .filter-hot').addClass('active');
             $('.header .layer-row .filter').removeClass('active');
         }
     }
@@ -354,7 +354,7 @@ var app = app || {}; // jshint ignore:line
 
         // Save jquery element names
         $dialog = $('.filterDialog');
-        $button = $('.header .layer-row .filter, .header .layer-row .filterCaution');
+        $button = $('.header .layer-row .filter, .header .layer-row .filter-hot');
         $passFilters = $('.passFilters');
 
         $('.header .layer-row .filter').addClass('active');
