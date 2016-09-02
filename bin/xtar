@@ -4,6 +4,6 @@
 DIR=/cluster/home/swat/hexmap
 
 echo 'cleaning directory'
-rm -rf $DIR/www/*
+rm -rf $DIR/calc $DIR/www/*
 echo 'untarring'
-tar -C $DIR/www -x -f $DIR/t.tar
+tar -C $DIR -x -f $DIR/t.tar

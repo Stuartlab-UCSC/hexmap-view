@@ -2,6 +2,6 @@
 # tar the contents of hexagram for production
 
 rm t.tar
-tar cf t.tar client lib public server
+tar cf t.tar calc www/client www/lib  www/public www/server
 ls -l t.tar
 scp t.tar juggernaut:hexmap
