@@ -386,15 +386,6 @@ var app = app || {}; // jshint ignore:line
                 $('.createMapDocs').hide();
             }
         });
- 
-        // Show dev doc menu option if user is in dev and is a dev server
-        Meteor.call('isUserInRole', 'dev', function (error, results) {
-            if (!error && results && DEV) {
-                $('.devDocs').show();
-           } else {
-                $('.devDocs').hide();
-            }
-        });
     }
 
     centerToLatLng = function (centerIn) {

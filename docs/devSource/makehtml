@@ -1,5 +1,5 @@
 make clean
-d='../../public/dev/'
+d='../dev/'
 rm -rf $d/*
 make html
 mv _build/html/* $d
