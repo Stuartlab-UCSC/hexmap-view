@@ -194,7 +194,7 @@ var app = app || {}; // jshint ignore:line
             var prefix_len = key_prefix.length;
             
             // Find any session keys with this prefix
-            var keys = _.find(_.keys(Session.keys), function (key) {
+            var keys = _.filter(_.keys(Session.keys), function (key) {
                 return (key.slice(0, prefix_len) === key_prefix);
             });
             
@@ -238,7 +238,7 @@ var app = app || {}; // jshint ignore:line
                 _.each(s.localStorage.key_prefixes , function (key_prefix) {
                     var prefix_len = key_prefix.length;
                     if (key.slice(0, key_prefix.length) === key_prefix) {
-                       Session.set(key, val);
+                        Session.set(key, val);
                     }
                 });
             }

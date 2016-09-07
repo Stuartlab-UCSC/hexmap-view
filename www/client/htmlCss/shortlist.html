@@ -11,15 +11,12 @@
                 </div>
                 <div id="shortlist" class="panel_contents">
                     <div class='dynamic_controls' style='display:none'>
-                        <div class='active_controls float_controls'>
-                            <img class='primary circle' src='{{ primary_icon }}' title='Display as primary variable' />
-                            <img class='secondary circle' src='{{ secondary_icon }}' title='Display as secondary variable' />
-                        </div>
-                        <div class='remove_holder float_controls'>
-                            <img class='remove circle' src='{{ remove_icon}}' title='Remove this attribute from the shortlist' />
-                        </div>
-                        <img class='isPrimary circle' src='{{ primary_icon }}' style='display:{{ is_primary }}' title='This is the primary variable' />
-                        <img class='isSecondary circle' src='{{ secondary_icon }}' style='display:{{ is_secondary }}' title='This is the secondary variable' />
+                        <img class='primary {{ primary_east }} float circle' src='{{ primary_icon }}' title='Display in the map as the primary variable' />
+                        <img class='secondary {{ secondary_east }} float circle' src='{{ secondary_icon }}' style='display:{{ secondary_icon_display }}' title='Display in the map as the secondary variable' />
+                        <img class='remove float' src='{{ remove_icon}}' title='Remove this attribute from the shortlist' />
+
+                        <img class='is_primary circle' src='{{ is_primary_icon }}' title='The primary variable displayed in the map' />
+                        <img class='is_secondary circle' src='{{ is_secondary_icon }}' title='The secondary variable displayed in the map' />
                     </div>
                 </div>
             </div>
@@ -33,7 +30,7 @@
         
             <div class='controls'>
                 <img class='move' src='/icons/resize-vertical.svg' title='Move entry up or down' />
-                <img class='filter' data-layer='{{ this }}' src='{{ filter_image }}' title='Filter values' />
+                <img class='filter circle' data-layer='{{ this }}' src='{{ filter_icon }}' style='display:{{ filter_icon_display }}' title='Filter this attribute by value' />
             </div>
 
              <div class='contents'>
@@ -51,12 +48,12 @@
                         </div>
                     </div>
                     <div class='filter_contents' style='display:{{ filter_display }}'>
-                        <select class='filter_value' value={{ filter_value }} style='display:{{ filter_value_display }}'></select>
+                        <select class='filter_value' value={{ filter_value }} style='display:{{ filter_value_display }};margin_bottom:{{ save_filter_bottom }}'></select>
                         <div class='range_slider' value={{ range }} data-layer='{{ this }}' style='display:{{ slider_display }}'>
                             <div class='low_mask mask'></div>
                             <div class='high_mask mask'></div>
                         </div>
-                        <img class='save_filter' data-layer='{{ this }}' src='/icons/file-new.svg' title='Create an attribute from the filter' />
+                        <img class='save_filter bottom circle' data-layer='{{ this }}' style='display:{{ save_filter_display }};margin-bottom:{{ save_filter_bottom }}' src='/icons/file-new.png' title='Create an attribute from this filter' />
                     </div>
                 </div>
         

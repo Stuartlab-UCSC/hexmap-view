@@ -22,6 +22,20 @@ var app = app || {}; // jshint ignore:line
     var $dynamic_controls; // The control DOM elements that come and go
     var $float_controls; // The floating control DOM elements
     var selection_prefix = 'Selection';
+    var hover_layer_name = new ReactiveVar(''); // Track the current layer
+ 
+    // Track entries for triggering color set of the actives
+    var new_dom_entry_added_or_removed = new ReactiveVar('');
+ 
+    var icon = {
+        primary: '/icons/primary.png',
+        primary_hot: '/icons/primary-hot.png',
+        secondary: '/icons/secondary.png',
+        secondary_hot: '/icons/secondary-hot.png',
+        filter: '/icons/filter.png',
+        filter_hot: '/icons/filter-hot.png',
+        close: '/icons/close.svg',
+    };
  
     function get_range_extents (layer_name, i) {
         var vals = range_extents.get(layer_name.toString());
@@ -41,23 +55,89 @@ var app = app || {}; // jshint ignore:line
         }
     }
  
-    function is_layer_active(layer_name) {
+    function is_layer_active (layer_name) {
         var active = Session.get('active_layers')
-        return (active.length > 0 && active.indexOf(layer_name) > -1);
+        return (active.length > 0
+                    && active.indexOf(layer_name.toString()) > -1);
+    }
+
+    function is_primary (layer_name) {
+        var actives = Session.get('active_layers');
+        if (!layer_name) return false;
+        return (actives.indexOf(layer_name.toString()) === 0);
+    }
+
+    function is_secondary (layer_name) {
+        var actives = Session.get('active_layers');
+        if (!layer_name) return false;
+        return (actives.indexOf(layer_name.toString()) === 1);
+    }
+
+    function is_hovered (layer_name) {
+        var hovered = hover_layer_name.get()
+        if (!layer_name) return false;
+        return (hovered === layer_name.toString());
+    }
+
+    function is_filter_showing (layer_name) {
+        return (session('filter_show', 'equals', layer_name.toString(), true));
+    }
+ 
+    function is_filter_active (layer_name) {
+        return (is_filter_showing(layer_name) && is_layer_active(layer_name));
+    }
+
+    function get_root_from_child (child) {
+        return $(child).parents('.shortlist_entry');
+    }
+
+    function get_layer_name_from_root (root) {
+        return (root && root.length > 0) ? root.data('layer') : null;
+    }
+
+    function get_root_from_layer_name (layer_name) {
+        return $('.shortlist_entry[data-layer="' + layer_name + '"]');
+    }
+ 
+    function get_layer_name_from_child (child) {
+        return get_layer_name_from_root(get_root_from_child(child));
     }
 
     Template.shortlist.helpers({
         on_top: function () {
             return (Session.get('shortlist_on_top')) ? 'checked' : '';
         },
+        primary_east: function () {
+            return (is_secondary(hover_layer_name.get()))
+                ? 'east' : '';
+        },
+        secondary_east: function () {
+            return (is_secondary(hover_layer_name.get()))
+                ? '' : 'east';
+        },
         primary_icon: function () {
-            return '/icons/primary.png';
+            return is_primary(hover_layer_name.get())
+                        ? icon.primary_hot : icon.primary;
         },
         secondary_icon: function () {
-            return '/icons/secondary.png';
+            return is_secondary(hover_layer_name.get())
+                        ? icon.secondary_hot : icon.secondary;
+        },
+        secondary_icon_display: function () {
+            var layer_name =
+                    get_layer_name_from_child('#shortlist .is_primary');
+            return (is_hovered(layer_name)
+                    && Session.get('active_layers').length < 2)
+                        ? 'none' : 'initial';
+        },
+        is_primary_icon: function () {
+            return icon.primary_hot;
+        },
+        is_secondary_icon: function () {
+            return icon.secondary_hot;
         },
         remove_icon: function () {
-            return '/icons/close.svg';
+            return icon.close;
         },
     })
 
@@ -71,13 +151,15 @@ var app = app || {}; // jshint ignore:line
         zero_display: function () {
             return (zeroShow.get(this)) ? 'initial' : 'none';
         },
-        filter_image: function () {
-            var name = this.toString();
-            return (session('filter_show', 'get', name) && is_layer_active(name))
-                ? '/icons/filter-hot.svg' : '/icons/filter.svg';
+        filter_icon: function () {
+            return (is_filter_active(this) ? icon.filter_hot : icon.filter);
+        },
+        filter_icon_display: function () {
+            return (is_hovered(this) || is_filter_showing(this))
+                        ? 'initial' : 'none';
         },
         filter_display: function () {
-            return (session('filter_show', 'get', this))  ? 'initial' : 'none';
+            return (is_filter_showing(this)) ? 'initial' : 'none';
         },
         filter_value_display: function () {
             return (is_continuous(this)) ? 'none' : 'initial';
@@ -94,7 +176,7 @@ var app = app || {}; // jshint ignore:line
         },
         low: function () {
             var val;
-            if (session('filter_show', 'get', this)) {
+            if (is_filter_showing(this)) {
                 val = get_range_value(this, 0);
             } else {
                 val = get_range_extents(this, 0);
@@ -103,12 +185,19 @@ var app = app || {}; // jshint ignore:line
         },
         high: function () {
             var val;
-            if (session('filter_show', 'get', this)) {
+            if (is_filter_showing(this)) {
                 val = get_range_value(this, 1);
             } else {
                 val = get_range_extents(this, 1);
             }
             return Number(val).toExponential(1);
+        },
+        save_filter_bottom: function () {
+            var layer_name = this;
+            return (is_continuous(layer_name) ? '-0.25em' : '-0.35em');
+        },
+        save_filter_display: function () {
+            return is_hovered(this) ? 'initial' : 'none';
         },
     })
 /*
@@ -156,6 +245,15 @@ var app = app || {}; // jshint ignore:line
         });
     }
 */
+
+    function copy_shortlist_state () {
+        return Session.get('shortlist').slice();
+    }
+
+    function copy_actives_state () {
+        return Session.get('active_layers').slice();
+    }
+
     function add_layer_data (layer_name, data, attributes) {
         // Add a layer with the given name, with the given data to the list of 
         // available layers.
@@ -200,19 +298,29 @@ var app = app || {}; // jshint ignore:line
         // Don't sort because our caller does that when they're done adding layers.
     }
 
-    function filter_control_changed (ev) {
+    function filter_control_changed (ev, layer_name_in) {
 
         // Functionality for turning filtering on and off
-        var layer_name = $(ev.target).data().layer;
-        var root = $(ev.target).parents('.shortlist_entry');
-        var filter_contents = root.find('.filter_contents')
-        var save_filter = root.find('.save_filter');
+        var root,
+            layer_name;
  
-        session('filter_show', 'set', layer_name,
-                    !session('filter_show', 'get', layer_name));
+        if (layer_name_in) {
+ 
+            // We are initializing from saved state
+            layer_name = layer_name_in;
+            root = get_root_from_layer_name(layer_name);
+ 
+        } else {
+ 
+            // We are responding to a filter button press
+            root = get_root_from_child ($(ev.target));
+            layer_name = get_layer_name_from_root(root);
+            session('filter_show', 'set', layer_name,
+                        !is_filter_showing(layer_name));
+        }
  
         // If the filter is showing...
-        if (session('filter_show', 'equals', layer_name, true)) {
+        if (is_filter_showing(layer_name)) {
  
             // Figure out what kind of filter settings we take based on
             // what kind of layer we are.
@@ -226,10 +334,10 @@ var app = app || {}; // jshint ignore:line
 
                     // Add a value picker
                     create_filter_select_options(layer_name, layer,
-                        filter_contents.find('.filter_value'));
+                        root.find('.filter_contents').find('.filter_value'));
                 }
 
-                save_filter.button().click(function() {
+                root.find('.save_filter').click(function() {
 
                     // Clicking on the save button creates a dynamic layer
                     var value = session('filter_value', 'get', layer_name),
@@ -299,7 +407,7 @@ var app = app || {}; // jshint ignore:line
                 });
             } else {
 
-                // Binary without colors assigned my input file
+                // Binary without colors assigned by input file
                 first = 1;
                 data = [
                     {text: 1, code: 1},
@@ -322,7 +430,18 @@ var app = app || {}; // jshint ignore:line
         });
 
         // Select the appropriate option on first opening
-        session('filter_value', 'set', layer_name, parseInt(first));
+        var value = session('filter_value', 'get', layer_name);
+        if (_.isNull(value)) {
+ 
+            // There is no value saved, so leave menu set to the first option,
+            // and initialized the saved value to the first one.
+            session('filter_value', 'set', layer_name, parseInt(first));
+ 
+        } else {
+ 
+            // There is a value saved, so set the menu to that option.
+            filter_value.val(value);
+        }
  
         // Update the colors to reflect the filter created by the initial selection
         refreshColors();
@@ -346,7 +465,7 @@ var app = app || {}; // jshint ignore:line
         var layer = layers[layer_name],
             min = layer.minimum,
             max = layer.maximum,
-            span = max - min;
+            span = max - min; // The span of the values
  
         // Handle a slider handle moving
         var update_display = function(event, ui) {
@@ -355,7 +474,7 @@ var app = app || {}; // jshint ignore:line
             session('filter_value', 'set', layer_name, [low, high]);
  
             // Set the width of the low and high masks
-            var x_span = $(event.target).width(),
+            var x_span = $(event.target).width(), // The span in pixels
                 x_low_width = Math.abs(low - min) / span * x_span,
                 x_high_width = Math.abs(max - high) / span * x_span;
  
@@ -371,50 +490,53 @@ var app = app || {}; // jshint ignore:line
         }
  
         // Create the slider
-        root.find('.range_slider').slider({
+        var vals = session('filter_value', 'get', layer_name);
+        var slider = root.find('.range_slider');
+        slider.slider({
             range: true,
             min: min,
             max: max,
-            values: [min, max],
+            values: vals,
             height: 10,
             step: 1E-9, // Ought to be fine enough
             slide: update_display,
             change: update_display,
             stop: update_filter,
         });
+ 
+        // Update the masks and slider with the saved values
+        update_display({target: slider[0]}, {values: vals});
     }
 
-    function get_root_from_layer_name (layer_name) {
-        return $('.shortlist_entry[data-layer="' + layer_name + '"]');;
-    }
- 
     function create_shortlist_entry_with_data (layer_name, root) {
  
         // Add all of the metadata
         fill_layer_metadata(root.find('.metadata_holder'), layer_name);
  
-        // Create the chart
         if (is_continuous(layer_name)) {
+
+            // Create the chart
             newGchart(layer_name, root.find('.chart'), 'histogram');
  
-            // Set the dynamic range values tied to the slider
-            session('filter_value', 'set', layer_name, [
-                layers[layer_name].minimum,
-                layers[layer_name].maximum
-            ]);
+            var min = layers[layer_name].minimum,
+                max = layers[layer_name].maximum;
+ 
+            if (_.isUndefined(session('filter_value', 'get', layer_name))) {
+            
+                // Range filter values are not yet saved,
+                // so initialize them to the layer extents.
+                session('filter_value', 'set', layer_name, [min, max]);
+            }
  
             // Set the extents of the range
-            range_extents.set(layer_name, [
-                layers[layer_name].minimum,
-                layers[layer_name].maximum
-            ]);
+            range_extents.set(layer_name, [min, max]);
  
             // Put a tick on zero if zero is in the range.
             // The dom object needs to be drawn already so we can see the offset.
-            var min = layers[layer_name].minimum,
-                max = layers[layer_name].maximum;
             if (0 > min && 0 < max) {
                 zeroShow.set(layer_name, true);
+ 
+                // Wait for the DOM to update so ...
                 Meteor.setTimeout(function () {
                     var root = get_root_from_layer_name(layer_name),
                         chart = root.find('.chart'),
@@ -430,10 +552,22 @@ var app = app || {}; // jshint ignore:line
 
         } else {
             newGchart(layer_name, root.find('.chart'), 'barChart');
+ 
+            if (_.isUndefined(session('filter_value', 'get', layer_name))) {
+            
+                // Filter value is not yet saved,
+                // so initialize it to the first option.
+                var val = 0;
+                if (is_binary(layer_name)) {
+                    val = 1;
+                }
+                    
+                session('filter_value', 'set', layer_name, val);
+            }
         }
  
-        // Create the filter button for toggling display of filter elements
-        root.find('.filter').button().click(filter_control_changed);
+        // Notify others that a new DOM entry has been added to the shortlist
+        new_dom_entry_added_or_removed.set(layer_name);
     }
  
     function create_shortlist_entry (layer_name) {
@@ -462,14 +596,21 @@ var app = app || {}; // jshint ignore:line
             });
         }
  
+        // Create the filter button click handler
+        root.find('.filter').click(filter_control_changed);
+ 
         // On mouse entering the shortlist entry, show the floating controls
+        // and the filter button
         root.on('mouseenter', function (ev) {
-            root.append($float_controls);
+            root.prepend($float_controls);
+            hover_layer_name.set(layer_name);
         });
  
         // On mouse leaving the shortlist entry, hide the floating controls
+        // and the filter button if the filter is not active
         root.on('mouseleave', function (ev) {
-            $float_controls.detach();
+            hover_layer_name.set('');
+            $('#shortlist .dynamic_controls').append($float_controls);
         });
  
         return root;
@@ -490,8 +631,8 @@ var app = app || {}; // jshint ignore:line
         // This updates the shortlist variable and UI for adds & removes.
         // Moves via the jqueryUI sortable are handled in the sortable's update
         // function.
-        var shortlist = Session.get('shortlist').slice(),
-            active = Session.get('active_layers').slice(),
+        var shortlist = copy_shortlist_state(),
+            active = copy_actives_state(),
             root = get_root_from_layer_name(layer_name);
  
         if (remove) {
@@ -508,6 +649,10 @@ var app = app || {}; // jshint ignore:line
                 // Update our state variable
                 Session.set('active_layers', active);
             }
+             
+            // Notify others that a new DOM entry has been added to
+            // or removed from the shortlist
+            new_dom_entry_added_or_removed.set(layer_name);
 
         } else { // Handle this layer add
  
@@ -769,8 +914,7 @@ var app = app || {}; // jshint ignore:line
             // variables.
 
             // if the filter is showing and the layer is active, apply a filter
-            if (session('filter_show', 'equals', layer_name, true)
-                    && active_layers.indexOf(layer_name) > -1) {
+            if (is_filter_active(layer_name)) {
 
                 // This will hold our filter function. Start with a no-op filter.
                 var filter_function = function(value) {
@@ -832,18 +976,6 @@ var app = app || {}; // jshint ignore:line
         });
     }
 
-    function get_root_from_child (child) {
-        return child.parents('.shortlist_entry')
-    }
-
-    function get_layer_name_from_root (root) {
-        return root.data('layer');
-    }
-
-    function get_layer_name_from_child (child) {
-        return get_layer_name_from_root(get_root_from_child (child));
-    }
-
     function when_active_layers_change () {
  
         // When the active layers change update the primary and secondary
@@ -858,8 +990,7 @@ var app = app || {}; // jshint ignore:line
      
                 // There is an active so attach the icon to the layer's
                 // shortlist entry.
-                $anchor = get_root_from_layer_name(active[index])
-                    .find('.controls');
+                $anchor = get_root_from_layer_name(active[index]);
      
             } else {
      
@@ -868,7 +999,7 @@ var app = app || {}; // jshint ignore:line
             }
             
             $anchor.prepend($shortlist.find(
-                index === 0 ? '.isPrimary' : '.isSecondary'));
+                index === 0 ? '.is_primary' : '.is_secondary'));
         });
     }
 
@@ -881,8 +1012,7 @@ var app = app || {}; // jshint ignore:line
         // Handle the click of the primary button
         $shortlist.find('.primary').on('click', function (ev) {
             var layer_name = get_layer_name_from_child($(ev.target)),
-                active = Session.get('active_layers').slice(0),
-                index = active.indexOf(layer_name);
+                active = copy_actives_state();
                 
                 
             // If top flag is set,
@@ -891,12 +1021,12 @@ var app = app || {}; // jshint ignore:line
             
              // If this layer is already primary, so remove it as primary.
              // This has a side effect of setting any secondary to primary.
-            if (index === 0) {
+            if (is_primary(layer_name)) {
                 active.splice(0, 1);
 
             // If this layer is secondary, set it as primary.
             // Make it primary, retaining any secondary.
-            } else if (index === 1) {
+            } else if (is_primary(layer_name)) {
                 active = [layer_name];
                 
             // This layer is not currently active, so make it primary
@@ -909,18 +1039,19 @@ var app = app || {}; // jshint ignore:line
  
         // Handle the click of the secondary button
         $shortlist.find('.secondary').on('click', function (ev) {
-            var active = Session.get('active_layers').slice(0),
-                layer_name = get_layer_name_from_child($(ev.target)),
-                index = active.indexOf(layer_name);
+            var active = copy_actives_state(),
+                layer_name = get_layer_name_from_child($(ev.target));
                 
             // If this layer is already secondary, remove it from secondary
-            if (index === 1) {
+            if (is_secondary(layer_name)) {
                 active = active.slice(0, 1);
                 
             // If this layer is primary...
-            } else if (index === 0) {
+            } else if (is_primary(layer_name)) {
                 
-                // If there is no secondary, do nothing
+                // If there is no secondary, do nothing.
+                // We shouldn't get here because if this is primary and there
+                // is no secondary, then the floating secondry is not displayed.
                 if (active.length < 2) return;
                 
                 // There is a secondary,
@@ -970,11 +1101,15 @@ var app = app || {}; // jshint ignore:line
             // don't get removed from the DOM
             $dynamic_controls
                 .append($float_controls)
-                .append($shortlist.find('.isPrimary'))
-                .append($shortlist.find('.isSecondary'));
+                .append($shortlist.find('.is_primary'))
+                .append($shortlist.find('.is_secondary'));
             
             // Clear any google chart associated with this layer
             clear_google_chart(layer_name);
+            
+            // Clear any filter values and show state for this layer
+            delete Session.keys['shortlist_filter_show_' + layer_name];
+            delete Session.keys['shortlist_filter_value_' + layer_name];
             
             // Update the shortlist state variable and UI.
             update_shortlist(layer_name, true);
@@ -1002,9 +1137,9 @@ var app = app || {}; // jshint ignore:line
         // Initialize some handy variables
         $shortlist = $('#shortlist');
         $dynamic_controls = $shortlist.find('.dynamic_controls');
-        $float_controls = $shortlist.find('.float_controls');
-
-        var shortlist = Session.get('shortlist').slice();
+        $float_controls = $shortlist.find('.float');
+ 
+        var shortlist = copy_shortlist_state();
             
         // If the shortlist is empty add the 'first layer to it and
         // initialize the active_layers.
@@ -1016,7 +1151,11 @@ var app = app || {}; // jshint ignore:line
 
         // Add each layer in the shortlist to the UI
         _.each(shortlist, function (layer_name) {
-            $shortlist.append(create_shortlist_entry(layer_name));
+            var root = create_shortlist_entry(layer_name);
+            $shortlist.append(root);
+            
+            // Update filters
+            filter_control_changed(null, layer_name)
         });
         
         // Set the shortlist metadata resulting from the initial sort

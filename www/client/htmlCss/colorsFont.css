@@ -42,8 +42,7 @@ body,
     background: rgba(255,255,255,0.8);
 }
 
-.shortlist_entry,
-.shortlist_entry .float_controls {
+.shortlist_entry {
     background: #eeeeee; /* #E0E0FF; */
 }
 
