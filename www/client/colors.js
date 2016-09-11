@@ -1,7 +1,7 @@
 
-var app = app || {}; // jshint ignore:line
+var app = app || {}; 
 
-(function (hex) { // jshint ignore:line
+(function (hex) { 
     //'use strict';
 
     // Some global colors

@@ -2,9 +2,9 @@
 // overlayNodes.js
 // Drop new nodes onto the map
 
-var app = app || {}; // jshint ignore:line
+var app = app || {}; 
 
-(function (hex) { // jshint ignore:line
+(function (hex) { 
     //'use strict';
 
     var DEFAULT_MARKER_COLOR = 'ff0000',

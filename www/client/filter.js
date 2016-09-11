@@ -1,7 +1,7 @@
 // filter.js: Filter the attributes displayed in the longlist by data type and
 // tags.
 
-var app = app || {}; // jshint ignore:line
+var app = app || {}; 
 
 (function (hex) {
 

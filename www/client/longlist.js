@@ -1,9 +1,9 @@
 // layerLists.js
 // Manage the layer lists.
 
-var app = app || {}; // jshint ignore:line
+var app = app || {}; 
 
-(function (hex) { // jshint ignore:line
+(function (hex) { 
 
     // How many layer results should we display at once?
     var SEARCH_PAGE_SIZE = 10,

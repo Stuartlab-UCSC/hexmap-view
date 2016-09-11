@@ -3,12 +3,12 @@
 
 /* global $, banner, print, Worker */
 
-var app = app || {}; // jshint ignore:line
+var app = app || {}; 
 
 // The only public method
-initRpc = null; // jshint ignore:line
+initRpc = null; 
 
-(function (hex) { // jshint ignore:line
+(function (hex) { 
     //'use strict';
 
     var self;
@@ -249,7 +249,7 @@ initRpc = null; // jshint ignore:line
                 " column " + error.column); // TODO
     };
 
-    initRpc = function () { // jshint ignore:line
+    initRpc = function () { 
         console.log('initRpc');
         var rpc = new Rpc();
         rpc.initialize();

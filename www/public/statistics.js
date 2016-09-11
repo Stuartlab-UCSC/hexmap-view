@@ -1,6 +1,6 @@
 // statistics.js: Web Worker file to run statistical tests in the background.
 
-//var app = app || {}; // jshint ignore:line
+//var app = app || {}; 
 
 //(function (hex) {
     //'use strict';

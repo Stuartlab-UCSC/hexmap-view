@@ -4,6 +4,8 @@
 var app = app || {};
 
 (function (hex) {
+Reflect = (function () {
+
     //'use strict';
     Windows = new Mongo.Collection('Windows');
 
@@ -105,6 +107,15 @@ var app = app || {};
         alert(message);
     }
  
+    function hide() {
+ 
+        // Free some things, then hide the dialog
+        selectionSelected = selectionList.selected;
+        selectionList.destroy();
+        selectionList = undefined;
+        dialogHex.hide();
+    }
+ 
    function mapIt () {
 
         //TODO:this is an arguement for the manager's script, the Manager should figure this out
@@ -143,15 +154,6 @@ var app = app || {};
             tell_user_about_subset(have_data_count, nodeIds.length);
         }
 	}
- 
-    function hide() {
- 
-        // Free some things, then hide the dialog
-        selectionSelected = selectionList.selected;
-        selectionList.destroy();
-        selectionList = undefined;
-        dialogHex.hide();
-    }
  
     function getToMapIds() {
  
@@ -230,8 +232,8 @@ var app = app || {};
         mapId = ctx.project;
     }
 
-
-    initReflect = function () {
+return { // Public methods
+    init: function () {
  
         $button = $('.reflectTrigger');
         $dialog = $('#reflectDialog');
@@ -258,5 +260,7 @@ var app = app || {};
                 dialogHex.show();
             }
         }, 'Reflect nodes onto another map');
-    }
+    },
+}
+}());
 })(app);

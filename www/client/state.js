@@ -1,9 +1,9 @@
 // state.js
 // An object to write and load state
 
-var app = app || {}; // jshint ignore:line
+var app = app || {}; 
 
-(function (hex) { // jshint ignore:line
+(function (hex) { 
     //'use strict';
 
     // TODO: these should all be Session vars so they will survive a hot code push!
@@ -419,7 +419,7 @@ var app = app || {}; // jshint ignore:line
         return center
     }
  
-    initState = function () { // jshint ignore:line
+    initState = function () { 
         storageSupported = checkLocalStore();
         var s = new State();
         s.setProjectDefaults();

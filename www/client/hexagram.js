@@ -1,9 +1,9 @@
 // hexagram.js
 // Run the hexagram visualizer client.
 
-var app = app || {}; // jshint ignore:line
+var app = app || {}; 
 
-(function (hex) { // jshint ignore:line
+(function (hex) { 
 
 var userDebug = false; // Turn user debugging on/off
 
@@ -374,7 +374,7 @@ createMap = function  () {
     });
     
     // Subscribe all the tool listeners to the map
-    subscribe_tool_listeners(googlemap);
+    Tool.subscribe_listeners(googlemap);
 }
 
 initMap = function () {

@@ -1,9 +1,9 @@
 // setOperUI.js
 // Handle the UI for the set operations.
 
-var app = app || {}; // jshint ignore:line
+var app = app || {}; 
 
-(function (hex) { // jshint ignore:line
+(function (hex) { 
 
     // Boolean stating whether this is the first time the set operation popup & stats query
     // has been created so that "Select Layer" Default is added only once

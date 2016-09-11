@@ -1,10 +1,11 @@
-// utils.js
-// This contains the logic for retrieving the mutual information stats
+// util.js
+// This contains various utilities used throughout the code.
 
-var app = app || {}; // jshint ignore:line
+var app = app || {};
 
-(function (hex) { // jshint ignore:line
     //'use strict';
+(function (hex) {
+Util = (function () {
 
     session = function (prefix, operation, name,  val) {
  
@@ -221,5 +222,38 @@ var app = app || {}; // jshint ignore:line
 
         setHeightSelect2($el);
     }
+    
+    return { // Public methods
+        session: session,
+        is_continuous: is_continuous,
+        is_categorical: is_categorical,
+        is_binary: is_binary,
+        round: round,
+        getHumanProject: getHumanProject,
+        projectNotFound: projectNotFound,
+        banner: banner,
+        tsvParseRows: tsvParseRows,
+        removeFromDataTypeList: removeFromDataTypeList,
+        addToDataTypeList: addToDataTypeList,
+        setHeightSelect2: setHeightSelect2,
+        createOurSelect2: createOurSelect2,
+    }
+}());
+
+// TODO needed while transitioning to more scope protection
+session = Util.session;
+is_continuous = Util.is_continuous;
+is_categorical = Util.is_categorical;
+is_binary = Util.is_binary;
+round = Util.round;
+getHumanProject = Util.getHumanProject;
+projectNotFound = Util.projectNotFound;
+banner = Util.banner;
+tsvParseRows = Util.tsvParseRows;
+removeFromDataTypeList = Util.removeFromDataTypeList;
+addToDataTypeList = Util.addToDataTypeList;
+setHeightSelect2 = Util.setHeightSelect2;
+createOurSelect2 = Util.createOurSelect2;
+
 })(app);
 

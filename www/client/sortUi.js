@@ -1,9 +1,9 @@
 // sortUi.js
 // This contains the logic for handling the sort attribute function.
 
-var app = app || {}; // jshint ignore:line
+var app = app || {}; 
 
-(function (hex) { // jshint ignore:line
+(function (hex) { 
     //'use strict';
 
     var title = 'Sort Attributes by Associative Statistics',

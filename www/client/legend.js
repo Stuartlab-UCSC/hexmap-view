@@ -1,9 +1,9 @@
 // legend.js
 // Handle the legend.
 
-var app = app || {}; // jshint ignore:line
+var app = app || {}; 
 
-(function (hex) { // jshint ignore:line
+(function (hex) { 
 
     // How big is our color key in pixels?
     var KEY_WT = 125,

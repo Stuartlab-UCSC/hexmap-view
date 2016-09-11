@@ -2,9 +2,9 @@
 // project.js: A UI to load data files from a directory within the webserver's
 // doc dir
 
-var app = app || {}; // jshint ignore:line
+var app = app || {}; 
 
-(function (hex) { // jshint ignore:line
+(function (hex) { 
     //'use strict';
  
     // Placeholder text when no project is selected
@@ -120,7 +120,7 @@ var app = app || {}; // jshint ignore:line
             }, mSecs);
 	};
  
-    initProject = function () { // jshint ignore:line
+    initProject = function () { 
   
         $('.login').on('click', $('#login-sign-in-link'), signInClicked);
  

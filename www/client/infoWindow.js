@@ -1,9 +1,9 @@
 // infoWindow.js
 // Handle the google maps infoWindow objects.
 
-var app = app || {}; // jshint ignore:line
+var app = app || {}; 
 
-(function (hex) { // jshint ignore:line
+(function (hex) { 
 
     // This is the global Google Maps info window. We only want one hex to have its
     // info open at a time.

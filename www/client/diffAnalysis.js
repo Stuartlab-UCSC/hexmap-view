@@ -1,9 +1,9 @@
 // diffAnalysis.js
 // This contains the logic for handling the differential analysis function.
 
-var app = app || {}; // jshint ignore:line
+var app = app || {}; 
 
-(function (hex) { // jshint ignore:line
+(function (hex) { 
     //'use strict';
 
     var title = 'Differential Analysis',
@@ -32,7 +32,7 @@ var app = app || {}; // jshint ignore:line
         if (list2 && list2.selected) {
             filter.otherSelected = list2.otherSelected;
         }
-        list = createLayerNameList($('#diffAnalysisDialog .listAnchor'),
+        list = LayerNameList.create($('#diffAnalysisDialog .listAnchor'),
                                    $('#diffAnalysisDialog .listLabel'),
                                    listSelected);
         list.enable(true, filters);
@@ -40,7 +40,7 @@ var app = app || {}; // jshint ignore:line
         if (list && list.selected) {
             filter.otherSelected = list.otherSelected;
         }
-        list2 = createLayerNameList($('#diffAnalysisDialog .listAnchor2'),
+        list2 = LayerNameList.create($('#diffAnalysisDialog .listAnchor2'),
                                     $('#diffAnalysisDialog .listLabel2'),
                                     listSelected2,
                                     list);

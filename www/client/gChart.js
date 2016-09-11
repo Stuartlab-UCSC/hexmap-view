@@ -2,9 +2,9 @@
  * gChart.js 
  * For use of google charts
  */
-var app = app || {}; // jshint ignore:line
+var app = app || {}; 
 
-(function (hex) { // jshint ignore:line
+(function (hex) { 
     //'use strict';
  
     var load = new ReactiveVar('notLoaded'), // notLoaded, loading, loaded

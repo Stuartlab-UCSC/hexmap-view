@@ -2,10 +2,11 @@
  * Created by duncan on 6/6/16.
  */
 
-var app = app || {}; // jshint ignore:line
+var app = app || {}; 
 
-
-(function (hex) { // jshint ignore:line
+(function (hex) {
+CheckLayerBox = (function () {
+ 
     LayerPostOffice = new Mongo.Collection('LayerPostOffice');
 
     function JsonLayer(layer){
@@ -99,8 +100,10 @@ var app = app || {}; // jshint ignore:line
                 }
             }
         })
-
     };
-
-
+    
+    return {
+        init: initLayerBox, // TODO: replace this with the actual routine
+    }
+}());
 })(app);

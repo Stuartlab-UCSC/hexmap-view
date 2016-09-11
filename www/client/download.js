@@ -10,7 +10,7 @@
 //   workflow completes, so that the infowindow can use click events again.
 //   (it got set to your tool's name by the code prepended to your callback).
 
-var app = app || {}; // jshint ignore:line
+var app = app || {}; 
 
 (function (hex) {
     //'use strict';

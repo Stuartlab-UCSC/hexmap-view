@@ -1,9 +1,9 @@
 // hexagon.js
 // Handle things to do with hexagons.
 
-var app = app || {}; // jshint ignore:line
+var app = app || {}; 
 
-(function (hex) { // jshint ignore:line
+(function (hex) { 
 
     // Global: hold objects of polygons by signature name
     polygons = {};
@@ -56,7 +56,7 @@ var app = app || {}; // jshint ignore:line
         });
 
         // Subscribe the tool listeners to events on this hexagon
-        subscribe_tool_listeners(hexagon);
+        Tool.subscribe_listeners(hexagon);
         
         return hexagon;
     } 

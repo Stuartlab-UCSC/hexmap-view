@@ -33,9 +33,9 @@
 
 /* global $ */
 
-var app = app || {}; // jshint ignore:line
+var app = app || {}; 
 
-(function (hex) { // jshint ignore:line
+(function (hex) { 
     //'use strict';
 
     SHOW_COORDS = false, // true = show them, false = not

@@ -4,7 +4,7 @@
 // dialog. Jquery-UI dialog options passed in are applied after our default
 // dialog options. A help icon is provided in the header.
 
-var app = app || {}; // jshint ignore:line
+var app = app || {}; 
 
 (function (hex) {
 

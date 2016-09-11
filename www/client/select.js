@@ -1,9 +1,9 @@
 
 // select.js: Handle the various ways to select hexagons.
 
-var app = app || {}; // jshint ignore:line
+var app = app || {}; 
 
-(function (hex) { // jshint ignore:line
+(function (hex) { 
     //'use strict';
 
     var //PREVIEW_COLORS = true, // This is sort of slow, so may not be fun to use

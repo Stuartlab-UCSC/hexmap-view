@@ -1,8 +1,8 @@
 // mainHex.js
 
-var app = app || {}; // jshint ignore:line
+var app = app || {}; 
 
-(function (hex) { // jshint ignore:line
+(function (hex) { 
     //'use strict';
  
     var VERSION = 'Version 1.0';
@@ -76,7 +76,7 @@ var app = app || {}; // jshint ignore:line
     });
 
     Template.homePage.onRendered(function () {
-        initTools();
+        Tool.init();
         Meteor.setTimeout(initCreateMap, 100);
         //initCreateMap();
     });
@@ -89,7 +89,7 @@ var app = app || {}; // jshint ignore:line
         });
         initProject();
         GoogleMaps.load({ key: GOOGLE_API_KEY });  // browser key
-        initTools();
+        Tool.init();
     });
 
     Template.gridPage.onRendered(function () {
@@ -173,10 +173,10 @@ var app = app || {}; // jshint ignore:line
                 if (DEV) initOverlayNodeUi();
                 initLegend();
                 initShortlist();
-                initLayerBox();
+                CheckLayerBox.init();
                 initCoords();
-                initReflect();
-                initLabelTool();
+                Reflect.init();
+                Tool.initLabelTool();
                 initDownload();
                 initColors();
                 initInfoWindow();

@@ -2,7 +2,7 @@
 
 // Handle the PDF request
 
-var app = app || {}; // jshint ignore:line
+var app = app || {}; 
 
 (function (hex) {
     //'use strict';

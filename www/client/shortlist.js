@@ -2,9 +2,9 @@
 // Handle most of the functions of the shortlist, which contain the layers the
 // user has added so they can be quickly selected for display.
 
-var app = app || {}; // jshint ignore:line
+var app = app || {}; 
 
-(function (hex) { // jshint ignore:line
+(function (hex) { 
 
     // This holds an object form shortlisted layer names to jQuery shortlist UI
     // elements, so we can efficiently tell if e.g. one is selected.

@@ -2,9 +2,9 @@
 // This contains the logic for retrieving the layout-aware and layout-ignore
 // sort attribute stats
 
-var app = app || {}; // jshint ignore:line
+var app = app || {}; 
 
-(function (hex) { // jshint ignore:line
+(function (hex) { 
     //'use strict';
 
     var computingText = 'Computing statistics now...',

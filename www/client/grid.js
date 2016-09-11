@@ -1,9 +1,9 @@
 // grid.js
 // This handles the node density visualizations.
 
-var app = app || {}; // jshint ignore:line
+var app = app || {}; 
 
-(function (hex) { // jshint ignore:line
+(function (hex) { 
     //'use strict';
 
     // our map range: lng: -90 -> 90   x: 0 -> 128
