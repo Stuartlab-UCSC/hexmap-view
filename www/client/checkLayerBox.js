@@ -6,8 +6,8 @@ var app = app || {}; // jshint ignore:line
 
 
 (function (hex) { // jshint ignore:line
-    LayerPostOffice = new Mongo.Collection('LayerPostOffice');
 
+    //swat LayerPostOffice = new Mongo.Collection('LayerPostOffice');
     function JsonLayer(layer){
         //puts together two parallel arrays and makes a single Json data layer
         vals = layer.data.values;
@@ -24,8 +24,7 @@ var app = app || {}; // jshint ignore:line
         var user = Meteor.user();
         if (user) {
             console.log('checkLayerBox.js: remove_layer(', layer_name, ')');
-            Meteor.subscribe(
-                'deleteLayer', user.username, ctx.project, layer_name);
+            Meteor.subscribe('deleteLayer', user.username, ctx.project, layer_name);
         }
     }
 
@@ -37,6 +36,7 @@ var app = app || {}; // jshint ignore:line
             attributes.n         = layer.n;
             attributes.magnitude = layer.magnitude;
             attributes.removeFx  = remove_layer;
+            attributes.reflection = true; //swat
 
             // make Json out of parallel arrays, avoids '.' in mongoDB
             layer.data = JsonLayer(layer);
@@ -44,7 +44,7 @@ var app = app || {}; // jshint ignore:line
             // Create the colormap
             var colormap = layer.colormap;
             _.each(colormap,function(mapentry){
-                mapentry.color = Color(mapentry.color); //couldn't use the COlor() func on the server side
+                mapentry.color = Color(mapentry.color); //couldn't use the Color() func on the server side
                 mapentry.fileColor = Color(mapentry.fileColor);
             });
             
@@ -54,51 +54,15 @@ var app = app || {}; // jshint ignore:line
         })
     }
 
+ 
+    layer_post_office_receive_layers = function(layers) { //swat
+        receive_layers(layers);
+    };
+
     initLayerBox = function() {
-
-        // If no user is logged in, there is no layerBox doc for this
-        if (_.isUndefined(Meteor.user()) || _.isNull(Meteor.user())) return;
-
-        //variables needed for querry
         mapId = ctx.project;
         username = Meteor.user().username;
-
-        //Meteor.subscribe('makeBox',username,mapId);
-        //subscribe to LayerBox and stuff in shortlist when ready.
-
-        //first thing when it's ready is display on map
-        LayerBoxHandle = Meteor.subscribe('userLayerBox',username,mapId,
-            {
-                onReady: function () {
-
-                    //console.log('Subscription to Layerbox ready: Grabbing Doc');
-
-                    LayerBoxDoc = LayerPostOffice.findOne();
-
-                    //console.log(LayerBox);
-                    if (LayerBoxDoc) {
-                        receive_layers(LayerBoxDoc.layers);
-                    }
-                },
-                onError: function (error) { console.log("onError: subscribe to LayerBox",error); }
-            }
-        );
-
-        //now observe for any changes and display them
-        LayerBoxCurser = LayerPostOffice.find();
-        //console.log(LayerBoxCurser);
-        LayerBoxCurser.observeChanges({
-            //console.log('checkLayerBox: observing Layerbox');
-            changed: function (id, fields) {
-
-                //console.log('checkLayerBox: Users layerBox Doc updated: id, feilds:',id, fields);
-                //console.log(LayerPostOffice.findOne().lastChange)
-                if (LayerPostOffice.findOne().lastChange === 'inserted') {
-                    receive_layers(fields.layers);
-                    banner('info', 'You now have a new reflection in your short list')
-                }
-            }
-        })
+        Meteor.subscribe('userLayerBox', username, mapId);
 
     };
 

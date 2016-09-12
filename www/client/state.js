@@ -208,12 +208,12 @@ var app = app || {}; // jshint ignore:line
         window['localStorage'].removeItem(s.storeName);
         window['localStorage'].setItem(s.storeName, JSON.stringify(store));
 
-        //console.log('save store:', store);
+        console.log('save store:', store.shortlist);
     };
  
     State.prototype.load = function (store) {
  
-        //console.log('load store:', store);
+        console.log('load store:', store.shortlist);
 
         // Walk through the saved state loading anything we recognize
         var s = this;

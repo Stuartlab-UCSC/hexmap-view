@@ -71,6 +71,9 @@ TEMP_DIR = '/tmp/';
 // This may be all that is required to access a collection on client and server
 Bookmarks = new Mongo.Collection('bookmarks');
 ManagerAddressBook = new Mongo.Collection('ManagerAddressBook');
+LayerPostOffice = new Mongo.Collection('LayerPostOffice'); //swat
+ManagerFileCabinet = new Mongo.Collection('ManagerFileCabinet');
+//swat LayerPostOffice = new Mongo.Collection('LayerPostOffice');
 
 
 

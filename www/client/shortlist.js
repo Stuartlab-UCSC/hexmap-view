@@ -74,12 +74,13 @@ var app = app || {}; // jshint ignore:line
     }
 
     function is_hovered (layer_name) {
-        var hovered = hover_layer_name.get()
+        var hovered = hover_layer_name.get();
         if (!layer_name) return false;
         return (hovered === layer_name.toString());
     }
 
     function is_filter_showing (layer_name) {
+        if(!layer_name){return false};
         return (session('filter_show', 'equals', layer_name.toString(), true));
     }
  
@@ -88,19 +89,39 @@ var app = app || {}; // jshint ignore:line
     }
 
     function get_root_from_child (child) {
+        console.log('child:',child);
+        console.log('$child:',$(child));
+        console.trace();
         return $(child).parents('.shortlist_entry');
     }
 
     function get_layer_name_from_root (root) {
+        console.log('root:',root);
+        console.trace();
         return (root && root.length > 0) ? root.data('layer') : null;
     }
 
     function get_root_from_layer_name (layer_name) {
         return $('.shortlist_entry[data-layer="' + layer_name + '"]');
     }
- 
+
     function get_layer_name_from_child (child) {
-        return get_layer_name_from_root(get_root_from_child(child));
+        var $child = $(child);
+        if ($child.length > 0) {
+            var root = get_root_from_child(child);
+            if (root) {
+                var layer_name = get_layer_name_from_root(root);
+                if (layer_name) {
+                    return layer_name;
+                } else {
+                    return null;
+                }
+            } else {
+                return null;
+            }
+        } else {
+            return null;
+        }
     }
 
     Template.shortlist.helpers({
@@ -125,10 +146,14 @@ var app = app || {}; // jshint ignore:line
         },
         secondary_icon_display: function () {
             var layer_name =
-                    get_layer_name_from_child('#shortlist .is_primary');
-            return (is_hovered(layer_name)
-                    && Session.get('active_layers').length < 2)
-                        ? 'none' : 'initial';
+                get_layer_name_from_child('#shortlist .is_primary');
+            if (layer_name) {
+                return (is_hovered(layer_name)
+                && Session.get('active_layers').length < 2)
+                    ? 'none' : 'initial';
+            } else {
+                return 'none';
+            }
         },
         is_primary_icon: function () {
             return icon.primary_hot;
@@ -299,7 +324,8 @@ var app = app || {}; // jshint ignore:line
     }
 
     function filter_control_changed (ev, layer_name_in) {
-
+        console.log("layername, ev:" ,layer_name_in,ev);
+        console.trace()
         // Functionality for turning filtering on and off
         var root,
             layer_name;
@@ -636,6 +662,8 @@ var app = app || {}; // jshint ignore:line
             root = get_root_from_layer_name(layer_name);
  
         if (remove) {
+            if(shortlist.indexOf(layer_name)< 0) return; //swat
+
             shortlist.splice(shortlist.indexOf(layer_name), 1);
             root.remove();
 
@@ -658,7 +686,7 @@ var app = app || {}; // jshint ignore:line
  
             var index = shortlist.indexOf(layer_name);
             if (index > -1) {
- 
+                
                 // The layer is already in the shortlist, so remove it from
                 // its current position in the shortlist state variable
                 shortlist.splice(index, 1);
@@ -684,6 +712,7 @@ var app = app || {}; // jshint ignore:line
                 Session.set('active_layers', [layer_name]);
             }
         }
+        console.log('setting1 short:',shortlist);
         Session.set('shortlist', shortlist);
  
     }
@@ -968,6 +997,7 @@ var app = app || {}; // jshint ignore:line
                 var shortlist = _.map($shortlist.children(), function (el, i) {
                      return $(el).data("layer");
                 });
+                console.log('setting3 short:',shortlist);
                 Session.set('shortlist', shortlist);
             },
             // Use the controls area as the handle to move entries.
@@ -1084,8 +1114,9 @@ var app = app || {}; // jshint ignore:line
  
         // Handle the removal from the short list
         $shortlist.find('.remove').on('click', function(ev) {
-            var layer_name = get_layer_name_from_child($(ev.target));
+            var layer_name = get_layer_name_from_child($(ev.target).toString());
 
+            console.log("shortlist.js: layer_name:", layer_name,typeof(layer_name));
             // If this layer has a delete function, do that
             if (layers[layer_name].removeFx) {
                 layers[layer_name].removeFx(layer_name);
@@ -1140,16 +1171,18 @@ var app = app || {}; // jshint ignore:line
         $float_controls = $shortlist.find('.float');
  
         var shortlist = copy_shortlist_state();
-            
+        console.log('shortlist before',shortlist,first);
         // If the shortlist is empty add the 'first layer to it and
         // initialize the active_layers.
         // Add the 'first layer' to the shortlist if it is empty
         if (shortlist.length < 1) {
             shortlist = [first];
+            console.log('setting2 short:',shortlist);
             Session.set('shortlist', shortlist);
         }
 
         // Add each layer in the shortlist to the UI
+        console.log("shortlist", shortlist);
         _.each(shortlist, function (layer_name) {
             var root = create_shortlist_entry(layer_name);
             $shortlist.append(root);

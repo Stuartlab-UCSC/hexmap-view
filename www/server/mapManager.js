@@ -6,8 +6,8 @@ var Future = Npm.require('fibers/future');
 var fs = Npm.require('fs');
 
 //LayerPostOffice = new Mongo.Collection('LayerPostOffice');
-ManagerFileCabinet = new Mongo.Collection('ManagerFileCabinet');
-LayerPostOffice = new Mongo.Collection('LayerPostOffice');
+//ManagerFileCabinet = new Mongo.Collection('ManagerFileCabinet');
+//swat LayerPostOffice = new Mongo.Collection('LayerPostOffice');
 Windows = new Mongo.Collection('Windows'); //a simple state tracker for how many windows are up
 
 initManagerHelper();
@@ -43,10 +43,13 @@ function initManagerHelper() {
         ManagerFileCabinet.insert(entry);
     });
 
+    //console.log(ManagerFileCabinet.findOne({}))
+
+
 };
 function colorMapMaker(){
     //TODO: make a more flexible colorMapMaker (this one only for reflections)
-    newColorMap = [];
+    var newColorMap = [];
     newColorMap = [ //this is because index needs to be equal to the category
         {name:'low',color:'#32cd32',fileColor:'#32cd32'},
         {name:'middle',color:'#737373',fileColor:'#737373'},
@@ -56,22 +59,22 @@ function colorMapMaker(){
 };
 
 function LayerMaker(layer_name,datalocation){
-    newLayer={};
+    var newLayer={};
     newLayer.timestamp = Math.floor(Date.now()/1000); //UTC timestamp in seconds
     newLayer.layer_name = layer_name;
     //newLayer.url        = datalocation;
     newLayer.selection  = true;
     newLayer.n          = 300;
-    magnitude = 3;//TODO: should this be 2?
+    newLayer.magnitude = 3;//TODO: should this be 2?
     return newLayer
 };
 
 function arrayLayer(layerData){
 
     //makes parallel arrays out of layerData
-    Json = layerData.data;
-    nodes = [];
-    vals = [];
+    var Json = layerData.data;
+    var nodes = [];
+    var vals = [];
     
     for (var node in Json){
         nodes.push(node);
@@ -82,13 +85,65 @@ function arrayLayer(layerData){
 
 }
 
-function dropInLayerBox(layerData,user,toMapId){
-    //changing terminology of Mailbox to layerbox
-    //looking for all layer data you would need.
+function get_layer_names_from_post_entry(layersArray){
+    var layer_names = [];
+    //console.log("layersArray",layersArray);
+    _.each(layersArray, function(layer) {
+        console.log('get layer:', layer);
+        layer_names.push(layer.layer_name);
+    });
+    //console.log('get returning layer_names:',layer_names);
+    return layer_names;
+}
 
+function make_layer_name_unique (new_layer_name,old_layer_names) {
+
+    // We're done if the name is unique
+    if (old_layer_names.indexOf(new_layer_name) === -1) return new_layer_name;
+
+    var suffix,
+        last_suffix,
+        name = new_layer_name,
+        seq = 1,
+        is_selection_name = false;
+
+    // Keep looking for a name until it is unique
+    while (true) {
+
+        // We're done if the name is unique
+        if (old_layer_names.indexOf(name) === -1) break;
+
+        // Find any previously tried sequence suffix
+        if (seq > 1) {
+            last_suffix = ' ' + (seq - 1);
+            if (name.endsWith(last_suffix)) {
+
+                // Remove the existing sequence suffix
+                name = name.slice(0, name.length - last_suffix.length);
+            }
+        }
+        name += ' ' + seq;
+        seq += 1;
+    }
+    return name;
+}
+
+console.log(make_layer_name_unique("chrq",['chr','chrq']));
+
+function dropInLayerBox(layerData,user,toMapId){
+    //looking for all layer data you would need.
     Fiber( function (){
-        user=user;
+        console.log("given layer name" , layerData.layer_name);
         layerData.data = arrayLayer(layerData);
+        var old_layer_names = [];
+        _.each(LayerPostOffice.findOne({user:user,toMapId:toMapId}).layers, function(layer){
+            old_layer_names.push(layer.layer_name);
+        });
+        console.log("old layer names: ", old_layer_names);
+        layerData.layer_name = make_layer_name_unique(layerData.layer_name,old_layer_names);
+        console.log("changed layer name" , layerData.layer_name);
+        //console.log('dropInLayerBox is being called with user, toMapId, layername:',user, toMapId,layerData.layer_name);
+
         LayerPostOffice.update({user:user,toMapId:toMapId},{$set: {lastChange: 'inserted'}, $push: {layers : layerData}});
 
     }).run();
@@ -97,12 +152,13 @@ function dropInLayerBox(layerData,user,toMapId){
 
 function parmMaker(mapId,toMapId, operation,argsObj) {
     //function that access the File Cabinet in order to produce a parmameter Json for python script.
-    scriptDoc = ManagerFileCabinet.findOne({operation: operation , mapId: mapId,toMapId: toMapId});
+    var scriptDoc = ManagerFileCabinet.findOne({operation: operation , mapId: mapId,toMapId: toMapId});
+    //console.log("parmMaker being called for mapManager/reflection with these two maps:", mapId,toMapId);
 
-    parm = {};
+    var parm = {};
     //TODO: make cleaner by using precedence and writing over if necessary (?)
     //go through the necessary arguments
-    _.each(scriptDoc.args, function (arg) {
+    _.each(scriptDoc.args, function (arg) { 
 
         if ( scriptDoc[arg] ) {
             parm[arg] = scriptDoc[arg];
@@ -137,7 +193,7 @@ Meteor.methods({
 
     // For calling python functions from the client
     mapManager: function (operation, userId, mapId, toMapId, featOrSamp, nodeIds,selectionSelected) {
-
+        console.log(Meteor.userId());
         this.unblock();
         var future = new Future();
 
@@ -149,8 +205,8 @@ Meteor.methods({
         if ( operation === 'reflection' ) {
 
             //load parameters specific to reflection python script
-            userArgs = {node_ids : nodeIds};
-            parameters = parmMaker(mapId,toMapId, operation, userArgs);
+            var userArgs = {node_ids : nodeIds};
+            var parameters = parmMaker(mapId,toMapId, operation, userArgs);
             //console.log(parameters);
             callPython(operation, parameters, function (result) {
                 if (result) {
@@ -177,13 +233,13 @@ Meteor.publish('userLayerBox', function(userId, currMapId) {
     //If layerbox is empty put something in there so client can observe (in checkLayerBox.js: initLayerBox)
     if( ! LayerPostOffice.findOne({user: userId, toMapId: currMapId}) ) {
         //console.log('mapManager: No layerbox found, making empty entry');
-        emptyLayers=[];
+        var emptyLayers=[];
         LayerPostOffice.insert({user: userId, toMapId: currMapId, layers: emptyLayers,lastChange:"created"});
     } 
     
     //console.log('mapManager: published user specific LayerBox: UserId,currMap:', userId, currMapId);
-    LayerBoxCursor = LayerPostOffice.find({user: userId, toMapId: currMapId}); //must be cursor
-    //allways return Cursor from publish
+    var LayerBoxCursor = LayerPostOffice.find({user: userId, toMapId: currMapId}); //must be cursor
+    //always return Cursor from publish
     return LayerBoxCursor;
 });
 
@@ -236,12 +292,16 @@ Meteor.publish('ClosedWindow', function(userId,mapId) {
     return this.stop();
 });
 
+
+
 //deletes a layer (specified by layer_name) from a (userId, mapId) LayerBox entry
 Meteor.publish('deleteLayer',function(userId,mapId,layer_name) {
     if(!this.userId) { return this.stop() } // if not logged in function won't do anything
 
     LayerPostOffice.update({user: userId, toMapId: mapId},{$set : { lastChange: "removed"}, $pull: {layers: {layer_name: layer_name}} });
 });
+
+
 Meteor.methods({
     isWindowOpen: function (userId, mapId) {
         this.unblock();
