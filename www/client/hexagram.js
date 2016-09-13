@@ -866,29 +866,6 @@ initHex = function () {
     // updated. We would rather use 'shortlist', but that produces an infinite
     // loop at times.
     Session.set('shortlistFilterUpdated', 0);
-
-/*
-	// Set up help buttons to open their sibling help dialogs.
-	$(".help-button").each(function() {
-	    // We need to attach the dialog to the button ourselves since .dialog()
-	    // removes it from its home in the DOM.
-	    $(this).data("dialog", $(this).siblings(".help-dialog"));
-	    
-	    // Set up the dialog
-	    $(this).data("dialog").dialog({
-	        width: "auto",
-	        resizable: false,
-	        modal: true,
-	        autoOpen: false
-	    });
-	    
-	    // Set up the open-the-dialog listener.
-	    $(this).button().click(function () {
-	        $(this).data("dialog").dialog("open");
-	    });
-	});
-*/	    
-
 }
 
 initLayerTypes = function () {

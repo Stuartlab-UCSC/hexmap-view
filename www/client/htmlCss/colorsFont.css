@@ -16,7 +16,7 @@ body {
 
 /* COLORS */
 /*
-#E7E5D7, rgb(231,229,215)  ucsc pages tan
+#f5f4eb, rgb(245, 244, 235)  genomic institute pages tan
 #2B5E91  ucsc pages blue background
 #E0E0FF  shortlist lavender
 #FFE0FF  shortlist pink
@@ -24,7 +24,7 @@ body {
 
 body,
 #navBar .cyber-slug {
-    background-color: #E7E5D7;
+    background-color: #f5f4eb;
 }
 
 #navBar {

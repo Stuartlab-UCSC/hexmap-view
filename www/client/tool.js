@@ -219,8 +219,8 @@ Tool = (function () {
      
             // TODO keep the dev features out of production
             if (DEV) {
-                $('#navBar .overlayNode, #navBar .createMap')
-                    .addClass('disabled');
+                $('#navBar .overlayNode').addClass('disabled');
+                $('.user_guide').attr('href', 'help/index.html');
             } else {
                 $('#navBar .overlayNode, #navBar .createMap')
                     .hide();

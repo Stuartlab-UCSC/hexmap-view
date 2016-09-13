@@ -70,7 +70,7 @@
 }
 
 #navBar ul.file li {
-    width: 6em;
+    width: 7em;
 }
 
 #navBar ul.download li {
@@ -82,12 +82,15 @@
 }
 
 #navBar ul.select li {
-    width: 7em;
+    width: 8em;
 }
 
-#navBar ul.view li,
-#navBar ul.data li {
+#navBar ul.view li {
     width: 8em;
+}
+
+#navBar ul.data li {
+    width: 9em;
 }
 
 #navBar ul.help > li {

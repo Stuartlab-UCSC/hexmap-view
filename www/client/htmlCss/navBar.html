@@ -9,20 +9,20 @@
                 <img src='/icons/caret-down.png' style='height:8px'>
                 <ul class='file'>
                     <li class='createMap'>
-                        Create Map
+                        Create Map...
                     </li>
                     <li class='mapShow gridShow'>
                         Download
                         <img src='/icons/caret-down.png' style='height:8px'>
                         <ul class='download'>
                             <li class='hexagonNames mapShow'>
-                                Node IDs
+                                Node IDs...
                             </li>
                             <li class='mapShow' >
                                 <a id='pdfDownload' download='hexmap.pdf'
                                     href='data:text/plain;base64'
                                     title = 'Download the page in PDF format'>
-                                    PDF
+                                    PDF...
                                 </a>
                             </li>
                             <li class='mapShow' >
@@ -51,13 +51,13 @@
                         {{background}} Background
                     </li>
                     <li class='colormap'>
-                        Colormap
+                        Colormap...
                     </li>
                     <li class='addText'>
-                        Add Label
+                        Add Label...
                     </li>
                     <li class='overlayNode mapShow'>
-                        Add Nodes
+                        Add Nodes...
                     </li>
                 </ul>
             </li>
@@ -67,14 +67,14 @@
                 Select
                 <img src='/icons/caret-down.png' style='height:8px'>
                 <ul class='select'>
-                    <li class='rectangle' title='Select hexagons using a rectangular region'>
+                    <li class='rectangle' title='Select a rectangular region of hexagons'>
                         by Rectangle
                     </li>
-                    <li class='polygon' title='Select hexagons using a polygonal region'>
+                    <li class='polygon' title='Select a polygonal region of hexagons'>
                         by Polygon
                     </li>
-                    <li class='import' title='Enter identifiers to create a selection of hexagons'>
-                        by Node IDs
+                    <li class='import' title='Select hexagons by node IDs'>
+                        by Node IDs...
                     </li>
                 </ul>
             </li>
@@ -106,16 +106,16 @@
                 <img src='/icons/caret-down.png' style='height:8px'>
                 <ul class='data'>
                     <li class='statsSort'>
-                        Stats &amp; Sort
+                        Stats &amp; Sort...
                     </li>
                     <li class='setOperations'>
-                        Set Operations
+                        Set Operations...
                     </li>
                     <li class='reflectTrigger'>
-                        Map Reflection
+                        Map Reflection...
                     </li>
                     <li class='filterAttributes'>
-                        Filter Attributes
+                        Filter Attributes...
                     </li>
                 </ul>
             </li>
@@ -127,12 +127,13 @@
                     <li>
                         Get Started
                         {{> tutorialMenuT }}
+                        <img src='/icons/caret-down.png' style='height:8px'>
                     </li>
                     <li>
-                        <a href="/help.pdf" target='_blank'>User Guide</a>
+                        <a href="/help.pdf" class='user_guide' target='_blank'>User Guide</a>
                     </li>
                     <li>
-                        <a href="mailto:hex@ucsc.edu">Email</a>
+                        <a href="mailto:hex@ucsc.edu">Email...</a>
                     </li>
                     <li class='disabled'>
                         <hr>

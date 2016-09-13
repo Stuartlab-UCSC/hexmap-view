@@ -24,27 +24,12 @@ var app = app || {};
             this.hideFx = hideFx;
             this.helpAnchor = helpAnchor;
         }
-        this.$help = $('.help-button');
-
-        DialogHex.prototype.showHelp = function () {
-
-            // TODO This should bring up the help doc in another window
-            // scrolled to the specific anchor.
-            alert('Sorry, no help here yet.');
-        }
 
         DialogHex.prototype.initHelp = function () {
- 
-            var self = this;
- 
-            this.$help.detach()
-                .css('display', 'inline');
-            $('.ui-dialog-titlebar-close').before(self.$help);
-
-            // Event handlers
-            // Remove any old help handlers from other dialogs using it
-            this.$help.off('click')
-                .on('click', self.showHelp);
+             var $help = $("<a href='"
+                + this.helpAnchor
+                + "'  target='_blank'><img class='dialog-help' src='/icons/question-sign.svg'></a>");
+            $('.ui-dialog-titlebar-close').before($help);
         }
 
         DialogHex.prototype.hide = function () {
@@ -94,6 +79,7 @@ var app = app || {};
                     width: 'resolve',
                     autoOpen: false,
                     close: self.hideFx,
+                    position: { my: "center top", at: "center top+30", of: window },
             };
 
             // Override the defaults or add options from the caller

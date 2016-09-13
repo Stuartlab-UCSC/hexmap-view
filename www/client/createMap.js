@@ -13,15 +13,18 @@ var app = app || {};
         $dialog,
         methodSelected,
         //methodList,
+        formats = ['Feature matrix', 'Similarity full matrix', 'Similarity sparse matrix', 'Node XY positions'],
+        default_format = 'Feature matrix',
         methods = ['DrL', 'tSNE', 'MDS', 'PCA', 'ICA', 'isomap', 'spectral embedding'],
         defaultMethod = methods[0],
-        advancedLabel = new ReactiveVar();
+        advanced_label = new ReactiveVar();
  
-    Template.createMapT.helpers({
-        advancedLabel: function () {
+/*
+    Template.create_map_t_.helpers({
+        advanced_label: function () {
             return Session.get('createMapAdvanced') ;
         },
-        advancedDisplay: function () {
+        advanced_display: function () {
             if (Session.get('createMapAdvanced') === showAdvanced) {
                 return 'none';
             } else {
@@ -30,33 +33,49 @@ var app = app || {};
             return Session.get('nodeCount');
         },
     });
-
+*/
     function show () {
  
         // Show the contents of the dialog, once per trigger button click
 
-        // Create the selection list
+        // Create the feature format list
+        var data = [];
+        formats.forEach(function (format){
+            data.push({id: format, text: format});
+        });
+        var $format_anchor = $('#createMapDialog .format_anchor');
+        createOurSelect2($format_anchor, {data: data}, default_format);
+        $format_anchor.show();
+
+        // Define the event handler for the feature format list
+        $format_anchor.on('change', function (ev) {
+            format_selected = ev.target.value;
+        });
+
+        // Create the method list
         var data = [];
         methods.forEach(function (method){
             data.push({id: method, text: method});
         });
-        var $methodAnchor = $('#createMapDialog .methodAnchor');
-        createOurSelect2($methodAnchor, {data: data}, defaultMethod);
-        $methodAnchor.show();
+        var $method_anchor = $('#createMapDialog .method_anchor');
+        createOurSelect2($method_anchor, {data: data}, defaultMethod);
+        $method_anchor.show();
 
-        // Define the event handler for the selecting in the list
-        $methodAnchor.on('change', function (ev) {
+        // Define the event handler for the method list
+        $method_anchor.on('change', function (ev) {
             methodSelected = ev.target.value;
         });
  
+/*
         // Define event handler for advanced link click
-        $('#createMapDialog .advancedTrigger').on('click', function () {
+        $('#createMapDialog .advanced_trigger').on('click', function () {
             if (Session.equals('createMapAdvanced', showAdvanced)) {
                 Session.set('createMapAdvanced', hideAdvanced);
             } else {
                 Session.set('createMapAdvanced', showAdvanced);
             }
-        });
+        })
+*/
     }
 
     function createIt () {
@@ -88,7 +107,9 @@ var app = app || {};
             buttons: [{ text: 'Create', click: createIt }],
         };
         dialogHex = createDialogHex(undefined, $button, $dialog, opts, show,
-            hide, true, '#fakeHelpAnchor');
+            hide, true, 'help/createMap.html');
+ 
+            //'help/createMap.html#feature-file-formats');
  
         // Listen for the menu clicked
         add_tool("createMap", function() {

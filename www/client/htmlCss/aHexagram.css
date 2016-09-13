@@ -52,6 +52,9 @@ The visualization element needs to take up all available space.
     background-color: #fff;
 }
 
+.select2-results {
+    font-size: 0.9em;
+}
 /*
 .select2-results .select2-highlighted {
     background-image: url("right.svg");
@@ -83,7 +86,9 @@ Read as "The content row", distinct from whatever else that element might be.
 }
 
 .dialog-label,
-.dialog-value {
+.dialog_label,
+.dialog-value,
+.dialog_value {
 	text-align: right;
 	font-weight: normal;
 	vertical-align: middle;
@@ -91,7 +96,8 @@ Read as "The content row", distinct from whatever else that element might be.
 	white-space: nowrap;
 }
 
-.dialog-value {
+.dialog-value,
+.dialog_value {
 	text-align: left;
 }
 
@@ -125,12 +131,18 @@ Read as "The content row", distinct from whatever else that element might be.
     margin-right: 5px;
 }
 
-.help-button {
+.dialog-help {
     position: absolute;
     right: 30px;
     top: 5px;
     height: 20px;
     cursor: pointer;
+}
+
+.context-help {
+    vertical-align: middle;
+    height: 20px;
+    padding-left: 0.2em;
 }
 
 .help-dialog {
