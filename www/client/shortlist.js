@@ -89,15 +89,10 @@ var app = app || {}; // jshint ignore:line
     }
 
     function get_root_from_child (child) {
-        console.log('child:',child);
-        console.log('$child:',$(child));
-        console.trace();
         return $(child).parents('.shortlist_entry');
     }
 
     function get_layer_name_from_root (root) {
-        console.log('root:',root);
-        console.trace();
         return (root && root.length > 0) ? root.data('layer') : null;
     }
 
@@ -107,7 +102,7 @@ var app = app || {}; // jshint ignore:line
 
     function get_layer_name_from_child (child) {
         var $child = $(child);
-        if ($child.length > 0) {
+        if (!$child || $child.length > 0) {
             var root = get_root_from_child(child);
             if (root) {
                 var layer_name = get_layer_name_from_root(root);
@@ -324,8 +319,7 @@ var app = app || {}; // jshint ignore:line
     }
 
     function filter_control_changed (ev, layer_name_in) {
-        console.log("layername, ev:" ,layer_name_in,ev);
-        console.trace()
+
         // Functionality for turning filtering on and off
         var root,
             layer_name;
@@ -335,6 +329,13 @@ var app = app || {}; // jshint ignore:line
             // We are initializing from saved state
             layer_name = layer_name_in;
             root = get_root_from_layer_name(layer_name);
+            if (!root) {
+ 
+                // If the layer's DOM element does not exist yet,
+                // there is nothing to do.
+                console.log('cannot find the root DOM element of layer:', layer_name);
+                return;
+            }
  
         } else {
  
@@ -712,7 +713,6 @@ var app = app || {}; // jshint ignore:line
                 Session.set('active_layers', [layer_name]);
             }
         }
-        console.log('setting1 short:',shortlist);
         Session.set('shortlist', shortlist);
  
     }
@@ -997,7 +997,6 @@ var app = app || {}; // jshint ignore:line
                 var shortlist = _.map($shortlist.children(), function (el, i) {
                      return $(el).data("layer");
                 });
-                console.log('setting3 short:',shortlist);
                 Session.set('shortlist', shortlist);
             },
             // Use the controls area as the handle to move entries.
@@ -1041,7 +1040,7 @@ var app = app || {}; // jshint ignore:line
  
         // Handle the click of the primary button
         $shortlist.find('.primary').on('click', function (ev) {
-            var layer_name = get_layer_name_from_child($(ev.target)),
+            var layer_name = get_layer_name_from_child(ev.target),
                 active = copy_actives_state();
                 
                 
@@ -1070,7 +1069,7 @@ var app = app || {}; // jshint ignore:line
         // Handle the click of the secondary button
         $shortlist.find('.secondary').on('click', function (ev) {
             var active = copy_actives_state(),
-                layer_name = get_layer_name_from_child($(ev.target));
+                layer_name = get_layer_name_from_child(ev.target);
                 
             // If this layer is already secondary, remove it from secondary
             if (is_secondary(layer_name)) {
@@ -1114,9 +1113,9 @@ var app = app || {}; // jshint ignore:line
  
         // Handle the removal from the short list
         $shortlist.find('.remove').on('click', function(ev) {
-            var layer_name = get_layer_name_from_child($(ev.target).toString());
-
-            console.log("shortlist.js: layer_name:", layer_name,typeof(layer_name));
+            
+            var layer_name = get_layer_name_from_child(ev.target);
+ 
             // If this layer has a delete function, do that
             if (layers[layer_name].removeFx) {
                 layers[layer_name].removeFx(layer_name);
@@ -1171,18 +1170,14 @@ var app = app || {}; // jshint ignore:line
         $float_controls = $shortlist.find('.float');
  
         var shortlist = copy_shortlist_state();
-        console.log('shortlist before',shortlist,first);
-        // If the shortlist is empty add the 'first layer to it and
-        // initialize the active_layers.
+
         // Add the 'first layer' to the shortlist if it is empty
         if (shortlist.length < 1) {
             shortlist = [first];
-            console.log('setting2 short:',shortlist);
             Session.set('shortlist', shortlist);
         }
 
         // Add each layer in the shortlist to the UI
-        console.log("shortlist", shortlist);
         _.each(shortlist, function (layer_name) {
             var root = create_shortlist_entry(layer_name);
             $shortlist.append(root);
