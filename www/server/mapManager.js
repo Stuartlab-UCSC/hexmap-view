@@ -128,20 +128,18 @@ function make_layer_name_unique (new_layer_name,old_layer_names) {
     return name;
 }
 
-console.log(make_layer_name_unique("chrq",['chr','chrq']));
-
 function dropInLayerBox(layerData,user,toMapId){
     //looking for all layer data you would need.
     Fiber( function (){
-        console.log("given layer name" , layerData.layer_name);
+        console.log("Refelction: dropInLayerBox Called with user, layer_name" , user, layerData.layer_name);
         layerData.data = arrayLayer(layerData);
         var old_layer_names = [];
         _.each(LayerPostOffice.findOne({user:user,toMapId:toMapId}).layers, function(layer){
             old_layer_names.push(layer.layer_name);
         });
-        console.log("old layer names: ", old_layer_names);
+        //console.log("old layer names: ", old_layer_names);
         layerData.layer_name = make_layer_name_unique(layerData.layer_name,old_layer_names);
-        console.log("changed layer name" , layerData.layer_name);
+        //console.log("changed layer name" , layerData.layer_name);
         //console.log('dropInLayerBox is being called with user, toMapId, layername:',user, toMapId,layerData.layer_name);
 
         LayerPostOffice.update({user:user,toMapId:toMapId},{$set: {lastChange: 'inserted'}, $push: {layers : layerData}});
@@ -193,7 +191,7 @@ Meteor.methods({
 
     // For calling python functions from the client
     mapManager: function (operation, userId, mapId, toMapId, featOrSamp, nodeIds,selectionSelected) {
-        console.log(Meteor.userId());
+        //console.log(Meteor.userId());
         this.unblock();
         var future = new Future();
 

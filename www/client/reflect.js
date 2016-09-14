@@ -38,9 +38,9 @@ var app = app || {};
         //console.log('layers, new layers, doc layer names :', layers, new_layers, doc_layer_names);
 
         layer_post_office_receive_layers(new_layers);
-        console.trace();
-        console.log("layers from layers recived",layers);
-        console.log("new_layers from layers received" , new_layers);
+        //console.trace();
+        //console.log("layers from layers recived",layers);
+        //console.log("new_layers from layers received" , new_layers);
         //layer_post_office_receive_layers(layers);
 
         // Find any layers removed and remove them from the shortlist
@@ -65,7 +65,7 @@ var app = app || {};
              console.log('not ready to recieve layers, setting early_received_layers')
              early_received_layers = doc.layers;
              } else { */
-            console.log("reflect auto doc layers:", doc.layers);
+            //console.log("reflect auto doc layers:", doc.layers);
             layers_received(doc.layers);
             //}
         }
