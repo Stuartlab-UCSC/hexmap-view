@@ -38,6 +38,7 @@ CheckLayerBox = (function () {
             attributes.n         = layer.n;
             attributes.magnitude = layer.magnitude;
             attributes.removeFx  = remove_layer;
+            attributes.reflection = true
 
             // make Json out of parallel arrays, avoids '.' in mongoDB
             layer.data = JsonLayer(layer);
@@ -45,7 +46,7 @@ CheckLayerBox = (function () {
             // Create the colormap
             var colormap = layer.colormap;
             _.each(colormap,function(mapentry){
-                mapentry.color = Color(mapentry.color); //couldn't use the COlor() func on the server side
+                mapentry.color = Color(mapentry.color); //couldn't use the Color() func on the server side
                 mapentry.fileColor = Color(mapentry.fileColor);
             });
             
@@ -55,55 +56,40 @@ CheckLayerBox = (function () {
         })
     }
 
-    initLayerBox = function() {
-
-        // If no user is logged in, there is no layerBox doc for this
-        if (_.isUndefined(Meteor.user()) || _.isNull(Meteor.user())) return;
-
-        //variables needed for querry
-        mapId = ctx.project;
-        username = Meteor.user().username;
-
-        //Meteor.subscribe('makeBox',username,mapId);
-        //subscribe to LayerBox and stuff in shortlist when ready.
-
-        //first thing when it's ready is display on map
-        LayerBoxHandle = Meteor.subscribe('userLayerBox',username,mapId,
-            {
-                onReady: function () {
-
-                    //console.log('Subscription to Layerbox ready: Grabbing Doc');
-
-                    LayerBoxDoc = LayerPostOffice.findOne();
-
-                    //console.log(LayerBox);
-                    if (LayerBoxDoc) {
-                        receive_layers(LayerBoxDoc.layers);
-                    }
-                },
-                onError: function (error) { console.log("onError: subscribe to LayerBox",error); }
-            }
-        );
-
-        //now observe for any changes and display them
-        LayerBoxCurser = LayerPostOffice.find();
-        //console.log(LayerBoxCurser);
-        LayerBoxCurser.observeChanges({
-            //console.log('checkLayerBox: observing Layerbox');
-            changed: function (id, fields) {
-
-                //console.log('checkLayerBox: Users layerBox Doc updated: id, feilds:',id, fields);
-                //console.log(LayerPostOffice.findOne().lastChange)
-                if (LayerPostOffice.findOne().lastChange === 'inserted') {
-                    receive_layers(fields.layers);
-                    banner('info', 'You now have a new reflection in your short list')
-                }
-            }
-        })
-    };
-    
     return {
-        init: initLayerBox, // TODO: replace this with the actual routine
+ 
+        receive_layers: function (layers) {
+            //iterate through layers and place them in the shortlist
+            _.each(layers, function (layer){
+                var attributes = {};
+                attributes.selection = layer.selection;
+                attributes.n         = layer.n;
+                attributes.magnitude = layer.magnitude;
+                attributes.removeFx  = remove_layer;
+                attributes.reflection = true
+
+                // make Json out of parallel arrays, avoids '.' in mongoDB
+                layer.data = JsonLayer(layer);
+                
+                // Create the colormap
+                var colormap = layer.colormap;
+                _.each(colormap,function(mapentry){
+                    mapentry.color = Color(mapentry.color); //couldn't use the Color() func on the server side
+                    mapentry.fileColor = Color(mapentry.fileColor);
+                });
+                
+                // Add the layer to the global layers object and global colormaps
+                create_dynamic_category_layer(layer.layer_name, layer.data,
+                    attributes, colormap);
+            })
+        },
+
+        init: function() {
+            mapId = ctx.project;
+            username = Meteor.user().username;
+            Meteor.subscribe('userLayerBox', username, mapId);
+
+        },
     }
 }());
 })(app);

@@ -80,6 +80,7 @@ var app = app || {};
     }
 
     function is_filter_showing (layer_name) {
+        if(!layer_name){return false};
         return (session('filter_show', 'equals', layer_name.toString(), true));
     }
  
@@ -100,7 +101,22 @@ var app = app || {};
     }
  
     function get_layer_name_from_child (child) {
-        return get_layer_name_from_root(get_root_from_child(child));
+        var $child = $(child);
+        if (!$child || $child.length > 0) {
+            var root = get_root_from_child(child);
+            if (root) {
+                var layer_name = get_layer_name_from_root(root);
+                if (layer_name) {
+                    return layer_name;
+                } else {
+                    return null;
+                }
+            } else {
+                return null;
+            }
+        } else {
+            return null;
+        }
     }
 
     Template.shortlist.helpers({
@@ -125,10 +141,14 @@ var app = app || {};
         },
         secondary_icon_display: function () {
             var layer_name =
-                    get_layer_name_from_child('#shortlist .is_primary');
-            return (is_hovered(layer_name)
-                    && Session.get('active_layers').length < 2)
-                        ? 'none' : 'initial';
+                get_layer_name_from_child('#shortlist .is_primary');
+            if (layer_name) {
+                return (is_hovered(layer_name)
+                && Session.get('active_layers').length < 2)
+                    ? 'none' : 'initial';
+            } else {
+                return 'none';
+            }
         },
         is_primary_icon: function () {
             return icon.primary_hot;
@@ -309,6 +329,13 @@ var app = app || {};
             // We are initializing from saved state
             layer_name = layer_name_in;
             root = get_root_from_layer_name(layer_name);
+            if (!root) {
+ 
+                // If the layer's DOM element does not exist yet,
+                // there is nothing to do.
+                console.log('cannot find the root DOM element of layer:', layer_name);
+                return;
+            }
  
         } else {
  
@@ -636,6 +663,8 @@ var app = app || {};
             root = get_root_from_layer_name(layer_name);
  
         if (remove) {
+            if(shortlist.indexOf(layer_name)< 0) return;
+
             shortlist.splice(shortlist.indexOf(layer_name), 1);
             root.remove();
 
@@ -1011,7 +1040,7 @@ var app = app || {};
  
         // Handle the click of the primary button
         $shortlist.find('.primary').on('click', function (ev) {
-            var layer_name = get_layer_name_from_child($(ev.target)),
+            var layer_name = get_layer_name_from_child(ev.target),
                 active = copy_actives_state();
                 
                 
@@ -1040,7 +1069,7 @@ var app = app || {};
         // Handle the click of the secondary button
         $shortlist.find('.secondary').on('click', function (ev) {
             var active = copy_actives_state(),
-                layer_name = get_layer_name_from_child($(ev.target));
+                layer_name = get_layer_name_from_child(ev.target);
                 
             // If this layer is already secondary, remove it from secondary
             if (is_secondary(layer_name)) {
@@ -1084,8 +1113,8 @@ var app = app || {};
  
         // Handle the removal from the short list
         $shortlist.find('.remove').on('click', function(ev) {
-            var layer_name = get_layer_name_from_child($(ev.target));
-
+            var layer_name = get_layer_name_from_child(ev.target);
+ 
             // If this layer has a delete function, do that
             if (layers[layer_name].removeFx) {
                 layers[layer_name].removeFx(layer_name);
@@ -1140,9 +1169,7 @@ var app = app || {};
         $float_controls = $shortlist.find('.float');
  
         var shortlist = copy_shortlist_state();
-            
-        // If the shortlist is empty add the 'first layer to it and
-        // initialize the active_layers.
+
         // Add the 'first layer' to the shortlist if it is empty
         if (shortlist.length < 1) {
             shortlist = [first];

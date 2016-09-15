@@ -7,7 +7,6 @@ var app = app || {};
 Reflect = (function () {
 
     //'use strict';
-    Windows = new Mongo.Collection('Windows');
 
     var title = 'Reflect on Another Map',
         dialogHex,
@@ -21,8 +20,57 @@ Reflect = (function () {
         selectionList,
         lastUser,
         subscribedToMaps = false,
-        selectionSelected = ''; // option selected from the selection list
+        selectionSelected = '', // option selected from the selection list
+        last_layer_names = [], // list of layer names from the last update
+        early_received_layers = [], // layers received before we're ready
+        ready_to_receive_layers = false; // When we're ready to process received layers
+ 
+    function layers_received (layers) {
+        //console.log('layers recieved called with last layer_layer_names:',last_layer_names);
+        //console.trace()
+        // Find and handle new layers and removed layers
+ 
+        // Find any new layers and add them to the shortlist
+        var doc_layer_names = [];
+        var new_layers = _.filter(layers, function (layer) {
+            doc_layer_names.push(layer.layer_name);
+            return (last_layer_names.indexOf(layer.layer_name) < 0);
+        });
+        //console.log('layers, new layers, doc layer names :', layers, new_layers, doc_layer_names);
 
+        CheckLayerBox.receive_layers(new_layers);
+        //console.trace();
+        //console.log("layers from layers recived",layers);
+        //console.log("new_layers from layers received" , new_layers);
+        //layer_post_office_receive_layers(layers);
+
+        // Find any layers removed and remove them from the shortlist
+        _.each(last_layer_names, function (layer_name) {
+            if (doc_layer_names.indexOf(layer_name) < 0) {
+                update_shortlist(layer_name, true);
+            }
+        });
+
+        last_layer_names = doc_layer_names;
+    }
+
+    Tracker.autorun(function(){
+        var doc = LayerPostOffice.findOne({});
+        //console.trace();
+        //console.log('put in layers fired with doc:', doc);
+        //var doc ={};
+        //doc.layers = {};
+        if (doc) {
+            /*
+             if (!ready_to_receive_layers) { // this never runs now, I think
+             console.log('not ready to recieve layers, setting early_received_layers')
+             early_received_layers = doc.layers;
+             } else { */
+            //console.log("reflect auto doc layers:", doc.layers);
+            layers_received(doc.layers);
+            //}
+        }
+    });
     function show () {
 
         // Show the contents of the dialog, once per trigger button click
@@ -80,6 +128,7 @@ Reflect = (function () {
                                  nodeIds, selectionSelected, function (error,success) {
             if(error){
                 console.log('Mapmanager: Operation ' + operation + ' failed');
+                console.log(error);
             } else {
                 console.log('Mapmanager: Operation ' + operation + ' success');
             }
@@ -231,6 +280,18 @@ Reflect = (function () {
         // Save the map ID for cleaning up when it changes
         mapId = ctx.project;
     }
+ 
+    function initReceiveReflectionLayers () {
+ 
+        // Initialize for receiving reflected layers
+ 
+        // We cannot process the received layers until a few other things are
+        // initialized, so the layers are saved until we are ready to receive
+        if (early_received_layers) {
+            layers_received(early_received_layers);
+        }
+        ready_to_receive_layers = true;
+    }
 
 return { // Public methods
     init: function () {
@@ -239,6 +300,8 @@ return { // Public methods
         $dialog = $('#reflectDialog');
         Tracker.autorun(userChange);
         Tracker.autorun(layoutChange);
+ 
+        initReceiveReflectionLayers();
 
         // Define the dialog options & create an instance of DialogHex
         var opts = {
