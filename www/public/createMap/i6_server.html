@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Servers &mdash; Tumor Map Creation</title>
+    <title>Servers &#8212; Tumor Map Creation</title>
     
     <link rel="stylesheet" href="_static/agogo.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -55,7 +55,7 @@
 <h2>Log files<a class="headerlink" href="#log-files" title="Permalink to this headline">¶</a></h2>
 <p>The log files of the database and HTTP servers are below.
 Replace <em>HEXMAP</em> with your the installation directory:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">HEXMAP</span><span class="o">/</span><span class="n">db</span><span class="o">.</span><span class="n">log</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">HEXMAP</span><span class="o">/</span><span class="n">db</span><span class="o">.</span><span class="n">log</span>
 <span class="n">HEXMAP</span><span class="o">/</span><span class="n">www</span><span class="o">.</span><span class="n">log</span>
 </pre></div>
 </div>
@@ -64,7 +64,7 @@ Replace <em>HEXMAP</em> with your the installation directory:</p>
 <h2>Checking processes<a class="headerlink" href="#checking-processes" title="Permalink to this headline">¶</a></h2>
 <p>Check for running servers by searching for the port number in <em>ps</em> output.
 For example if the HTTP server runs on port 8113:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span>$ps -eaf | grep 8113
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ps -eaf | grep 8113
 hexmap      .../mongod --bind_ip 127.0.0.1 --port 28113 --dbpath .../hexmap/server/db
 hexmap      .../node  .../index.js --port 8113 --settings .../hexmap/server/settings.json
 $
@@ -77,8 +77,8 @@ the second process is the HTTP server.</p>
 <h2>Starting the servers<a class="headerlink" href="#starting-the-servers" title="Permalink to this headline">¶</a></h2>
 <p>The database server must be up before starting the HTTP server.
 Start the servers with the commands below:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span>nohup runDB
-nohup runWww
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">nohup</span> <span class="n">runDB</span>
+<span class="n">nohup</span> <span class="n">runWww</span>
 </pre></div>
 </div>
 </div>
@@ -102,7 +102,7 @@ nohup runWww
 <li class="toctree-l1"><a class="reference internal" href="i3_layoutInputFiles.html">Layout Input Files</a></li>
 <li class="toctree-l1"><a class="reference internal" href="i4_genLayoutAndStats.html">Generate Layout &amp; Statistics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="i5_viewer.html">Viewer Input Files</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="">Servers</a><ul>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Servers</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#log-files">Log files</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#checking-processes">Checking processes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#starting-the-servers">Starting the servers</a></li>
@@ -119,9 +119,6 @@ nohup runWww
                 <input type="hidden" name="check_keywords" value="yes" />
                 <input type="hidden" name="area" value="default" />
             </form>
-            <p class="searchtip" style="font-size: 90%">
-                Enter search terms or a module, class or function name.
-            </p>
           </div>
         </div>
         <div class="clearer"></div>
@@ -147,8 +144,8 @@ nohup runWww
         <div class="right">
           
     <div class="footer" role="contentinfo">
-        &copy; Copyright 2016, UCSC Tumor Map development team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.5.
+        &#169; Copyright 2016, UCSC Tumor Map development team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.6.
     </div>
         </div>
         <div class="clearer"></div>

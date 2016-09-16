@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Map Manager &mdash; Tumor Map Developer Documentation</title>
+    <title>Map Manager &#8212; Tumor Map Developer Documentation</title>
     
     <link rel="stylesheet" href="_static/agogo.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -68,35 +68,35 @@ map onto a gene map.</p>
 <h2>#1 syncMapRequest<a class="headerlink" href="#syncmaprequest" title="Permalink to this headline">¶</a></h2>
 <p>A request to sync from a source map to a target map, sent to the map manager
 from the source map via http:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span>{
-   &quot;map&quot;: &quot;CKCC/v1&quot;,
-   &quot;layout&quot;: &quot;mRNA&quot;,
-   &quot;fromMapType&quot;: &quot;tumorMap&quot;,
-   &quot;toMapType&quot;: &quot;geneMap&quot;,
-   &quot;selection&quot;: &quot;Kidney&quot;,
-   &quot;nodes&#39;: [
-       &quot;mySample1&quot;,
-       &quot;mySample2&quot;,
-       ...
-   ]
-}
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span>
+   <span class="s2">&quot;map&quot;</span><span class="p">:</span> <span class="s2">&quot;CKCC/v1&quot;</span><span class="p">,</span>
+   <span class="s2">&quot;layout&quot;</span><span class="p">:</span> <span class="s2">&quot;mRNA&quot;</span><span class="p">,</span>
+   <span class="s2">&quot;fromMapType&quot;</span><span class="p">:</span> <span class="s2">&quot;tumorMap&quot;</span><span class="p">,</span>
+   <span class="s2">&quot;toMapType&quot;</span><span class="p">:</span> <span class="s2">&quot;geneMap&quot;</span><span class="p">,</span>
+   <span class="s2">&quot;selection&quot;</span><span class="p">:</span> <span class="s2">&quot;Kidney&quot;</span><span class="p">,</span>
+   <span class="s2">&quot;nodes&#39;: [</span>
+       <span class="s2">&quot;mySample1&quot;</span><span class="p">,</span>
+       <span class="s2">&quot;mySample2&quot;</span><span class="p">,</span>
+       <span class="o">...</span>
+   <span class="p">]</span>
+<span class="p">}</span>
 </pre></div>
 </div>
 </div>
 <div class="section" id="syncmapquery">
 <h2>#2 syncMapQuery<a class="headerlink" href="#syncmapquery" title="Permalink to this headline">¶</a></h2>
 <p>A query of the database from the map manager to the DB:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span>{
-   &quot;map&quot;: &quot;CKCC/v1&quot;,
-   &quot;layout&quot;: &quot;mRNA&quot;,
-   &quot;fromMapType&quot;: &quot;tumorMap&quot;,
-   &quot;toMapType&quot;: &quot;geneMap&quot;,
-   &quot;nodes&#39;: [
-       &quot;mySample1&quot;,
-       &quot;mySample2&quot;,
-       ...
-   ]
-}
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span>
+   <span class="s2">&quot;map&quot;</span><span class="p">:</span> <span class="s2">&quot;CKCC/v1&quot;</span><span class="p">,</span>
+   <span class="s2">&quot;layout&quot;</span><span class="p">:</span> <span class="s2">&quot;mRNA&quot;</span><span class="p">,</span>
+   <span class="s2">&quot;fromMapType&quot;</span><span class="p">:</span> <span class="s2">&quot;tumorMap&quot;</span><span class="p">,</span>
+   <span class="s2">&quot;toMapType&quot;</span><span class="p">:</span> <span class="s2">&quot;geneMap&quot;</span><span class="p">,</span>
+   <span class="s2">&quot;nodes&#39;: [</span>
+       <span class="s2">&quot;mySample1&quot;</span><span class="p">,</span>
+       <span class="s2">&quot;mySample2&quot;</span><span class="p">,</span>
+       <span class="o">...</span>
+   <span class="p">]</span>
+<span class="p">}</span>
 </pre></div>
 </div>
 </div>
@@ -105,19 +105,19 @@ from the source map via http:</p>
 <p>The query response from the database to the map manager, where the values are
 one for each source node ID. (Is that right, or does the translator need all of
 the source node values?):</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span>{
-   &quot;gene1&quot;: [
-       &quot;value&quot;,
-       &quot;value&quot;,
-       ...
-   ],
-   &quot;gene2&quot; [
-       &quot;value&quot;,
-       &quot;value&quot;,
-       ...
-   ],
-   ...
-}
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span>
+   <span class="s2">&quot;gene1&quot;</span><span class="p">:</span> <span class="p">[</span>
+       <span class="s2">&quot;value&quot;</span><span class="p">,</span>
+       <span class="s2">&quot;value&quot;</span><span class="p">,</span>
+       <span class="o">...</span>
+   <span class="p">],</span>
+   <span class="s2">&quot;gene2&quot;</span> <span class="p">[</span>
+       <span class="s2">&quot;value&quot;</span><span class="p">,</span>
+       <span class="s2">&quot;value&quot;</span><span class="p">,</span>
+       <span class="o">...</span>
+   <span class="p">],</span>
+   <span class="o">...</span>
+<span class="p">}</span>
 </pre></div>
 </div>
 <ul class="simple">
@@ -129,23 +129,23 @@ the source node values?):</p>
 <p>The data going from the map manager to the translator will contain the to and
 from map types along with the node information from the above API,
 syncMapQueryReply:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span>{
-   &quot;fromMapType&quot;: &quot;tumorMap&quot;,
-   &quot;toMapType&quot;: &quot;geneMap&quot;,
-   &quot;nodes&quot;: {
-       &quot;gene1&quot;: [
-           &quot;value&quot;,
-           &quot;value&quot;,
-           ...
-       ],
-       &quot;gene2&quot; [
-           &quot;value&quot;,
-           &quot;value&quot;,
-           ...
-       ],
-       ...
-   }
-}
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span>
+   <span class="s2">&quot;fromMapType&quot;</span><span class="p">:</span> <span class="s2">&quot;tumorMap&quot;</span><span class="p">,</span>
+   <span class="s2">&quot;toMapType&quot;</span><span class="p">:</span> <span class="s2">&quot;geneMap&quot;</span><span class="p">,</span>
+   <span class="s2">&quot;nodes&quot;</span><span class="p">:</span> <span class="p">{</span>
+       <span class="s2">&quot;gene1&quot;</span><span class="p">:</span> <span class="p">[</span>
+           <span class="s2">&quot;value&quot;</span><span class="p">,</span>
+           <span class="s2">&quot;value&quot;</span><span class="p">,</span>
+           <span class="o">...</span>
+       <span class="p">],</span>
+       <span class="s2">&quot;gene2&quot;</span> <span class="p">[</span>
+           <span class="s2">&quot;value&quot;</span><span class="p">,</span>
+           <span class="s2">&quot;value&quot;</span><span class="p">,</span>
+           <span class="o">...</span>
+       <span class="p">],</span>
+       <span class="o">...</span>
+   <span class="p">}</span>
+<span class="p">}</span>
 </pre></div>
 </div>
 </div>
@@ -153,11 +153,11 @@ syncMapQueryReply:</p>
 <h2>#5 syncMapTranslateReply<a class="headerlink" href="#syncmaptranslatereply" title="Permalink to this headline">¶</a></h2>
 <p>The data returned from the translator to the map manager will be a dictionary
 of node names and values:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span>{
-   &quot;gene1&quot;: &quot;value&quot;,
-   &quot;gene2&quot;: &quot;value&quot;,
-   ...
-}
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span>
+   <span class="s2">&quot;gene1&quot;</span><span class="p">:</span> <span class="s2">&quot;value&quot;</span><span class="p">,</span>
+   <span class="s2">&quot;gene2&quot;</span><span class="p">:</span> <span class="s2">&quot;value&quot;</span><span class="p">,</span>
+   <span class="o">...</span>
+<span class="p">}</span>
 </pre></div>
 </div>
 </div>
@@ -165,14 +165,14 @@ of node names and values:</p>
 <h2>#6 syncMapPush<a class="headerlink" href="#syncmappush" title="Permalink to this headline">¶</a></h2>
 <p>The request sent to the target map from the map manager. This will be displayed
 on the UI as a generated attribute:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span>{
-   &quot;layer&quot;: &quot;Kidney&quot;,
-   &quot;nodes&quot;: {
-       &quot;gene1&quot;: &quot;value&quot;,
-       &quot;gene2&quot;: &quot;value&quot;,
-       ...
-   }
-}
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span>
+   <span class="s2">&quot;layer&quot;</span><span class="p">:</span> <span class="s2">&quot;Kidney&quot;</span><span class="p">,</span>
+   <span class="s2">&quot;nodes&quot;</span><span class="p">:</span> <span class="p">{</span>
+       <span class="s2">&quot;gene1&quot;</span><span class="p">:</span> <span class="s2">&quot;value&quot;</span><span class="p">,</span>
+       <span class="s2">&quot;gene2&quot;</span><span class="p">:</span> <span class="s2">&quot;value&quot;</span><span class="p">,</span>
+       <span class="o">...</span>
+   <span class="p">}</span>
+<span class="p">}</span>
 </pre></div>
 </div>
 </div>
@@ -188,7 +188,7 @@ on the UI as a generated attribute:</p>
           <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="pythonApi.html">Python API, internal</a></li>
 <li class="toctree-l1"><a class="reference internal" href="queryApi.html">Query API</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="">Map Manager</a><ul>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Map Manager</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#syncmaprequest">#1 syncMapRequest</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#syncmapquery">#2 syncMapQuery</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#syncmapqueryreply">#3 syncMapQueryReply</a></li>
@@ -215,9 +215,6 @@ on the UI as a generated attribute:</p>
                 <input type="hidden" name="check_keywords" value="yes" />
                 <input type="hidden" name="area" value="default" />
             </form>
-            <p class="searchtip" style="font-size: 90%">
-                Enter search terms or a module, class or function name.
-            </p>
           </div>
         </div>
         <div class="clearer"></div>
@@ -245,8 +242,8 @@ on the UI as a generated attribute:</p>
         <div class="right">
           
     <div class="footer" role="contentinfo">
-        &copy; Copyright 2016, UCSC Tumor Map development team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.5.
+        &#169; Copyright 2016, UCSC Tumor Map development team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.6.
     </div>
         </div>
         <div class="clearer"></div>

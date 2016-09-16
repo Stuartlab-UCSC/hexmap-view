@@ -1,20 +1,34 @@
 <template name='create_map_t'>
-    <form id="createMapDialog" style='display:none'>
+    <form id="create_map_dialog" style='display:none'>
         <table>
-            {{> feature_file_t }}
-            {{> attribute_file_t }}
-            <tr>
+            <tr style='display:none'>
                 <td class='dialog_label'>
-                    Layout method:
+                    Layout Feature Format:
                 </td>
                 <td colspan=2 class='dialog_value'>
-                    <span class='method_anchor' style='width:14em'></span>
-                    <a href='/help/createMap.html#layout-methods' target='_blank'>
-                        <img class='context-help' src='/icons/question-sign.svg'>
+                    <span class='format_anchor' style='width:15em'></span>
+                    <a href='/help/createMap.html#feature-formats' target='_blank'>
+                        <img class='context-help' src='/icons/question.png'>
                     </a>
                 </td>
             </tr>
             <tr>
+                <td class='dialog_label'>
+                    Layout features:
+                </td>
+                <td colspan=2 class='dialog_value'>
+                    <input class='feature file' type='file'>
+                </td>
+            </tr>
+            <tr>
+                <td class='dialog_label'>
+                    Optional color attributes:
+                </td>
+                <td colspan=2 class='dialog_value'>
+                    <input class='attribute file' type='file'>
+                </td>
+            </tr>
+            <tr style='display:none'>
                 <td class='dialog-label' style='vertical-align:top'>
                     Statistics:
                 </td>
@@ -26,24 +40,36 @@
                     <label for="precompute">Precompute (longer run time)</label><br/>
                 </td>
             </tr>
-            <tr style='display:none'>
-                <td class='dialog_value' colspan=2>
-                    <hr style='border-color:#eee'>
-                </td>
-            </tr>
-            <tr style='display:none'>
+            <tr>
                 <td class='dialog_value' colspan=2 style='font-size:0.8em'>
                     <a class='advanced_trigger' href='#'>
                         {{ advanced_label }}
                     </a>
-                    <img class='question_sign' src='/icons/question-sign.svg' style='height:16px'>
                 </td>
             </tr>
         </table>
-        <table style='display:none'>
+        
+        <!-- Advanced -->
+        <table class='advanced' style='display:{{ advanced_display }}'>
+            <tr>
+                <td class='dialog_label'>
+                    Layout method:
+                </td>
+                <td colspan=2 class='dialog_value'>
+                    <span class='method_anchor' style='width:14em'></span>
+                    <a href='/help/createMap.html#layout-methods' target='_blank'>
+                        <img class='context-help' src='/icons/question.png'>
+                    </a>
+                </td>
+            </tr>
             <tr>
                 <td class='dialog_label' style='vertical-align:top'>
-                    Handle as integer values<br>rather than categories:
+                    Special color attributes:
+                </td>
+            </tr>
+            <tr>
+                <td class='dialog_label' style='vertical-align:top'>
+                    Handle as integer<br>rather than categories:
                 </td>
                 <td class='dialog_value' colspan=2>
                     <textarea class='cont_int' rows='3'>
@@ -52,7 +78,7 @@
             </tr>
             <tr>
                 <td class='dialog_label' style='vertical-align:top'>
-                    Handle as 2 category values<br>rather than binary values:
+                    Handle as 2 categories<br>rather than binary:
                 </td>
                 <td class='dialog_value' colspan=2>
                     <textarea class='two_val_cat' rows='3'>
@@ -61,62 +87,4 @@
             </tr>
         </table>
     </form>
-</template>
-
-<template name='feature_file_t'>
-    <tr>
-        <td class='dialog_label'>
-            Feature format:
-        </td>
-        <td colspan=2 class='dialog_value'>
-            <span class='format_anchor' style='width:15em'></span>
-            <a href='/help/createMap.html#feature-formats' target='_blank'>
-                <img class='context-help' src='/icons/question-sign.svg'>
-            </a>
-        </td>
-    </tr>
-    <tr>
-        <td class='dialog_label'>
-            Feature data:
-        </td>
-        <td colspan=2 class='dialog_value'>
-            <input class='feature file' type='file'>
-        </td>
-    </tr>
-</template>
-    
-<template name='attribute_file_t'>
-    <tr>
-        <td class='dialog_label'>
-            Attributes:
-        </td>
-        <td colspan=2 class='dialog_value'>
-            <input class='attribute file' type='file'>
-        </td>
-    </tr>
-<!--
-    <tr class='inlineMessage'>
-        <td class='filename dialog_value' colspan=4 style='padding-top:1em'>
-            Upload a tab-separated file with attribute names<br>across the top and node IDs in the first column, like:
-        </td>
-    </tr>
-    <tr class='inlineMessage'>
-        <td>ID</td>
-        <td>Subtype</td>
-        <td>TP53_mutation&nbsp;&nbsp;&nbsp;...</td>
-    </tr>
-    <tr class='inlineMessage'>
-        <td>node1</td>
-        <td>LumB</td>
-        <td>0</td>
-    </tr>
-    <tr class='inlineMessage'>
-        <td>node2</td>
-        <td>Basal</td>
-        <td>1</td>
-    </tr>
-    <tr class='inlineMessage'>
-        <td>...</td>
-    </tr>
--->
 </template>

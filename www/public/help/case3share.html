@@ -1,0 +1,177 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Which samples share a particular genomic alteration? &#8212; Tumor Map Help</title>
+    
+    <link rel="stylesheet" href="_static/agogo.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Tumor Map Help" href="index.html" />
+    <link rel="up" title="Get Started" href="getStarted.html" />
+    <link rel="next" title="Basic Controls" href="basicControls.html" />
+    <link rel="prev" title="How are colors customized and an image downloaded?" href="case2colors.html" /> 
+  </head>
+  <body role="document">
+    <div class="header-wrapper" role="banner">
+      <div class="header">
+        <div class="headertitle"><a
+          href="index.html">Tumor Map Help</a></div>
+        <div class="rel" role="navigation" aria-label="related navigation">
+          <a href="case2colors.html" title="How are colors customized and an image downloaded?"
+             accesskey="P">previous</a> |
+          <a href="basicControls.html" title="Basic Controls"
+             accesskey="N">next</a> |
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a>
+        </div>
+       </div>
+    </div>
+
+    <div class="content-wrapper">
+      <div class="content">
+        <div class="document">
+            
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="which-samples-share-a-particular-genomic-alteration">
+<h1>Which samples share a particular genomic alteration?<a class="headerlink" href="#which-samples-share-a-particular-genomic-alteration" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="objective">
+<h2>Objective<a class="headerlink" href="#objective" title="Permalink to this headline">¶</a></h2>
+<p>View all of the samples that share a particular genomic alteration of interest (e.g. TP53 mutation).</p>
+</div>
+<div class="section" id="skills-covered">
+<h2>Skills Covered<a class="headerlink" href="#skills-covered" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Familiarity with the attribute drop down list</li>
+<li>Familiarity with using the <em>Short List</em> of user selected/defined attributes.</li>
+<li>Set Operation to create a new attribute derived from existing attributes.</li>
+<li>Exporting a list of sample identifiers into a downloadable file.</li>
+</ul>
+</div>
+<div class="section" id="steps">
+<h2>Steps<a class="headerlink" href="#steps" title="Permalink to this headline">¶</a></h2>
+<ol class="arabic simple">
+<li>Get started with selecting samples on a Tumor Map. The Tumor Map UI provides users with a <em>Select Attributes</em> drop down that contains full list of sample annotations and attributes (<em>long list</em>) from which to choose attributes of interest, and a <em>Short List</em> that allows users more fine-tuned control of map operations.</li>
+<li>In this tutorial we will go through how to select attributes of interest, and then perform an intersection set operation to create a new custom attribute. Let’s say we are interested in viewing breast cancer samples that also have TP53 mutations, and then downloading a list of their sample IDs.</li>
+</ol>
+<a class="reference internal image-reference" href="_images/caseShare-1.png"><img alt="_images/caseShare-1.png" src="_images/caseShare-1.png" style="width: 750px;" /></a>
+<ol class="arabic" start="3">
+<li><dl class="first docutils">
+<dt>In the <em>Select Attributes</em> drop down select <em>Tissue</em> and <em>TP53_MUTATION</em> attributes by typing in the beginning of the attribute name and clicking on the appropriate option in the list. This will copy the Tissue and TP53_MUTATION attributes from the <em>long</em> to the <em>Short List</em></dt>
+<dd><p class="first last">NOTE: The tissue attribute might already be in the <em>Short List</em> as the default.</p>
+</dd>
+</dl>
+</li>
+<li><p class="first">In <em>Select Attributes</em> select <em>BRCA Subtype</em> by typing in the beginning of the attribute name and clicking on the appropriate selection in the list.</p>
+</li>
+</ol>
+<a class="reference internal image-reference" href="_images/caseShare-2.png"><img alt="_images/caseShare-2.png" src="_images/caseShare-2.png" style="width: 275px;" /></a>
+<ol class="arabic simple" start="5">
+<li>Click on the <em>Set Operation</em> button. Its placement is shown in the graphic at the top of this page.</li>
+<li>In the popup window select <em>Intersection</em> for the desired set operation and select <em>TP53_MUTATION</em> as the first attribute and <em>Tissue</em> as the second attribute. Next to <em>TP53_MUTATION</em> click on the <em>value</em> drop down and click on <em>1</em>. Next to <em>Tissue</em> select the value <em>BRCA</em>; click on the <em>Compute Set Operation</em> button.</li>
+</ol>
+<a class="reference internal image-reference" href="_images/caseShare-3.png"><img alt="_images/caseShare-3.png" src="_images/caseShare-3.png" style="width: 400px;" /></a>
+<ol class="arabic simple" start="7">
+<li>Enter the desired name of this new custom group of samples (e.g. TP53_BRCA)</li>
+<li>Observe that the new group appears as a custom attribute in the <em>Short List</em></li>
+<li>In the <em>Short List</em>, if <em>TP53_BRCA</em> does not have a <a class="reference internal" href="https://tumormap.ucsc.edu/icons/primary-hot.png"><img alt="primary-hot" src="https://tumormap.ucsc.edu/icons/primary-hot.png" style="width: 20px;" /></a>, click on the <a class="reference internal" href="https://tumormap.ucsc.edu/icons/primary.png"><img alt="primary" src="https://tumormap.ucsc.edu/icons/primary.png" style="width: 20px;" /></a> to select it for color display</li>
+</ol>
+<ol class="arabic simple" start="10">
+<li>Observe that the TP53 BRCA mutants are highlighted in the map</li>
+</ol>
+<a class="reference internal image-reference" href="_images/caseShare-4.png"><img alt="_images/caseShare-4.png" src="_images/caseShare-4.png" style="width: 400px;" /></a>
+<ol class="arabic simple" start="11">
+<li>Go to the <em>File</em> menu, then <em>Download</em> and click on <em>Node IDs</em></li>
+<li>In the popup window make sure that <em>TP53_BRCA</em> is selected</li>
+<li>Save this group to a local file using the browser’s file download functionality</li>
+</ol>
+<p>NOTE: You can just copy the sample IDs to the local computer memory by clicking into the box that contains the IDs to highlight them and then right-click and select <em>Copy</em></p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+        </div>
+        <div class="sidebar">
+          <h3>Table Of Contents</h3>
+          <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="getStarted.html">Get Started</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="case1pancan12.html">How do I view the Pancan12 Tumor Map?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="case2colors.html">How are colors customized and an image downloaded?</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Which samples share a particular genomic alteration?</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="basicControls.html">Basic Controls</a></li>
+<li class="toctree-l1"><a class="reference internal" href="menus.html">Menus</a></li>
+<li class="toctree-l1"><a class="reference internal" href="advancedControls.html">Advanced Controls</a></li>
+<li class="toctree-l1"><a class="reference internal" href="existingMaps.html">Existing Maps</a></li>
+</ul>
+
+          <div role="search">
+            <h3 style="margin-top: 1.5em;">Search</h3>
+            <form class="search" action="search.html" method="get">
+                <input type="text" name="q" />
+                <input type="submit" value="Go" />
+                <input type="hidden" name="check_keywords" value="yes" />
+                <input type="hidden" name="area" value="default" />
+            </form>
+          </div>
+        </div>
+        <div class="clearer"></div>
+      </div>
+    </div>
+
+    <div class="footer-wrapper">
+      <div class="footer">
+        <div class="left">
+          <div role="navigation" aria-label="related navigaton">
+            <a href="case2colors.html" title="How are colors customized and an image downloaded?"
+              >previous</a> |
+            <a href="basicControls.html" title="Basic Controls"
+              >next</a> |
+            <a href="genindex.html" title="General Index"
+              >index</a>
+          </div>
+          <div role="note" aria-label="source link">
+              <br/>
+              <a href="_sources/case3share.txt"
+                rel="nofollow">Show Source</a>
+          </div>
+        </div>
+
+        <div class="right">
+          
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2016, UCSC Tumor Map development team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.6.
+    </div>
+        </div>
+        <div class="clearer"></div>
+      </div>
+    </div>
+
+  </body>
+</html>

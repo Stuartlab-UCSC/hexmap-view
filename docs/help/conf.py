@@ -96,6 +96,11 @@ pygments_style = 'sphinx'
 # If true, keep warnings as "system message" paragraphs in the built documents.
 #keep_warnings = False
 
+# warning types to suppress
+suppress_warnings = [
+    'image.nonlocal_uri',
+    'image.data_uri',
+]
 
 # -- Options for HTML output ----------------------------------------------
 
@@ -287,3 +292,4 @@ texinfo_documents = [
 
 # If true, do not generate a @detailmenu in the "Top" node's menu.
 #texinfo_no_detailmenu = False
+

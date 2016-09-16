@@ -6,34 +6,37 @@ var app = app || {};
 (function (hex) {
     //'use strict';
 
-    var showAdvanced = 'Show advanced attribute types...',
-        hideAdvanced = 'Hide advanced attribute types',
-        title = 'Create a New Map with Your Data',
+    var show_advanced = 'Advanced options...',
+        hide_advanced = 'Hide advanced options',
+        title = 'Create a New Map',
         dialogHex,
         $dialog,
-        methodSelected,
         //methodList,
         formats = ['Feature matrix', 'Similarity full matrix', 'Similarity sparse matrix', 'Node XY positions'],
         default_format = 'Feature matrix',
         methods = ['DrL', 'tSNE', 'MDS', 'PCA', 'ICA', 'isomap', 'spectral embedding'],
-        defaultMethod = methods[0],
         advanced_label = new ReactiveVar();
  
-/*
-    Template.create_map_t_.helpers({
+    Template.create_map_t.helpers({
+        dynamic: function () {
+            return !(Session.get('create_map_stats_precompute'));
+        },
+        precompute: function () {
+            return Session.get('create_map_stats_precompute');
+        },
         advanced_label: function () {
-            return Session.get('createMapAdvanced') ;
+            return Session.get('create_map_show_advanced')
+                ? hide_advanced : show_advanced;
         },
         advanced_display: function () {
-            if (Session.get('createMapAdvanced') === showAdvanced) {
-                return 'none';
-            } else {
+            if (Session.get('create_map_show_advanced')) {
                 return 'table';
+            } else {
+                return 'none';
             }
-            return Session.get('nodeCount');
         },
     });
-*/
+
     function show () {
  
         // Show the contents of the dialog, once per trigger button click
@@ -43,7 +46,7 @@ var app = app || {};
         formats.forEach(function (format){
             data.push({id: format, text: format});
         });
-        var $format_anchor = $('#createMapDialog .format_anchor');
+        var $format_anchor = $('#create_map_dialog .format_anchor');
         createOurSelect2($format_anchor, {data: data}, default_format);
         $format_anchor.show();
 
@@ -57,25 +60,21 @@ var app = app || {};
         methods.forEach(function (method){
             data.push({id: method, text: method});
         });
-        var $method_anchor = $('#createMapDialog .method_anchor');
-        createOurSelect2($method_anchor, {data: data}, defaultMethod);
+        var $method_anchor = $('#create_map_dialog .method_anchor');
+        createOurSelect2($method_anchor, {data: data}, Session.get('create_map_method'));
         $method_anchor.show();
 
         // Define the event handler for the method list
         $method_anchor.on('change', function (ev) {
-            methodSelected = ev.target.value;
+            Session.set('create_map_method', ev.target.value);
         });
  
-/*
         // Define event handler for advanced link click
-        $('#createMapDialog .advanced_trigger').on('click', function () {
-            if (Session.equals('createMapAdvanced', showAdvanced)) {
-                Session.set('createMapAdvanced', hideAdvanced);
-            } else {
-                Session.set('createMapAdvanced', showAdvanced);
-            }
+        console.log("$('#create_map_dialog .advanced_trigger')", $('#create_map_dialog .advanced_trigger'));
+        $('#create_map_dialog .advanced_trigger').on('click', function () {
+            Session.set('create_map_show_advanced',
+                !Session.get('create_map_show_advanced'));
         })
-*/
     }
 
     function createIt () {
@@ -90,7 +89,6 @@ var app = app || {};
     function hide() {
  
         // TODO
-        //methodSelected = methodList.selected;
         //methodList.destroy();
         //methodList = undefined;
         dialogHex.hide();
@@ -98,7 +96,7 @@ var app = app || {};
 
     initCreateMap = function () {
  
-        $dialog = $('#createMapDialog');
+        $dialog = $('#create_map_dialog');
         var $button = $('#navBar createMap');
  
         // Define the dialog options & create an instance of DialogHex
@@ -109,15 +107,12 @@ var app = app || {};
         dialogHex = createDialogHex(undefined, $button, $dialog, opts, show,
             hide, true, 'help/createMap.html');
  
-            //'help/createMap.html#feature-file-formats');
+        Session.set('create_map_show_advanced', false);
  
         // Listen for the menu clicked
         add_tool("createMap", function() {
             dialogHex.show();
         }, 'Create a new map');
- 
-        // Initialize some variables
-        Session.set('createMapAdvanced', showAdvanced);
  
         // Enable/Disable the menu option whenever the username changes,
         // including log out.

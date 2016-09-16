@@ -83,12 +83,20 @@ CheckLayerBox = (function () {
                     attributes, colormap);
             })
         },
+        
+        
 
         init: function() {
             mapId = ctx.project;
-            username = Meteor.user().username;
-            Meteor.subscribe('userLayerBox', username, mapId);
-
+            
+            // Subscribe if we have a user
+            // TODO do we need to unsubcribe the old user to free memory?
+            Meteor.autorun(function() {
+                var user = Meteor.user();
+                if (user) {
+                    Meteor.subscribe('userLayerBox', user.username, mapId);
+                }
+            });
         },
     }
 }());

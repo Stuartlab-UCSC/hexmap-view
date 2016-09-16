@@ -9,6 +9,9 @@ pre, xmp, plaintext, listing,
 div.sidebar li.toctree-l1 a {
     color: #05366B; /* ucsc pages blue font */
 }
+h3 {
+    font-size: 1.3em;
+}
 
 div.sidebar li.toctree-l1 a, input,
 textarea, keygen, select, button {
@@ -23,7 +26,7 @@ div.header .headertitle a,
 div.header div.rel a,
 body div.header div.rel,
 div.footer, div.footer a {
-    color: #f5f4eb, /* ucsc pages tan; */
+    color: #f5f4eb, /* genomics institute pages tan; */
 }
 
 div.content-wrapper {
@@ -33,6 +36,10 @@ div.content-wrapper {
 div.document div.highlight {
     border: none;
     background-color: transparent;
+}
+
+body {
+    overflow-x: hidden;
 }
 
 div.header-wrapper,

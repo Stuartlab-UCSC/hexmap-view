@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Requirements &amp; Installation &mdash; Tumor Map Developer Documentation</title>
+    <title>Requirements &amp; Installation &#8212; Tumor Map Developer Documentation</title>
     
     <link rel="stylesheet" href="_static/agogo.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -57,43 +57,43 @@
 <div class="section" id="required-libraries">
 <h2>Required libraries<a class="headerlink" href="#required-libraries" title="Permalink to this headline">¶</a></h2>
 <p><strong>Python and modules</strong></p>
-<div class="highlight-python"><div class="highlight"><pre><span></span>Python 2.7.10
-...
-&gt;&gt;&gt; import statsmodels
-&gt;&gt;&gt; statsmodels.__version__
-&#39;0.6.1&#39;
-&gt;&gt;&gt; import numpy
-&gt;&gt;&gt; numpy.__version__
-&#39;1.10.4&#39;
-&gt;&gt;&gt; import scipy
-&gt;&gt;&gt; scipy.__version__
-&#39;0.17.0&#39;
-&gt;&gt;&gt; import sklearn
-&gt;&gt;&gt; sklearn.__version__
-&#39;0.17.1&#39;
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">Python</span> <span class="mf">2.7</span><span class="o">.</span><span class="mi">10</span>
+<span class="o">...</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">statsmodels</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">statsmodels</span><span class="o">.</span><span class="n">__version__</span>
+<span class="s1">&#39;0.6.1&#39;</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">numpy</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">numpy</span><span class="o">.</span><span class="n">__version__</span>
+<span class="s1">&#39;1.10.4&#39;</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">scipy</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">scipy</span><span class="o">.</span><span class="n">__version__</span>
+<span class="s1">&#39;0.17.0&#39;</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">sklearn</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">sklearn</span><span class="o">.</span><span class="n">__version__</span>
+<span class="s1">&#39;0.17.1&#39;</span>
 </pre></div>
 </div>
 <p>Miniconda was used to install these versions.</p>
 <p><a class="reference external" href="http://conda.pydata.org/docs/install/quick.html">http://conda.pydata.org/docs/install/quick.html</a></p>
 <p>Use this form of the conda command to install the specific versions of packages
 listed above:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span>conda install numpy=1.10.4 scipy=0.17.0 statsmodels=0.6.1 scikit-learn=0.17.1
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">install</span> <span class="n">numpy</span><span class="o">=</span><span class="mf">1.10</span><span class="o">.</span><span class="mi">4</span> <span class="n">scipy</span><span class="o">=</span><span class="mf">0.17</span><span class="o">.</span><span class="mi">0</span> <span class="n">statsmodels</span><span class="o">=</span><span class="mf">0.6</span><span class="o">.</span><span class="mi">1</span> <span class="n">scikit</span><span class="o">-</span><span class="n">learn</span><span class="o">=</span><span class="mf">0.17</span><span class="o">.</span><span class="mi">1</span>
 </pre></div>
 </div>
 <p><strong>DrL graph layout [1]</strong></p>
 <p>Install:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span>wget https://bitbucket.org/adam_novak/drl-graph-layout/get/c41341de8058.zip
-#alternatively:
-    curl https://bitbucket.org/adam_novak/drl-graph-layout/get/c41341de8058.zip &gt; c41341de8058.zip
-unzip c41341de8058.zip
-cd adam*/src
-cp Configuration.gnu Configuration.mk
-make
-ls ../bin
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">wget</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">bitbucket</span><span class="o">.</span><span class="n">org</span><span class="o">/</span><span class="n">adam_novak</span><span class="o">/</span><span class="n">drl</span><span class="o">-</span><span class="n">graph</span><span class="o">-</span><span class="n">layout</span><span class="o">/</span><span class="n">get</span><span class="o">/</span><span class="n">c41341de8058</span><span class="o">.</span><span class="n">zip</span>
+<span class="c1">#alternatively:</span>
+    <span class="n">curl</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">bitbucket</span><span class="o">.</span><span class="n">org</span><span class="o">/</span><span class="n">adam_novak</span><span class="o">/</span><span class="n">drl</span><span class="o">-</span><span class="n">graph</span><span class="o">-</span><span class="n">layout</span><span class="o">/</span><span class="n">get</span><span class="o">/</span><span class="n">c41341de8058</span><span class="o">.</span><span class="n">zip</span> <span class="o">&gt;</span> <span class="n">c41341de8058</span><span class="o">.</span><span class="n">zip</span>
+<span class="n">unzip</span> <span class="n">c41341de8058</span><span class="o">.</span><span class="n">zip</span>
+<span class="n">cd</span> <span class="n">adam</span><span class="o">*/</span><span class="n">src</span>
+<span class="n">cp</span> <span class="n">Configuration</span><span class="o">.</span><span class="n">gnu</span> <span class="n">Configuration</span><span class="o">.</span><span class="n">mk</span>
+<span class="n">make</span>
+<span class="n">ls</span> <span class="o">../</span><span class="nb">bin</span>
 </pre></div>
 </div>
 <p>Set your path to include the DrL binaries:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span>export PATH=./:DRL:$PATH
+<div class="highlight-default"><div class="highlight"><pre><span></span>export PATH=./:DRL:$PATH
 </pre></div>
 </div>
 </div>
@@ -111,19 +111,19 @@ ls ../bin
 <p>** : your</p>
 <p><strong>Create directories</strong></p>
 <p>Create some directories:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span>mkdir -P HEX/www
-mkdir DB
-mkdir -p DATA/featureSpace DATA/layoutInput DATA/view
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">mkdir</span> <span class="o">-</span><span class="n">P</span> <span class="n">HEX</span><span class="o">/</span><span class="n">www</span>
+<span class="n">mkdir</span> <span class="n">DB</span>
+<span class="n">mkdir</span> <span class="o">-</span><span class="n">p</span> <span class="n">DATA</span><span class="o">/</span><span class="n">featureSpace</span> <span class="n">DATA</span><span class="o">/</span><span class="n">layoutInput</span> <span class="n">DATA</span><span class="o">/</span><span class="n">view</span>
 </pre></div>
 </div>
 <p><strong>Copy source code to the server directory</strong>:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span>cd HEXSRC
-cp -R .meteor client lib public server HEX/www
-cp -R .calc *HEX*/calc
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="n">HEXSRC</span>
+<span class="n">cp</span> <span class="o">-</span><span class="n">R</span> <span class="o">.</span><span class="n">meteor</span> <span class="n">client</span> <span class="n">lib</span> <span class="n">public</span> <span class="n">server</span> <span class="n">HEX</span><span class="o">/</span><span class="n">www</span>
+<span class="n">cp</span> <span class="o">-</span><span class="n">R</span> <span class="o">.</span><span class="n">calc</span> <span class="o">*</span><span class="n">HEX</span><span class="o">*/</span><span class="n">calc</span>
 </pre></div>
 </div>
 <p><strong>Environment variables</strong>:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span># Map creators need these:
+<div class="highlight-default"><div class="highlight"><pre><span></span># Map creators need these:
 export HEXMAP=HEX
 export PYTHONPATH=$HEXMAP/calc:$HEXMAP/www/server
 export PATH=./:DRL:$PATH
@@ -139,13 +139,13 @@ export PATH=./:$PYTHONPATH:$CONDA:$MONGO:$METEOR:$NPM_NODE:$PATH
 </div>
 <p><strong>Customize the Run Scripts</strong></p>
 <p>Copy some scripts and modify them to match your environment:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span>cd HEXSRC/.bin
-cp runDb runHex settings.json *HEX*
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="n">HEXSRC</span><span class="o">/.</span><span class="n">bin</span>
+<span class="n">cp</span> <span class="n">runDb</span> <span class="n">runHex</span> <span class="n">settings</span><span class="o">.</span><span class="n">json</span> <span class="o">*</span><span class="n">HEX</span><span class="o">*</span>
 </pre></div>
 </div>
 <p><strong>Start the servers</strong>:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span>nohup runDB
-nohup runWww
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">nohup</span> <span class="n">runDB</span>
+<span class="n">nohup</span> <span class="n">runWww</span>
 </pre></div>
 </div>
 </div>
@@ -184,7 +184,7 @@ Applications.</p>
 <li class="toctree-l1"><a class="reference internal" href="serverSource.html">Source: Server</a></li>
 <li class="toctree-l1"><a class="reference internal" href="serverSource.html#utilities-called-by-layout-py">Utilities called by layout.py</a></li>
 <li class="toctree-l1"><a class="reference internal" href="repository.html">Code Repository</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="">Requirements &amp; Installation</a><ul>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Requirements &amp; Installation</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#required-libraries">Required libraries</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#web-application-deployment">Web application deployment</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#meteor">Meteor</a></li>
@@ -204,9 +204,6 @@ Applications.</p>
                 <input type="hidden" name="check_keywords" value="yes" />
                 <input type="hidden" name="area" value="default" />
             </form>
-            <p class="searchtip" style="font-size: 90%">
-                Enter search terms or a module, class or function name.
-            </p>
           </div>
         </div>
         <div class="clearer"></div>
@@ -234,8 +231,8 @@ Applications.</p>
         <div class="right">
           
     <div class="footer" role="contentinfo">
-        &copy; Copyright 2016, UCSC Tumor Map development team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.5.
+        &#169; Copyright 2016, UCSC Tumor Map development team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.6.
     </div>
         </div>
         <div class="clearer"></div>

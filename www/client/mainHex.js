@@ -99,7 +99,7 @@ var app = app || {};
             }
         });
         GoogleMaps.load({ key: GOOGLE_API_KEY });  // browser key
-        initTools();
+        Tool.init();
     });
 
     Template.navBarT.helpers({

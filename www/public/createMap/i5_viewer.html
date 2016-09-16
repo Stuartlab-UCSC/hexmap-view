@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Viewer Input Files &mdash; Tumor Map Creation</title>
+    <title>Viewer Input Files &#8212; Tumor Map Creation</title>
     
     <link rel="stylesheet" href="_static/agogo.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -77,7 +77,7 @@ multiple maps.</p>
 <div class="section" id="hexnames-tab">
 <h2>hexNames.tab<a class="headerlink" href="#hexnames-tab" title="Permalink to this headline">¶</a></h2>
 <p>A list of node/hexagons:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">S1</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">S1</span>
 <span class="o">...</span>
 </pre></div>
 </div>
@@ -86,8 +86,8 @@ multiple maps.</p>
 <h2>layouts.tab<a class="headerlink" href="#layouts-tab" title="Permalink to this headline">¶</a></h2>
 <p>Names of the layouts in order of the LAYOUT index used in some
 file names:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span>mRNA seq
-...
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">mRNA</span> <span class="n">seq</span>
+<span class="o">...</span>
 </pre></div>
 </div>
 </div>
@@ -95,9 +95,9 @@ file names:</p>
 <h2>assignmentsLAYOUT.tab (1)<a class="headerlink" href="#assignmentslayout-tab-1" title="Permalink to this headline">¶</a></h2>
 <p>The xy coordinates from zero to whatever. May be
 of type float. One file per layout:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span>node   x   y
-S1     42  66
-...
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">node</span>   <span class="n">x</span>   <span class="n">y</span>
+<span class="n">S1</span>     <span class="mi">42</span>  <span class="mi">66</span>
+<span class="o">...</span>
 </pre></div>
 </div>
 </div>
@@ -105,10 +105,10 @@ S1     42  66
 <h2>Layer_Data_Types.tab<a class="headerlink" href="#layer-data-types-tab" title="Permalink to this headline">¶</a></h2>
 <p>Lists of attribute data types, mostly. FirstAttribute
 is the attribute to display on the initial map view:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span>FirstAttribute  Tissue
-Continuous      DNA_signature   Apoptosis   ...
-Binary          TP53_mutated    DNA_repair_broken    ...
-Categorical     Subtype Gender  ...
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">FirstAttribute</span>  <span class="n">Tissue</span>
+<span class="n">Continuous</span>      <span class="n">DNA_signature</span>   <span class="n">Apoptosis</span>   <span class="o">...</span>
+<span class="n">Binary</span>          <span class="n">TP53_mutated</span>    <span class="n">DNA_repair_broken</span>    <span class="o">...</span>
+<span class="n">Categorical</span>     <span class="n">Subtype</span> <span class="n">Gender</span>  <span class="o">...</span>
 </pre></div>
 </div>
 </div>
@@ -116,9 +116,9 @@ Categorical     Subtype Gender  ...
 <h2>layer_LAYER.tab (1)<a class="headerlink" href="#layer-layer-tab-1" title="Permalink to this headline">¶</a></h2>
 <p>The attribute values for nodes with a value for this
 attribute. One file per attribute:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span>node    value
-S1     0.642
-...
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">node</span>    <span class="n">value</span>
+<span class="n">S1</span>     <span class="mf">0.642</span>
+<span class="o">...</span>
 </pre></div>
 </div>
 </div>
@@ -126,9 +126,9 @@ S1     0.642
 <h2>colormaps.tab (1)<a class="headerlink" href="#colormaps-tab-1" title="Permalink to this headline">¶</a></h2>
 <p>Color mappings to categories. This is only used for categorical attributes.
 The layout utility copies this to the view directory as is:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span>attribute      index1   category1      color1    index2   category2   color2   ...
-UCEC Subtype   0        Endometrioid   #FF0000   1        Serous      #00FF00   ...
-...
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">attribute</span>      <span class="n">index1</span>   <span class="n">category1</span>      <span class="n">color1</span>    <span class="n">index2</span>   <span class="n">category2</span>   <span class="n">color2</span>   <span class="o">...</span>
+<span class="n">UCEC</span> <span class="n">Subtype</span>   <span class="mi">0</span>        <span class="n">Endometrioid</span>   <span class="c1">#FF0000   1        Serous      #00FF00   ...</span>
+<span class="o">...</span>
 </pre></div>
 </div>
 </div>
@@ -139,9 +139,9 @@ these tags are used to limit the number of attributes displayed and searchable i
 attribute list.
 This file should be defined in the layout input data directory and will be
 copied to the view directory by the layout utility:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span>attribute   tag1       tag2   ...
-Tissue      clinical   phenotype   ...
-...
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">attribute</span>   <span class="n">tag1</span>       <span class="n">tag2</span>   <span class="o">...</span>
+<span class="n">Tissue</span>      <span class="n">clinical</span>   <span class="n">phenotype</span>   <span class="o">...</span>
+<span class="o">...</span>
 </pre></div>
 </div>
 </div>
@@ -151,9 +151,9 @@ Tissue      clinical   phenotype   ...
 <p>xy coordinates of nodes prior to being transformed into the hexagonal grid.
 Displayed in the Node Density view.
 The layout utility generates these files, one per layout:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span>node   x       y
-S9     35.9    19.7
-...
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">node</span>   <span class="n">x</span>       <span class="n">y</span>
+<span class="n">S9</span>     <span class="mf">35.9</span>    <span class="mf">19.7</span>
+<span class="o">...</span>
 </pre></div>
 </div>
 <p><strong>stats_LAYER.tab</strong></p>
@@ -176,16 +176,16 @@ The layout utility generates these files, one per layout.</p>
 uses them.</p>
 <p><strong>matrices.tab</strong></p>
 <p>Filenames of the attribute scores:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">matrix_0</span><span class="o">.</span><span class="n">tab</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">matrix_0</span><span class="o">.</span><span class="n">tab</span>
 <span class="n">matrix_1</span><span class="o">.</span><span class="n">tab</span>
 <span class="o">...</span>
 </pre></div>
 </div>
 <p><strong>matrix_LAYER.tab</strong></p>
 <p>Attribute scores for nodes:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span>node   attr0   attr1   attr2   ...
-S1     3       0.485   -1.24   ...
-...
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">node</span>   <span class="n">attr0</span>   <span class="n">attr1</span>   <span class="n">attr2</span>   <span class="o">...</span>
+<span class="n">S1</span>     <span class="mi">3</span>       <span class="mf">0.485</span>   <span class="o">-</span><span class="mf">1.24</span>   <span class="o">...</span>
+<span class="o">...</span>
 </pre></div>
 </div>
 <p>Note
@@ -207,7 +207,7 @@ file does not yet have the headers.</p>
 <li class="toctree-l1"><a class="reference internal" href="i2_formatForLayout.html">Prepare for Layout</a></li>
 <li class="toctree-l1"><a class="reference internal" href="i3_layoutInputFiles.html">Layout Input Files</a></li>
 <li class="toctree-l1"><a class="reference internal" href="i4_genLayoutAndStats.html">Generate Layout &amp; Statistics</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="">Viewer Input Files</a><ul>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Viewer Input Files</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#meta-json">meta.json</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#hexnames-tab">hexNames.tab</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#layouts-tab">layouts.tab</a></li>
@@ -230,9 +230,6 @@ file does not yet have the headers.</p>
                 <input type="hidden" name="check_keywords" value="yes" />
                 <input type="hidden" name="area" value="default" />
             </form>
-            <p class="searchtip" style="font-size: 90%">
-                Enter search terms or a module, class or function name.
-            </p>
           </div>
         </div>
         <div class="clearer"></div>
@@ -260,8 +257,8 @@ file does not yet have the headers.</p>
         <div class="right">
           
     <div class="footer" role="contentinfo">
-        &copy; Copyright 2016, UCSC Tumor Map development team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.5.
+        &#169; Copyright 2016, UCSC Tumor Map development team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.6.
     </div>
         </div>
         <div class="clearer"></div>

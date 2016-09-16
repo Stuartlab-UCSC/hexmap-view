@@ -11,14 +11,17 @@
 }
 
 #homePage .allProjects {
-    display: inline-block;
-    vertical-align: top;
-    padding-bottom: 1em;
-    padding-right: 2em;
+    margin: 0 auto;
+    text-align: center;
 }
 
+/*
+#homePage .projectsCenter {
+    display: inline-block;
+    text-align: center;
+}
+*/
 #homePage .project {
-    float: left;
     display: inline-block;
     margin: 1em;
 }
@@ -39,10 +42,13 @@
     border: blue 1px solid;
 }
 
+#homePage .home_section {
+    padding: 1em;
+}
+
 #homePage h3 {
     font-size: 1.3em;
-    margin-top: 0.6em;
-    margin-bottom: 0;
+    margin: 0;
 }
 
 #homePage p {

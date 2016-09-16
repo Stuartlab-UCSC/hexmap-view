@@ -28,7 +28,7 @@ var app = app || {};
         DialogHex.prototype.initHelp = function () {
              var $help = $("<a href='"
                 + this.helpAnchor
-                + "'  target='_blank'><img class='dialog-help' src='/icons/question-sign.svg'></a>");
+                + "'  target='_blank'><img class='dialog-help' src='/icons/question.png'></a>");
             $('.ui-dialog-titlebar-close').before($help);
         }
 

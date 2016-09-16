@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Code Repository &mdash; Tumor Map Developer Documentation</title>
+    <title>Code Repository &#8212; Tumor Map Developer Documentation</title>
     
     <link rel="stylesheet" href="_static/agogo.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -82,12 +82,12 @@ branch through committing your files and merging to dev if you&#8217;ve branched
 of it. If things awry, you may need some other commands.</p>
 <p><strong>#1</strong>. Get a copy of the source code on the dev branch. Change to the directory where
 you want to put the source code, then:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span>git clone -b dev --single-branch https://github.com/ucscHexmap/hexagram
-cd hexagram
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">clone</span> <span class="o">-</span><span class="n">b</span> <span class="n">dev</span> <span class="o">--</span><span class="n">single</span><span class="o">-</span><span class="n">branch</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">ucscHexmap</span><span class="o">/</span><span class="n">hexagram</span>
+<span class="n">cd</span> <span class="n">hexagram</span>
 </pre></div>
 </div>
 <p><strong>#2</strong>. Get status to verify things went well and verify the branch:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span>git status
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">status</span>
 </pre></div>
 </div>
 <p>Now you can either work directly on the dev branch, or create your own branch
@@ -105,29 +105,29 @@ and continue with the next. The commits, pushes and pulls in the following steps
 will apply to whichever branch your are currently on.</p>
 <p><strong>#3</strong>. We&#8217;ll call the new branch &#8216;mine&#8217; for this example. Notice that to create
 a branch or change to an existing branch is the same command:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span>git checkout -b mine
-git status
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">checkout</span> <span class="o">-</span><span class="n">b</span> <span class="n">mine</span>
+<span class="n">git</span> <span class="n">status</span>
 </pre></div>
 </div>
 <p><strong>#4</strong>. Git has helpful messages when you want to commit. After you have added and
 changed files, &#8216;git status&#8217; gives something like:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span>On branch dev
-Your branch is up-to-date with &#39;origin/dev&#39;.
-Changes to be committed:
-  (use &quot;git reset HEAD &lt;file&gt;...&quot; to unstage)
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">On</span> <span class="n">branch</span> <span class="n">dev</span>
+<span class="n">Your</span> <span class="n">branch</span> <span class="ow">is</span> <span class="n">up</span><span class="o">-</span><span class="n">to</span><span class="o">-</span><span class="n">date</span> <span class="k">with</span> <span class="s1">&#39;origin/dev&#39;</span><span class="o">.</span>
+<span class="n">Changes</span> <span class="n">to</span> <span class="n">be</span> <span class="n">committed</span><span class="p">:</span>
+  <span class="p">(</span><span class="n">use</span> <span class="s2">&quot;git reset HEAD &lt;file&gt;...&quot;</span> <span class="n">to</span> <span class="n">unstage</span><span class="p">)</span>
 
-       modified:   server/statsLayer.py
+       <span class="n">modified</span><span class="p">:</span>   <span class="n">server</span><span class="o">/</span><span class="n">statsLayer</span><span class="o">.</span><span class="n">py</span>
 
-Changes not staged for commit:
-  (use &quot;git add &lt;file&gt;...&quot; to update what will be committed)
-  (use &quot;git checkout -- &lt;file&gt;...&quot; to discard changes in working directory)
+<span class="n">Changes</span> <span class="ow">not</span> <span class="n">staged</span> <span class="k">for</span> <span class="n">commit</span><span class="p">:</span>
+  <span class="p">(</span><span class="n">use</span> <span class="s2">&quot;git add &lt;file&gt;...&quot;</span> <span class="n">to</span> <span class="n">update</span> <span class="n">what</span> <span class="n">will</span> <span class="n">be</span> <span class="n">committed</span><span class="p">)</span>
+  <span class="p">(</span><span class="n">use</span> <span class="s2">&quot;git checkout -- &lt;file&gt;...&quot;</span> <span class="n">to</span> <span class="n">discard</span> <span class="n">changes</span> <span class="ow">in</span> <span class="n">working</span> <span class="n">directory</span><span class="p">)</span>
 
-        modified:   client/colors.js
+        <span class="n">modified</span><span class="p">:</span>   <span class="n">client</span><span class="o">/</span><span class="n">colors</span><span class="o">.</span><span class="n">js</span>
 
-Untracked files:
-  (use &quot;git add &lt;file&gt;...&quot; to include in what will be committed)
+<span class="n">Untracked</span> <span class="n">files</span><span class="p">:</span>
+  <span class="p">(</span><span class="n">use</span> <span class="s2">&quot;git add &lt;file&gt;...&quot;</span> <span class="n">to</span> <span class="n">include</span> <span class="ow">in</span> <span class="n">what</span> <span class="n">will</span> <span class="n">be</span> <span class="n">committed</span><span class="p">)</span>
 
-       .server/myFile
+       <span class="o">.</span><span class="n">server</span><span class="o">/</span><span class="n">myFile</span>
 </pre></div>
 </div>
 <p>Adding and checking in files is a two step process where files are staged before
@@ -138,7 +138,7 @@ actually committed to the repository. In the above:</p>
 <p>So do the appropriate action to stage all the files you want to commit, then
 continue with the next step.</p>
 <p><strong>#5</strong>. The commit actually updates the repository:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span>git commit
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">commit</span>
 </pre></div>
 </div>
 <p>A vim editor with your changes shows up. Add a comment and quit the editor.
@@ -149,14 +149,14 @@ your laptop.</p>
 <p>First pull down any changes from the remote repository so if a merge is
 required, you can do it locally rather than trying to fix up the remote repository
 where things could get ugly:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span>git pull
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">pull</span>
 </pre></div>
 </div>
 <p><strong>#7</strong>. If there are any merge conflicts, git will tell you about them, and after
 fixing and sanity checking, commit as in steps 4 &amp; 5 above. If there are no conflicts, your
 repository now has any changes anyone else committed and pushed to the remote
 since last time you pulled. Now push your changes to the remote repository:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span>git push
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">push</span>
 </pre></div>
 </div>
 <p>Ta da! If you are working off the dev branch, you&#8217;re golden.</p>
@@ -165,16 +165,16 @@ since last time you pulled. Now push your changes to the remote repository:</p>
 <p>If you are working on your own branch which is off of dev, you will eventually need to
 merge your branch into dev. We&#8217;ll use &#8216;mine&#8217; as your own branch in this example.</p>
 <p><strong>#8</strong>. Change to the dev branch then update your local dev branch from the remote dev branch:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span>git checkout dev
-git pull
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">checkout</span> <span class="n">dev</span>
+<span class="n">git</span> <span class="n">pull</span>
 </pre></div>
 </div>
 <p><strong>#9</strong>. Now you do the merge from your branch to dev:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span>git merge mine
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">merge</span> <span class="n">mine</span>
 </pre></div>
 </div>
 <p><strong>#10</strong>. Do sanity testing. Then push your dev to the remote dev:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span>git push
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">push</span>
 </pre></div>
 </div>
 </div>
@@ -186,47 +186,47 @@ git pull
 <p>.</p>
 <p><strong>#1</strong>. Check out the dev branch and update it.
 Check out the master branch, update and merge in dev:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span>git checkout dev
-git pull
-git checkout master
-git pull
-git merge dev
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">checkout</span> <span class="n">dev</span>
+<span class="n">git</span> <span class="n">pull</span>
+<span class="n">git</span> <span class="n">checkout</span> <span class="n">master</span>
+<span class="n">git</span> <span class="n">pull</span>
+<span class="n">git</span> <span class="n">merge</span> <span class="n">dev</span>
 </pre></div>
 </div>
 <p><strong>#2</strong>. Sanity test, update the remote master branch and create a release branch:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span>git push
-git checkout v1.0_branch
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">push</span>
+<span class="n">git</span> <span class="n">checkout</span> <span class="n">v1</span><span class="o">.</span><span class="mi">0</span><span class="n">_branch</span>
 </pre></div>
 </div>
 <p><strong>#3</strong>. Change the version and cherry pick any changes you want in dev
 that were committed after the point of version branching:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span>vi mainHex.js # edit VERSION
-git cherry-pick &lt;list-of-commit-IDs&gt;
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">vi</span> <span class="n">mainHex</span><span class="o">.</span><span class="n">js</span> <span class="c1"># edit VERSION</span>
+<span class="n">git</span> <span class="n">cherry</span><span class="o">-</span><span class="n">pick</span> <span class="o">&lt;</span><span class="nb">list</span><span class="o">-</span><span class="n">of</span><span class="o">-</span><span class="n">commit</span><span class="o">-</span><span class="n">IDs</span><span class="o">&gt;</span>
 </pre></div>
 </div>
 <p><strong>#4</strong>. Sanity test, make fixes, tag, update the remote version branch:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span>git push
-git tag v1.0
-git push v1.0
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">push</span>
+<span class="n">git</span> <span class="n">tag</span> <span class="n">v1</span><span class="o">.</span><span class="mi">0</span>
+<span class="n">git</span> <span class="n">push</span> <span class="n">v1</span><span class="o">.</span><span class="mi">0</span>
 </pre></div>
 </div>
 <p><strong>#5</strong>. Merge the version branch into the master branch:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span>git checkout master
-git merge v1.0_branch
-git push
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">checkout</span> <span class="n">master</span>
+<span class="n">git</span> <span class="n">merge</span> <span class="n">v1</span><span class="o">.</span><span class="mi">0</span><span class="n">_branch</span>
+<span class="n">git</span> <span class="n">push</span>
 </pre></div>
 </div>
 <p><strong>#6</strong>. Merge the master branch into dev:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span>git checkout dev
-git merge master
-git push
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">checkout</span> <span class="n">dev</span>
+<span class="n">git</span> <span class="n">merge</span> <span class="n">master</span>
+<span class="n">git</span> <span class="n">push</span>
 </pre></div>
 </div>
 <p>(we may want to cherry-pick commits in master that we want to go to dev,
 rather than merging, which may produce conflicts)</p>
 <p>Some other handy git commands:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span>git branch -r
-git ls-remote --tags
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">branch</span> <span class="o">-</span><span class="n">r</span>
+<span class="n">git</span> <span class="n">ls</span><span class="o">-</span><span class="n">remote</span> <span class="o">--</span><span class="n">tags</span>
 </pre></div>
 </div>
 </div>
@@ -247,7 +247,7 @@ git ls-remote --tags
 <li class="toctree-l1"><a class="reference internal" href="clientSource.html">Source: Client</a></li>
 <li class="toctree-l1"><a class="reference internal" href="serverSource.html">Source: Server</a></li>
 <li class="toctree-l1"><a class="reference internal" href="serverSource.html#utilities-called-by-layout-py">Utilities called by layout.py</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="">Code Repository</a><ul>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Code Repository</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#repository-branches">Repository branches</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#a-git-quick-start">A git quick start</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#releasing-a-new-version">Releasing a new version</a></li>
@@ -266,9 +266,6 @@ git ls-remote --tags
                 <input type="hidden" name="check_keywords" value="yes" />
                 <input type="hidden" name="area" value="default" />
             </form>
-            <p class="searchtip" style="font-size: 90%">
-                Enter search terms or a module, class or function name.
-            </p>
           </div>
         </div>
         <div class="clearer"></div>
@@ -296,8 +293,8 @@ git ls-remote --tags
         <div class="right">
           
     <div class="footer" role="contentinfo">
-        &copy; Copyright 2016, UCSC Tumor Map development team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.5.
+        &#169; Copyright 2016, UCSC Tumor Map development team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.6.
     </div>
         </div>
         <div class="clearer"></div>
