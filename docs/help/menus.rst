@@ -21,8 +21,8 @@ Other Downloads
 
 Other available downloads are:
 
-* PDF image
-* SVG image
+* PDF image of map and/or legend
+* SVG image of map
 * XY coordinates of the nodes prior to force-fitting them into the hexagonal grid. They are force-fitted to the grid so that nodes will not be overlapping one another, obscuring colors of nodes underneath.
 
 

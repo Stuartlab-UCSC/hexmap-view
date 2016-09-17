@@ -41,7 +41,25 @@ The *Select Attributes* drop down contains all the attributes
 available for the map, while the *Short List* contains only those attributes
 that have already been selected.
 
-More information may be found at `Short List <advancedControls.html#short-list>`_
+To Select attributes for display click on the |primary| or |secondary| in the
+*Short List* entry.
+No more than two attributes may be selected to color the nodes at a time.
+
+.. |primary| image:: https://tumormap.ucsc.edu/icons/primary.png
+   :width: 20 px
+.. |secondary| image:: https://tumormap.ucsc.edu/icons/secondary.png
+   :width: 20 px
+
+Clicking on |primary-hot| or |secondary-hot| will turn that attribute
+display off.
+
+.. |primary-hot| image:: https://tumormap.ucsc.edu/icons/primary-hot.png
+   :width: 20 px
+.. |secondary-hot| image:: https://tumormap.ucsc.edu/icons/secondary-hot.png
+   :width: 20 px
+
+More information may be found at
+`Short List <advancedControls.html#short-list>`_
 
 
 View a Node's Details

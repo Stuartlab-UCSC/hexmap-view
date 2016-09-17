@@ -5,7 +5,8 @@ Which samples share a particular genomic alteration?
 Objective
 ---------
 
-View all of the samples that share a particular genomic alteration of interest (e.g. TP53 mutation).
+View all of the samples that share a particular genomic alteration of interest
+(e.g. TP53 mutation).
 
 Skills Covered
 --------------

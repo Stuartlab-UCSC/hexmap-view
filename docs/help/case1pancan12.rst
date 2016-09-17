@@ -11,7 +11,6 @@ Skills Covered
 --------------
 
 * Access Tumor Map home page.
-* Sign into Tumor Map.
 * Access Tumor Map for Pancan12 map.
 
 Steps
@@ -24,14 +23,9 @@ Steps
 .. image:: _images/casePancan12-1.png
    :width: 625 px
 
-3. Click *Sign In* and enter your authentication credentials.
+3. Click on the Pancan12 map.
 
-.. image:: _images/casePancan12-2.png
-   :width: 625 px
-
-4. Click on the Pancan12 map.
-
-5. Observe and explore the map that opened up and controls available in the Tumor Map tool.
+4. Observe and explore the map that opened up and controls available in the Tumor Map tool.
 
 .. image:: _images/casePancan12-3.png
    :width: 625 px
