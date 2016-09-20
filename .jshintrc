@@ -4,7 +4,7 @@
     "esversion": 5,
     "freeze": true,
     "futurehostile": true,
-    "global": [
+    "predef": [
         "_",
         "ADMIN_EMAIL",
         "DEV",
