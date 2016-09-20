@@ -4,7 +4,7 @@
     "esversion": 5,
     "freeze": true,
     "futurehostile": true,
-    "predef": [
+    "global": [
         "_",
         "ADMIN_EMAIL",
         "DEV",
@@ -16,11 +16,14 @@
         "URL_BASE",
         "VIEW_DIR",
         "CheckLayerBox",
+        "Color",
         "DialogHex",
         "Meteor",
         "Mongo",
         "Reflect",
         "Session",
+        "Tool",
+        "Util",
         "colormaps",
         "createDialogHex",
         "createLayerNameList",
@@ -29,7 +32,7 @@
         "layers",
         "window",
         "create_dynamic_category_layer",
-        "update_shorlist"
+        "update_shortlist"
     ],
     "immed": true,
     "indent": true,
