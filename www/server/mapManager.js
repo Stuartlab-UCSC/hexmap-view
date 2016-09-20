@@ -145,6 +145,9 @@ function dropInLayerBox(layerData,user,toMapId){
 }
 
 function parmMaker(mapId,toMapId, operation,argsObj) {
+
+
+    console.log("The Parmameter Maker for reflection was called with mapId,toMapId:",mapId,toMapId);
     //function that access the File Cabinet in order to produce a parmameter Json for python script.
     var scriptDoc = ManagerFileCabinet.findOne({operation: operation , mapId: mapId,toMapId: toMapId});
     //console.log("parmMaker being called for mapManager/reflection with these two maps:", mapId,toMapId);

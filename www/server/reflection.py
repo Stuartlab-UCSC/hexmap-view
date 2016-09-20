@@ -38,8 +38,10 @@ def reflection(parm):
     
 
     #TODO: implement 'read in chunks' for large dataframes. or find a good way to do it
-
-    TOP = 150 #TODO: this should be an input later, need to talk to Yulia and Josh before getting fancy
+    try:
+        TOP = int(parm['n'])
+    except KeyError:
+        TOP = 150 #TODO: this should be an input later, need to talk to Yulia and Josh before getting fancy
 
     fpath = str(parm['datapath'])
     node_ids = parm['node_ids']
