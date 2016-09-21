@@ -64,11 +64,12 @@ WebApp.connectHandlers.use("/query/overlayNodes", function(req, res, next) {
 respondToHttp = function (code, res, msg, future) {
 
     // This responds to an http request or handles a future for those cases
-    // where the client is making the query.
+    // where our client is making the request, rather than an outsider using
+    // the query API.
 
     if (res) {
     
-        // Send an HTTP response to the client.
+        // Send an HTTP response to an outsider using the query API.
         var data = msg;
         if (code === 200) {
             res.setHeader('Content-Type', 'application/json');
@@ -79,7 +80,7 @@ respondToHttp = function (code, res, msg, future) {
 
     } else if (future) {
     
-        // Return the message to the client.
+        // Return the message to our client.
         if (code === 200) {
             future.return(msg);
         } else {

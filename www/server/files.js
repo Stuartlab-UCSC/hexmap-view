@@ -93,7 +93,28 @@ getTsvFile = function (filename, project, unparsed, future) {
     return future.wait();
 }
 
+
+function santize_file_name (name) {
+
+    // File name from client should have forward slashes and repeating dots
+    // removed
+    return name
+        .replace(/\//g, '')
+        .replace(/\.\.+/g, '.');
+}
+
 Meteor.methods({
+
+    write_tsv_file_to_server: function (file_name, data, start) {
+    
+        // Upload a tsv file to the server in chunks and synchronously
+        var file_path = path.join(FEATURE_SPACE_DIR, 'STUB.tsv'); // TODO just a stub
+        var buf = Buffer(data);
+        var mode = (start === 0) ? 'w' : 'a';
+        var fd = fs.openSync(file_path, mode);
+        fs.writeSync(fd, buf, 0, buf.length, start);
+        fs.closeSync(fd);
+    },
 
     getTsvFile: function (filename, project, unparsed) {
 

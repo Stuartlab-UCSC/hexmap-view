@@ -369,27 +369,6 @@ var app = app || {};
         return true;
     }
 
-    function initDocs () {
- 
-        // Show query API doc menu option if user is in dev or CKCC role.
-        Meteor.call('isUserInRole', ['dev', 'queryAPI'], function (error, results) {
-            if (!error && results) {
-                $('.queryDocs').show();
-           } else {
-                $('.queryDocs').hide();
-            }
-        });
- 
-        // Show createMap doc menu option if user is in createMap or dev role.
-        Meteor.call('isUserInRole', ['dev', 'createMap'], function (error, results) {
-            if (!error && results) {
-                $('.createMapDocs').show();
-           } else {
-                $('.createMapDocs').hide();
-            }
-        });
-    }
-
     centerToLatLng = function (centerIn) {
  
         // If needed, create the center or translate from an array to latLng.
@@ -453,12 +432,6 @@ var app = app || {};
                 s.save();
             }
         }
- 
-        // Set help menu options when the username changes, including log out
-        Meteor.autorun(function () {
-            var x = Meteor.user();
-            initDocs();
-        });
  
         return s;
     };

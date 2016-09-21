@@ -6,18 +6,25 @@ var app = app || {};
 (function (hex) {
     //'use strict';
 
+    var title = 'Create a New Map',
+        dialogHex,
+        $dialog;
+ 
+    /* TODO later
     var show_advanced = 'Advanced options...',
         hide_advanced = 'Hide advanced options',
-        title = 'Create a New Map',
-        dialogHex,
-        $dialog,
-        //methodList,
         formats = ['Feature matrix', 'Similarity full matrix', 'Similarity sparse matrix', 'Node XY positions'],
         default_format = 'Feature matrix',
         methods = ['DrL', 'tSNE', 'MDS', 'PCA', 'ICA', 'isomap', 'spectral embedding'],
-        advanced_label = new ReactiveVar();
+        advanced_label = new ReactiveVar(),
+        requested_name = new ReactiveVar('');
+    */
  
     Template.create_map_t.helpers({
+        /* TODO later
+        name: function () {
+            return requested_name.get();
+        },
         dynamic: function () {
             return !(Session.get('create_map_stats_precompute'));
         },
@@ -28,6 +35,7 @@ var app = app || {};
             return Session.get('create_map_show_advanced')
                 ? hide_advanced : show_advanced;
         },
+        */
         advanced_display: function () {
             if (Session.get('create_map_show_advanced')) {
                 return 'table';
@@ -37,10 +45,39 @@ var app = app || {};
         },
     });
 
+    /* TODO later
+    function name_changed (ev) {
+        var name = ev.target.value,
+            dup_name,
+            msg ' is already used, so a new name is suggested';
+ 
+        unique_name = Project.make_name_unique(name);
+        if (unique_name === name) {
+            Session.set('create_map_name', name);
+        } else {
+            Session.set('create_map_name', unique_name);
+            banner('warn', name + msg);
+        }
+
+            // Suggest another unique name
+            dup_name = name;
+            requested_name = unique_name;
+ 
+            msg =
+        }
+    }
+    */
+ 
     function show () {
  
         // Show the contents of the dialog, once per trigger button click
-
+ 
+        // Define the handler for the feature file selection
+        $dialog.find('.feature.file').on('change', function (ev) {
+            var file = event.target.files[0];
+        });
+ 
+        /* TODO later
         // Create the feature format list
         var data = [];
         formats.forEach(function (format){
@@ -54,7 +91,9 @@ var app = app || {};
         $format_anchor.on('change', function (ev) {
             format_selected = ev.target.value;
         });
-
+        */
+ 
+        /* TODO later
         // Create the method list
         var data = [];
         methods.forEach(function (method){
@@ -68,20 +107,44 @@ var app = app || {};
         $method_anchor.on('change', function (ev) {
             Session.set('create_map_method', ev.target.value);
         });
+        */
  
+        /* TODO later
         // Define event handler for advanced link click
-        console.log("$('#create_map_dialog .advanced_trigger')", $('#create_map_dialog .advanced_trigger'));
         $('#create_map_dialog .advanced_trigger').on('click', function () {
             Session.set('create_map_show_advanced',
                 !Session.get('create_map_show_advanced'));
-        })
+        });
+        */
     }
+
+/*
+
+        file_picker.change(function(event) {
+            // When a file is selected, read it in and populate the text box.
+            
+            // What file do we really want to read?
+            var file = event.target.files[0];
+            
+            // Make a FileReader to read the file
+            var reader = new FileReader();
+            
+            reader.onload = function(read_event) {  
+                // When we read with readAsText, we get a string. Just stuff it
+                // in the text box for the user to see.
+                text_area.text(reader.result);
+            };
+            
+            // Read the file, and, when it comes in, stick it in the textbox.
+            reader.readAsText(file);
+        });
+        
+*/
 
     function createIt () {
  
         // TODO
 
-        // TODO do grid & home page have a banner?
         banner('info', 'Your map is building. An email will be sent when complete.');
         hide();
 	}
@@ -113,16 +176,5 @@ var app = app || {};
         add_tool("createMap", function() {
             dialogHex.show();
         }, 'Create a new map');
- 
-        // Enable/Disable the menu option whenever the username changes,
-        // including log out.
-        Meteor.autorun(function() {
-            var user = Meteor.user();
-            if (user) {
-                $button.removeClass('disabled');
-            } else {
-                $button.addClass('disabled');
-            }
-        });
     }
 })(app);

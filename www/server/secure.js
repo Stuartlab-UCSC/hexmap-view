@@ -223,7 +223,7 @@ Accounts.onCreateUser(function (options, user) {
     return user;
 });
 
-isUserAuthorized = function (role) {
+is_user_authorized_to_view = function (role) {
 
     // Determine if a user is authorized based on this role.
     // user and role are single strings, no arrays.
@@ -253,11 +253,15 @@ isUserAuthorized = function (role) {
 
 Meteor.methods({
 
-    isUserInRole: function (role) {
+    is_user_in_role: function (role) {
+    
+        // Is the user in this particular role
         return Roles.userIsInRole(Meteor.user(), role);
     },
     
-    isUserAuthorized: function (role) {
-        return isUserAuthorized(role);
+    is_user_authorized_to_view: function (role) {
+    
+        // Is the user authorized to view this role's maps/projects?
+        return is_user_authorized_to_view(role);
     },
 });
