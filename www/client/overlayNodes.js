@@ -18,7 +18,8 @@ var app = app || {};
         color = new ReactiveVar(),
         scale = new ReactiveVar(),
         $markerInfoWindow,
-        initialized = false;
+        initialized = false,
+        infoWindow;
  
     Template.markerInfoWindow.helpers({
         node_id: function () {
@@ -48,9 +49,15 @@ var app = app || {};
  
     function closeInfoWindow (marker) {
  
-        // Detach our contents so we can use it later
+        // Detach our DOM contents to use later
         $markerInfoWindow = $markerInfoWindow.detach();
         
+        // Close the info window on the map and destroy
+        if (infoWindow) {
+            infoWindow.close();
+            infoWindow = null;
+        }
+ 
         // Add back the click listener
         addMarkerClickListener(marker);
     }
@@ -62,8 +69,9 @@ var app = app || {};
         // Disable the click listener while the infoWindow is open
         google.maps.event.removeListener(marker.listener);
  
-        // Create an infoWindow
-        var infoWindow = new google.maps.InfoWindow({
+        // Create a new infoWindow
+        closeInfoWindow(marker);
+        infoWindow = new google.maps.InfoWindow({
             content: $markerInfoWindow[0],
         });
         node_id.set(marker.node_id);
@@ -111,7 +119,6 @@ var app = app || {};
         $('#markerInfoWindow .scale').on('keydown', function (ev) {
             if (ev.which == 13) {
                 closeInfoWindow(marker);
-                infoWindow.setMap(null);
                 ev.preventDefault();
             }
         });
