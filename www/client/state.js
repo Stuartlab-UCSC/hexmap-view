@@ -250,6 +250,8 @@ var app = app || {};
         // the hard-coded overlay node data specific to this project
         if (s.project.slice(0,13) === 'Youngwook/ori') {
             Session.set('overlayNodes', OVERLAY_NODES_YOUNGWOOK_ORIGINAL);
+        } else if (s.project.slice(0,13) === 'Youngwook/qua') {
+            Session.set('overlayNodes', OVERLAY_NODES_YOUNGWOOK_QUANTILE_NORMALIZATION);
         } else if (s.project.slice(0,13) === 'Youngwook/exp') {
             Session.set('overlayNodes', OVERLAY_NODES_YOUNGWOOK_EXPONENTIAL_NORMALIZATION);
         }
