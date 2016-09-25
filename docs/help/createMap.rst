@@ -51,10 +51,10 @@ menu, then supplying a layout file and an optional color attribute file.
      node3   x-val   y-val
      ...
 
-Layout Features
----------------
+Features used in Layout
+-----------------------
 
-A feature is a property of nodes used to lay out the map. The feature file must
+Features are properties of nodes used to lay out the map. The feature file must
 be in TSV (tab-separated values) format with the x and y coordinates of each
 node, like::
 
@@ -63,10 +63,12 @@ node, like::
  node3   x-val   y-val
  ...
 
-Color Attributes
-----------------
+Attributes used to Color
+------------------------
 
-An attribute is a property of nodes used to color the map. The attribute file
+Note that attributes are optional.
+
+Attributes are properties of nodes used to color the map. The attribute file
 must be in TSV (tab-separated values) format with the
 attributes IDs across the top and node IDs in the first column, like::
 
@@ -76,40 +78,43 @@ attributes IDs across the top and node IDs in the first column, like::
  node3   val     val     val
  ...
 
-Advanced Options
-----------------
+..
+   TBD This section needs to be coded before showing it to the user.
 
-Layout Methods
-^^^^^^^^^^^^^^
+    Advanced Options
+    ----------------
 
-Layout methods are the algorithms used to arrange the nodes on the
-two-dimensional map with the following options available. The default is DrL.
+    Layout Methods
+    ^^^^^^^^^^^^^^
 
-**DrL** : Distributed Recursive (Graph) Layout
+    Layout methods are the algorithms used to arrange the nodes on the
+    two-dimensional map with the following options available. The default is DrL.
 
-**tSNE** : t-distributed Stochastic Neighbor Embedding
+    **DrL** : Distributed Recursive (Graph) Layout
 
-**MDS** : Multidimensional scaling
+    **tSNE** : t-distributed Stochastic Neighbor Embedding
 
-**PCA** : Principal Component analysis
+    **MDS** : Multidimensional scaling
 
-**ICA** : Independent Component Analysis
+    **PCA** : Principal Component analysis
 
-**isomap** : Isomap Embedding
+    **ICA** : Independent Component Analysis
 
-**spectral embedding** : Project the sample on the first eigenvectors of the graph Laplacian
+    **isomap** : Isomap Embedding
+
+    **spectral embedding** : Project the sample on the first eigenvectors of the graph Laplacian
 
 
-Special color attributes
-^^^^^^^^^^^^^^^^^^^^^^^^
+    Special color attributes
+    ^^^^^^^^^^^^^^^^^^^^^^^^
 
-Handle as integer rather than categories
-........................................
+    Handle as integer rather than categories
+    ........................................
 
-TBD
+    TBD
 
-Handle as 2 categories rather than binary
-.........................................
+    Handle as 2 categories rather than binary
+    .........................................
 
-TBD
+    TBD
 

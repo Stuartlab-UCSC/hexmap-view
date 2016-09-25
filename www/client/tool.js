@@ -236,37 +236,32 @@ Tool = (function () {
         
             var $createMap = $('#navBar .createMap, #navBar .createMapDocs');
         
-            if (DEV) {
-        
-                // Show some features in development
-                $('#navBar .upload').show();
-                $createMap.show();
-                $('.queryDocs').show();
-            } else {
-        
-                // Hide, show or disable tools depending on the user's authorizations
-                Meteor.autorun( function () {
-                    var user = Meteor.user();
-                    
-                    // Check authorizations for query API
-                    Meteor.call('is_user_in_role', ['queryAPI', 'dev'], function (error, results) {
+            // Hide, show or disable tools depending on the user's authorizations
+            Meteor.autorun( function () {
+                var user = Meteor.user();
+                
+                // Check authorizations for query API
+                Meteor.call('is_user_in_role', ['queryAPI', 'dev'],
+                    function (error, results) {
                         if (!error && results) {
                             $('.queryDocs').show();
                        } else {
                             $('.queryDocs').hide();
                         }
-                    });
-             
-                    // Check authorization for creating maps
-                    Meteor.call('is_user_in_role', ['createMap', 'dev'], function (error, results) {
+                    }
+                );
+         
+                // Check authorization for creating maps
+                Meteor.call('is_user_in_role', ['createMap', 'dev'],
+                    function (error, results) {
                         if (!error && results) {
                             $createMap.show();
                        } else {
                             $createMap.hide();
                         }
-                    });
-                });
-            }
+                    }
+                );
+            });
         },
     }
 }());

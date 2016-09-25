@@ -325,6 +325,9 @@ def loadData(opts):
 	return main(opts)
 
 def fromNodejs(optsIn):
+
+    # This is the entrance when calling from nodejs rather than from the
+    # command line.
 	class Struct:
 		def __init__(self, **entries):
 			self.__dict__.update(entries)

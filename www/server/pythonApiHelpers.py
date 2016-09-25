@@ -29,9 +29,8 @@ def readJsonRequestData(jsonRequestFilename):
         with open(jsonRequestFilename, 'rU') as f:
             requestData = json.load(f)
     except:
-        print 'Error: json file:', jsonRequestFile, 'could not be read', '\n'
+        print 'Error: json file:', jsonRequestFilename, 'could not be read', '\n'
         return 1
-
     return requestData
 
 def writeJsonResponseData(responseData):

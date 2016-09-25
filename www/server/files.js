@@ -10,12 +10,6 @@ var os = Npm.require('os');
 var crypto = Npm.require('crypto');
 var path = Npm.require('path');
 
-// Find the path for the data directory
-
-// TODO these dirs may need to be different with built meteor
-// There must be a better way to do this for dev and built
-// Maybe move these files to a directory the client can see?
-SERVER_DIR = '../../../../../server/';
 writeToTempFile = function (data, fileExtension) {
 
     // Write arbitrary data to a file, blocking until the write is complete
@@ -63,6 +57,9 @@ readFromJsonBaseFile = function (baseFilename) {
 }
 
 getTsvFile = function (filename, project, unparsed, future) {
+
+    // This reads an entire tsv file into memory, then parses the TSVs into
+    // and array of arrays with the outside array being the lines.
     var path;
     
     if (filename.indexOf('layer_') > -1 || filename.indexOf('stats') > -1) {
@@ -93,25 +90,23 @@ getTsvFile = function (filename, project, unparsed, future) {
     return future.wait();
 }
 
-
-function santize_file_name (name) {
-
-    // File name from client should have forward slashes and repeating dots
-    // removed
-    return name
-        .replace(/\//g, '')
-        .replace(/\.\.+/g, '.');
-}
-
 Meteor.methods({
 
-    write_tsv_file_to_server: function (file_name, data, start) {
-    
+    write_tsv_file_to_server: function (dir, file_name, data, start) {
+
         // Upload a tsv file to the server in chunks and synchronously
-        var file_path = path.join(FEATURE_SPACE_DIR, 'STUB.tsv'); // TODO just a stub
         var buf = Buffer(data);
         var mode = (start === 0) ? 'w' : 'a';
-        var fd = fs.openSync(file_path, mode);
+
+        if (mode === 'w') {
+        
+            // Create the directory if need be
+            if (!fs.existsSync(dir)){
+                fs.mkdirSync(dir);
+            }
+        }
+
+        var fd = fs.openSync(dir + file_name, mode);
         fs.writeSync(fd, buf, 0, buf.length, start);
         fs.closeSync(fd);
     },

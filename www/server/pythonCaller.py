@@ -9,7 +9,7 @@ import scipy.stats
 from pythonApiHelpers import readJsonRequestData
 from pythonApiHelpers import writeJsonResponseData
 
-def pythonWrapper(pythonCallName, jsonRequestFile, serverDir):
+def pythonWrapper(pythonCallName, jsonRequestFile):
 
     opts = readJsonRequestData(jsonRequestFile)
     
@@ -35,7 +35,7 @@ def pythonWrapper(pythonCallName, jsonRequestFile, serverDir):
 
 if __name__ == "__main__" :
     try:
-        return_code = pythonWrapper(sys.argv[1], sys.argv[2], sys.argv[3])
+        return_code = pythonWrapper(sys.argv[1], sys.argv[2])
     except:
         traceback.print_exc()
         return_code = 1

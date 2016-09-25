@@ -8,8 +8,9 @@
     "GOOGLE_API_KEY": "AIzaSyBb8AJUB4x-xxdUCnjzb-Xbcg0-T1mPw3I",
     "ADMIN_EMAIL": "hexmap@ucsc.edu"
   },
-  "server": 
+  "server":
    {
+    "SERVER_DIR": "/data/www/server",
     "mapManagerHelper": 
     {
      "ManagerAddressBook": 

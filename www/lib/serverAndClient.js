@@ -9,6 +9,7 @@ if (Meteor.isClient) {
 }
 
 if (Meteor.isServer) {
+    SERVER_DIR = Meteor.settings.server.SERVER_DIR;
     var exec = Npm.require('child_process').exec;
     var process = Npm.require('process');
     

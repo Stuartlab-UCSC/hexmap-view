@@ -12,38 +12,49 @@ callPython = function (pythonCallName, opts, callback) {
     // Put the parameters in a file as json, then call the python routine. The
     // python routine returns either an error string or a filename containing
     // the results as json. The results are returned to the caller via the
-    // supplied callback as a javascript object on success, or a string on error.
+    // supplied callback as a javascript object on success, or a string on
+    // error.
     
     // Write the opts to a file as json for reading by the python code.
-    var parmFile = writeToTempFile(JSON.stringify(opts));
-    //console.log(parmFile)
+    var json = JSON.stringify(opts);
+    var parmFile = writeToTempFile(json);
+    
+    // Log every call to python in case we have errors, there will be
+    // some sort of breadcrumbs.
+    console.log('Info: callPython(' + pythonCallName + ',',
+        opts.slice(0,80), '...');
+    
     var command =
-        "python "
-        + SERVER_DIR
-        + "pythonCaller.py '"
-        + pythonCallName
-        + "' '"
-        + parmFile
-        + "' '"
-        + SERVER_DIR
-        + "'";
+        "python " +
+        SERVER_DIR +
+        "pythonCaller.py '" +
+        pythonCallName +
+        "' '" +
+        parmFile +
+        "'";
 
     var result;
+    
+    var report_error = function (error, pythonCallName) {
+        console.log('Error: from python call:', pythonCallName + ':', error);
+        return {code: 1, data: error};
+    };
+    
+    // TODO: replace 'exec' with something more standard
     exec(command, function (error, stdout, stderr) {
+    
         if (error) {
+            result = report_error(error, pythonCallName);
         
-            // Return any errors not captured by the python script
-            //console.trace()
-            result = {code: 1, data: error};
-            console.log('error from python call:',error)
-            //TODO we should check stderror as well
+        } else if (stderr) {
+            result = report_error(stderr.toString(), pythonCallName);
         
-        } else if (typeof stdout === 'string'
-            && (stdout.slice(0,5).toLowerCase() === 'error'
-            || stdout.slice(0,7).toLowerCase() === 'warning')) {
+        } else if (typeof stdout === 'string' &&
+            (stdout.slice(0,5).toLowerCase() === 'error' ||
+            stdout.slice(0,7).toLowerCase() === 'warning')) {
         
             // Return any errors/warnings captured by the python script
-            result = {code: 1, data: stdout};
+            return report_error(stdout, pythonCallName);
          
         } else {
         
@@ -52,22 +63,72 @@ callPython = function (pythonCallName, opts, callback) {
             var str = stdout.toString();
             var filename = str.replace('\n', '');
             var data = readFromJsonFileSync(filename);
+            console.log('Info: success with callPython(' +
+                pythonCallName + ',', opts.slice(0,80),
+                '...\n  Results file:', filename);
             result = {
                 code: 0,
-                data: data,  // readFromJsonFileSync(stdout.toString().replace('\n', '')),
+                data: data,
                 filename: filename,
             };
         }
         callback(result);
     });
+};
+
+// Asynchronously call a python functions: preferred method
+function callPythonAsync (pythonCallName, opts, caller) {
+
+    caller.unblock();
+    var future = new Future();
+
+    callPython(pythonCallName, opts, function (result) {
+        future.return(result);
+    });
+
+    return future.wait();
+}
+
+var valid_calls_from_client = [
+    'layout',
+    'diffAnalysis',
+    'statsDynamic',
+];
+
+function return_error_to_client_async (msg, caller) {
+    caller.unblock();
+    var future = new Future();
+    Meteor.setTimeout(function (msg) {
+        future.return(msg);
+    }, 0);
+    return future.wait();
 }
 
 Meteor.methods({
 
-    // For calling python functions from the client
+    // Asynchronously call a python function from the client: preferred method
+    callPython: function (pythonCallName, opts) {
+    
+        if (valid_calls_from_client.indexOf(pythonCallName) > -1) {
+            return callPythonAsync(pythonCallName, opts, this);
+        } else {
+        
+            // This is not a valid python call, return an error
+            return_error_to_client_async (
+                'Error: ' + pythonCallName + ' is not a python function', this);
+        }
+    },
+
+    // Asynchronously call a python function from the client: TODO deprecated
     pythonCall: function (pythonCallName, opts) {
 
         // Call a python function named pythonCallName passing the opts
+        
+        // If this is not a valid python call, return an error
+        if (valid_calls_from_client.indexOf(pythonCallName) < 0) {
+            return 'Error: ' + pythonCallName + ' is not a python function';
+        }
+        
         this.unblock();
         var future = new Future();
 
@@ -85,14 +146,14 @@ Meteor.methods({
             parmFile = writeToTempFile(JSON.stringify({parm: opts}));
 
         var command =
-            'python '
-            + pythonDir
-            + pythonCallName
-            + ".py '"
-            + parmFile
-            + "'";
+            'python ' +
+            pythonDir +
+            pythonCallName +
+            ".py '" +
+            parmFile +
+            "'";
 
-        exec(command, function (error, stdout, stderr) {
+        exec(command, function (error, stdout) {
             if (error) {
                 //console.log(error);
                 console.trace();
@@ -100,23 +161,27 @@ Meteor.methods({
             } else {
 
                 var data,
-                    result = stdout.toString().slice(0, -1); // remove last newline
+             
+                    // remove last newline
+                    result = stdout.toString().slice(0, -1);
 
                 // Return any known errors/warnings to the client
                 if (typeof result === 'string' &&
-                    (result.slice(0,5).toLowerCase() === 'error'
-                    || result.slice(0,7).toLowerCase() === 'warning')) {
+                    (result.slice(0,5).toLowerCase() === 'error' ||
+                        result.slice(0,7).toLowerCase() === 'warning')) {
                     fs.unlinkSync(parmFile);
                     future.return(result);
                 } else {
                     if (opts.tsv) {
 
-                        // Read the tsv results file, creating an array of strings,
-                        // one string per row. Return the array to the client where
-                        // the row format is known, and parse them there.
-                        // TODO This seems abusive of Meteor and should be change
-                        // to what is best for meteor. This is reading the file on
-                        // the server, then passing the long array to the client.
+                        // Read the tsv results file, creating an array of
+                        // strings, one string per row. Return the array to the
+                        // client where the row format is known, and parse them
+                        // there.
+                        // TODO This seems abusive of Meteor and should be
+                        // change to what is best for meteor. This is reading
+                        // the file on the server, then passing the long array
+                        // to the client.
                         data = readFromTsvFileSync(result);
                     } else {
              
@@ -125,7 +190,7 @@ Meteor.methods({
                         data = readFromJsonFileSync(result);
                         data.result = result;
                     }
-                    fs.unlinkSync(parmFile);
+                    //fs.unlinkSync(parmFile);
                     future.return(data);
                 }
             }
@@ -133,4 +198,3 @@ Meteor.methods({
         return future.wait();
     },
 });
-

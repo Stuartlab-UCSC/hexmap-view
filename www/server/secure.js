@@ -4,8 +4,6 @@
 // This file contains all the meteor server code related to security:
 // logins, associating users with roles, authorization...
 
-var exec = Npm.require('child_process').exec;
-
 //createRole('dev');
 //createRole('viewAll');
 //createRole('queryAPI');
@@ -21,7 +19,19 @@ var exec = Npm.require('child_process').exec;
 //];
 //createUsers(users);
 
-showRolesWithUsersAndProject();
+function usernamesToUsers (usernamesIn) {
+    var usernames = usernamesIn;
+    if (typeof usernames === 'string') {
+        usernames = [usernamesIn];
+    }
+    var array = _.map(usernames, function (username) {
+        return Accounts.findUserByUsername(username);
+    });
+    if (typeof usernamesIn === 'string') {
+        return array[0];
+    }
+    return array;
+}
 
 function sendEnrollmentEmail(username) {
     var user = usernamesToUsers(username);
@@ -39,10 +49,11 @@ function sendEnrollmentEmail(username) {
     // Before emailing, update user object with new token
     Meteor._ensure(user, 'services', 'password').reset = tokenRecord;
     var enrollAccountUrl = Accounts.urls.enrollAccount(token);
-    var subject = 'An account has been created for you on ' + URL_BASE.toString();
+    var subject = 'An account has been created for you on ' +
+        URL_BASE.toString();
     var msg = subject + '\n' +
               'Please set your password at: \n\n' +
-              enrollAccountUrl
+              enrollAccountUrl;
  
     sendMail(username, subject, msg);
 }
@@ -68,20 +79,6 @@ function createUsers(users) {
     });
 }
 
-function usernamesToUsers (usernamesIn) {
-    var usernames = usernamesIn;
-    if (typeof usernames === 'string') {
-        usernames = [usernamesIn];
-    }
-    var array = _.map(usernames, function (username) {
-        return Accounts.findUserByUsername(username)
-    });
-    if (typeof usernamesIn === 'string') {
-        return array[0]
-    }
-    return array;
-}
-
 function addUsersToRoles (usernames, roles) {
 
     // Add users to roles
@@ -98,6 +95,15 @@ function removeUsersFromRoles(usernames, roles) {
 
     var users = usernamesToUsers(usernames);
     Roles.removeUsersFromRoles(users, roles);
+}
+
+function getAllUsernames () {
+
+    // Find all of the usernames
+    var users = Meteor.users.find({}, {fields: {username: 1, _id: 0}}).fetch();
+    return _.map(users, function (user) {
+        return user.username;
+    });
 }
 
 function showRolesWithUsersAndProject () {
@@ -140,25 +146,19 @@ function showRolesWithUsersAndProject () {
             }
             return user.username;
         });
-        console.log('Role:', role, '\n  Usernames:', usernames, '\n  Projects:', roleProjects[role]);
+        console.log('Role:', role, '\n  Usernames:', usernames, '\n  Projects:',
+            roleProjects[role]);
     });
     console.log('Users without a role:', noRoleUsers);
 }
+
+showRolesWithUsersAndProject();
 
 function showUsers () {
 
     // Show all users with their properties
     var users = Meteor.users.find().fetch();
     console.log('all users:\n', users);
-}
-
-function getAllUsernames () {
-
-    // Find all of the usernames
-    var users = Meteor.users.find({}, {fields: {username: 1, _id: 0}}).fetch();
-    return _.map(users, function (user) {
-        return user.username;
-    });
 }
 
 function showUsernames () {
@@ -170,7 +170,7 @@ function showUsernames () {
 function removeRoles (role) {
 
     // Drop all users from the roles and remove the roles.
-    if (!role) return;
+    if (!role) { return; }
     
     var roles = role;
     if (Object.prototype.toString.call(role) === '[object String]' ) {
@@ -191,7 +191,7 @@ function createRole(newRoleName) {
         return role.name === newRoleName;
     });
     if (!foundRole) {
-        Roles.createRole(newRoleName)
+        Roles.createRole(newRoleName);
     }
 }
 
@@ -212,11 +212,11 @@ Accounts.onCreateUser(function (options, user) {
     user.username = user.emails[0].address;
     
     // Send the admin an email.
-    var msg = "'New user: "
-        + user.emails[0].address
-        + ' at '
-        + URL_BASE.toString()
-        + "'";
+    var msg = "'New user: " +
+        user.emails[0].address +
+        ' at ' +
+        URL_BASE.toString() +
+        "'";
     sendMail(ADMIN_EMAIL, msg, msg);
     
     // Don't forget to return the new user object.
@@ -233,26 +233,37 @@ is_user_authorized_to_view = function (role) {
         ALL_ACCESS = ['dev', 'viewAll'];
     
     // Public projects with are viewable by anyone
-    if (role === 'public') return true;
+    if (role === PUBLIC) { return true; }
     
     // When not logged in, only public projects may be seen.
-    if (!user) return false;
+    if (!user) { return false; }
     
     // Authorize anything if the user is in the dev role.
-    if (Roles.userIsInRole(user, ALL_ACCESS)) return true;
+    if (Roles.userIsInRole(user, ALL_ACCESS)) { return true; }
     
-    // No role at this point means no authorization. Only ALL_ACCESS can access this.
-    if (!role) return false;
+    // No role at this point means no authorization.
+    // Only ALL_ACCESS can access this.
+    if (!role) { return false; }
     
     // Authorize if the user is in the given role
-    if (Roles.userIsInRole(user, role)) return true;
+    if (Roles.userIsInRole(user, role)) { return true; }
 
     // Not authorized
     return false;
-}
+};
 
 Meteor.methods({
 
+    get_username: function () {
+    
+        // Get the username of the current user
+        if (Meteor.user()) {
+            return Meteor.user().username;
+        } else {
+            return undefined;
+        }
+    },
+    
     is_user_in_role: function (role) {
     
         // Is the user in this particular role

@@ -1,6 +1,6 @@
 #!/usr/bin/env python2.7
 """
-hexagram.py: Given a matrix of similarities, produce a hexagram visualization.
+layout.py: Given a matrix of similarities, produce a hexagram visualization.
 
 This script takes in the filename of a tab-separated value file containing a
 sparse similarity matrix (with string labels) and several matrices of
@@ -44,30 +44,15 @@ from sklearn import preprocessing
 from create_colormaps import create_colormaps_file
 from create_colormaps import cat_files
 from convert_annotation_to_tumormap_mapping import convert_attributes_colormaps_mapping
+import pythonApiHelpers
 
 def parse_args(args):
     """
-    Takes in the command-line arguments list (args), and returns a nice argparse
-    result with fields for all the options.
-    Borrows heavily from the argparse documentation examples:
-    <http://docs.python.org/library/argparse.html>
-    """
-    
-    # The command line arguments start with the program name, which we don't
-    # want to treat as an argument for argparse. So we remove it.
-    args = args[1:]
-    
-    # Construct the parser (which is stored in parser)
-    # Module docstring lives in __doc__
-    # See http://python-forum.com/pythonforum/viewtopic.php?f=3&t=36847
-    # And a formatter class so our examples in the docstring look good. Isn't it
-    # convenient how we already wrapped it to 80 characters?
-    # See http://docs.python.org/library/argparse.html#formatter-class
-    parser = argparse.ArgumentParser(description=__doc__, 
+    This just defines parser arguments but does not actually parse the values
+    """    
+    parser = argparse.ArgumentParser(description=__doc__,
         formatter_class=argparse.RawDescriptionHelpFormatter)
     
-    # Now add all the options to it
-    # Options match the ctdHeatmap tool options as much as possible.
     # The primary parameters:
     parser.add_argument("--similarity", nargs='+',action = 'append',
         help="similarity sparse matrix file")
@@ -88,7 +73,7 @@ def parse_args(args):
     parser.add_argument("--names", type=str, action="append", default=[],
         help="human-readable unique name/label for one the similarity matrix")
     parser.add_argument("--scores", type=str,
-        action="append", default=[],
+        action="append",
         help="values for each signature as TSV")
     parser.add_argument("--include-singletons", dest="singletons", 
         action="store_true", default=False,
@@ -155,10 +140,7 @@ def parse_args(args):
         default=True,
         help="deprecated, use --no-layout-aware-stats instead")
 
-    a = parser.parse_args(args)
-    print "Parameters after defaults applied"
-    print a
-    return a
+    return parser.parse_args(args)
 
 def timestamp():
     return str(datetime.datetime.now())[8:-7]
@@ -1068,26 +1050,31 @@ def drl_similarity_functions(matrix, index, options):
     sys.stdout.flush()
     if options.drlpath:
         subprocess.check_call(["truncate", "-t", str(options.truncation_edges), 
-        drl_basename], env={"PATH": options.drlpath}) 
+            drl_basename], env={"PATH": options.drlpath},
+            stdout=sys.stdout, stderr=subprocess.STDOUT)
     else:
         subprocess.check_call(["truncate", "-t", str(options.truncation_edges),
-            drl_basename])
+            drl_basename], stdout=sys.stdout, stderr=subprocess.STDOUT)
 
     # Run the DrL layout engine.
     print "DrL: Doing layout..."
     sys.stdout.flush()
     if options.drlpath:
-        subprocess.check_call(["layout", drl_basename], env={"PATH": options.drlpath}) 
+        subprocess.check_call(["layout", drl_basename], env={"PATH": options.drlpath},
+            stdout=sys.stdout, stderr=subprocess.STDOUT)
     else:
-        subprocess.check_call(["layout", drl_basename]) 
+        subprocess.check_call(["layout", drl_basename],
+            stdout=sys.stdout, stderr=subprocess.STDOUT)
 
     # Put the string names back
     print timestamp(), "DrL: Restoring names..."
     sys.stdout.flush()
     if options.drlpath:
-        subprocess.check_call(["recoord", drl_basename], env={"PATH": options.drlpath})
+        subprocess.check_call(["recoord", drl_basename], env={"PATH": options.drlpath},
+            stdout=sys.stdout, stderr=subprocess.STDOUT)
     else:
-        subprocess.check_call(["recoord", drl_basename]) 
+        subprocess.check_call(["recoord", drl_basename],
+            stdout=sys.stdout, stderr=subprocess.STDOUT)
         
     # Now DrL has saved its coordinates as <signature name>\t<x>\t<y> rows in 
     # <basename>.coord
@@ -1338,7 +1325,44 @@ def copy_files_for_UI(options, layer_files, layers, layer_positives, clumpiness_
     # still be empty.
     colormaps_writer.close()
 
-def hexIt(options):
+def build_default_scores(options):
+
+    # Build a fake scores file from the node IDs in the first layout. This is a
+    # hack to get around the client code expecting at least one layer.
+    
+    # Find the feature file
+    if options.coordinates is not None:
+        fin = options.coordinates[0][0]
+    # TODO handle other feature file formats
+    with open(fin, 'r') as fin:
+        fin = csv.reader(fin, delimiter='\t')
+        file_name = options.directory + '/fake_layer.tab'
+        with open(file_name, 'w') as fout:
+            fout = csv.writer(fout, delimiter='\t')
+            for i, row in enumerate(fin.__iter__()):
+                fout.writerow([row[0], row[0]])
+    return file_name
+
+
+def hexIt(options, cmd_line_list, all_dict):
+
+    # Set stdout and stderr to a log file in the destination directory
+    if not os.path.exists(options.directory):
+        os.makedirs(options.directory)
+    log_file_name = options.directory + '/log'
+    stdoutFd = sys.stdout
+    sys.stdout = open(log_file_name, 'w')
+    sys.stderr = sys.stdout
+    print timestamp(), 'Started'
+    print 'command-line options:'
+    pprint.pprint(cmd_line_list)
+    print 'all options:'
+    pprint.pprint(all_dict)
+    sys.stdout.flush()
+    
+    if options.scores == None:
+        options.scores = [build_default_scores(options)]
+
     #This is probably a bad way to do this but it was a quick and dirty way to store certain arguments as list and not list of lists
     if not (options.similarity == None):
         options.similarity = [val for sublist in options.similarity for val in sublist]
@@ -1397,12 +1421,6 @@ def hexIt(options):
     x, y = hexagon_center(0, 0)
     if hexagon_pick(x, y) != (0, 0):
         raise Exception("Picking is broken!")
-    
-    # First bit of stdout becomes annotation in Galaxy 
-    # Make sure our output directory exists.
-    if not os.path.exists(options.directory):
-        # makedirs is the right thing to use here: recursive
-        os.makedirs(options.directory)
     
     print "Writing matrix names..."
     # We must write the file names for hexagram.js to access.
@@ -2068,6 +2086,11 @@ def hexIt(options):
             tar.add(options.directory, arcname=os.path.basename(options.directory))
         print "Done writing a tar file"
 
+    # return the log file
+    sys.stdout.close()
+    sys.stdout = stdoutFd
+    return log_file_name
+
 def PCA(dt):    #YN 20160620
     pca = sklearn.decomposition.PCA(n_components=2)
     pca.fit(dt)
@@ -2120,26 +2143,22 @@ def compute_silhouette(coordinates, *args):        #YN 20160629: compute average
         features.append(numpy.array([coordinates[s]["x"], coordinates[s]["y"]]))
     return(sklearn.metrics.silhouette_score(numpy.array(features), numpy.array(cluster_assignments_lst), metric='euclidean', sample_size=1000, random_state=None))
 
-def main(args):
-    """
-    Parses command line arguments, and makes visualization.
-    "args" specifies the program arguments, with args[0] being the executable
-    name. The return value should be used as the program's exit code.
-    """
+class Context:
+    def __init__(s):
+        s.matrices = [] # Opened matrices files
 
-    print timestamp(), 'Started'
-    print "Starting command: {}".format(" ".join(args))
-    sys.stdout.flush()
-    return hexIt(parse_args(args)) # This holds the nicely-parsed options object
+def main(args):
+    arg_obj = parse_args(args)
+    return hexIt(arg_obj, args, arg_obj.__dict__)
+
+def fromNodejs(args):
+    return main(args)
 
 if __name__ == "__main__" :
     try:
-        # Get the return code to return
-        # Don't just exit with it because sys.exit works by exceptions.
-         return_code = main(sys.argv)
+        return_code = main(sys.argv[1:])
     except:
         traceback.print_exc()
-        # Return a definite number and not some unspecified error code.
         return_code = 1
         
     sys.exit(return_code)

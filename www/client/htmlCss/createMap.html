@@ -24,16 +24,21 @@
                 <td class='dialog_label'>
                     Features to lay out map:
                 </td>
-                <td class='dialog_value'>
-                    <input class='feature file' type='file'>
+                <td class='dialog_value feature_upload_anchor'>
+                    {{>upload_t}}
                 </td>
             </tr>
-            <tr>
+            <tr style='display:none'>
                 <td class='dialog_label'>
                     Optional attributes to color map:
                 </td>
                 <td class='dialog_value'>
                     <input class='attribute file' type='file'>
+                </td>
+            </tr>
+            <tr>
+                <td class='dialog_value' colspan=2>
+                     <input class='log' style='width:100%;height:3em' type='text' name='log' value='{{log}}' readonly>
                 </td>
             </tr>
             <tr style='display:none'>
@@ -96,3 +101,8 @@
         </table>
     </form>
 </template>
+
+<template name='upload_t'>
+    <input type='file' class='file_name' name='files' accept='MIME_text/tab-separated-values' />
+</template>
+

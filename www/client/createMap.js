@@ -7,23 +7,46 @@ var app = app || {};
     //'use strict';
 
     var title = 'Create a New Map',
-        dialogHex,
-        $dialog;
- 
-    /* TODO later
+        dialogHex, // instance of the class DialogHex
+        $dialog, // our dialog DOM element
+        feature_file, // the feature file object
+        our_feature_file_name,
+        view_dir,
+        log = new ReactiveVar();
+
     var show_advanced = 'Advanced options...',
         hide_advanced = 'Hide advanced options',
-        formats = ['Feature matrix', 'Similarity full matrix', 'Similarity sparse matrix', 'Node XY positions'],
+        formats = [
+            'Feature matrix',
+            'Full similarity matrix',
+            'Sparse similarity matrix',
+            'Node XY positions',
+        ],
         default_format = 'Feature matrix',
-        methods = ['DrL', 'tSNE', 'MDS', 'PCA', 'ICA', 'isomap', 'spectral embedding'],
+        methods = [
+            'DrL',
+            'tSNE',
+            'MDS',
+            'PCA',
+            'ICA',
+            'isomap',
+            'spectral embedding',
+        ],
+        default_method = 'Drl',
         advanced_label = new ReactiveVar(),
         requested_name = new ReactiveVar('');
-    */
  
     Template.create_map_t.helpers({
-        /* TODO later
         name: function () {
-            return requested_name.get();
+            var file = Session.get('create_map_feature_file');
+            if (name) {
+                return file.name;
+            } else {
+                return undefined;
+            }
+        },
+        log: function () {
+            return log.get();
         },
         dynamic: function () {
             return !(Session.get('create_map_stats_precompute'));
@@ -35,7 +58,6 @@ var app = app || {};
             return Session.get('create_map_show_advanced')
                 ? hide_advanced : show_advanced;
         },
-        */
         advanced_display: function () {
             if (Session.get('create_map_show_advanced')) {
                 return 'table';
@@ -68,14 +90,32 @@ var app = app || {};
     }
     */
  
-    function show () {
+    function username_received (username) {
  
-        // Show the contents of the dialog, once per trigger button click
+        if (!username) {
+            Util.banner('error', 'username could not be found');
+            return;
+        }
  
-        // Define the handler for the feature file selection
+        var clean_username = Util.clean_file_name(username);
+ 
+        var dir = FEATURE_SPACE_DIR + clean_username + '/';
+        var file_name = 'feature.tsv'
+        our_feature_file_name = dir + file_name;
+        view_dir = VIEW_DIR + clean_username + '/';
+ 
+        // Define the file selector for feature file
+        feature_file = create_upload($dialog.find('.feature_upload_anchor'),
+            dir, file_name, log);
+        Session.set('create_map_feature_file', feature_file.file);
+
+        /*
+        // Define the file selector for feature file
         $dialog.find('.feature.file').on('change', function (ev) {
-            var file = event.target.files[0];
+            Session.set('create_map_feature_file', event.target.files[0]);
+            //var file = event.target.files[0];
         });
+        */
  
         /* TODO later
         // Create the feature format list
@@ -117,6 +157,15 @@ var app = app || {};
         });
         */
     }
+ 
+    function show () {
+ 
+        // Show the contents of the dialog, once per trigger button click
+ 
+        // Find the username to build directories for her
+        Util.get_username(username_received);
+ 
+    }
 
 /*
 
@@ -141,12 +190,48 @@ var app = app || {};
         
 */
 
+    function feature_file_uploaded () {
+ 
+        Util.banner('info', feature_file.user_file_name
+            + ' upload complete. Generating layout...');
+
+        var opts = [
+            '--names', 'layout',
+            '--directory', view_dir,
+            '--include-singletons',
+            '--no-density-stats',
+            '--no-layout-independent-stats',
+            '--no-layout-aware-stats',
+        ];
+        if (true) { // TODO (feature_format === 'coordinates') {
+            opts.push('--coordinates');
+            opts.push(our_feature_file_name);
+        }
+        if (false) {
+            opts.push('--scores');
+            opts.push('TODO')
+        }
+ 
+        Meteor.call('callPython', 'layout', opts,
+            function (error, results) {
+            if (error) {
+                Util.banner('error', error);
+            } else {
+                console.log('no errors generated on layout,py');
+                if (!_.isUndefined(results)) {
+                    console.log('results', results);
+                }
+                // TODO
+            }
+        });
+    }
+
     function createIt () {
  
-        // TODO
+        // Create the map
 
-        banner('info', 'Your map is building. An email will be sent when complete.');
-        hide();
+        // Upload the user's feature file
+        feature_file.upload_now(feature_file, feature_file_uploaded);
 	}
  
     function hide() {
@@ -171,6 +256,7 @@ var app = app || {};
             hide, true, 'help/createMap.html');
  
         Session.set('create_map_show_advanced', false);
+        log.set('');
  
         // Listen for the menu clicked
         add_tool("createMap", function() {
