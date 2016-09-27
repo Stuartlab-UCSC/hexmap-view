@@ -43,19 +43,46 @@ function add_layer_url(layer_name, layer_url, attributes) {
 
 }
 
-with_layer = function (layer_name, callback) {
+with_layer = function (layer_name_in, callback, try_count) {
     // This is how you get layers, and allows for layers to be downloaded
     // dynamically. 
     // have_layer must return true for the given name.
     // Run the callback, passing it the layer (object from hex label/signature
     // to float) with the given name.
 
+    if (!try_count) {try_count = 1}
+ 
+    var layer_name = layer_name_in.slice();
+ 
     // First get what we have stored for the layer
+    /*
+    console.log('layer_name ###' + layer_name + '###');
+    console.log('layers', layers);
+    console.log("layers['Node ID']", layers['Node ID']);
+    //console.log('layers.sample', layers.sample);
+    console.log('layers[layer_name]', layers[layer_name]);
+    console.log("layers[eval('layer_name')]", layers[eval('layer_name')]);
+    console.log("eval('layer_name')  ###" + eval('layer_name') + '###');
+    var layer = layers[eval('layer_name')];
+    */
     var layer = layers[layer_name];
 
-        if (layer == undefined) {
-            console.log('TODO layer is undefined for', layer_name, '. State is probably corrupted so clear your browser cache.');
-            return true;
+        if (layer === undefined) {
+            console.log('TODO layer is undefined for', layer_name,
+                '. You may need to clear your cache.');
+            /*
+            if (try_count > 3) {
+                console.log('TODO layer is undefined for', layer_name,
+                    '. You may need to clear your cache.');
+            } else {
+                console.log('TODO layer is undefined for', layer_name,
+                    '. Trying again after a pause.');
+                Meteor.setTimeout(function () {
+                    with_layer(layer_name, callback, try_count + 1);
+                }, 2000);
+            }
+            */
+            return;
         }
 		var data_val = layer.data;
 		if(layer.data == undefined) {

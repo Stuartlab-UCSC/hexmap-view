@@ -7,6 +7,27 @@ var app = app || {};
 (function (hex) {
 Util = (function () {
 
+    get_username = function (callback) {
+        
+        // Callback will be called with one parameter: the username or undefined
+        Meteor.call('get_username', function (error, results) {
+            if (error || !results) {
+                callback(undefined);
+            } else {
+                callback(results);
+            }
+        });
+    }
+    
+    clean_file_name = function (dirty) {
+        
+        // Make a directory or file name out of some string
+        // Replace any tough characters with an underscore
+        if (!dirty) {return undefined}
+        
+        return dirty.replace(/[^A-Za-z0-9_\-\.]/g, "_");
+    }
+    
     session = function (prefix, operation, name,  val) {
  
         // Perform a get, set, or equals on a state variable with a prefix.
@@ -224,6 +245,8 @@ Util = (function () {
     }
     
     return { // Public methods
+        get_username: get_username,
+        clean_file_name: clean_file_name,
         session: session,
         is_continuous: is_continuous,
         is_categorical: is_categorical,

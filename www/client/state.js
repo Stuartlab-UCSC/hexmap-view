@@ -248,8 +248,13 @@ var app = app || {};
  
         // TODO a special hack until we get bookmarks going: load
         // the hard-coded overlay node data specific to this project
+        // Use this method if we want the project in the drop-down lise
+        // If you ony want it accessible from a URL, use the method in
+        // this.loadFromUrl().
         if (s.project.slice(0,13) === 'Youngwook/ori') {
             Session.set('overlayNodes', OVERLAY_NODES_YOUNGWOOK_ORIGINAL);
+        } else if (s.project.slice(0,13) === 'Youngwook/qua') {
+            Session.set('overlayNodes', OVERLAY_NODES_YOUNGWOOK_QUANTILE_NORMALIZATION);
         } else if (s.project.slice(0,13) === 'Youngwook/exp') {
             Session.set('overlayNodes', OVERLAY_NODES_YOUNGWOOK_EXPONENTIAL_NORMALIZATION);
         }
@@ -332,9 +337,19 @@ var app = app || {};
                 }
                 state.overlayNodes = {}
                 state.overlayNodes[s.uParm.node] = {x: s.uParm.x, y: s.uParm.y};
+ 
+            } else if (s.uParm.nodes) {
+ 
+                // Load this group of nodes as overlay nodes
+                state.overlayNodes = getOverlayNodeGroup(s.uParm.nodes);
      
             // TODO a special hack until we get bookmarks going: load
-            // the hard-coded overlay node data specific to this project
+            // the hard-coded overlay node data specific to this project.
+            // Use this method if we want the project only accessible from a URL
+            // If you want it on the project list, use the method in
+            // this.load().
+ 
+            // For a single node in a URL
             } else if (state.project.slice(0,13) === 'CKCC/v1-') {
       
                 var node = state.project.slice(13,-1);
@@ -365,27 +380,6 @@ var app = app || {};
             return false;
         }
         return true;
-    }
-
-    function initDocs () {
- 
-        // Show query API doc menu option if user is in dev or CKCC role.
-        Meteor.call('isUserInRole', ['dev', 'queryAPI'], function (error, results) {
-            if (!error && results) {
-                $('.queryDocs').show();
-           } else {
-                $('.queryDocs').hide();
-            }
-        });
- 
-        // Show createMap doc menu option if user is in createMap or dev role.
-        Meteor.call('isUserInRole', ['dev', 'createMap'], function (error, results) {
-            if (!error && results) {
-                $('.createMapDocs').show();
-           } else {
-                $('.createMapDocs').hide();
-            }
-        });
     }
 
     centerToLatLng = function (centerIn) {
@@ -451,12 +445,6 @@ var app = app || {};
                 s.save();
             }
         }
- 
-        // Set help menu options when the username changes, including log out
-        Meteor.autorun(function () {
-            var x = Meteor.user();
-            initDocs();
-        });
  
         return s;
     };

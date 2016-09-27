@@ -13,7 +13,7 @@
 
 var app = app || {};
 
-(function (hex) {
+(function (hex) { // jshint ignore
     //'use strict';
 Tool = (function () {
 
@@ -210,24 +210,13 @@ Tool = (function () {
                 $('body').css('overflow-y', 'hidden');
      
             } else if (Session.equals('page', 'gridPage')) {
-                console.log('gridPage');
-                console.log("$('body').find('.homeShow, .mapShow')", $('body').find('.homeShow, .mapShow'));
                 $('body').find('.homeShow, .mapShow').hide();
                 $('body').find('.gridShow').show();
                 $('.gridPage').addClass('disabled');
                 Session.set('loadingMap', true);
                 $('body').css('overflow-y', 'hidden');
             }
-     
-            // TODO keep the dev features out of production
-            if (DEV) {
-                $('#navBar .overlayNode').addClass('disabled');
-                $('.user_guide').attr('href', 'help/index.html');
-            } else {
-                $('#navBar .overlayNode, #navBar .createMap')
-                    .hide();
-            }
-     
+        
             // Set up the link to the map page
             add_tool("mapLayout", function(ev) {
                 if (!$(ev.target).hasClass('disabled')) {
@@ -240,6 +229,38 @@ Tool = (function () {
             add_tool("home", function(ev) {
                 $('.homePage').click();
                 tool_activity(false);
+            });
+        
+            // TODO we're not doing overlay nodes yet
+            $('#navBar .overlayNode').hide();
+        
+            var $createMap = $('#navBar .createMap, #navBar .createMapDocs');
+        
+            // Hide, show or disable tools depending on the user's authorizations
+            Meteor.autorun( function () {
+                var user = Meteor.user();
+                
+                // Check authorizations for query API
+                Meteor.call('is_user_in_role', ['queryAPI', 'dev'],
+                    function (error, results) {
+                        if (!error && results) {
+                            $('.queryDocs').show();
+                       } else {
+                            $('.queryDocs').hide();
+                        }
+                    }
+                );
+         
+                // Check authorization for creating maps
+                Meteor.call('is_user_in_role', ['createMap', 'dev'],
+                    function (error, results) {
+                        if (!error && results) {
+                            $createMap.show();
+                       } else {
+                            $createMap.hide();
+                        }
+                    }
+                );
             });
         },
     }

@@ -1,6 +1,6 @@
 // mainHex.js
 
-var app = app || {}; 
+var app = app || {};
 
 (function (hex) { 
     //'use strict';
@@ -87,7 +87,7 @@ var app = app || {};
                 initMainMapContainer();
             }
         });
-        initProject();
+        Project.init();
         GoogleMaps.load({ key: GOOGLE_API_KEY });  // browser key
         Tool.init();
     });

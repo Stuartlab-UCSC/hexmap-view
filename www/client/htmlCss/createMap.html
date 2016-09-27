@@ -3,9 +3,17 @@
         <table>
             <tr style='display:none'>
                 <td class='dialog_label'>
+                    Map name:
+                </td>
+                <td class='dialog_value'>
+                    <input class='attribute file' type='text'>
+                </td>
+            </tr>
+            <tr style='display:none'>
+                <td class='dialog_label'>
                     Layout Feature Format:
                 </td>
-                <td colspan=2 class='dialog_value'>
+                <td class='dialog_value'>
                     <span class='format_anchor' style='width:15em'></span>
                     <a href='/help/createMap.html#feature-formats' target='_blank'>
                         <img class='context-help' src='/icons/question.png'>
@@ -14,34 +22,27 @@
             </tr>
             <tr>
                 <td class='dialog_label'>
-                    Layout features:
+                    Features to lay out map:
                 </td>
-                <td colspan=2 class='dialog_value'>
-                    <input class='feature file' type='file'>
-                </td>
-            </tr>
-            <tr>
-                <td class='dialog_label'>
-                    Optional color attributes:
-                </td>
-                <td colspan=2 class='dialog_value'>
-                    <input class='attribute file' type='file'>
+                <td class='dialog_value feature_upload_anchor'>
+                    {{>upload_t}}
                 </td>
             </tr>
             <tr style='display:none'>
-                <td class='dialog-label' style='vertical-align:top'>
-                    Statistics:
+                <td class='dialog_label'>
+                    Optional attributes to color map:
                 </td>
-                <td class='dialog-value'>
-                    <input type="radio" class='stats'  name="stats" id="dynamic" value="dynamic" checked={{dynamic}} />
-                    <label for="dynamic">Dynamic</label>
-                    <br>
-                    <input type="radio" class='stats' name="stats" id="precompute" value="precompute" checked={{precompute}} />
-                    <label for="precompute">Precompute (longer run time)</label><br/>
+                <td class='dialog_value'>
+                    <input class='attribute file' type='file'>
                 </td>
             </tr>
             <tr>
-                <td class='dialog_value' colspan=2 style='font-size:0.8em'>
+                <td class='dialog_value' colspan=2>
+                     <input class='log' style='width:100%;height:3em' type='text' name='log' value='{{log}}' readonly>
+                </td>
+            </tr>
+            <tr style='display:none'>
+                <td class='dialog_value' style='font-size:0.8em'>
                     <a class='advanced_trigger' href='#'>
                         {{ advanced_label }}
                     </a>
@@ -55,11 +56,23 @@
                 <td class='dialog_label'>
                     Layout method:
                 </td>
-                <td colspan=2 class='dialog_value'>
+                <td class='dialog_value'>
                     <span class='method_anchor' style='width:14em'></span>
                     <a href='/help/createMap.html#layout-methods' target='_blank'>
                         <img class='context-help' src='/icons/question.png'>
                     </a>
+                </td>
+            </tr>
+            <tr style='display:none'>
+                <td class='dialog_label' style='vertical-align:top'>
+                    Statistics:
+                </td>
+                <td class='dialog_value'>
+                    <input type="radio" class='stats'  name="stats" id="dynamic" value="dynamic" checked={{dynamic}} />
+                    <label for="dynamic">Dynamic</label>
+                    <br>
+                    <input type="radio" class='stats' name="stats" id="precompute" value="precompute" checked={{precompute}} />
+                    <label for="precompute">Precompute (longer run time)</label><br/>
                 </td>
             </tr>
             <tr>
@@ -71,7 +84,7 @@
                 <td class='dialog_label' style='vertical-align:top'>
                     Handle as integer<br>rather than categories:
                 </td>
-                <td class='dialog_value' colspan=2>
+                <td class='dialog_value'>
                     <textarea class='cont_int' rows='3'>
                     </textarea>
                 </td>
@@ -80,7 +93,7 @@
                 <td class='dialog_label' style='vertical-align:top'>
                     Handle as 2 categories<br>rather than binary:
                 </td>
-                <td class='dialog_value' colspan=2>
+                <td class='dialog_value'>
                     <textarea class='two_val_cat' rows='3'>
                     </textarea>
                 </td>
@@ -88,3 +101,8 @@
         </table>
     </form>
 </template>
+
+<template name='upload_t'>
+    <input type='file' class='file_name' name='files' accept='MIME_text/tab-separated-values' />
+</template>
+

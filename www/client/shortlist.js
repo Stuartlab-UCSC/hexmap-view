@@ -1039,7 +1039,7 @@ var app = app || {};
  
  
         // Handle the click of the primary button
-        $shortlist.find('.primary').on('click', function (ev) {
+        $shortlist.on ('click', '.primary', function (ev) {
             var layer_name = get_layer_name_from_child(ev.target),
                 active = copy_actives_state();
                 
@@ -1168,6 +1168,9 @@ var app = app || {};
         $dynamic_controls = $shortlist.find('.dynamic_controls');
         $float_controls = $shortlist.find('.float');
  
+        // Create the controls that move from entry to entry
+        create_float_controls();
+ 
         var shortlist = copy_shortlist_state();
 
         // Add the 'first layer' to the shortlist if it is empty
@@ -1220,8 +1223,5 @@ var app = app || {};
             var x = Session.get('active_layers');
             refreshColors();
         });
- 
-        // Create the controls that move from entry to entry
-        create_float_controls();
     }
 })(app);

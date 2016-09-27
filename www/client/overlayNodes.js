@@ -14,12 +14,17 @@ var app = app || {};
         MARKER_IMAGE = "http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=%E2%80%A2|",
         markerScaledSize,
         markers = {},
+        node_id = new ReactiveVar(),
         color = new ReactiveVar(),
         scale = new ReactiveVar(),
         $markerInfoWindow,
-        initialized = false;
+        initialized = false,
+        infoWindow;
  
     Template.markerInfoWindow.helpers({
+        node_id: function () {
+            return node_id.get();
+        },
         color: function () {
             return color.get();
         },
@@ -44,9 +49,15 @@ var app = app || {};
  
     function closeInfoWindow (marker) {
  
-        // Detach our contents so we can use it later
+        // Detach our DOM contents to use later
         $markerInfoWindow = $markerInfoWindow.detach();
         
+        // Close the info window on the map and destroy
+        if (infoWindow) {
+            infoWindow.close();
+            infoWindow = null;
+        }
+ 
         // Add back the click listener
         addMarkerClickListener(marker);
     }
@@ -58,10 +69,12 @@ var app = app || {};
         // Disable the click listener while the infoWindow is open
         google.maps.event.removeListener(marker.listener);
  
-        // Create an infoWindow
-        var infoWindow = new google.maps.InfoWindow({
+        // Create a new infoWindow
+        closeInfoWindow(marker);
+        infoWindow = new google.maps.InfoWindow({
             content: $markerInfoWindow[0],
         });
+        node_id.set(marker.node_id);
         $markerInfoWindow.show();
         infoWindow.open(googlemap, marker);
         $('#markerInfoWindow .color').focus();
@@ -106,7 +119,6 @@ var app = app || {};
         $('#markerInfoWindow .scale').on('keydown', function (ev) {
             if (ev.which == 13) {
                 closeInfoWindow(marker);
-                infoWindow.setMap(null);
                 ev.preventDefault();
             }
         });
@@ -142,6 +154,7 @@ var app = app || {};
                     animation: google.maps.Animation.DROP,
                     title: n,
                 });
+                markers[n].node_id = n, // Our attribute, not google's
                 markers[n].color = DEFAULT_MARKER_COLOR, // Our attribute, not google's
                 markers[n].scale = DEFAULT_MARKER_SCALE, // Our attribute, not google's
                 
@@ -160,23 +173,36 @@ var app = app || {};
         if (initialized) return;
  
         initialized = true;
+        node_id.set('');
         color.set(DEFAULT_MARKER_COLOR);
         scale.set(DEFAULT_MARKER_SCALE);
         showOverlayNodes();
         $markerInfoWindow = $('#markerInfoWindow');
     }
  
-    OVERLAY_NODES_YOUNGWOOK_ORIGINAL = {
-        'sd01': { x: 240.5, y: 235.0},
-        'sd02': { x: 128.0, y: 292.0},
-        'sd03': { x: 228.0, y: 318.5},
-        'sd04': { x: 113.5, y: 110.5},
-        'sd05': { x: 132.5, y: 314.0},
-        'sd06': { x: 227.5, y: 364.0},
-        'sd07': { x: 141.5, y: 307.5},
-        'sd08': { x: 258.0, y: 246.0},
-        'sd09': { x: 259.0, y: 221.0},
-        'sd10': { x: 128.0, y: 293.5},
+    getOverlayNodeGroup = function (nodeGroup) {
+        return nodeGroups[nodeGroup];
+    }
+
+    nodeGroups = {
+        'Q5_EM_236,K12_S8,K11_S7': {
+            'Q5_EM_236': { x: 24.0, y: 11.0},
+            'K12_S8': { x: 21.5, y: 12.5},
+            'K11_S7': { x: 21.5, y: 19.5},
+        },
+    };
+
+    OVERLAY_NODES_YOUNGWOOK_QUANTILE_NORMALIZATION = {
+        'sd01': { x: 240.5, y: 147.0},
+        'sd02': { x: 127.5, y: 292.0},
+        'sd03': { x: 257.5, y: 245.5},
+        'sd04': { x: 115.5, y: 117.0},
+        'sd05': { x: 132.5, y: 314.5},
+        'sd06': { x: 95.5, y: 202.0},
+        'sd07': { x: 127.5, y: 292.0},
+        'sd08': { x: 206.5, y: 120.0},
+        'sd09': { x: 226.5, y: 180.5},
+        'sd10': { x: 127.5, y: 292.0},
     }
  
     OVERLAY_NODES_YOUNGWOOK_EXPONENTIAL_NORMALIZATION = {
@@ -190,6 +216,19 @@ var app = app || {};
         'sd08': { x: 255.5, y: 239.5},
         'sd09': { x: 255.5, y: 242.0},
         'sd10': { x: 255.5, y: 239.5},
+    }
+ 
+    OVERLAY_NODES_YOUNGWOOK_ORIGINAL = {
+        'sd01': { x: 240.5, y: 235.0},
+        'sd02': { x: 128.0, y: 292.0},
+        'sd03': { x: 228.0, y: 318.5},
+        'sd04': { x: 113.5, y: 110.5},
+        'sd05': { x: 132.5, y: 314.0},
+        'sd06': { x: 227.5, y: 364.0},
+        'sd07': { x: 141.5, y: 307.5},
+        'sd08': { x: 258.0, y: 246.0},
+        'sd09': { x: 259.0, y: 221.0},
+        'sd10': { x: 128.0, y: 293.5},
     }
  
     OVERLAY_NODES = {
