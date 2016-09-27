@@ -15,39 +15,53 @@ function read_nodenames(managers_doc,callback) {
     // reflection datafile
     
     var filename = FEATURE_SPACE_DIR +managers_doc.mapId.split(('/'))[0] + '/' + managers_doc.datapath;
-    var featOrSamp = managers_doc.featOrSamp;
+
 
     var node_names = [];
     var first = true;
 
-    var rl = readline.createInterface({
-        input : fs.createReadStream(filename),
-        terminal: false
+    fs.stat(filename,function(err,stats) {
+        if (err) {
+            console.log(err);
+            return ;
+        }
+        else if (stats.isFile() ){
+            var featOrSamp = managers_doc.featOrSamp;
+
+            var rl = readline.createInterface({
+                input : fs.createReadStream(filename),
+                terminal: false
+            });
+
+            //if we are dealing with sample nodes we only read the header,
+            // if dealing with features need to grab first element after first line
+            if(featOrSamp === 'feature') {
+                rl.on('line', function (line) {
+                    if(!first) {
+                        //console.log(line.split('\t')[0])
+                        node_names.push(line.split('\t')[0]);
+                    } else {
+                        first = false;
+                    }
+                });
+            } else if (featOrSamp === 'sample') {
+                rl.on('line', function (line) {
+                    //console.log('typeOfline:',typeof(line));
+                    node_names = line.split('\t').splice(1);
+                    //console.log('node_names',node_names);
+                    rl.close();
+                });
+            }
+            //after we read stuff in we put it in the database (callback should do that)
+            rl.on('close',function() {
+                callback(managers_doc,node_names);
+            });
+        }
+        else {
+            callback(managers_doc,[])
+        }
     });
 
-    //if we are dealing with sample nodes we only read the header,
-    // if dealing with features need to grab first element after first line
-    if(featOrSamp === 'feature') {
-        rl.on('line', function (line) {
-            if(!first) {
-                //console.log(line.split('\t')[0])
-                node_names.push(line.split('\t')[0]);
-            } else {
-                first = false;
-            }
-        });
-    } else if (featOrSamp === 'sample') {
-        rl.on('line', function (line) {
-            //console.log('typeOfline:',typeof(line));
-            node_names = line.split('\t').splice(1);
-            //console.log('node_names',node_names);
-            rl.close();
-        });
-    }
-    //after we read stuff in we put it in the database (callback should do that)
-    rl.on('close',function() {
-        callback(managers_doc,node_names);
-    });
 }
 
 function insertNodeNames(doc,node_names){
