@@ -4,22 +4,24 @@
 
 var app = app || {}; 
 
-(function (hex) {
-CheckLayerBox = (function () {
+(function (hex) { // jshint ignore: line
+CheckLayerBox = (function () { // jshint ignore: line
  
-    LayerPostOffice = new Mongo.Collection('LayerPostOffice');
+    var LayerPostOffice = new Mongo.Collection('LayerPostOffice');
+    var last_layer_names = []; // list of layer names from the last update
 
-    function JsonLayer(layer){
+    function jsonLayer(layer){
         //puts together two parallel arrays and makes a single Json data layer
-        vals = layer.data.values;
-        nodes = layer.data.node_ids;
+        var vals = layer.data.values;
+        var nodes = layer.data.node_ids;
 
-        Json = {};
+        var Json = {};
         for (var i = 0 ; i < vals.length; i++){
-            Json[nodes[i]] = vals[i]
+            Json[nodes[i]] = vals[i];
         }
-        return Json
+        return Json;
     }
+    
 
     function remove_layer(layer_name) {
         var user = Meteor.user();
@@ -30,31 +32,36 @@ CheckLayerBox = (function () {
         }
     }
 
-    function receive_layers(layers){
-        //iterate through layers and place them in the shortlist
-        _.each(layers, function (layer){
-            var attributes = {};
-            attributes.selection = layer.selection;
-            attributes.n         = layer.n;
-            attributes.magnitude = layer.magnitude;
-            attributes.removeFx  = remove_layer;
-            attributes.reflection = true
+    function layers_received (layers) {
+        // Find and handle new layers and removed layers
 
-            // make Json out of parallel arrays, avoids '.' in mongoDB
-            layer.data = JsonLayer(layer);
-            
-            // Create the colormap
-            var colormap = layer.colormap;
-            _.each(colormap,function(mapentry){
-                mapentry.color = Color(mapentry.color); //couldn't use the Color() func on the server side
-                mapentry.fileColor = Color(mapentry.fileColor);
-            });
-            
-            // Add the layer to the global layers object and global colormaps
-            create_dynamic_category_layer(layer.layer_name, layer.data,
-                attributes, colormap);
-        })
+        // Find any new layers and add them to the shortlist
+        var doc_layer_names = [];
+        var new_layers = _.filter(layers, function (layer) {
+            doc_layer_names.push(layer.layer_name);
+            return (last_layer_names.indexOf(layer.layer_name) < 0);
+        });
+
+        CheckLayerBox.receive_layers(new_layers);
+
+        // Find any layers removed and remove them from the shortlist
+        _.each(last_layer_names, function (layer_name) {
+            if (doc_layer_names.indexOf(layer_name) < 0) {
+                update_shortlist(layer_name, true);
+            }
+        });
+
+        last_layer_names = doc_layer_names;
     }
+
+    Meteor.autorun(function(){
+        var doc = LayerPostOffice.findOne({});
+
+        if (doc) {
+            //console.log("reflect auto doc layers:", doc.layers);
+            layers_received(doc.layers);
+        }
+    });
 
     return {
  
@@ -66,28 +73,26 @@ CheckLayerBox = (function () {
                 attributes.n         = layer.n;
                 attributes.magnitude = layer.magnitude;
                 attributes.removeFx  = remove_layer;
-                attributes.reflection = true
+                attributes.reflection = true;
 
                 // make Json out of parallel arrays, avoids '.' in mongoDB
-                layer.data = JsonLayer(layer);
+                layer.data = jsonLayer(layer);
                 
                 // Create the colormap
                 var colormap = layer.colormap;
                 _.each(colormap,function(mapentry){
-                    mapentry.color = Color(mapentry.color); //couldn't use the Color() func on the server side
-                    mapentry.fileColor = Color(mapentry.fileColor);
+                    //couldn't use the Color() func on the server side, so this:
+                    mapentry.color = new Color(mapentry.color);
+                    mapentry.fileColor = new Color(mapentry.fileColor);
                 });
                 
-                // Add the layer to the global layers object and global colormaps
+                //Add the layer to the global layers object and global colormaps
                 create_dynamic_category_layer(layer.layer_name, layer.data,
                     attributes, colormap);
-            })
+            });
         },
-        
-        
-
         init: function() {
-            mapId = ctx.project;
+            var mapId = ctx.project;
             
             // Subscribe if we have a user
             // TODO do we need to unsubcribe the old user to free memory?
@@ -98,6 +103,6 @@ CheckLayerBox = (function () {
                 }
             });
         },
-    }
+    };
 }());
 })(app);

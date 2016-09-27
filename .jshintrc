@@ -4,7 +4,7 @@
     "esversion": 5,
     "freeze": true,
     "futurehostile": true,
-    "global": [
+    "predef": [
         "_",
         "ADMIN_EMAIL",
         "DEV",
@@ -20,6 +20,7 @@
         "DialogHex",
         "Meteor",
         "Mongo",
+        "Npm",
         "Reflect",
         "Session",
         "Tool",

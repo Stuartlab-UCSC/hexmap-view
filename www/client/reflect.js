@@ -3,9 +3,10 @@
 
 var app = app || {};
 
-(function (hex) {
-Reflect = (function () {
-
+(function (hex) { // jshint ignore: line
+Reflect = (function () { // jshint ignore: line
+    var ManagerAddressBook = new Mongo.Collection('ManagerAddressBook');
+    var ManagerFileCabinet = new Mongo.Collection('ManagerFileCabinet');
     //'use strict';
 
     var title = 'Reflect on Another Map',
@@ -20,57 +21,10 @@ Reflect = (function () {
         selectionList,
         lastUser,
         subscribedToMaps = false,
-        selectionSelected = '', // option selected from the selection list
-        last_layer_names = [], // list of layer names from the last update
-        early_received_layers = [], // layers received before we're ready
-        ready_to_receive_layers = false; // When we're ready to process received layers
- 
-    function layers_received (layers) {
-        //console.log('layers recieved called with last layer_layer_names:',last_layer_names);
-        //console.trace()
-        // Find and handle new layers and removed layers
- 
-        // Find any new layers and add them to the shortlist
-        var doc_layer_names = [];
-        var new_layers = _.filter(layers, function (layer) {
-            doc_layer_names.push(layer.layer_name);
-            return (last_layer_names.indexOf(layer.layer_name) < 0);
-        });
-        //console.log('layers, new layers, doc layer names :', layers, new_layers, doc_layer_names);
+        selectionSelected = ''; // option selected from the selection list
+        //early_received_layers = []; // layers received before we're ready
 
-        CheckLayerBox.receive_layers(new_layers);
-        //console.trace();
-        //console.log("layers from layers recived",layers);
-        //console.log("new_layers from layers received" , new_layers);
-        //layer_post_office_receive_layers(layers);
 
-        // Find any layers removed and remove them from the shortlist
-        _.each(last_layer_names, function (layer_name) {
-            if (doc_layer_names.indexOf(layer_name) < 0) {
-                update_shortlist(layer_name, true);
-            }
-        });
-
-        last_layer_names = doc_layer_names;
-    }
-
-    Tracker.autorun(function(){
-        var doc = LayerPostOffice.findOne({});
-        //console.trace();
-        //console.log('put in layers fired with doc:', doc);
-        //var doc ={};
-        //doc.layers = {};
-        if (doc) {
-            /*
-             if (!ready_to_receive_layers) { // this never runs now, I think
-             console.log('not ready to recieve layers, setting early_received_layers')
-             early_received_layers = doc.layers;
-             } else { */
-            //console.log("reflect auto doc layers:", doc.layers);
-            layers_received(doc.layers);
-            //}
-        }
-    });
     function show () {
 
         // Show the contents of the dialog, once per trigger button click
@@ -84,7 +38,7 @@ Reflect = (function () {
         });
 
         var $mapAnchor = $('#reflectDialog .mapIdAnchor');
-        createOurSelect2($mapAnchor, {data: mapIdData}, toMapId);
+        Util.createOurSelect2($mapAnchor, {data: mapIdData}, toMapId);
  
         $mapAnchor.show();
 
@@ -95,7 +49,8 @@ Reflect = (function () {
         });
 
         // Create the layer name selector.
-        selectionList = createLayerNameList($('#reflectDialog .layerNameListAnchor'),
+        selectionList = createLayerNameList(
+                                    $('#reflectDialog .layerNameListAnchor'),
                                     $('#reflectDialog .selectionListLabel'),
                                     selectionSelected);
         selectionList.enable(true, {binary: true});
@@ -109,7 +64,7 @@ Reflect = (function () {
         });
 
         var $dataTypeAnchor = $('#reflectDialog .dataTypeAnchor');
-        createOurSelect2($dataTypeAnchor, {data: dataTypeData}, dataType);
+        Util.createOurSelect2($dataTypeAnchor, {data: dataTypeData}, dataType);
  
         $dataTypeAnchor.show();
 
@@ -120,44 +75,87 @@ Reflect = (function () {
         });
     }
 
-    function mapManager (operation, featOrSamp, nodeIds) {
+    function get_reflection_count(operation,dataType,toMapId,nodeIds) {
+        //grab the available nodes from database
+        var available_nodes = ManagerFileCabinet.findOne({operation: operation,
+                                                          datatype:dataType,
+                                                          toMapId: toMapId
+                                                           }).available_nodes;
+        //make object for easy 'in' operation
+        //nodes must be of type string for this to work ...?
 
-        userId=Meteor.user().username;
-
-        Meteor.call("mapManager",operation, userId, ctx.project, toMapId, featOrSamp,
-                                 nodeIds, selectionSelected, function (error,success) {
-            if(error){
-                console.log('Mapmanager: Operation ' + operation + ' failed');
-                console.log(error);
-            } else {
-                console.log('Mapmanager: Operation ' + operation + ' success');
+        //console.log(available_nodes);
+        //console.log(nodeIds);
+       var in_count=0;
+        _.each(nodeIds,function(node){
+            if (available_nodes.indexOf(node) !== -1 ){
+                 in_count+=1;
             }
         });
 
-        Meteor.call("isWindowOpen",Meteor.user().username, toMapId, function(error,result){
-            // no errors are returned
-            if(!result) { //result is simply true if the toMapId window  is opened.
-                pathPeices = toMapId.split('/');
-                major = pathPeices[0]; //
-                minor = pathPeices[1];
-                window.open(URL_BASE + '/?p=' + major + '.' + minor)// opens new window
-            }
-        });
+        return in_count;
     }
+    function mapManager (operation, nodeIds) {
+        
+        var userId=Meteor.user().username;
+
+        //console.log("reflect MapMan nodeIds:",nodeIds,dataType);
+        //only perform reflection if there if there is some intersect of
+        // reflection nodes and selected nodes
+        if (get_reflection_count(operation,dataType,toMapId,nodeIds) !== 0) {
+            Meteor.call("mapManager", operation,
+                dataType,
+                userId,
+                ctx.project,
+                toMapId,
+                nodeIds,
+                selectionSelected,
+                function (error) {
+                    if (error) {
+                        console.log('Mapmanager: Operation ' +
+                            operation + ' failed');
+                        console.log(error);
+                    } else {
+                        console.log('Mapmanager: Operation ' +
+                            operation + ' success');
+                    }
+                });
+            //show a message to user
+            Util.banner('info', 'Your other map will update shortly.');
+            hide();
+            
+            Meteor.call("isWindowOpen", Meteor.user().username, toMapId,
+                function (error, result) {
+                    // no errors are returned
+                    if (!result) { //result is true if window is opened
+                        var pathPeices = toMapId.split('/');
+                        var major = pathPeices[0];
+                        var minor = pathPeices[1];
+                        //how to open a new window
+                        window.open(URL_BASE + '/?p=' + major + '.' + minor);
+                    }
+                });
+            
+        }
+        return get_reflection_count(operation,dataType,toMapId,nodeIds);
+    }
+
 
     function tell_user_about_subset(have_data_count, request_count) {
  
         // Tell the user that not all of the nodes had data.
-        var message = have_data_count.toSting() +
+        var message = have_data_count.toString() +
                             ' of ' +
                             request_count.toString() +
                             ' requested nodes have data to reflect.\n' +
-                            'Reflect just those?';
+                            'Reflection computed with only those nodes.';
+        if (have_data_count ===0){
+            message += ' Therefore reflection was not computed.';
+        }
         alert(message);
     }
  
     function hide() {
- 
         // Free some things, then hide the dialog
         selectionSelected = selectionList.selected;
         selectionList.destroy();
@@ -166,86 +164,52 @@ Reflect = (function () {
     }
  
    function mapIt () {
-
-        //TODO:this is an arguement for the manager's script, the Manager should figure this out
-        featOrSamp = ManagerAddressBook.findOne().featureOrSample;
-
         // Gather the user input and call the map manager.
         selectionSelected = selectionList.selected;
         
         // Bail if no selection is selected
-        if (_.isUndefined(selectionSelected)) return;
+        if (_.isUndefined(selectionSelected)) { return; }
 
         var nodeIds = [];
         _.each(layers[selectionList.selected].data,
             function (val, key) {
-                if (val === 1)  nodeIds.push(key);
+                if (val === 1)  { nodeIds.push(key); }
             }
         );
  
         // Request the map manager to reflect using these nodes,
         // and receive a count of nodes that had data.
-        var have_data_count = mapManager('reflection', featOrSamp, nodeIds);
-        banner('info', 'Your other map will update shortly.');
-        hide();
- 
-        // Duncan,
-        //   I guessed that you would want to return a count of nodes with
-        //   data from this map manager request.
-        //   I took the path of least resistence and just notify the user that
-        //   not all nodes will be used in the reflection. So the user does not
-        //   get a chance to cancel the request. We can change that to a
-        //   cancel/OK question if that works better.
-        //   I didn't test it either ;)
- 
+        var have_data_count = mapManager('reflection', nodeIds);
+       
         // If some of the nodes don't have data, let the user know.
         if (have_data_count < nodeIds.length) {
             tell_user_about_subset(have_data_count, nodeIds.length);
         }
 	}
  
-    function getToMapIds() {
- 
-        // OnReady function for subscription to reflectionToMapIds.
-
-        // For now, only allow mRNA, the first layout for reflection
-        // so keep the menu option disabled
-        if (!Session.equals('layoutIndex', 0)) return;
- 
+    function getReflectionInfo() {
         // grab array for possible maps to reflect to
         var addressEntry = ManagerAddressBook.findOne();
+        //console.log(addressEntry); 
         if (addressEntry) {
             toMapIds = addressEntry.toMapIds;
+            dataTypes = addressEntry.datatypes;
         }
- 
+
         if (addressEntry && toMapIds && toMapIds.length > 0) {
- 
             // We have map IDs, so initialize the selected target map
             // and enable the trigger to open the reflection dialog
-            toMapId = toMapIds[0]
+            toMapId = toMapIds[0];
+            dataType= dataTypes[0];
             $button.removeClass('disabled');
         } else {
             $button.addClass('disabled');
         }
     }
- 
-    function layoutChange () {
- 
-        // For now we only have reflect available on layout 0: mRNA
-        var layoutIndex = Session.get('layoutIndex');
- 
-        if (layoutIndex < 1 && toMapIds && toMapIds.length > 0) {
-            $button.removeClass('disabled');
-        } else {
-            $button.addClass('disabled');
-        }
-    }
- 
+    
     function userChange () {
-
         // When the user changes, either logs on or off, subscribe to ...
         var user = Meteor.user();
-        var refTo, openWin;
 
         if (lastUser) {
             Meteor.subscribe('ClosedWindow',lastUser.username, mapId);
@@ -256,18 +220,17 @@ Reflect = (function () {
 
         if (user) {
 
-            //subscribe to address book
+            //subscribes to fill in available datatypes and target map ids
+            // and which node Ids are available in any given refleciton
             if (!subscribedToMaps) {
-                Meteor.subscribe('reflectionToMapIds',ctx.project, getToMapIds);
+                Meteor.subscribe('reflectionToMapIds',
+                                  ctx.project,
+                                  getReflectionInfo
+                                 );
+                Meteor.subscribe('ManagerFileCabinet',ctx.project);
                 subscribedToMaps = true;
             }
- 
-            // Duncan, I'll let you fill this in with a subscription or whatever.
-            // For now I'll just return a couple for testing. And you should
-            // initialize dataType something like I did for toMapId
-            dataTypes = ['mRNA', 'CNV'];
-            dataType = dataTypes[0];
-
+            
             //keep track of windows open
             Meteor.subscribe('OpenedWindow',user.username,ctx.project);
 
@@ -276,32 +239,19 @@ Reflect = (function () {
                 Meteor.subscribe('ClosedWindow',user.username,mapId);
             };
         }
-
         // Save the map ID for cleaning up when it changes
         mapId = ctx.project;
     }
- 
-    function initReceiveReflectionLayers () {
- 
-        // Initialize for receiving reflected layers
- 
-        // We cannot process the received layers until a few other things are
-        // initialized, so the layers are saved until we are ready to receive
-        if (early_received_layers) {
-            layers_received(early_received_layers);
-        }
-        ready_to_receive_layers = true;
-    }
-
+    
 return { // Public methods
     init: function () {
  
         $button = $('.reflectTrigger');
         $dialog = $('#reflectDialog');
-        Tracker.autorun(userChange);
-        Tracker.autorun(layoutChange);
+        Meteor.autorun(userChange);
+        //Meteor.autorun(layoutChange);
  
-        initReceiveReflectionLayers();
+        //initReceiveReflectionLayers();
 
         // Define the dialog options & create an instance of DialogHex
         var opts = {
@@ -318,12 +268,12 @@ return { // Public methods
         });
  
         // Listen for the menu clicked
-        add_tool("reflectTrigger", function(ev) {
+        Tool.add("reflectTrigger", function(ev) {
             if (!$(ev.target).hasClass('disabled')) {
                 dialogHex.show();
             }
         }, 'Reflect nodes onto another map');
     },
-}
+};
 }());
 })(app);

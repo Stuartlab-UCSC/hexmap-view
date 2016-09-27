@@ -1,13 +1,14 @@
 {
   "public": {
-    "DEV": true,
-    "URL_BASE": "https://tumormap.ucsc.edu",
-    "FEATURE_SPACE_DIR": "/data/data/featureSpace/",
-    "LAYOUT_INPUT_DIR": "/data/data/layoutInput/",
-    "VIEW_DIR": "/data/data/view/",
-    "GOOGLE_API_KEY": "AIzaSyBb8AJUB4x-xxdUCnjzb-Xbcg0-T1mPw3I",
-    "ADMIN_EMAIL": "hexmap@ucsc.edu"
-  },
+      "DEV": true,
+      "URL_BASE": "http://localhost:2347",
+      "FEATURE_SPACE_DIR": "/home/duncan/data/featureSpace/",
+      "LAYOUT_INPUT_DIR": "/home/duncan/data/layoutInput/",
+      "VIEW_DIR": "/home/duncan/data/view/",
+      "GOOGLE_API_KEY": "AIzaSyBb8AJUB4x-xxdUCnjzb-Xbcg0-T1mPw3I",
+      "ADMIN_EMAIL": "hexmap@ucsc.edu"
+   },
+
   "server": 
    {
     "mapManagerHelper": 
@@ -17,7 +18,7 @@
 		{
         "mapId"     : "CKCC/v1_nbl/",
         "operation" : "reflection",
-        "dataType"  : "RNAseq",
+        "datatypes"  : ["mRNA"],
         "toMapIds"  : 
          [ 
           "CKCC/NBL_GeneMap/"
@@ -26,7 +27,7 @@
        {
         "mapId"     : "CKCC/NBL_GeneMap/",
         "operation" : "reflection",
-        "dataType"  : "RNAseq",
+        "datatypes"  : ["mRNA"],
         "toMapIds"  : 
          [ 
           "CKCC/v1_nbl/"
@@ -35,7 +36,7 @@
        {
         "mapId"     : "Pancan12/SampleMap/",
         "operation" : "reflection",
-        "dataType"  : "RNAseq",
+        "datatypes"  : ["mRNA","CNV","miRNA","RPPA","Methylation"],
         "toMapIds"  : 
          [ 
           "Pancan12/GeneMap/"
@@ -44,7 +45,7 @@
        {
         "mapId"     : "Pancan12/GeneMap/",
         "operation" : "reflection",
-        "dataType"  : "RNAseq",
+        "datatypes"  : ["mRNA","CNV","miRNA","RPPA","Methylation"],
         "toMapIds"  : 
          [ 
           "Pancan12/SampleMap/"
@@ -53,7 +54,7 @@
        {
         "mapId" : "dmccoll_MESO/GeneMap/",
         "operation" : "reflection",
-        "dataType"  : "RNAseq",
+        "datatypes"  : ["mRNA"],
         "toMapIds" : 
          [ 
           "dmccoll_MESO/SampleMap/"
@@ -62,7 +63,7 @@
        {
         "mapId" : "dmccoll_MESO/SampleMap/",
         "operation" : "reflection",
-        "dataType"  : "RNAseq",
+        "datatypes"  : ["mRNA"],
         "toMapIds" : 
          [ 
           "dmccoll_MESO/GeneMap/"
@@ -73,7 +74,7 @@
       [
        {
         "operation" : "reflection",
-        "dataType"  : "RNAseq",
+        "datatype"  : "mRNA",
         "mapId" : "CKCC/v1_nbl/",
         "toMapId" : "CKCC/NBL_GeneMap/",
         "opts" : null,
@@ -82,15 +83,16 @@
           "datapath", 
           "featOrSamp", 
           "node_ids",
+		  "datatype",
 		  "n"
          ],
-        "datapath" : "reflection/NBL/clr_trans.mRNA.CKCC_NBLsubset.csv",
+        "datapath" : "reflection/NBL/clr_trans.mRNA.CKCC_NBLsubset.tab",
         "featOrSamp" : "sample",
 		"n" : 150
        },
        {
         "operation" : "reflection",
-        "dataType"  : "RNAseq",
+        "datatype"  : "mRNA",
         "mapId" : "CKCC/NBL_GeneMap/",
         "toMapId" :  "CKCC/v1_nbl/",
         "opts" : null,
@@ -99,15 +101,16 @@
           "datapath", 
           "featOrSamp", 
           "node_ids",
+		  "datatype",
           "n"
          ],
-        "datapath" : "reflection/NBL/clr_trans.mRNA.CKCC_NBLsubset.csv",
+        "datapath" : "reflection/NBL/clr_trans.mRNA.CKCC_NBLsubset.tab",
         "featOrSamp" : "feature",
 		"n" : 15
        },
        {
         "operation" : "reflection",
-        "dataType"  : "RNAseq",
+        "datatype"  : "mRNA",
         "mapId" : "Pancan12/SampleMap/",
         "toMapId" : "Pancan12/GeneMap/",
         "opts" : null,
@@ -115,14 +118,63 @@
          [ 
           "datapath", 
           "featOrSamp", 
-          "node_ids"
+          "node_ids",
+		  "datatype"
          ],
-        "datapath" : "reflection/pancan12_expr_signedClrscores.csv",
+        "datapath" : "reflection/pancan12_expr_signedClrscores.tab",
+        "featOrSamp" : "sample"
+       },
+	   {
+        "operation" : "reflection",
+        "datatype"  : "miRNA",
+        "mapId" : "Pancan12/SampleMap/",
+        "toMapId" : "Pancan12/GeneMap/",
+        "opts" : null,
+        "args" : 
+         [ 
+          "datapath", 
+          "featOrSamp", 
+          "node_ids",
+		  "datatype"
+         ],
+        "datapath" : "reflection/miRNA.Pancan12.CLRtrans.tab",
         "featOrSamp" : "sample"
        },
        {
         "operation" : "reflection",
-        "dataType"  : "RNAseq",
+        "datatype"  : "Methylation",
+        "mapId" : "Pancan12/SampleMap/",
+        "toMapId" : "Pancan12/GeneMap/",
+        "opts" : null,
+        "args" : 
+         [ 
+          "datapath", 
+          "featOrSamp", 
+          "node_ids",
+		  "datatype"
+         ],
+        "datapath" : "reflection/Meth.Pancan12.CLRtrans.tab",
+        "featOrSamp" : "sample"
+       },
+       {
+        "operation" : "reflection",
+        "datatype"  : "RPPA",
+        "mapId" : "Pancan12/SampleMap/",
+        "toMapId" : "Pancan12/GeneMap/",
+        "opts" : null,
+        "args" : 
+         [ 
+          "datapath", 
+          "featOrSamp", 
+          "node_ids",
+		  "datatype"
+         ],
+        "datapath" : "reflection/RPPA.Pancan11.CLRtrans.tab",
+        "featOrSamp" : "sample"
+       },
+       {
+        "operation" : "reflection",
+        "datatype"  : "miRNA",
         "mapId" : "Pancan12/GeneMap/",
         "toMapId" : "Pancan12/SampleMap/",
         "opts" : null,
@@ -130,14 +182,95 @@
          [ 
           "datapath", 
           "featOrSamp", 
-          "node_ids"
+          "node_ids",
+		  "datatype"
          ],
-        "datapath" : "reflection/pancan12_expr_signedClrscores.csv",
+        "datapath" : "reflection/miRNA.Pancan12.CLRtrans.tab",
         "featOrSamp" : "feature"
        },
        {
         "operation" : "reflection",
-        "dataType"  : "RNAseq",
+        "datatype"  : "Methylation",
+        "mapId" : "Pancan12/GeneMap/",
+        "toMapId" : "Pancan12/SampleMap/",
+        "opts" : null,
+        "args" : 
+         [ 
+          "datapath", 
+          "featOrSamp", 
+          "node_ids",
+		  "datatype"
+         ],
+        "datapath" : "reflection/Meth.Pancan12.CLRtrans.tab",
+        "featOrSamp" : "feature"
+       },
+       {
+        "operation" : "reflection",
+        "datatype"  : "RPPA",
+        "mapId" : "Pancan12/GeneMap/",
+        "toMapId" : "Pancan12/SampleMap/",
+        "opts" : null,
+        "args" : 
+         [ 
+          "datapath", 
+          "featOrSamp", 
+          "node_ids",
+		  "datatype"
+         ],
+        "datapath" : "reflection/RPPA.Pancan11.CLRtrans.tab",
+        "featOrSamp" : "feature"
+       },
+       {
+        "operation" : "reflection",
+        "datatype"  : "mRNA",
+        "mapId" : "Pancan12/GeneMap/",
+        "toMapId" : "Pancan12/SampleMap/",
+        "opts" : null,
+        "args" : 
+         [ 
+          "datapath", 
+          "featOrSamp", 
+          "node_ids",
+		  "datatype"
+         ],
+        "datapath" : "reflection/pancan12_expr_signedClrscores.tab",
+        "featOrSamp" : "feature"
+       },
+	   {
+        "operation" : "reflection",
+        "datatype"  : "CNV",
+        "mapId" : "Pancan12/SampleMap/",
+        "toMapId" : "Pancan12/GeneMap/",
+        "opts" : null,
+        "args" : 
+         [ 
+          "datapath", 
+          "featOrSamp", 
+          "node_ids",
+          "datatype"
+         ],
+        "datapath" : "reflection/Pancan12.CNV.genes.threshold.tab",
+        "featOrSamp" : "sample"
+       },
+       {
+        "operation" : "reflection",
+        "datatype"  : "CNV",
+        "mapId" : "Pancan12/GeneMap/",
+        "toMapId" : "Pancan12/SampleMap/",
+        "opts" : null,
+        "args" : 
+         [ 
+          "datapath", 
+          "featOrSamp", 
+          "node_ids",
+          "datatype"
+         ],
+        "datapath" : "reflection/Pancan12.CNV.genes.threshold.tab",
+        "featOrSamp" : "feature"
+       },
+       {
+        "operation" : "reflection",
+        "datatype"  : "mRNA",
         "mapId" : "dmccoll_MESO/GeneMap/",
         "toMapId" : "dmccoll_MESO/SampleMap/",
         "opts" : null,
@@ -145,14 +278,15 @@
          [ 
           "datapath", 
           "featOrSamp", 
-          "node_ids"
+          "node_ids",
+		  "datatype"
          ],
-        "datapath" : "reflection/clrMeso.csv",
+        "datapath" : "reflection/clrMeso.tab",
         "featOrSamp" : "feature"
        },
        {
         "operation" : "reflection",
-        "dataType"  : "RNAseq",
+        "datatype"  : "mRNA",
         "mapId" : "dmccoll_MESO/SampleMap/",
         "toMapId" : "dmccoll_MESO/GeneMap/",
         "opts" : null,
@@ -160,9 +294,10 @@
          [ 
           "datapath", 
           "featOrSamp", 
-          "node_ids"
+          "node_ids",
+		  "datatype"
          ],
-        "datapath" : "reflection/clrMeso.csv",
+        "datapath" : "reflection/clrMeso.tab",
         "featOrSamp" : "sample"
        }
       ]    

@@ -51,7 +51,7 @@ LAYOUT_INPUT_DIR = Meteor.settings.public.LAYOUT_INPUT_DIR;
 FEATURE_SPACE_DIR = Meteor.settings.public.FEATURE_SPACE_DIR;
 ADMIN_EMAIL = Meteor.settings.public.ADMIN_EMAIL;
 GOOGLE_API_KEY = Meteor.settings.public.GOOGLE_API_KEY;
-if (Meteor.settings.public.DEV === 'yes') { // strict JSON doesn't support booleans
+if (Meteor.settings.public.DEV === 'yes') {//no booleans with strict JSON
     DEV = true; //development functionality will be included
 } else {
     DEV = false;
@@ -70,7 +70,6 @@ TEMP_DIR = '/tmp/';
 
 // This may be all that is required to access a collection on client and server
 Bookmarks = new Mongo.Collection('bookmarks');
-ManagerAddressBook = new Mongo.Collection('ManagerAddressBook');
 
 
 
