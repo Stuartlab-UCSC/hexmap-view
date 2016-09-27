@@ -248,6 +248,9 @@ var app = app || {};
  
         // TODO a special hack until we get bookmarks going: load
         // the hard-coded overlay node data specific to this project
+        // Use this method if we want the project in the drop-down lise
+        // If you ony want it accessible from a URL, use the method in
+        // this.loadFromUrl().
         if (s.project.slice(0,13) === 'Youngwook/ori') {
             Session.set('overlayNodes', OVERLAY_NODES_YOUNGWOOK_ORIGINAL);
         } else if (s.project.slice(0,13) === 'Youngwook/qua') {
@@ -334,9 +337,19 @@ var app = app || {};
                 }
                 state.overlayNodes = {}
                 state.overlayNodes[s.uParm.node] = {x: s.uParm.x, y: s.uParm.y};
+ 
+            } else if (s.uParm.nodes) {
+ 
+                // Load this group of nodes as overlay nodes
+                state.overlayNodes = getOverlayNodeGroup(s.uParm.nodes);
      
             // TODO a special hack until we get bookmarks going: load
-            // the hard-coded overlay node data specific to this project
+            // the hard-coded overlay node data specific to this project.
+            // Use this method if we want the project only accessible from a URL
+            // If you want it on the project list, use the method in
+            // this.load().
+ 
+            // For a single node in a URL
             } else if (state.project.slice(0,13) === 'CKCC/v1-') {
       
                 var node = state.project.slice(13,-1);

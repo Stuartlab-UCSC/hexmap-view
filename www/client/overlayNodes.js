@@ -180,6 +180,18 @@ var app = app || {};
         $markerInfoWindow = $('#markerInfoWindow');
     }
  
+    getOverlayNodeGroup = function (nodeGroup) {
+        return nodeGroups[nodeGroup];
+    }
+
+    nodeGroups = {
+        'Q5_EM_236,K12_S8,K11_S7': {
+            'Q5_EM_236': { x: 24.0, y: 11.0},
+            'K12_S8': { x: 21.5, y: 12.5},
+            'K11_S7': { x: 21.5, y: 19.5},
+        },
+    };
+
     OVERLAY_NODES_YOUNGWOOK_QUANTILE_NORMALIZATION = {
         'sd01': { x: 240.5, y: 147.0},
         'sd02': { x: 127.5, y: 292.0},
