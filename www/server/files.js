@@ -67,7 +67,41 @@ readFromJsonBaseFile = function (baseFilename) {
     return readFromJsonFileSync(VIEW_DIR + baseFilename);
 }
 
-getTsvFile = function (filename, project, unparsed, alt_dir, future) {
+getTsvFile = function (filename, project, unparsed, future) {
+
+    // This reads an entire tsv file into memory, then parses the TSVs into
+    // and array of arrays with the outside array being the lines.
+    var path;
+    
+    if (filename.indexOf('layer_') > -1 || filename.indexOf('stats') > -1) {
+        path = VIEW_DIR + filename;
+    } else {
+        path = VIEW_DIR + project + filename;
+    }
+
+    if (fs.existsSync(path)) {
+        fs.readFile(path, 'utf8', function (error, results) {
+            if (error) {
+                future.throw(error);
+            }
+            if (unparsed) {
+                future.return(results);
+            } else {
+                future.return(parseTsv(results));
+            }
+        });
+    } else if (filename === 'layouts.tab') {
+    
+        // Special handling for this file because we have a better name
+        // and have added the raw layout data filenames
+        getTsvFile('matrixnames.tab', project, unparsed, future);
+    } else {
+        future.return('Error: file not found on server: ' + path);
+    }
+    return future.wait();
+}
+
+getTsvFileAlt = function (filename, project, unparsed, alt_dir, future) {
 
     // This reads an entire tsv file into memory, then parses the TSVs into
     // and array of arrays with the outside array being the lines.
@@ -101,7 +135,6 @@ getTsvFile = function (filename, project, unparsed, alt_dir, future) {
     }
     return future.wait();
 }
-
 Meteor.methods({
 
     upload_create_map_feature_space_file: function (file_name, data, start) {
@@ -127,13 +160,23 @@ Meteor.methods({
         fs.closeSync(fd);
     },
 
-    getTsvFile: function (filename, project, unparsed, alt_dir) {
+    getTsvFile: function (filename, project, unparsed) {
 
         // Retrieve data from a tab-separated file
         this.unblock();
         var future = new Future();
         
-        return getTsvFile(filename, project, unparsed, alt_dir, future);
+        return getTsvFile(filename, project, unparsed, future);
     },
+    
+    getTsvFileAlt: function (filename, project, unparsed, alt_dir) {
+
+        // Retrieve data from a tab-separated file
+        this.unblock();
+        var future = new Future();
+        
+        return getTsvFileAlt(filename, project, unparsed, alt_dir, future);
+    },
+
 
 });
