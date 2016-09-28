@@ -77,8 +77,8 @@ var app = app || {};
 
     Template.homePage.onRendered(function () {
         Tool.init();
-        initDownload();
-        initCreateMap();
+        Meteor.setTimeout(initCreateMap, 100);
+        //initCreateMap();
     });
 
     Template.mapPage.onRendered(function () {
@@ -262,6 +262,7 @@ var app = app || {};
             $(window).resize(resizeMap);
             ctx.gridCenter = centerToLatLng(ctx.gridCenter);
             initGrid();
+            initCreateMap();
             
             // Resize the map to fill the available space
             Meteor.setTimeout(resizeMap, 0);

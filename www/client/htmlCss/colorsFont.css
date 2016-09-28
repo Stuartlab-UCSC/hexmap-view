@@ -13,7 +13,7 @@ body {
     font-size: 0.9em;
 }
 
-.ui-widget textarea.log
+.ui-widget input.log
 {
     font-family: Lucida Console, monospace;
     font-size: 0.8em;
@@ -71,18 +71,18 @@ body,
 }
 
 /* BANNER BOOTSTRAP COLORS */
-#banner.info,
-#banner.stay {
+#banner.info.row,
+#banner.stay.row {
     background: #D8EECE;
     color: #2E662C;
 }
 
-#banner.warn {
+#banner.warn.row {
     background: #F9F5D9;
     color: #775B2A;
 }
 
-#banner.error {
+#banner.error.row {
     background: #EDD4D5;
     color: #993031;
 }

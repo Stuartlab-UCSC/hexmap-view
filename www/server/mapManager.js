@@ -22,7 +22,7 @@ function read_nodenames(managers_doc,callback) {
 
     fs.stat(filename,function(err,stats) {
         if (err) {
-            //console.log(err);
+            console.log(err);
             return ;
         }
         else if (stats.isFile() ){

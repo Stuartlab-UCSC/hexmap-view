@@ -6,11 +6,15 @@ var app = app || {};
 (function (hex) { 
     //'use strict';
 
+    var //PREVIEW_COLORS = true, // This is sort of slow, so may not be fun to use
+        SHOW_PREVIEW_HEXAGONS = false, // This will be ignored unless PREVIEW_COLORS is true
+ 
         // boundaries of the selectable area
-    var MIN_LAT = -90,
+        MIN_LAT = -90,
         MAX_LAT = 90,
         MIN_LNG = -95,
         MAX_LNG = 85,
+        PREVEW_COLOR = 'grey',
         SELECTING_CURSOR = 'crosshair',
 
         // Handles of map listeners
@@ -23,7 +27,9 @@ var app = app || {};
         startLatLng, // Starting point of the selection area
         shape, // rectangular or polygonal selection boundary in latLng
         isRectangle, // Rectangle or polygon?
-        color; // Color of the selection boundary and fill
+        color, // Color of the selection boundary and fill
+        previewHexNames = [], // hexagon names in selection preview
+        previewHexes = []; // hexagons in selection preview
 
     function setCursor (cursor) {
         googlemap.setOptions({ draggableCursor: cursor });
@@ -92,6 +98,24 @@ var app = app || {};
         });
     }
 
+    function clearPreviewHexagons () {
+ 
+        // Clear the previous preview hexagons
+        if (SHOW_PREVIEW_HEXAGONS) {
+            _.each(previewHexNames, function(hex) {
+                previewHexes[hex].setMap(null);
+            });
+            previewHexNames = [];
+            previewHexes = {};
+        } else {
+            _.each(previewHexNames, function(hex) {
+                polygons[hex].setOptions({fillColor: polygons[hex].saveColor});
+                delete polygons[hex].saveColor;
+            });
+            previewHexNames = [];
+        }
+    }
+        
     function findHexagonsInPolygon (bounds, isRect) {
 
         // Select hexagons that are contained within the given polygon/rectangle.
@@ -185,7 +209,26 @@ var app = app || {};
         // Handle a mid-point click of the selection for a polygon
         shape.getPath().push(event.latLng);
     }
-
+        
+    function colorPreviewHexagons () {
+ 
+        if (SHOW_PREVIEW_HEXAGONS) {
+ 
+            // Create the preview hexagons
+            _.each(previewHexNames, function(hex) {
+                previewHexes[hex] =
+                    createPolygon(polygons[hex].getPath(), true);
+            });
+        } else {
+ 
+            // Change the fill color of the preview hexagons
+            _.each(previewHexNames, function(hex) {
+                polygons[hex].saveColor = polygons[hex].fillColor;
+                polygons[hex].setOptions({fillColor: PREVEW_COLOR});
+            });
+        }
+    }
+        
     function preview (event) {
  
         // This holds a selection preview event handler that should happen

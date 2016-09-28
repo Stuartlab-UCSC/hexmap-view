@@ -85,8 +85,6 @@ def parse_args(args):
         help="attribute by which to color the map upon first display")
     parser.add_argument("--directory", "-d", type=str, default=".",
         help="directory in which to create other output files")
-    parser.add_argument("--role", type=str,
-        help="authorization role for this map")
         
     # Lesser used parameters:
     parser.add_argument("--attributeTags", type=str,
@@ -1341,14 +1339,8 @@ def build_default_scores(options):
         file_name = options.directory + '/fake_layer.tab'
         with open(file_name, 'w') as fout:
             fout = csv.writer(fout, delimiter='\t')
-            fout.writerow(['placeholder', 0])
-            fout.writerow(['placeholder', 0])
-            fout.writerow(['placeholder', 0])
-            fout.writerow(['placeholder', 0])
-            """
             for i, row in enumerate(fin.__iter__()):
                 fout.writerow([row[0], row[0]])
-            """
     return file_name
 
 
@@ -1368,12 +1360,6 @@ def hexIt(options, cmd_line_list, all_dict):
     pprint.pprint(all_dict)
     sys.stdout.flush()
     
-    # Create the metadata json file for the role if there is one
-    if options.role != None:
-        with open(os.path.join(options.directory, 'meta.json'), 'w') as fout:
-            meta = '{ "role": "' + options.role + '" }\n';
-            fout.write(meta);
-
     if options.scores == None:
         options.scores = [build_default_scores(options)]
 

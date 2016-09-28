@@ -8,7 +8,7 @@ var Future = Npm.require('fibers/future');
 var fs = Npm.require('fs');
 var os = Npm.require('os');
 var crypto = Npm.require('crypto');
-var Path = Npm.require('path');
+var path = Npm.require('path');
 
 writeToTempFile = function (data, fileExtension) {
 
@@ -19,17 +19,6 @@ writeToTempFile = function (data, fileExtension) {
     }
     fs.writeFileSync(filename, data);
     return filename;
-}
-
-clean_file_name = function (dirty) {
-    
-    // Make a directory or file name out of some string.
-    // Valid characters:
-    //     a-z, A-Z, 0-9, dash (-), dot (.), underscore (_)
-    // The tough characters are replaced with underscores.
-    
-    if (!dirty) {return undefined;}
-    return dirty.replace(/[^A-Za-z0-9_\-\.]/g, "_");
 }
 
 function parseTsv (data) {
@@ -100,62 +89,23 @@ getTsvFile = function (filename, project, unparsed, future) {
     }
     return future.wait();
 }
-
-getTsvFileAlt = function (filename, project, unparsed, alt_dir, future) {
-
-    // This reads an entire tsv file into memory, then parses the TSVs into
-    // and array of arrays with the outside array being the lines.
-    var path;
-    
-    // Find the full path
-    if (alt_dir === 'featureSpace') {
-        path = FEATURE_SPACE_DIR + project + filename;
-    } else {
-        path = VIEW_DIR + project + filename;
-    }
-
-    if (fs.existsSync(path)) {
-        fs.readFile(path, 'utf8', function (error, results) {
-            if (error) {
-                future.throw(error);
-            }
-            if (unparsed) {
-                future.return(results);
-            } else {
-                future.return(parseTsv(results));
-            }
-        });
-    } else if (filename === 'layouts.tab') {
-    
-        // Special handling for this file because we have a better name
-        // and have added the raw layout data filenames
-        getTsvFile('matrixnames.tab', project, unparsed, undefined, future);
-    } else {
-        future.return('Error: file not found on server: ' + path);
-    }
-    return future.wait();
-}
 Meteor.methods({
 
-    upload_create_map_feature_space_file: function (file_name, data, start) {
+    write_tsv_file_to_server: function (dir, file_name, data, start) {
 
         // Upload a tsv file to the server in chunks and synchronously
         var buf = Buffer(data);
-        var dir = Path.join(FEATURE_SPACE_DIR,
-            clean_file_name(Meteor.user().username));
         var mode = (start === 0) ? 'w' : 'a';
-        var fd;
 
-        // If this is the first chunk,
-        // create the directory and meta.json if need be
         if (mode === 'w') {
-            if (!fs.existsSync(dir)) {
+        
+            // Create the directory if need be
+            if (!fs.existsSync(dir)){
                 fs.mkdirSync(dir);
             }
         }
 
-        // Write the chunck
-        fd = fs.openSync(Path.join(dir, file_name), mode);
+        var fd = fs.openSync(dir + file_name, mode);
         fs.writeSync(fd, buf, 0, buf.length, start);
         fs.closeSync(fd);
     },
@@ -168,15 +118,4 @@ Meteor.methods({
         
         return getTsvFile(filename, project, unparsed, future);
     },
-    
-    getTsvFileAlt: function (filename, project, unparsed, alt_dir) {
-
-        // Retrieve data from a tab-separated file
-        this.unblock();
-        var future = new Future();
-        
-        return getTsvFileAlt(filename, project, unparsed, alt_dir, future);
-    },
-
-
 });

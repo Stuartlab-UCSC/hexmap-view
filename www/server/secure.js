@@ -13,17 +13,11 @@
 //removeUsersFromRoles(['jstuart@ucsc.edu'], ['dev', 'Pancan12']);
 //showUsernames();
 //addUsersToRoles (['reviewer@unknown'] , ['Pancan12']);
-//removeUser('swat@soe.ucsc.edu');
-//removeUser('swat_soe.ucsc.edu');
+//removeUser('reviewer@');
 //var users = [
-//    {email: 'swat@soe.ucsc.edu', roles: ['createMap']},
-//    {email: '@', roles: ['createMap']},
-//    {email: '@', roles: ['createMap']},
-//    {email: '@', roles: ['createMap']},
-//    {email: '@', roles: ['createMap']},
+//    {email: 'hexmap@ucsc.edu', roles: ['dev']},
 //];
 //createUsers(users);
-//createUsers(users, true); // create user and a personal role
 
 function usernamesToUsers (usernamesIn) {
     var usernames = usernamesIn;
@@ -64,24 +58,15 @@ function sendEnrollmentEmail(username) {
     sendMail(username, subject, msg);
 }
 
-function createUsers(users, createUserRole) {
-    // createUserRole: create the user's personal role
-    // using a clean file name derived from the username.
+function createUsers(users) {
     _.each(users, function (user) {
         try {
-            var file_safe_name = clean_file_name(user.email)
-            console.log('file_safe_name', file_safe_name);
+
             var id = Accounts.createUser({
-                file_safe_name: file_safe_name,
                 email: user.email,
-                password: "changeMe",
                 username: user.email,
+                password: "adsqry75984",
             });
-           
-            // Add the roles to the user's object
-            if (createUserRole) {
-                user.roles = user.roles.concat(file_safe_name);
-            }
             if (user.roles.length > 0) {
                 Roles.addUsersToRoles(id, user.roles);
             }

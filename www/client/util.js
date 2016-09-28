@@ -22,10 +22,7 @@ Util = (function () {
     clean_file_name = function (dirty) {
         
         // Make a directory or file name out of some string
-        // Valid characters:
-        //     a-z, A-Z, 0-9, dash (-), dot (.), underscore (_)
-        // All other characters are replaced with underscores.
-        
+        // Replace any tough characters with an underscore
         if (!dirty) {return undefined}
         
         return dirty.replace(/[^A-Za-z0-9_\-\.]/g, "_");
