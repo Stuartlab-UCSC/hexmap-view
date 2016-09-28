@@ -239,6 +239,20 @@ Tool = (function () {
             // Hide, show or disable tools depending on the user's authorizations
             Meteor.autorun( function () {
                 var user = Meteor.user();
+
+                // Check authorization for creating maps
+                $createMap.hide();
+                /*
+                Meteor.call('is_user_in_role', ['createMap', 'dev'],
+                    function (error, results) {
+                        if (!error && results) {
+                            $createMap.show();
+                       } else {
+                            $createMap.hide();
+                        }
+                    }
+                );
+                */
                 
                 // Check authorizations for query API
                 Meteor.call('is_user_in_role', ['queryAPI', 'dev'],
@@ -250,17 +264,7 @@ Tool = (function () {
                         }
                     }
                 );
-         
-                // Check authorization for creating maps
-                Meteor.call('is_user_in_role', ['createMap', 'dev'],
-                    function (error, results) {
-                        if (!error && results) {
-                            $createMap.show();
-                       } else {
-                            $createMap.hide();
-                        }
-                    }
-                );
+                
             });
         },
     }

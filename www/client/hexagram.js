@@ -461,8 +461,6 @@ refreshColors = function (delay) {
 
 function refreshColorsInner() {
 
-    console.log('refreshColorsInner');
-
     // Make the view display the correct hexagons in the colors of the current
     // layer(s), as read from the values of the layer pickers in the global
     // layer pickers array.
