@@ -1162,14 +1162,6 @@ var app = app || {};
         
         // We only need to run this once to initialize the shortlist UI
         comp.stop();
-         
-        // Initialize some handy variables
-        $shortlist = $('#shortlist');
-        $dynamic_controls = $shortlist.find('.dynamic_controls');
-        $float_controls = $shortlist.find('.float');
- 
-        // Create the controls that move from entry to entry
-        create_float_controls();
  
         var shortlist = copy_shortlist_state();
 
@@ -1213,6 +1205,14 @@ var app = app || {};
             Session.set('shortlist_on_top', '$(ev.target.checked)');
         });
  
+        // Initialize some handy variables
+        $shortlist = $('#shortlist');
+        $dynamic_controls = $shortlist.find('.dynamic_controls');
+        $float_controls = $shortlist.find('.float');
+ 
+        // Create the controls that move from entry to entry
+        create_float_controls();
+
         // Autorun to finish initializiation when the first layer is set
         // and after the initial sort
         Tracker.autorun(complete_initialization);

@@ -234,7 +234,12 @@ Tool = (function () {
             // TODO we're not doing overlay nodes yet
             $('#navBar .overlayNode').hide();
         
-            var $createMap = $('#navBar .createMap, #navBar .createMapDocs');
+            var $createMap = $(
+                '#navBar .createMap, ' +
+                '#navBar .createMapDocs, ' +
+                '#navBar .input_files, ' +
+                '#homePage .createMapHome'
+            );
         
             // Hide, show or disable tools depending on the user's authorizations
             Meteor.autorun( function () {

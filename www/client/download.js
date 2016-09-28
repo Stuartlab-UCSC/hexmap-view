@@ -129,28 +129,44 @@ var app = app || {};
     }
 
     var timeout;
-    function xyPreSquiggle_mousedown(eventIn) {
 
-        // Prepare to download the xy pre-squiggle positions file
-        xyFile = 'xyPreSquiggle_' + Session.get('layoutIndex') +'.tab';
-        var event = eventIn;
+    function menu_mousedown(ev) {
  
-        Meteor.call('getTsvFile', xyFile, ctx.project, true,
+        // Download the file now.
+        var $target = $(ev.target),
+            filename,
+            project,
+            alt_dir;
+ 
+        if ($target.hasClass('xyPreSquiggle')) {
+            filename = 'xyPreSquiggle_' + Session.get('layoutIndex') +'.tab';
+            project = ctx.project;
+        } else if ($target.hasClass('example_features')) {
+            filename = 'example_features_xy.tab';
+            project = 'Example/';
+            alt_dir = 'featureSpace'
+        } else if ($target.hasClass('example_attributes')) {
+            filename = 'example_attributes.tab';
+            project = 'Example/';
+            alt_dir = 'featureSpace';
+        }
+ 
+        Meteor.call('getTsvFile', filename, project, true, alt_dir,
             function (error, tsv) {
             if (error || (typeof tsv === 'string'
                 && tsv.slice(0,5).toLowerCase() === 'error')) {
-                banner('error', 'Sorry, that XY position file cannot be found.');
+                banner('error', 'Sorry, ' + filename + ' cannot be found.');
             } else {
-                $(event.target).on('click', function (event) {
-                    $(event.target).attr({
+                $(ev.target).on('click', function (ev) {
+                    $(ev.target).attr({
                         'href': 'data:text/plain;base64,' + window.btoa(tsv),
                     });
-                    timeout = Meteor.setTimeout(function (){
-                        $(event.target).off('click');
+                    timeout = Meteor.setTimeout(function () {
+                        $(ev.target).off('click');
                         Meteor.clearTimeout(timeout);
                     }, 10);
                 });
-                $(event.target).click();
+                $(ev.target).click();
             }
         });
     }
@@ -162,7 +178,11 @@ var app = app || {};
             initPdf();
             initSvg();
         }
-        $('#xyPreSquiggle').on('mousedown', xyPreSquiggle_mousedown);
+ 
+        $('.fileMenu .xyPreSquiggle, ' +
+            '.example_features, ' +
+            '.example_attributes')
+            .on('mousedown', menu_mousedown);
     }
 })(app);
 

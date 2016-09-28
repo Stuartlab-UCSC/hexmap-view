@@ -6,19 +6,19 @@ var app = app || {}; // jshint ignore:line
 (function (hex) { // jshint ignore:line
     //'use strict';
 
-    Upload = function ($anchor, dir, our_file_name, log) {
+    Upload = function ($anchor, meteor_method, our_file_name, log) {
 
         this.$anchor = $anchor;
-        this.dir = dir;
+        this.meteor_method = meteor_method;
         this.our_file_name = our_file_name;
         this.log = log;
-        this.chunk_size = 1024 * 1024 * 10; // 10 MB
+        this.chunk_size = 1024 * 1024; // 1 MB
             
         Upload.prototype.report_error = function (error, user_file_name) {
             var msg = 'Uploading ' + user_file_name
                 + ' to server failed with: ' + error;
             Util.banner('error', msg);
-            this.log.set(this.log.get() + '\n' + msg);
+            this.log_it(this.log.get() + '\n' + msg);
         }
         
         Upload.prototype.read = function (upload, callback) {
@@ -36,14 +36,25 @@ var app = app || {}; // jshint ignore:line
                 u.file.slice(u.start, u.start + u.chunk_size));
         }
         
-        Upload.prototype.log_it = function (upload, start, size) {
-            var endDate = new Date;
-            var elapsed =
-                Math.ceil((endDate.getTime() - startDate.getTime())
-                / 100 / 60) / 10;
+        Upload.prototype.log_it = function (msg, start, size, replace_last) {
+            if (!msg) {
+ 
+                // This must be an upload progress messsage
+                var endDate = new Date(),
+                    elapsed =
+                        Math.ceil((endDate.getTime() - startDate.getTime())
+                        / 100 / 60) / 10,
+                    elapsed_str = elapsed.toString().replace(/\B(?=(\d{3})+\b)/g, ","),
+                    size_str = size.toString().replace(/\B(?=(\d{3})+\b)/g, ","),
+                    start_str = start.toString().replace(/\B(?=(\d{3})+\b)/g, ","),
+                    msg = this.file.name +
+                        ': uploaded ' + start_str +
+                        ' of ' + size_str +
+                        ' bytes in ' + elapsed_str + ' minutes.';
+            }
 
-            upload.log.set(upload.file.name + ': uploaded ' + start + ' of '
-                        + size + ' bytes in ' + elapsed + ' minutes.');
+            msg = this.log.get() + '\n' + msg;
+            this.log.set(msg);
         }
         
         Upload.prototype.upload_now = function (upload, callback) {
@@ -54,7 +65,9 @@ var app = app || {}; // jshint ignore:line
         
             // Initiate the upload
             if (!u.file) {
-                Util.banner('error', 'No file was selected');
+                var msg = 'Error: No file was selected'
+                Util.banner('error', msg);
+                u.log_it(msg);
                 return;
             }
  
@@ -67,7 +80,7 @@ var app = app || {}; // jshint ignore:line
  
                 // Read the next chunk of data and write it to the server
                 if (u.start < u.file.size) {
-                    u.log_it(u, u.start, u.file.size);
+                    u.log_it(undefined, u.start, u.file.size, true);
 
                     u.read(u, function (error, result) {
                         if (error) {
@@ -79,8 +92,8 @@ var app = app || {}; // jshint ignore:line
               
                             // Write the file chunk to the server
                             Meteor.apply(
-                                'write_tsv_file_to_server',
-                                [u.dir, u.our_file_name, buf, u.start],
+                                u.meteor_method,
+                                [u.our_file_name, buf, u.start],
                                 {wait: true},
                                 function (error) {
                                     if (error) {
@@ -96,7 +109,7 @@ var app = app || {}; // jshint ignore:line
                 } else {
  
                     // The last chunck has been uploaded
-                    u.log_it(u, u.file.size, u.file.size);
+                    u.log_it(undefined, u.file.size, u.file.size, true);
                     callback();
                 }
             }
@@ -130,16 +143,16 @@ var app = app || {}; // jshint ignore:line
         }
     }
 
-    create_upload = function ($anchor, dir, our_file_name, log) {
+    create_upload = function ($anchor, meteor_method, our_file_name, log) {
  
 
         // Creates an instance of the Upload to upload one file.
         // @param: $anchor: parent jquery dom element of this upload instance
-        // @param: dir: full path of the directory for the upload file
+        // @param: meteor_method: the meteor method do call for upload
         // @param: our_file_name: our base file name
         // @param: log: a reactiveVar containing a text log
  
-        var instance = new Upload($anchor, dir, our_file_name, log);
+        var instance = new Upload($anchor, meteor_method, our_file_name, log);
         instance.init($anchor);
         return instance;
     }

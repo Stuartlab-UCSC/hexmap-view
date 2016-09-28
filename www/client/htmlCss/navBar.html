@@ -8,10 +8,10 @@
                 File
                 <img src='/icons/caret-down.png' style='height:8px'>
                 <ul class='file'>
-                    <li class='createMap'>
+                    <li class='createMap homeShow mapShow'>
                         Create Map...
                     </li>
-                    <li class='mapShow gridShow'>
+                    <li>
                         Download
                         <img src='/icons/caret-down.png' style='height:8px'>
                         <ul class='download'>
@@ -33,10 +33,28 @@
                                 </a>
                             </li>
                             <li class='mapShow gridShow' >
-                                <a id='xyPreSquiggle' download='hexmapXy.tab'
+                                <a class='xyPreSquiggle' download='hexmapXy.tab'
                                     title = 'Download xy coordinates of nodes before squiggling into hexagons'>
                                     XY Positions
                                 </a>
+                            </li>
+                            <li class='input_files homeShow mapShow'>
+                                Example Input Files
+                                <img src='/icons/caret-down.png' style='height:8px'>
+                                <ul>
+                                    <li>
+                                        <a class='example_features' download='example_feature_xy.tab'
+                                            title = 'Example feature input file to create a map, in node xy coordinates'>
+                                            XY Positions
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class='example_attributes' download='example_attributes.tab'
+                                            title = 'Example attributes file to add to a map'>
+                                            Attributes for Colors
+                                        </a>
+                                    </li>
+                                </ul>
                             </li>
                         </ul>
                     </li>
@@ -161,6 +179,8 @@
             </li>
         </ul>
     </div>
+    <div id="banner"></div>
+    {{> create_map_t}}
 </template>
 
 <template name='tutorialMenuT'>
