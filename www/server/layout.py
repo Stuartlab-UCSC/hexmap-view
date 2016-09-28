@@ -85,7 +85,7 @@ def parse_args(args):
         help="attribute by which to color the map upon first display")
     parser.add_argument("--directory", "-d", type=str, default=".",
         help="directory in which to create other output files")
-    parser.add_argument("--role", type=str, default=".",
+    parser.add_argument("--role", type=str,
         help="authorization role for this map")
         
     # Lesser used parameters:

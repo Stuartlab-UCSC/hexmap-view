@@ -453,13 +453,15 @@ refreshColors = function (delay) {
     
     // Get rid of the previous redraw request, if there was one. We only want 
     // one.
-    window.clearTimeout(refreshColorsHandle);
+    Meteor.clearTimeout(refreshColorsHandle);
     
     // Make a new one to happen as soon as this event finishes
     refreshColorsHandle = Meteor.setTimeout(refreshColorsInner, delay ? delay : 0);
 }
 
 function refreshColorsInner() {
+
+    console.log('refreshColorsInner');
 
     // Make the view display the correct hexagons in the colors of the current
     // layer(s), as read from the values of the layer pickers in the global

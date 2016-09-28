@@ -185,7 +185,7 @@ Read as "The content row", distinct from whatever else that element might be.
 }
 
 .log {
-    width: 100%;
+    width: 50em;
 }
 /* Tool stuff */
 textarea {
