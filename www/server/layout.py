@@ -143,7 +143,7 @@ def parse_args(args):
     return parser.parse_args(args)
 
 def timestamp():
-    return str(datetime.datetime.now())[8:-7]
+    return str(datetime.datetime.now())[5:-7]
 
 # Store global variables in one global context
 class Context:
