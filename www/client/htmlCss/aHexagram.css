@@ -184,6 +184,9 @@ Read as "The content row", distinct from whatever else that element might be.
     text-align: left;
 }
 
+.log {
+    width: 100%;
+}
 /* Tool stuff */
 textarea {
     width: 100%;

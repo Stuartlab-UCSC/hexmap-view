@@ -85,6 +85,8 @@ def parse_args(args):
         help="attribute by which to color the map upon first display")
     parser.add_argument("--directory", "-d", type=str, default=".",
         help="directory in which to create other output files")
+    parser.add_argument("--role", type=str, default=".",
+        help="authorization role for this map")
         
     # Lesser used parameters:
     parser.add_argument("--attributeTags", type=str,
@@ -1328,19 +1330,15 @@ def copy_files_for_UI(options, layer_files, layers, layer_positives, clumpiness_
 def build_default_scores(options):
 
     # Build a fake scores file from the node IDs in the first layout. This is a
-    # hack to get around the client code expecting at least one layer.
+    # hack to get around the server & client code expecting at least one layer.
     
-    # Find the feature file
-    if options.coordinates is not None:
-        fin = options.coordinates[0][0]
-    # TODO handle other feature file formats
-    with open(fin, 'r') as fin:
-        fin = csv.reader(fin, delimiter='\t')
-        file_name = options.directory + '/fake_layer.tab'
-        with open(file_name, 'w') as fout:
-            fout = csv.writer(fout, delimiter='\t')
-            for i, row in enumerate(fin.__iter__()):
-                fout.writerow([row[0], row[0]])
+    file_name = options.directory + '/fake_layer.tab'
+    with open(file_name, 'w') as fout:
+        fout = csv.writer(fout, delimiter='\t')
+        fout.writerow(['s1', 0.1])
+        fout.writerow(['s2', 0.2])
+        fout.writerow(['s3', 0.3])
+    #options.scores = ['fake_layer_0', 'fake_layer_1']
     return file_name
 
 
@@ -1360,6 +1358,12 @@ def hexIt(options, cmd_line_list, all_dict):
     pprint.pprint(all_dict)
     sys.stdout.flush()
     
+    # Create the metadata json file for the role if there is one
+    if options.role != None:
+        with open(os.path.join(options.directory, 'meta.json'), 'w') as fout:
+            meta = '{ "role": "' + options.role + '" }\n';
+            fout.write(meta);
+
     if options.scores == None:
         options.scores = [build_default_scores(options)]
 

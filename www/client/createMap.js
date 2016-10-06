@@ -3,24 +3,30 @@
 
 var app = app || {};
 
-(function (hex) {
-    //'use strict';
+(function (hex) { // jshint ignore: line
+CreateMap = (function () { // jshint ignore: line
 
     var title = 'Create a New Map',
         dialogHex, // instance of the class DialogHex
         $dialog, // our dialog DOM element
-        feature_file, // the feature file object
+        feature_upload, // the feature file selector
+        attribute_upload, // the feature file selector
         our_feature_file_name,
+        our_attribute_file_name,
+        user_project,
+        feature_space_dir,
         view_dir,
-        log = new ReactiveVar();
+        log = new ReactiveVar(),
+        safe_username;
 
     var show_advanced = 'Advanced options...',
-        hide_advanced = 'Hide advanced options',
-        formats = [
-            'Feature matrix',
-            'Full similarity matrix',
-            'Sparse similarity matrix',
-            'Node XY positions',
+        hide_advanced = 'Hide advanced options';
+    /*
+    var formats = [
+            'Feature matrix',           // feature
+            'Full similarity matrix',   // full_sim
+            'Sparse similarity matrix', // sparse_sim
+            'Node XY positions',        // coordinates
         ],
         default_format = 'Feature matrix',
         methods = [
@@ -35,17 +41,16 @@ var app = app || {};
         default_method = 'Drl',
         advanced_label = new ReactiveVar(),
         requested_name = new ReactiveVar('');
+    */
  
     Template.create_map_t.helpers({
-        name: function () {
-            var file = Session.get('create_map_feature_file');
-            if (name) {
-                return file.name;
-            } else {
-                return undefined;
-            }
-        },
         log: function () {
+            Meteor.setTimeout(function () {
+                var $log = $('#create_map_dialog .log');
+                if ($log && $log[0]) {
+                    $log.scrollTop($log[0].scrollHeight);
+                }
+            }, 0); // Give some time for the log message to show up
             return log.get();
         },
         dynamic: function () {
@@ -55,8 +60,8 @@ var app = app || {};
             return Session.get('create_map_stats_precompute');
         },
         advanced_label: function () {
-            return Session.get('create_map_show_advanced')
-                ? hide_advanced : show_advanced;
+            return Session.get('create_map_show_advanced') ?
+                hide_advanced : show_advanced;
         },
         advanced_display: function () {
             if (Session.get('create_map_show_advanced')) {
@@ -66,57 +71,121 @@ var app = app || {};
             }
         },
     });
-
-    /* TODO later
-    function name_changed (ev) {
-        var name = ev.target.value,
-            dup_name,
-            msg ' is already used, so a new name is suggested';
  
-        unique_name = Project.make_name_unique(name);
-        if (unique_name === name) {
-            Session.set('create_map_name', name);
-        } else {
-            Session.set('create_map_name', unique_name);
-            banner('warn', name + msg);
+    function report_error (msg) {
+        Util.banner('error', msg);
+        var date = new Date().toString(),
+            i = date.indexOf('GMT');
+        date = date.slice(0, i);
+        feature_upload.log_it(msg + '\nPlease let hexmap@ucsc.edu know you ' +
+            'had a map creation problem on ' + date);
+    }
+ 
+    function report_info (msg) {
+        Util.banner('info', msg);
+        feature_upload.log_it(msg);
+    }
+ 
+    function create_map () {
+ 
+        var msg = 'Uploads complete. Generating layout...';
+ 
+        Util.banner('info', msg);
+        feature_upload.log_it(msg);
+
+        var opts = [
+            '--names', 'layout',
+            '--directory', view_dir,
+            '--role', safe_username,
+            '--include-singletons',
+            '--no-density-stats',
+            '--no-layout-independent-stats',
+            '--no-layout-aware-stats',
+        ];
+        if (true) { // TODO (feature_format === 'coordinates') {
+            opts.push('--coordinates');
+            opts.push(our_feature_file_name);
         }
-
-            // Suggest another unique name
-            dup_name = name;
-            requested_name = unique_name;
+        if (attribute_upload.file) {
+            opts.push('--scores');
+            opts.push(our_attribute_file_name);
+        }
  
-            msg =
+        Meteor.call('create_map', opts, function (error) {
+            if (error) {
+                report_error('Error: ' + error);
+                
+            } else {
+                report_info('Map was successfully created.');
+
+                // Open the new map.
+                Hex.loadProject(user_project);
+            }
+        });
+    }
+
+    function upload_attributes () {
+ 
+        // Upload the user's attribute file
+        if (attribute_upload.file) {
+            attribute_upload.upload_now(attribute_upload, function () {
+                var msg =
+                    attribute_upload.user_file_name + ' has been uploaded.';
+                Util.banner('info', msg);
+                create_map();
+            });
+        } else {
+            create_map();
         }
     }
-    */
+
+    function create_clicked () {
+ 
+        // Upload the user's feature file
+        feature_upload.upload_now(feature_upload, function () {
+            var msg = feature_upload.user_file_name + ' has been uploaded.';
+            Util.banner('info', msg);
+            upload_attributes();
+        });
+	}
  
     function username_received (username) {
  
+        // User name has been received, set up the widgets
         if (!username) {
             Util.banner('error', 'username could not be found');
             return;
         }
+        safe_username = Util.clean_file_name(username);
  
-        var clean_username = Util.clean_file_name(username);
- 
-        var dir = FEATURE_SPACE_DIR + clean_username + '/';
-        var file_name = 'feature.tsv'
-        our_feature_file_name = dir + file_name;
-        view_dir = VIEW_DIR + clean_username + '/';
- 
-        // Define the file selector for feature file
-        feature_file = create_upload($dialog.find('.feature_upload_anchor'),
-            dir, file_name, log);
-        Session.set('create_map_feature_file', feature_file.file);
+        // Transform the username into a suitable file name,
+        // and set up some directory names
+        // TODO: build these file names in the server using
+        // clean_file_name() there
+        user_project = safe_username + '/';
+        feature_space_dir = FEATURE_SPACE_DIR + user_project;
+        view_dir = VIEW_DIR + user_project;
+        var meteor_method = 'upload_create_map_feature_space_file';
 
-        /*
-        // Define the file selector for feature file
-        $dialog.find('.feature.file').on('change', function (ev) {
-            Session.set('create_map_feature_file', event.target.files[0]);
-            //var file = event.target.files[0];
-        });
-        */
  
+        // Define the file selector for features file
+        var file_name = 'features.tab';
+        our_feature_file_name = feature_space_dir + file_name;
+        feature_upload = create_upload($dialog.find('.feature_upload_anchor'),
+            meteor_method, file_name, log);
+        Session.set('create_map_feature_file', feature_upload.file);
+ 
+        // Define the file selector for attributes file
+        file_name = 'attributes.tab';
+        our_attribute_file_name = feature_space_dir + file_name;
+        attribute_upload =
+            create_upload($dialog.find('.attribute_upload_anchor'),
+            meteor_method, file_name, log);
+        Session.set('create_map_attribute_file', attribute_upload.file);
+
+        // Initialize the file widgets
+        log.set('log messages:');
+
         /* TODO later
         // Create the feature format list
         var data = [];
@@ -140,7 +209,8 @@ var app = app || {};
             data.push({id: method, text: method});
         });
         var $method_anchor = $('#create_map_dialog .method_anchor');
-        createOurSelect2($method_anchor, {data: data}, Session.get('create_map_method'));
+        createOurSelect2($method_anchor, {data: data}, 
+            Session.get('create_map_method'));
         $method_anchor.show();
 
         // Define the event handler for the method list
@@ -160,80 +230,12 @@ var app = app || {};
  
     function show () {
  
-        // Show the contents of the dialog, once per trigger button click
- 
+        // Show the contents of the dialog, once per menu button click
+
         // Find the username to build directories for her
         Util.get_username(username_received);
- 
     }
 
-/*
-
-        file_picker.change(function(event) {
-            // When a file is selected, read it in and populate the text box.
-            
-            // What file do we really want to read?
-            var file = event.target.files[0];
-            
-            // Make a FileReader to read the file
-            var reader = new FileReader();
-            
-            reader.onload = function(read_event) {  
-                // When we read with readAsText, we get a string. Just stuff it
-                // in the text box for the user to see.
-                text_area.text(reader.result);
-            };
-            
-            // Read the file, and, when it comes in, stick it in the textbox.
-            reader.readAsText(file);
-        });
-        
-*/
-
-    function feature_file_uploaded () {
- 
-        Util.banner('info', feature_file.user_file_name
-            + ' upload complete. Generating layout...');
-
-        var opts = [
-            '--names', 'layout',
-            '--directory', view_dir,
-            '--include-singletons',
-            '--no-density-stats',
-            '--no-layout-independent-stats',
-            '--no-layout-aware-stats',
-        ];
-        if (true) { // TODO (feature_format === 'coordinates') {
-            opts.push('--coordinates');
-            opts.push(our_feature_file_name);
-        }
-        if (false) {
-            opts.push('--scores');
-            opts.push('TODO')
-        }
- 
-        Meteor.call('callPython', 'layout', opts,
-            function (error, results) {
-            if (error) {
-                Util.banner('error', error);
-            } else {
-                console.log('no errors generated on layout,py');
-                if (!_.isUndefined(results)) {
-                    console.log('results', results);
-                }
-                // TODO
-            }
-        });
-    }
-
-    function createIt () {
- 
-        // Create the map
-
-        // Upload the user's feature file
-        feature_file.upload_now(feature_file, feature_file_uploaded);
-	}
- 
     function hide() {
  
         // TODO
@@ -241,26 +243,34 @@ var app = app || {};
         //methodList = undefined;
         dialogHex.hide();
     }
+    
+    return { // Public methods
+        init: function () {
+     
+            $dialog = $('#create_map_dialog');
+            var $button = $('.createMap');
+     
+            // Define the dialog options & create an instance of DialogHex
+            var opts = {
+                title: title,
+                buttons: [{ text: 'Create', click: create_clicked }],
+            };
+            dialogHex = createDialogHex(undefined, $button, $dialog, opts, show,
+                hide, true, 'help/createMap.html');
+     
+            Session.set('create_map_show_advanced', false);
 
-    initCreateMap = function () {
- 
-        $dialog = $('#create_map_dialog');
-        var $button = $('#navBar createMap');
- 
-        // Define the dialog options & create an instance of DialogHex
-        var opts = {
-            title: title,
-            buttons: [{ text: 'Create', click: createIt }],
-        };
-        dialogHex = createDialogHex(undefined, $button, $dialog, opts, show,
-            hide, true, 'help/createMap.html');
- 
-        Session.set('create_map_show_advanced', false);
-        log.set('');
- 
-        // Listen for the menu clicked
-        add_tool("createMap", function() {
-            dialogHex.show();
-        }, 'Create a new map');
-    }
+            // Listen for the menu clicked
+            Tool.add("createMap", function() {
+                dialogHex.show();
+            }, 'Create a new map');
+     
+            // Also open the dialog if the link on the home page is clicked
+            $('#homePage .createMap').on('click', function () {
+                $('#navBar .createMap').click();
+            });
+     
+        },
+    };
+}());
 })(app);

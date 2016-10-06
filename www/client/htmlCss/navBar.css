@@ -74,7 +74,11 @@
 }
 
 #navBar ul.download li {
-    width: 6.5em;
+    width: 11em; /* 6.5 */
+}
+
+#navBar ul.input_files li {
+    width: 11.5em;
 }
 
 #navBar ul.edit li {
@@ -195,9 +199,11 @@
     width: 15em;
 }
 
-#banner.row {
+#banner {
     position: fixed;
     top: 0;
+    width: 100%;
+    vertical-align: middle;
     height: 2.2em;
     line-height: 2.5em;
     font-weight: bold;

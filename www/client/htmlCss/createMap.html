@@ -22,23 +22,24 @@
             </tr>
             <tr>
                 <td class='dialog_label'>
-                    Features to lay out map:
+                    Layout features:
                 </td>
                 <td class='dialog_value feature_upload_anchor'>
                     {{>upload_t}}
                 </td>
             </tr>
-            <tr style='display:none'>
-                <td class='dialog_label'>
-                    Optional attributes to color map:
+            <tr>
+                <td class='dialog_label' style='vertical-align:top'>
+                    Color attributes:
                 </td>
-                <td class='dialog_value'>
-                    <input class='attribute file' type='file'>
+                <td class='dialog_value attribute_upload_anchor'>
+                    {{>upload_t}}
+                    <br><span style='font-size:0.8em'>(optional)</span>
                 </td>
             </tr>
             <tr>
                 <td class='dialog_value' colspan=2>
-                     <input class='log' style='width:100%;height:3em' type='text' name='log' value='{{log}}' readonly>
+                     <textarea class='log' rows=7, name='log' value='{{log}}' readonly></textarea>
                 </td>
             </tr>
             <tr style='display:none'>

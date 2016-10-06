@@ -470,10 +470,10 @@ function refreshColorsInner() {
     
     // This holds a list of the string names of the currently selected layers,
     // in order.
-    var current_layers = get_active_layers();
+    var current_layers = Shortlist.get_active_layers();
     
     // This holds all the current filters
-    var filters = get_current_filters();
+    var filters = Shortlist.get_current_filters();
     
     // Obtain the layer objects (mapping from signatures/hex labels to colors)
     with_layers(current_layers, function(retrieved_layers) {  
@@ -489,7 +489,7 @@ function refreshColorsInner() {
         // which are updated asynchronously.
         var layer_limits = []
         for(var i = 0; i < current_layers.length; i++) {
-            var range = get_slider_range(current_layers[i]);
+            var range = Shortlist.get_slider_range(current_layers[i]);
             print("Layer range " + range[0] + " to " + range[1]);
             layer_limits.push(range);
         }
@@ -501,7 +501,7 @@ function refreshColorsInner() {
         }
         
         // Go get the list of filter-passing hexes.
-        with_filtered_signatures(filters, function(signatures) {
+        Shortlist.with_filtered_signatures(filters, function(signatures) {
             for(var i = 0; i < signatures.length; i++) {
                 // For each hex passign the filter
                 // This holds its signature label

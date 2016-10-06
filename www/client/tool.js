@@ -13,9 +13,8 @@
 
 var app = app || {};
 
-(function (hex) { // jshint ignore
-    //'use strict';
-Tool = (function () {
+(function (hex) { // jshint ignore: line
+Tool = (function () { // jshint ignore: line
 
     // This is an array of all Google Maps events that tools can use.
     var TOOL_EVENTS = [
@@ -24,10 +23,9 @@ Tool = (function () {
         "mousemove",
     ];
     var callbacks = {}; // The callbacks for each tool
-    var initialized = false;
     
     // This holds all the currently active tool event listeners.
-    // They are indexed by handle, and are objects with a "handler" and an "event".
+    // They are indexed by handle, and are objects with a "handler" and "event".
     var tool_listeners = {};
 
     // This holds the next tool listener handle to give out
@@ -37,15 +35,16 @@ Tool = (function () {
     var toolActive = false;
 
     function add_tool_listener (name, handler, cleanup) {
-        // Add a global event listener over the Google map and everything on it. 
-        // name specifies the event to listen to, and handler is the function to be
-        // set up as an event handler. It should take a single argument: the Google 
-        // Maps event. A handle is returned that can be used to remove the event 
-        // listen with remove_tool_listener.
-        // Only events in the TOOL_EVENTS array are allowed to be passed for name.
+        // Add a global event listener over the Google map and everything on it.
+        // name specifies the event to listen to, and handler is the function to
+        // be set up as an event handler. It should take a single argument: the
+        // Google Maps event. A handle is returned that can be used to remove
+        // the event listen with remove_tool_listener.
+        // Only events in the TOOL_EVENTS array are allowed to be passed for
+        // name.
         // TODO: Bundle this event thing into its own object.
-        // If "cleanup" is specified, it must be a 0-argument function to call when
-        // this listener is removed.
+        // If "cleanup" is specified, it must be a 0-argument function to call
+        // when this listener is removed.
         
         // Get a handle
         var handle = tool_listener_next_id;
@@ -62,9 +61,10 @@ Tool = (function () {
     }
 
     function remove_tool_listener (handle) {
-        // Given a handle returned by add_tool_listener, remove the listener so it
-        // will no longer fire on its event. May be called only once on a given 
-        // handle. Runs any cleanup code associated with the handle being removed.
+        // Given a handle returned by add_tool_listener, remove the listener so
+        // it will no longer fire on its event. May be called only once on a
+        // given handle. Runs any cleanup code associated with the handle being
+        // removed.
         
         if(tool_listeners[handle].cleanup) {
             // Run cleanup code if applicable
@@ -76,64 +76,65 @@ Tool = (function () {
     }
 
     function clear_tool_listeners() {
-        // We're starting to use another tool. Remove all current tool listeners. 
-        // Run any associated cleanup code for each listener.
+        // We're starting to use another tool. Remove all current tool
+        // listeners. Run any associated cleanup code for each listener.
         
         for(var handle in tool_listeners) {
             remove_tool_listener(handle);
         }
     }
 
-    function whenPageChanges () {
-        var page = Session.get('page');
+    function activity (activate) {
+        if (_.isUndefined(activate)) {
+            return toolActive;
+        } else {
+            toolActive = activate;
+        }
     }
+
+    function add (tool_name, callback, hover_text, klass) {
+
+        // Register a name for a tool that matches the select data in a
+        // navigation bar option, and a callback for when the user selects
+        // that menu option.
  
+        // No need to add a tool twice
+        if (callbacks[tool_name]) { return; }
+
+        // Save the callback
+        callbacks[tool_name] = callback;
+
+        // Add hover text & class to the menu option belonging to this tool
+        var id = '#navBar .' + tool_name;
+        $(id)
+            .on('click', callbacks[tool_name])
+            .attr('title', hover_text)
+            .addClass(klass);
+    }
+
     return { // Public methods
     
-        activity: function (activate) {
-            if (_.isUndefined(activate)) {
-                return toolActive;
-            } else {
-                toolActive = activate;
-            }
-        },
-
-        add: function (tool_name, callback, hover_text, klass) {
-
-            // Register a name for a tool that matches the select data in a
-            // navigation bar option, and a callback for when the user selects that
-            // menu option.
-     
-            // No need to add a tool twice
-            if (callbacks[tool_name]) return;
-
-            // Save the callback
-            callbacks[tool_name] = callback;
-
-            // Add the hover text and class to the menu option belonging to this tool
-            var id = '#navBar .' + tool_name
-            $(id)
-                .on('click', callbacks[tool_name])
-                .attr('title', hover_text)
-                .addClass(klass);
-        },
-
+        activity: activity,
+        add: add,
+    
         subscribe_listeners: function (maps_object) {
-            // Put the given Google Maps object into the tool events system, so that 
-            // events on it will fire global tool events. This can happen before or 
-            // after the tool events themselves are enabled.
+            // Put the given Google Maps object into the tool events system, so
+            // that events on it will fire global tool events. This can happen
+            // before or after the tool events themselves are enabled.
             
             for(var i = 0; i < TOOL_EVENTS.length; i++) {
                 // For each event name we care about,
-                // use an inline function to generate an event name specific handler,
-                // and attach that to the Maps object.
+                // use an inline function to generate an event name specific
+                // handler, and attach that to the Maps object.
                 google.maps.event.addListener(maps_object, TOOL_EVENTS[i], 
-                    function(event_name) {
+                    function(event_name) { // jshint ignore: line
                         return function(event) {
                             // We are handling an event_name event
                             
                             for(var handle in tool_listeners) {
-                                if(tool_listeners[handle].event == event_name) {
+                                if(tool_listeners[handle].event ===
+                                    event_name) {
+                                    
                                     // The handler wants this event
                                     // Fire it with the Google Maps event args
                                     tool_listeners[handle].handler(event);
@@ -147,28 +148,29 @@ Tool = (function () {
         initLabelTool: function () {
 
             // Set up the add text control
-            add_tool("addText", function() {
+            add("addText", function() {
                 
-                // We'll prompt the user for some text, and then put a label where they 
-                // next click.
+                // We'll prompt the user for some text, and then put a label
+                // where they next click.
                 
-                var text = prompt("Enter some text, and click anywhere on the " +
-                    "map to place it there", "Label Text");
+                var text = prompt("Enter some text, and click anywhere on " +
+                    "the map to place it there", "Label Text");
                     
                 if(!text) {
                     // They don't want to put a label
-                        tool_activity(false);
+                        activity(false);
                     return;
                 }
                 
-                // Add a tool listenerr that places the label. It fires on a click 
-                // anywhere on anything on the map, including the background. We keep a 
-                // handle to it so we can remove it when it fires, ensuring we get just 
-                // one label. See http://stackoverflow.com/a/1544185
+                // Add a tool listenerr that places the label. It fires on a
+                // click anywhere on anything on the map, including the
+                // background. We keep a handle to it so we can remove it when
+                // it fires, ensuring we get just one label.
+                // See http://stackoverflow.com/a/1544185
                 var handle = add_tool_listener("click", function(event) {
                     
                     // Make a new MapLabel at the click position
-                    // See http://bit.ly/18MbLhR (the MapLabel library example page)
+                    // See http://bit.ly/18MbLhR (MapLabel library example page)
                     var map_label = new MapLabel({
                         text: text,
                         position: event.latLng,
@@ -184,7 +186,7 @@ Tool = (function () {
                     remove_tool_listener(handle);
                 }, function() {
                     // Cleanup: de-select ourselves.
-                        tool_activity(false);
+                        activity(false);
                 });
             }, 'Add a label to the map', 'mapShow');
         },
@@ -218,32 +220,36 @@ Tool = (function () {
             }
         
             // Set up the link to the map page
-            add_tool("mapLayout", function(ev) {
+            add("mapLayout", function(ev) {
                 if (!$(ev.target).hasClass('disabled')) {
                     $('.mapPage').click();
-                    tool_activity(false);
+                    activity(false);
                 }
             }, 'Main map page');
      
             // Set up the link to the home page
-            add_tool("home", function(ev) {
+            add("home", function() {
                 $('.homePage').click();
-                tool_activity(false);
+                activity(false);
             });
         
             // TODO we're not doing overlay nodes yet
             $('#navBar .overlayNode').hide();
         
-            var $createMap = $('#navBar .createMap, #navBar .createMapDocs');
+            var $createMap = $(
+                '#navBar .createMap, ' +
+                '#navBar .createMapDocs, ' +
+                '#navBar .input_files, ' +
+                '#homePage .createMapHome'
+            );
         
-            // Hide, show or disable tools depending on the user's authorizations
+            // Hide, show or disable tools depending on user's authorizations
             Meteor.autorun( function () {
-                var user = Meteor.user();
+                var user = Meteor.user(); // jshint ignore: line
 
                 // Check authorization for creating maps
-                $createMap.hide();
-                /*
-                Meteor.call('is_user_in_role', ['createMap', 'dev'],
+                Meteor.call('is_user_in_role', ['swat_soe.ucsc.edu'],
+                //Meteor.call('is_user_in_role', ['createMap', 'dev'],
                     function (error, results) {
                         if (!error && results) {
                             $createMap.show();
@@ -252,7 +258,6 @@ Tool = (function () {
                         }
                     }
                 );
-                */
                 
                 // Check authorizations for query API
                 Meteor.call('is_user_in_role', ['queryAPI', 'dev'],
@@ -267,7 +272,7 @@ Tool = (function () {
                 
             });
         },
-    }
+    };
 }());
 
 // TODO needed while transitioning to more scope protection

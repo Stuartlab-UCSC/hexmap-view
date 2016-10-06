@@ -20,9 +20,8 @@ callPython = function (pythonCallName, opts, callback) {
     var parmFile = writeToTempFile(json);
     
     // Log every call to python in case we have errors, there will be
-    // some sort of breadcrumbs.
-    console.log('Info: callPython(' + pythonCallName + ',',
-        opts.slice(0,80), '...');
+    // some sort of bread crumbs to follow.
+    console.log('Info: callPython(' + pythonCallName, ')');
     
     var command =
         "python " +
@@ -54,7 +53,7 @@ callPython = function (pythonCallName, opts, callback) {
             stdout.slice(0,7).toLowerCase() === 'warning')) {
         
             // Return any errors/warnings captured by the python script
-            return report_error(stdout, pythonCallName);
+            result = report_error(stdout, pythonCallName);
          
         } else {
         
@@ -63,9 +62,8 @@ callPython = function (pythonCallName, opts, callback) {
             var str = stdout.toString();
             var filename = str.replace('\n', '');
             var data = readFromJsonFileSync(filename);
-            console.log('Info: success with callPython(' +
-                pythonCallName + ',', opts.slice(0,80),
-                '...\n  Results file:', filename);
+            console.log('Info: success with callPython(' + pythonCallName,
+                ', Results file:', filename);
             result = {
                 code: 0,
                 data: data,
@@ -76,21 +74,20 @@ callPython = function (pythonCallName, opts, callback) {
     });
 };
 
-// Asynchronously call a python functions: preferred method
+
 function callPythonAsync (pythonCallName, opts, caller) {
 
+    // Asynchronously call a python function: preferred method
+    // when calling asynchronously from server.
     caller.unblock();
     var future = new Future();
-
     callPython(pythonCallName, opts, function (result) {
         future.return(result);
     });
-
     return future.wait();
 }
 
 var valid_calls_from_client = [
-    'layout',
     'diffAnalysis',
     'statsDynamic',
 ];
@@ -106,9 +103,10 @@ function return_error_to_client_async (msg, caller) {
 
 Meteor.methods({
 
-    // Asynchronously call a python function from the client: preferred method
     callPython: function (pythonCallName, opts) {
     
+        // Asynchronously call a python function from the client:
+        // preferred method
         if (valid_calls_from_client.indexOf(pythonCallName) > -1) {
             return callPythonAsync(pythonCallName, opts, this);
         } else {
@@ -119,10 +117,10 @@ Meteor.methods({
         }
     },
 
-    // Asynchronously call a python function from the client: TODO deprecated
     pythonCall: function (pythonCallName, opts) {
-
-        // Call a python function named pythonCallName passing the opts
+    
+        // TODO deprecated, move statsDynamic & diffAnalysis to use callPython
+        // Asynchronously call a python function from the client: deprecated
         
         // If this is not a valid python call, return an error
         if (valid_calls_from_client.indexOf(pythonCallName) < 0) {

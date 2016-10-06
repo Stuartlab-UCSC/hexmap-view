@@ -10,6 +10,12 @@
     text-decoration: none;
 }
 
+#homePage .createMapHome {
+    text-align: center;
+    font-size: 1.1em;
+    padding: 1em;
+}
+
 #homePage .allProjects {
     margin: 0 auto;
     text-align: center;
