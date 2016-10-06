@@ -63,7 +63,7 @@ callPython = function (pythonCallName, opts, callback) {
             var filename = str.replace('\n', '');
             var data = readFromJsonFileSync(filename);
             console.log('Info: success with callPython(' + pythonCallName,
-                ', Results file:', filename);
+                '), Results file:', filename);
             result = {
                 code: 0,
                 data: data,
