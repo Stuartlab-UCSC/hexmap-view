@@ -1,12 +1,20 @@
 
-// pythonCaller.js
+// pythonCall.js
 // Call python utilities from nodejs.
 
 var exec = Npm.require('child_process').exec;
 var Future = Npm.require('fibers/future');
 var fs = Npm.require('fs');
+var spawn = Npm.require('child_process').spawn;
 
-callPython = function (pythonCallName, opts, callback) {
+function report_error (error_in, on, pythonCallName, callback) {
+    var error = error_in.toString();
+    console.log(
+        'Error:', on, 'from python call:', pythonCallName + ':', error);
+    callback({ code: 1, data: error });
+}
+
+callPythonLocal = function (pythonCallName, opts, callback) {
 
     // Generic asynchronous caller from server to python code.
     // Put the parameters in a file as json, then call the python routine. The
@@ -15,77 +23,78 @@ callPython = function (pythonCallName, opts, callback) {
     // supplied callback as a javascript object on success, or a string on
     // error.
     
-    // Write the opts to a file as json for reading by the python code.
-    var json = JSON.stringify(opts);
-    var parmFile = writeToTempFile(json);
-    
     // Log every call to python in case we have errors, there will be
     // some sort of bread crumbs to follow.
-    console.log('Info: callPython(' + pythonCallName, ')');
+    console.log('Info: callPython(' + pythonCallName + ')');
     
-    var command =
-        "python " +
-        SERVER_DIR +
-        "pythonCaller.py '" +
-        pythonCallName +
-        "' '" +
-        parmFile +
-        "'";
+    // Parms to pass to python
+    var parms = [
+            SERVER_DIR + 'pythonCall.py',
+            pythonCallName,
+            writeToTempFile(JSON.stringify(opts)),
+        ],
+        call,
+        result;
+    
+    // Make the python call via a subprocess.
+    call = spawn('python', parms),
 
-    var result;
-    
-    var report_error = function (error, pythonCallName) {
-        console.log('Error: from python call:', pythonCallName + ':', error);
-        return {code: 1, data: error};
-    };
-    
-    // TODO: replace 'exec' with something more standard
-    exec(command, function (error, stdout, stderr) {
-    
-        if (error) {
-            result = report_error(error, pythonCallName);
-        
-        } else if (stderr) {
-            result = report_error(stderr.toString(), pythonCallName);
-        
-        } else if (typeof stdout === 'string' &&
+    call.on('error', function (error) {
+        report_error(error, 'error', pythonCallName);
+    });
+
+    call.stderr.on('data', function (data) {
+        report_error(data, 'stderr', pythonCallName);
+    });
+
+    call.stdout.on('data', function (stdout_in) {
+        var stdout = stdout_in.toString();
+        if (typeof stdout === 'string' &&
             (stdout.slice(0,5).toLowerCase() === 'error' ||
             stdout.slice(0,7).toLowerCase() === 'warning')) {
-        
-            // Return any errors/warnings captured by the python script
-            result = report_error(stdout, pythonCallName);
-         
+    
+            // Return any errors/warnings printed by the python script
+            report_error(stdout, 'stdout', pythonCallName);
         } else {
-        
+
             // Success, so read and parse the results in the json file,
-            // returning the data
+            // returning the data.
             var str = stdout.toString();
             var filename = str.replace('\n', '');
             var data = readFromJsonFileSync(filename);
-            console.log('Info: success with callPython(' + pythonCallName,
-                '), Results file:', filename);
+            console.log('Info: success with callPython(' + pythonCallName + ')',
+                'Results file:', filename);
             result = {
                 code: 0,
                 data: data,
                 filename: filename,
             };
+            callback(result);
         }
-        callback(result);
     });
+    
+    call.on('close', function (code) {
+        if (code === 0) {
+            console.log('Info: success with callPython(' + pythonCallName + ')',
+                'Exited with:', code);
+        } else {
+            console.log('Error with callPython(' + pythonCallName + ')',
+                'Exited with:', code);
+        }
+    });
+    
+    call.stdin.end();
 };
 
+callPython = function (pythonCallName, opts, callback) {
 
-function callPythonAsync (pythonCallName, opts, caller) {
-
-    // Asynchronously call a python function: preferred method
-    // when calling asynchronously from server.
-    caller.unblock();
-    var future = new Future();
-    callPython(pythonCallName, opts, function (result) {
-        future.return(result);
-    });
-    return future.wait();
-}
+    // Call either the local or remote python script.
+    if (CALC_URL) {
+        console.log('we should call the remote calc server here');
+    } else {
+        callPythonLocal(pythonCallName, opts, callback);
+    }
+};
 
 var valid_calls_from_client = [
     'diffAnalysis',
@@ -93,11 +102,6 @@ var valid_calls_from_client = [
 ];
 
 function return_error_to_client_async (msg, caller) {
-    caller.unblock();
-    var future = new Future();
-    Meteor.setTimeout(function (msg) {
-        future.return(msg);
-    }, 0);
     return future.wait();
 }
 
@@ -107,20 +111,30 @@ Meteor.methods({
     
         // Asynchronously call a python function from the client:
         // preferred method
+        this.unblock();
+        var future = new Future();
+        
         if (valid_calls_from_client.indexOf(pythonCallName) > -1) {
-            return callPythonAsync(pythonCallName, opts, this);
+        
+            // This is a valid python call, so call it.
+            callPython(pythonCallName, opts, function (result) {
+                future.return(result);
+            });
         } else {
         
-            // This is not a valid python call, return an error
-            return_error_to_client_async (
-                'Error: ' + pythonCallName + ' is not a python function', this);
+            // This is not a valid python call, return an error.
+            Meteor.setTimeout(function (msg) {
+                future.return('Error: ' + pythonCallName +
+                    ' is not a python function', this);
+            }, 0);
         }
+        return future.wait();
     },
 
     pythonCall: function (pythonCallName, opts) {
     
         // TODO deprecated, move statsDynamic & diffAnalysis to use callPython
-        // Asynchronously call a python function from the client: deprecated
+        // Asynchronously call a python function from the client.
         
         // If this is not a valid python call, return an error
         if (valid_calls_from_client.indexOf(pythonCallName) < 0) {

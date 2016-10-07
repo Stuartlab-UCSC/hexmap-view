@@ -10,6 +10,7 @@ if (Meteor.isClient) {
 
 if (Meteor.isServer) {
     SERVER_DIR = Meteor.settings.server.SERVER_DIR;
+    CALC_URL = Meteor.settings.server.CALC_URL;
     var exec = Npm.require('child_process').exec;
     var process = Npm.require('process');
     
