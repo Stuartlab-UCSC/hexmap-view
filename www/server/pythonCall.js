@@ -27,7 +27,7 @@ callPython = function (pythonCallName, opts, callback) {
     var command =
         "python " +
         SERVER_DIR +
-        "pythonCaller.py '" +
+        "pythonCall.py '" +
         pythonCallName +
         "' '" +
         parmFile +
