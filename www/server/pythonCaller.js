@@ -21,8 +21,8 @@ callPython = function (pythonCallName, opts, callback) {
     
     // Log every call to python in case we have errors, there will be
     // some sort of breadcrumbs.
-    console.log('Info: callPython(' + pythonCallName + ',',
-        opts.slice(0,80), '...');
+    //console.log('Info: callPython(' + pythonCallName + ',',
+    //    opts.slice(0,80), '...');
     
     var command =
         "python " +
@@ -63,9 +63,9 @@ callPython = function (pythonCallName, opts, callback) {
             var str = stdout.toString();
             var filename = str.replace('\n', '');
             var data = readFromJsonFileSync(filename);
-            console.log('Info: success with callPython(' +
-                pythonCallName + ',', opts.slice(0,80),
-                '...\n  Results file:', filename);
+            //console.log('Info: success with callPython(' +
+            //    pythonCallName + ',', opts.slice(0,80),
+            //    '...\n  Results file:', filename);
             result = {
                 code: 0,
                 data: data,

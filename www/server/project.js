@@ -102,7 +102,7 @@ getProjectRole = function (major) {
     }
 }
 
-function getMajors () {
+function getMajors (server) { //change made by duncan so can call from server
 
     // Get the major directory names
     projects = {};
@@ -112,12 +112,15 @@ function getMajors () {
     if (_.isUndefined(majors1)) return;
     
     // Exclude any projects for which this user is not authorized
-    majors = []
+    majors = [];
     _.each(majors1, function(major) {
         var role = getProjectRole(major);
            
         // Authorize depending on user's role.
-        if (is_user_authorized_to_view(role)) {
+        if (server) {
+            //console.log('getMagors');
+            majors.push(major);
+        } else if (is_user_authorized_to_view(role)) {
             majors.push(major);
         }
     });
@@ -126,7 +129,20 @@ function getMajors () {
     if (majors.length > 0) {
         getMinors(0);
     }
-}
+};
+
+getMajorMinor = function () {
+    //function to get the directory structure object from anywhere on the server
+    // returns
+    // {Major0: [minor0,minor1....],
+    //  Major1: [minor0,minor1...],
+    //  .
+    //  .
+    //  .
+    //  }
+    getMajors(true);
+    return projects;
+};
 
 Meteor.methods({
 

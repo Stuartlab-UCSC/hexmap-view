@@ -1,114 +1,20 @@
 //mapManager prototype. Currently only used for reflections.
 
+
 var Fiber = Npm.require('fibers');
 var readline  = Npm.require('readline');
 var fs = Npm.require('fs');
 var Future = Npm.require('fibers/future');
 
-var ManagerFileCabinet = new Mongo.Collection('ManagerFileCabinet');
-var ManagerAddressBook = new Mongo.Collection('ManagerAddressBook');
-var LayerPostOffice = new Mongo.Collection('LayerPostOffice');
-var Windows = new Mongo.Collection('Windows');
+// if not global then when I try and use the local in zLoadDbs.js I get:
+// A method named '/ManagerFileCabinet/insert' is already defined
+// could keep local if all manipualtions are in one file?
 
-function read_nodenames(managers_doc,callback) {
-    //function for reading the nodeIds (both feature and sample) from a 
-    // reflection datafile
-    
-    var filename = FEATURE_SPACE_DIR +managers_doc.mapId.split(('/'))[0] + '/' + managers_doc.datapath;
+ManagerFileCabinet = new Mongo.Collection('ManagerFileCabinet');
+ManagerAddressBook = new Mongo.Collection('ManagerAddressBook');
+LayerPostOffice = new Mongo.Collection('LayerPostOffice');
+Windows = new Mongo.Collection('Windows');
 
-
-    var node_names = [];
-    var first = true;
-
-    fs.stat(filename,function(err,stats) {
-        if (err) {
-            console.log(err);
-            return ;
-        }
-        else if (stats.isFile() ){
-            var featOrSamp = managers_doc.featOrSamp;
-
-            var rl = readline.createInterface({
-                input : fs.createReadStream(filename),
-                terminal: false
-            });
-
-            //if we are dealing with sample nodes we only read the header,
-            // if dealing with features need to grab first element after first line
-            if(featOrSamp === 'feature') {
-                rl.on('line', function (line) {
-                    if(!first) {
-                        //console.log(line.split('\t')[0])
-                        node_names.push(line.split('\t')[0]);
-                    } else {
-                        first = false;
-                    }
-                });
-            } else if (featOrSamp === 'sample') {
-                rl.on('line', function (line) {
-                    //console.log('typeOfline:',typeof(line));
-                    node_names = line.split('\t').splice(1);
-                    //console.log('node_names',node_names);
-                    rl.close();
-                });
-            }
-            //after we read stuff in we put it in the database (callback should do that)
-            rl.on('close',function() {
-                callback(managers_doc,node_names);
-            });
-        }
-        else {
-            callback(managers_doc,[])
-        }
-    });
-
-}
-
-function insertNodeNames(doc,node_names){
-    //inserts a list of nodes into the proper FileCabinet entry
-    new Fiber( function () {
-            ManagerFileCabinet.update(doc, {
-                $set: {
-                    available_nodes: node_names
-                }
-            });
-    }).run();
-}
-
-function initManagerHelper() {
-    //This function initializes the databases needed for map attribute transfer.
-    // Initialized by reading from Meteor's settings.json file
-    // erases old db entries and starts fresh everytime the server is booted
-
-    //remove old dbs
-    Windows.remove({});
-    ManagerAddressBook.remove({});
-    ManagerFileCabinet.remove({});
-    LayerPostOffice.remove({});
-
-    //insert ManangerAddressBook entries
-    var addyentries =
-        Meteor.settings.server.mapManagerHelper.ManagerAddressBook;
-
-    _.each(addyentries,function(entry){
-        ManagerAddressBook.insert(entry);
-        //console.log(entry);
-        //read_nodenames(entry,insertNodeNames);
-    });
-
-    //insert ManagerFileCabinet entries
-    var cabinentEntries =
-        Meteor.settings.server.mapManagerHelper.ManagerFileCabinet;
-
-    _.each(cabinentEntries,function(entry){
-        ManagerFileCabinet.insert(entry);
-        //console.log(entry.datapath);
-        //console.log(FEATURE_SPACE_DIR)
-        read_nodenames(entry,insertNodeNames);
-    });
-}
-//populate the helper database from settings.json file
-initManagerHelper();
 
 //The following are helper functions specific to reflection functionality
 function colorMapMaker(){
@@ -283,7 +189,7 @@ Meteor.methods({
             var userArgs = {node_ids : nodeIds, datatype : dataType};
             var parameters = parmMaker(mapId,toMapId, operation, userArgs);
             //console.log("mapManager calling python with:",parameters);
-            PythonCall.call(operation, parameters, function (result) {
+            callPython(operation, parameters, function (result) {
                 if (result) {
                     newLayer.data = result.data;
                     dropInLayerBox(newLayer,userId,toMapId);

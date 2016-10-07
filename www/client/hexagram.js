@@ -4,7 +4,7 @@
 var app = app || {}; 
 
 (function (hex) { 
-
+var AttribDB = new Mongo.Collection('AttribDB');
 var userDebug = false; // Turn user debugging on/off
 
 print = function (text) {
@@ -84,8 +84,9 @@ with_layer = function (layer_name_in, callback, try_count) {
             */
             return;
         }
+
 		var data_val = layer.data;
-		if(layer.data == undefined) {
+		if(layer.data === undefined) {
 		    // We need to download the layer.
 		    print("Downloading \"" + layer.url + "\"");
 		    
@@ -247,18 +248,18 @@ have_layer = function (layer_name) {
 fill_layer_metadata = function (container, layer_name) {
     // Empty the given jQuery container element, and fill it with layer metadata
     // for the layer with the given name.
-    
+
     // Empty the container.
     container.html("");
 
     var binaryCountsProcessed = false;
     for(attribute in layers[layer_name]) {
         // Go through everything we know about this layer
-        if(attribute == "data" || attribute == "url" || 
-            attribute == "magnitude" || attribute == "minimum" || 
-            attribute == "maximum" || attribute == "selection" || 
-            attribute == "clumpiness_array" || attribute == "tags" ||
-            attribute == "removeFx") {
+        if(attribute === "data" || attribute === "url" ||
+            attribute === "magnitude" || attribute === "minimum" ||
+            attribute === "maximum" || attribute === "selection" ||
+            attribute === "clumpiness_array" || attribute === "tags" ||
+            attribute === "removeFx") {
             
             // Skip things we don't want to display
             // TODO: Ought to maybe have all metadata in its own object?
@@ -298,7 +299,7 @@ fill_layer_metadata = function (container, layer_name) {
                 continue;
             }
             
-            if(value == undefined) {
+            if(value === undefined) {
                 // Skip it if it's not actually defined for this layer
                 continue;
             }
@@ -306,7 +307,7 @@ fill_layer_metadata = function (container, layer_name) {
             // If we're still here, this is real metadata.
             // Format it for display.
             var value_formatted;
-            if (typeof value == "number") {
+            if (typeof value === "number") {
                 if(value % 1 == 0) {
                     // It's an int!
                     // Display the default way
@@ -899,7 +900,7 @@ initLayerTypes = function () {
 
 	// Download Information on what layers are continuous and which are binary
     Meteor.call('getTsvFile', "Layer_Data_Types.tab", ctx.project,
-        function (error, parsed) {;
+        function (error, parsed) {
 
         // This is an array of rows with the following content:
         //
@@ -934,7 +935,7 @@ initLayerIndex = function () {
 
     // Download the layer index
     Meteor.call('getTsvFile', "layers.tab", ctx.project,
-        function (error, parsed) {;
+        function (error, parsed) {
 
         // Layer index is tab-separated like so:
         // name  file  N-hex-value  binary-ones  layout0-clumpiness  layout1-clumpiness  ...
