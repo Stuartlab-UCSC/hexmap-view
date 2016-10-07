@@ -1,16 +1,15 @@
 // mainHex.js
 
 var app = app || {};
-
-(function (hex) { 
-    //'use strict';
+(function (hex) { // jshint ignore: line
+Hex = (function () { // jshint ignore: line
  
     var VERSION = 'Version 1.0';
  
     Template.localStoreT.created = function () {
         // This template is only used to initialize state
-        if (_.isNull(ctx)) ctx = initState();
-    }
+        if (_.isNull(ctx)) { ctx = initState(); }
+    };
 
     Template.body.helpers({
         page: function () {
@@ -18,12 +17,13 @@ var app = app || {};
         },
     });
 
-   queryFreeReload = function () {
+    function queryFreeReload () {
 
         Session.set('loadingMap', true);
 
-        // Strip everything after the query string question mark in the href & reload
-        var href = window.location.href
+        // Strip everything after the query string question mark in the href
+        // & reload
+        var href = window.location.href,
             quest = href.indexOf('?');
         ctx.save();
         if (quest > -1) {
@@ -34,20 +34,13 @@ var app = app || {};
         }
     }
 
-    bookmarkReload = function (bookmark) {
-        if (bookmark.slice(0,9) === 'localhost') {
-            bookmark = 'http://' + bookmark;
-        }
-        window.location.assign(bookmark);
-    }
-
-    pageReload = function (page) {
+    function pageReload (page) {
         Session.set('page', page);
  
         queryFreeReload();
     }
 
-    loadProject = function (project) {
+     function loadProject (project) {
         ctx.project = project;
         Session.set('page', 'mapPage');
         ctx.save();
@@ -77,12 +70,12 @@ var app = app || {};
 
     Template.homePage.onRendered(function () {
         Tool.init();
-        Meteor.setTimeout(initCreateMap, 100);
-        //initCreateMap();
+        Download.init();
+        CreateMap.init();
     });
 
     Template.mapPage.onRendered(function () {
-        Tracker.autorun(function () {
+        Meteor.autorun(function () {
             if (GoogleMaps.loaded()) {
                 initMainMapContainer();
             }
@@ -93,7 +86,7 @@ var app = app || {};
     });
 
     Template.gridPage.onRendered(function () {
-        Tracker.autorun(function () {
+        Meteor.autorun(function () {
             if (GoogleMaps.loaded()) {
                 initGridMapContainer();
             }
@@ -114,7 +107,7 @@ var app = app || {};
             if (DEV) {
                 return VERSION + ' DEV';
             } else {
-                return VERSION
+                return VERSION;
             }
         },
     });
@@ -124,7 +117,7 @@ var app = app || {};
             if (DEV) {
                 return VERSION + ' DEV';
             } else {
-                return VERSION
+                return VERSION;
             }
         },
     });
@@ -153,50 +146,49 @@ var app = app || {};
     Session.set('initedHexagons', false);
     Session.set('initialiedLayers', false);
     Session.set('initedColormaps', false);
-    var checkUiDrawn = Tracker.autorun(isUiDrawn);
-    function isUiDrawn () {
+    function isUiDrawn (autorun) {
         if (Session.get('initedHexagons') &&
             Session.get('retrievedLayerInfo') &&
             Session.get('initedColormaps')) {
-            checkUiDrawn.stop();
+            autorun.stop();
             Meteor.setTimeout(function () {
  
                 initMap();
      
                 // Turn off the loading progress wheel
                 setTimeout(function () {
-                    Session.set('loadingMap', false)
+                    Session.set('loadingMap', false);
                 }, 500);
 
                 // Initialize the background functions.
                 initOverlayNodes();
-                if (DEV) initOverlayNodeUi();
+                if (DEV) { initOverlayNodeUi(); }
                 initLegend();
-                initShortlist();
+                Shortlist.init();
                 CheckLayerBox.init();
                 initCoords();
                 Reflect.init();
                 Tool.initLabelTool();
-                initDownload();
+                Download.init();
                 initColors();
                 initInfoWindow();
                 initSetOperations();
-                initCreateMap();
-                initSelect();
+                CreateMap.init();
+                Select.init();
                 initGchart();
                 //initDiffAnalysis();
             }, 0);
         }
     }
+    Meteor.autorun(isUiDrawn);
  
     // Phase 5 init: Autotracker to find when the layers are initialized
     Session.set('initedLayerTypes', false);
     Session.set('initedLayersArray', false);
-    var checkInitLayers = Tracker.autorun(areLayersInitialized);
-    function areLayersInitialized () {
+    function areLayersInitialized (autorun) {
         if (Session.get('initedLayerTypes') &&
             Session.get('initedLayersArray')) {
-            checkInitLayers.stop();
+            autorun.stop();
  
             initSortAttrs();
             initFilter();
@@ -204,39 +196,39 @@ var app = app || {};
             Session.set('retrievedLayerInfo', true);
         }
     }
+    Meteor.autorun(areLayersInitialized);
 
     // Phase 4 init: Autotracker to find when the layer index is initialized
     Session.set('initedLayerIndex', false);
-    var checkInitLayerIndex = Tracker.autorun(isLayerIndexInitialized);
-    function isLayerIndexInitialized () {
+    function isLayerIndexInitialized (autorun) {
         if (Session.get('initedLayerIndex')) {
-            checkInitLayerIndex.stop();
+            autorun.stop();
  
             initLayersArray();
         }
     }
+    Meteor.autorun(isLayerIndexInitialized);
  
     // Phase 3 init: Autotracker to find when the layout is initialized
     Session.set('initedLayout', false);
-    var checkInitLayout = Tracker.autorun(isLayoutInitialized);
-    function isLayoutInitialized () {
+    function isLayoutInitialized (autorun) {
         if (Session.get('initedLayout')) {
-            checkInitLayout.stop();
+            autorun.stop();
  
             initHexagons();
         }
     }
+    Meteor.autorun(isLayoutInitialized);
  
     // Phase 2 init: Autotracker to find when the map prep is complete
     Session.set('initedProject', false);
     Session.set('initedMapContainer', false);
     Session.get('initedMapType', false);
-    var checkReadyForMap = Tracker.autorun(areWeReadyForMap);
-    function areWeReadyForMap () {
+    function areWeReadyForMap (autorun) {
         if (Session.get('initedProject') &&
             Session.get('initedMapContainer') &&
             Session.get('initedMapType')) {
-            checkReadyForMap.stop();
+            autorun.stop();
  
             initMapType();
             initLayout();
@@ -246,8 +238,9 @@ var app = app || {};
             initColormaps();
         }
     }
+    Meteor.autorun(areWeReadyForMap);
 
-    function initMainMapContainer () {
+    function initMainMapContainer () { // jshint ignore: line
         setTimeout(function () { // The timeout allows the google libs to load
             resizeMap();
             $(window).resize(resizeMap);
@@ -255,17 +248,30 @@ var app = app || {};
             ctx.center = centerToLatLng(ctx.center);
             Session.set('initedMapContainer', true);
         }, 0);
-    };
+    }
 
-    function initGridMapContainer () {
+    function initGridMapContainer () { // jshint ignore: line
         setTimeout(function () { // The timeout allows the google libs to load
             $(window).resize(resizeMap);
             ctx.gridCenter = centerToLatLng(ctx.gridCenter);
             initGrid();
-            initCreateMap();
             
             // Resize the map to fill the available space
             Meteor.setTimeout(resizeMap, 0);
-        }, 0)
-    };
+        }, 0);
+    }
+
+return { // Public methods
+
+    loadProject: loadProject,
+ 
+    bookmarkReload: function (bookmark) {
+        if (bookmark.slice(0,9) === 'localhost') {
+            bookmark = 'http://' + bookmark;
+        }
+        window.location.assign(bookmark);
+    },
+};
+}());
 })(app);
+

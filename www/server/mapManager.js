@@ -6,10 +6,11 @@ var readline  = Npm.require('readline');
 var fs = Npm.require('fs');
 var Future = Npm.require('fibers/future');
 
-// if not global then when I try and use the local in zLoadDbs.js I get:
+// global definition explanation below
+// if not global then when I try and use the local reference in 
+// another file,zLoadDbs.js I get the error:
 // A method named '/ManagerFileCabinet/insert' is already defined
 // could keep local if all manipualtions are in one file?
-
 ManagerFileCabinet = new Mongo.Collection('ManagerFileCabinet');
 ManagerAddressBook = new Mongo.Collection('ManagerAddressBook');
 LayerPostOffice = new Mongo.Collection('LayerPostOffice');

@@ -60,7 +60,7 @@ var app = app || {};
         // Transform google elements to svg format
         var i,
             sPoly,
-            hexagonKeys = findHexagonsInViewport(),
+            hexagonKeys = Select.findHexagonsInViewport(),
             dims,
             svg;
             

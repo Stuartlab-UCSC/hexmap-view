@@ -47,7 +47,7 @@ CheckLayerBox = (function () { // jshint ignore: line
         // Find any layers removed and remove them from the shortlist
         _.each(last_layer_names, function (layer_name) {
             if (doc_layer_names.indexOf(layer_name) < 0) {
-                update_shortlist(layer_name, true);
+                Shortlist.update_shortlist(layer_name, true);
             }
         });
 
@@ -87,8 +87,8 @@ CheckLayerBox = (function () { // jshint ignore: line
                 });
                 
                 //Add the layer to the global layers object and global colormaps
-                create_dynamic_category_layer(layer.layer_name, layer.data,
-                    attributes, colormap);
+                Shortlist.create_dynamic_category_layer(layer.layer_name,
+                    layer.data, attributes, colormap);
             });
         },
         init: function() {

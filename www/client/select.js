@@ -1,21 +1,12 @@
 
 // select.js: Handle the various ways to select hexagons.
 
-var app = app || {}; 
+var app = app || {};
+(function (hex) { // jshint ignore: line
+Select = (function () { // jshint ignore: line
 
-(function (hex) { 
-    //'use strict';
-
-    var //PREVIEW_COLORS = true, // This is sort of slow, so may not be fun to use
-        SHOW_PREVIEW_HEXAGONS = false, // This will be ignored unless PREVIEW_COLORS is true
- 
-        // boundaries of the selectable area
-        MIN_LAT = -90,
-        MAX_LAT = 90,
-        MIN_LNG = -95,
-        MAX_LNG = 85,
-        PREVEW_COLOR = 'grey',
-        SELECTING_CURSOR = 'crosshair',
+    // boundaries of the selectable area
+    var SELECTING_CURSOR = 'crosshair',
 
         // Handles of map listeners
         startHandle,
@@ -23,13 +14,11 @@ var app = app || {};
         midHandle,
         stopHandle,
  
-        savedCursor, // Cursor to return reinstate after the selection is complete
+        savedCursor, // Cursor to return reinstate after selection is complete
         startLatLng, // Starting point of the selection area
         shape, // rectangular or polygonal selection boundary in latLng
         isRectangle, // Rectangle or polygon?
-        color, // Color of the selection boundary and fill
-        previewHexNames = [], // hexagon names in selection preview
-        previewHexes = []; // hexagons in selection preview
+        color; // Color of the selection boundary and fill
 
     function setCursor (cursor) {
         googlemap.setOptions({ draggableCursor: cursor });
@@ -44,6 +33,8 @@ var app = app || {};
         }
     }
 
+    // TODO unused, but maybe it should be used for performance?
+    /*
     function createRectangle () {
 
         // Make a rectangle for the selection
@@ -61,6 +52,7 @@ var app = app || {};
             zIndex: 9,
         });
     }
+    */
 
     function createPolygon (paths, preview) {
  
@@ -98,34 +90,16 @@ var app = app || {};
         });
     }
 
-    function clearPreviewHexagons () {
- 
-        // Clear the previous preview hexagons
-        if (SHOW_PREVIEW_HEXAGONS) {
-            _.each(previewHexNames, function(hex) {
-                previewHexes[hex].setMap(null);
-            });
-            previewHexNames = [];
-            previewHexes = {};
-        } else {
-            _.each(previewHexNames, function(hex) {
-                polygons[hex].setOptions({fillColor: polygons[hex].saveColor});
-                delete polygons[hex].saveColor;
-            });
-            previewHexNames = [];
-        }
-    }
-        
     function findHexagonsInPolygon (bounds, isRect) {
 
-        // Select hexagons that are contained within the given polygon/rectangle.
+        // Select hexagons that are contained within given polygon/rectangle.
         var inBounds = _.filter(Object.keys(polygons), function(hex) {
             var verts = polygons[hex].getPath();
             var contains = true;
-            for (j = 0; j < verts.getLength(); j += 1) {
-                v = verts.getAt(j);
-                if ((isRect && !bounds.contains(v)) ||
-                    (!isRect && !google.maps.geometry.poly.containsLocation(v, bounds))) {
+            for (var j = 0; j < verts.getLength(); j += 1) {
+                var v = verts.getAt(j);
+                if ((isRect && !bounds.contains(v)) || (!isRect &&
+                    !google.maps.geometry.poly.containsLocation(v, bounds))) {
                     contains = false;
                     break;
                 }
@@ -149,24 +123,24 @@ var app = app || {};
     function resetEverything () {
  
         // Remove all of the google map handlers
-        if (startHandle) startHandle.remove();
-        if (stopHandle) stopHandle.remove();
-        if (moveHandle) moveHandle.remove();
-        if (midHandle) midHandle.remove();
+        if (startHandle) { startHandle.remove(); }
+        if (stopHandle) { stopHandle.remove(); }
+        if (moveHandle) { moveHandle.remove(); }
+        if (midHandle) { midHandle.remove(); }
  
         // Restore the saved cursor
-        if (savedCursor) setCursor(savedCursor);
+        if (savedCursor) { setCursor(savedCursor); }
  
         // Remove the bounding polygons and reset the hover curser for hexagons
-        if (shape) shape.setMap(null);
+        if (shape) { shape.setMap(null); }
         shape = null;
         hexagonCursor(true);
     }
 
     function finishSelect (event) {
 
-        if (event.latLng.lat() === startLatLng.lat()
-            && event.latLng.lng() === startLatLng.lng()) {
+        if (event.latLng.lat() === startLatLng.lat() &&
+            event.latLng.lng() === startLatLng.lng()) {
  
             // Ignore this event since it is the same as the start point.
             return;
@@ -199,7 +173,7 @@ var app = app || {};
         }, 500);
 
         // Create a selection polygon & find the hexagons in it
-        create_dynamic_binary_layer(findHexagonsInPolygon(shape));
+        Shortlist.create_dynamic_binary_layer(findHexagonsInPolygon(shape));
 
         resetEverything();
     }
@@ -209,26 +183,7 @@ var app = app || {};
         // Handle a mid-point click of the selection for a polygon
         shape.getPath().push(event.latLng);
     }
-        
-    function colorPreviewHexagons () {
- 
-        if (SHOW_PREVIEW_HEXAGONS) {
- 
-            // Create the preview hexagons
-            _.each(previewHexNames, function(hex) {
-                previewHexes[hex] =
-                    createPolygon(polygons[hex].getPath(), true);
-            });
-        } else {
- 
-            // Change the fill color of the preview hexagons
-            _.each(previewHexNames, function(hex) {
-                polygons[hex].saveColor = polygons[hex].fillColor;
-                polygons[hex].setOptions({fillColor: PREVEW_COLOR});
-            });
-        }
-    }
-        
+
     function preview (event) {
  
         // This holds a selection preview event handler that should happen
@@ -285,7 +240,7 @@ var app = app || {};
         stopHandle = googlemap.addListener(stopEvent, finishSelect);
         shape.addListener(stopEvent, finishSelect);
  
-        tool_activity(false);
+        Tool.activity(false);
     }
 
     function setUpShapeSelect() {
@@ -313,8 +268,8 @@ var app = app || {};
     function select_string(string) {
 
         // The actual text to selection import function used by that tool
-        // Given a string of hex names, one per line, make a selection of all those
-        // hexes.
+        // Given a string of hex names, one per line, make a selection of all
+        // those hexes.
         
         // This is an array of signature names entered.
         var to_select = [];
@@ -333,9 +288,9 @@ var app = app || {};
 
         if (to_select.length > 0) {
         
-            // Add a selection with as many of the requested hexes as actually exist and
-            // pass the current filters.
-            create_dynamic_binary_layer(to_select);
+            // Add a selection with as many of the requested hexes as actually
+            // exist and pass the current filters.
+            Shortlist.create_dynamic_binary_layer(to_select);
 
         // TODO future use
         } else if (to_select.length > 0) {
@@ -376,7 +331,7 @@ var app = app || {};
             // Make a FileReader to read the file
             var reader = new FileReader();
             
-            reader.onload = function(read_event) {  
+            reader.onload = function() {
                 // When we read with readAsText, we get a string. Just stuff it
                 // in the text box for the user to see.
                 text_area.text(reader.result);
@@ -402,12 +357,12 @@ var app = app || {};
                     $(this).dialog("close");
                     
                     // Done with the tool
-                    tool_activity(false);
+                    Tool.activity(false);
                 }   
             },
             close: function() {
                 // They didn't want to use this tool.
-                tool_activity(false);
+                Tool.activity(false);
             }
         });
     }
@@ -421,12 +376,10 @@ var app = app || {};
  
         // Let the tool handler know this is active so another map tool cannot
         // be made active.
-        tool_activity(true);
+        Tool.activity(true);
 
         // Set the selection color depending on the background
-        color = (Session.equals('background', 'white'))
-            ? 'black'
-            : 'white';
+        color = (Session.equals('background', 'white')) ? 'black' : 'white';
  
         if ($tool.hasClass('rectangle')) {
             isRectangle = true;
@@ -441,14 +394,17 @@ var app = app || {};
         }
     }
 
-    findHexagonsInViewport = function () {
+return { // Public methods
+
+    findHexagonsInViewport: function () {
  
-        return findHexagonsInPolygon(googlemap.getBounds(), true)
-    }
+        return findHexagonsInPolygon(googlemap.getBounds(), true);
+    },
  
-    initSelect = function () {
+    init: function () {
         $('#navBar .rectangle, #navBar .polygon, #navBar .import')
             .on('click', clicked);
-    }
-
+    },
+};
+}());
 })(app);

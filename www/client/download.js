@@ -10,24 +10,22 @@
 //   workflow completes, so that the infowindow can use click events again.
 //   (it got set to your tool's name by the code prepended to your callback).
 
-var app = app || {}; 
-
-(function (hex) {
-    //'use strict';
+var app = app || {};
+(function (hex) { // jshint ignore: line
+Download = (function () { // jshint ignore: line
  
-    var xyFile;
-
-    initDownloadSelectTool = function () {
+    function initDownloadSelectTool () {
 
         // And a tool for exporting selections as lists of hexes
         // TODO this doesn't need to be modal, only tools mousing on the screen
         // need to be modal
-        add_tool("hexagonNames", function() {
+        Tool.add("hexagonNames", function() {
             // Make the export form
             var export_form = $("<form/>").attr("title", 
                 "Export Selection As List");
             
-            export_form.append($("<div/>").text("Select a selection to export:"));
+            export_form.append(
+                $("<div/>").text("Select a selection to export:"));
             
             // Make a select box for picking from all selections.
             var select_box = $("<select/>");
@@ -36,8 +34,9 @@ var app = app || {};
             for(var layer_name in layers) {
                 if(layers[layer_name].selection) {
                     // This is a selection, so add it to the dropdown.
-                    select_box.append($("<option/>").text(layer_name).attr("value",
-                        layer_name));
+                    select_box
+                        .append($("<option/>")
+                        .text(layer_name).attr("value", layer_name));
                 }
             }
             
@@ -83,8 +82,8 @@ var app = app || {};
                     return;
                 }
                 
-                // This holds our list. We build it in a string so we can escape it
-                // with one .text() call when adding it to the page.
+                // This holds our list. We build it in a string so we can escape
+                // it with one .text() call when adding it to the page.
                 var exported = "";
                 
                 // Get the layer data to export
@@ -93,7 +92,7 @@ var app = app || {};
                     if(layer_data[signature]) {
                         // It's selected, put it in
                         
-                        if(exported != "") {
+                        if(exported !== "") {
                             // If there's already text, add a newline.
                             exported += "\n";
                         }
@@ -102,8 +101,8 @@ var app = app || {};
                     }
                 }
                 
-                // Now we know all the signatures from the selection, so tell the
-                // page.
+                // Now we know all the signatures from the selection, so tell=
+                // the page.
                 text_area.text(exported);
                 
                 // Also fill in the data URI for saving. We use the handy
@@ -122,47 +121,70 @@ var app = app || {};
                 width: '20em',
                 close: function() {
                     // They didn't want to use this tool.
-                        tool_activity(false);
+                        Tool.activity(false);
                 }
             });
         }, 'Export the selection as a list of hexagon IDs', 'mapShow');
     }
 
     var timeout;
-    function xyPreSquiggle_mousedown(eventIn) {
 
-        // Prepare to download the xy pre-squiggle positions file
-        xyFile = 'xyPreSquiggle_' + Session.get('layoutIndex') +'.tab';
-        var event = eventIn;
+    function menu_mousedown(ev) {
  
-        Meteor.call('getTsvFile', xyFile, ctx.project, true,
+        // Download the file now.
+        var $target = $(ev.target),
+            filename,
+            project,
+            alt_dir;
+ 
+        if ($target.hasClass('xyPreSquiggle')) {
+            filename = 'xyPreSquiggle_' + Session.get('layoutIndex') +'.tab';
+            project = ctx.project;
+        } else if ($target.hasClass('example_features')) {
+            filename = 'example_features_xy.tab';
+            project = 'Example/';
+            alt_dir = 'featureSpace';
+        } else if ($target.hasClass('example_attributes')) {
+            filename = 'example_attributes.tab';
+            project = 'Example/';
+            alt_dir = 'featureSpace';
+        }
+ 
+        Meteor.call('getTsvFile', filename, project, true, alt_dir,
             function (error, tsv) {
-            if (error || (typeof tsv === 'string'
-                && tsv.slice(0,5).toLowerCase() === 'error')) {
-                banner('error', 'Sorry, that XY position file cannot be found.');
+            if (error || (typeof tsv === 'string' &&
+                    tsv.slice(0,5).toLowerCase() === 'error')) {
+                Util.banner(
+                    'error', 'Sorry, ' + filename + ' cannot be found.');
             } else {
-                $(event.target).on('click', function (event) {
-                    $(event.target).attr({
+                $(ev.target).on('click', function (ev) {
+                    $(ev.target).attr({
                         'href': 'data:text/plain;base64,' + window.btoa(tsv),
                     });
-                    timeout = Meteor.setTimeout(function (){
-                        $(event.target).off('click');
+                    timeout = Meteor.setTimeout(function () {
+                        $(ev.target).off('click');
                         Meteor.clearTimeout(timeout);
                     }, 10);
                 });
-                $(event.target).click();
+                $(ev.target).click();
             }
         });
     }
 
-    initDownload = function () {
+return {
+    init: function () {
  
         if (Session.equals('page', 'mapPage')) {
             initDownloadSelectTool();
             initPdf();
             initSvg();
         }
-        $('#xyPreSquiggle').on('mousedown', xyPreSquiggle_mousedown);
-    }
+ 
+        $('.fileMenu .xyPreSquiggle, ' +
+            '.example_features, ' +
+            '.example_attributes')
+            .on('mousedown', menu_mousedown);
+    },
+};
+}());
 })(app);
-

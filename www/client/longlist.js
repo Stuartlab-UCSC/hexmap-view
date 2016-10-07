@@ -126,7 +126,7 @@ var app = app || {};
             var layer_name = event.val;
             
             // User chose this layer. Add it to the global shortlist.
-            update_shortlist(layer_name);
+            Shortlist.update_shortlist(layer_name);
             
             // Don't actually change the selection.
             // This keeps the dropdown open when we click.

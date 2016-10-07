@@ -242,7 +242,7 @@ var app = app || {};
         }
         clearAllFilters();
         updateLonglist();
-        update_shortlist_metadata();
+        Shortlist.update_shortlist_metadata();
  
         // Skip the banner on the first sort
         if (firstSort) {
