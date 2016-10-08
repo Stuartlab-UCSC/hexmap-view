@@ -48,6 +48,7 @@ class TestQueryOverlayNodes(unittest.TestCase):
     
     def expectedResults(s):
         return '{"Sample-1":{"neighbors":["TCGA-N7-A4Y5-01","TCGA-4J-AA1J-01","TCGA-KS-A4IB-01","TCGA-DQ-7589-01","TCGA-HT-7686-01","TCGA-AJ-A3EM-01"],"x":200.5,"y":226.5},"Sample-2":{"neighbors":["TCGA-4J-AA1J-01","TCGA-N7-A4Y5-01","TCGA-KS-A4IB-01","TCGA-LH-A9QB-06","TCGA-DQ-7589-01","TCGA-DW-7836-01"],"x":252.5,"y":241.5}}';
+    
     def test_methodCheck(s):
         opts = ['-X', 'GET', '-v']
         rc = s.doCurl(opts)
@@ -150,7 +151,9 @@ class TestQueryOverlayNodes(unittest.TestCase):
         s.assertTrue(rc['code'] == '200')
         s.assertTrue(string.find(rc['data'], book1) > -1)
         s.assertTrue(string.find(rc['data'], book2) > -1)
-    
+
+    """
+    #  TODO: requires real data in CKCC/v1
     def test_pythonCallNoFiles(s):
         # This test relies on data files being in their production directories,
         # so may not work if the production data changes for CKCC/v1.
@@ -166,7 +169,7 @@ class TestQueryOverlayNodes(unittest.TestCase):
         s.assertTrue(rc['code'] == '200')
         s.assertTrue(string.find(rc['data'], book1) > -1)
         s.assertTrue(string.find(rc['data'], book2) > -1)
-    
+    """
     def test_pythonCallViaBash(s):
         resultsFile = 'overlayNodesResults.json'
         resData = s.expectedResults()

@@ -91,6 +91,7 @@ callPython = function (pythonCallName, opts, callback) {
     // Call either the local or remote python script.
     if (CALC_URL) {
         console.log('we should call the remote calc server here');
+        callPythonLocal(pythonCallName, opts, callback);
     } else {
         callPythonLocal(pythonCallName, opts, callback);
     }

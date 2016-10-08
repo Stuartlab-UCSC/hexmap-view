@@ -11,7 +11,7 @@ appInstallDir=$1
 tmpDir=$2
 resultsFile=$tmpDir/$3
 
-scriptDir=$appInstallDir/server
+scriptDir=$appInstallDir/www/server
 dataDir=$appInstallDir/tests/pyUnittest/testData
 logFile=$tmpDir/overlayNodes.log
 
