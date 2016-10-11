@@ -233,8 +233,10 @@ Tool = (function () { // jshint ignore: line
                 activity(false);
             });
         
-            // TODO we're not doing overlay nodes yet
-            $('#navBar .overlayNode').hide();
+            var $overlayNodes = $(
+                '#navBar .overlayNode, ' +
+                '#navBar .queryDocs'
+            );
         
             var $createMap = $(
                 '#navBar .createMap, ' +
@@ -253,22 +255,25 @@ Tool = (function () { // jshint ignore: line
                     function (error, results) {
                         if (!error && results) {
                             $createMap.show();
+                            $overlayNodes.show();
                        } else {
                             $createMap.hide();
+                            $overlayNodes.hide();
                         }
                     }
                 );
-                
+                /*
                 // Check authorizations for query API
                 Meteor.call('is_user_in_role', ['queryAPI', 'dev'],
                     function (error, results) {
                         if (!error && results) {
-                            $('.queryDocs').show();
+                            $overlayNodes.show();
                        } else {
-                            $('.queryDocs').hide();
+                            $overlayNodes.hide();
                         }
                     }
                 );
+                */
                 
             });
         },

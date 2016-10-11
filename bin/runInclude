@@ -1,0 +1,43 @@
+#!/bin/bash
+# Define values specific to this hexmap install
+
+if [ $INSTALL == 'prod' ]; then
+    PORT=8443       # Port on which the server listens
+    HTTPS_PORT=443  # Https proxy port if using https, otherwise the same as PORT
+    DB_PORT=27017   # Port on which the database listens
+    DB_NAME=$PORT   # Name of the mongo database
+    METEOR_BASE=/data/home/hexmap/.meteor/packages/meteor-tool/.1.1.10.ki0ccv++os.linux.x86_64+web.browser+web.cordova/mt-os.linux.x86_64/dev_bundle
+    METEOR=/data/home/hexmap/.meteor  # the meteor installation
+    export ROOT_URL=https://tumormap.ucsc.edu:$HTTPS_PORT # User's view of the URL
+    echo Using an install of $INSTALL
+fi
+if [ $INSTALL == 'dev' ]; then
+    PORT=8113
+    HTTPS_PORT=8112
+    DB_PORT=28113
+    DB_NAME=8111
+    METEOR_BASE=/cluster/home/swat/.meteor/packages/meteor-tool/.1.4.1_2.hkvxw6++os.linux.x86_64+web.browser+web.cordova/mt-os.linux.x86_64/dev_bundle
+    METEOR=/cluster/home/swat/.meteor
+    export ROOT_URL=https://tumormap.ucsc.edu:$HTTPS_PORT
+    echo Using an install of $INSTALL
+fi
+if [ $INSTALL == 'devCalc' ]; then
+    PORT=8223
+    HTTPS_PORT=8223  # 8222
+    DB_PORT=28223
+    DB_NAME=$PORT
+    METEOR_BASE=/cluster/home/swat/.meteor/packages/meteor-tool/.1.4.1_2.hkvxw6++os.linux.x86_64+web.browser+web.cordova/mt-os.linux.x86_64/dev_bundle
+    METEOR=/cluster/home/swat/.meteor
+    export ROOT_URL=https://juggernaut.sdsc.edu:$HTTPS_PORT
+    echo Using an install of $INSTALL
+fi
+if [ $INSTALL == 'devDev' ]; then
+    PORT=8333
+    HTTPS_PORT=8333  # 8222
+    DB_PORT=28333
+    DB_NAME=$PORT
+    METEOR_BASE=/cluster/home/swat/.meteor/packages/meteor-tool/.1.4.1_2.hkvxw6++os.linux.x86_64+web.browser+web.cordova/mt-os.linux.x86_64/dev_bundle
+    METEOR=/cluster/home/swat/.meteor
+    export ROOT_URL=https://juggernaut.sdsc.edu:$HTTPS_PORT
+    echo Using an install of $INSTALL
+fi

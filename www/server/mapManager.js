@@ -283,7 +283,7 @@ Meteor.methods({
             var userArgs = {node_ids : nodeIds, datatype : dataType};
             var parameters = parmMaker(mapId,toMapId, operation, userArgs);
             //console.log("mapManager calling python with:",parameters);
-            callPython(operation, parameters, function (result) {
+            callPython(operation, parameters, undefined, future, function (result) {
                 if (result) {
                     newLayer.data = result.data;
                     dropInLayerBox(newLayer,userId,toMapId);

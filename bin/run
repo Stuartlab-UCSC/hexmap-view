@@ -1,0 +1,63 @@
+#!/bin/bash
+# Start a hexmap process passing one of: http, https, db, www
+
+#INSTALL=prod
+#INSTALL=prodCalc
+#INSTALL=dev
+#INSTALL=devCalc
+INSTALL=devDev
+
+if [ $INSTALL == 'prod' ]
+    then HEXMAP=/data
+fi
+if [ $INSTALL == 'prodCalc' ]
+    then HEXMAP=/data/?
+fi
+if [ $INSTALL == 'dev' ]
+    then HEXMAP=/cluster/home/swat/hexmap
+fi
+if [ $INSTALL == 'devCalc' ]
+    then HEXMAP=/cluster/home/swat/hexmapCalc
+fi
+
+if [ $INSTALL == 'devDev' ]
+    then HEXMAP=/cluster/home/swat/hexmapDev
+fi
+
+source $HEXMAP/runInclude
+
+if [ $1 == 'http' ]
+    then
+    touch $HEXMAP/http.log
+    mv $HEXMAP/http.log $HEXMAP/http.prev.log
+    $METEOR_BASE/bin/node $HEXMAP/http/http.js &> $HEXMAP/http.log &
+    echo Starting $1
+fi
+if [ $1 == 'https' ]
+    then
+    touch $HEXMAP/https.log
+    mv $HEXMAP/https.log $HEXMAP/https.prev.log
+    $METEOR_BASE/bin/node $HEXMAP/https/https.js &> $HEXMAP/https.log &
+    echo Starting $1
+fi
+if [ $1 == 'db' ]
+    then
+    touch $HEXMAP/db.log
+    mv $HEXMAP/db.log $HEXMAP/db.prev.log &&
+    $METEOR_BASE/mongodb/bin/mongod \
+            --bind_ip 127.0.0.1 \
+            --port $DB_PORT \
+            --dbpath $HEXMAP/db \
+            &> $HEXMAP/db.log &
+    echo Starting $1
+fi
+if [ $1 == 'www' ]
+    then
+    export MONGO_URL=mongodb://localhost:$DB_PORT/$DB_NAME
+    touch $HEXMAP/www.log
+    mv $HEXMAP/www.log $HEXMAP/www.prev.log
+    cd $HEXMAP/www
+    $METEOR/meteor --port $PORT --settings $HEXMAP/settings.json &> $HEXMAP/www.log &
+    echo Starting $1
+fi
+exit

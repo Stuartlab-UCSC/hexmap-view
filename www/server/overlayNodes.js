@@ -73,6 +73,8 @@ overlayNodes = function (dataIn, res, future) {
     
     // Process the data in the overlayNodes request where dataIn is the
     // request data as a javascript object.
+    // res is supplied if an outside caller made this query
+    // future is supplied if the query came from our meteor client
     
     // Set up some static options for the python call
     var opts = {
@@ -128,12 +130,26 @@ overlayNodes = function (dataIn, res, future) {
     opts.log = TEMP_DIR + 'overlayNodes.log';
     
     // Save the future for responding to client callers.
-    if (future) opts.future = future;
+    if (future) { opts.future = future; }
+    
+    if (res) {
+        console.log('!!!!!!! overlayNodes() called with a res');
+    }
+    if (future) {
+        console.log('!!!!!!! overlayNodes() called with a res');
+    }
     
     callPython('compute_pivot_vs_background', opts, function (result) {
     
         var future = opts.future;
         
+        if (res) {
+            console.log('!!!!!!! overlayNodes():callPython called with a res');
+        }
+        if (future) {
+            console.log('!!!!!!! overlayNodes():callPython called with a future');
+        }
+    
         if (result.code !== 0) {
             respondToHttp(500, res, result.data, future);
             return;
