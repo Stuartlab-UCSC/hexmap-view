@@ -41,49 +41,67 @@ function passPostChecks (req, res) {
     return true;
 }
 
-function receive (url, req_in, res) {
+// A look-up table indexed by url and referencing the parameter checker function
+var parm_checkers = {
+   '/calc/layout': create_map_http_parm_checker,
+   //'/query/overlayNodes': overlay_node_http_parm_checker,
+};
+
+function receive (url, req, res) {
     
     // Receive http post requests and process them
     
-    var fx,
-        jsonDataIn = '',
-        req = req_in;
+    var json_data = '';
     
-    // Set the handler function based on the url
-    if (url === '/query/overlayNodes') {
-        fx = overlayNodesQuery;
-        
-    } else if (url === '/calc/layout') {
-        fx = create_map_http_request;
-        
-    } else { // We should not be able to get here
-        console.log('http.js: post() not a good request url:',  url);
-        respondToHttp(404, res, '');
-        return;
-    }
-
     if (!passPostChecks(req, res)) { return; }
     
     req.setEncoding('utf8');
     
     // Continue to receive chunks of this request
     req.on('data', function (chunk) {
-        jsonDataIn += chunk;
+        json_data += chunk;
     });
     
     // Process the data in this request
     req.on('end', function () {
     
-        var dataIn;
-        try {
-            dataIn = JSON.parse(jsonDataIn);
-        } catch (error) {
-            respondToHttp(400, res, 'Malformed JSON data given');
-            return;
-        }
+        if (CALC_URL) {
         
-        // Call the handler function and let it complete the response
-        fx(dataIn, res);
+            // TODO this would handle the overlayNode web API
+        } else {
+                   
+            // Convert the json to javascript.
+            var data_or_file;
+            try {
+                data_or_file = JSON.parse(json_data);
+            } catch (error) {
+                respondToHttp(400, res, 'Malformed JSON data given');
+                return;
+            }
+            var data;
+
+            if (typeof data_or_file === 'string') {
+           
+                // With just a string sent, we assume this is a file name
+                // containing the parameters, so extract those parameters
+                try {
+                    data = readFromJsonFileSync(data_or_file);
+                } catch (error) {
+                    respondToHttp(400, res, 'Malformed JSON data given');
+                    return;
+                }
+            } else {
+           
+                // The data is not a string, so assume it is the array of
+                // parameters.
+                data = data_or_file;
+            }
+
+            // Let this validator send the http response on invalid data.
+            if (parm_checkers[url]) {
+                parm_checkers[url] (data, res);
+            }
+        }
     });
 }
 
@@ -95,32 +113,12 @@ WebApp.connectHandlers.use('/query/overlayNodes', function (req, res, next) {
     receive('/query/overlayNodes', req, res, next);
 });
 
-respondToHttp = function (code, res, msg, future) {
+respondToHttp = function (code, res, data_in) {
 
-    // This responds to an http request or handles a future for those cases
-    // where our client is making the request, rather than an outsider.
+    // This responds to an http request after converting data to json.
     // TODO authenticate request for known users ?
-
-    if (res) {
-    
-        console.log('respondToHttp: msg:', msg);
-    
-        // Send an HTTP response to an outsider.
-        var data = msg;
-        if (code === 200) {
-            res.setHeader('Content-Type', 'application/json');
-            data = JSON.stringify(msg);
-        }
-        res.writeHead(code);
-        res.end(data + '\n');
-
-    } else if (future) {
-
-        // Return the message to our client.
-        if (code === 200) {
-            future.return(msg);
-        } else {
-            future.throw(msg);
-        }
-    }
+    var data = JSON.stringify(data_in);
+    res.setHeader('Content-Type', 'application/json');
+    res.writeHead(code);
+    res.end(data + '\n');
 };

@@ -7,25 +7,59 @@ var Future = Npm.require('fibers/future');
 var fs = Npm.require('fs');
 var spawn = Npm.require('child_process').spawn;
 
-function report_error (error, on, pythonCallName, res, future) {
-    var msg =
-        'Error: ' +
-        on +
-        ' from python call: ' +
-        pythonCallName +
-        ': ' +
-        error.toString();
-    respondToHttp(500, res, msg, future);
+
+// A lookup table indexed by python call name which references a callback.
+var callbacks = {
+    'layout': create_map,
+};
+
+report_calc_result = function (result, future) {
+
+    // Report an error or successful result to http or the client.
+    if (future.http_response) {
+    
+        // This 'future' is really an http response, so save the results
+        // to a json file and return the json file.
+        var json_data = JSON.stringify(result.data);
+        var json_file = writeToTempFile(json_data);
+        respondToHttp (result.code, future.http_response, json_file);
+        
+    // Otherwise handle the future return
+    } else if (result.code === 200) {
+        future.return(result);
+    } else {
+        future.throw(result);
+    }
+}
+function callback_error (error, pythonCallName, future) {
+
+    // Add an http code and call the callback.
+    var data = error.toString(),
+        result = {
+        code: 500,
+        data: data
+    };
+    
+    console.log('Error: pythonCall(' + pythonCallName + ')', data);
+
+    callbacks[pythonCallName] (result, future);
 }
 
-function report_success (result, res, future) {
+function callback_success (filename, pythonCallName, future) {
+
+    // Add an http code, get the data from the file then call the callback.
+    var result = { code: 200 },
+        json_results_file = filename.toString().replace('\n', '');
     
-    console.log('report_success: result:', result);
+    result.data = readFromJsonFileSync(json_results_file);
     
-    respondToHttp(200, res, result, future);
+    console.log('Info: pythonCall(' + pythonCallName + ')',
+        'Results file:', json_results_file);
+
+    callbacks[pythonCallName] (result, future);
 }
 
-call_python_local = function (pythonCallName, opts, res, future) {
+call_python_local = function (pythonCallName, opts_filename, future) {
 
     // Generic asynchronous caller from server to python code.
     // Put the parameters in a file as json, then call the python routine. The
@@ -38,24 +72,25 @@ call_python_local = function (pythonCallName, opts, res, future) {
     // some sort of bread crumbs to follow.
     console.log('Info: call_python_local(' + pythonCallName + ')');
     
-    // Parms to pass to python
-    var parms = [
+    var call,
+        result,
+    
+        // Parms to pass to python
+        spawn_parms = [
             SERVER_DIR + 'pythonCall.py',
             pythonCallName,
-            writeToTempFile(JSON.stringify(opts)),
-        ],
-        call,
-        result;
+            opts_filename,
+        ];
     
-    // Make the python call via a subprocess.
-    call = spawn('python', parms);
+    // Make the python call with a spawned process.
+    call = spawn('python', spawn_parms);
 
     call.on('error', function (error) {
-        report_error(error, 'error', pythonCallName, res, future);
+        callback_error(error, pythonCallName, future);
     });
 
     call.stderr.on('data', function (data) {
-        report_error(data, 'stderr', pythonCallName, res, future);
+        callback_error(data, pythonCallName, future);
     });
 
     call.stdout.on('data', function (stdout_in) {
@@ -66,22 +101,9 @@ call_python_local = function (pythonCallName, opts, res, future) {
             stdout.slice(0,7).toLowerCase() === 'warning')) {
     
             // Return any errors/warnings printed by the python script
-            report_error(stdout, 'stdout', pythonCallName, res, future);
+            callback_error(stdout, pythonCallName, future);
         } else {
-
-            // Success, so read and parse the results in the json file,
-            // returning the data.
-            var str = stdout.toString();
-            var filename = str.replace('\n', '');
-            var data = readFromJsonFileSync(filename);
-            console.log('Info: success with call_python_local(' +
-                pythonCallName + ')', 'Results file:', filename);
-            result = {
-                code: 0,
-                data: data,
-                filename: filename,
-            };
-            report_success(result, res, future);
+            callback_success(stdout, pythonCallName, future);
         }
     });
     
@@ -99,52 +121,68 @@ call_python_local = function (pythonCallName, opts, res, future) {
     call.stdin.end();
 };
 
-function call_python_remote (pythonCallName, opts, future) {
+function call_python_remote (pythonCallName, opts_filename, future) {
 
     // Log every call to python in case we have errors, there will be
     // some sort of bread crumbs to follow.
     console.log('Info: call_python_remote(' + pythonCallName + ')');
-    console.log('call_python_remote(): future:', future);
     
     // Define HTTP request options
     var options = {
         headers: {
             'content-type': 'application/json',
         },
-        data: opts,
+        data: opts_filename,
     };
 
     HTTP.post(CALC_URL + '/' + pythonCallName, options,
             function (error, result) {
-            
-        console.log('call_python_remote: result.data:', result.data);
-        console.log('call_python_remote: result.headers:', result.headers);
         
         if (error) {
-            console.log('Error with call_python_remote(' +
-                pythonCallName + ')', 'error:', error.toString());
-            report_error(error, 'stderr', pythonCallName, undefined, future);
+            console.log('Error: call_python_remote(' + pythonCallName + '):',
+                error.toString());
+            callback_error(error, pythonCallName, future);
+            
         } else {
             console.log('Info: success with call_python_remote(' +
-                pythonCallName + ')', 'Results file:', result.data.filename);
-            future.return(result);
+                pythonCallName + ')', 'Results file:', result.data);
+              
+            // Should this parse the json in result.content instead of returning
+            // result.data?
+            callback_success(result.data, pythonCallName, future);
         }
     });
 }
 // overlayNodes & mapManager want:
 // callPython = function (pythonCallName, opts, callback) {
 
-callPython = function (pythonCallName, opts, res, future) {
+callPython = function (pythonCallName, opts, future) {
 
-    // Synchronously call a python function where the caller passes TODO .
+    // Call a python function where the caller passes the
+    // python call name, call options, and a future.
+    // On success, future.return() is called with:
+    //  {
+    //      code: <http-status-code>, (whether it called locally or remotely)
+    //      data: <data>,
+    //  }
+    // On error, future.thrown() is called with the above code & data structure.
+
+    // Convert the python parameters to json and save that json in a file.
+    var json_opts = JSON.stringify(opts);
+    var opts_filename = writeToTempFile(json_opts);
 
     // Call either the local or remote python script.
     if (CALC_URL) {
     
-        call_python_remote(pythonCallName, opts, future);
+        // Execute this remotely. The opts are already converted to json and
+        // saved to a file, so just pass the filename contained in the opts.
+        call_python_remote(pythonCallName, opts_filename, future);
+
     } else {
         
-        call_python_local(pythonCallName, opts, res, future);
+        // Execute this locally,
+        // so convert the options into json and save it to a file
+        call_python_local(pythonCallName, opts_filename, future);
     }
 };
 

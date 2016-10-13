@@ -121,9 +121,10 @@ overlayNodes = function (dataIn, res, future) {
         // Save the feature space file name in the parms in the metadata. This
         // file is too big to put it's data in the parms, so the python code
         // will read from the file directly for now.
-        opts.meta.layouts[dataIn.layout].featureSpaceFile = FEATURE_SPACE_DIR
-            + dataIn.map + '/'
-            + opts.meta.layouts[dataIn.layout].featureSpaceFile;
+        opts.meta.layouts[dataIn.layout].featureSpaceFile = Path.join(
+            FEATURE_SPACE_DIR,
+            dataIn.map + '/'
+            + opts.meta.layouts[dataIn.layout].featureSpaceFile);
     }
     
     // Set the log file name

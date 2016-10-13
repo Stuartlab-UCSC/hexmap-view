@@ -75,7 +75,7 @@ getTsvFile = function (filename, project, unparsed, alt_dir, future) {
     if (alt_dir === 'featureSpace') {
     
         // Special case when the file is requested from feature space
-        path = FEATURE_SPACE_DIR + project + filename;
+        path = Path.join(FEATURE_SPACE_DIR, project + filename);
     } else if (filename.indexOf('layer_') > -1 ||
         filename.indexOf('stats') > -1) {
     

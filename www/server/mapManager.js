@@ -9,13 +9,13 @@ var ManagerFileCabinet = new Mongo.Collection('ManagerFileCabinet');
 var ManagerAddressBook = new Mongo.Collection('ManagerAddressBook');
 var LayerPostOffice = new Mongo.Collection('LayerPostOffice');
 var Windows = new Mongo.Collection('Windows');
+var Path = Npm.require('path');
 
 function read_nodenames(managers_doc,callback) {
     //function for reading the nodeIds (both feature and sample) from a 
     // reflection datafile
     
-    var filename = FEATURE_SPACE_DIR +managers_doc.mapId.split(('/'))[0] + '/' + managers_doc.datapath;
-
+    var filename = Path.join(FEATURE_SPACE_DIR, managers_doc.mapId.split(('/'))[0] + '/' + managers_doc.datapath);
 
     var node_names = [];
     var first = true;
@@ -250,10 +250,10 @@ function parmMaker(mapId,toMapId, operation,argsObj) {
         // TODO: of the major directory, for example
         // TODO: cont: geneMap -> geneMap instance.
         // TODO: Will need a refactoring of the databases to make this smooth
-        parm.datapath = FEATURE_SPACE_DIR +
+        parm.datapath = Path.join(FEATURE_SPACE_DIR,
                         mapId.split('/')[0] +
                         '/' +
-                        parm.datapath;
+                        parm.datapath);
     }
 
     return parm;

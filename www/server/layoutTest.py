@@ -5,7 +5,6 @@ layoutTest.py
 
 import sys, traceback
 import layout
-import pythonApiHelpers
 from pythonCall import pythonWrapper
 
 

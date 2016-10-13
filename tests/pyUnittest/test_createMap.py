@@ -1,6 +1,6 @@
 #!/usr/bin/env python2.7
 
-# This tests javascript, using python's easer calls to shell commands
+# This tests javascript, using python's easier calls to shell commands
 # from here than from mocha
 
 import sys, os, subprocess, json, tempfile, pprint
@@ -50,21 +50,20 @@ class TestCreateMap(unittest.TestCase):
         opts = ['-X', 'GET', '-v']
         rc = s.doCurl(opts)
         s.assertTrue(rc['code'] == '405')
-        s.assertTrue(rc['data']== 'Only the POST method is understood here')
+        s.assertTrue(rc['data']== '"Only the POST method is understood here"')
 
     def test_contentTypeCheck(s):
         opts = ['-H', 'Content-Type:apjson', '-X', 'POST', '-v']
         rc = s.doCurl(opts)
         s.assertTrue(rc['code'] == '400')
-        s.assertTrue(rc['data'] == 'Only content-type of application/json is understood here')
+        s.assertTrue(rc['data'] == '"Only content-type of application/json is understood here"')
 
     def test_jsonCheck(s):
         data = '{data: oh boy, data!}'
         opts = ['-d', data, '-H', 'Content-Type:application/json', '-X', 'POST', '-v']
         rc = s.doCurl(opts)
         s.assertTrue(rc['code'] == '400')
-        s.assertTrue(rc['data'] == 'Malformed JSON data given')
-    
+        s.assertTrue(rc['data'] == '"Malformed JSON data given"')
     
     """
     # TODO no checks on data yet
@@ -76,13 +75,11 @@ class TestCreateMap(unittest.TestCase):
         s.assertTrue(rc['data']== 'Create Map function parameters missing or malformed')
     """
 
-
     def test_pythonCallGoodData(s):
         data = '[ "--names", "layout", "--directory", "/Users/swat/data/view/swat_soe.ucsc.edu/", "--role", "swat_soe.ucsc.edu", "--include-singletons", "--no-density-stats", "--no-layout-independent-stats", "--no-layout-aware-stats",  "--coordinates", "/Users/swat/data/featureSpace/swat_soe.ucsc.edu/features.tab" ]'
         curl_opts = ['-d', data, '-H', 'Content-Type:application/json', '-X', 'POST', '-v']
         rc = s.doCurl(curl_opts)
-        print 'rc', rc
         s.assertTrue(rc['code'] == '200')
-    
+
 if __name__ == '__main__':
     unittest.main()

@@ -3,11 +3,46 @@
 pythonCall.py
 Prepare to call a python script
 """
-import sys, os, json, copy, csv, math, traceback
+import sys, os, json, copy, csv, math, traceback, tempfile
 import importlib
 import scipy.stats
-from pythonApiHelpers import readJsonRequestData
-from pythonApiHelpers import writeJsonResponseData
+
+def readJsonRequestData(jsonRequestFilename):
+
+    # This reads the json-formatted file and returns it's data as a python dict.
+    # Returns 0 on success, 1 on error.
+
+    # Read the json-formatted data from the file
+    try:
+        with open(jsonRequestFilename, 'rU') as f:
+            requestData = json.load(f)
+    except:
+        print 'Error: json file:', jsonRequestFilename, 'could not be read', '\n'
+        return 1
+    return requestData
+
+def writeJsonResponseData(responseData):
+
+    # This creates a temporary file, transforms the dict into json format,
+    # then writes it to the temporary file.
+    # Returns 0 on success, 1 on error.
+
+    # Create a temporary file
+    try:
+        fileHandle, filename = tempfile.mkstemp(suffix='.json')
+    except:
+        print 'Error: the response file could not be created', '\n'
+        return 1
+
+    # Write the data to the file as json
+    try:
+        with open(filename, 'w') as f:
+            json.dump(responseData, f, sort_keys=True, indent=4)
+    except:
+        print 'Error: the response data could not be transformed into json format'
+        return 1
+
+    return filename
 
 def pythonWrapper(pythonCallName, jsonRequestFile):
 

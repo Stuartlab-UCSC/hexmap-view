@@ -5,7 +5,9 @@
 #INSTALL=prodCalc
 #INSTALL=dev
 #INSTALL=devCalc
-INSTALL=devDev
+#INSTALL=devDev
+INSTALL=swat
+#INSTALL=swatCalc
 
 if [ $INSTALL == 'prod' ]
     then HEXMAP=/data
@@ -19,9 +21,14 @@ fi
 if [ $INSTALL == 'devCalc' ]
     then HEXMAP=/cluster/home/swat/hexmapCalc
 fi
-
 if [ $INSTALL == 'devDev' ]
     then HEXMAP=/cluster/home/swat/hexmapDev
+fi
+if [ $INSTALL == 'swat' ]
+    then HEXMAP=/Users/swat/dev/hexagram
+fi
+if [ $INSTALL == 'swatCalc' ]
+    then HEXMAP=/Users/swat/devCalc
 fi
 
 source $HEXMAP/runInclude
@@ -54,10 +61,10 @@ fi
 if [ $1 == 'www' ]
     then
     export MONGO_URL=mongodb://localhost:$DB_PORT/$DB_NAME
+    cd $HEXMAP/www
     touch $HEXMAP/www.log
     mv $HEXMAP/www.log $HEXMAP/www.prev.log
-    cd $HEXMAP/www
-    $METEOR/meteor --port $PORT --settings $HEXMAP/settings.json &> $HEXMAP/www.log &
+    $METEOR/meteor --port $PORT --settings $SETTINGS $LOG
     echo Starting $1
 fi
 exit
