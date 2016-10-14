@@ -3,7 +3,6 @@
 var app = app || {};
 (function (hex) { // jshint ignore: line
 Hex = (function () { // jshint ignore: line
- 
     var VERSION = 'Version 1.0';
  
     Template.localStoreT.created = function () {
@@ -77,6 +76,8 @@ Hex = (function () { // jshint ignore: line
     Template.mapPage.onRendered(function () {
         Meteor.autorun(function () {
             if (GoogleMaps.loaded()) {
+                //TIMING
+                console.log("initing Main Map container")
                 initMainMapContainer();
             }
         });
@@ -88,6 +89,8 @@ Hex = (function () { // jshint ignore: line
     Template.gridPage.onRendered(function () {
         Meteor.autorun(function () {
             if (GoogleMaps.loaded()) {
+                //TIMING
+                console.log("initing the Grid Map Container")
                 initGridMapContainer();
             }
         });
@@ -144,15 +147,17 @@ Hex = (function () { // jshint ignore: line
 
     // Phase 6 init: Autotracker to find when the basic UI is drawn
     Session.set('initedHexagons', false);
-    Session.set('initialiedLayers', false);
+    Session.set('initializedLayers', false); // this isn't used
     Session.set('initedColormaps', false);
+    //TIMING
+    console.log("all the following sessions were set to false")
     function isUiDrawn (autorun) {
         if (Session.get('initedHexagons') &&
             Session.get('retrievedLayerInfo') &&
             Session.get('initedColormaps')) {
             autorun.stop();
             Meteor.setTimeout(function () {
- 
+                console.log('function isUIDrawn() mainHex autorun running')
                 initMap();
      
                 // Turn off the loading progress wheel
@@ -193,6 +198,8 @@ Hex = (function () { // jshint ignore: line
             initSortAttrs();
             initFilter();
             initLayerLists();
+            //TIMING
+            console.log('retrievedLayerInfo being set to true');
             Session.set('retrievedLayerInfo', true);
         }
     }

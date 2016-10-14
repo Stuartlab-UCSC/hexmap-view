@@ -31,6 +31,20 @@ Download = (function () { // jshint ignore: line
             var select_box = $("<select/>");
             
             // Populate it with all existing selections
+            //ATTRDB
+            /*
+            //This isn't going to work until we start manipulating the
+            // minimongo on the client
+            //get the attribute names that are selections
+            var selections = attrGetSelectionNames();
+            _.each(selections, function(name){
+             // This is a selection, so add it to the dropdown.
+             select_box
+             .append($("<option/>")
+             .text(name).attr("value", name));
+            }
+            equalsTestattrIsSelection(layer_name)
+             */
             for(var layer_name in layers) {
                 if(layers[layer_name].selection) {
                     // This is a selection, so add it to the dropdown.
@@ -87,7 +101,22 @@ Download = (function () { // jshint ignore: line
                 var exported = "";
                 
                 // Get the layer data to export
+                
+                //ATTRDB:
+                // below this we are only accessing the node_ids of the data
+                // we don't acutally need the values
+                /*
+                var nodeIds = attrGetNodeIds(layer_name);
+                var exported = ""
+                nodeIds.forEach(function(node){
+                    if (exported !== ""){
+                        exported += "\n"
+                    }
+                    exported += node;
+                })
+                 */
                 var layer_data = layers[layer_name].data;
+                
                 for(var signature in layer_data) {
                     if(layer_data[signature]) {
                         // It's selected, put it in

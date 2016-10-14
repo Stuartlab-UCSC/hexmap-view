@@ -2,8 +2,10 @@
 // project.js
 
 var fs = Npm.require('fs');
+var Future = Npm.require('fibers/future');
 
 var majors;
+var namespace = false;
 var projects = {};
 var dataDir = VIEW_DIR;
 
@@ -144,15 +146,26 @@ getMajorMinor = function () {
     return projects;
 };
 
+getNameSpace = function (project) {
+    var future = new Future();
+    var namespace = getTsvFile('namespace.tab', project,'', false, future);
+    //if file wasn't there
+    if (typeof (namespace) === 'string') {
+        console.log("attempt to get namespace from project",project,"failed," +
+            "probable cause file not found");
+        return false;
+    }
+    return  namespace[0][0]; //only one line in namespace displaying namespace
+};
+
 Meteor.methods({
 
     getProjects: function () {
         getMajors();
         return projects;
     },
-
-    //getMinorProjects: function() {
-
-    //}
+    getNamespace: function(project){
+        return getNameSpace(project)
+    },
     
 });

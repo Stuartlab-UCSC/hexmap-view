@@ -80,7 +80,8 @@ var app = app || {};
     }
 
     createHexagons = function () {
- 
+        //TIMING:
+        console.log('createHexagons being called, polygons object erased')
         // Create the hexagons from the assignments.
         polygons = {};
         _.each(assignments, function (hex, id) {
@@ -124,7 +125,7 @@ var app = app || {};
     
         // Download the signature assignments to hexagons and fill in the global
         // hexagon assignment grid.
-        var file = "assignments" + Session.get('layoutIndex') +".tab"
+        var file = "assignments" + Session.get('layoutIndex') +".tab";
 
         Meteor.call('getTsvFile', file,
             ctx.project, function (error, parsed) {
@@ -154,6 +155,9 @@ var app = app || {};
             }
 
             findDimensions(max_x, max_y);
+                
+            //TIMING
+            console.log('initedHexagons Session being set to "true"');
             Session.set('initedHexagons', true);
             if (draw) {
                 createHexagons();

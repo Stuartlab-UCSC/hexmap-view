@@ -61,8 +61,35 @@ var app = app || {};
 
         // Find the number of colors for this layer. Continuous values and
         // undefined layer_names are assigned a count of zero.
+    /*
+        //ATTRDB CHANGE
+        //why does infinite loop happen when I try and use attribute db????
+        //even with this? console.log('attribute change in findColorCount funtion of legend.js')
+        //var colormap = attrGetColorMap(layer_name);
+        var colormap = colormaps[layer_name];
+        if (colormap) {
+            if (colormap.length > 0) {
+                // Categorical values
+                return colormap.length;
+            } else {
+                // Binary values
+                return 2;
+            }
+        }
+
+        // Continuous values or undefined layer_name
+        return 0;
+
+    };
+    */
+
         if (have_colormap(layer_name)) {
+
             var colormap = colormaps[layer_name];
+            //this causes an infinite loop in hte browser,
+            // but the test does pass... 
+            //equalsTest(colormap,attrGetColorMap(layer_name),
+            //            'legend, findColorCount(),',true);
             if (colormap.length > 0) {
 
                 // Categorical values

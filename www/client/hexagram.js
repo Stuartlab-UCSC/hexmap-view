@@ -3,57 +3,300 @@
 
 var app = app || {}; 
 
-(function (hex) { 
-var AttribDB = new Mongo.Collection('AttribDB');
-var userDebug = false; // Turn user debugging on/off
+(function (hex) {
 
-print = function (text) {
-    // Print some logging text to the browser console
+    //ATTRDB this doesn't need to be global but for debuggin purposes
+    // it is for now
+    AttrDB = new Mongo.Collection('AttribDB');
+    DensityDB = new Mongo.Collection('DensityDB');
 
-    if(userDebug && console && console.log) {
-        // We know the console exists, and we can log to it.
-        console.log(text);
-    }
-}
+    //switch to control whether layers global is read from DB
+    TESTING = true;
+    var userDebug = false; // Turn user debugging on/off
 
-function add_layer_url(layer_name, layer_url, attributes) {
-    // Add a layer with the given name, to be downloaded from the given URL, to
-    // the list of available layers.
-    // Attributes is an object of attributes to copy into the layer.
-    
-    // Store the layer. Just keep the URL, since with_layer knows what to do
-    // with it.
-    layers[layer_name] = {
-        url: layer_url,
-        data: undefined,
-        magnitude: undefined,
+    print = function (text) {
+        // Print some logging text to the browser console
+
+        if(userDebug && console && console.log) {
+            // We know the console exists, and we can log to it.
+            console.log(text);
+        }
     };
-    
-    for(var name in attributes) {
-        // Copy over each specified attribute
-        layers[layer_name][name] = attributes[name];
+
+    //ATTRDB: use this function in place of add_layer_url, to
+        //
+    /*
+    attrAddToLayerObj = function (attribute_name,attributes){
+        var attrDoc = AttrDB.findOne({attribute_name: attribute_name})
+        var layersDoc = {
+            url: attrDoc.url,
+            data: undefined,
+            magnitude : undefined,
+
+        }
+
+        for (var name in attributes){
+            // Copy over each specified attribute
+            layers[layer_name][name] = attributes[name];
+        }
+        // Add it to the sorted layer list.
+        var sorted = Session.get('sortedLayers').slice();
+        sorted.push(layer_name);
+        Session.set('sortedLayers', sorted);
+
+    };
+    */
+    function add_layer_url(layer_name, layer_url, attributes) {
+        // Add a layer with the given name, to be downloaded from the given URL, to
+        // the list of available layers.
+        // Attributes is an object of attributes to copy into the layer.
+
+        // Store the layer. Just keep the URL, since with_layer knows what to do
+        // with it.
+
+
+
+        layers[layer_name] = {
+            url: layer_url,
+            data: undefined,
+            magnitude: undefined,
+        };
+
+        for (var name in attributes) {
+            // Copy over each specified attribute
+            layers[layer_name][name] = attributes[name];
+        }
+
+        // Add it to the sorted layer list.
+        var sorted = Session.get('sortedLayers').slice();
+        sorted.push(layer_name);
+        Session.set('sortedLayers', sorted);
+
+        // Don't sort because our caller does that when they're done adding layers.
     }
-    
-    // Add it to the sorted layer list.
-    var sorted = Session.get('sortedLayers').slice();
-    sorted.push(layer_name);
-    Session.set('sortedLayers', sorted);
+    //ATTRDB
 
-    // Don't sort because our caller does that when they're done adding layers.
+    getClumpinessArray = function (attribute_name){
+        //accesses the clumpiness or Density collection
+        // and returns an array like would be found by old implementation.
+        var clumpCurs = DensityDB.find(
+            {attribute_name: attribute_name},
+            { fields : {density:1,index:1}});
 
-}
+        var clumpArray = new Array(clumpCurs.count());
 
-with_layer = function (layer_name_in, callback, try_count) {
+        clumpCurs.forEach(function(doc){
+            clumpArray[doc.index] = doc.density;
+        });
+
+        return clumpArray;
+
+    };
+    attrHasLayer = function(attribute_name){
+        return (!_.isUndefined(AttrDB.findOne({attribute_name: attribute_name})))
+    };
+    attrHasData = function (attribute_name){
+        //the namespace is already limited on the client,
+        // therefore attribute_name is a key
+
+        //data and nodeIds are loaded simultaneously, and perhaps later for
+        // binaries will not be interested in 0's
+        return ( _.isUndefined(AttrDB.findOne({attribute_name: attribute_name}))
+                    ||
+                !_.isUndefined(AttrDB.findOne({attribute_name: attribute_name})
+                  .node_ids));
+    };
+    attrHasTag = function (attribute_name,tag){
+        var tags = AttrDB.findOne({attribute_name: attribute_name}).tags;
+        return (tags.indexOf(tag) > -1)
+    };
+    attrHasTags = function(attribute_name){
+        //returns true if there are any tags for this attribute
+        return (!_.isUndefined(AttrDB.findOne({attribute_name: attribute_name}).tags))
+    }
+    attrGetMax = function (attribute_name){
+        return (AttrDB.findOne({attribute_name: attribute_name}).max)
+    };
+    attrGetMin = function(attribute_name){
+        return (AttrDB.findOne({attribute_name: attribute_name}).min)
+    };
+    attrGetNodeIds = function(attribute_name){
+        return (AttrDB.findOne({attribute_name: attribute_name}).node_ids)
+    };
+    attrGetValues = function(attribute_name){
+        return (AttrDB.findOne({attribute_name: attribute_name}).values)
+    };
+    attrIsContinuous = function(attribute_name) {
+        return(AttrDB.findOne({attribute_name: attribute_name}).datatype === 'Continuous');
+    };
+    attrGetContinuousNames = function() {
+        //returns all the continuos variables for the current filter
+        var continuousAttr = [];
+        AttrDB.find({datatype : 'Continuous'}).forEach(
+            function(doc){
+                continuousAttr.push()
+            }
+        );
+        return continuousAttr;
+    }
+    attrIsBinary = function(attribute_name) {
+        return(AttrDB.findOne({attribute_name: attribute_name}).datatype === 'Binary');
+    };
+    attrGetBinaryNames = function() {
+        //returns all the continuos variables for the current filter
+        var binaryAttr = [];
+        AttrDB.find({datatype : 'Binary'}).forEach(
+            function(doc){
+                binaryAttr.push()
+            }
+        );
+        return continuousAttr;
+    };
+
+    attrIsCategorical = function(attribute_name) {
+        return(AttrDB.findOne({attribute_name: attribute_name}).datatype === 'Categorical');
+    };
+    attrGetCategoricalNames = function() {
+        //returns all the continuos variables for the current filter
+        var binaryAttr = [];
+        AttrDB.find({datatype : 'Categorical'}).forEach(
+            function(doc){
+                continuousAttr.push()
+            }
+        );
+        return continuousAttr;
+    };
+    attrIsSelection = function(attribute_name) {
+        return (AttrDB.findOne({attribute_name: attribute_name}).selection)
+    };
+    attrGetSelectionNames = function(){
+        //returns an array of attribute names that are selections
+
+        //stuff all the attribute names that are selection into an array
+        var selectionNames = [];
+        AttrDB.find({selection: true}).forEach(
+            function(doc){
+                selectionNames.push(doc.attribute_name);
+            });
+        return selectionNames;
+    };
+    attrGetColorMap = function(attribute_name){
+        var attrDoc = AttrDB.findOne({attribute_name: attribute_name});
+        if (!attrDoc){
+            return undefined;
+        }
+        if (attrDoc.datatype === 'Binary') {
+            //noticed that getting a binary's colormap returns empty object
+            return {};
+        } else if (attrDoc.datatype === 'Continuous'){
+            return undefined;
+        } else {
+            //it should be Categorical
+
+            var unparsedcolormap = AttrDB.findOne({attribute_name: attribute_name}).colormap;
+            var colormap = [];
+            //ATTRDB HACK
+            // TODO: deal with below
+            // don't deal with marked categoricals that have no colormap
+            // perhaps we should be prompting the user to enter one?
+            if(!unparsedcolormap) {return undefined}
+            for (var j = 1; j < unparsedcolormap.length; j += 3) {
+                // Store each color assignment.
+                // Doesn't run if there aren't any assignments, leaving an empty
+                // colormap object that just forces automatic color selection.
+
+                // This holds the index of the category
+                var category_index = parseInt(unparsedcolormap[j]);
+
+                // The colormap gets an object with the name and color that the
+                // index number refers to. Color is stored as a color object.
+                colormap[category_index] = {
+                    name: unparsedcolormap[j + 1],
+                    color: Color(unparsedcolormap[j + 2]), // operating color in map
+                    fileColor: Color(unparsedcolormap[j + 2]), // color from orig file
+                };
+            }
+        }
+        return colormap;
+    };
+    attrRequestLayerTags = function(){
+        //this function is called over at filter.js,
+        // there may be timing issues if the subs
+
+        //this returns tag data in the same way that the TSV file reader does,
+        // namely as an array of arrays, with
+        // the first being a header:
+        // note the header is skipped only because there is no layer name in
+        // layers that is 'attribute'
+        var tagdata = [];
+        tagdata[0] = ["attribute","keywords (tab separated)"];
+        var index = 1;
+
+        // go through all attributes we have tags for, and put them in the
+        // array of arrays.
+        // $type explaination:
+        // for some reason the 'tags' field is a BSON 2, i.e. String
+        // (thought it would be an array but no no)
+        AttrDB.find({tags :{$type: 2}}).forEach(
+            function(doc){
+                var tags = [doc.attribute_name];
+                tagdata[index] = tags.concat(doc.tags);
+                index +=1;
+            }
+        );
+        return tagdata;
+    };
+    attrHaveColormap = function(layer_name){
+        //the previous implemtation (have_colormap)
+        // returns true if
+        var attrDoc = AttrDB.findOne({attribute_name: attribute_name})
+        return (attrDoc.datatype === 'Categorical'
+            ||
+                attrDoc.datatype == 'Binary'
+        )
+    }
+    equalsTest = function(val1,val2, calledFrom,feedback) {
+        //if feedback is true then will chatter on positive result
+        if(!_.isEqual(val1,val2)){
+            console.log("equals test failed from:", calledFrom,"\nvalues:",val1,val2)
+        } if (feedback){
+            console.log("TEST PASSED, from",calledFrom)
+        }
+    };
+
+
+    with_layer = function (layer_name_in, callback, try_count) {
     // This is how you get layers, and allows for layers to be downloaded
     // dynamically. 
     // have_layer must return true for the given name.
     // Run the callback, passing it the layer (object from hex label/signature
     // to float) with the given name.
 
+    //ATTRDB:
+    // it appears this function is called whenever a layer is accessed,
+    // so this function just makes sure the data that is needed is there,
+    // and calls whatever callback() when the data is there.
+
+    // so, this is where subscriptions to the datatypes come from, really
+    // node_ids and values are the only things we dont want, they probably
+    // don't even need the url
+    //        specific subscription
+
+    var namespace = Session.get("namespace");
+
+    // console.log(layer_name_in,callback);
     if (!try_count) {try_count = 1}
  
     var layer_name = layer_name_in.slice();
- 
+    //clog_
+    //console.log("with layer: layerName",layer_name,"\nCallback:"+callback);
+    if(attrHasData(layer_name)){
+
+    }else {
+        console.log("didn't have data,",layer_name," making sub to data");
+        Meteor.subscribe('dataAttrDBcall',namespace,layer_name);
+    }
+    //if(AttrDB.find({'attribute:name'}))
     // First get what we have stored for the layer
     /*
     console.log('layer_name ###' + layer_name + '###');
@@ -85,7 +328,7 @@ with_layer = function (layer_name_in, callback, try_count) {
             return;
         }
 
-		var data_val = layer.data;
+		//var data_val = layer.data;
 		if(layer.data === undefined) {
 		    // We need to download the layer.
 		    print("Downloading \"" + layer.url + "\"");
@@ -179,6 +422,8 @@ with_layer = function (layer_name_in, callback, try_count) {
 		    // Keep track of the unsigned magnitude which gets used a lot.
 		    layer.magnitude = Math.max(Math.abs(minimum), maximum);
 		    
+            //ATTRDB. this automatic type checking can be taken out
+            // once we have transitioned
 		    if(!have_colormap(layer_name) && all_nonnegative_integers) {
 		        // Add an empty colormap for this layer, so that 
 		        // auto-generated discrete colors will be used.
@@ -211,7 +456,9 @@ with_layers = function (layer_list, callback) {
     // See http://marijnhaverbeke.nl/cps/
     // "So, we've created code that does exactly the same as the earlier 
     // version, but is twice as confusing."
-    
+
+    //ATTRDB:
+    //console.log('WITH_LAYERS: called with layer_list:',layer_list);
     if(layer_list.length == 0) {
         // Base case: run the callback with an empty list
         callback([]);
@@ -359,7 +606,8 @@ fill_layer_metadata = function (container, layer_name) {
 }
 
 createMap = function  () {
-
+    //TIMING
+    console.log("startedd call to createMap");
     // Create the google map.
     var mapOptions = {
         center: ctx.center,
@@ -415,7 +663,7 @@ initMap = function () {
 have_colormap = function (colormap_name) {
     // Returns true if the given string is the name of a colormap, or false if 
     // it is only a layer.
-
+    
     return (colormap_name in colormaps)
 }
 
@@ -781,6 +1029,7 @@ function mix2 (a, b, c, d, amount1, amount2) {
 }
 
 initLayersArray = function  () {
+    //this function initalizes a layer_name->index look up object
     Meteor.call('getTsvFile', "layers.tab", ctx.project,
         function (error, parsed) {
 
@@ -808,246 +1057,377 @@ initLayersArray = function  () {
 			var index_value = file_name.substring(underscore_index+1, period_index);
 			ctx.layer_names_by_index [index_value] = parsed[i][0];
 		 }
+            //TIMING
+            console.log('setting initedLayersArray to True')
          Session.set('initedLayersArray', true);
     });
-}
+};
+    initAttrDB =  function() {
 
-initLayout = function () {
-
-    // Download the layout names and filenames and save to the layouts array
-    Meteor.call('getTsvFile', "layouts.tab", ctx.project,
-        function (error, parsed) {
-
-        // This is an array of rows, with two elements in each row: name and
-        // filename. Unless it is the older format stored in matrixnames.tab, in
-        // which case only the name is provided.
-
-        if (error) {
-            projectNotFound("layouts.tab");
-            return;
-        }
-
-        var layouts = [];
-        for (var i = 0; i < parsed.length; i++) {
-            // Pull out the parts of the TSV entry
-            var row = parsed[i];
-
-            if (row.length === 0) {
-                // Skip any blank lines
-                continue;
-            }
-
-            layouts.push(row[0]);
-
-            if (row.length > 1) {
-                
-                // hack alert: don't know why there is a \r at the end of
-                // the filename but remove it here
-                if (row[1].charCodeAt(row[1].length - 1) === 13) {
-                    layouts[i].filename = row[1].slice(0,row[1].length - 1);
+        //initiallizes the attribute database
+        Meteor.call("getNamespace", ctx.project, function (err, namespace) {
+                if (err) {
+                    console.log("error in retrieving namespace, db can not be initiated")
                 } else {
-                    layouts[i].filename = row[1];
+                    //console.log(namespace);
+                    Session.set("namespace", namespace);
+                    Meteor.subscribe('basalAttrDB', namespace, ctx.project, 0 , function() {
+                        //console.log("done subscribing to attrDB,filling layers");
+                        DBstoLayersGlobal();
+                        initTypesFromDB();
+                        initColormapsFromDB();
+                    });
                 }
             }
-        }
-        Session.set('layouts', layouts);
+        );
 
-        // Transform the layout list into the form wanted by select2
-        var data = _.map(layouts, function (layout, i) {
-            return { id: i, text: layout }
-        });
+    };
 
-        // Create our selection list
-        if (Session.equals('layoutIndex', null)) {
-            Session.set('layoutIndex', 0);
-        }
-        createOurSelect2($("#layout-search"),
-            {data: data}, Session.get('layoutIndex').toString());
+    initLayout = function () {
 
-        // Define the event handler for the selecting in the list
-        $("#layout-search").on('change', function (ev) {
-            Session.set('layoutIndex', ev.target.value);
-            console.log('layout', layouts[Session.get('layoutIndex')]);
-            createMap();
-            initHexagons(true);
-            
-            // Update density stats to this layout and
-            // resort the list to the default of density
-            find_clumpiness_stats(Session.get('layoutIndex'));
-            Session.set('sort', ctx.defaultSort());
-            updateLonglist();
-            
-            Meteor.setTimeout(refreshColors, 100);
-        });
-        Session.set('initedLayout', true);
-    });
-}
+        // Download the layout names and filenames and save to the layouts array
+        Meteor.call('getTsvFile', "layouts.tab", ctx.project,
+            function (error, parsed) {
 
-initHex = function () {
+            // This is an array of rows, with two elements in each row: name and
+            // filename. Unless it is the older format stored in matrixnames.tab, in
+            // which case only the name is provided.
 
-    // Initialize some operating values
-
-    // A list of layer names maintained in sorted order.
-    Session.set('sortedLayers', []);
-
-    // This is a count which is incremented every time the shortlist UI is
-    // updated. We would rather use 'shortlist', but that produces an infinite
-    // loop at times.
-    Session.set('shortlistFilterUpdated', 0);
-}
-
-initLayerTypes = function () {
-
-	// Download Information on what layers are continuous and which are binary
-    Meteor.call('getTsvFile', "Layer_Data_Types.tab", ctx.project,
-        function (error, parsed) {
-
-        // This is an array of rows with the following content:
-        //
-		//	FirstAttribute		Layer6
-		//	Continuous		Layer1	Layer2	Layer3 ...
-		//	Binary	Layer4	Layer5	Layer6 ...
-		//	Categorical	Layer7	Layer8	Layer9 ...
-		//
-
-        if (error) {
-            projectNotFound("Layer_Data_Types.tab");
-            return;
-        }
-
-        _.each(parsed, function (line) {
-            if (line[0] === 'Binary') {
-                ctx.bin_layers = line.slice(1);
-            } else if (line[0] === 'Continuous') {
-                ctx.cont_layers = line.slice(1);
-            } else if (line[0] === 'Categorical') {
-                ctx.cat_layers = line.slice(1);
-            } else if (line[0] === 'FirstAttribute') {
-                Session.set('first_layer', line.slice(1).join());
-            } // skip any lines we don't know about
-        });
-        
-        Session.set('initedLayerTypes', true);
-	});
-}
-
-initLayerIndex = function () {
-
-    // Download the layer index
-    Meteor.call('getTsvFile', "layers.tab", ctx.project,
-        function (error, parsed) {
-
-        // Layer index is tab-separated like so:
-        // name  file  N-hex-value  binary-ones  layout0-clumpiness  layout1-clumpiness  ...
-
-        if (error) {
-            projectNotFound("layers.tab");
-            return;
-        }
-
-        for(var i = 0; i < parsed.length; i++) {
-            // Pull out the parts of the TSV entry
-            // This is the name of the layer.
-            var layer_name = parsed[i][0];
-            
-            if(layer_name == "") {
-                // Skip any blank lines
-                continue;
+            if (error) {
+                projectNotFound("layouts.tab");
+                return;
             }
-            
-            // This is the URL from which to download the TSV for the actual 
-            // layer.
-            var layer_url = ctx.project + parsed[i][1];
 
-            // This is the number of hexes that the layer has any values for.
-            // We need to get it from the server so we don't have to download 
-            // the layer to have it.
-            var layer_count = parseFloat(parsed[i][2]);
-            
-            // This is the number of 1s in a binary layer, or NaN in other
-            // layers
-            var layer_positives = parseFloat(parsed[i][3]);
-            
-            // This array holds the layer's clumpiness scores under each layout,
-            // by index. A greater clumpiness score indicates more clumpiness.
-            var layer_clumpiness = [];
-            
-            for(var j = 4; j < parsed[i].length; j++) {
-                // Each remaining column is the clumpiness score for a layout,
-                // in layout order.
-                // This is the layer's clumpiness score
-                layer_clumpiness.push(parseFloat(parsed[i][j]));
-            }    
-                   
-            // Add this layer to our index of layers
-            add_layer_url(layer_name, layer_url, {
-                clumpiness_array: layer_clumpiness,
-                clumpiness: undefined, // This one gets filled in with the 
-                                       // appropriate value out of the array, so
-                                       // we can sort without having a current 
-                                       // layout index.
-                positives: layer_positives, //if binary
-                n: layer_count,
+            var layouts = [];
+            for (var i = 0; i < parsed.length; i++) {
+                // Pull out the parts of the TSV entry
+                var row = parsed[i];
+
+                if (row.length === 0) {
+                    // Skip any blank lines
+                    continue;
+                }
+
+                layouts.push(row[0]);
+
+                if (row.length > 1) {
+
+                    // hack alert: don't know why there is a \r at the end of
+                    // the filename but remove it here
+                    if (row[1].charCodeAt(row[1].length - 1) === 13) {
+                        layouts[i].filename = row[1].slice(0,row[1].length - 1);
+                    } else {
+                        layouts[i].filename = row[1];
+                    }
+                }
+            }
+            console.log('setting Session "layouts"');
+
+                Session.set('layouts', layouts);
+
+            // Transform the layout list into the form wanted by select2
+            var data = _.map(layouts, function (layout, i) {
+                return { id: i, text: layout }
             });
 
+            // Create our selection list
+            if (Session.equals('layoutIndex', null)) {
+                Session.set('layoutIndex', 0);
+            }
+            createOurSelect2($("#layout-search"),
+                {data: data}, Session.get('layoutIndex').toString());
+
+            // Define the event handler for the selecting in the list
+            $("#layout-search").on('change', function (ev) {
+                Session.set('layoutIndex', ev.target.value);
+                console.log('layout', layouts[Session.get('layoutIndex')]);
+                createMap();
+                initHexagons(true);
+
+                // Update density stats to this layout and
+                // resort the list to the default of density
+                find_clumpiness_stats(Session.get('layoutIndex'));
+                Session.set('sort', ctx.defaultSort());
+                updateLonglist();
+
+                Meteor.setTimeout(refreshColors, 100);
+            });
+            Session.set('initedLayout', true);
+        });
+    };
+
+    initHex = function () {
+
+        // Initialize some operating values
+
+        // A list of layer names maintained in sorted order.
+        Session.set('sortedLayers', []);
+
+        // This is a count which is incremented every time the shortlist UI is
+        // updated. We would rather use 'shortlist', but that produces an infinite
+        // loop at times.
+        Session.set('shortlistFilterUpdated', 0);
+    };
+
+    initTypesFromDB = function(){
+      var dtypes = ["Binary","Continuous","Categorical"],
+        ctxObs   = ["bin_layers","cont_layers","cat_layers"];
+        _.zip(dtypes,ctxObs).forEach(function(pair) {
+            console.log("from initTypesFromDB",pair[0],pair[1],
+                AttrDB.find({datatype: pair[0]}).count(),"found");
+            ctx[pair[1]] = [];
+            AttrDB.find({datatype: pair[0]}).forEach(function(doc){
+                ctx[pair[1]].push(doc.attribute_name);
+            })
+        });
+        console.log('inited LayerTypes Session turns true');
+        Session.set('initedLayerTypes', true);
+    };
+
+    initLayerTypes = function () {
+
+        //initDensityDB(ctx.project);
+        if(TESTING){
+            //we want to do the init after our subscription has completed,
+            // therefore the function goes in the callback of the sub
+        //initTypesFromDB();
         }
+        else {
+            // Download Information on what layers are continuous and which are binary
+            Meteor.call('getTsvFile', "Layer_Data_Types.tab", ctx.project,
+                function (error, parsed) {
+
+                    // This is an array of rows with the following content:
+                    //
+                    //	FirstAttribute		Layer6
+                    //	Continuous		Layer1	Layer2	Layer3 ...
+                    //	Binary	Layer4	Layer5	Layer6 ...
+                    //	Categorical	Layer7	Layer8	Layer9 ...
+                    //
+
+                    if (error) {
+                        projectNotFound("Layer_Data_Types.tab");
+                        return;
+                    }
+
+                    _.each(parsed, function (line) {
+                        if (line[0] === 'Binary') {
+                            ctx.bin_layers = line.slice(1);
+                        } else if (line[0] === 'Continuous') {
+                            ctx.cont_layers = line.slice(1);
+                        } else if (line[0] === 'Categorical') {
+                            ctx.cat_layers = line.slice(1);
+                        } else if (line[0] === 'FirstAttribute') {
+                            Session.set('first_layer', line.slice(1).join());
+                        } // skip any lines we don't know about
+                    });
+                    console.log('itited LayerTypes Session turns true');
+                    Session.set('initedLayerTypes', true);
+                });
+        }
+    };
+
+    DBstoLayersGlobal = function(){
+        //function that puts the basic amount of information from the database
+        // and into the layers global object
+
+        //HACK
+        // the below: this works based on timing, this function has to be called
+        // after setting the Session layouts or it won't be a happy day
+
+        //if there's not any density for the layer than we need
+        // to put a NULL clumpiness vector, so we just fill an
+        // array with the appropriate amount of NAN's
+        //
+        NaNClumpiness = [];
+        for (var i =0 ; i < Session.get('layouts').length; i++){
+            NaNClumpiness.push(NaN)
+        }
+
+
+        //console.log(AttrDB.find().count());
+        AttrDB.find({}).forEach(function(doc){
+            //will take this out after making sure they are equivelent
+            //console.log("has layer,", doc);
+
+            //if we don't find a density value then we put one in that
+            // is full of NaN's, otherwise we use the one in the DB
+            var clumpiness_array = !_.isUndefined(DensityDB.findOne(
+                {
+                    attribute_name: doc.attribute_name,
+                    project : ctx.project
+                })) ? DensityDB.findOne(
+                {
+                    attribute_name: doc.attribute_name,
+                    project : ctx.project
+                }).clumpiness_array : NaNClumpiness;
+            //console.log(clumpiness_array);
+            layers[doc.attribute_name] = {
+                clumpiness_array : clumpiness_array,
+                clumpiness : undefined,
+                magnitude : undefined,
+                data: undefined,
+                n: doc.n,
+                positives : doc.positives,
+                url : doc.url
+
+            };
+            // Add it to the sorted layer list.
+            var sorted = Session.get('sortedLayers').slice();
+            sorted.push(doc.attribute_name);
+            Session.set('sortedLayers', sorted);
+
+
+        });
+        console.log('intitedLayerIndex Session gets True');
         Session.set('initedLayerIndex', true);
-    });
-}
-    
-initColormaps = function () {
-    // Download color map information
-    Meteor.call('getTsvFile', "colormaps.tab", ctx.project,
-        function (error, parsed) {
+    };
 
-        // Colormap data is <layer name>\t<value>\t<category name>\t<color>
-        // \t<value>\t<category name>\t<color>...
+    initLayerIndex = function () {
+        //initLayerIndex does the puts the minimimal amount of information
+        // into the layers object
+        //if using the datbases
+        if (TESTING) {initAttrDB();}
+        else {
+            // Download the layer index
+            Meteor.call('getTsvFile', "layers.tab", ctx.project,
+                function (error, parsed) {
 
-        if (error) {
-            projectNotFound("colormaps.tab");
-            return;
+                    // Layer index is tab-separated like so:
+                    // name  file  N-hex-value  binary-ones  layout0-clumpiness  layout1-clumpiness  ...
+
+                    if (error) {
+                        projectNotFound("layers.tab");
+                        return;
+                    }
+
+                    for (var i = 0; i < parsed.length; i++) {
+                        // Pull out the parts of the TSV entry
+                        // This is the name of the layer.
+                        var layer_name = parsed[i][0];
+
+                        if (layer_name == "") {
+                            // Skip any blank lines
+                            continue;
+                        }
+
+                        // This is the URL from which to download the TSV for the actual
+                        // layer.
+                        var layer_url = ctx.project + parsed[i][1];
+
+                        // This is the number of hexes that the layer has any values for.
+                        // We need to get it from the server so we don't have to download
+                        // the layer to have it.
+                        var layer_count = parseFloat(parsed[i][2]);
+
+                        // This is the number of 1s in a binary layer, or NaN in other
+                        // layers
+                        var layer_positives = parseFloat(parsed[i][3]);
+
+                        // This array holds the layer's clumpiness scores under each layout,
+                        // by index. A greater clumpiness score indicates more clumpiness.
+                        var layer_clumpiness = [];
+
+                        for (var j = 4; j < parsed[i].length; j++) {
+                            // Each remaining column is the clumpiness score for a layout,
+                            // in layout order.
+                            // This is the layer's clumpiness score
+                            layer_clumpiness.push(parseFloat(parsed[i][j]));
+                        }
+
+                        // Add this layer to our index of layers
+                        add_layer_url(layer_name, layer_url, {
+                            clumpiness_array: layer_clumpiness,
+                            clumpiness: undefined, // This one gets filled in with the
+                                                   // appropriate value out of the array, so
+                                                   // we can sort without having a current
+                                                   // layout index.
+                            positives: layer_positives, //if binary
+                            n: layer_count,
+                        });
+
+                    }
+                    //TIMING:
+                    console.log('intitedLayerIndex Session gets True');
+                    Session.set('initedLayerIndex', true);
+                });
         }
-
-        for(var i = 0; i < parsed.length; i++) {
-            // Get the name of the layer
-            var layer_name = parsed[i][0];
-            
-            // Skip blank lines
-            if(layer_name == "") {
-                continue;
+        //console.log("switching layers objects");
+        //DBstoLayersGlobal();
+        //layers = DBLayers;
+        //
+        //Session.set('initedLayerIndex', true);
+    };
+    initColormapsFromDB = function(){
+        AttrDB.find({datatype : "Categorical"}).forEach(
+            function(doc){
+                colormaps[doc.attribute_name]= attrGetColorMap(doc.attribute_name);
             }
-            
-            // This holds all the categories (name and color) by integer index
-            var colormap = [];
-            
-            print("Loading colormap for " + layer_name);
-            
-            for(j = 1; j < parsed[i].length; j += 3) {
-                // Store each color assignment.
-                // Doesn't run if there aren't any assignments, leaving an empty
-                // colormap object that just forces automatic color selection.
-                
-                // This holds the index of the category
-                var category_index = parseInt(parsed[i][j]);
-                
-                // The colormap gets an object with the name and color that the
-                // index number refers to. Color is stored as a color object.
-                colormap[category_index] = {
-                    name: parsed[i][j + 1],
-                    color: Color(parsed[i][j + 2]), // operating color in map
-                    fileColor: Color(parsed[i][j + 2]), // color from orig file
-                };
-                
-                print( colormap[category_index].name + " -> " +  
-                    colormap[category_index].color.hexString());
-            }
-            
-            // Store the finished color map in the global object
-            colormaps[layer_name] = colormap;
-        }
+        )
+        console.log("initedColorMaps gets true");
         Session.set('initedColormaps', true);
-    });
+    };
 
+initColormaps = function () {
+
+    if(TESTING){
+        //call our DB init in the subscription callback of the AttrDB
+
+    }
+    else {
+        // Download color map information
+        Meteor.call('getTsvFile', "colormaps.tab", ctx.project,
+            function (error, parsed) {
+
+                // Colormap data is <layer name>\t<value>\t<category name>\t<color>
+                // \t<value>\t<category name>\t<color>...
+
+                if (error) {
+                    projectNotFound("colormaps.tab");
+                    return;
+                }
+
+                for (var i = 0; i < parsed.length; i++) {
+                    // Get the name of the layer
+                    var layer_name = parsed[i][0];
+
+                    // Skip blank lines
+                    if (layer_name == "") {
+                        continue;
+                    }
+
+                    // This holds all the categories (name and color) by integer index
+                    var colormap = [];
+
+                    print("Loading colormap for " + layer_name);
+
+                    for (j = 1; j < parsed[i].length; j += 3) {
+                        // Store each color assignment.
+                        // Doesn't run if there aren't any assignments, leaving an empty
+                        // colormap object that just forces automatic color selection.
+
+                        // This holds the index of the category
+                        var category_index = parseInt(parsed[i][j]);
+
+                        // The colormap gets an object with the name and color that the
+                        // index number refers to. Color is stored as a color object.
+                        colormap[category_index] = {
+                            name: parsed[i][j + 1],
+                            color: Color(parsed[i][j + 2]), // operating color in map
+                            fileColor: Color(parsed[i][j + 2]), // color from orig file
+                        };
+
+                        print(colormap[category_index].name + " -> " +
+                            colormap[category_index].color.hexString());
+                    }
+
+                    // Store the finished color map in the global object
+                    colormaps[layer_name] = colormap;
+                }
+                console.log("initedColorMaps gets true");
+                Session.set('initedColormaps', true);
+            });
+    }
 
 }
 })(app);

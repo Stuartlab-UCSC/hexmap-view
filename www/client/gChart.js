@@ -20,6 +20,19 @@ var app = app || {};
                 
             // Find counts of each category
             var counts = [];
+            //ATTRDB
+            //maybe this is how categories should be stored?
+            //equalsTest(attrGetValues(layer_name),_.values(layers[layer_name].data,'gChart',false));
+            /*
+            _.each(attrGetValues(layer_name), function(cat) {
+                if (counts[cat]) {
+                    counts[cat] += 1;
+                } else {
+                    counts[cat] = 1;
+                }
+            });
+            */
+
             _.each(_.values(layers[layer_name].data), function(cat) {
                 if (counts[cat]) {
                     counts[cat] += 1;
@@ -37,6 +50,9 @@ var app = app || {};
             if (is_binary(layer_name)) {
                 colors = ['#555555', COLOR_BINARY_ON];
             } else {
+                //ATTRDB
+                // can replace?
+                //equalsTest(attrGetColorMap(layer_name),colormaps[layer_name],'gChartColormaps',true);
                 var colormap = colormaps[layer_name];
                 colors = _.map(colormap, function (cat) {
                     return cat.color.hexString();
@@ -82,7 +98,14 @@ var app = app || {};
     function drawHistogram (layer_name, container) {
  
         with_layer(layer_name, function () {
+            //ATTRDB
+            //this one gets called with continous attributes
+            //equalsTest(_.zip(attrGetNodeIds(layer_name),attrGetValues(layer_name)),
+            //    _.zip(_.keys(layers[layer_name].data), _.values(layers[layer_name].data)),
+            //'ITGOTCALLED!!gChart draw_histogram->with_layer, zip keys and values:',true);
+            //wont need this reference
             var layer = layers[layer_name],
+
                 arrays = _.zip(_.keys(layer.data), _.values(layer.data)),
                 withHeaders = [['Node', '']].concat(arrays),
                 data = google.visualization.arrayToDataTable(withHeaders),

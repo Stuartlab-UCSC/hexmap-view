@@ -36,6 +36,13 @@ var app = app || {};
     Template.filterMessage.helpers ({
         display: function () {
             var display = Session.get('displayLayers');
+            //ATTRDB:
+            // here is probably where we could interact with
+            // the data base...
+            // display above is a list of all the layers
+            // in sorted ordered, we can replace that session
+            // with a hook to our collection..? where our collection
+            // only holds the next 150 layers or so...
             if (display) {
                 return display.length;
             } else {
@@ -43,6 +50,14 @@ var app = app || {};
             }
         },
         total: function () {
+            //ATTRDB:
+            // this session is strange because 'sortedLayers' is equal to the
+            // displayLayers above.
+            // you can test this on the client by writing
+            // _.isEqual(Session.get('sortedLayers',Session.get('displayLayers'))
+            // maybe there something is done when they are not equal?
+            // oh, they aren'y equal after filtering... we shouldm.n't need to
+            // do this I dont think
             var sorted = Session.get('sortedLayers');
             if (sorted) {
                 return sorted.length;
@@ -107,6 +122,14 @@ var app = app || {};
 
     function passFilter(layer) {
 
+        //ATTRDB:
+        // this function gets called on every single layer,
+        // every time anything in the filter box is clicked,
+        // that seems unecessary, how bout we just change what 
+        // layers/attributes are present in the local colleciton?
+        // you can see the above by uncommenting the console.log below and 
+        // playing with the filters box
+        //console.log(layer);
         // Does this attribute pass the data type filters?
         if (chk.equals('bin', false) && ctx.bin_layers.indexOf(layer) > -1) {
             return false;
@@ -122,11 +145,18 @@ var app = app || {};
         if (!hasTagInfo) {
             return true;
         }
-
+        //ATTRDB
+        /*
+        attrHasTags(layer)
+         */
         if (!layers[layer].hasOwnProperty('tags')) {
             return (chk.equals('untagged', true));
         }
 
+        //ATTRDB
+        /*
+        attrHasTag(layer,tag);
+         */
         // The layer has tags, so find the first matching checked tag
         var passed = _.find(tagList.get(), function(tag) {
             return (chk.equals(tag, true)
@@ -152,7 +182,10 @@ var app = app || {};
         // A few things need to be ready before we can process the tags
         // TODO don't need all of these checks with our new init
         if (!tagData || tagData.length < 1
-            || !sorted || sorted.length < 0) return;
+            || !sorted || sorted.length < 0) {
+            console.log("tags aren't running");
+            return;
+        }
 
         // We don't want this to run anymore
         if (tagsAutorun) tagsAutorun.stop();
@@ -168,7 +201,13 @@ var app = app || {};
         _.each(tagData, function (row) {
             layer = row[0],
             layerTags = row.slice(1);
-
+            //ATTRDB
+            //this function appears to be setting the tags of the layers
+            // the tags are already in the attribute data base,
+            // so this shouldn't be needed 
+            /*
+            attrHasLayer(layer)
+             */
             // If this layer exists...
             if (layers[layer]) {
 
@@ -202,24 +241,40 @@ var app = app || {};
     }
 
     function requestLayerTags () {
+        //ATTRDB:
+        if (TESTING){
+            tagData =attrRequestLayerTags();
 
-        // Retrieve the layer tags data from the server
-        Meteor.call('getTsvFile', 'attribute_tags.tab', ctx.project,
-                function (error, data) {
-            if (error) {
-                console.log('info', 'There are no filter attribute tags for this project. ' + error);
+            if(tagData.length > 1){
+                console.log("there are tags, count", tagData.length -1 );
+                processTags();
+                hasTagInfo = true;
+            } else {
+                console.log('info', 'There are no filter attribute tags for this namespace.');
 
                 // We don't want look for tags data anymore
                 tagsAutorun.stop();
-
-            } else {
-                // Save the fact there is tag information for this project
-                hasTagInfo = true;
-
-                tagData = data;
-                processTags();
             }
-        });
+
+        }
+        else {
+            Meteor.call('getTsvFile', 'attribute_tags.tab', ctx.project,
+                function (error, data) {
+                    if (error) {
+                        console.log('info', 'There are no filter attribute tags for this project. ' + error);
+
+                        // We don't want look for tags data anymore
+                        tagsAutorun.stop();
+
+                    } else {
+                        // Save the fact there is tag information for this project
+                        hasTagInfo = true;
+
+                        tagData = data;
+                        processTags();
+                    }
+                });
+        }
     }
 
     function whenAllChanges () {
@@ -274,8 +329,11 @@ var app = app || {};
         // load and possibly on sortedLayer change so this is not a bad
         // place to update their counts. For filtering purposes they do not
         // need to be reactive vars.
+
+        //ATTRDB:
+        // does this make sense?
         if (ctx.bin_layers) count.set('bin', ctx.bin_layers.length);
-        if (ctx.cat_layers) count.set('cat', ctx.cat_layers.length);
+        if (ctx.cat_layers) count.set('cat', ctx.cat_layers.length  );
         if (ctx.cont_layers) count.set('cont', ctx.cont_layers.length);
 
         // Update the untagged count

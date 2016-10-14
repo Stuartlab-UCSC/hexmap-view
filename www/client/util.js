@@ -84,6 +84,12 @@ Util = (function () { // jshint ignore: line
     }
  
     function is_continuous (layer_name) {
+        //ATTRDB
+        //ran into problem here with Template helper, might need to marry
+        // db and template
+        //console.log(attrIsContinuous(layer_name));
+        //return (attrIsContinuous(layer_name));
+        //return AttrDB.findOne({attribute_name : layer_name}).datatype === 'Continuous';
         return (ctx.cont_layers.indexOf(layer_name.toString()) > -1);
     }
  

@@ -10,6 +10,12 @@ var app = app || {};
         $search;
 
     function make_browse_ui(layer_name) {
+        //ATTRDB:
+        // this function is what loads the longlist with stuff that you can see
+        // this could be replaced with an infinite scroll tactic much like 
+        // the to-dos app
+        
+        //console.log("make browse ui is called")
         // Returns a jQuery element to represent the layer with the given name in
         // the browse panel.
         
@@ -45,7 +51,8 @@ var app = app || {};
     }
 
     initLayerLists = function () {
-
+        //TIMING
+        console.log('intiing the Layer Lists')
         $search = $("#search");
 
         // Set up the layer search

@@ -11,33 +11,32 @@ AttribDB = new Mongo.Collection('AttribDB');
 DensityDB = new Mongo.Collection('DensityDB');
 
 function initDensityDB(project,namespace){
-
     //goes through the clumpiness values for each layer in a project
     var future = new Future();
-    var layerArray  = getTsvFile('layers.tab', project, false, future);
+    var layerArray  = getTsvFile('layers.tab', project, false,'', future);
 
     layerArray.forEach(function(layer){
         var attribute_name = layer[0];      //name of the layer
         var clumpiArray = layer.splice(4); //holds density values
-        var index = 0;
-        clumpiArray.forEach(function(value){
-            DensityDB.insert(
+        //need to turn the density values in to floats
+        var floatClumpiArray = [];
+        clumpiArray.forEach(function(strnum){
+            floatClumpiArray.push(parseFloat(strnum))
+        });
+        DensityDB.insert(
                 {
-                    project:project,
-                    index:index,
-                    attribute_name: attribute_name,
                     namespace:namespace,
-                    density: Number(value)
+                    project:project,
+                    clumpiness_array:floatClumpiArray,
+                    attribute_name: attribute_name
                 }
             );
-            index+=1;
         });
-    });
 }
 function initAttrDB(project,namespace){
     //console.log("initiating attributes database");
     var future = new Future();
-    var layerArray  = getTsvFile('layers.tab', project, false, future);
+    var layerArray  = getTsvFile('layers.tab', project, false, '',future);
 
     //
     //loops over each attribute in the layers file and initializes a doc
@@ -76,7 +75,7 @@ function initAttrDB(project,namespace){
         //look at the data and see if we want to keep it
         //read the data first so we can see if we want to replace ol data
         var future2 = new Future();
-        var data = getTsvFile(attributeDoc.url, '', false, future2);
+        var data = getTsvFile(attributeDoc.url, '', false, '', future2);
         //get the data into arrays
         var values = [];
         var nodeIds = [];
@@ -113,33 +112,46 @@ function initAttrDB(project,namespace){
 function insertDataTypesToArrtibDB(project,namespace){
     //add the data types to mongo entries
     var future = new Future();
-    var dataTypes  = getTsvFile("Layer_Data_Types.tab", project, false, future);
+    var dataTypes  = getTsvFile("Layer_Data_Types.tab", project, false,'', future);
     //if no colormap then no categoricals for that project, then exit
     if (typeof(dataTypes) === 'string') {
         console.log("no datatypes for project:", project);
         return
     }
+
     //if there is already a defined datatype then this does nothing
     dataTypes.forEach(function(datatypes){
         var datatype = datatypes[0];
-        datatypes.slice(1).forEach(function(attribute_name){
 
-            if(!AttribDB.findOne({namespace: namespace, attribute_name: attribute_name})){
-                console.log("loading datatypes AttribDB:",attribute_name,
-                    "not found, there is a attribute present in datatypes file,",
-                    project,"not present in layers.tab file")
-            }
-            else if(!AttribDB.findOne({namespace: namespace,attribute_name : attribute_name}).datatype) {
-                //console.log('AttribDB: adding datatypes');
-                AttribDB.update({attribute_name: attribute_name}, {$set: {datatype: datatype}})
-            }
-        })
-    });
+        //skip any row with this name, because it is not a datatype :)
+        var rowIsType = datatype !== 'FirstAttribute';
+
+        if (rowIsType) {
+            datatypes.slice(1).forEach(function (attribute_name) {
+
+                if (!AttribDB.findOne({
+                        namespace: namespace,
+                        attribute_name: attribute_name
+                    })) {
+                    console.log("loading datatypes AttribDB:", attribute_name,
+                        "not found, there is a attribute present in datatypes file,",
+                        project, "not present in layers.tab file")
+                }
+                else if (!AttribDB.findOne({
+                        namespace: namespace,
+                        attribute_name: attribute_name
+                    }).datatype) {
+                    //console.log('AttribDB: adding datatypes');
+                    AttribDB.update({attribute_name: attribute_name}, {$set: {datatype: datatype}})
+                }
+            })
+        }
+    })
 }
 function insertColorMapsToArrtibDB(project,namespace){
     //console.log('AttribDB: adding colormaps');
     var future = new Future();
-    var colormaps = getTsvFile('colormaps.tab', project, false, future);
+    var colormaps = getTsvFile('colormaps.tab', project, false,'', future);
 
     //if no colormap then no categoricals for that project, then exit
     if (typeof(colormaps) === 'string') {
@@ -163,7 +175,7 @@ function insertColorMapsToArrtibDB(project,namespace){
 
 function insertTagsToArrtibDB(project,namespace){
     var future = new Future();
-    var tags = getTsvFile('attribute_tags.tab', project, false, future);
+    var tags = getTsvFile('attribute_tags.tab', project, false,'', future);
     //if we didn't find the file then get out of there, no tags for project
     if (typeof(tags) === 'string') {
         return
@@ -183,27 +195,34 @@ function insertTagsToArrtibDB(project,namespace){
 
 }
 
-function getNameSpace(project) {
-    var future = new Future();
-    var namespace = getTsvFile('namespace.tab', project, false, future);
-    return  namespace[0][0]; //only one line in namespace displaying namespace
-}
 
-function populate_attrib_database(){
+
+function populate_attrib_database(projects){
     //function crawls over the view directory structure and loads all attributes
     // into the attrib_database
-
+    // must clear dbs here because init functions are in a loop
     DensityDB.remove({});
+    AttribDB.remove({});
+
+    //Function to determine whether or not to scrape a project directory
+    function wanted(project){
+        return (projects.indexOf(project) > -1)
+    }
 
     var dirStructure = getMajorMinor();
 
     _.each(dirStructure, function(minors,major){
         //console.log(major,minors)
+
         var minorCount = 0; //niave way of dealing with case where no minors exist
         _.each(minors,function(minor){
 
             minorCount+=1;
             var project = major+'/'+ minor +'/';
+
+            //do nothing if the project isn't in the projects list from dbSettings
+            if ( !(wanted(project)) ) { return }
+
             console.log('loading files for:',project);
             var namespace = getNameSpace(project);
 
@@ -338,26 +357,57 @@ function initManagerHelper(dbSettings) {
 //initManagerHelper();
 //populate_attrib_database();
 
-Meteor.publish('layersObj',function(namespace) {
+Meteor.publish('basalAttrDB',function(namespace,project) {
     //publishes a subset of the fileCabinet, mainly so the client is aware of
     // nodes reflection is available to
 
     // if not logged in function won't do anything
     if(!this.userId) { return this.stop(); }
 
-    return AttribDB.find({namespace: namespace},
+    return [AttribDB.find({namespace: namespace},
         {fields:
-        {attribute_name:1,
+         {  attribute_name:1,
             url:1,
             datatype:1,
             magnitude:1,
-            max:1, min:1, tags:1
+            max:1, min:1, tags:1,
+            colormap :1,
+            positives: 1,
+            n:1
+         }
         }
+    ),
+        DensityDB.find({project: project})
+    ];
+
+});
+Meteor.publish('dataAttrDBcall',function(namespace,attribute_name) {
+    //publishes a subset of the fileCabinet, mainly so the client is aware of
+    // nodes reflection is available to
+
+    // if not logged in function won't do anything
+    if(!this.userId) { return this.stop(); }
+
+    return AttribDB.find({namespace: namespace,attribute_name: attribute_name},
+        {fields:
+         {  node_ids: 1,
+            values: 1
+         }
         }
     );
 
-});
 
+});
+Meteor.publish('DensityDB',function(project,index) {
+    //publishes a subset of the fileCabinet, mainly so the client is aware of
+    // nodes reflection is available to
+
+    // if not logged in function won't do anything
+    //if(!this.userId) { return this.stop(); }
+    console.log("we find a document?", !!DensityDB.findOne({project: project,index : index}));
+    return DensityDB.find({project: project,index : index});
+
+});
 ////////////////////////////
 //main part of script that imports dbs if flags are present in the
 // server/dbSettings.json file
@@ -387,7 +437,7 @@ if (dbSettings) {
     //populate databases if specified in dbSettings.json
     if(managerInit.populateAttrDB) {
         console.log('Using all files to populate Attribute database');
-        populate_attrib_database()
+        populate_attrib_database(managerInit.projectsToPopulate)
     }
     if(managerInit.populateManagerHelperDbs) {
         console.log('Using dbSettings to initiate the MapManager helpers');

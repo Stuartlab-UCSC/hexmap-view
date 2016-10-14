@@ -19,15 +19,16 @@ var app = app || {};
         return (Session.equals('background', 'white'))
             ? NO_DATA_LIGHT_BG
             : NO_DATA_DARK_BG;
-    }
+    };
 
     // Define the colormap template helper, at this scope for some reason
     Template.colormapT.helpers({
 
         // Use the Session version of the colormap
         colorArray: function () {
-            // TODO this should be a local reactiveVar rather than a global session var
-            var colorArray = Session.get('colorArray')
+            //TODO this should be a local reactiveVar rather than
+            // a global session var
+            var colorArray = Session.get('colorArray');
             return colorArray;
         }
     });

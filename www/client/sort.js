@@ -200,6 +200,8 @@ var app = app || {};
     }
 
     clearStats = function () {
+        //ATTRDB
+        console.log("clear stats was called, clumpiness deleted");
 
         // Clear stats for each layer before updating with the new stats
         for (var layer_name in layers) {

@@ -168,7 +168,8 @@ var app = app || {};
     }
 
     initOverlayNodes = function () {
- 
+        //TIMING
+        console.log('initOverlayNOdes being called')
         // Called after the map is drawn
         if (initialized) return;
  

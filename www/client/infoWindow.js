@@ -91,7 +91,9 @@ var app = app || {};
                     // This holds the category object for this category number, or
                     // undefined if there isn't one.
                     var category = colormaps[current_layers[i]][layer_value];
-                    
+
+                    //ATTRDB:
+                    // not sure about this case
                     if (category != undefined) {
                         // There's a specific entry for this category, with a 
                         // human-specified name and color.

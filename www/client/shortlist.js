@@ -451,7 +451,16 @@ Shortlist = (function () { // jshint ignore: line
  
             var min = layers[layer_name].minimum,
                 max = layers[layer_name].maximum;
- 
+
+            //ATTRDB:
+            //tests are good, could make switch.
+            /*
+            equalsTest(min,attrGetMin(layer_name),'create_shortlist_entr*',false);
+            equalsTest(max,attrGetMax(layer_name),'create_shortlist_entr*',false);
+            var min = attrGetMin(layer_name),
+                max = attrGetMax(layer_name);
+            */
+            
             if (_.isUndefined(
                 Util.session('filter_value', 'get', layer_name))) {
             
@@ -1207,7 +1216,8 @@ return {
 
     init: function () {
         if (initialized) { return; }
- 
+        //TIMING
+        console.log("shortlist initialization taking place")
         initialized = true;
  
         // Initialize some handy variables
