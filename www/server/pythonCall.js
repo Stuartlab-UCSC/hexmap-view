@@ -80,6 +80,7 @@ call_python_local = function (pythonCallName, opts_filename, future) {
             SERVER_DIR + 'pythonCall.py',
             pythonCallName,
             opts_filename,
+            TEMP_DIR,
         ];
     
     // Make the python call with a spawned process.
