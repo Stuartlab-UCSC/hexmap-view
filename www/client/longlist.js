@@ -56,10 +56,14 @@ var app = app || {};
         $search = $("#search");
 
         // Set up the layer search
+        //ATTRDB:
+        // updeate select2 widget and get working
+        // then make server call to fill in longlist
         $search.select2({
             placeholder: "Select Attributes...",
             //closeOnSelect: false, doesn't work, maybe because of old version of select2?
             query: function(query) {
+                //querry is how it does the ...
                 // Given a select2 query object, call query.callback with an object
                 // with a "results" array.
                 

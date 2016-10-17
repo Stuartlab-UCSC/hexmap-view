@@ -5,13 +5,6 @@ var app = app || {};
 
 (function (hex) {
 
-    //ATTRDB this doesn't need to be global but for debuggin purposes
-    // it is for now
-    AttrDB = new Mongo.Collection('AttribDB');
-    DensityDB = new Mongo.Collection('DensityDB');
-
-    //switch to control whether layers global is read from DB
-    TESTING = true;
     var userDebug = false; // Turn user debugging on/off
 
     print = function (text) {
@@ -23,29 +16,7 @@ var app = app || {};
         }
     };
 
-    //ATTRDB: use this function in place of add_layer_url, to
-        //
-    /*
-    attrAddToLayerObj = function (attribute_name,attributes){
-        var attrDoc = AttrDB.findOne({attribute_name: attribute_name})
-        var layersDoc = {
-            url: attrDoc.url,
-            data: undefined,
-            magnitude : undefined,
-
-        }
-
-        for (var name in attributes){
-            // Copy over each specified attribute
-            layers[layer_name][name] = attributes[name];
-        }
-        // Add it to the sorted layer list.
-        var sorted = Session.get('sortedLayers').slice();
-        sorted.push(layer_name);
-        Session.set('sortedLayers', sorted);
-
-    };
-    */
+    
     function add_layer_url(layer_name, layer_url, attributes) {
         // Add a layer with the given name, to be downloaded from the given URL, to
         // the list of available layers.
@@ -74,242 +45,55 @@ var app = app || {};
 
         // Don't sort because our caller does that when they're done adding layers.
     }
-    //ATTRDB
-
-    getClumpinessArray = function (attribute_name){
-        //accesses the clumpiness or Density collection
-        // and returns an array like would be found by old implementation.
-        var clumpCurs = DensityDB.find(
-            {attribute_name: attribute_name},
-            { fields : {density:1,index:1}});
-
-        var clumpArray = new Array(clumpCurs.count());
-
-        clumpCurs.forEach(function(doc){
-            clumpArray[doc.index] = doc.density;
-        });
-
-        return clumpArray;
-
-    };
-    attrHasLayer = function(attribute_name){
-        return (!_.isUndefined(AttrDB.findOne({attribute_name: attribute_name})))
-    };
-    attrHasData = function (attribute_name){
-        //the namespace is already limited on the client,
-        // therefore attribute_name is a key
-
-        //data and nodeIds are loaded simultaneously, and perhaps later for
-        // binaries will not be interested in 0's
-        return ( _.isUndefined(AttrDB.findOne({attribute_name: attribute_name}))
-                    ||
-                !_.isUndefined(AttrDB.findOne({attribute_name: attribute_name})
-                  .node_ids));
-    };
-    attrHasTag = function (attribute_name,tag){
-        var tags = AttrDB.findOne({attribute_name: attribute_name}).tags;
-        return (tags.indexOf(tag) > -1)
-    };
-    attrHasTags = function(attribute_name){
-        //returns true if there are any tags for this attribute
-        return (!_.isUndefined(AttrDB.findOne({attribute_name: attribute_name}).tags))
-    }
-    attrGetMax = function (attribute_name){
-        return (AttrDB.findOne({attribute_name: attribute_name}).max)
-    };
-    attrGetMin = function(attribute_name){
-        return (AttrDB.findOne({attribute_name: attribute_name}).min)
-    };
-    attrGetNodeIds = function(attribute_name){
-        return (AttrDB.findOne({attribute_name: attribute_name}).node_ids)
-    };
-    attrGetValues = function(attribute_name){
-        return (AttrDB.findOne({attribute_name: attribute_name}).values)
-    };
-    attrIsContinuous = function(attribute_name) {
-        return(AttrDB.findOne({attribute_name: attribute_name}).datatype === 'Continuous');
-    };
-    attrGetContinuousNames = function() {
-        //returns all the continuos variables for the current filter
-        var continuousAttr = [];
-        AttrDB.find({datatype : 'Continuous'}).forEach(
-            function(doc){
-                continuousAttr.push()
-            }
-        );
-        return continuousAttr;
-    }
-    attrIsBinary = function(attribute_name) {
-        return(AttrDB.findOne({attribute_name: attribute_name}).datatype === 'Binary');
-    };
-    attrGetBinaryNames = function() {
-        //returns all the continuos variables for the current filter
-        var binaryAttr = [];
-        AttrDB.find({datatype : 'Binary'}).forEach(
-            function(doc){
-                binaryAttr.push()
-            }
-        );
-        return continuousAttr;
-    };
-
-    attrIsCategorical = function(attribute_name) {
-        return(AttrDB.findOne({attribute_name: attribute_name}).datatype === 'Categorical');
-    };
-    attrGetCategoricalNames = function() {
-        //returns all the continuos variables for the current filter
-        var binaryAttr = [];
-        AttrDB.find({datatype : 'Categorical'}).forEach(
-            function(doc){
-                continuousAttr.push()
-            }
-        );
-        return continuousAttr;
-    };
-    attrIsSelection = function(attribute_name) {
-        return (AttrDB.findOne({attribute_name: attribute_name}).selection)
-    };
-    attrGetSelectionNames = function(){
-        //returns an array of attribute names that are selections
-
-        //stuff all the attribute names that are selection into an array
-        var selectionNames = [];
-        AttrDB.find({selection: true}).forEach(
-            function(doc){
-                selectionNames.push(doc.attribute_name);
-            });
-        return selectionNames;
-    };
-    attrGetColorMap = function(attribute_name){
-        var attrDoc = AttrDB.findOne({attribute_name: attribute_name});
-        if (!attrDoc){
-            return undefined;
-        }
-        if (attrDoc.datatype === 'Binary') {
-            //noticed that getting a binary's colormap returns empty object
-            return {};
-        } else if (attrDoc.datatype === 'Continuous'){
-            return undefined;
-        } else {
-            //it should be Categorical
-
-            var unparsedcolormap = AttrDB.findOne({attribute_name: attribute_name}).colormap;
-            var colormap = [];
-            //ATTRDB HACK
-            // TODO: deal with below
-            // don't deal with marked categoricals that have no colormap
-            // perhaps we should be prompting the user to enter one?
-            if(!unparsedcolormap) {return undefined}
-            for (var j = 1; j < unparsedcolormap.length; j += 3) {
-                // Store each color assignment.
-                // Doesn't run if there aren't any assignments, leaving an empty
-                // colormap object that just forces automatic color selection.
-
-                // This holds the index of the category
-                var category_index = parseInt(unparsedcolormap[j]);
-
-                // The colormap gets an object with the name and color that the
-                // index number refers to. Color is stored as a color object.
-                colormap[category_index] = {
-                    name: unparsedcolormap[j + 1],
-                    color: Color(unparsedcolormap[j + 2]), // operating color in map
-                    fileColor: Color(unparsedcolormap[j + 2]), // color from orig file
-                };
-            }
-        }
-        return colormap;
-    };
-    attrRequestLayerTags = function(){
-        //this function is called over at filter.js,
-        // there may be timing issues if the subs
-
-        //this returns tag data in the same way that the TSV file reader does,
-        // namely as an array of arrays, with
-        // the first being a header:
-        // note the header is skipped only because there is no layer name in
-        // layers that is 'attribute'
-        var tagdata = [];
-        tagdata[0] = ["attribute","keywords (tab separated)"];
-        var index = 1;
-
-        // go through all attributes we have tags for, and put them in the
-        // array of arrays.
-        // $type explaination:
-        // for some reason the 'tags' field is a BSON 2, i.e. String
-        // (thought it would be an array but no no)
-        AttrDB.find({tags :{$type: 2}}).forEach(
-            function(doc){
-                var tags = [doc.attribute_name];
-                tagdata[index] = tags.concat(doc.tags);
-                index +=1;
-            }
-        );
-        return tagdata;
-    };
-    attrHaveColormap = function(layer_name){
-        //the previous implemtation (have_colormap)
-        // returns true if
-        var attrDoc = AttrDB.findOne({attribute_name: attribute_name})
-        return (attrDoc.datatype === 'Categorical'
-            ||
-                attrDoc.datatype == 'Binary'
-        )
-    }
-    equalsTest = function(val1,val2, calledFrom,feedback) {
-        //if feedback is true then will chatter on positive result
-        if(!_.isEqual(val1,val2)){
-            console.log("equals test failed from:", calledFrom,"\nvalues:",val1,val2)
-        } if (feedback){
-            console.log("TEST PASSED, from",calledFrom)
-        }
-    };
-
+    
 
     with_layer = function (layer_name_in, callback, try_count) {
-    // This is how you get layers, and allows for layers to be downloaded
-    // dynamically. 
-    // have_layer must return true for the given name.
-    // Run the callback, passing it the layer (object from hex label/signature
-    // to float) with the given name.
-
-    //ATTRDB:
-    // it appears this function is called whenever a layer is accessed,
-    // so this function just makes sure the data that is needed is there,
-    // and calls whatever callback() when the data is there.
-
-    // so, this is where subscriptions to the datatypes come from, really
-    // node_ids and values are the only things we dont want, they probably
-    // don't even need the url
-    //        specific subscription
-
-    var namespace = Session.get("namespace");
-
-    // console.log(layer_name_in,callback);
-    if (!try_count) {try_count = 1}
- 
-    var layer_name = layer_name_in.slice();
-    //clog_
-    //console.log("with layer: layerName",layer_name,"\nCallback:"+callback);
-    if(attrHasData(layer_name)){
-
-    }else {
-        console.log("didn't have data,",layer_name," making sub to data");
-        Meteor.subscribe('dataAttrDBcall',namespace,layer_name);
-    }
-    //if(AttrDB.find({'attribute:name'}))
-    // First get what we have stored for the layer
-    /*
-    console.log('layer_name ###' + layer_name + '###');
-    console.log('layers', layers);
-    console.log("layers['Node ID']", layers['Node ID']);
-    //console.log('layers.sample', layers.sample);
-    console.log('layers[layer_name]', layers[layer_name]);
-    console.log("layers[eval('layer_name')]", layers[eval('layer_name')]);
-    console.log("eval('layer_name')  ###" + eval('layer_name') + '###');
-    var layer = layers[eval('layer_name')];
-    */
-    var layer = layers[layer_name];
-
+        // This is how you get layers, and allows for layers to be downloaded
+        // dynamically. 
+        // have_layer must return true for the given name.
+        // Run the callback, passing it the layer (object from hex label/signature
+        // to float) with the given name.
+    
+        //ATTRDB:
+        // it appears this function is called whenever a layer is accessed,
+        // so this function just makes sure the data that is needed is there,
+        // and calls whatever callback() when the data is there.
+    
+        // so, this is where subscriptions to the datatypes come from, really
+        // node_ids and values are the only things we dont want, they probably
+        // don't even need the url
+        //        specific subscription
+    
+        var namespace = Session.get("namespace");
+    
+        // console.log(layer_name_in,callback);
+        if (!try_count) {try_count = 1}
+     
+        var layer_name = layer_name_in.slice();
+        //clog_
+        //console.log("with layer: layerName",layer_name,"\nCallback:"+callback);
+        /*
+            if(attrHasData(layer_name)){
+    
+        }else {
+            //console.log("didn't have data,",layer_name," making sub to data");
+            //Meteor.subscribe('dataAttrDBcall',namespace,layer_name);
+        }
+        */
+        //if(AttrDB.find({'attribute:name'}))
+        // First get what we have stored for the layer
+        /*
+        console.log('layer_name ###' + layer_name + '###');
+        console.log('layers', layers);
+        console.log("layers['Node ID']", layers['Node ID']);
+        //console.log('layers.sample', layers.sample);
+        console.log('layers[layer_name]', layers[layer_name]);
+        console.log("layers[eval('layer_name')]", layers[eval('layer_name')]);
+        console.log("eval('layer_name')  ###" + eval('layer_name') + '###');
+        var layer = layers[eval('layer_name')];
+        */
+        var layer = layers[layer_name];
+    
         if (layer === undefined) {
             console.log('TODO layer is undefined for', layer_name,
                 '. You may need to clear your cache.');
@@ -328,12 +112,12 @@ var app = app || {};
             return;
         }
 
-		//var data_val = layer.data;
-		if(layer.data === undefined) {
-		    // We need to download the layer.
-		    print("Downloading \"" + layer.url + "\"");
-		    
-		    // Go get it (as text!)
+        //var data_val = layer.data;
+        if(layer.data === undefined) {
+            // We need to download the layer.
+            print("Downloading \"" + layer.url + "\"");
+            
+            // Go get it (as text!)
             Meteor.call('getTsvFile', layer.url, ctx.project,
                 function (error, layer_parsed) {
 
@@ -342,745 +126,725 @@ var app = app || {};
                     return;
                 }
 
-		        // This is the layer we'll be passing out. Maps from
-		        // signatures to floats on -1 to 1.
-		        var layer_data = {};
+                // This is the layer we'll be passing out. Maps from
+                // signatures to floats on -1 to 1.
+                var layer_data = {};
 
-		        for(var j = 0; j < layer_parsed.length; j++) {
-		            // This is the label of the hex
-		            var label = layer_parsed[j][0];
-		            
-		            if(label == "") {
-		                // Skip blank lines
-		                continue;
-		            }
-		            
-		            // This is the heat level (-1 to 1)
-		            var heat = parseFloat(layer_parsed[j][1]);
-		            
-		            // Store in the layer
-		            layer_data[label] = heat;
-		        }
-		
-		        // Save the layer data locally
-		        layers[layer_name].data = layer_data;
-	 
-		        // Now the layer has been properly downloaded, but it may not have
-		        // metadata. Recurse with the same callback to get metadata.
-		        with_layer(layer_name, callback);
-		    });
-		} else if(layer.magnitude == undefined || layer.minimum == undefined || 
-		    layer.maximum == undefined) {
-		    // We've downloaded it already, or generated it locally, but we don't
-		    // know the min/max statistics. Compute them, and also check if the
-		    // layer is a colormap (i.e. discrete nonnegative integers).
-		   
-		    // Grab the data, which we know is defined.
-		    var layer_data = layers[layer_name].data;
-		   
-		    // Store the maximum value
-		    var maximum = -Infinity;
-		    
-		    // And the minimum value
-		    var minimum = Infinity;
-		    
-		    // We also want to know if all layer entries are non-negative 
-		    // integers (and it is thus valid as a colormap).
-		    // If so, we want to display it as a colormap, so we will add an 
-		    // empty entry to the colormaps object (meaning we should 
-		    // auto-generate the colors on demand).
-		    // This stores whether the layer is all integrs
-		    all_nonnegative_integers = true;
-		    
-		    for(var signature_name in layer_data) {
-		        // Look at every value in the layer
-		        
-		        if(layer_data[signature_name] > maximum) {
-		            // Take the value as new max if it's bigger than the current one
-		            maximum = layer_data[signature_name]
-		        }
-		        
-		        if(layer_data[signature_name] < minimum) {
-		            // Similarly for new minimums
-		            minimum = layer_data[signature_name]
-		        }
-		        
-		        if(layer_data[signature_name] % 1 !== 0 || 
-		            layer_data[signature_name] < 0 ) {
-		            
-		            // If we have an illegal value for a colormap, record that
-		            // fact
-		            // See http://stackoverflow.com/a/3886106
-		            
-		            all_nonnegative_integers = false;
-		        }
-		    }
-		    
-		    // Save the layer bounds for later.
-		    layer.maximum = maximum;
-		    layer.minimum = minimum;
-		    // Keep track of the unsigned magnitude which gets used a lot.
-		    layer.magnitude = Math.max(Math.abs(minimum), maximum);
-		    
+                for(var j = 0; j < layer_parsed.length; j++) {
+                    // This is the label of the hex
+                    var label = layer_parsed[j][0];
+                    
+                    if(label == "") {
+                        // Skip blank lines
+                        continue;
+                    }
+                    
+                    // This is the heat level (-1 to 1)
+                    var heat = parseFloat(layer_parsed[j][1]);
+                    
+                    // Store in the layer
+                    layer_data[label] = heat;
+                }
+        
+                // Save the layer data locally
+                layers[layer_name].data = layer_data;
+     
+                // Now the layer has been properly downloaded, but it may not have
+                // metadata. Recurse with the same callback to get metadata.
+                with_layer(layer_name, callback);
+            });
+        } else if(layer.magnitude == undefined || layer.minimum == undefined || 
+            layer.maximum == undefined) {
+            // We've downloaded it already, or generated it locally, but we don't
+            // know the min/max statistics. Compute them, and also check if the
+            // layer is a colormap (i.e. discrete nonnegative integers).
+           
+            // Grab the data, which we know is defined.
+            var layer_data = layers[layer_name].data;
+           
+            // Store the maximum value
+            var maximum = -Infinity;
+            
+            // And the minimum value
+            var minimum = Infinity;
+            
+            // We also want to know if all layer entries are non-negative 
+            // integers (and it is thus valid as a colormap).
+            // If so, we want to display it as a colormap, so we will add an 
+            // empty entry to the colormaps object (meaning we should 
+            // auto-generate the colors on demand).
+            // This stores whether the layer is all integrs
+            all_nonnegative_integers = true;
+            
+            for(var signature_name in layer_data) {
+                // Look at every value in the layer
+                
+                if(layer_data[signature_name] > maximum) {
+                    // Take the value as new max if it's bigger than the current one
+                    maximum = layer_data[signature_name]
+                }
+                
+                if(layer_data[signature_name] < minimum) {
+                    // Similarly for new minimums
+                    minimum = layer_data[signature_name]
+                }
+                
+                if(layer_data[signature_name] % 1 !== 0 || 
+                    layer_data[signature_name] < 0 ) {
+                    
+                    // If we have an illegal value for a colormap, record that
+                    // fact
+                    // See http://stackoverflow.com/a/3886106
+                    
+                    all_nonnegative_integers = false;
+                }
+            }
+            
+            // Save the layer bounds for later.
+            layer.maximum = maximum;
+            layer.minimum = minimum;
+            // Keep track of the unsigned magnitude which gets used a lot.
+            layer.magnitude = Math.max(Math.abs(minimum), maximum);
+            
             //ATTRDB. this automatic type checking can be taken out
             // once we have transitioned
-		    if(!have_colormap(layer_name) && all_nonnegative_integers) {
-		        // Add an empty colormap for this layer, so that 
-		        // auto-generated discrete colors will be used.
-		        // TODO: Provide some way to override this if you really do want
-		        // to see integers as a heatmap?
-		        // The only overlap with the -1 to 1 restricted actual layers
-		        // is if you have a data set with only 0s and 1s. Is it a
-		        // heatmap layer or a colormap layer?
-		        colormaps[layer_name] = {};
-		        print("Inferring that " + layer_name + 
-		            " is really a colormap");
-		    }
-		    
-		    // Now layer metadata has been filled in. Call the callback.
-		    callback(layer);
-		} else {
-		    // It's already downloaded, and already has metadata.
-		    // Pass it to our callback
-		    callback(layer);
-		}
-}
-
-with_layers = function (layer_list, callback) {
-    // Given an array of layer names, call the callback with an array of the 
-    // corresponding layer objects (objects from signatures to floats).
-    // Conceptually it's like calling with_layer several times in a loop, only
-    // because the whole thing is continuation-based we have to phrase it in
-    // terms of recursion.
-    
-    // See http://marijnhaverbeke.nl/cps/
-    // "So, we've created code that does exactly the same as the earlier 
-    // version, but is twice as confusing."
-
-    //ATTRDB:
-    //console.log('WITH_LAYERS: called with layer_list:',layer_list);
-    if(layer_list.length == 0) {
-        // Base case: run the callback with an empty list
-        callback([]);
-    } else {
-        // Recursive case: handle the last thing in the list
-        with_layers(layer_list.slice(0, layer_list.length - 1), 
-            function(rest) {
+            if(!have_colormap(layer_name) && all_nonnegative_integers) {
+                // Add an empty colormap for this layer, so that 
+                // auto-generated discrete colors will be used.
+                // TODO: Provide some way to override this if you really do want
+                // to see integers as a heatmap?
+                // The only overlap with the -1 to 1 restricted actual layers
+                // is if you have a data set with only 0s and 1s. Is it a
+                // heatmap layer or a colormap layer?
+                colormaps[layer_name] = {};
+                print("Inferring that " + layer_name + 
+                    " is really a colormap");
+            }
             
-            // We've recursively gotten all but the last layer
-            // Go get the last one, and pass the complete array to our callback.
-            
-            with_layer(layer_list[layer_list.length - 1], 
-                function(last) {
-            
-                // Mutate the array. Shouldn't matter because it won't matter 
-                // for us if callback does it.
-                rest.push(last);
-                
-                // Send the complete array to the callback.
-                callback(rest);
-            
-            });
-            
-        });
-       
-    }
-}
-
-have_layer = function (layer_name) {
-    // Returns true if a layer exists with the given name, false otherwise.
-    return layers.hasOwnProperty(layer_name);
-}
-
-fill_layer_metadata = function (container, layer_name) {
-    // Empty the given jQuery container element, and fill it with layer metadata
-    // for the layer with the given name.
-
-    // Empty the container.
-    container.html("");
-
-    var binaryCountsProcessed = false;
-    for(attribute in layers[layer_name]) {
-        // Go through everything we know about this layer
-        if(attribute === "data" || attribute === "url" ||
-            attribute === "magnitude" || attribute === "minimum" ||
-            attribute === "maximum" || attribute === "selection" ||
-            attribute === "clumpiness_array" || attribute === "tags" ||
-            attribute === "removeFx") {
-            
-            // Skip things we don't want to display
-            // TODO: Ought to maybe have all metadata in its own object?
-            continue;
+            // Now layer metadata has been filled in. Call the callback.
+            callback(layer);
+        } else {
+            // It's already downloaded, and already has metadata.
+            // Pass it to our callback
+            callback(layer);
         }
- 
-        var text;
-        if ((attribute === 'positives' || attribute === 'n')
-            && ctx.bin_layers.indexOf(layer_name) > -1) {
-        
-            // Special case these two attributes
-            if (binaryCountsProcessed) continue;
- 
-            binaryCountsProcessed = true;
- 
-            var n = Number(layers[layer_name].n),
-                p = Number(layers[layer_name].positives),
-                hexCount = Object.keys(polygons).length;
- 
-            if (_.isNaN(n)) n = 0;
-            if (_.isNaN(p)) p = 0;
- 
-            text = p + '/' + n + ' (' + (hexCount - n) + ' missing)';
- 
-            if (n > hexCount) {
-                console.log('bad metadata: layer, n, hexCount:',
-                    layer_name, layers[layer_name].n, hexCount);
-            }
-
-        } else {  // process the usual attributes
- 
-            // This holds the metadata value we're displaying
-            var value = layers[layer_name][attribute];
-            
-            if(typeof value == "number" && isNaN(value)) {
-                // If it's a numerical NaN (but not a string), just leave it out.
-                continue;
-            }
-            
-            if(value === undefined) {
-                // Skip it if it's not actually defined for this layer
-                continue;
-            }
-            
-            // If we're still here, this is real metadata.
-            // Format it for display.
-            var value_formatted;
-            if (typeof value === "number") {
-                if(value % 1 == 0) {
-                    // It's an int!
-                    // Display the default way
-                    value_formatted = value;
-                } else {
-                    // It's a float!
-                    // Format the number for easy viewing
-                    value_formatted = value.toExponential(1);
-                }
-            } else {
-                // Just put the thing in as a string
-                value_formatted = value;
-            }
- 
-            // Do a sanity check
-            if (attribute === 'n'
-                && value_formatted > Object.keys(polygons).length) {
-                console.log('bad metadata: layer, n, hexCount:',
-                    layer_name, layers[layer_name].n, Object.keys(polygons).length);
-            }
- 
-            // Do some transformations to make the displayed labels make more sense
-            lookup = {
-                n: "Non-empty values",
-                positives: "Number of ones",
-                inside_yes: "Ones in A",
-                outside_yes: "Ones in background",
-                clumpiness: "Density score",
-                p_value: "Single test p-value",
-                correlation: "Correlation",
-                adjusted_p_value: "BH FDR",
-                adjusted_p_value_b: "Bonferroni p-value",
-            }
-            
-            if (lookup[attribute]) {
- 
-                if (lookup[attribute] === 'Number of ones') console.log(layer_name, value_formatted);
-                // Replace a boring short name with a useful long name
-                attribute = lookup[attribute];
-            }
-            text = attribute + " = " + value_formatted;
-        }
-        
-        var metadata = $("<div\>").addClass("layer-metadata");
-        metadata.text(text);
-        
-        container.append(metadata);
-    }
-}
-
-createMap = function  () {
-    //TIMING
-    console.log("startedd call to createMap");
-    // Create the google map.
-    var mapOptions = {
-        center: ctx.center,
-        zoom: ctx.zoom,
-        mapTypeId: "blank",
-        // Don't show a map type picker.
-        mapTypeControlOptions: {
-            mapTypeIds: []
-        },
-        minZoom: 2,
-
-        // Or a street view man that lets you walk around various Earth places.
-        streetViewControl: false
     };
 
-    // Create the actual map
-    GoogleMaps.create({
-        name: 'googlemap',
-        options: mapOptions,
-        element: document.getElementById("visualization"),
-    });
-    googlemap = GoogleMaps.maps.googlemap.instance;
-        
-    // Attach the blank map type to the map
-    googlemap.mapTypes.set("blank", new BlankMapType());
+    with_layers = function (layer_list, callback) {
+        // Given an array of layer names, call the callback with an array of the
+        // corresponding layer objects (objects from signatures to floats).
+        // Conceptually it's like calling with_layer several times in a loop, only
+        // because the whole thing is continuation-based we have to phrase it in
+        // terms of recursion.
 
-    //showOverlayNodes();
-    
-    google.maps.event.addListener(googlemap, "center_changed", function(event) {
-        ctx.center = googlemap.getCenter();
-    });
-    
-    // We also have an event listener that checks when the zoom level changes,
-    // and turns off hex borders if we zoom out far enough, and turns them on
-    // again if we come back.
-    google.maps.event.addListener(googlemap, "zoom_changed", function(event) {
-        // Get the current zoom level (low is out)
-        ctx.zoom = googlemap.getZoom();
-        setHexagonStrokes();
-    });
-    
-    // Subscribe all the tool listeners to the map
-    Tool.subscribe_listeners(googlemap);
-}
+        // See http://marijnhaverbeke.nl/cps/
+        // "So, we've created code that does exactly the same as the earlier
+        // version, but is twice as confusing."
 
-initMap = function () {
+        //ATTRDB:
+        //console.log('WITH_LAYERS: called with layer_list:',layer_list);
+        if(layer_list.length == 0) {
+            // Base case: run the callback with an empty list
+            callback([]);
+        } else {
+            // Recursive case: handle the last thing in the list
+            with_layers(layer_list.slice(0, layer_list.length - 1),
+                function(rest) {
 
-    // Initialize the google map and create the hexagon assignments
-    createMap();
-    createHexagons();
-}
+                // We've recursively gotten all but the last layer
+                // Go get the last one, and pass the complete array to our callback.
 
-have_colormap = function (colormap_name) {
-    // Returns true if the given string is the name of a colormap, or false if 
-    // it is only a layer.
-    
-    return (colormap_name in colormaps)
-}
+                with_layer(layer_list[layer_list.length - 1],
+                    function(last) {
 
-function get_range_position(score, low, high) {
-    // Given a score float, and the lower and upper bounds of an interval (which
-    // may be equal, but not backwards), return a number in the range -1 to 1
-    // that expresses the position of the score in the [low, high] interval.
-    // Positions out of bounds are clamped to -1 or 1 as appropriate.
-    
-    // This holds the length of the input interval
-    var interval_length = high - low;
-    
-    if(interval_length > 0) {
-        // First rescale 0 to 1
-        score = (score - low) / interval_length
-        
-        // Clamp
-        score = Math.min(Math.max(score, 0), 1);
-            
-        // Now re-scale to -1 to 1
-        score = 2 * score - 1;
-    } else {
-        // The interval is just a point
-        // Just use 1 if we're above the point, and 0 if below.
-        score = (score > low)? 1 : -1
-    }
-    
-    return score;
-}
+                    // Mutate the array. Shouldn't matter because it won't matter
+                    // for us if callback does it.
+                    rest.push(last);
 
-var refreshColorsHandle;
+                    // Send the complete array to the callback.
+                    callback(rest);
 
-refreshColors = function (delay) {
+                });
 
-    // Schedule the view to be redrawn after the current event finishes.
-    
-    // Get rid of the previous redraw request, if there was one. We only want 
-    // one.
-    Meteor.clearTimeout(refreshColorsHandle);
-    
-    // Make a new one to happen as soon as this event finishes
-    refreshColorsHandle = Meteor.setTimeout(refreshColorsInner, delay ? delay : 0);
-}
+            });
 
-function refreshColorsInner() {
-
-    // Make the view display the correct hexagons in the colors of the current
-    // layer(s), as read from the values of the layer pickers in the global
-    // layer pickers array.
-    // All pickers must have selected layers that are in the object of 
-    // layers.
-    // Instead of calling this, you probably want to call refreshColors().
-    
-    // This holds a list of the string names of the currently selected layers,
-    // in order.
-    var current_layers = Shortlist.get_active_layers();
-    
-    // This holds all the current filters
-    var filters = Shortlist.get_current_filters();
-    
-    // Obtain the layer objects (mapping from signatures/hex labels to colors)
-    with_layers(current_layers, function(retrieved_layers) {  
-        print("Redrawing view with " + retrieved_layers.length + " layers.");
-        
-        // This holds arrays of the lower and upper limit we want to use for 
-        // each layer, by layer number. The lower limit corresponds to u or 
-        // v = -1, and the upper to u or v = 1. The entries we make for 
-        // colormaps are ignored.
-        
-        // We need to do this inside the callback, once we already have the
-        // layers, so that we properly use the newest slider range endpoints,
-        // which are updated asynchronously.
-        var layer_limits = []
-        for(var i = 0; i < current_layers.length; i++) {
-            var range = Shortlist.get_slider_range(current_layers[i]);
-            print("Layer range " + range[0] + " to " + range[1]);
-            layer_limits.push(range);
         }
-        
+    };
 
-        // Turn all the hexes the filtered-out color, pre-emptively
-        for(var signature in polygons) {
-            setHexagonColor(polygons[signature], noDataColor());
-        }
-        
-        // Go get the list of filter-passing hexes.
-        Shortlist.with_filtered_signatures(filters, function(signatures) {
-            for(var i = 0; i < signatures.length; i++) {
-                // For each hex passign the filter
-                // This holds its signature label
-                var label = signatures[i];
-                
-                // This holds the color we are calculating for this hexagon.
-                // Start with the no data color.
-                var computed_color = noDataColor();
-                
-                if(retrieved_layers.length >= 1) {
-                    // We need to compute colors given the layers we found.
+    have_layer = function (layer_name) {
+        // Returns true if a layer exists with the given name, false otherwise.
+        return layers.hasOwnProperty(layer_name);
+    };
 
-                    // Get the heat along u and v axes. This puts us in a square
-                    // of side length 2. Fun fact: undefined / number = NaN, but
-                    // !(NaN == NaN)
-                    var u = retrieved_layers[0].data[label];
-                    
-                    if(!have_colormap(current_layers[0])) {
-                        // Take into account the slider values and re-scale the 
-                        // layer value to express its position between them.
-                        u = get_range_position(u, layer_limits[0][0], 
-                            layer_limits[0][1]);
-                    }
-                    
-                    if(retrieved_layers.length >= 2) {
-                        // There's a second layer, so use the v axis.
-                        var v = retrieved_layers[1].data[label];
-                        
-                        if(!have_colormap(current_layers[1])) {
-                            // Take into account the slider values and re-scale
-                            // the layer value to express its position between
-                            // them.
-                            v = get_range_position(v, layer_limits[1][0], 
-                                layer_limits[1][1]);
-                        }
-                        
-                    } else {
-                        // No second layer, so v axis is unused. Don't make it 
-                        // undefined (it's not missing data), but set it to 0.
-                        var v = 0;
-                    }
-                    
-                    // Either of u or v may be undefined (or both) if the layer
-                    // did not contain an entry for this signature. But that's
-                    // OK. Compute the color that we should use to express this
-                    // combination of layer values. It's OK to pass undefined
-                    // names here for layers.
-                    computed_color = get_color(current_layers[0], u, 
-                        current_layers[1], v);
-                }
-                
-                // Set the color by the composed layers.
-                setHexagonColor(polygons[label], computed_color);
+    fill_layer_metadata = function (container, layer_name) {
+        // Empty the given jQuery container element, and fill it with layer metadata
+        // for the layer with the given name.
+
+        // Empty the container.
+        container.html("");
+
+        var binaryCountsProcessed = false;
+        for(attribute in layers[layer_name]) {
+            // Go through everything we know about this layer
+            if(attribute === "data" || attribute === "url" ||
+                attribute === "magnitude" || attribute === "minimum" ||
+                attribute === "maximum" || attribute === "selection" ||
+                attribute === "clumpiness_array" || attribute === "tags" ||
+                attribute === "removeFx") {
+
+                // Skip things we don't want to display
+                // TODO: Ought to maybe have all metadata in its own object?
+                continue;
             }
+
+            var text;
+            if ((attribute === 'positives' || attribute === 'n')
+                && ctx.bin_layers.indexOf(layer_name) > -1) {
+
+                // Special case these two attributes
+                if (binaryCountsProcessed) continue;
+
+                binaryCountsProcessed = true;
+
+                var n = Number(layers[layer_name].n),
+                    p = Number(layers[layer_name].positives),
+                    hexCount = Object.keys(polygons).length;
+
+                if (_.isNaN(n)) n = 0;
+                if (_.isNaN(p)) p = 0;
+
+                text = p + '/' + n + ' (' + (hexCount - n) + ' missing)';
+
+                if (n > hexCount) {
+                    console.log('bad metadata: layer, n, hexCount:',
+                        layer_name, layers[layer_name].n, hexCount);
+                }
+
+            } else {  // process the usual attributes
+
+                // This holds the metadata value we're displaying
+                var value = layers[layer_name][attribute];
+
+                if(typeof value == "number" && isNaN(value)) {
+                    // If it's a numerical NaN (but not a string), just leave it out.
+                    continue;
+                }
+
+                if(value === undefined) {
+                    // Skip it if it's not actually defined for this layer
+                    continue;
+                }
+
+                // If we're still here, this is real metadata.
+                // Format it for display.
+                var value_formatted;
+                if (typeof value === "number") {
+                    if(value % 1 == 0) {
+                        // It's an int!
+                        // Display the default way
+                        value_formatted = value;
+                    } else {
+                        // It's a float!
+                        // Format the number for easy viewing
+                        value_formatted = value.toExponential(1);
+                    }
+                } else {
+                    // Just put the thing in as a string
+                    value_formatted = value;
+                }
+
+                // Do a sanity check
+                if (attribute === 'n'
+                    && value_formatted > Object.keys(polygons).length) {
+                    console.log('bad metadata: layer, n, hexCount:',
+                        layer_name, layers[layer_name].n, Object.keys(polygons).length);
+                }
+
+                // Do some transformations to make the displayed labels make more sense
+                lookup = {
+                    n: "Non-empty values",
+                    positives: "Number of ones",
+                    inside_yes: "Ones in A",
+                    outside_yes: "Ones in background",
+                    clumpiness: "Density score",
+                    p_value: "Single test p-value",
+                    correlation: "Correlation",
+                    adjusted_p_value: "BH FDR",
+                    adjusted_p_value_b: "Bonferroni p-value",
+                }
+
+                if (lookup[attribute]) {
+
+                    if (lookup[attribute] === 'Number of ones') console.log(layer_name, value_formatted);
+                    // Replace a boring short name with a useful long name
+                    attribute = lookup[attribute];
+                }
+                text = attribute + " = " + value_formatted;
+            }
+
+            var metadata = $("<div\>").addClass("layer-metadata");
+            metadata.text(text);
+
+            container.append(metadata);
+        }
+    }
+
+    createMap = function  () {
+        //TIMING
+        console.log("startedd call to createMap");
+        // Create the google map.
+        var mapOptions = {
+            center: ctx.center,
+            zoom: ctx.zoom,
+            mapTypeId: "blank",
+            // Don't show a map type picker.
+            mapTypeControlOptions: {
+                mapTypeIds: []
+            },
+            minZoom: 2,
+
+            // Or a street view man that lets you walk around various Earth places.
+            streetViewControl: false
+        };
+
+        // Create the actual map
+        GoogleMaps.create({
+            name: 'googlemap',
+            options: mapOptions,
+            element: document.getElementById("visualization"),
+        });
+        googlemap = GoogleMaps.maps.googlemap.instance;
+
+        // Attach the blank map type to the map
+        googlemap.mapTypes.set("blank", new BlankMapType());
+
+        //showOverlayNodes();
+
+        google.maps.event.addListener(googlemap, "center_changed", function(event) {
+            ctx.center = googlemap.getCenter();
         });
 
-        redraw_legend(retrieved_layers, current_layers);
-    });
-    
-    // Make sure to also redraw the info window, which may be open.
-    redraw_info_window();
-}
+        // We also have an event listener that checks when the zoom level changes,
+        // and turns off hex borders if we zoom out far enough, and turns them on
+        // again if we come back.
+        google.maps.event.addListener(googlemap, "zoom_changed", function(event) {
+            // Get the current zoom level (low is out)
+            ctx.zoom = googlemap.getZoom();
+            setHexagonStrokes();
+        });
 
-get_color = function (u_name, u, v_name, v) {
-    // Given u and v, which represent the heat in each of the two currently 
-    // displayed layers, as well as u_name and v_name, which are the 
-    // corresponding layer names, return the computed CSS color.
-    // Either u or v may be undefined (or both), in which case the no-data color
-    // is returned. If a layer name is undefined, that layer dimension is 
-    // ignored.
-    
-    if(have_colormap(v_name) && !have_colormap(u_name)) {
-        // We have a colormap as our second layer, and a layer as our first.
-        // Swap everything around so colormap is our first layer instead.
-        // Now we don't need to think about drawing a layer first with a 
-        // colormap second.
-        
-        return get_color(v_name, v, u_name, u);
+        // Subscribe all the tool listeners to the map
+        Tool.subscribe_listeners(googlemap);
     }
 
-    if(isNaN(u) || isNaN(v) || u == undefined || v == undefined) {
-        // At least one of our layers has no data for this hex.
-        return noDataColor();
+    initMap = function () {
+
+        // Initialize the google map and create the hexagon assignments
+        createMap();
+        createHexagons();
     }
-    
-    // Find the color counts  for each of the layers
-    var colorCountU = findColorCount(u_name),
-        colorCountV = findColorCount(v_name);
-    
-    if(colorCountU > 0 && colorCountV > 0 &&
-        !colormaps[u_name].hasOwnProperty(u) && 
-        !colormaps[v_name].hasOwnProperty(v) &&
-        colorCountU === 2  && colorCountV === 2) {
-        
-        // Special case: two binary or unary auto-generated colormaps.
-        // Use dark grey/yellow/blue/green color scheme
-        if(u == 1) {
-            if(v == 1) {    
-                // Both are on
-                return COLOR_BINARY_BOTH_ON;
-            } else {
-                // Only the first is on
-                return COLOR_BINARY_ON;
-            }
+
+    have_colormap = function (colormap_name) {
+        // Returns true if the given string is the name of a colormap, or false if
+        // it is only a layer.
+
+        return (colormap_name in colormaps)
+    }
+
+    function get_range_position(score, low, high) {
+        // Given a score float, and the lower and upper bounds of an interval (which
+        // may be equal, but not backwards), return a number in the range -1 to 1
+        // that expresses the position of the score in the [low, high] interval.
+        // Positions out of bounds are clamped to -1 or 1 as appropriate.
+
+        // This holds the length of the input interval
+        var interval_length = high - low;
+
+        if(interval_length > 0) {
+            // First rescale 0 to 1
+            score = (score - low) / interval_length
+
+            // Clamp
+            score = Math.min(Math.max(score, 0), 1);
+
+            // Now re-scale to -1 to 1
+            score = 2 * score - 1;
         } else {
-            if(v == 1) {
-                // Only the second is on
-                return COLOR_BINARY_SECOND_ON;
+            // The interval is just a point
+            // Just use 1 if we're above the point, and 0 if below.
+            score = (score > low)? 1 : -1
+        }
+
+        return score;
+    }
+
+    var refreshColorsHandle;
+
+    refreshColors = function (delay) {
+
+        // Schedule the view to be redrawn after the current event finishes.
+
+        // Get rid of the previous redraw request, if there was one. We only want
+        // one.
+        Meteor.clearTimeout(refreshColorsHandle);
+
+        // Make a new one to happen as soon as this event finishes
+        refreshColorsHandle = Meteor.setTimeout(refreshColorsInner, delay ? delay : 0);
+    }
+
+    function refreshColorsInner() {
+
+        // Make the view display the correct hexagons in the colors of the current
+        // layer(s), as read from the values of the layer pickers in the global
+        // layer pickers array.
+        // All pickers must have selected layers that are in the object of
+        // layers.
+        // Instead of calling this, you probably want to call refreshColors().
+
+        // This holds a list of the string names of the currently selected layers,
+        // in order.
+        var current_layers = Shortlist.get_active_layers();
+
+        // This holds all the current filters
+        var filters = Shortlist.get_current_filters();
+
+        // Obtain the layer objects (mapping from signatures/hex labels to colors)
+        with_layers(current_layers, function(retrieved_layers) {
+            print("Redrawing view with " + retrieved_layers.length + " layers.");
+
+            // This holds arrays of the lower and upper limit we want to use for
+            // each layer, by layer number. The lower limit corresponds to u or
+            // v = -1, and the upper to u or v = 1. The entries we make for
+            // colormaps are ignored.
+
+            // We need to do this inside the callback, once we already have the
+            // layers, so that we properly use the newest slider range endpoints,
+            // which are updated asynchronously.
+            var layer_limits = []
+            for(var i = 0; i < current_layers.length; i++) {
+                var range = Shortlist.get_slider_range(current_layers[i]);
+                print("Layer range " + range[0] + " to " + range[1]);
+                layer_limits.push(range);
+            }
+
+
+            // Turn all the hexes the filtered-out color, pre-emptively
+            for(var signature in polygons) {
+                setHexagonColor(polygons[signature], noDataColor());
+            }
+
+            // Go get the list of filter-passing hexes.
+            Shortlist.with_filtered_signatures(filters, function(signatures) {
+                for(var i = 0; i < signatures.length; i++) {
+                    // For each hex passign the filter
+                    // This holds its signature label
+                    var label = signatures[i];
+
+                    // This holds the color we are calculating for this hexagon.
+                    // Start with the no data color.
+                    var computed_color = noDataColor();
+
+                    if(retrieved_layers.length >= 1) {
+                        // We need to compute colors given the layers we found.
+
+                        // Get the heat along u and v axes. This puts us in a square
+                        // of side length 2. Fun fact: undefined / number = NaN, but
+                        // !(NaN == NaN)
+                        var u = retrieved_layers[0].data[label];
+
+                        if(!have_colormap(current_layers[0])) {
+                            // Take into account the slider values and re-scale the
+                            // layer value to express its position between them.
+                            u = get_range_position(u, layer_limits[0][0],
+                                layer_limits[0][1]);
+                        }
+
+                        if(retrieved_layers.length >= 2) {
+                            // There's a second layer, so use the v axis.
+                            var v = retrieved_layers[1].data[label];
+
+                            if(!have_colormap(current_layers[1])) {
+                                // Take into account the slider values and re-scale
+                                // the layer value to express its position between
+                                // them.
+                                v = get_range_position(v, layer_limits[1][0],
+                                    layer_limits[1][1]);
+                            }
+
+                        } else {
+                            // No second layer, so v axis is unused. Don't make it
+                            // undefined (it's not missing data), but set it to 0.
+                            var v = 0;
+                        }
+
+                        // Either of u or v may be undefined (or both) if the layer
+                        // did not contain an entry for this signature. But that's
+                        // OK. Compute the color that we should use to express this
+                        // combination of layer values. It's OK to pass undefined
+                        // names here for layers.
+                        computed_color = get_color(current_layers[0], u,
+                            current_layers[1], v);
+                    }
+
+                    // Set the color by the composed layers.
+                    setHexagonColor(polygons[label], computed_color);
+                }
+            });
+
+            redraw_legend(retrieved_layers, current_layers);
+        });
+
+        // Make sure to also redraw the info window, which may be open.
+        redraw_info_window();
+    }
+
+    get_color = function (u_name, u, v_name, v) {
+        // Given u and v, which represent the heat in each of the two currently
+        // displayed layers, as well as u_name and v_name, which are the
+        // corresponding layer names, return the computed CSS color.
+        // Either u or v may be undefined (or both), in which case the no-data color
+        // is returned. If a layer name is undefined, that layer dimension is
+        // ignored.
+
+        if(have_colormap(v_name) && !have_colormap(u_name)) {
+            // We have a colormap as our second layer, and a layer as our first.
+            // Swap everything around so colormap is our first layer instead.
+            // Now we don't need to think about drawing a layer first with a
+            // colormap second.
+
+            return get_color(v_name, v, u_name, u);
+        }
+
+        if(isNaN(u) || isNaN(v) || u == undefined || v == undefined) {
+            // At least one of our layers has no data for this hex.
+            return noDataColor();
+        }
+
+        // Find the color counts  for each of the layers
+        var colorCountU = findColorCount(u_name),
+            colorCountV = findColorCount(v_name);
+
+        if(colorCountU > 0 && colorCountV > 0 &&
+            !colormaps[u_name].hasOwnProperty(u) &&
+            !colormaps[v_name].hasOwnProperty(v) &&
+            colorCountU === 2  && colorCountV === 2) {
+
+            // Special case: two binary or unary auto-generated colormaps.
+            // Use dark grey/yellow/blue/green color scheme
+            if(u == 1) {
+                if(v == 1) {
+                    // Both are on
+                    return COLOR_BINARY_BOTH_ON;
+                } else {
+                    // Only the first is on
+                    return COLOR_BINARY_ON;
+                }
             } else {
-                // Neither is on
+                if(v == 1) {
+                    // Only the second is on
+                    return COLOR_BINARY_SECOND_ON;
+                } else {
+                    // Neither is on
+                    return COLOR_BINARY_OFF;
+                }
+            }
+        }
+
+        if(colorCountU > 0 && !colormaps[u_name].hasOwnProperty(u) &&
+            colorCountU <= 2 && v_name == undefined) {
+
+            // Special case: a single binary or unary auto-generated colormap.
+            // Use dark grey/yellow to make 1s stand out.
+
+            if(u == 1) {
+                return COLOR_BINARY_ON;
+            } else {
                 return COLOR_BINARY_OFF;
             }
         }
-    }
-    
-    if(colorCountU > 0 && !colormaps[u_name].hasOwnProperty(u) &&
-        colorCountU <= 2 && v_name == undefined) {
-        
-        // Special case: a single binary or unary auto-generated colormap.
-        // Use dark grey/yellow to make 1s stand out.
-        
-        if(u == 1) {
-            return COLOR_BINARY_ON;
-        } else {
-            return COLOR_BINARY_OFF;
-        }
-    }
 
-    var base_color;
-   
-    if(colorCountU > 0) {
-        // u is a colormap
-        if(colormaps[u_name].hasOwnProperty(u)) {
-            // And the colormap has an entry here. Use it as the base color.
-            var to_clone = colormaps[u_name][u].color;
-            
-            base_color = Color({
-                hue: to_clone.hue(),
-                saturation: to_clone.saturationv(),
-                value: to_clone.value()
-            });
-        } else if(colorCountU <= 2) {
+        var base_color;
 
-            // Binary values with default colormap
-            // The colormap has no entry, but there are only two options (i.e.
-            // we're doing a binary layer against a continuous one.)
-            
-            // We break out of the base_color path and do a special case:
-            // interpolate between one pair of colors for on, and a different
-            // pair for off.
-            
-            if(u == 0) {
-                // What color should we use for a 0 value?
-                
-                // Interpolate each component by itself. Invert directions so we
-                // can define our colors in terms of actual layer value space,
-                // and not key space. To change the colors here, look
-                // vertically.
-                
-                // Interpolate grey to yellow.
-                var red = mix(0x33, 0xFF, -v).toFixed(0);
-                var green = mix(0x33, 0xFF, -v).toFixed(0);
-                var blue = mix(0x33, 0x00, -v).toFixed(0);
-                
-            } else if (u == 1) {
-                // And for a 1 value? Do a different set of interpolations.
-                // Interpolate blue to green.
-                var red = mix(0x00, 0x00, -v).toFixed(0);
-                var green = mix(0x00, 0xFF, -v).toFixed(0);
-                var blue = mix(0xFF, 0x00, -v).toFixed(0);
-            }
-            
-            base_color = Color({
-                'red': red,
-                'green': green,
-                'blue': blue
-            });
-            
-        } else {
-            // The colormap has no entry, and there are more than two options.
-            // Assume we're calculating all the entries. We do this by splitting
-            // the color circle evenly.
+        if(colorCountU > 0) {
+            // u is a colormap
+            if(colormaps[u_name].hasOwnProperty(u)) {
+                // And the colormap has an entry here. Use it as the base color.
+                var to_clone = colormaps[u_name][u].color;
 
-            // Calculate the hue for this number.
-            var hsv_hue = u / colorCountU * 360;
-    
-            // The base color is a color at that hue, with max saturation and 
-            // value
-            base_color = Color({
-                hue: hsv_hue, 
-                saturation: 100,
-                value: 100
-            })
-        }
-        
-        // Now that the base color is set, consult v to see what shade to use.
-        if(v_name == undefined) {
-            // No v layer is actually in use. Use whatever is in the base 
-            // color
-            // TODO: This code path is silly, clean it up.
-            var hsv_value = base_color.value();
-        } else if(colorCountV > 0) {
+                base_color = Color({
+                    hue: to_clone.hue(),
+                    saturation: to_clone.saturationv(),
+                    value: to_clone.value()
+                });
+            } else if(colorCountU <= 2) {
 
-            // Binary or categorical values.
-            // Do discrete shades in v
+                // Binary values with default colormap
+                // The colormap has no entry, but there are only two options (i.e.
+                // we're doing a binary layer against a continuous one.)
 
-            // Calculate what shade we need from the nonnegative integer v
-            // We want 100 to be included (since that's full brightness), but we
-            // want to skip 0 (since no color can be seen at 0), so we add 1 to 
-            // v.
-            var hsv_value = (v + 1) / colorCountV * 100;
-        } else {
+                // We break out of the base_color path and do a special case:
+                // interpolate between one pair of colors for on, and a different
+                // pair for off.
 
-            // Continuous values.
-            // Calculate what shade we need from v on -1 to 1, with a minimum
-            // value of 20 to avoid blacks.
-            var hsv_value = 60 + v * 40;
-        }
-        
-        // Set the color's value component.
-        base_color.value(hsv_value);
-        
-        // Return the shaded color
-        return base_color.hexString();
-    }
-    
-    
-    // If we get here, we only have non-colormap layers.
-    
-    // We want the same grey/yellow/blue/white scheme as for binary layers, but
-    // interpolated.
-    
-    // Remember: u and v are backwards. I.e.  (-1, -1) is the upper left of the
-    // key.
-    
-    if(v_name == undefined) {
-        // No v layer present. Use the edge and not the middle.
-        v = -1;
-    }
-    
-    if(u_name == undefined) {
-        // No u layer present. Use the edge and not the middle.
-        u = -1;
-    }
-    
-    // Interpolate each component by itself. Invert directions so we can define
-    // our colors in terms of actual layer value space, and not key space.
-    // To change the colors here, look vertically.
-    var red = mix2(0x33, 0xFF, 0x00, 0x00, -u, -v).toFixed(0);
-    var green = mix2(0x33, 0xFF, 0x00, 0xFF, -u, -v).toFixed(0);
-    var blue = mix2(0x33, 0x00, 0xFF, 0x00, -u, -v).toFixed(0);
-    
-    // Produce the color string
-    var color = "rgb(" + red + "," + green + "," + blue + ")";
-    
-    return color;
-}
+                if(u == 0) {
+                    // What color should we use for a 0 value?
 
-function mix(a, b, amount) {
-    // Mix between the numbers a and b, where an amount of -1 corresponds to a,
-    // and an amount of +1 corresponds to b.
-    
-    // Convert to 0 to 1 range.
-    var i = (amount + 1) / 2; 
-    
-    // Do the linear interpolation.
-    return i * a + (1 - i) * b;
-    
-}
+                    // Interpolate each component by itself. Invert directions so we
+                    // can define our colors in terms of actual layer value space,
+                    // and not key space. To change the colors here, look
+                    // vertically.
 
-function mix2 (a, b, c, d, amount1, amount2) {
-    // Mix between a and b (or c and d) on amount1, and then mix between the
-    // results on amount2. Amounts are in range -1 to 1.
-    
-    return mix(mix(a, b, amount1), mix(c, d, amount1), amount2);
-}
+                    // Interpolate grey to yellow.
+                    var red = mix(0x33, 0xFF, -v).toFixed(0);
+                    var green = mix(0x33, 0xFF, -v).toFixed(0);
+                    var blue = mix(0x33, 0x00, -v).toFixed(0);
 
-initLayersArray = function  () {
-    //this function initalizes a layer_name->index look up object
-    Meteor.call('getTsvFile', "layers.tab", ctx.project,
-        function (error, parsed) {
-
-		// Create a list of layer names ordered by their indices
-		ctx.layer_names_by_index = new Array (Session.get('sortedLayers').length);
-
-        if (error) {
-            projectNotFound("layers.tab");
-            return;
-        }
-
-		for (var i = 0; i < parsed.length; i++) {
-		    if(parsed[i].length < 2) {
-		        // Skip blank lines
-		        continue;
-		    }
-		
-		   	var file_name = parsed [i][1];
-			// Locate the underscore index in the file name
-			// index + 1 will be where the number starts
-			var underscore_index = file_name.lastIndexOf("_");
-			// Locate the period index in the file name
-			// index will be where number ends
-			var period_index =file_name.lastIndexOf(".");
-			var index_value = file_name.substring(underscore_index+1, period_index);
-			ctx.layer_names_by_index [index_value] = parsed[i][0];
-		 }
-            //TIMING
-            console.log('setting initedLayersArray to True')
-         Session.set('initedLayersArray', true);
-    });
-};
-    initAttrDB =  function() {
-
-        //initiallizes the attribute database
-        Meteor.call("getNamespace", ctx.project, function (err, namespace) {
-                if (err) {
-                    console.log("error in retrieving namespace, db can not be initiated")
-                } else {
-                    //console.log(namespace);
-                    Session.set("namespace", namespace);
-                    Meteor.subscribe('basalAttrDB', namespace, ctx.project, 0 , function() {
-                        //console.log("done subscribing to attrDB,filling layers");
-                        DBstoLayersGlobal();
-                        initTypesFromDB();
-                        initColormapsFromDB();
-                    });
+                } else if (u == 1) {
+                    // And for a 1 value? Do a different set of interpolations.
+                    // Interpolate blue to green.
+                    var red = mix(0x00, 0x00, -v).toFixed(0);
+                    var green = mix(0x00, 0xFF, -v).toFixed(0);
+                    var blue = mix(0xFF, 0x00, -v).toFixed(0);
                 }
-            }
-        );
 
+                base_color = Color({
+                    'red': red,
+                    'green': green,
+                    'blue': blue
+                });
+
+            } else {
+                // The colormap has no entry, and there are more than two options.
+                // Assume we're calculating all the entries. We do this by splitting
+                // the color circle evenly.
+
+                // Calculate the hue for this number.
+                var hsv_hue = u / colorCountU * 360;
+
+                // The base color is a color at that hue, with max saturation and
+                // value
+                base_color = Color({
+                    hue: hsv_hue,
+                    saturation: 100,
+                    value: 100
+                })
+            }
+
+            // Now that the base color is set, consult v to see what shade to use.
+            if(v_name == undefined) {
+                // No v layer is actually in use. Use whatever is in the base
+                // color
+                // TODO: This code path is silly, clean it up.
+                var hsv_value = base_color.value();
+            } else if(colorCountV > 0) {
+
+                // Binary or categorical values.
+                // Do discrete shades in v
+
+                // Calculate what shade we need from the nonnegative integer v
+                // We want 100 to be included (since that's full brightness), but we
+                // want to skip 0 (since no color can be seen at 0), so we add 1 to
+                // v.
+                var hsv_value = (v + 1) / colorCountV * 100;
+            } else {
+
+                // Continuous values.
+                // Calculate what shade we need from v on -1 to 1, with a minimum
+                // value of 20 to avoid blacks.
+                var hsv_value = 60 + v * 40;
+            }
+
+            // Set the color's value component.
+            base_color.value(hsv_value);
+
+            // Return the shaded color
+            return base_color.hexString();
+        }
+
+
+        // If we get here, we only have non-colormap layers.
+
+        // We want the same grey/yellow/blue/white scheme as for binary layers, but
+        // interpolated.
+
+        // Remember: u and v are backwards. I.e.  (-1, -1) is the upper left of the
+        // key.
+
+        if(v_name == undefined) {
+            // No v layer present. Use the edge and not the middle.
+            v = -1;
+        }
+
+        if(u_name == undefined) {
+            // No u layer present. Use the edge and not the middle.
+            u = -1;
+        }
+
+        // Interpolate each component by itself. Invert directions so we can define
+        // our colors in terms of actual layer value space, and not key space.
+        // To change the colors here, look vertically.
+        var red = mix2(0x33, 0xFF, 0x00, 0x00, -u, -v).toFixed(0);
+        var green = mix2(0x33, 0xFF, 0x00, 0xFF, -u, -v).toFixed(0);
+        var blue = mix2(0x33, 0x00, 0xFF, 0x00, -u, -v).toFixed(0);
+
+        // Produce the color string
+        var color = "rgb(" + red + "," + green + "," + blue + ")";
+
+        return color;
+    }
+
+    function mix(a, b, amount) {
+        // Mix between the numbers a and b, where an amount of -1 corresponds to a,
+        // and an amount of +1 corresponds to b.
+
+        // Convert to 0 to 1 range.
+        var i = (amount + 1) / 2;
+
+        // Do the linear interpolation.
+        return i * a + (1 - i) * b;
+
+    }
+
+    function mix2 (a, b, c, d, amount1, amount2) {
+        // Mix between a and b (or c and d) on amount1, and then mix between the
+        // results on amount2. Amounts are in range -1 to 1.
+
+        return mix(mix(a, b, amount1), mix(c, d, amount1), amount2);
+    }
+
+    initLayersArray = function  () {
+        //this function initalizes a layer_name->index look up object
+        Meteor.call('getTsvFile', "layers.tab", ctx.project,
+            function (error, parsed) {
+
+            // Create a list of layer names ordered by their indices
+            ctx.layer_names_by_index = new Array (Session.get('sortedLayers').length);
+
+            if (error) {
+                projectNotFound("layers.tab");
+                return;
+            }
+
+            for (var i = 0; i < parsed.length; i++) {
+                if(parsed[i].length < 2) {
+                    // Skip blank lines
+                    continue;
+                }
+
+                var file_name = parsed [i][1];
+                // Locate the underscore index in the file name
+                // index + 1 will be where the number starts
+                var underscore_index = file_name.lastIndexOf("_");
+                // Locate the period index in the file name
+                // index will be where number ends
+                var period_index =file_name.lastIndexOf(".");
+                var index_value = file_name.substring(underscore_index+1, period_index);
+                ctx.layer_names_by_index [index_value] = parsed[i][0];
+             }
+                //TIMING
+                console.log('setting initedLayersArray to True')
+             Session.set('initedLayersArray', true);
+        });
     };
 
     initLayout = function () {
@@ -1169,21 +933,6 @@ initLayersArray = function  () {
         Session.set('shortlistFilterUpdated', 0);
     };
 
-    initTypesFromDB = function(){
-      var dtypes = ["Binary","Continuous","Categorical"],
-        ctxObs   = ["bin_layers","cont_layers","cat_layers"];
-        _.zip(dtypes,ctxObs).forEach(function(pair) {
-            console.log("from initTypesFromDB",pair[0],pair[1],
-                AttrDB.find({datatype: pair[0]}).count(),"found");
-            ctx[pair[1]] = [];
-            AttrDB.find({datatype: pair[0]}).forEach(function(doc){
-                ctx[pair[1]].push(doc.attribute_name);
-            })
-        });
-        console.log('inited LayerTypes Session turns true');
-        Session.set('initedLayerTypes', true);
-    };
-
     initLayerTypes = function () {
 
         //initDensityDB(ctx.project);
@@ -1227,67 +976,13 @@ initLayersArray = function  () {
         }
     };
 
-    DBstoLayersGlobal = function(){
-        //function that puts the basic amount of information from the database
-        // and into the layers global object
-
-        //HACK
-        // the below: this works based on timing, this function has to be called
-        // after setting the Session layouts or it won't be a happy day
-
-        //if there's not any density for the layer than we need
-        // to put a NULL clumpiness vector, so we just fill an
-        // array with the appropriate amount of NAN's
-        //
-        NaNClumpiness = [];
-        for (var i =0 ; i < Session.get('layouts').length; i++){
-            NaNClumpiness.push(NaN)
-        }
-
-
-        //console.log(AttrDB.find().count());
-        AttrDB.find({}).forEach(function(doc){
-            //will take this out after making sure they are equivelent
-            //console.log("has layer,", doc);
-
-            //if we don't find a density value then we put one in that
-            // is full of NaN's, otherwise we use the one in the DB
-            var clumpiness_array = !_.isUndefined(DensityDB.findOne(
-                {
-                    attribute_name: doc.attribute_name,
-                    project : ctx.project
-                })) ? DensityDB.findOne(
-                {
-                    attribute_name: doc.attribute_name,
-                    project : ctx.project
-                }).clumpiness_array : NaNClumpiness;
-            //console.log(clumpiness_array);
-            layers[doc.attribute_name] = {
-                clumpiness_array : clumpiness_array,
-                clumpiness : undefined,
-                magnitude : undefined,
-                data: undefined,
-                n: doc.n,
-                positives : doc.positives,
-                url : doc.url
-
-            };
-            // Add it to the sorted layer list.
-            var sorted = Session.get('sortedLayers').slice();
-            sorted.push(doc.attribute_name);
-            Session.set('sortedLayers', sorted);
-
-
-        });
-        console.log('intitedLayerIndex Session gets True');
-        Session.set('initedLayerIndex', true);
-    };
+    
 
     initLayerIndex = function () {
         //initLayerIndex does the puts the minimimal amount of information
         // into the layers object
         //if using the datbases
-        if (TESTING) {initAttrDB();}
+        if (TESTING) {attrDB.initAttrDB();}
         else {
             // Download the layer index
             Meteor.call('getTsvFile', "layers.tab", ctx.project,
@@ -1352,27 +1047,13 @@ initLayersArray = function  () {
                     Session.set('initedLayerIndex', true);
                 });
         }
-        //console.log("switching layers objects");
-        //DBstoLayersGlobal();
-        //layers = DBLayers;
-        //
-        //Session.set('initedLayerIndex', true);
-    };
-    initColormapsFromDB = function(){
-        AttrDB.find({datatype : "Categorical"}).forEach(
-            function(doc){
-                colormaps[doc.attribute_name]= attrGetColorMap(doc.attribute_name);
-            }
-        )
-        console.log("initedColorMaps gets true");
-        Session.set('initedColormaps', true);
+        
     };
 
 initColormaps = function () {
 
     if(TESTING){
         //call our DB init in the subscription callback of the AttrDB
-
     }
     else {
         // Download color map information

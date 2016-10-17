@@ -851,6 +851,7 @@ Shortlist = (function () { // jshint ignore: line
                 Session.set('active_layers', [layer_name]);
             }
         }
+        console.log('update shortlist is storing shortlist',shortlist);
         Session.set('shortlist', shortlist);
  
     }
@@ -873,6 +874,8 @@ Shortlist = (function () { // jshint ignore: line
                 var shortlist = _.map($shortlist.children(), function (el) {
                      return $(el).data("layer");
                 });
+                console.log('make_sortable is storing shortlist',shortlist);
+
                 Session.set('shortlist', shortlist);
             },
             // Use the controls area as the handle to move entries.
@@ -1052,11 +1055,15 @@ Shortlist = (function () { // jshint ignore: line
         // Add the 'first layer' to the shortlist if it is empty
         if (shortlist.length < 1) {
             shortlist = [first];
+            console.log('setting shortlist from complete init shortlist',shortlist);
             Session.set('shortlist', shortlist);
         }
 
         // Add each layer in the shortlist to the UI
         _.each(shortlist, function (layer_name) {
+            //GARBAGE
+            if (layer_name === null) {return}
+            console.log("iterating through the shortlist, layername:" , layer_name);
             var root = create_shortlist_entry(layer_name);
             $shortlist.append(root);
             
