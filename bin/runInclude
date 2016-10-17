@@ -1,8 +1,6 @@
 #!/bin/bash
 # Define values specific to this hexmap install
 
-LOG='&> $HEXMAP/www.log &'
-
 if [ $INSTALL == 'prod' ]; then
     PORT=8443       # Port on which the server listens
     HTTPS_PORT=443  # Https proxy port if using https, otherwise the same as PORT
@@ -55,7 +53,6 @@ if [ $INSTALL == 'swat' ]; then
     METEOR_BASE=/Users/swat/.meteor/packages/meteor-tool/.1.4.1_2.fpzmec++os.osx.x86_64+web.browser+web.cordova/mt-os.osx.x86_64/dev_bundle
     METEOR=/Users/swat/.meteor
     SETTINGS=/Users/swat/dev/bin/settings.json
-    LOG=''
     export ROOT_URL=http://localhost:$HTTPS_PORT
     echo Using an install of $INSTALL
 fi
@@ -67,7 +64,8 @@ if [ $INSTALL == 'swatCalc' ]; then
     METEOR_BASE=/Users/swat/.meteor/packages/meteor-tool/.1.4.1_2.fpzmec++os.osx.x86_64+web.browser+web.cordova/mt-os.osx.x86_64/dev_bundle
     METEOR=/Users/swat/.meteor
     SETTINGS=/Users/swat/dev/bin/settingsCalc.json
-    LOG=''
     export ROOT_URL=http://localhost:$HTTPS_PORT
     echo Using an install of $INSTALL
 fi
+echo SETTINGS: $SETTINGS
+

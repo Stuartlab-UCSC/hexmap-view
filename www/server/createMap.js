@@ -67,7 +67,7 @@ Meteor.methods({
         // Process a create map request from the client.
         this.unblock();
         var future = new Future();
-        callPython('layout', opts, future, false);
+        callPython('layout', opts, future);
         return future.wait();
     },
 });

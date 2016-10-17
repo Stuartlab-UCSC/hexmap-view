@@ -10,6 +10,7 @@ if (Meteor.isClient) {
 
 if (Meteor.isServer) {
     SERVER_DIR = Meteor.settings.server.SERVER_DIR;
+    TEMP_DIR = Meteor.settings.server.TEMP_DIR;
     CALC_URL = Meteor.settings.server.CALC_URL;
     var exec = Npm.require('child_process').exec;
     var process = Npm.require('process');
@@ -61,7 +62,6 @@ if (Meteor.settings.public.DEV === 'yes') {//no booleans with strict JSON
 
 // TODO test logic should not be in production code
 TEST_DATA_DIR = '/Users/swat/dev/hexagram/tests/pyUnittest/testData/';
-TEMP_DIR = '/tmp/';
 
 
 

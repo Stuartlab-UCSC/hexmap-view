@@ -330,6 +330,11 @@ var app = app || {};
             // A project in a url means someone wants to see a particular map
             state.page = 'mapPage';
  
+            // Find any layout specified
+            if (s.uParm.l) {
+                Session.set('layoutIndex', s.uParm.l);
+            }
+ 
             // Find any overlay node in the URL
             if (s.uParm.x && s.uParm.y) {
                 if (!s.uParm.node) {

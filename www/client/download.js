@@ -13,6 +13,9 @@
 var app = app || {};
 (function (hex) { // jshint ignore: line
 Download = (function () { // jshint ignore: line
+
+    var download_now,
+        file_contents;
  
     function initDownloadSelectTool () {
 
@@ -121,7 +124,7 @@ Download = (function () { // jshint ignore: line
                 width: '20em',
                 close: function() {
                     // They didn't want to use this tool.
-                        Tool.activity(false);
+                    Tool.activity(false);
                 }
             });
         }, 'Export the selection as a list of hexagon IDs', 'mapShow');
@@ -130,42 +133,23 @@ Download = (function () { // jshint ignore: line
     var timeout;
 
     function menu_mousedown(ev) {
+        download_now = false;
  
         // Download the file now.
-        var $target = $(ev.target),
-            filename,
-            project,
-            alt_dir;
+        var filename = 'xyPreSquiggle_' + Session.get('layoutIndex') +'.tab';
  
-        if ($target.hasClass('xyPreSquiggle')) {
-            filename = 'xyPreSquiggle_' + Session.get('layoutIndex') +'.tab';
-            project = ctx.project;
-        } else if ($target.hasClass('example_features')) {
-            filename = 'example_features_xy.tab';
-            project = 'Example/';
-            alt_dir = 'featureSpace';
-        } else if ($target.hasClass('example_attributes')) {
-            filename = 'example_attributes.tab';
-            project = 'Example/';
-            alt_dir = 'featureSpace';
-        }
- 
-        Meteor.call('getTsvFile', filename, project, true, alt_dir,
+        Meteor.call('getTsvFile', filename, ctx.project, true,
             function (error, tsv) {
             if (error || (typeof tsv === 'string' &&
                     tsv.slice(0,5).toLowerCase() === 'error')) {
                 Util.banner(
                     'error', 'Sorry, ' + filename + ' cannot be found.');
             } else {
-                $(ev.target).on('click', function (ev) {
-                    $(ev.target).attr({
-                        'href': 'data:text/plain;base64,' + window.btoa(tsv),
-                    });
-                    timeout = Meteor.setTimeout(function () {
-                        $(ev.target).off('click');
-                        Meteor.clearTimeout(timeout);
-                    }, 10);
-                });
+                file_contents = tsv;
+                
+                // Now we allow the click handler to actually download,
+                // then click it.
+                download_now = true;
                 $(ev.target).click();
             }
         });
@@ -179,11 +163,15 @@ return {
             initPdf();
             initSvg();
         }
- 
-        $('.fileMenu .xyPreSquiggle, ' +
-            '.example_features, ' +
-            '.example_attributes')
-            .on('mousedown', menu_mousedown);
+
+        $('.fileMenu .xyPreSquiggle')
+            .on('mousedown', menu_mousedown)
+            .on('click', function (ev) {
+                if (download_now) {
+                    $(ev.target).attr({ 'href': 'data:text/plain;base64,' +
+                        window.btoa(file_contents) });
+                }
+            });
     },
 };
 }());

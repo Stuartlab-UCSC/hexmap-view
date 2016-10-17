@@ -250,8 +250,7 @@ Tool = (function () { // jshint ignore: line
                 var user = Meteor.user(); // jshint ignore: line
 
                 // Check authorization for creating maps
-                Meteor.call('is_user_in_role', ['swat_soe.ucsc.edu'],
-                //Meteor.call('is_user_in_role', ['createMap', 'dev'],
+                Meteor.call('is_user_in_role', ['createMap', 'dev'],
                     function (error, results) {
                         if (!error && results) {
                             $createMap.show();

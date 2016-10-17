@@ -87,7 +87,7 @@ function receive (url, req, res) {
                 try {
                     data = readFromJsonFileSync(data_or_file);
                 } catch (error) {
-                    respondToHttp(400, res, 'Malformed JSON data given');
+                    respondToHttp(400, res, 'Malformed JSON data given in file');
                     return;
                 }
             } else {

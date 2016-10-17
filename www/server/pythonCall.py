@@ -21,7 +21,7 @@ def readJsonRequestData(jsonRequestFilename):
         return 1
     return requestData
 
-def writeJsonResponseData(responseData):
+def writeJsonResponseData(responseData, temp_dir):
 
     # This creates a temporary file, transforms the dict into json format,
     # then writes it to the temporary file.
@@ -29,7 +29,7 @@ def writeJsonResponseData(responseData):
 
     # Create a temporary file
     try:
-        fileHandle, filename = tempfile.mkstemp(suffix='.json')
+        fileHandle, filename = tempfile.mkstemp(suffix='.json', dir=temp_dir)
     except:
         print 'Error: the response file could not be created', '\n'
         return 1
@@ -44,7 +44,7 @@ def writeJsonResponseData(responseData):
 
     return filename
 
-def pythonWrapper(pythonCallName, jsonRequestFile):
+def pythonWrapper(pythonCallName, jsonRequestFile, temp_dir):
 
     opts = readJsonRequestData(jsonRequestFile)
     
@@ -53,7 +53,7 @@ def pythonWrapper(pythonCallName, jsonRequestFile):
     
     # TODO this test code should not be in here.
     if 'pivot_data' in opts and 'TESTpythonCallStub' in opts['pivot_data']:
-        print writeJsonResponseData({'TESTpythonCallStub': 'success'});
+        print writeJsonResponseData({'TESTpythonCallStub': 'success'}, temp_dir);
         return 0
 
     # Call the the python script, which returns the results as a dict
@@ -65,12 +65,12 @@ def pythonWrapper(pythonCallName, jsonRequestFile):
 
     # Write the results to a temp file and return the file name
     # to the nodejs caller via stdout.
-    print writeJsonResponseData(result)
+    print writeJsonResponseData(result, temp_dir)
     return 0
 
 if __name__ == "__main__" :
     try:
-        return_code = pythonWrapper(sys.argv[1], sys.argv[2])
+        return_code = pythonWrapper(sys.argv[1], sys.argv[2], sys.argv[3])
     except:
         traceback.print_exc()
         return_code = 1
