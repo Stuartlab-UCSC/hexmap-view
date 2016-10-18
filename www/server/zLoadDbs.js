@@ -18,20 +18,26 @@ function initDensityDB(project,namespace){
     layerArray.forEach(function(layer){
         var attribute_name = layer[0];      //name of the layer
         var clumpiArray = layer.splice(4); //holds density values
-        //need to turn the density values in to floats
-        var floatClumpiArray = [];
+        //will hold all the density values for mapId-attribute_name pair
+        var densityArr = [];
+
+        //TODO: probably shouldn't use index for name
+        var index = 0; // we are using the index for the name values
+
+        //fill density array with all the clumpiness values,
         clumpiArray.forEach(function(strnum){
-            floatClumpiArray.push(parseFloat(strnum))
-        });
-        DensityDB.insert(
+            DensityDB.insert(
                 {
                     namespace:namespace,
                     project:project,
-                    clumpiness_array:floatClumpiArray,
-                    attribute_name: attribute_name
+                    density:parseFloat(strnum),
+                    attribute_name: attribute_name,
+                    layout_name: String(index)
                 }
             );
+            index+=1;
         });
+    });
 }
 function initAttrDB(project,namespace){
     //console.log("initiating attributes database");
@@ -75,6 +81,7 @@ function initAttrDB(project,namespace){
         //look at the data and see if we want to keep it
         //read the data first so we can see if we want to replace ol data
         var future2 = new Future();
+
         var data = getTsvFile(attributeDoc.url, '', false, '', future2);
         //get the data into arrays
         var values = [];
@@ -183,13 +190,40 @@ function insertTagsToArrtibDB(project,namespace){
     //skipping first row because of header
     tags.slice(1).forEach(function(tag){
         var attribute_name = tag[0];
-        if(!AttribDB.findOne({namespace: namespace,attribute_name: attribute_name})){
+        var attrDoc = AttribDB.findOne({namespace: namespace,attribute_name: attribute_name})
+        //if there is not a document for that attribute, that's weird,
+        // chatter to server
+        if(!attrDoc){
             console.log("loading datatypes AttribDB:",attribute_name,
                 "not found, this attribute is present in,",
                 project,"attribute_tags.tab, but not present in the layers.tab file");
         }
-        else if(!AttribDB.findOne({namespace: namespace,attribute_name : attribute_name}).tags) {
-            AttribDB.update({namespace: namespace,attribute_name: attribute_name}, {$set: {tags: tag.slice(1)}})
+        //if there aren't already tags for the attribute then put them there
+        else if(!attrDoc.tags) {
+            //make tag entry -> tags : [ {name: tag1},{name: tag2},... ]
+            // this structure is good for nested querying
+            var tagArr = [];
+            tag.slice(1).forEach(function(tag) {
+                tagArr.push({"name" : tag})
+            });
+            AttribDB.update({namespace: namespace, attribute_name: attribute_name}, {$set: {tags: tagArr}})
+        }
+        //if tags array is present, add any tag that hasn't been seen yet
+        else {
+            tag.slice(1).forEach(function(tag) {
+                //if we go through all tags in doc and this is still true
+                // then we want to add the tag
+                var addIt = true;
+                attrDoc.tags.forEach(function(tagDoc){
+                    if (tagDoc.name === tag) {
+                        addIt = false;
+                    }
+                });
+                if (addIt) {
+                    var newTagDoc = {"name": tag};
+                    AttribDB.update({namespace: namespace,attribute_name: attribute_name}, {$push: {tags: newTagDoc}})
+                }
+            });
         }
     });
 
@@ -444,6 +478,14 @@ if (dbSettings) {
         initManagerHelper(managerInit)
     }
 }
+Meteor.methods( {
+    tryagg : function(){
+        console.log("tryagg got called...")
+        DensityDB.aggregate({$match : {attribute_name: "Tissue"}},{$lookup : {}});
+    }
+}
+
+)
 /*
 this function could be used if we decide to start storing a sorted
  version of the clumpiness per layout...

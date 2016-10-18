@@ -9,7 +9,7 @@ var app = app || {};
     AttrDB = new Mongo.Collection('AttribDB');
     DensityDB = new Mongo.Collection('DensityDB');
     //switch to control whether layers global is read from DB
-    TESTING = true;
+    TESTING = false;
 
     attrDB = (function () { // jshint ignore: line
     
