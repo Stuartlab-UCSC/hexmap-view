@@ -20,6 +20,27 @@
 //
 // TODO do we want the user to be able to cancel the calc ?
 
+
+respondToHttp = function (code, res, data_in, in_json) {
+
+    // This responds to an http request after converting data to json.
+    // TODO authenticate request for known users ?
+    var data;
+    if (in_json) {
+    
+        // The data is already in json format
+        data = data_in;
+    } else {
+    
+        // Convert the data to json format
+        data = JSON.stringify(data_in);
+    }
+    
+    res.setHeader('Content-Type', 'application/json');
+    res.writeHead(code);
+    res.end(data + '\n');
+};
+
 function passPostChecks (req, res) {
 
     // Do some basic checks on the request headers,
@@ -41,11 +62,50 @@ function passPostChecks (req, res) {
     return true;
 }
 
-// A look-up table indexed by url and referencing the parameter checker function
-var parm_checkers = {
-   '/calc/layout': create_map_http_parm_checker,
-   //'/query/overlayNodes': overlay_node_http_parm_checker,
+// A look-up table indexed by call_name and referencing the feature http handler
+var http_handlers = {
+    'layout': create_map_via_http,
+   //'overlayNodes': overlay_node_http_http_handler,
 };
+
+function process_local_python_call (json_data, res, call_name) {
+
+    // The json_data may be:
+    //   - a filename that contains parameters for a calc call
+    //   - parameters for a calc call
+       
+    // Convert the json to javascript.
+    var data_or_file;
+    try {
+        data_or_file = JSON.parse(json_data);
+    } catch (error) {
+        respondToHttp(400, res, 'Malformed JSON data given');
+        return;
+    }
+   
+    var data;
+    if (data_or_file.parm_filename) {
+   
+        // If a parm_filename exists in the data, this is a file
+        // containing the parameters, so extract those parameters
+        try {
+            data = readFromJsonFileSync(data_or_file.parm_filename);
+        } catch (error) {
+            respondToHttp(400, res, 'Malformed JSON data given in file');
+            return;
+        }
+    } else {
+   
+        // The data does not have parm_filename, so assume it is the
+        // parameters.
+        data = data_or_file;
+    }
+
+    // Let this http feature handler or one of its callees send http response.
+    if (http_handlers[call_name]) {
+        http_handlers[call_name] (data, res);
+    }
+}
 
 function receive (url, req, res) {
     
@@ -65,42 +125,16 @@ function receive (url, req, res) {
     // Process the data in this request
     req.on('end', function () {
     
+        var call_name = url.slice(url.lastIndexOf('/') + 1);
+        
+        // We assume anything received is a python call request for now
         if (CALC_URL) {
         
-            // TODO this would handle the overlayNode web API
+            // Pass the json data as is to the remote python caller
+            callPython(call_name, json_data, { http_response: res }, true);
+
         } else {
-                   
-            // Convert the json to javascript.
-            var data_or_file;
-            try {
-                data_or_file = JSON.parse(json_data);
-            } catch (error) {
-                respondToHttp(400, res, 'Malformed JSON data given');
-                return;
-            }
-            var data;
-
-            if (typeof data_or_file === 'string') {
-           
-                // With just a string sent, we assume this is a file name
-                // containing the parameters, so extract those parameters
-                try {
-                    data = readFromJsonFileSync(data_or_file);
-                } catch (error) {
-                    respondToHttp(400, res, 'Malformed JSON data given in file');
-                    return;
-                }
-            } else {
-           
-                // The data is not a string, so assume it is the array of
-                // parameters.
-                data = data_or_file;
-            }
-
-            // Let this validator send the http response on invalid data.
-            if (parm_checkers[url]) {
-                parm_checkers[url] (data, res);
-            }
+            process_local_python_call(json_data, res, call_name);
         }
     });
 }
@@ -112,13 +146,3 @@ WebApp.connectHandlers.use('/calc/layout', function (req, res, next) {
 WebApp.connectHandlers.use('/query/overlayNodes', function (req, res, next) {
     receive('/query/overlayNodes', req, res, next);
 });
-
-respondToHttp = function (code, res, data_in) {
-
-    // This responds to an http request after converting data to json.
-    // TODO authenticate request for known users ?
-    var data = JSON.stringify(data_in);
-    res.setHeader('Content-Type', 'application/json');
-    res.writeHead(code);
-    res.end(data + '\n');
-};
