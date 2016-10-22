@@ -26,7 +26,7 @@ create_map = function (result, context) {
     }
     
     // Check the python layout log for success
-    var log = fs.readFileSync(result.data, 'utf8');
+    var log = fs.readFileSync(context.js_result, 'utf8');
     var log_array = log.split('\n');
     var success_msg = 'Visualization generation complete!';
     var success = _.find(log_array, function(line) {

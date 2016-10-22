@@ -17,33 +17,55 @@ function make_parm_file (opts, in_json) {
     });
 }
 
+function load_data (filename, context) {
+
+    // Convert the contents of this file from json or tsv to javascript.
+    var data;
+    if (context.tsv) {
+
+        // Read the tsv results file, creating an array of
+        // strings, one string per row. Return the array to the
+        // client where the row format is known, and parse them
+        // there.
+        data = readFromTsvFileSync(filename);
+        
+    } else {
+
+        // Read and parse the json file
+        data = readFromJsonFileSync(filename);
+    }
+    return data;
+}
+
 report_local_result = function (result, context) {
 
     // Report an error or successful result to http or the client.
-    if (context.http_response) {
     
+    if (context.callback) {
+    
+        // There is a callback to clean up before returning to http or client,
+        // so call that
+        context.js_result = load_data(result.data, context);
+        
+        // remove the callback from the context so we don't call it again
+        var callback = context.callback;
+        delete context.callback;
+        callback(result, context);
+    
+    } else if (context.http_response) {
+
         // This is from an http request so respond to that
         respondToHttp (result.code, context.http_response, result.data);
+
     } else if (context.future) {
     
         // This has a future, so return the result via the future
         if (result.code === 200) {
         
-            // Success with a results filename,
-            // so convert the contents of this file from json to javascript.
-            if (context.tsv) {
-
-                // Read the tsv results file, creating an array of
-                // strings, one string per row. Return the array to the
-                // client where the row format is known, and parse them
-                // there.
-                result.data = readFromTsvFileSync(result.data);
-                console.log('report_local_result: result.data:', result.data.slice(0, 50));
-                
-            } else {
-     
-                // Read and parse the json file
-                result.data = readFromJsonFileSync(result.data);
+            // Success with a results filename, so extract the data if the
+            // the callback did not do it already
+            if (!context.js_result) {
+                result.data = load_data(result.data, context);
             }
             context.future.return(result);
             
@@ -155,23 +177,7 @@ function report_remote_result (result, context) {
         
             // Success so return the data as a javascript object
             var filename = JSON.parse(result.content);
-            var data;
-            if (context.tsv) {
-
-                // Read the tsv results file, creating an array of
-                // strings, one string per row. Return the array to the
-                // client where the row format is known, and parse them
-                // there.
-                data = readFromTsvFileSync(filename);
-                console.log('report_local_result: result.content:', result.content);
-                
-            } else {
-     
-                // Read and parse the json file
-                data = readFromJsonFileSync(filename);
-            }
-
-            
+            var data = load_data(filename, context);
             context.future.return({
                 code: result.statusCode,
                 data: data
@@ -312,83 +318,4 @@ Meteor.methods({
         }
         return future.wait();
     },
-
-    /*
-    pythonCall: function (pythonCallName, opts) {
-    
-        // TODO deprecated, move statsDynamic & diffAnalysis to use callPython
-        // Asynchronously call a python function from the client.
-        
-        // If this is not a valid python call, return an error
-        if (valid_calls_from_client.indexOf(pythonCallName) < 0) {
-            return 'Error: ' + pythonCallName + ' is not a python function';
-        }
-        
-        this.unblock();
-        var future = new Future();
-
-        // Create temp file if the client wants us to
-        if (opts.hasOwnProperty('tempFile')) {
-            opts.tempFile = writeToTempFile('junk');
-        }
-
-        // Make a project data directory string usable by the server code.
-        opts.directory = VIEW_DIR + opts.directory;
-
-        // Write the opts to a temporary file so we don't overflow the stdout
-        // buffer.
-        var pythonDir = SERVER_DIR,
-            parmFile = writeToTempFile(JSON.stringify({parm: opts}));
-
-        var command =
-            'python ' +
-            pythonDir +
-            pythonCallName +
-            ".py '" +
-            parmFile +
-            "'";
-
-        exec(command, function (error, stdout) {
-            if (error) {
-                future.throw(error);
-            } else {
-
-                var data,
-             
-                    // remove last newline
-                    result = stdout.toString().slice(0, -1);
-
-                // Return any known errors/warnings to the client
-                if (typeof result === 'string' &&
-                    (result.slice(0,5).toLowerCase() === 'error' ||
-                        result.slice(0,7).toLowerCase() === 'warning')) {
-                    fs.unlinkSync(parmFile);
-                    future.return(result);
-                } else {
-                    if (opts.tsv) {
-
-                        // Read the tsv results file, creating an array of
-                        // strings, one string per row. Return the array to the
-                        // client where the row format is known, and parse them
-                        // there.
-                        // TODO This seems abusive of Meteor and should be
-                        // change to what is best for meteor. This is reading
-                        // the file on the server, then passing the long array
-                        // to the client.
-                        data = readFromTsvFileSync(result);
-                    } else {
-             
-                        // Read and parse the json file
-
-                        data = readFromJsonFileSync(result);
-                        data.result = result;
-                    }
-                    //fs.unlinkSync(parmFile);
-                    future.return(data);
-                }
-            }
-        });
-        return future.wait();
-    },
-    */
 });
