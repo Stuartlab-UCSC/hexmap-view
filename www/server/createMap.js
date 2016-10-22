@@ -21,7 +21,7 @@ create_map = function (result, context) {
     // result: { code: <http-code>, data: <result-data> }
     
     if (result.code !== 200) {
-        report_calc_result (result, context);
+        report_local_result (result, context);
         return;
     }
     
@@ -35,7 +35,7 @@ create_map = function (result, context) {
     if (success) {
 
         // Return the layout log file name
-        report_calc_result(result, context);
+        report_local_result(result, context);
     } else {
        
         // Send the log to the admin & throw an error.
@@ -43,7 +43,7 @@ create_map = function (result, context) {
         var msg = 'log file: ' + result.data;
         sendMail(ADMIN_EMAIL, subject, msg);
         
-        report_calc_result ({
+        report_local_result ({
             code: 400,
             data: 'Calc script had an unknown error',
             }, context);

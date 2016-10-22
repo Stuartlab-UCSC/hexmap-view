@@ -84,10 +84,18 @@ def pythonWrapper(pythonCallName, jsonRequestFile, temp_dir):
     if result == 1:
         print 'Error: pythonCall.py: Unknown error\n'
         return 1
+    
+    if 'tempFile' in opts:
+    
+        # The python script has already written the results to a temp file
+        # so return that filename
+        print result
+    else:
+    
+        # Write the results to a temp file and return the file name
+        # to the nodejs caller via stdout.
+        print writeJsonResponseData(result, temp_dir)
 
-    # Write the results to a temp file and return the file name
-    # to the nodejs caller via stdout.
-    print writeJsonResponseData(result, temp_dir)
     return 0
 
 if __name__ == "__main__" :

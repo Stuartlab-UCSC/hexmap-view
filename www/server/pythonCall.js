@@ -31,7 +31,20 @@ report_local_result = function (result, context) {
         
             // Success with a results filename,
             // so convert the contents of this file from json to javascript.
-            result.data = readFromJsonFileSync(result.data);
+            if (context.tsv) {
+
+                // Read the tsv results file, creating an array of
+                // strings, one string per row. Return the array to the
+                // client where the row format is known, and parse them
+                // there.
+                result.data = readFromTsvFileSync(result.data);
+                console.log('report_local_result: result.data:', result.data.slice(0, 50));
+                
+            } else {
+     
+                // Read and parse the json file
+                result.data = readFromJsonFileSync(result.data);
+            }
             context.future.return(result);
             
         } else {
@@ -64,7 +77,7 @@ function local_success (result_filename, pythonCallName, context) {
         filename = result_filename.slice(0, index);
     }
     var result = { code: 200, data: filename };
-    console.log('Info: pythonCall(' + pythonCallName + ')',
+    console.log('Info: pythonCall(' + pythonCallName + ') success.',
             'Results file:', result.data);
     report_local_result(result, context);
 }
@@ -142,9 +155,26 @@ function report_remote_result (result, context) {
         
             // Success so return the data as a javascript object
             var filename = JSON.parse(result.content);
+            var data;
+            if (context.tsv) {
+
+                // Read the tsv results file, creating an array of
+                // strings, one string per row. Return the array to the
+                // client where the row format is known, and parse them
+                // there.
+                data = readFromTsvFileSync(filename);
+                console.log('report_local_result: result.content:', result.content);
+                
+            } else {
+     
+                // Read and parse the json file
+                data = readFromJsonFileSync(filename);
+            }
+
+            
             context.future.return({
                 code: result.statusCode,
-                data: readFromJsonFileSync(filename)
+                data: data
             });
         } else {
         
@@ -181,10 +211,10 @@ function call_python_remote (pythonCallName, json, context) {
             
             if (error) {
                 console.log('Error: call_python_remote(' + pythonCallName +
-                    '):', result.statusCode, result.content);
+                    '):', result.statusCode, result.content.slice(0, 50));
             } else {
                 console.log('Info: call_python_remote(' + pythonCallName + ')',
-                    'Code, Results file:', result.statusCode, result.content);
+                    'Code, Results file:', result.statusCode, result.content.slice(0, 50));
             }
             report_remote_result(result, context);
         });
@@ -202,6 +232,11 @@ callPython = function (pythonCallName, opts, context) {
     //  }
 
     var json;
+    
+    // If the caller wants the results in tsv, save that in the context
+    if (opts.hasOwnProperty('tsv')) {
+        context.tsv = true;
+    }
 
     // Call either the local or remote python script.
     if (CALC_URL) {
@@ -260,8 +295,13 @@ Meteor.methods({
         
         if (valid_calls_from_client.indexOf(pythonCallName) > -1) {
             
+            // Create a temp file for the results if the client wants us to
+            if (opts.hasOwnProperty('tempFile')) {
+                opts.tempFile = writeToTempFile('junk');
+            }
+        
             // This is a valid python call, so call it.
-            callPython(pythonCallName, opts, undefined, future);
+            callPython(pythonCallName, opts, { future: future });
         } else {
         
             // This is not a valid python call, return an error.

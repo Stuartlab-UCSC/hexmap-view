@@ -104,6 +104,8 @@ function process_local_python_call (json_data, res, call_name) {
     // Let this http feature handler or one of its callees send http response.
     if (http_handlers[call_name]) {
         http_handlers[call_name] (data, res);
+    } else {
+        callPython(call_name, data, { http_response: res });
     }
 }
 
@@ -141,6 +143,14 @@ function receive (url, req, res) {
 
 WebApp.connectHandlers.use('/calc/layout', function (req, res, next) {
     receive('/calc/layout', req, res, next);
+});
+
+WebApp.connectHandlers.use('/calc/reflection', function (req, res, next) {
+    receive('/calc/reflection', req, res, next);
+});
+
+WebApp.connectHandlers.use('/calc/statsDynamic', function (req, res, next) {
+    receive('/calc/statsDynamic', req, res, next);
 });
 
 WebApp.connectHandlers.use('/query/overlayNodes', function (req, res, next) {
