@@ -268,17 +268,18 @@ exports.reflection_post_calc = function (result, context) {
     // Process the results of the reflection request where:
     // result: { code: <http-code>, data: <result-data> }
     
-    console.log('mapManager:reflection_post_calc newLayer, userId, toMapId:',
-        context.newLayer, context.userId, context.toMapId);
-
+    var newLayer = context.post_calc_parms.newLayer,
+        userId = context.post_calc_parms.userId,
+        toMapId = context.post_calc_parms.toMapId;
+    
     // Report any errors
     if (result.code !== 200) {
         PythonCall.report_local_result (result, context);
         return;
     }
-    context.newLayer.data = context.js_result.data;
+    newLayer.data = context.js_result.data;
     
-    dropInLayerBox(context.newLayer, context.userId, context.toMapId);
+    dropInLayerBox(newLayer, userId, toMapId);
     
     PythonCall.report_local_result(result, context);
 }
@@ -295,21 +296,26 @@ Meteor.methods({
                           selectionSelected) {
         //console.log(Meteor.userId());
         this.unblock();
+        var post_calc_parms = {
+                newLayer: layerMaker(selectionSelected+'_' +dataType+ '_Reflect'),
+            };
+        post_calc_parms.newLayer.colormap = colorMapMaker();
+        
         var ctx = {
-            newLayer: layerMaker(selectionSelected+'_' +dataType+ '_Reflect'),
+            post_calc_parms,
             future: new Future(),
         };
-        ctx.newLayer.colormap = colorMapMaker();
         
         if ( operation === 'reflection' ) {
+        
             //load parameters specific to reflection python script
             var userArgs = {node_ids : nodeIds, datatype : dataType};
             var parameters = parmMaker(mapId,toMapId, operation, userArgs);
-            ctx.userId = userId;
-            ctx.toMapId = toMapId;
-            ctx.post_calc = MapManager.reflection_post_calc;
             
-            console.log('mapManager method: ctx.newLayer:', ctx.newLayer);
+            // Save some values need in the post-calculation function
+            ctx.post_calc = MapManager.reflection_post_calc;
+            post_calc_parms.userId = userId;
+            post_calc_parms.toMapId = toMapId;
             
             PythonCall.call(operation, parameters, ctx);
             
