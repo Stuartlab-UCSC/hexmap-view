@@ -20,8 +20,12 @@
 //
 // TODO do we want the user to be able to cancel the calc ?
 
+var CreateMap = require('./createMap');
+var MapManager = require('./mapManager');
+var PythonCall = require('./pythonCall');
+var Http = require('./http');
 
-respondToHttp = function (code, res, data_in, in_json) {
+exports.respond = function (code, res, data_in, in_json) {
 
     // This responds to an http request after converting data to json.
     // TODO authenticate request for known users ?
@@ -48,13 +52,13 @@ function passPostChecks (req, res) {
 
     // Only POST methods are understood
     if (req.method !== 'POST') {
-        respondToHttp(405, res, 'Only the POST method is understood here');
+        Http.respond(405, res, 'Only the POST method is understood here');
         return false;
     }
     
     // Only json content type is understood
     if (req.headers['content-type'] !== 'application/json') {
-        respondToHttp(400, res,
+        Http.respond(400, res,
             'Only content-type of application/json is understood here');
         return false;
     }
@@ -63,12 +67,20 @@ function passPostChecks (req, res) {
 }
 
 // A look-up table indexed by call_name and referencing the feature http handler
-var http_handlers = {
-    'layout': create_map_via_http,
-   //'overlayNodes': overlay_node_http_http_handler,
+var pre_calc = {
+    //
+};
+
+// A look-up table indexed by call_name and referencing the feature post-calc
+// function, if there is one, that will be executed on the local/remote? server.
+var post_calc = {
+    layout: CreateMap.post_calc,
+    reflection: MapManager.reflection_post_calc,
 };
 
 function process_local_python_call (json_data, res, call_name) {
+
+    // Process a local python call
 
     // The json_data may be:
     //   - a filename that contains parameters for a calc call
@@ -79,7 +91,7 @@ function process_local_python_call (json_data, res, call_name) {
     try {
         data_or_file = JSON.parse(json_data);
     } catch (error) {
-        respondToHttp(400, res, 'Malformed JSON data given');
+        Http.respond(400, res, 'Malformed JSON data given');
         return;
     }
    
@@ -91,7 +103,7 @@ function process_local_python_call (json_data, res, call_name) {
         try {
             data = readFromJsonFileSync(data_or_file.parm_filename);
         } catch (error) {
-            respondToHttp(400, res, 'Malformed JSON data given in file');
+            Http.respond(400, res, 'Malformed JSON data given in file');
             return;
         }
     } else {
@@ -100,13 +112,21 @@ function process_local_python_call (json_data, res, call_name) {
         // parameters.
         data = data_or_file;
     }
-
-    // Let this http feature handler or one of its callees send http response.
-    if (http_handlers[call_name]) {
-        http_handlers[call_name] (data, res);
-    } else {
-        callPython(call_name, data, { http_response: res });
+    
+    // If there is an http handler for this calc call, call it.
+    if (pre_calc[call_name] && !pre_calc[call_name] (data, res)) {
+        return;
     }
+    
+    // Save the post_calc_handler if there is one
+    var context = { http_response: res };
+    if (post_calc[call_name]) {
+        context.post_calc = post_calc[call_name];
+    }
+
+    // Call the python function,
+    // letting one of its callees send the http response.
+    PythonCall.call(call_name, data, context);
 }
 
 function receive (url, req, res) {
@@ -133,7 +153,7 @@ function receive (url, req, res) {
         if (CALC_URL) {
         
             // Pass the json data as is to the remote python caller
-            callPython(call_name, json_data, { http_response: res }, true);
+            PythonCall.call(call_name, json_data, { http_response: res }, true);
 
         } else {
             process_local_python_call(json_data, res, call_name);

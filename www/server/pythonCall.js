@@ -4,6 +4,8 @@
 
 var Future = Npm.require('fibers/future');
 var spawn = Npm.require('child_process').spawn;
+var Http = require('./http');
+var PythonCall = require('./pythonCall');
 
 function make_parm_file (opts, in_json) {
 
@@ -37,25 +39,27 @@ function load_data (filename, context) {
     return data;
 }
 
-report_local_result = function (result, context) {
+exports.report_local_result = function (result, context) {
 
     // Report an error or successful result to http or the client.
     
-    if (context.callback) {
-    
-        // There is a callback to clean up before returning to http or client,
-        // so call that
+    if (context.post_calc) {
+
+        // There is a post_calc function to run before returning to http or
+        // the client, so call that after loading the data into javascript
+        // from the file with the json results.
         context.js_result = load_data(result.data, context);
         
-        // remove the callback from the context so we don't call it again
-        var callback = context.callback;
-        delete context.callback;
-        callback(result, context);
+        // Remove the post_calc from the context so we don't call it again.
+        var post_calc = context.post_calc;
+        delete context.post_calc;
+        
+        post_calc(result, context);
     
     } else if (context.http_response) {
 
         // This is from an http request so respond to that
-        respondToHttp (result.code, context.http_response, result.data);
+        Http.respond (result.code, context.http_response, result.data);
 
     } else if (context.future) {
     
@@ -63,7 +67,7 @@ report_local_result = function (result, context) {
         if (result.code === 200) {
         
             // Success with a results filename, so extract the data if the
-            // the callback did not do it already
+            // the post_calc function did not do it already.
             if (!context.js_result) {
                 result.data = load_data(result.data, context);
             }
@@ -87,7 +91,7 @@ function local_error (error, pythonCallName, context) {
 
     var result = { code: 500, data: error.toString() };
     console.log('Error: pythonCall(' + pythonCallName + ')', result.data);
-    report_local_result(result, context);
+    PythonCall.report_local_result(result, context);
 }
 
 function local_success (result_filename, pythonCallName, context) {
@@ -101,7 +105,7 @@ function local_success (result_filename, pythonCallName, context) {
     var result = { code: 200, data: filename };
     console.log('Info: pythonCall(' + pythonCallName + ') success.',
             'Results file:', result.data);
-    report_local_result(result, context);
+    PythonCall.report_local_result(result, context);
 }
 
 function call_python_local (pythonCallName, json, context) {
@@ -110,8 +114,8 @@ function call_python_local (pythonCallName, json, context) {
     // Put the parameters in a file as json, then call the python routine. The
     // python routine returns either an error string or a filename containing
     // the results as json. The results are returned to the caller via the
-    // supplied callback as a javascript object on success, or a string on
-    // error.
+    // supplied post_calc function as a javascript object on success, or a
+    // string on error.
     
     // Log every call to python in case we have errors, there will be
     // some sort of bread crumbs to follow.
@@ -166,7 +170,7 @@ function report_remote_result (result, context) {
     if (context.http_response) {
     
         // Send the results back to the local server
-        respondToHttp(
+        Http.respond(
             result.statusCode,
             context.http_response,
             result.content,
@@ -227,7 +231,7 @@ function call_python_remote (pythonCallName, json, context) {
     }).run(id);
 }
 
-callPython = function (pythonCallName, opts, context) {
+exports.call = function (pythonCallName, opts, context) {
 
     // Call a python function where the caller passes the
     // python call name, call options, and a context.
@@ -307,7 +311,7 @@ Meteor.methods({
             }
         
             // This is a valid python call, so call it.
-            callPython(pythonCallName, opts, { future: future });
+            PythonCall.call(pythonCallName, opts, { future: future });
         } else {
         
             // This is not a valid python call, return an error.

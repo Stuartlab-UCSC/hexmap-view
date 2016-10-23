@@ -5,6 +5,9 @@ var readline  = Npm.require('readline');
 var fs = Npm.require('fs');
 var Future = Npm.require('fibers/future');
 
+var MapManager = require('./mapManager');
+var PythonCall = require('./pythonCall');
+
 var ManagerFileCabinet = new Mongo.Collection('ManagerFileCabinet');
 var ManagerAddressBook = new Mongo.Collection('ManagerAddressBook');
 var LayerPostOffice = new Mongo.Collection('LayerPostOffice');
@@ -260,6 +263,26 @@ function parmMaker(mapId,toMapId, operation,argsObj) {
 
 }
 
+exports.reflection_post_calc = function (result, context) {
+    
+    // Process the results of the reflection request where:
+    // result: { code: <http-code>, data: <result-data> }
+    
+    console.log('mapManager:reflection_post_calc newLayer, userId, toMapId:',
+        context.newLayer, context.userId, context.toMapId);
+
+    // Report any errors
+    if (result.code !== 200) {
+        PythonCall.report_local_result (result, context);
+        return;
+    }
+    context.newLayer.data = context.js_result.data;
+    
+    dropInLayerBox(context.newLayer, context.userId, context.toMapId);
+    
+    PythonCall.report_local_result(result, context);
+}
+
 Meteor.methods({
 
     // For calling python functions from the client
@@ -272,9 +295,33 @@ Meteor.methods({
                           selectionSelected) {
         //console.log(Meteor.userId());
         this.unblock();
-        var future = new Future();
+        var ctx = {
+            newLayer: layerMaker(selectionSelected+'_' +dataType+ '_Reflect'),
+            future: new Future(),
+        };
+        ctx.newLayer.colormap = colorMapMaker();
+        
+        if ( operation === 'reflection' ) {
+            //load parameters specific to reflection python script
+            var userArgs = {node_ids : nodeIds, datatype : dataType};
+            var parameters = parmMaker(mapId,toMapId, operation, userArgs);
+            ctx.userId = userId;
+            ctx.toMapId = toMapId;
+            ctx.post_calc = MapManager.reflection_post_calc;
+            
+            console.log('mapManager method: ctx.newLayer:', ctx.newLayer);
+            
+            PythonCall.call(operation, parameters, ctx);
+            
+        } else  {
+            console.log('Incorrect toMapId input into mapManager');
+        }
+        
+        return ctx.future.wait();
+    }
+});
 
-
+/*
         var newLayer = layerMaker(selectionSelected+'_' +dataType+ '_Reflect');
         newLayer.colormap = colorMapMaker();
         
@@ -283,20 +330,23 @@ Meteor.methods({
             var userArgs = {node_ids : nodeIds, datatype : dataType};
             var parameters = parmMaker(mapId,toMapId, operation, userArgs);
             //console.log("mapManager calling python with:",parameters);
-            callPython(operation, parameters, undefined, future, function (result) {
-                if (result) {
-                    newLayer.data = result.data;
-                    dropInLayerBox(newLayer,userId,toMapId);
-                }
-            });
+            
+            ctx. post_calc: MapManager.reflection_post_calc,
+               newLayer: newLayer,
+               userId: userId,
+               toMapId: toMapId,
+            }
+
+            // Success, so call the python function
+            PythonCall.call(operation, parameters, context);
+
         } else  {
             console.log('Incorrect toMapId input into mapManager');
         }
-
-        return future.wait();
-
+        return ctx.future.wait();
     }
 });
+*/
 
 //subscribe is in checkLayerBox.js
 Meteor.publish('userLayerBox', function(userId, currMapId) {
@@ -423,4 +473,3 @@ Meteor.methods({
     }
 });
 //end Windows collection manipulators
-

@@ -22,28 +22,28 @@ function passOverlayNodeChecks (dataIn, res) {
         // TODO should we require authentication and use:
         //  throw new Meteor.Error(403, "Access denied")
 
-        respondToHttp(400, res, 'Map missing or malformed');
+        Http.respond(400, res, 'Map missing or malformed');
         return false;
 
     } else if (!dataIn.hasOwnProperty('layout')) {
-        respondToHttp(400, res, 'Layout missing or malformed');
+        Http.respond(400, res, 'Layout missing or malformed');
         return false;
 
     } else if (!dataIn.hasOwnProperty('nodes')) {
-        respondToHttp(400, res, 'Nodes missing or malformed');
+        Http.respond(400, res, 'Nodes missing or malformed');
         return false;
 
     } else if (typeof dataIn.nodes !== 'object') {
-        respondToHttp(400, res, 'Nodes type should be an object')
+        Http.respond(400, res, 'Nodes type should be an object')
         return false;
 
     // Validate a specific map and layout for now.
     } else if (dataIn.map !== map) {
-        respondToHttp(400, res, 'The only frozen map available is ' + map);
+        Http.respond(400, res, 'The only frozen map available is ' + map);
         return false;
         
     } else if (dataIn.layout !== layout) {
-        respondToHttp(400, res, 'The only map layout available is ' + layout);
+        Http.respond(400, res, 'The only map layout available is ' + layout);
         return false;
     }
         
@@ -140,7 +140,7 @@ overlayNodes = function (dataIn, res, future) {
         console.log('!!!!!!! overlayNodes() called with a res');
     }
     
-    callPython('compute_pivot_vs_background', opts, function (result) {
+    PythonCall.call('compute_pivot_vs_background', opts, function (result) {
     
         var future = opts.future;
         
@@ -152,7 +152,7 @@ overlayNodes = function (dataIn, res, future) {
         }
     
         if (result.code !== 0) {
-            respondToHttp(500, res, result.data, future);
+            Http.respond(500, res, result.data, future);
             return;
         }
         
@@ -160,7 +160,7 @@ overlayNodes = function (dataIn, res, future) {
             data = result.data;
         
         if (dataIn.TESTpythonCallStub || dataIn.TESTpythonCallGoodData) {
-            respondToHttp(result.code === 0 ? 200 : 500, res, data, future);
+            Http.respond(result.code === 0 ? 200 : 500, res, data, future);
             return;
         }
         
@@ -179,7 +179,7 @@ overlayNodes = function (dataIn, res, future) {
             emailUrls[nodeName] = url;
             urls.push(url);
         });
-        respondToHttp(200, res, {bookmarks: urls}, future);
+        Http.respond(200, res, {bookmarks: urls}, future);
         
         // Send email to interested parties
         var subject = 'tumor map results: ',
@@ -206,7 +206,7 @@ overlayNodes = function (dataIn, res, future) {
             overlayNodes: xyData.nodes,
         };
         var bookmark = saveBookmark(state);
-        respondToHttp(200, res, {bookmark: url + '?b=' + bookmark}, future);
+        Http.respond(200, res, {bookmark: url + '?b=' + bookmark}, future);
         */
     });
 }
@@ -220,7 +220,7 @@ overlayNodesQuery = function (dataIn, res) {
     if (dataIn.TESTbookmarkStub) {
 
         // Return this fake URL for this test
-        respondToHttp(200, res, {bookmark: url +
+        Http.respond(200, res, {bookmark: url +
             "?b=18XFlfJG8ijJUVP_CYIbA3qhvCw5pADF651XTi8haPnE"});
         return;
     }
