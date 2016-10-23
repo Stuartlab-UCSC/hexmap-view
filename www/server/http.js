@@ -113,14 +113,18 @@ function process_local_python_call (json_data, res, call_name) {
         data = data_or_file;
     }
     
-    // If there is an http handler for this calc call, call it.
-    if (pre_calc[call_name] && !pre_calc[call_name] (data, res)) {
-        return;
+    // If there is an http handler for this calc call and this is not a remote
+    // calc server, call it.
+    if (pre_calc[call_name] && !IS_CALC_SERVER) {
+        if (!pre_calc[call_name] (data, res)) { return; }
     }
     
-    // Save the post_calc_handler if there is one
+    // Save the http_response so downstream calls know where to respond.
     var context = { http_response: res };
-    if (post_calc[call_name]) {
+    
+    // Save the post_calc_handler if there is one
+    // and this is not a remote calc server.
+    if (post_calc[call_name] && !IS_CALC_SERVER) {
         context.post_calc = post_calc[call_name];
     }
 

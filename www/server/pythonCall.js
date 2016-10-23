@@ -39,23 +39,29 @@ function load_data (filename, context) {
     return data;
 }
 
+function call_post_calc(result, context) {
+
+    // There is a post_calc function to run before returning to http or
+    // the client, so call that after loading the data into javascript
+    // from the file with the json results.
+    context.js_result = load_data(result.data, context);
+    
+    // Remove the post_calc from the context so we don't call it again.
+    var post_calc = context.post_calc;
+    delete context.post_calc;
+    
+    post_calc(result, context);
+}
+
 exports.report_local_result = function (result, context) {
 
-    // Report an error or successful result to http or the client.
+    // Report an error or successful result to http or the client,
+    // after running the post-calc function if there is one.
     
     if (context.post_calc) {
-
-        // There is a post_calc function to run before returning to http or
-        // the client, so call that after loading the data into javascript
-        // from the file with the json results.
-        context.js_result = load_data(result.data, context);
-        
-        // Remove the post_calc from the context so we don't call it again.
-        var post_calc = context.post_calc;
-        delete context.post_calc;
-        
-        post_calc(result, context);
     
+        call_post_calc(result, context)
+
     } else if (context.http_response) {
 
         // This is from an http request so respond to that
@@ -167,7 +173,17 @@ function call_python_local (pythonCallName, json, context) {
 
 function report_remote_result (result, context) {
 
-    if (context.http_response) {
+    // Report an error or successful result to http or the client,
+    // after running the post-calc function if there is one.
+    
+    if (context.post_calc) {
+    
+        call_post_calc({
+            code: result.statusCode,
+            data: JSON.parse(result.content),
+            }, context);
+        
+    } else if (context.http_response) {
     
         // Send the results back to the local server
         Http.respond(
