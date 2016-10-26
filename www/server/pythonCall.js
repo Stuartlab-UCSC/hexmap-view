@@ -185,12 +185,12 @@ function report_remote_result (result, context) {
         
     } else if (context.http_response) {
     
-        // Send the results back to the local server
+        // Send the results back via http.
         Http.respond(
             result.statusCode,
             context.http_response,
             result.content,
-            true);
+            result.code === 200 ? true : false);
         
     } else if (context.future) {
         if (result.statusCode === 200) {
@@ -207,10 +207,17 @@ function report_remote_result (result, context) {
             // Error so throw the error as javascript
             context.future.throw({
                 code: result.statusCode,
-                data: JSON.parse(result.content)
+                data: result
             });
         }
     }
+}
+
+function remote_error (via, pythonCallName, code, error, context) {
+    console.log('Error: call_python_remote(' + pythonCallName + '): via:', via,
+        'statusCode:', code, '\n', error);
+    report_remote_result(
+        { statusCode: code ? code : 500, content: error }, context);
 }
 
 function call_python_remote (pythonCallName, json, context) {
@@ -232,17 +239,33 @@ function call_python_remote (pythonCallName, json, context) {
     var id = 1;
     var f = new Fiber(function(id) { // jshint ignore: line
         context.in_json = true;
+        
+        // Use the meteor 'http' package to handle the http
         HTTP.post(CALC_URL + '/' + pythonCallName, options,
                 function (error, result) {
             
             if (error) {
-                console.log('Error: call_python_remote(' + pythonCallName +
-                    '):', result.statusCode, result.content.slice(0, 50));
+                remote_error('error', pythonCallName, undefined,
+                    error.toString(), context);
+                
+            } else if (result && result.statusCode === 200) {
+                console.log('Info: call_python_remote(' + pythonCallName +
+                    ')', 'Code, Results file:', result.statusCode,
+                    result.content.slice(0, 50));
+                report_remote_result(result, context);
+                
+            } else if (result && result.statusCode) {
+                remote_error('has statusCode', pythonCallName, result.statusCode,
+                    result.toString(), context);
+                
+            } else if (result) {
+                remote_error('no statusCode', pythonCallName, undefined,
+                    result.toString(), context);
+        
             } else {
-                console.log('Info: call_python_remote(' + pythonCallName + ')',
-                    'Code, Results file:', result.statusCode, result.content.slice(0, 50));
+                remote_error('no result', pythonCallName, undefined,
+                    'undefined error',  context);
             }
-            report_remote_result(result, context);
         });
     }).run(id);
 }

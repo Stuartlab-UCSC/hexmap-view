@@ -5,7 +5,6 @@ Prepare to call a python script
 """
 import sys, os, json, copy, csv, math, traceback, tempfile
 import importlib
-import scipy.stats
 
 def readJsonRequestData(json_parm_filename):
 

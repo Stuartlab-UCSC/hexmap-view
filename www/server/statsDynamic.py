@@ -6,7 +6,6 @@ to dynamic and pre-computed stats: statsSortLayer.
 """
 
 import sys, os, json, copy, csv, math, traceback, pprint
-import scipy.stats
 
 from statsLayer import ForEachLayer
 
