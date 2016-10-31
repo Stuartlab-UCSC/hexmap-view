@@ -17,9 +17,6 @@ Shortlist = (function () { // jshint ignore: line
     var selection_prefix = 'Selection';
     var hover_layer_name = new ReactiveVar(''); // Track the current layer
  
-    // Track entries for triggering color set of the actives
-    var new_dom_entry_added_or_removed = new ReactiveVar('');
- 
     var icon = {
         primary: '/icons/primary.png',
         primary_hot: '/icons/primary-hot.png',
@@ -259,6 +256,7 @@ Shortlist = (function () { // jshint ignore: line
 */
 
     function copy_shortlist_state () {
+        // TODO: I think a 'get' makes a copy anyway
         return Session.get('shortlist').slice();
     }
 
@@ -497,9 +495,6 @@ Shortlist = (function () { // jshint ignore: line
                 Util.session('filter_value', 'set', layer_name, val);
             }
         }
- 
-        // Notify others that a new DOM entry has been added to the shortlist
-        new_dom_entry_added_or_removed.set(layer_name);
     }
  
     function make_layer_name_unique (layer_name) {
@@ -807,10 +802,6 @@ Shortlist = (function () { // jshint ignore: line
                 // Update our state variable
                 Session.set('active_layers', active);
             }
-             
-            // Notify others that a new DOM entry has been added to
-            // or removed from the shortlist
-            new_dom_entry_added_or_removed.set(layer_name);
 
         } else { // Handle this layer add
  
@@ -846,7 +837,7 @@ Shortlist = (function () { // jshint ignore: line
  
     }
 
-     function update_shortlist_metadata () {
+    function update_shortlist_metadata () {
  
         // Update the metadata for each layer in the shortlist
         // TODO: make the metadata updates reactive
@@ -1040,6 +1031,28 @@ Shortlist = (function () { // jshint ignore: line
         
         var shortlist = copy_shortlist_state();
 
+        // Add any dynamic attrs stored in state to the shortlist
+        var dynamic_attrs = Session.get('dynamic_attrs');
+        if (dynamic_attrs) {
+            _.each(dynamic_attrs, function(attr, name) {
+                
+                // The attr should already be in the shortlist names,
+                // however if it is not, don't add it's data
+                if (shortlist.indexOf(name) < 0) { return; }
+                
+                var data = attr.data,
+                    properties = attr;
+                   
+                // Remove the data from the attr properties.
+                delete properties.data;
+                   
+                add_layer_data(name, data, properties);
+                if (properties.colormap) {
+                    colormaps[name] = properties.colormap;
+                }
+            });
+        }
+
         // Add the 'first layer' to the shortlist if it is empty
         if (shortlist.length < 1) {
             shortlist = [first];
@@ -1066,6 +1079,40 @@ Shortlist = (function () { // jshint ignore: line
         if (active.length < 1 && shortlist.length > 0) {
             Session.set('active_layers', [shortlist[0]]);
         }
+    }
+
+    function get_entries () {
+    
+        // Return the entries in the shortlist.
+        // Until we have the attributes in the database,
+        // pull the info out of the layers array.
+        var attrs = Session.get('shortlist'),
+            entries = {};
+            
+        if (attrs.length === 0) { return undefined; }
+        
+        _.each(attrs, function (attr) {
+            
+            var layer = layers[attr],
+                e = { data: layer.data };
+            if (layer.selection) {
+                e.dynamic = true;
+            }
+            if (Util.is_binary(attr)) {
+                e.datatype = 'binary';
+            } else {
+                e.min = layer.minimum;
+                e.max = layer.maximum;
+                if (Util.is_continuous(attr)) {
+                    e.datatype = 'continuous';
+                } else {
+                    e.datatype = 'categorical';
+                }
+            }
+            entries[attr] = e;
+        });
+
+        return entries;
     }
 
 return {
@@ -1202,6 +1249,32 @@ return {
             return [layers[layer_name].minimum, layers[layer_name].maximum];
         } else {
             return range;
+        }
+    },
+    
+    get_dynamic_entries_for_persistent_state: function () {
+    
+        // Return the dynamic entries in the short list, while converting the
+        // color objects in the colormaps to saveable objects.
+        var entries = {};
+
+        _.each(get_entries(), function (value, attr) {
+        
+            if (value.dynamic || value.selection) {
+                entries[attr] = value;
+            }
+            
+            // Convert the colormap colors from an object to an array.
+            if (colormaps[attr]) {
+                var obj = Colors.colormapToColorArray(colormaps[attr], attr);
+                value.colormap = obj.cats;
+            }
+        });
+
+        if (_.keys(entries).length > 0) {
+            return entries;
+        } else {
+            return undefined;
         }
     },
 

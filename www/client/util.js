@@ -49,12 +49,13 @@ Util = (function () { // jshint ignore: line
         console.log(type + ':', text);
     }
 
-    function session (prefix, operation, name,  val) {
+    function session (prefix, operation, name, val) {
  
-        // Perform a get, set, or equals on a state variable with a prefix.
-        // This allow us to simulate a reactiveDict functionality in a Session
-        // variable. We want a Session variable so the value will be preserved
-        // across hot code pushes.
+        // Perform a get, set, or equals on a session variable which represents
+        // a dict within a dict.
+        // So we can save 'shortlist_filter_value.disease' with a unique Session
+        // variable name of 'shortlist_filter_value_disease'.
+
         var key;
  
         // Build the key from the prefix and name
@@ -67,7 +68,6 @@ Util = (function () { // jshint ignore: line
             console.trace();
         }
  
-        // Lack of operation means this is a get
         if (operation === 'get') {
             return Session.get(key);
 

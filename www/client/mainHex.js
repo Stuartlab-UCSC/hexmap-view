@@ -170,7 +170,7 @@ Hex = (function () { // jshint ignore: line
                 Reflect.init();
                 Tool.initLabelTool();
                 Download.init();
-                initColors();
+                Colors.init();
                 initInfoWindow();
                 initSetOperations();
                 CreateMap.init();

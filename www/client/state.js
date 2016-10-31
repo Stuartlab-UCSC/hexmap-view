@@ -1,16 +1,13 @@
 // state.js
 // An object to write and load state
 
-var app = app || {}; 
+var app = app || {};  // jshint ignore: line
 
-(function (hex) { 
-    //'use strict';
+(function (hex) {  // jshint ignore: line
 
-    // TODO: these should all be Session vars so they will survive a hot code push!
+    // TODO: these should all be Session vars so they will survive a hot code
+    // push!
  
-    // Global across this app
-    DISABLED_COLOR = '#aaaaaa';
-
     var DEFAULT_PAGE = 'homePage',
         DEFAULT_PROJECT = 'Gliomas/',
         DEFAULT_SORT = {
@@ -40,7 +37,21 @@ var app = app || {};
         }
     }
 
-    State = function() {
+     function centerToArray (centerIn) {
+ 
+        // If needed, translate the latLng center to an array for store.
+        var center = centerIn;
+        if (!Array.isArray(center)) {
+
+            // This is stored this as an array of two numbers rather
+            // than as latLng since when we retrieve it, we won't know
+            // about google maps yet so won't understand LatLng.
+            center = [center.lat(), center.lng()];
+        }
+        return center;
+    }
+ 
+    State = function() { // jshint ignore: line
 
         // The state stores the values used across modules for different
         // purposes. These may belong to this object or to the reactive meteor
@@ -57,8 +68,8 @@ var app = app || {};
         //              project
         //
         //      - other: persist for this page load only, and are not saved to
-        //          localStorage. Some of these belong to this object and some to
-        //          the reactive meteor Session. Not all of these vars are
+        //          localStorage. Some of these belong to this object and some
+        //          to the reactive meteor Session. Not all of these vars are
         //          initialized here, but in their respective file
         //          initialization functions
 
@@ -75,6 +86,7 @@ var app = app || {};
         s.localStorage = {
             // Contains the non-project state we want to save with unique keys
             all: [
+                'background',
                 'page',
                 'project',
                 'viewEdges',
@@ -84,9 +96,8 @@ var app = app || {};
             // Contains the project state we want to save with unique keys
             project: [
                 'active_layers',
-                'background',
                 'center',
-                //'dynamic_layers', // not yet
+                'dynamic_attrs',
                 'first_layer',
                 'gridCenter',
                 'gridZoom',
@@ -103,47 +114,48 @@ var app = app || {};
                 'shortlist_filter_show_',
                 'shortlist_filter_value_',
             ]
-        }
+        };
  
-        s.localStorage.unique_keys = s.localStorage.all.concat(s.localStorage.project);
+        s.localStorage.unique_keys = s.localStorage.all.concat(
+            s.localStorage.project);
         s.alreadySaved = false;
 
-        // Reactive variables maintained in global state and not project-specific
+        // Reactive variables maintained in global state & not project-specific
         Session.setDefault('page', DEFAULT_PAGE);
         Session.setDefault('sort', DEFAULT_SORT); // Default sort message & type
-        Session.setDefault('viewEdges', false); // Display of directed graph or not
-        Session.setDefault('viewWindows', false); // Display of stats windows or not
+        Session.setDefault('background', 'black');  // Main map background color
+        Session.setDefault('viewEdges', false); // Display of directed graph
+        Session.setDefault('viewWindows', false); // Display of stats windows
  
         // Non-reactive vars maintained in global state and not project-specific
         s.project = DEFAULT_PROJECT;  // The project data to load
-    }
+    };
 
     State.prototype.defaultProject = function () {
-        return s.defaultProject;
+        return this.defaultProject;
     };
 
     State.prototype.defaultSort = function () {
-        return DEFAULT_SORT
+        return DEFAULT_SORT;
     };
 
     State.prototype.setProjectDefaults = function () {
         var s = this;
 
         // Project variables maintained in this state object, with defaults.
-        Session.set('active_layers', []); // Array of layer names displaying their colors
-        Session.setDefault('background', 'black');  // Main map background color
+        Session.set('active_layers', []); // Layer names displaying their colors
         s.center = null; // main google map center
-        Session.set('dynamic_layers', []); // Dynamic layers dict or array ? TODO
-        Session.set('first_layer', undefined); // first to be displayed in shortlist
+        Session.set('dynamic_attrs', undefined); // Dynamic layers dict
+        Session.set('first_layer', undefined); // first in shortlist
         s.gridCenter = null; // grid map center
         s.gridZoom = 3;  // Zoom level of the grid
         Session.set('layouts', []);  // Map layouts maintained in order of entry
         Session.set('layoutIndex', null);
         Session.set('overlayNodes', undefined);  // overlay nodes to include
         Session.set('shortlist', []); // Array of layer names in the shortlist
-        Session.set('shortlist_on_top', false); // true = maintain actives at the top of the list
+        Session.set('shortlist_on_top', false); // maintain actives at the top
         s.zoom = 3;  // Map zoom level where 3 means zoomed in by 3 levels
-    }
+    };
 
     State.prototype.save = function () {
  
@@ -152,8 +164,7 @@ var app = app || {};
             return;
         }
         var s = this,
-            store = {},
-            index;
+            store = {};
 
         // If we have a new project, clear any state related to the old project
         if (s.lastProject && s.project !== s.lastProject) {
@@ -168,6 +179,13 @@ var app = app || {};
         }
         s.alreadySaved = true;
 
+        // Gather any dynamic attributes
+        var dynamic_attrs =
+            Shortlist.get_dynamic_entries_for_persistent_state();
+        if (dynamic_attrs) {
+            Session.set('dynamic_attrs', dynamic_attrs);
+        }
+ 
         // Walk though our list of unique keys and save those
         _.each(s.localStorage.unique_keys, function (key) {
 
@@ -189,7 +207,7 @@ var app = app || {};
             }
         });
 
-        // Walk though our list of key prefixes and save those with their full key
+        // Walk though our list of key prefixes and save those with the full key
         _.each(s.localStorage.key_prefixes, function (key_prefix) {
             var prefix_len = key_prefix.length;
             
@@ -205,8 +223,8 @@ var app = app || {};
         });
 
         // Overwrite the previous state in localStorage
-        window['localStorage'].removeItem(s.storeName);
-        window['localStorage'].setItem(s.storeName, JSON.stringify(store));
+        window.localStorage.removeItem(s.storeName);
+        window.localStorage.setItem(s.storeName, JSON.stringify(store));
 
         //console.log('save store:', store);
     };
@@ -236,7 +254,6 @@ var app = app || {};
             // that we recognize
             } else {
                 _.each(s.localStorage.key_prefixes , function (key_prefix) {
-                    var prefix_len = key_prefix.length;
                     if (key.slice(0, key_prefix.length) === key_prefix) {
                         Session.set(key, val);
                     }
@@ -254,11 +271,13 @@ var app = app || {};
         if (s.project.slice(0,13) === 'Youngwook/ori') {
             Session.set('overlayNodes', OVERLAY_NODES_YOUNGWOOK_ORIGINAL);
         } else if (s.project.slice(0,13) === 'Youngwook/qua') {
-            Session.set('overlayNodes', OVERLAY_NODES_YOUNGWOOK_QUANTILE_NORMALIZATION);
+            Session.set('overlayNodes',
+                OVERLAY_NODES_YOUNGWOOK_QUANTILE_NORMALIZATION);
         } else if (s.project.slice(0,13) === 'Youngwook/exp') {
-            Session.set('overlayNodes', OVERLAY_NODES_YOUNGWOOK_EXPONENTIAL_NORMALIZATION);
+            Session.set('overlayNodes',
+                OVERLAY_NODES_YOUNGWOOK_EXPONENTIAL_NORMALIZATION);
         }
-    }
+    };
  
     State.prototype.loadFromBookmark = function (bookmark) {
  
@@ -268,7 +287,7 @@ var app = app || {};
         Meteor.call('findBookmark', bookmark,
             function (error, result) {
                 if (error) {
-                    banner('error', error);
+                    Util.banner('error', error);
                     return;
                 }
                 
@@ -287,7 +306,7 @@ var app = app || {};
 
         // Load state from local store
         var s = this,
-            store = JSON.parse(window['localStorage'].getItem(s.storeName));
+            store = JSON.parse(window.localStorage.getItem(s.storeName));
         if (store === null) {
             console.log("No saved state found, so using defaults.");
 
@@ -304,12 +323,12 @@ var app = app || {};
         var xlate = {
             'evanPaull/pCHIPS/': 'pCHIPS/',
             'ynewton/gliomas-paper/': 'Gliomas/',
-        }
+        };
  
         // Fix up some project names that we've aleady given out to people
         // before reorganizing projects and implementing logins
         if (xlate[project]) {
-            project = xlate[project]
+            project = xlate[project];
         }
         return project;
     };
@@ -323,9 +342,9 @@ var app = app || {};
         // Find the project if one was included in the URL,
         // replacing every '.' with '/'
         if (s.uParm.p) {
-            state.project
-                = s.uParm.p.replace(/\./g, '/')
-                + '/';
+            state.project =
+                s.uParm.p.replace(/\./g, '/') +
+                '/';
  
             // A project in a url means someone wants to see a particular map
             state.page = 'mapPage';
@@ -340,7 +359,7 @@ var app = app || {};
                 if (!s.uParm.node) {
                     s.uParm.node = 'x';
                 }
-                state.overlayNodes = {}
+                state.overlayNodes = {};
                 state.overlayNodes[s.uParm.node] = {x: s.uParm.x, y: s.uParm.y};
  
             } else if (s.uParm.nodes) {
@@ -379,9 +398,9 @@ var app = app || {};
         // TODO if a browser does not support this, there is no way for a user
         // to change projects. Project could be passed in the URL
         try {
-            "localStorage" in window && window["localStorage"] !== null;
+            ("localStorage" in window && window.localStorage !== null); // jshint ignore: line
         } catch (e) {
-            banner('warn', "Browser does not support local storage.");
+            Util.banner('warn', "Browser does not support local storage.");
             return false;
         }
         return true;
@@ -402,23 +421,9 @@ var app = app || {};
             center = new google.maps.LatLng(center[0], center[1]);
         }
         return center;
-    }
+    };
  
-    centerToArray = function (centerIn) {
- 
-        // If needed, translate the latLng center to an array for store.
-        var center = centerIn;
-        if (!Array.isArray(center)) {
-
-            // This is stored this as an array of two numbers rather
-            // than as latLng since when we retrieve it, we won't know
-            // about google maps yet so won't understand LatLng.
-            center = [center.lat(), center.lng()];
-        }
-        return center
-    }
- 
-    initState = function () { 
+    initState = function () {
         storageSupported = checkLocalStore();
         var s = new State();
         s.setProjectDefaults();
@@ -448,7 +453,7 @@ var app = app || {};
             // Create a listener to know when to save state
             window.onbeforeunload = function() {
                 s.save();
-            }
+            };
         }
  
         return s;
