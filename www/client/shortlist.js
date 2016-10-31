@@ -1081,7 +1081,13 @@ Shortlist = (function () { // jshint ignore: line
         }
     }
 
-    function get_entries () {
+return {
+    create_dynamic_binary_layer: create_dynamic_binary_layer,
+    get_active_layers: get_active_layers,
+    update_shortlist: update_shortlist,
+    update_shortlist_metadata: update_shortlist_metadata,
+
+    get_entries: function () {
     
         // Return the entries in the shortlist.
         // Until we have the attributes in the database,
@@ -1113,13 +1119,7 @@ Shortlist = (function () { // jshint ignore: line
         });
 
         return entries;
-    }
-
-return {
-    create_dynamic_binary_layer: create_dynamic_binary_layer,
-    get_active_layers: get_active_layers,
-    update_shortlist: update_shortlist,
-    update_shortlist_metadata: update_shortlist_metadata,
+    },
 
     create_dynamic_category_layer: function (layer_name, data, attributes,
         colormap) {
@@ -1258,7 +1258,7 @@ return {
         // color objects in the colormaps to saveable objects.
         var entries = {};
 
-        _.each(get_entries(), function (value, attr) {
+        _.each(Shortlist.get_entries(), function (value, attr) {
         
             if (value.dynamic || value.selection) {
                 entries[attr] = value;
