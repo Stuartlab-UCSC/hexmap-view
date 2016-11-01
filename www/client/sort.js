@@ -11,7 +11,7 @@ var app = app || {};
         firstSort = true;
 
     function finalCompare(a, b) {
-
+        console.log("default sort function is being called...");
         // After the other compares, do these last compares for all sorts.
         // Compare clumpiness,
         // then alphabetically by name if all else fails.
@@ -169,22 +169,22 @@ var app = app || {};
             sort_layers();
         }
 
-        if (type_value == "layout-aware-positive") {
+        if (type_value === "layout-aware-positive") {
             layer_array.sort(positiveCorrelationCompare);
 
-        } else if (type_value == "layout-aware-negative") {
+        } else if (type_value === "layout-aware-negative") {
             layer_array.sort(negativeCorrelationCompare);
 
-        } else if (type_value == "p_value") {
+        } else if (type_value === "p_value") {
             layer_array.sort(pValueCompare);
 
-        } else if (type_value == "adjusted_p_value") {
+        } else if (type_value === "adjusted_p_value") {
             layer_array.sort(adjPvalueCompare);
 
-        } else if (type_value == "adjusted_p_value_b") {
+        } else if (type_value === "adjusted_p_value_b") {
             layer_array.sort(adjPvalueBcompare);
 
-        } else if (type_value == "Differential") {
+        } else if (type_value === "Differential") {
             layer_array.sort(differentialCompare);
 
         } else {
@@ -197,11 +197,11 @@ var app = app || {};
             layer_array.unshift(first);
         }
         Session.set('sortedLayers', layer_array);
-    }
+    };
 
     clearStats = function () {
         //ATTRDB
-        console.log("clear stats was called, clumpiness deleted");
+        // is going to be changed how?
 
         // Clear stats for each layer before updating with the new stats
         for (var layer_name in layers) {
@@ -212,7 +212,7 @@ var app = app || {};
             delete layers[layer_name].correlation;
             delete layers[layer_name].Differential;
          }
-    }
+    };
 
     updateSortUi = function (type, text, focus_attr, opts) {
  
@@ -287,7 +287,7 @@ var app = app || {};
         }
 
         // This has adjusted p-values, are there are any actual values?
-        if (type !== 'p_value') {
+        if (type !== 'p_value') { //Duncan: We just set this to p_value above???
             var hasAny = _.find(parsed, function (line) {
                 return !_.isNaN(Number(line[apI]));
             });
@@ -303,7 +303,7 @@ var app = app || {};
             }
         }
         
-        if (type === 'adjusted_p_value') {
+        if (type === 'adjusted_p_value') { //Duncan: We just set "type" to p_value above???
             var hasAny = _.find(parsed, function (line) {
                 return !_.isNaN(Number(line[apbI]));
             });
@@ -346,8 +346,7 @@ var app = app || {};
     function receive_ignore_layout_stats (parsed, focus_attr, opts) {
 
         // Handle the response from the server for ignore-layout sort statistics
-
-        var r = {};  // the object return containting type and count
+        var r = {};  // the object return containing type and count
 
         if (parsed[0].length === 4) {
 
@@ -361,7 +360,7 @@ var app = app || {};
             r = updateIgnoreLayout(parsed, focus_attr, 0, 1, 2, 3);
 
         } else if (parsed[0].length === 3) {
-            second = parsed[0][1];
+            var second = parsed[0][1];
             if ($.isNumeric(second) || second === 'nan') {
 
                 // This has 2 values so is of the form:
@@ -593,7 +592,7 @@ var app = app || {};
 
         print("Fetching " + filename);
         Meteor.call('getTsvFile', filename, ctx.project,
-            function (error, parsed) {;
+            function (error, parsed) {
 
             if (error || (typeof parsed === 'string' &&
                 parsed.slice(0,5).toLowerCase() === 'error')) {
@@ -654,7 +653,7 @@ var app = app || {};
             hexnames2,
             vals,
             fill,
-            obj = {}
+            obj = {};
             diffData = {};
 
         // Create a new selection attribute from the one values of each layer

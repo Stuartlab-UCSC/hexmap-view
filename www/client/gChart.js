@@ -13,6 +13,69 @@ var app = app || {};
         charts = {}; // A chart handle for each layer used to free it
 
 
+    function drawBarChart2(layer_name, container) {
+
+            var counts =[];
+            _.each(_.values(entries[layer_name].data), function(cat) {
+                if (counts[cat]) {
+                    counts[cat] += 1;
+                } else {
+                    counts[cat] = 1;
+                }
+            });
+
+            // Fill any undefined array values with zero
+            var filled = [];
+            for (i = 0; i < counts.length; i += 1) {
+                filled[i] = (counts[i]) ? counts[i] : 0;
+            }
+            // Find the bar colors
+            if (entries[layer_name].datatype === "Binary") {
+                colors = ['#555555', COLOR_BINARY_ON];
+            } else {
+                //ATTRDB
+                // can replace?
+                //equalsTest(attrGetColorMap(layer_name),colormaps[layer_name],'gChartColormaps',true);
+                var colormap = entries[layer_name].colormap;
+                colors = _.map(colormap, function (cat) {
+                    return cat.color.hexString();
+                });
+            }
+
+            // Format the data as google chart wants
+            var arrays = _.map(filled, function (count, i) {
+                return [i.toString(), count, colors[i]];
+            });
+
+            // If there is no data, there is no chart to draw
+            if (arrays.length < 1) {
+                return;
+            }
+
+            // Add the headers to the top of the data
+            var withHeaders = [['Category', 'Count', { role: 'style' }]]
+                .concat(arrays);
+
+            var data = google.visualization.arrayToDataTable(withHeaders);
+
+            var options = {
+                backgroundColor: 'transparent',
+                chartArea: {
+                    bottom: 5,
+                    left: 0,
+                    right: 0,
+                    top: 0,
+                },
+                enableInteractivity: false,
+                legend: { position: 'none' },
+                vAxis: {
+                    gridlines: {color: 'transparent'},
+                    textPosition: 'none',
+                },
+            };
+            charts[layer_name] = new google.visualization.ColumnChart(container)
+                .draw(data, options);
+    }
 
     function drawBarChart (layer_name, container) {
 
@@ -94,7 +157,44 @@ var app = app || {};
                                     .draw(data, options);
         });
     }
- 
+    function drawHistogram2 (layer_name, container) {
+        console.log("draw hitstogram 2 getting called");
+        var layer = entries[layer_name];
+
+            var arrays = _.zip(_.keys(layer.data), _.values(layer.data));
+            var withHeaders = [['Node', '']].concat(arrays);
+            var data = google.visualization.arrayToDataTable(withHeaders);
+            options = {
+                backgroundColor: 'transparent',
+                bar: { gap: 0 },
+                chartArea: {
+                    bottom: 5,
+                    left: 0,
+                    right: 0,
+                    top: 0,
+                },
+                colors: ['#555555'],
+                enableInteractivity: false,
+                hAxis: {
+                    ticks: [0],
+                },
+                histogram: { hideBucketItems: true, },
+                legend: { position: 'none' },
+                vAxis: {
+                    gridlines: {color: 'transparent'},
+                    textPosition: 'none',
+                },
+            };
+
+            // If there is no data, there is no chart to draw
+            if (arrays.length < 1) {
+                return;
+            }
+
+            charts[layer_name] = new google.visualization.Histogram(container)
+                .draw(data, options);
+    }
+
     function drawHistogram (layer_name, container) {
  
         with_layer(layer_name, function () {
@@ -166,9 +266,21 @@ var app = app || {};
         // If google charts is loaded, just draw it
         if (status ==='loaded') {
             if (type === 'histogram') {
-                drawHistogram(layer_name, container);
+                console.log("Calling Draw histogram");
+                if (shortTest) {
+                    drawHistogram2(layer_name, container);
+                }
+                else {
+                    drawHistogram(layer_name,container);
+                }
             } else {
-                drawBarChart(layer_name, container);
+                console.log("Calling draw bar");
+                if (shortTest) {
+                    drawBarChart2(layer_name, container);
+                }
+                else {
+                    drawBarChart(layer_name,container);
+                }
             }
             return;
 
@@ -191,7 +303,7 @@ var app = app || {};
                 comp.stop();
                 _.each(chartQueue, function (chart) {
                     if (chart.type === 'histogram') {
-                        drawHistogram(chart.layer_name, chart.container);
+                        drawHistogram2(chart.layer_name, chart.container);
                        
                     } else { // Assume bar chart
                         drawBarChart(chart.layer_name, chart.container);

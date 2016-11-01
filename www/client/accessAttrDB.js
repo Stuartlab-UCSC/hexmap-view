@@ -12,9 +12,6 @@ var app = app || {};
     TESTING = false;
 
     attrDB = (function () { // jshint ignore: line
-    
-    
-    
         //ATTRDB: use this function in place of add_layer_url (in hexagram.js), to
         //  
         /*
@@ -45,7 +42,7 @@ var app = app || {};
             //accesses the clumpiness or Density collection
             // and returns an array like would be found by old implementation.
             var clumpCurs = DensityDB.find(
-                {attribute_name: attribute_name},
+                {name: attribute_name},
                 { fields : {density:1,index:1}});
 
             var clumpArray = new Array(clumpCurs.count());
@@ -58,7 +55,7 @@ var app = app || {};
 
         };
         attrHasLayer = function(attribute_name){
-            return (!_.isUndefined(AttrDB.findOne({attribute_name: attribute_name})))
+            return (!_.isUndefined(AttrDB.findOne({name: attribute_name})))
         };
         attrHasData = function (attribute_name){
             //the namespace is already limited on the client,
@@ -66,33 +63,33 @@ var app = app || {};
 
             //data and nodeIds are loaded simultaneously, and perhaps later for
             // binaries will not be interested in 0's
-            return ( _.isUndefined(AttrDB.findOne({attribute_name: attribute_name}))
+            return ( _.isUndefined(AttrDB.findOne({name: attribute_name}))
             ||
-            !_.isUndefined(AttrDB.findOne({attribute_name: attribute_name})
+            !_.isUndefined(AttrDB.findOne({name: attribute_name})
                 .node_ids));
         };
         attrHasTag = function (attribute_name,tag){
-            var tags = AttrDB.findOne({attribute_name: attribute_name}).tags;
+            var tags = AttrDB.findOne({name: attribute_name}).tags;
             return (tags.indexOf(tag) > -1)
         };
         attrHasTags = function(attribute_name){
             //returns true if there are any tags for this attribute
-            return (!_.isUndefined(AttrDB.findOne({attribute_name: attribute_name}).tags))
+            return (!_.isUndefined(AttrDB.findOne({name: attribute_name}).tags))
         }
         attrGetMax = function (attribute_name){
-            return (AttrDB.findOne({attribute_name: attribute_name}).max)
+            return (AttrDB.findOne({name: attribute_name}).max)
         };
         attrGetMin = function(attribute_name){
-            return (AttrDB.findOne({attribute_name: attribute_name}).min)
+            return (AttrDB.findOne({name: attribute_name}).min)
         };
         attrGetNodeIds = function(attribute_name){
-            return (AttrDB.findOne({attribute_name: attribute_name}).node_ids)
+            return (AttrDB.findOne({name: attribute_name}).node_ids)
         };
         attrGetValues = function(attribute_name){
-            return (AttrDB.findOne({attribute_name: attribute_name}).values)
+            return (AttrDB.findOne({name: attribute_name}).values)
         };
         attrIsContinuous = function(attribute_name) {
-            return(AttrDB.findOne({attribute_name: attribute_name}).datatype === 'Continuous');
+            return(AttrDB.findOne({name: attribute_name}).datatype === 'Continuous');
         };
         attrGetContinuousNames = function() {
             //returns all the continuos variables for the current filter
@@ -105,7 +102,7 @@ var app = app || {};
             return continuousAttr;
         }
         attrIsBinary = function(attribute_name) {
-            return(AttrDB.findOne({attribute_name: attribute_name}).datatype === 'Binary');
+            return(AttrDB.findOne({name: attribute_name}).datatype === 'Binary');
         };
         attrGetBinaryNames = function() {
             //returns all the continuos variables for the current filter
@@ -115,11 +112,11 @@ var app = app || {};
                     binaryAttr.push()
                 }
             );
-            return continuousAttr;
+            return binaryAttr;
         };
 
         attrIsCategorical = function(attribute_name) {
-            return(AttrDB.findOne({attribute_name: attribute_name}).datatype === 'Categorical');
+            return(AttrDB.findOne({name: attribute_name}).datatype === 'Categorical');
         };
         attrGetCategoricalNames = function() {
             //returns all the continuos variables for the current filter
@@ -132,7 +129,7 @@ var app = app || {};
             return continuousAttr;
         };
         attrIsSelection = function(attribute_name) {
-            return (AttrDB.findOne({attribute_name: attribute_name}).selection)
+            return (AttrDB.findOne({name: attribute_name}).selection)
         };
         attrGetSelectionNames = function(){
             //returns an array of attribute names that are selections
@@ -141,30 +138,36 @@ var app = app || {};
             var selectionNames = [];
             AttrDB.find({selection: true}).forEach(
                 function(doc){
-                    selectionNames.push(doc.attribute_name);
+                    selectionNames.push(doc.name);
                 });
             return selectionNames;
         };
-        attrGetColorMap = function(attribute_name){
-            var attrDoc = AttrDB.findOne({attribute_name: attribute_name});
-            if (!attrDoc){
+        attrGetColorMap = function(layer_name){
+            var colormap;
+            var entry = AttrDB.findOne({name:layer_name});
+            if (!entry.datatype) {
                 return undefined;
             }
-            if (attrDoc.datatype === 'Binary') {
+
+            //go through datatype cases and return appropriately
+            if (entry.datatype === 'Binary') {
                 //noticed that getting a binary's colormap returns empty object
                 return {};
-            } else if (attrDoc.datatype === 'Continuous'){
+            } else if (entry.datatype === 'Continuous'){
+                //while a continuos data type is returned as undefined
                 return undefined;
-            } else {
+            } else if (entry.datatype === 'Categorical') {
                 //it should be Categorical
 
-                var unparsedcolormap = AttrDB.findOne({attribute_name: attribute_name}).colormap;
-                var colormap = [];
+                var unparsedcolormap = entry.colormap;
+                colormap = [];
                 //ATTRDB HACK
-                // TODO: deal with below
+                // TODO: find something to do with the with below
                 // don't deal with marked categoricals that have no colormap
                 // perhaps we should be prompting the user to enter one?
-                if(!unparsedcolormap) {return undefined}
+                // or setting some magic default based on number of cats and
+                // color scheme
+                if(!unparsedcolormap) {return entry}
                 for (var j = 1; j < unparsedcolormap.length; j += 3) {
                     // Store each color assignment.
                     // Doesn't run if there aren't any assignments, leaving an empty
@@ -183,6 +186,62 @@ var app = app || {};
                 }
             }
             return colormap;
+        };
+
+        colorMapArrayToObj = function(entry){
+            // input "entry" is some object that has a datatype feild.
+            
+            // this function changes a colormap text array to a colormap
+            // object used on the client.
+
+            // it returns the entry JSON with the colormap modified
+
+            // colormap defaults are handled differently per datatype...
+            // at the least your entry must have field "datatype"
+            // if not this will return undefined
+            var colormap;
+            if (!entry.datatype) {
+                return undefined;
+            }
+
+            //go through datatype cases and return appropriately
+            if (entry.datatype === 'Binary') {
+                //noticed that getting a binary's colormap returns empty object
+                return {};
+            } else if (entry.datatype === 'Continuous'){
+                //while a continuos data type is returned as undefined
+                return undefined;
+            } else if (entry.datatype === 'Categorical') {
+                //it should be Categorical
+
+                var unparsedcolormap = entry.colormap;
+                colormap = [];
+                //ATTRDB HACK
+                // TODO: find something to do with the with below
+                // don't deal with marked categoricals that have no colormap
+                // perhaps we should be prompting the user to enter one?
+                // or setting some magic default based on number of cats and
+                // color scheme
+                if(!unparsedcolormap) {return entry}
+                for (var j = 1; j < unparsedcolormap.length; j += 3) {
+                    // Store each color assignment.
+                    // Doesn't run if there aren't any assignments, leaving an empty
+                    // colormap object that just forces automatic color selection.
+
+                    // This holds the index of the category
+                    var category_index = parseInt(unparsedcolormap[j]);
+
+                    // The colormap gets an object with the name and color that the
+                    // index number refers to. Color is stored as a color object.
+                    colormap[category_index] = {
+                        name: unparsedcolormap[j + 1],
+                        color: Color(unparsedcolormap[j + 2]), // operating color in map
+                        fileColor: Color(unparsedcolormap[j + 2]), // color from orig file
+                    };
+                }
+            }
+            entry.colormap = colormap;
+            return entry;
         };
         attrRequestLayerTags = function(){
             //this function is called over at filter.js,
@@ -204,7 +263,7 @@ var app = app || {};
             // (thought it would be an array but no no)
             AttrDB.find({tags :{$type: 2}}).forEach(
                 function(doc){
-                    var tags = [doc.attribute_name];
+                    var tags = [doc.name];
                     tagdata[index] = tags.concat(doc.tags);
                     index +=1;
                 }
@@ -214,12 +273,12 @@ var app = app || {};
         attrHaveColormap = function(layer_name){
             //the previous implemtation (have_colormap)
             // returns true if
-            var attrDoc = AttrDB.findOne({attribute_name: attribute_name})
+            var attrDoc = AttrDB.findOne({name: attribute_name})
             return (attrDoc.datatype === 'Categorical'
                 ||
                 attrDoc.datatype == 'Binary'
             )
-        }
+        };
         equalsTest = function(val1,val2, calledFrom,feedback) {
             //if feedback is true then will chatter on positive result
             if(!_.isEqual(val1,val2)){
@@ -246,9 +305,9 @@ var app = app || {};
                 NaNClumpiness.push(NaN)
             }
 
-
             //console.log(AttrDB.find().count());
             AttrDB.find({}).forEach(function(doc){
+                console.log(doc.name);
                 //will take this out after making sure they are equivelent
                 //console.log("has layer,", doc);
 
@@ -256,15 +315,16 @@ var app = app || {};
                 // is full of NaN's, otherwise we use the one in the DB
                 var clumpiness_array = !_.isUndefined(DensityDB.findOne(
                     {
-                        attribute_name: doc.attribute_name,
+                        name: doc.name,
                         project : ctx.project
                     })) ? DensityDB.findOne(
                     {
-                        attribute_name: doc.attribute_name,
+                        name: doc.name,
                         project : ctx.project
                     }).clumpiness_array : NaNClumpiness;
+
                 //console.log(clumpiness_array);
-                layers[doc.attribute_name] = {
+                layers[doc.name] = {
                     clumpiness_array : clumpiness_array,
                     clumpiness : undefined,
                     magnitude : undefined,
@@ -276,9 +336,8 @@ var app = app || {};
                 };
                 // Add it to the sorted layer list.
                 var sorted = Session.get('sortedLayers').slice();
-                sorted.push(doc.attribute_name);
+                sorted.push(doc.name);
                 Session.set('sortedLayers', sorted);
-
 
             });
             console.log('intitedLayerIndex Session gets True');
@@ -301,9 +360,9 @@ var app = app || {};
         initColormapsFromDB = function(){
             AttrDB.find({datatype : "Categorical"}).forEach(
                 function(doc){
-                    colormaps[doc.attribute_name]= attrGetColorMap(doc.attribute_name);
+                    colormaps[doc.name]= attrGetColorMap(doc.name);
                 }
-            )
+            );
             console.log("initedColorMaps gets true");
             Session.set('initedColormaps', true);
         };
@@ -321,7 +380,7 @@ var app = app || {};
                         console.log("begininning subscription to attrDB and density DBs");
                         Meteor.subscribe('basalAttrDB', namespace, ctx.project, 0 , function() {
                             console.log("done subscribing to attrDB,filling layers");
-                            DBstoLayersGlobal();
+                            //DBstoLayersGlobal();
                             console.log("initing types");
                             initTypesFromDB();
                             console.log('initing colormaps');

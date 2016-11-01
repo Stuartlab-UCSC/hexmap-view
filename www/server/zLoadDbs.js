@@ -8,7 +8,100 @@ var Fiber = Npm.require('fibers');
 var readline  = Npm.require('readline');
 
 AttribDB = new Mongo.Collection('AttribDB');
+AttrDataDB = new Mongo.Collection('AttrDataDB');
 DensityDB = new Mongo.Collection('DensityDB');
+
+function getLayoutsFromDensityDB(project){
+    //here we assume all attributes have the same layouts per project
+    // which is true for now
+
+    //grab a random attribute to find on
+    var randAttr = DensityDB.findOne({project: project}).name;
+    var layoutNames = [];
+    //find one attributes worth of density documents and same the names in an
+    // array
+    DensityDB.find({project: project, name : randAttr}).forEach(
+        function(doc){
+            layoutNames.push(doc.layout_name);
+        }
+    );
+    return layoutNames;
+}
+
+function fillEmptyDensityDBEntries(){
+    //One day hopefully we won't need this function...
+    //This function puts empty (Nan) density values in the density
+    // DB for maps that share namespaces but didn't calculate the density of
+    // other attributes.
+    // In order to be able to do 'joins' of Density and Tags, used in the
+    // longlist, there must be density values for all attributes we want to
+    // appear... this was the only way to be able to keep the user from having
+    // all the layer data on their machine
+
+    console.log("started filling empty density entries");
+
+    //grab all the namespaces we are using from the attribute database
+    var namespaces = [];
+    AttribDB.aggregate({$group :
+            {_id : {namespace: "$namespace"}, //group by namespace
+                 "count": {$sum : 1} }}).forEach(function(namedoc){
+            namespaces.push(namedoc._id.namespace)
+    });
+    console.log("LoadDbs: the namespaces recognized were:",namespaces);
+
+    //map each namespace to the projects sharing it.
+    var projectsWithNamespace = {};
+    //populate the above object
+    namespaces.forEach(function(namespace){
+        projectsWithNamespace[namespace] = [];
+        DensityDB.aggregate({$match: {namespace: namespace}},{$group :
+        {_id : {project: "$project"}, //group by project
+            "count": {$sum : 1} }}).forEach(function(projectdoc){
+            projectsWithNamespace[namespace].push(projectdoc._id.project)
+        });
+    });
+
+    //now that we have our project mapper, for each project, we want all the attribute names that
+    // have densities for other projects but not that particular project,
+    // then we will check each one of those attributes, and make sure they are
+    // present in the project, if they are not, then add them.
+    namespaces.forEach(function(namespace){
+        var projArr = projectsWithNamespace[namespace];
+        console.log("projects sharing namespace:",namespace,"->projects:",projArr);
+        projArr.forEach(function(project){
+            console.log(projArr,project);
+            var otherProjects = projArr.slice(); //this makes copy instead of just reference
+
+            otherProjects.splice(projArr.indexOf(project),1);
+            console.log("project array and other projects arrray",projArr,otherProjects);
+            console.log("other projects with this namespace:", otherProjects);
+            //before we can fill we need to which layout_name s the project has
+            var layoutNames = getLayoutsFromDensityDB(project);
+            console.log("layoutnames for project:",project,"->layout_names:",layoutNames);
+            console.log("should be spitting out abunch of attribute names:::");
+            DensityDB.aggregate({$match: {namespace: namespace, project : {$in : otherProjects}}},{$group :
+            {_id : {attr_name: "$name"}, //get all the attribute names in other project
+                "count": {$sum : 1} }}).forEach(function(attrdoc){
+                //console.log(attrdoc._id.attr_name);
+                //if its not there then loop through all the layoutNames that
+                // should be there inserting each doc as we go
+                if (!DensityDB.findOne({project:project, name: attrdoc._id.attr_name})){
+                    layoutNames.forEach(function(layout_name){
+                        DensityDB.insert({
+                            namespace : namespace,
+                            project : project,
+                            name : attrdoc._id.attr_name,
+                            layout_name : layout_name,
+                            density : NaN
+
+                        })
+                    })
+                }
+            });
+        })
+    });
+    console.log("ended filling empty density entries");
+}
 
 function initDensityDB(project,namespace){
     //goes through the clumpiness values for each layer in a project
@@ -31,7 +124,7 @@ function initDensityDB(project,namespace){
                     namespace:namespace,
                     project:project,
                     density:parseFloat(strnum),
-                    attribute_name: attribute_name,
+                    name: attribute_name,
                     layout_name: String(index)
                 }
             );
@@ -48,15 +141,16 @@ function initAttrDB(project,namespace){
     //loops over each attribute in the layers file and initializes a doc
     layerArray.forEach(function(entry){
         //console.log(entry)
+
         var attributeDoc     = {};
         attributeDoc.namespace        = namespace; //string, identifying overarching namespace
-        attributeDoc.attribute_name   = entry[0];  //string, this and namesapce are the key to the attribute
+        attributeDoc.name   = entry[0];  //string, this and namesapce are the key to the attribute
         attributeDoc.url              = project + entry[1];  //where the data can be found, assumers tab delemited, 2 columns
 
         //attributeDoc.subspace         = undefined; // for later use, array of strings indentiying defined regions for which this attivute is in, i.e. pan12, BRCA, or something
         attributeDoc.tags             = undefined; //used for filtering
-        attributeDoc.node_ids         = undefined; //the string indetfyers that the attribute has data for
-        attributeDoc.values           = undefined; //the values of data, a paralelel array with node_ids
+        //attributeDoc.node_ids         = undefined; //the string indetfyers that the attribute has data for
+        //attributeDoc.values           = undefined; //the values of data, a paralelel array with node_ids
         attributeDoc.datatype         = undefined; //one of "Binary", "Continuous", "Categorical"
         attributeDoc.colormap         = undefined; //unparsed array of colormap file : categorical only
         attributeDoc.max              = undefined; //maximuim value of attribute continuous and categorical
@@ -78,10 +172,11 @@ function initAttrDB(project,namespace){
         });
         */
 
-        //look at the data and see if we want to keep it
+        //look at the data and see if we want to keep it, i.e. if theres
+        // data for more entries in the new attribute
+
         //read the data first so we can see if we want to replace ol data
         var future2 = new Future();
-
         var data = getTsvFile(attributeDoc.url, '', false, '', future2);
         //get the data into arrays
         var values = [];
@@ -91,10 +186,11 @@ function initAttrDB(project,namespace){
             values.push(Number(row[1]));
         });
 
-        var layerEntry = AttribDB.findOne(
+        //grab what ever values we already have stored for this namespace/attr
+        var layerEntry = AttrDataDB.findOne(
             {
                 namespace: namespace,
-                attribute_name: attributeDoc.attribute_name
+                name: attributeDoc.name
             }
         );
 
@@ -107,11 +203,17 @@ function initAttrDB(project,namespace){
             attributeDoc.max = Math.max.apply(null, values);
             attributeDoc.min = Math.min.apply(null, values);
             attributeDoc.magnitude  = Math.max(Math.abs(attributeDoc.max),Math.abs(attributeDoc.min));
-            attributeDoc.node_ids = nodeIds;
-            attributeDoc.values = values;
-
-            AttribDB.upsert({namespace: namespace, attribute_name : attributeDoc.attribute_name},
+            
+            AttribDB.upsert({namespace: namespace, name : attributeDoc.name},
                 attributeDoc);
+
+            AttrDataDB.upsert({namespace: namespace, name : attributeDoc.name},
+                {
+                 namespace: namespace,
+                 name : attributeDoc.name,
+                 node_ids: nodeIds,
+                 values : values
+                });
         }
     });
 }
@@ -138,7 +240,7 @@ function insertDataTypesToArrtibDB(project,namespace){
 
                 if (!AttribDB.findOne({
                         namespace: namespace,
-                        attribute_name: attribute_name
+                        name: attribute_name
                     })) {
                     console.log("loading datatypes AttribDB:", attribute_name,
                         "not found, there is a attribute present in datatypes file,",
@@ -146,10 +248,10 @@ function insertDataTypesToArrtibDB(project,namespace){
                 }
                 else if (!AttribDB.findOne({
                         namespace: namespace,
-                        attribute_name: attribute_name
+                        name: attribute_name
                     }).datatype) {
                     //console.log('AttribDB: adding datatypes');
-                    AttribDB.update({attribute_name: attribute_name}, {$set: {datatype: datatype}})
+                    AttribDB.update({name: attribute_name}, {$set: {datatype: datatype}})
                 }
             })
         }
@@ -168,13 +270,13 @@ function insertColorMapsToArrtibDB(project,namespace){
         var attribute_name = colormap[0];
         //console.log(attribute_name);
 
-        if(!AttribDB.findOne({namespace: namespace, attribute_name: attribute_name})){
+        if(!AttribDB.findOne({namespace: namespace, name: attribute_name})){
             console.log("loading datatypes AttribDB:",attribute_name,
                 "not found, this attribute is present in,",
                 project,"colormaps.tab, but not present in the layers.tab")
         }
-        else if(!AttribDB.findOne({namespace: namespace,attribute_name : attribute_name}).colormap) {
-            AttribDB.update({namespace: namespace, attribute_name: attribute_name}, {$set: {colormap: colormap}})
+        else if(!AttribDB.findOne({namespace: namespace,name : attribute_name}).colormap) {
+            AttribDB.update({namespace: namespace, name: attribute_name}, {$set: {colormap: colormap}})
         }
     });
     //
@@ -190,7 +292,7 @@ function insertTagsToArrtibDB(project,namespace){
     //skipping first row because of header
     tags.slice(1).forEach(function(tag){
         var attribute_name = tag[0];
-        var attrDoc = AttribDB.findOne({namespace: namespace,attribute_name: attribute_name})
+        var attrDoc = AttribDB.findOne({namespace: namespace,name: attribute_name})
         //if there is not a document for that attribute, that's weird,
         // chatter to server
         if(!attrDoc){
@@ -206,7 +308,7 @@ function insertTagsToArrtibDB(project,namespace){
             tag.slice(1).forEach(function(tag) {
                 tagArr.push({"name" : tag})
             });
-            AttribDB.update({namespace: namespace, attribute_name: attribute_name}, {$set: {tags: tagArr}})
+            AttribDB.update({namespace: namespace, name: attribute_name}, {$set: {tags: tagArr}})
         }
         //if tags array is present, add any tag that hasn't been seen yet
         else {
@@ -221,7 +323,7 @@ function insertTagsToArrtibDB(project,namespace){
                 });
                 if (addIt) {
                     var newTagDoc = {"name": tag};
-                    AttribDB.update({namespace: namespace,attribute_name: attribute_name}, {$push: {tags: newTagDoc}})
+                    AttribDB.update({namespace: namespace,name: attribute_name}, {$push: {tags: newTagDoc}})
                 }
             });
         }
@@ -237,6 +339,7 @@ function populate_attrib_database(projects){
     // must clear dbs here because init functions are in a loop
     DensityDB.remove({});
     AttribDB.remove({});
+    AttrDataDB.remove({});
 
     //Function to determine whether or not to scrape a project directory
     function wanted(project){
@@ -387,6 +490,8 @@ function initManagerHelper(dbSettings) {
         read_nodenames(entry,insertNodeNames);
     });
 }
+
+
 //populate the helper database from settings.json file
 //initManagerHelper();
 //populate_attrib_database();
@@ -400,7 +505,7 @@ Meteor.publish('basalAttrDB',function(namespace,project) {
 
     return [AttribDB.find({namespace: namespace},
         {fields:
-         {  attribute_name:1,
+         {  name:1,
             url:1,
             datatype:1,
             magnitude:1,
@@ -422,7 +527,7 @@ Meteor.publish('dataAttrDBcall',function(namespace,attribute_name) {
     // if not logged in function won't do anything
     if(!this.userId) { return this.stop(); }
 
-    return AttribDB.find({namespace: namespace,attribute_name: attribute_name},
+    return AttribDB.find({namespace: namespace,name: attribute_name},
         {fields:
          {  node_ids: 1,
             values: 1
@@ -471,7 +576,8 @@ if (dbSettings) {
     //populate databases if specified in dbSettings.json
     if(managerInit.populateAttrDB) {
         console.log('Using all files to populate Attribute database');
-        populate_attrib_database(managerInit.projectsToPopulate)
+        populate_attrib_database(managerInit.projectsToPopulate);
+        fillEmptyDensityDBEntries();
     }
     if(managerInit.populateManagerHelperDbs) {
         console.log('Using dbSettings to initiate the MapManager helpers');
@@ -481,7 +587,7 @@ if (dbSettings) {
 Meteor.methods( {
     tryagg : function(){
         console.log("tryagg got called...")
-        DensityDB.aggregate({$match : {attribute_name: "Tissue"}},{$lookup : {}});
+        DensityDB.aggregate({$match : {name: "Tissue"}},{$lookup : {}});
     }
 }
 

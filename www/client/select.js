@@ -172,7 +172,8 @@ Select = (function () { // jshint ignore: line
             });
         }, 500);
 
-        // Create a selection polygon & find the hexagons in it
+        // Create a selection polygon & find the hexagons in ity
+        console.log("create_dynamic_biindary called with function():");
         Shortlist.create_dynamic_binary_layer(findHexagonsInPolygon(shape));
 
         resetEverything();
@@ -290,6 +291,8 @@ Select = (function () { // jshint ignore: line
         
             // Add a selection with as many of the requested hexes as actually
             // exist and pass the current filters.
+            console.log("create_dynamic_biindary called");
+
             Shortlist.create_dynamic_binary_layer(to_select);
 
         // TODO future use

@@ -2,7 +2,7 @@
      "dev" :{
       "populateAttrDB": false,
 	  "populateManagerHelperDbs" : true,
-	  "projectsToPopulate" : [ "Pancan12/SampleMap/", "dmccoll_MESO/SampleMap/" ] ,
+	  "projectsToPopulate" : [ "Pancan12/SampleMap/","dmccoll_MESO/SampleMap/" ] ,
       "ManagerAddressBook": 
        [
 		{

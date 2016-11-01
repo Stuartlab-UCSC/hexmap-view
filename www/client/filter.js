@@ -11,6 +11,11 @@ var app = app || {};
         CONT_LABEL = 'Numeric',
         UNTAGGED_LABEL = 'Untagged attributes',
         dataTypeList = ['bin', 'cat', 'cont'],
+        realDataTypeLables = {
+            bin  : "Binary",
+            cat  : "Categorical",
+            cont : "Continuous"
+        },
         label = {
             bin: BIN_LABEL,
             cat: CAT_LABEL,
@@ -101,7 +106,7 @@ var app = app || {};
                 return 'table-row';
             } else {
                 return 'none';
-            };
+            }
         },
         allTagschecked: function () {
             return chk.get('allTags');
@@ -119,6 +124,37 @@ var app = app || {};
             return chk.get('save');
         },
     });
+
+    //HACK Duncan is starting to filter using the database..
+    // all you need to do that is to pass the tags you want to see
+    // into the database
+    getSelectedTags = function(){
+        // returns the checked boxes from the long list
+        //this function needs to interface with the longlist in the case
+        // where we are getting data from Stuart Lab
+
+        //get selected tags
+        var tags = _.filter(tagList.get(), function(tag){
+            return chk.get(tag);
+        });
+
+        //get selected datatypes
+        var dtypes = _.filter(dataTypeList, function(dytpe){
+            return chk.get(dytpe);
+        });
+
+        dtypes = _.map(dtypes,function (dtype) {
+                return realDataTypeLables[dtype];
+            }
+        );
+
+        var filters = {
+            dtypes : dtypes,
+            tags   : tags
+        };
+        //console.log(filters);
+        return filters;
+    };
 
     function passFilter(layer) {
 
@@ -243,6 +279,7 @@ var app = app || {};
     function requestLayerTags () {
         //ATTRDB:
         if (TESTING){
+            console.log("getting Tag data from server");
             tagData =attrRequestLayerTags();
 
             if(tagData.length > 1){
@@ -298,6 +335,7 @@ var app = app || {};
     }
 
     function whenCheckboxesChange () {
+        console.log("when check boxes change called");
         _.each(tagList.get(), function (tag, i) {
             if (tag !== 'all') {
                 chk.get(tag);
@@ -307,6 +345,7 @@ var app = app || {};
     }
 
     function whenDisplayLayersChange () {
+        //console.log("whenDisplayLayersChange called");
         var display = Session.get('displayLayers');
         if (!display) return;
 

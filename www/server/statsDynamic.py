@@ -19,7 +19,7 @@ def dynamicLayoutAwareStats(parm):
     fpath = os.path.join(parm['directory'], fname)
     if not os.path.isfile(fpath):
         print "Error:", fname, "not found, so statistics could not be computed\n"
-        return 0;
+        return 0
 
     windowNodes = []
     windowAdditives = []

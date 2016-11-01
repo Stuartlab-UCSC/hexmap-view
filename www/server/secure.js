@@ -5,14 +5,14 @@
 // logins, associating users with roles, authorization...
 
 //createRole('dev');
-//createRole('viewAll');
+createRole('viewAll');
 //createRole('queryAPI');
 //createRole('dev');
 //createRole('CIRM');
 //removeRoles(['Pancan12']);
 //removeUsersFromRoles(['jstuart@ucsc.edu'], ['dev', 'Pancan12']);
 //showUsernames();
-//addUsersToRoles (['reviewer@unknown'] , ['Pancan12']);
+addUsersToRoles(['duncmc831@gmail.com'] , ['viewAll']);
 //removeUser('reviewer@');
 //var users = [
 //    {email: 'hexmap@ucsc.edu', roles: ['dev']},

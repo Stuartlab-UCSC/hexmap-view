@@ -189,7 +189,7 @@ Hex = (function () { // jshint ignore: line
  
     // Phase 5 init: Autotracker to find when the layers are initialized
     Session.set('initedLayerTypes', false);
-    Session.set('initedLayersArray', false);
+    Session.set('initedLayersArray', false); //switched this to see
     function areLayersInitialized (autorun) {
         if (Session.get('initedLayerTypes') &&
             Session.get('initedLayersArray')) {

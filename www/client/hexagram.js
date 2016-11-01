@@ -18,6 +18,8 @@ var app = app || {};
 
     
     function add_layer_url(layer_name, layer_url, attributes) {
+        //TIMING
+        console.log("add_layer_url called");
         // Add a layer with the given name, to be downloaded from the given URL, to
         // the list of available layers.
         // Attributes is an object of attributes to copy into the layer.
@@ -243,7 +245,7 @@ var app = app || {};
 
         //ATTRDB:
         //console.log('WITH_LAYERS: called with layer_list:',layer_list);
-        if(layer_list.length == 0) {
+        if(layer_list.length === 0) {
             // Base case: run the callback with an empty list
             callback([]);
         } else {
@@ -275,11 +277,125 @@ var app = app || {};
         // Returns true if a layer exists with the given name, false otherwise.
         return layers.hasOwnProperty(layer_name);
     };
+    
+    fill_layer_metadata2 = function (container, displayDoc) {
+        //display doc has everything we will be displaying on the selectBox
 
-    fill_layer_metadata = function (container, layer_name) {
         // Empty the given jQuery container element, and fill it with layer metadata
         // for the layer with the given name.
 
+        //console.log("calling fill_layer_metadata2, displayDoc",displayDoc);
+        //console.trace();
+
+        // Empty the container.
+        container.html("");
+
+        var binaryCountsProcessed = false;
+
+        //iterate over all the attributes we will be displaying
+        for(var attribute in displayDoc) {
+            //the only attribute we need for display but don't want to display
+            if(attribute === "datatype" || attribute === 'name') {continue}
+            //console.log("filling layer for", attribute, '=',displayDoc[attribute]);
+            //console.trace();
+
+            var text;
+
+            if ((attribute === 'p' || attribute === 'n')
+                && displayDoc.datatype === "Binary") {
+                // Special case these two attributes
+                // this is so you don't use other formatting for n or positives
+                // if binary
+
+                if (binaryCountsProcessed) continue;
+                binaryCountsProcessed = true;
+
+                var n = Number(displayDoc.n),
+                    p = Number(displayDoc.p),
+                    hexCount = Object.keys(polygons).length;
+
+                if (_.isNaN(n)) n = 0;
+                if (_.isNaN(p)) p = 0;
+
+                text = p + '/' + n + ' (' + (hexCount - n) + ' missing)';
+
+
+            } else {  // process the usual attributes
+                // This holds the metadata value we're displaying
+                var value = displayDoc[attribute];
+
+                if(typeof value === "number" && isNaN(value)) {
+                    // If it's a numerical NaN (but not a string), just leave it out.
+                    continue;
+                }
+
+                if(value === undefined) {
+                    // Skip it if it's not actually defined for this layer
+                    continue;
+                }
+
+                // If we're still here, this is real metadata.
+                // Format it for display.
+                var value_formatted;
+                if (typeof value === "number") {
+                    if(value % 1 == 0) {
+                        // It's an int!
+                        // Display the default way
+                        value_formatted = value;
+                    } else {
+                        // It's a float!
+                        // Format the number for easy viewing
+                        value_formatted = value.toExponential(1);
+                    }
+                } else {
+                    // Just put the thing in as a string
+                    value_formatted = value;
+                }
+
+                // Do a sanity check
+                /*
+                if (attribute === 'n'
+                    && value_formatted > Object.keys(polygons).length) {
+                    console.log('bad metadata: layer, n, hexCount:',
+                        layer_name, layers[layer_name].n, Object.keys(polygons).length);
+                }
+                */
+                // Do some transformations to make the displayed labels make more sense
+                //console.log("attribute = vale", attribute,'=',value);
+                lookup = {
+                    n: "Non-empty values",
+                    positives: "Number of ones",
+                    inside_yes: "Ones in A",
+                    outside_yes: "Ones in background",
+                    density: "Density score",
+                    p_value: "Single test p-value",
+                    correlation: "Correlation",
+                    adjusted_p_value: "BH FDR",
+                    adjusted_p_value_b: "Bonferroni p-value",
+                };
+
+                if (lookup[attribute]) {
+
+                    //if (lookup[attribute] === 'Number of ones') console.log(layer_name, value_formatted);
+                    // Replace a boring short name with a useful long name
+                    attribute = lookup[attribute];
+                }
+                text = attribute + " = " + value_formatted;
+            }
+
+            //console.log("text for this layer is: T->", text);
+            var metadata = $("<div\>").addClass("layer-metadata");
+            //console.log("appending to metadatacontainer = ",text);
+            metadata.text(text);
+
+            container.append(metadata);
+        }
+    }
+    fill_layer_metadata = function (container, layer_name) {
+        // Empty the given jQuery container element, and fill it with layer metadata
+        // for the layer with the given name.
+        //console.log("calling fill_layer_metadata1, container",container);
+        //console.trace();
         // Empty the container.
         container.html("");
 
@@ -356,8 +472,8 @@ var app = app || {};
                 // Do a sanity check
                 if (attribute === 'n'
                     && value_formatted > Object.keys(polygons).length) {
-                    console.log('bad metadata: layer, n, hexCount:',
-                        layer_name, layers[layer_name].n, Object.keys(polygons).length);
+                    //console.log('bad metadata: layer, n, hexCount:',
+                    //    layer_name, layers[layer_name].n, Object.keys(polygons).length);
                 }
 
                 // Do some transformations to make the displayed labels make more sense
@@ -371,7 +487,7 @@ var app = app || {};
                     correlation: "Correlation",
                     adjusted_p_value: "BH FDR",
                     adjusted_p_value_b: "Bonferroni p-value",
-                }
+                };
 
                 if (lookup[attribute]) {
 
@@ -383,6 +499,7 @@ var app = app || {};
             }
 
             var metadata = $("<div\>").addClass("layer-metadata");
+
             metadata.text(text);
 
             container.append(metadata);
@@ -435,21 +552,21 @@ var app = app || {};
 
         // Subscribe all the tool listeners to the map
         Tool.subscribe_listeners(googlemap);
-    }
+    };
 
     initMap = function () {
 
         // Initialize the google map and create the hexagon assignments
         createMap();
         createHexagons();
-    }
+    };
 
     have_colormap = function (colormap_name) {
         // Returns true if the given string is the name of a colormap, or false if
         // it is only a layer.
 
         return (colormap_name in colormaps)
-    }
+    };
 
     function get_range_position(score, low, high) {
         // Given a score float, and the lower and upper bounds of an interval (which
@@ -490,7 +607,7 @@ var app = app || {};
 
         // Make a new one to happen as soon as this event finishes
         refreshColorsHandle = Meteor.setTimeout(refreshColorsInner, delay ? delay : 0);
-    }
+    };
 
     function refreshColorsInner() {
 
@@ -520,7 +637,7 @@ var app = app || {};
             // We need to do this inside the callback, once we already have the
             // layers, so that we properly use the newest slider range endpoints,
             // which are updated asynchronously.
-            var layer_limits = []
+            var layer_limits = [];
             for(var i = 0; i < current_layers.length; i++) {
                 var range = Shortlist.get_slider_range(current_layers[i]);
                 print("Layer range " + range[0] + " to " + range[1]);
@@ -982,6 +1099,18 @@ var app = app || {};
         //initLayerIndex does the puts the minimimal amount of information
         // into the layers object
         //if using the datbases
+
+        //HACK dont know where this should go, at the very front no doubt
+        Meteor.call("getNamespace", ctx.project, function (err, namespace) {
+            if (err) {
+                console.log("error in retrieving namespace, db can not be initiated")
+            } else {
+                //console.log(namespace);
+                Session.set("namespace", namespace);
+
+            }
+        });
+
         if (TESTING) {attrDB.initAttrDB();}
         else {
             // Download the layer index
