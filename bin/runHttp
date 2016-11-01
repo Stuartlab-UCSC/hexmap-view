@@ -1,9 +1,9 @@
 #!/bin/bash
-# Start the http server on production
+# Start the http server for a hexmap installation
 
-DIR=/data
-NODE_DIR=/data/home/hexmap/.meteor/packages/meteor-tool/.1.1.10.ki0ccv++os.linux.x86_64+web.browser+web.cordova/mt-os.linux.x86_64/dev_bundle/bin
+INSTALL=dev
 
-touch $DIR/http.log
-mv $DIR/http.log $DIR/http.prev.log
-$NODE_DIR/node $DIR/http/http.js &> $DIR/http.log &
+source /cluster/home/swat/sec/runIncludes
+touch $HEXMAP/http.log
+mv $HEXMAP/http.log $HEXMAP/http.prev.log
+$METEOR_BASE/bin/node $HEXMAP/http/http.js &> $HEXMAP/http.log &

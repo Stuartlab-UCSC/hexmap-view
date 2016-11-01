@@ -10,6 +10,12 @@
     text-decoration: none;
 }
 
+#homePage .createMapHome {
+    text-align: center;
+    font-size: 1em;
+    padding: 1em;
+}
+
 #homePage .allProjects {
     margin: 0 auto;
     text-align: center;
@@ -26,18 +32,21 @@
     margin: 1em;
 }
 
-#homePage .thumbnail {
+#homePage .thumbnail,
+#homePage .thumbnail_like {
     display: inline-block;
     text-align: center;
     background-color: white;
     vertical-align: top;
 }
 
-#homePage .thumbnail img {
+#homePage .thumbnail img,
+#homePage .thumbnail_like img {
     height: 300px;
 }
 
-#homePage .thumbnail img:hover {
+#homePage .thumbnail img:hover,
+#homePage .thumbnail_like img:hover {
     height: 298px;
     border: blue 1px solid;
 }

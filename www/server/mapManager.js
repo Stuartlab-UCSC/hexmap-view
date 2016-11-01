@@ -1,20 +1,117 @@
 //mapManager prototype. Currently only used for reflections.
 
-
 var Fiber = Npm.require('fibers');
 var readline  = Npm.require('readline');
 var fs = Npm.require('fs');
 var Future = Npm.require('fibers/future');
 
-// if not global then when I try and use the local in zLoadDbs.js I get:
-// A method named '/ManagerFileCabinet/insert' is already defined
-// could keep local if all manipualtions are in one file?
+var MapManager = require('./mapManager');
+var PythonCall = require('./pythonCall');
 
-ManagerFileCabinet = new Mongo.Collection('ManagerFileCabinet');
-ManagerAddressBook = new Mongo.Collection('ManagerAddressBook');
-LayerPostOffice = new Mongo.Collection('LayerPostOffice');
-Windows = new Mongo.Collection('Windows');
+var ManagerFileCabinet = new Mongo.Collection('ManagerFileCabinet');
+var ManagerAddressBook = new Mongo.Collection('ManagerAddressBook');
+var LayerPostOffice = new Mongo.Collection('LayerPostOffice');
+var Windows = new Mongo.Collection('Windows');
+var Path = Npm.require('path');
 
+function read_nodenames(managers_doc,callback) {
+    //function for reading the nodeIds (both feature and sample) from a 
+    // reflection datafile
+    
+    var filename = Path.join(FEATURE_SPACE_DIR, managers_doc.mapId.split(('/'))[0] + '/' + managers_doc.datapath);
+
+    var node_names = [];
+    var first = true;
+
+    fs.stat(filename,function(err,stats) {
+        if (err) {
+            //console.log(err);
+            return ;
+        }
+        else if (stats.isFile() ){
+            var featOrSamp = managers_doc.featOrSamp;
+
+            var rl = readline.createInterface({
+                input : fs.createReadStream(filename),
+                terminal: false
+            });
+
+            //if we are dealing with sample nodes we only read the header,
+            // if dealing with features need to grab first element after first line
+            if(featOrSamp === 'feature') {
+                rl.on('line', function (line) {
+                    if(!first) {
+                        //console.log(line.split('\t')[0])
+                        node_names.push(line.split('\t')[0]);
+                    } else {
+                        first = false;
+                    }
+                });
+            } else if (featOrSamp === 'sample') {
+                rl.on('line', function (line) {
+                    //console.log('typeOfline:',typeof(line));
+                    node_names = line.split('\t').splice(1);
+                    //console.log('node_names',node_names);
+                    rl.close();
+                });
+            }
+            //after we read stuff in we put it in the database (callback should do that)
+            rl.on('close',function() {
+                callback(managers_doc,node_names);
+            });
+        }
+        else {
+            callback(managers_doc,[])
+        }
+    });
+
+}
+
+function insertNodeNames(doc,node_names){
+    //inserts a list of nodes into the proper FileCabinet entry
+    new Fiber( function () {
+            ManagerFileCabinet.update(doc, {
+                $set: {
+                    available_nodes: node_names
+                }
+            });
+    }).run();
+}
+
+function initManagerHelper() {
+    //This function initializes the databases needed for map attribute transfer.
+    // Initialized by reading from Meteor's settings.json file
+    // erases old db entries and starts fresh everytime the server is booted
+
+    //remove old dbs
+    Windows.remove({});
+    ManagerAddressBook.remove({});
+    ManagerFileCabinet.remove({});
+    LayerPostOffice.remove({});
+
+    //insert ManangerAddressBook entries
+    var addyentries =
+        Meteor.settings.server.mapManagerHelper.ManagerAddressBook;
+
+    _.each(addyentries,function(entry){
+        ManagerAddressBook.insert(entry);
+        //console.log(entry);
+        //read_nodenames(entry,insertNodeNames);
+    });
+
+    //insert ManagerFileCabinet entries
+    var cabinentEntries =
+        Meteor.settings.server.mapManagerHelper.ManagerFileCabinet;
+
+    _.each(cabinentEntries,function(entry){
+        ManagerFileCabinet.insert(entry);
+        //console.log(entry.datapath);
+        //console.log(FEATURE_SPACE_DIR)
+        read_nodenames(entry,insertNodeNames);
+    });
+}
+//populate the helper database from settings.json file
+initManagerHelper();
 
 //The following are helper functions specific to reflection functionality
 function colorMapMaker(){
@@ -156,14 +253,35 @@ function parmMaker(mapId,toMapId, operation,argsObj) {
         // TODO: of the major directory, for example
         // TODO: cont: geneMap -> geneMap instance.
         // TODO: Will need a refactoring of the databases to make this smooth
-        parm.datapath = FEATURE_SPACE_DIR +
+        parm.datapath = Path.join(FEATURE_SPACE_DIR,
                         mapId.split('/')[0] +
                         '/' +
-                        parm.datapath;
+                        parm.datapath);
     }
 
     return parm;
 
+}
+
+exports.reflection_post_calc = function (result, context) {
+    
+    // Process the results of the reflection request where:
+    // result: { code: <http-code>, data: <result-data> }
+    
+    var newLayer = context.post_calc_parms.newLayer,
+        userId = context.post_calc_parms.userId,
+        toMapId = context.post_calc_parms.toMapId;
+    
+    // Report any errors
+    if (result.code !== 200) {
+        PythonCall.report_local_result (result, context);
+        return;
+    }
+    newLayer.data = context.js_result.data;
+    
+    dropInLayerBox(newLayer, userId, toMapId);
+    
+    PythonCall.report_local_result(result, context);
 }
 
 Meteor.methods({
@@ -178,9 +296,38 @@ Meteor.methods({
                           selectionSelected) {
         //console.log(Meteor.userId());
         this.unblock();
-        var future = new Future();
+        var post_calc_parms = {
+                newLayer: layerMaker(selectionSelected+'_' +dataType+ '_Reflect'),
+            };
+        post_calc_parms.newLayer.colormap = colorMapMaker();
+        
+        var ctx = {
+            post_calc_parms,
+            future: new Future(),
+        };
+        
+        if ( operation === 'reflection' ) {
+        
+            //load parameters specific to reflection python script
+            var userArgs = {node_ids : nodeIds, datatype : dataType};
+            var parameters = parmMaker(mapId,toMapId, operation, userArgs);
+            
+            // Save some values need in the post-calculation function
+            ctx.post_calc = MapManager.reflection_post_calc;
+            post_calc_parms.userId = userId;
+            post_calc_parms.toMapId = toMapId;
+            
+            PythonCall.call(operation, parameters, ctx);
+            
+        } else  {
+            console.log('Incorrect toMapId input into mapManager');
+        }
+        
+        return ctx.future.wait();
+    }
+});
 
-
+/*
         var newLayer = layerMaker(selectionSelected+'_' +dataType+ '_Reflect');
         newLayer.colormap = colorMapMaker();
         
@@ -189,20 +336,23 @@ Meteor.methods({
             var userArgs = {node_ids : nodeIds, datatype : dataType};
             var parameters = parmMaker(mapId,toMapId, operation, userArgs);
             //console.log("mapManager calling python with:",parameters);
-            callPython(operation, parameters, function (result) {
-                if (result) {
-                    newLayer.data = result.data;
-                    dropInLayerBox(newLayer,userId,toMapId);
-                }
-            });
+            
+            ctx. post_calc: MapManager.reflection_post_calc,
+               newLayer: newLayer,
+               userId: userId,
+               toMapId: toMapId,
+            }
+
+            // Success, so call the python function
+            PythonCall.call(operation, parameters, context);
+
         } else  {
             console.log('Incorrect toMapId input into mapManager');
         }
-
-        return future.wait();
-
+        return ctx.future.wait();
     }
 });
+*/
 
 //subscribe is in checkLayerBox.js
 Meteor.publish('userLayerBox', function(userId, currMapId) {
@@ -329,4 +479,3 @@ Meteor.methods({
     }
 });
 //end Windows collection manipulators
-

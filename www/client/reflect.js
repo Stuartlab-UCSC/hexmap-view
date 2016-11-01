@@ -2,7 +2,6 @@
 // This captures the user input to reflect a set of nodes on another map.
 
 var app = app || {};
-
 (function (hex) { // jshint ignore: line
 Reflect = (function () { // jshint ignore: line
     var ManagerAddressBook = new Mongo.Collection('ManagerAddressBook');
@@ -25,6 +24,14 @@ Reflect = (function () { // jshint ignore: line
         //early_received_layers = []; // layers received before we're ready
 
 
+    function hide() {
+        // Free some things, then hide the dialog
+        selectionSelected = selectionList.selected;
+        selectionList.destroy();
+        selectionList = undefined;
+        dialogHex.hide();
+    }
+ 
     function show () {
 
         // Show the contents of the dialog, once per trigger button click
@@ -153,14 +160,6 @@ Reflect = (function () { // jshint ignore: line
             message += ' Therefore reflection was not computed.';
         }
         alert(message);
-    }
- 
-    function hide() {
-        // Free some things, then hide the dialog
-        selectionSelected = selectionList.selected;
-        selectionList.destroy();
-        selectionList = undefined;
-        dialogHex.hide();
     }
  
    function mapIt () {

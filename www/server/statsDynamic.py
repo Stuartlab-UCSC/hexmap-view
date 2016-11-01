@@ -6,7 +6,6 @@ to dynamic and pre-computed stats: statsSortLayer.
 """
 
 import sys, os, json, copy, csv, math, traceback, pprint
-import scipy.stats
 
 from statsLayer import ForEachLayer
 
@@ -51,17 +50,9 @@ def dynamicIgnoreLayoutStats(parm):
 
     parm['hexNames'] = hexNames
 
-def dynamicStats(parmFile):
+def dynamicStats(parm):
 
     # This handles dynamic stats initiated by the client
-
-    if not os.path.isfile(parmFile):
-        print "Error: temporary parm file,", parmFile, "not found, so statistics could not be computed\n"
-        return 0;
-
-    # Read the parms from the temp file
-    with open(parmFile, 'rU') as f:
-        parm = json.loads(f.read())['parm'];
 
     # Populate the layer to file names dict by pulling the
     # layernames and base layer filenames from layers.tab
@@ -103,18 +94,17 @@ def dynamicStats(parmFile):
 
     # Create an instance of ForEachLayer and call it
     oneLayer = ForEachLayer(parm)
-    oneLayer()
+    results = oneLayer()
+    return results
 
-    return 0
+def fromNodejs(args):
+    return dynamicStats(args)
 
 if __name__ == "__main__" :
     try:
-        # Get the return code to return
-        # Don't just exit with it because sys.exit works by exceptions.
-        return_code = dynamicStats(sys.argv[1])
+        return_code = dynamicStats(sys.argv[1:])
     except:
         traceback.print_exc()
-        # Return a definite number and not some unspecified error code.
         return_code = 1
         
     sys.exit(return_code)

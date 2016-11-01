@@ -35,7 +35,7 @@ var app = app || {};
             }
             // Find the bar colors
             if (is_binary(layer_name)) {
-                colors = ['#555555', COLOR_BINARY_ON];
+                colors = ['#555555', Colors.binary_on()];
             } else {
                 var colormap = colormaps[layer_name];
                 colors = _.map(colormap, function (cat) {

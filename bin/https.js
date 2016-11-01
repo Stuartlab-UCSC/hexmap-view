@@ -1,7 +1,7 @@
 const PROXY_PORT = 443;
 const TARGET_PORT = 8443;
 
-const DIR = '/data/home/hexmap/sec/';
+const DIR = '/cluster/home/swat/sec/';
 const httpProxy = require('http-proxy'); 
 const fs = require('fs');
 const KEY = DIR + 'tumormap.key';

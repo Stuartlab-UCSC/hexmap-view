@@ -4,8 +4,8 @@
 
 var app = app || {}; 
 
-(function (hex) { 
-Project = (function () {
+(function (hex) { // jshint ignore: line
+Project = (function () { // jshint ignore: line
     //'use strict';
  
     // Placeholder text when no project is selected
@@ -47,9 +47,9 @@ Project = (function () {
             var data = {text: major};
             if (minors.length) {
                 data.children = _.map(minors, function (minor) {
-                    id = major + '/' + minor + '/';
+                    var id = major + '/' + minor + '/';
                     return { id: id, text: minor };
-                })
+                });
             } else {
                 data.id = major + '/';
             }
@@ -65,14 +65,15 @@ Project = (function () {
             // Handle result selecting
             .on("select2-selecting", function(event) {
             
-                $('#s2id_project .select2-choice span').removeClass('noProject');
+                $('#s2id_project .select2-choice span')
+                    .removeClass('noProject');
 
                 // The select2 id of the thing clicked is event.val
-                loadProject(event.val);
+                Hex.loadProject(event.val);
             });
 
         // Make the bottom of the list within the main window
-        setHeightSelect2($('#project'));
+        Util.setHeightSelect2($('#project'));
 
         // If a protected project was loaded before and the new user is not
         // authorized to see it, or there is no one logged in, give a message
@@ -88,8 +89,9 @@ Project = (function () {
                 .text(PLACEHOLDER_TEXT)
                 .addClass('noProject');
 
-            alert('Please sign in to see map "'
-                + getHumanProject(ctx.project) + '".\nOr select another map.');
+            alert('Please sign in to see map "' +
+                Util.getHumanProject(ctx.project) +
+                    '".\nOr select another map.');
  
         } else {
 
@@ -98,38 +100,38 @@ Project = (function () {
  
              // Set our own text on the selected option when drop-down is closed
             $('#s2id_project .select2-choice span')
-                .text(getHumanProject(ctx.project))
+                .text(Util.getHumanProject(ctx.project))
                 .removeClass('noProject');
             Session.set('initedProject', true);
          }
-	};
+	}
  
     function signInClicked(count) {
  
         // Set focus to the login-email input text box
-        if (_.isUndefined(count)) count = 0;
+        if (_.isUndefined(count)) { count = 0; }
         var reps = 20,
-            mSecs = 100,
-            timer = setTimeout(function () {
+            mSecs = 100;
+        Meteor.setTimeout(function () {
                 if ($('#login-email').length > 0) {
                     $('#login-email').focus();
                 } else if (count < reps ) {
-                    loginFocus(count + 1);
+                    signInClicked(count + 1);
                 }
             }, mSecs);
-	};
+	}
  
     return {
     
         make_name_unique: function (map_name) {
     
-            // TODO we should clean the name if this is a name created by the user
+            // TODO we should clean the name if this is a name created by
+            // the user
      
             // We're done if the name is unique
             if (!is_project_on_list(map_name)) { return map_name; }
 
-            var suffix,
-                last_suffix,
+            var last_suffix,
                 name = map_name,
                 seq = 1;
      
@@ -158,13 +160,14 @@ Project = (function () {
       
             $('.login').on('click', $('#login-sign-in-link'), signInClicked);
      
-            // Repopulate projects whenever the username changes, including log out
+            // Repopulate projects whenever the user changes, including log out
             Meteor.autorun(function() {
-                var user = Meteor.user();
+                var user = Meteor.user(); // jshint ignore: line
                 
                 Meteor.call('getProjects', function (error, projects_returned) {
                     if (error) {
-                        banner('warn', "Unable to retrieve project data.\n" + error);
+                        Util.banner('warn',
+                            "Unable to retrieve project data.\n" + error);
                         return;
                     }
                     projects = projects_returned;
@@ -172,6 +175,6 @@ Project = (function () {
                 });
             });
         },
-    }
+    };
 }());
 })(app);

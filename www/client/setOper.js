@@ -97,7 +97,8 @@ var app = app || {};
             }
         
             // Add this new layer to the shortlist
-            var layer_name = create_dynamic_binary_layer (nodeIds, new_layer_name);
+            var layer_name = Shortlist.create_dynamic_binary_layer(
+                nodeIds, new_layer_name);
         });
     }
 

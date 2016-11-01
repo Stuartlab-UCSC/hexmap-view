@@ -242,7 +242,7 @@ var app = app || {};
         }
         clearAllFilters();
         updateLonglist();
-        update_shortlist_metadata();
+        Shortlist.update_shortlist_metadata();
  
         // Skip the banner on the first sort
         if (firstSort) {
@@ -554,7 +554,7 @@ var app = app || {};
         // Set up common parameters between layout-aware and -ignore
         opts.layerA = focus_attr;
         opts.layerIndex = ctx.layer_names_by_index.indexOf(focus_attr);
-        opts.directory = ctx.project;
+        opts.directory = VIEW_DIR + ctx.project;
         opts.tempFile = 'yes';
         opts.tsv = true;
 
@@ -567,16 +567,9 @@ var app = app || {};
                 if (error) {
                     banner('error', error);
                     updateSortUi('noStats');
-                } else if (typeof result === 'string'
-                    && result.slice(0,5).toLowerCase() === 'error') {
-                    banner('error', result);
-                    updateSortUi('noStats');
-                } else if (typeof result === 'string'
-                    && result.slice(0,4).toLowerCase() === 'info') {
-                    banner('info', result);
-                    updateSortUi('noStats');
                 } else {
-                    receive_data(result, focus_attr, opts);
+                    console.log('getDynamicStats: python call success');
+                    receive_data(result.data, focus_attr, opts);
                 }
             }
         );

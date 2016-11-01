@@ -2,12 +2,10 @@
 // This contains various utilities used throughout the code.
 
 var app = app || {};
+(function (hex) { // jshint ignore: line
+Util = (function () { // jshint ignore: line
 
-    //'use strict';
-(function (hex) {
-Util = (function () {
-
-    get_username = function (callback) {
+    function get_username (callback) {
         
         // Callback will be called with one parameter: the username or undefined
         Meteor.call('get_username', function (error, results) {
@@ -19,88 +17,19 @@ Util = (function () {
         });
     }
     
-    clean_file_name = function (dirty) {
+    function clean_file_name (dirty) {
         
         // Make a directory or file name out of some string
-        // Replace any tough characters with an underscore
-        if (!dirty) {return undefined}
+        // Valid characters:
+        //     a-z, A-Z, 0-9, dash (-), dot (.), underscore (_)
+        // All other characters are replaced with underscores.
+        
+        if (!dirty) { return undefined; }
         
         return dirty.replace(/[^A-Za-z0-9_\-\.]/g, "_");
     }
     
-    session = function (prefix, operation, name,  val) {
- 
-        // Perform a get, set, or equals on a state variable with a prefix.
-        // This allow us to simulate a reactiveDict functionality in a Session
-        // variable. We want a Session variable so the value will be preserved
-        // across hot code pushes.
-        var key;
- 
-        // Build the key from the prefix and name
-        if (prefix === 'filter_show') {
-            key = 'shortlist_filter_show_' + name;
-        } else if (prefix === 'filter_value') {
-            key = 'shortlist_filter_value_' + name;
-        } else {
-            banner('error', 'Illegal key on session()');
-            console.trace();
-        }
- 
-        // Lack of operation means this is a get
-        if (operation === 'get') {
-            return Session.get(key);
-
-        } else if (operation === 'equals') {
-            return Session.equals(key, val);
-
-        } else if (operation === 'set') {
-            Session.set(key, val);
-
-        } else {
-            banner('error', 'Illegal operation on session()');
-            console.trace();
-        }
-    }
- 
-    is_continuous = function (layer_name) {
-        return (ctx.cont_layers.indexOf(layer_name.toString()) > -1);
-    }
- 
-    is_categorical = function (layer_name) {
-        return (ctx.cat_layers.indexOf(layer_name.toString()) > -1);
-    }
- 
-    is_binary = function (layer_name) {
-        return (ctx.bin_layers.indexOf(layer_name.toString()) > -1);
-    }
- 
-    round = function (x, n) {
-        if (!n) {
-            n = 0;
-        }
-        var m = Math.pow(10, n);
-        return Math.round(x * m) / m;
-    }
-
-    getHumanProject = function (project) {
- 
-        // Transform a project from dir structure to display for humans
-        return project.slice(0, -1);
-	};
-
-    projectNotFound = function (filename) {
-        if (!ctx.projectNotFoundNotified) {
-
-            // make the project name look it would in the URL & alert the user
-            var proj = ctx.project.slice(5, -1).replace('/', '.');
-            alert('"' + proj
-                + '" does not seem to be a valid project.\nPlease select another.'
-                + '\n(' + filename + ')');
-            ctx.projectNotFoundNotified = true;
-        }
-    }
-
-    banner = function (type, text) {
+    function banner (type, text) {
         // The type should be one of: info, error, warn, stay
 
         // Display a temporary message to the user on a banner.
@@ -120,7 +49,79 @@ Util = (function () {
         console.log(type + ':', text);
     }
 
-    tsvParseRows = function (tsv_data) {
+    function session (prefix, operation, name, val) {
+ 
+        // Perform a get, set, or equals on a session variable which represents
+        // a dict within a dict.
+        // So we can save 'shortlist_filter_value.disease' with a unique Session
+        // variable name of 'shortlist_filter_value_disease'.
+
+        var key;
+ 
+        // Build the key from the prefix and name
+        if (prefix === 'filter_show') {
+            key = 'shortlist_filter_show_' + name;
+        } else if (prefix === 'filter_value') {
+            key = 'shortlist_filter_value_' + name;
+        } else {
+            banner('error', 'Illegal key on session()');
+            console.trace();
+        }
+ 
+        if (operation === 'get') {
+            return Session.get(key);
+
+        } else if (operation === 'equals') {
+            return Session.equals(key, val);
+
+        } else if (operation === 'set') {
+            Session.set(key, val);
+
+        } else {
+            banner('error', 'Illegal operation on session()');
+            console.trace();
+        }
+    }
+ 
+    function is_continuous (layer_name) {
+        return (ctx.cont_layers.indexOf(layer_name.toString()) > -1);
+    }
+ 
+    function is_categorical (layer_name) {
+        return (ctx.cat_layers.indexOf(layer_name.toString()) > -1);
+    }
+ 
+    function is_binary (layer_name) {
+        return (ctx.bin_layers.indexOf(layer_name.toString()) > -1);
+    }
+ 
+    function round (x, n) {
+        if (!n) {
+            n = 0;
+        }
+        var m = Math.pow(10, n);
+        return Math.round(x * m) / m;
+    }
+
+    function getHumanProject (project) {
+ 
+        // Transform a project from dir structure to display for humans
+        return project.slice(0, -1);
+	}
+
+    function projectNotFound (filename) {
+        if (!ctx.projectNotFoundNotified) {
+
+            // make the project name look it would in the URL & alert the user
+            var proj = ctx.project.slice(5, -1).replace('/', '.');
+            alert('"' + proj +
+                '" does not seem to be a valid project.\nPlease select ' +
+                'another.\n(' + filename + ')');
+            ctx.projectNotFoundNotified = true;
+        }
+    }
+
+    function tsvParseRows (tsv_data) {
 
         // Even though the retrieved file has no new line or carriage return,
         // the browser inserts '\n\r' at the end of the file. So, remove any
@@ -138,7 +139,7 @@ Util = (function () {
         return $.tsv.parseRows(tsv_data);
     }
 
-    removeFromDataTypeList = function (layer_name) {
+    function removeFromDataTypeList (layer_name) {
 
         // Remove this layer from the appropriate data type list
         var index = ctx.bin_layers.indexOf(layer_name);
@@ -157,13 +158,13 @@ Util = (function () {
         }
     }
 
-    addToDataTypeList = function (name, data) {
+    function addToDataTypeList (name, data) {
         //
         // @param name: the name of the layer
         // @param data: an array of values for the layer
 
         // Skip any layers with no values.
-        if (data.length < 1) return;
+        if (data.length < 1) { return; }
 
         // Initialize our process-of-elimination vars
         var can_be_binary = true,
@@ -207,16 +208,17 @@ Util = (function () {
         }
     }
 
-    setHeightSelect2 = function ($el) {
+    function setHeightSelect2 ($el) {
  
         // Make the bottom of the list no longer than the main window
         $el.parent().on('select2-open', function () {
             var results = $('#select2-drop .select2-results');
-            results.css('max-height', $(window).height() - results.offset().top - 15);
+            results.css(
+                'max-height', $(window).height() - results.offset().top - 15);
         });
     }
 
-    createOurSelect2 = function ($el, optsIn, defaultSelection) {
+    function createOurSelect2 ($el, optsIn, defaultSelection) {
  
         // Create a select2 drop-down.
 
@@ -224,14 +226,14 @@ Util = (function () {
         var opts = {
             dropdownAutoWidth: true,
             minimumResultsForSearch: -1,
-        }
+        };
 
         // The caller's options override our favorite options
         for (var key in optsIn) {
             if (optsIn.hasOwnProperty(key)) {
                 opts[key] = optsIn[key];
             }
-        };
+        }
 
         // Create the select2 object
         $el.select2(opts);
@@ -260,7 +262,7 @@ Util = (function () {
         addToDataTypeList: addToDataTypeList,
         setHeightSelect2: setHeightSelect2,
         createOurSelect2: createOurSelect2,
-    }
+    };
 }());
 
 // TODO needed while transitioning to more scope protection

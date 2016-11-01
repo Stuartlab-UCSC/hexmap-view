@@ -55,33 +55,11 @@ with_layer = function (layer_name_in, callback, try_count) {
     var layer_name = layer_name_in.slice();
  
     // First get what we have stored for the layer
-    /*
-    console.log('layer_name ###' + layer_name + '###');
-    console.log('layers', layers);
-    console.log("layers['Node ID']", layers['Node ID']);
-    //console.log('layers.sample', layers.sample);
-    console.log('layers[layer_name]', layers[layer_name]);
-    console.log("layers[eval('layer_name')]", layers[eval('layer_name')]);
-    console.log("eval('layer_name')  ###" + eval('layer_name') + '###');
-    var layer = layers[eval('layer_name')];
-    */
     var layer = layers[layer_name];
 
         if (layer === undefined) {
             console.log('TODO layer is undefined for', layer_name,
                 '. You may need to clear your cache.');
-            /*
-            if (try_count > 3) {
-                console.log('TODO layer is undefined for', layer_name,
-                    '. You may need to clear your cache.');
-            } else {
-                console.log('TODO layer is undefined for', layer_name,
-                    '. Trying again after a pause.');
-                Meteor.setTimeout(function () {
-                    with_layer(layer_name, callback, try_count + 1);
-                }, 2000);
-            }
-            */
             return;
         }
 
@@ -454,7 +432,7 @@ refreshColors = function (delay) {
     
     // Get rid of the previous redraw request, if there was one. We only want 
     // one.
-    window.clearTimeout(refreshColorsHandle);
+    Meteor.clearTimeout(refreshColorsHandle);
     
     // Make a new one to happen as soon as this event finishes
     refreshColorsHandle = Meteor.setTimeout(refreshColorsInner, delay ? delay : 0);
@@ -471,10 +449,10 @@ function refreshColorsInner() {
     
     // This holds a list of the string names of the currently selected layers,
     // in order.
-    var current_layers = get_active_layers();
+    var current_layers = Shortlist.get_active_layers();
     
     // This holds all the current filters
-    var filters = get_current_filters();
+    var filters = Shortlist.get_current_filters();
     
     // Obtain the layer objects (mapping from signatures/hex labels to colors)
     with_layers(current_layers, function(retrieved_layers) {  
@@ -490,7 +468,7 @@ function refreshColorsInner() {
         // which are updated asynchronously.
         var layer_limits = []
         for(var i = 0; i < current_layers.length; i++) {
-            var range = get_slider_range(current_layers[i]);
+            var range = Shortlist.get_slider_range(current_layers[i]);
             print("Layer range " + range[0] + " to " + range[1]);
             layer_limits.push(range);
         }
@@ -498,11 +476,11 @@ function refreshColorsInner() {
 
         // Turn all the hexes the filtered-out color, pre-emptively
         for(var signature in polygons) {
-            setHexagonColor(polygons[signature], noDataColor());
+            setHexagonColor(polygons[signature], Colors.noDataColor());
         }
         
         // Go get the list of filter-passing hexes.
-        with_filtered_signatures(filters, function(signatures) {
+        Shortlist.with_filtered_signatures(filters, function(signatures) {
             for(var i = 0; i < signatures.length; i++) {
                 // For each hex passign the filter
                 // This holds its signature label
@@ -510,7 +488,7 @@ function refreshColorsInner() {
                 
                 // This holds the color we are calculating for this hexagon.
                 // Start with the no data color.
-                var computed_color = noDataColor();
+                var computed_color = Colors.noDataColor();
                 
                 if(retrieved_layers.length >= 1) {
                     // We need to compute colors given the layers we found.
@@ -585,7 +563,7 @@ get_color = function (u_name, u, v_name, v) {
 
     if(isNaN(u) || isNaN(v) || u == undefined || v == undefined) {
         // At least one of our layers has no data for this hex.
-        return noDataColor();
+        return Colors.noDataColor();
     }
     
     // Find the color counts  for each of the layers
@@ -602,18 +580,18 @@ get_color = function (u_name, u, v_name, v) {
         if(u == 1) {
             if(v == 1) {    
                 // Both are on
-                return COLOR_BINARY_BOTH_ON;
+                return Colors.binary_both_on();
             } else {
                 // Only the first is on
-                return COLOR_BINARY_ON;
+                return Colors.binary_on();
             }
         } else {
             if(v == 1) {
                 // Only the second is on
-                return COLOR_BINARY_SECOND_ON;
+                return Colors.binary_second_on();
             } else {
                 // Neither is on
-                return COLOR_BINARY_OFF;
+                return Colors.binary_off();
             }
         }
     }
@@ -625,9 +603,9 @@ get_color = function (u_name, u, v_name, v) {
         // Use dark grey/yellow to make 1s stand out.
         
         if(u == 1) {
-            return COLOR_BINARY_ON;
+            return Colors.binary_on();
         } else {
-            return COLOR_BINARY_OFF;
+            return Colors.binary_off();
         }
     }
 

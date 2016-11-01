@@ -611,7 +611,7 @@ var app = app || {};
  
         // Initalize utilities not dependent on the initial UI draw
         initInfoWindow (gridMap);
-        initDownload();
+        Download.init();
  
         // Create a link to the methods
         add_tool("methods", function(ev) {

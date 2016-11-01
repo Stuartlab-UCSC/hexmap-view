@@ -12,7 +12,6 @@ import json
 import multiprocessing
 import warnings
 import traceback
-from pythonApiHelpers import sigDigs
 
 VALID_METRICS = ['canberra','cosine','euclidean','manhattan','chebyshev','correlation','hamming','jaccard','rogerstanimoto']
 
@@ -246,7 +245,6 @@ def main(opts):
 			results[sample_labels1[i]]['neighbors'].append(k[m])
 			neighborhood_metrics.append(v[m])
 			del sample_dict[k[m]]
-		#results[sample_labels1[i]]['median metric'] = sigDigs(numpy.median(neighborhood_metrics))
 	if len(log_file) > 0:
 		print >> log, str(time.time() - curr_time) + " seconds"
 		

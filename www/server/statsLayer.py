@@ -610,8 +610,8 @@ class ForEachLayer(object):
 
             s.adjustPvalue(s, preAdjusted, False)
 
-        # For dynamic stats, pass the results file name to the caller via stdout
+        # For dynamic stats, pass the results file name to the caller
         if hasattr(s, 'dynamic'):
-            print s.file
+            return s.file
 
         return 0

@@ -137,7 +137,7 @@ var app = app || {}; // jshint ignore:line
                 }
             }
 
-            var color = this.enabled ? 'inherit' : DISABLED_COLOR;
+            var color = this.enabled ? 'inherit' : Colors.disabled_color();
 
             // Disable any list message up front
             this.message.set('');

@@ -1,9 +1,11 @@
 .DS_Store
-run_*
+db
+run*
 .python/statsLayer.py
 analyze
 *.save
 *.pyc
 *.tar
+*.log
 _build
 
