@@ -1,0 +1,9 @@
+#!/bin/bash
+# Update this port with the tar-ball
+
+DIR=/cluster/home/swat/hexmapCalc
+
+echo 'cleaning directory'
+rm -rf $DIR/calc $DIR/www/*
+echo 'untarring'
+tar -C $DIR -x -f $DIR/t.tar

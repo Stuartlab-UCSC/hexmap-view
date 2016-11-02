@@ -49,12 +49,13 @@ Util = (function () { // jshint ignore: line
         console.log(type + ':', text);
     }
 
-    function session (prefix, operation, name,  val) {
+    function session (prefix, operation, name, val) {
  
-        // Perform a get, set, or equals on a state variable with a prefix.
-        // This allow us to simulate a reactiveDict functionality in a Session
-        // variable. We want a Session variable so the value will be preserved
-        // across hot code pushes.
+        // Perform a get, set, or equals on a session variable which represents
+        // a dict within a dict.
+        // So we can save 'shortlist_filter_value.disease' with a unique Session
+        // variable name of 'shortlist_filter_value_disease'.
+
         var key;
  
         // Build the key from the prefix and name
@@ -67,7 +68,6 @@ Util = (function () { // jshint ignore: line
             console.trace();
         }
  
-        // Lack of operation means this is a get
         if (operation === 'get') {
             return Session.get(key);
 
@@ -84,12 +84,6 @@ Util = (function () { // jshint ignore: line
     }
  
     function is_continuous (layer_name) {
-        //ATTRDB
-        //ran into problem here with Template helper, might need to marry
-        // db and template
-        //console.log(attrIsContinuous(layer_name));
-        //return (attrIsContinuous(layer_name));
-        //return AttrDB.findOne({attribute_name : layer_name}).datatype === 'Continuous';
         return (ctx.cont_layers.indexOf(layer_name.toString()) > -1);
     }
  
@@ -163,55 +157,6 @@ Util = (function () { // jshint ignore: line
             }
         }
     }
-    function addToDataTypeList (name, data) {
-        //
-        // @param name: the name of the layer
-        // @param data: an array of values for the layer
-
-        // Skip any layers with no values.
-        if (data.length < 1) { return; }
-
-        // Initialize our process-of-elimination vars
-        var can_be_binary = true,
-            can_be_categorical = true;
-
-        // Loop through the data until we have determined the data type
-        _.find(data, function (value) {
-            if (value % 1 !== 0) {
-
-                // It is continuous (fractional)
-                can_be_binary = false;
-                can_be_categorical = false;
-                return true;
-
-            } else if (value > 1 || value < 0) {
-
-                // It's not binary, but it could still be either continuous
-                // or categorical.
-                can_be_binary = false;
-                return true;
-            } else {
-                return false;
-            }
-        });
-
-        if (can_be_binary) {
-
-            // We're done, and nothing rules out it being binary
-            // TODO this is capturing layers with NaN?
-            ctx.bin_layers.push(name);
-
-        } else if (can_be_categorical) {
-
-            // It's not binary and we didn't hit a continuous float value
-            // TODO we could have continous values which happen to be integers.
-            // For now those types will be misplaced as categorical
-            ctx.cat_layers.push(name);
-        } else {
-            // It is not binary or categorical, so it is continuous
-            ctx.cont_layers.push(name);
-        }
-    }
 
     function addToDataTypeList (name, data) {
         //
@@ -274,6 +219,7 @@ Util = (function () { // jshint ignore: line
     }
 
     function createOurSelect2 ($el, optsIn, defaultSelection) {
+ 
         // Create a select2 drop-down.
 
         // Including our favorite options

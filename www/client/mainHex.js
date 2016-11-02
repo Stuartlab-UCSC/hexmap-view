@@ -3,6 +3,10 @@
 var app = app || {};
 (function (hex) { // jshint ignore: line
 Hex = (function () { // jshint ignore: line
+<<<<<<< HEAD
+=======
+ 
+>>>>>>> dev
     var VERSION = 'Version 1.0';
  
     Template.localStoreT.created = function () {
@@ -151,6 +155,7 @@ Hex = (function () { // jshint ignore: line
     Session.set('initedColormaps', false);
     //TIMING
     console.log("all the following sessions were set to false")
+
     function isUiDrawn (autorun) {
         if (Session.get('initedHexagons') &&
             Session.get('retrievedLayerInfo') &&
@@ -175,7 +180,7 @@ Hex = (function () { // jshint ignore: line
                 Reflect.init();
                 Tool.initLabelTool();
                 Download.init();
-                initColors();
+                Colors.init();
                 initInfoWindow();
                 initSetOperations();
                 CreateMap.init();
@@ -189,7 +194,8 @@ Hex = (function () { // jshint ignore: line
  
     // Phase 5 init: Autotracker to find when the layers are initialized
     Session.set('initedLayerTypes', false);
-    Session.set('initedLayersArray', false); //switched this to see
+    Session.set('initedLayersArray', false);
+
     function areLayersInitialized (autorun) {
         if (Session.get('initedLayerTypes') &&
             Session.get('initedLayersArray')) {

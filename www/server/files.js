@@ -11,7 +11,7 @@ var Path = Npm.require('path');
 writeToTempFile = function (data, fileExtension) {
 
     // Write arbitrary data to a file, blocking until the write is complete
-    var filename = os.tmpdir() + '/' + crypto.randomBytes(4).readUInt32LE(0);
+    var filename = TEMP_DIR + '/' + crypto.randomBytes(4).readUInt32LE(0);
     if (!_.isUndefined(fileExtension)) {
         filename += fileExtension;
     }
@@ -75,7 +75,7 @@ getTsvFile = function (filename, project, unparsed, alt_dir, future) {
     if (alt_dir === 'featureSpace') {
     
         // Special case when the file is requested from feature space
-        path = FEATURE_SPACE_DIR + project + filename;
+        path = Path.join(FEATURE_SPACE_DIR, project + filename);
     } else if (filename.indexOf('layer_') > -1 ||
         filename.indexOf('stats') > -1) {
     

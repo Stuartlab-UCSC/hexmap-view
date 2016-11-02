@@ -4,12 +4,13 @@
 
 var app = app || {};
 (function (hex) { // jshint ignore: line
-Shortlist = (function () { // jshint ignore: line
-     entries = {};
-    var initialized = false;
+    Shortlist = (function () { // jshint ignore: line
 
+    //globabls for testing purposes
+    entries = {};
     shortTest = true;
 
+    var initialized = false;
     var range_extents = new ReactiveDict(); // to show the min & max values
     var zeroShow = new ReactiveDict(); // To show or hide the zero tick mark
     var template = {}; // A template for each layer
@@ -18,9 +19,6 @@ Shortlist = (function () { // jshint ignore: line
     var $float_controls; // The floating control DOM elements
     var selection_prefix = 'Selection';
     var hover_layer_name = new ReactiveVar(''); // Track the current layer
- 
-    // Track entries for triggering color set of the actives
-    var new_dom_entry_added_or_removed = new ReactiveVar('');
  
     var icon = {
         primary: '/icons/primary.png',
@@ -261,6 +259,7 @@ Shortlist = (function () { // jshint ignore: line
 */
 
     function copy_shortlist_state () {
+        // TODO: I think a 'get' makes a copy anyway
         return Session.get('shortlist').slice();
     }
 
@@ -514,17 +513,9 @@ Shortlist = (function () { // jshint ignore: line
             var min = entries[layer_name].min,
                 max = entries[layer_name].max;
 
-            //tests are good, could make switch.
-            /*
-             equalsTest(min,attrGetMin(layer_name),'create_shortlist_entr*',false);
-             equalsTest(max,attrGetMax(layer_name),'create_shortlist_entr*',false);
-             var min = attrGetMin(layer_name),
-             max = attrGetMax(layer_name);
-             */
 
             if (_.isUndefined(
                     Util.session('filter_value', 'get', layer_name))) {
-
                 // Range filter values are not yet saved,
                 // so initialize them to the layer extents.
                 Util.session('filter_value', 'set', layer_name, [min, max]);
@@ -551,8 +542,9 @@ Shortlist = (function () { // jshint ignore: line
                 zeroShow.set(layer_name, false);
             }
 
-        } else {
+        } else { //its binary or continuos which we figure out in gChart
             newGchart(layer_name, root.find('.chart'), 'barChart');
+
 
             if (_.isUndefined(
                     Util.session('filter_value', 'get', layer_name))) {
@@ -642,8 +634,8 @@ Shortlist = (function () { // jshint ignore: line
         // Notify others that a new DOM entry has been added to the shortlist
         new_dom_entry_added_or_removed.set(layer_name);
     }
- 
-    function make_layer_name_unique(layer_name) {
+
+    function make_layer_name_unique (layer_name) {
  
         // We're done if the name is unique
         if (layers[layer_name] === undefined) { return layer_name; }
@@ -691,7 +683,7 @@ Shortlist = (function () { // jshint ignore: line
             return undefined;
         }
     }
- 
+
     function let_user_name_layer(layer_name) {
  
         var name = layer_name;
@@ -792,7 +784,6 @@ Shortlist = (function () { // jshint ignore: line
                     n: _.keys(data).length
                 });
             }
-            
             // Update the browse UI with the new layer.
             update_shortlist(name);
         }
@@ -834,8 +825,6 @@ Shortlist = (function () { // jshint ignore: line
  
             // Figure out what kind of filter settings we take based on
             // what kind of layer we are.
-            console.log("we think the filter is showing, (wrong if " +
-                "testing) and we are calling with_layers");
             with_layer (layer_name, function (layer) {
             
                 if (Util.is_continuous(layer_name)) {
@@ -884,7 +873,6 @@ Shortlist = (function () { // jshint ignore: line
                     var name = layer_name + ': ' + value.toString();
                     
                     // Create the dynamic layer
-                    console.log("create_dynamic_biindary called with function():");
                     create_dynamic_binary_layer (nodeIds, name);
                 });
             });
@@ -937,6 +925,7 @@ Shortlist = (function () { // jshint ignore: line
         });
 
         return root;
+
     }
 
     function create_shortlist_entry (layer_name) {
@@ -1218,6 +1207,17 @@ Shortlist = (function () { // jshint ignore: line
             console.log('update shortlist is storing shortlist', shortlist);
             Session.set('shortlist', shortlist);
         }
+
+    }
+
+    function update_shortlist_metadata () {
+ 
+        // Update the metadata for each layer in the shortlist
+        // TODO: make the metadata updates reactive
+        _.each(Session.get('shortlist'), function(layer_name) {
+            var root = get_root_from_layer_name(layer_name);
+                fill_layer_metadata(root.find(".metadata_holder"), layer_name);
+        });
     }
 
     function update_shortlist_metadata () {
@@ -1416,6 +1416,28 @@ Shortlist = (function () { // jshint ignore: line
         
         var shortlist = copy_shortlist_state();
 
+        // Add any dynamic attrs stored in state to the shortlist
+        var dynamic_attrs = Session.get('dynamic_attrs');
+        if (dynamic_attrs) {
+            _.each(dynamic_attrs, function(attr, name) {
+                
+                // The attr should already be in the shortlist names,
+                // however if it is not, don't add it's data
+                if (shortlist.indexOf(name) < 0) { return; }
+                
+                var data = attr.data,
+                    properties = attr;
+                   
+                // Remove the data from the attr properties.
+                delete properties.data;
+                   
+                add_layer_data(name, data, properties);
+                if (properties.colormap) {
+                    colormaps[name] = properties.colormap;
+                }
+            });
+        }
+
         // Add the 'first layer' to the shortlist if it is empty
         if (shortlist.length < 1) {
             shortlist = [first];
@@ -1453,6 +1475,40 @@ return {
     get_active_layers: get_active_layers,
     update_shortlist: update_shortlist,
     update_shortlist_metadata: update_shortlist_metadata,
+
+    get_entries: function () {
+    
+        // Return the entries in the shortlist.
+        // Until we have the attributes in the database,
+        // pull the info out of the layers array.
+        var attrs = Session.get('shortlist'),
+            entries = {};
+            
+        if (attrs.length === 0) { return undefined; }
+        
+        _.each(attrs, function (attr) {
+            
+            var layer = layers[attr],
+                e = { data: layer.data };
+            if (layer.selection) {
+                e.dynamic = true;
+            }
+            if (Util.is_binary(attr)) {
+                e.datatype = 'binary';
+            } else {
+                e.min = layer.minimum;
+                e.max = layer.maximum;
+                if (Util.is_continuous(attr)) {
+                    e.datatype = 'continuous';
+                } else {
+                    e.datatype = 'categorical';
+                }
+            }
+            entries[attr] = e;
+        });
+
+        return entries;
+    },
 
     create_dynamic_category_layer: function (layer_name, data, attributes,
         colormap) {
@@ -1585,10 +1641,38 @@ return {
         }
     },
 
+    
+    get_dynamic_entries_for_persistent_state: function () {
+    
+        // Return the dynamic entries in the short list, while converting the
+        // color objects in the colormaps to saveable objects.
+        var entries = {};
+
+        _.each(Shortlist.get_entries(), function (value, attr) {
+        
+            if (value.dynamic || value.selection) {
+                entries[attr] = value;
+            }
+            
+            // Convert the colormap colors from an object to an array.
+            if (colormaps[attr]) {
+                var obj = Colors.colormapToColorArray(colormaps[attr], attr);
+                value.colormap = obj.cats;
+            }
+        });
+
+        if (_.keys(entries).length > 0) {
+            return entries;
+        } else {
+            return undefined;
+        }
+    },
+
     init: function () {
         if (initialized) { return; }
         //TIMING
-        console.log("shortlist initialization taking place")
+        console.log("shortlist initialization taking place");
+
         initialized = true;
  
         // Initialize some handy variables

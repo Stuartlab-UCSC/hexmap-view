@@ -248,7 +248,7 @@ CreateMap = (function () { // jshint ignore: line
         init: function () {
      
             $dialog = $('#create_map_dialog');
-            var $button = $('.createMap');
+            var $button = $('#navBar .createMap');
      
             // Define the dialog options & create an instance of DialogHex
             var opts = {
@@ -266,8 +266,10 @@ CreateMap = (function () { // jshint ignore: line
             }, 'Create a new map');
      
             // Also open the dialog if the link on the home page is clicked
-            $('#homePage .createMap').on('click', function () {
-                $('#navBar .createMap').click();
+            $('.createMapHome .createMap')
+                .button()
+                .on('click', function () {
+                $button.click();
             });
      
         },

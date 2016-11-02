@@ -26,9 +26,6 @@ var app = app || {};
 
         // Store the layer. Just keep the URL, since with_layer knows what to do
         // with it.
-
-
-
         layers[layer_name] = {
             url: layer_url,
             data: undefined,
@@ -47,7 +44,6 @@ var app = app || {};
 
         // Don't sort because our caller does that when they're done adding layers.
     }
-    
 
     with_layer = function (layer_name_in, callback, try_count) {
         // This is how you get layers, and allows for layers to be downloaded
@@ -99,18 +95,6 @@ var app = app || {};
         if (layer === undefined) {
             console.log('TODO layer is undefined for', layer_name,
                 '. You may need to clear your cache.');
-            /*
-            if (try_count > 3) {
-                console.log('TODO layer is undefined for', layer_name,
-                    '. You may need to clear your cache.');
-            } else {
-                console.log('TODO layer is undefined for', layer_name,
-                    '. Trying again after a pause.');
-                Meteor.setTimeout(function () {
-                    with_layer(layer_name, callback, try_count + 1);
-                }, 2000);
-            }
-            */
             return;
         }
 
@@ -600,7 +584,6 @@ var app = app || {};
     refreshColors = function (delay) {
 
         // Schedule the view to be redrawn after the current event finishes.
-
         // Get rid of the previous redraw request, if there was one. We only want
         // one.
         Meteor.clearTimeout(refreshColorsHandle);
@@ -643,11 +626,9 @@ var app = app || {};
                 print("Layer range " + range[0] + " to " + range[1]);
                 layer_limits.push(range);
             }
-
-
             // Turn all the hexes the filtered-out color, pre-emptively
             for(var signature in polygons) {
-                setHexagonColor(polygons[signature], noDataColor());
+                setHexagonColor(polygons[signature], Colors.noDataColor());
             }
 
             // Go get the list of filter-passing hexes.
@@ -659,10 +640,11 @@ var app = app || {};
 
                     // This holds the color we are calculating for this hexagon.
                     // Start with the no data color.
-                    var computed_color = noDataColor();
+                    var computed_color = Colors.noDataColor();
 
                     if(retrieved_layers.length >= 1) {
                         // We need to compute colors given the layers we found.
+
 
                         // Get the heat along u and v axes. This puts us in a square
                         // of side length 2. Fun fact: undefined / number = NaN, but
@@ -734,7 +716,7 @@ var app = app || {};
 
         if(isNaN(u) || isNaN(v) || u == undefined || v == undefined) {
             // At least one of our layers has no data for this hex.
-            return noDataColor();
+            return Colors.noDataColor();
         }
 
         // Find the color counts  for each of the layers
@@ -751,18 +733,18 @@ var app = app || {};
             if(u == 1) {
                 if(v == 1) {
                     // Both are on
-                    return COLOR_BINARY_BOTH_ON;
+                    return Colors.binary_both_on();
                 } else {
                     // Only the first is on
-                    return COLOR_BINARY_ON;
+                    return Colors.binary_on();
                 }
             } else {
                 if(v == 1) {
                     // Only the second is on
-                    return COLOR_BINARY_SECOND_ON;
+                    return Colors.binary_second_on();
                 } else {
                     // Neither is on
-                    return COLOR_BINARY_OFF;
+                    return Colors.binary_off();
                 }
             }
         }
@@ -774,11 +756,12 @@ var app = app || {};
             // Use dark grey/yellow to make 1s stand out.
 
             if(u == 1) {
-                return COLOR_BINARY_ON;
+                return Colors.binary_on();
             } else {
-                return COLOR_BINARY_OFF;
+                return Colors.binary_off();
             }
         }
+
 
         var base_color;
 
@@ -878,7 +861,6 @@ var app = app || {};
             return base_color.hexString();
         }
 
-
         // If we get here, we only have non-colormap layers.
 
         // We want the same grey/yellow/blue/white scheme as for binary layers, but
@@ -887,12 +869,12 @@ var app = app || {};
         // Remember: u and v are backwards. I.e.  (-1, -1) is the upper left of the
         // key.
 
-        if(v_name == undefined) {
+        if(v_name === undefined) {
             // No v layer present. Use the edge and not the middle.
             v = -1;
         }
 
-        if(u_name == undefined) {
+        if(u_name === undefined) {
             // No u layer present. Use the edge and not the middle.
             u = -1;
         }

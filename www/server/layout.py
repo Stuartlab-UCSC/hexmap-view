@@ -44,7 +44,6 @@ from sklearn import preprocessing
 from create_colormaps import create_colormaps_file
 from create_colormaps import cat_files
 from convert_annotation_to_tumormap_mapping import convert_attributes_colormaps_mapping
-import pythonApiHelpers
 
 def parse_args(args):
     """

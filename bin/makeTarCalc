@@ -1,0 +1,9 @@
+#!/bin/bash
+# tar the contents of tumor map calc for production
+
+rm t.tar
+
+# 'h' option indicates that target files from symbolic links should be included
+tar cfh t.tar calc www/client www/lib  www/public www/server
+ls -l t.tar
+scp t.tar juggernaut:hexmapCalc
