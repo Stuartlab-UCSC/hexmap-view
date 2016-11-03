@@ -245,8 +245,16 @@ function call_python_remote (pythonCallName, json, context) {
                 function (error, result) {
             
             if (error) {
-                remote_error('error', pythonCallName, undefined,
-                    error.toString(), context);
+                var errorMsg = error.toString(),
+                    code;
+                if (error.response && error.response.statusCode) {
+                    code = error.response.statusCode;
+                    if (error.response.data) {
+                        errorMsg = error.response.data;
+                    }
+                }
+                remote_error('error', pythonCallName, code,
+                    errorMsg, context);
                 
             } else if (result && result.statusCode === 200) {
                 console.log('Info: call_python_remote(' + pythonCallName +
@@ -318,7 +326,7 @@ exports.call = function (pythonCallName, opts, context) {
         if (opts.parm_filename) {
         
             // This is coming from http so parm_filename is already in json
-            json = opts;
+            parm_filename = opts;
         } else {
         
             parm_filename = make_parm_file(opts);
@@ -328,6 +336,8 @@ exports.call = function (pythonCallName, opts, context) {
     }
 };
 
+// These are the valid python calls from the client when using the generic
+// 'pythonCall method below.
 var valid_calls_from_client = [
     'diffAnalysis',
     'statsDynamic',

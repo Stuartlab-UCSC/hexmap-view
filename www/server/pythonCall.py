@@ -10,6 +10,8 @@ def readJsonRequestData(json_parm_filename):
 
     # This reads the json-formatted file and returns it's data as a python dict.
     # Returns 0 on success, 1 on error.
+    # The json_parm_filename should be in the form:
+    # { "parm_filename": <parm-filename> }
     
     # Convert the filename struct from json to python
     try:

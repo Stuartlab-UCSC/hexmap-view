@@ -10,7 +10,7 @@ import unittest
 class TestQueryOverlayNodes(unittest.TestCase):
 
     unittest.TestCase.appInstallDir = '/Users/swat/dev/hexagram'
-    unittest.TestCase.port = "localhost:3333"
+    unittest.TestCase.port = "localhost:4444"
     unittest.TestCase.curlUrl = unittest.TestCase.port + "/query/overlayNodes"
     unittest.TestCase.tempDir = '/tmp'
 
@@ -48,66 +48,70 @@ class TestQueryOverlayNodes(unittest.TestCase):
     
     def expectedResults(s):
         return '{"Sample-1":{"neighbors":["TCGA-N7-A4Y5-01","TCGA-4J-AA1J-01","TCGA-KS-A4IB-01","TCGA-DQ-7589-01","TCGA-HT-7686-01","TCGA-AJ-A3EM-01"],"x":200.5,"y":226.5},"Sample-2":{"neighbors":["TCGA-4J-AA1J-01","TCGA-N7-A4Y5-01","TCGA-KS-A4IB-01","TCGA-LH-A9QB-06","TCGA-DQ-7589-01","TCGA-DW-7836-01"],"x":252.5,"y":241.5}}';
-    
+    """
     def test_methodCheck(s):
         opts = ['-X', 'GET', '-v']
         rc = s.doCurl(opts)
+        #print 'code:', rc['code'], 'data:', rc['data']
         s.assertTrue(rc['code'] == '405')
-        s.assertTrue(rc['data']== 'Only the POST method is understood here')
-
+        s.assertTrue(rc['data']== '"Only the POST method is understood here"')
+    
     def test_contentTypeCheck(s):
         opts = ['-H', 'Content-Type:apjson', '-X', 'POST', '-v']
         rc = s.doCurl(opts)
+        #print 'code:', rc['code'], 'data:', rc['data']
         s.assertTrue(rc['code'] == '400')
-        s.assertTrue(rc['data'] == 'Only content-type of application/json is understood here')
-
+        s.assertTrue(rc['data'] == '"Only content-type of application/json is understood here"')
+    
     def test_jsonCheck(s):
         data = '{data: oh boy, data!}'
         opts = ['-d', data, '-H', 'Content-Type:application/json', '-X', 'POST', '-v']
         rc = s.doCurl(opts)
         s.assertTrue(rc['code'] == '400')
-        s.assertTrue(rc['data'] == 'Malformed JSON data given')
+        s.assertTrue(rc['data'] == '"Malformed JSON data given"')
+    """
     def test_mapIncludedCheck(s):
         data = '{"test": "test"}'
         opts = ['-d', data, '-H', 'Content-Type:application/json', '-X', 'POST', '-v']
         rc = s.doCurl(opts)
+        print 'code:', rc['code'], 'data:', rc['data']
         s.assertTrue(rc['code'] == '400')
-        s.assertTrue(rc['data']== 'Map missing or malformed')
-    
+        s.assertTrue(rc['data']== '"Map missing or malformed"')
+    """
     def test_layoutIncludedCheck(s):
         data = '{"map": "junk"}'
         opts = ['-d', data, '-H', 'Content-Type:application/json', '-X', 'POST', '-v']
         rc = s.doCurl(opts)
         s.assertTrue(rc['code'] == '400')
-        s.assertTrue(rc['data']== 'Layout missing or malformed')
+        s.assertTrue(rc['data']== '"Layout missing or malformed"')
     
     def test_nodesIncludedCheck(s):
         data = '{"map": "junk", "layout": "someLayout"}'
         opts = ['-d', data, '-H', 'Content-Type:application/json', '-X', 'POST', '-v']
         rc = s.doCurl(opts)
         s.assertTrue(rc['code'] == '400')
-        s.assertTrue(rc['data']== 'Nodes missing or malformed')
+        s.assertTrue(rc['data']== '"Nodes missing or malformed"')
     
     def test_layoutsIsObjectCheck(s):
         data = '{"map": "junk", "layout": "junk", "nodes": "someString"}'
         opts = ['-d', data, '-H', 'Content-Type:application/json', '-X', 'POST', '-v']
         rc = s.doCurl(opts)
         s.assertTrue(rc['code'] == '400')
-        s.assertTrue(rc['data'] == 'Nodes type should be an object')
+        s.assertTrue(rc['data'] == '"Nodes type should be an object"')
     
     def test_mapValueCheck(s):
         data = '{"map": "junk", "layout": "junk", "nodes": {}}'
         opts = ['-d', data, '-H', 'Content-Type:application/json', '-X', 'POST', '-v']
         rc = s.doCurl(opts)
         s.assertTrue(rc['code'] == '400')
-        s.assertTrue(rc['data'] == 'The only frozen map available is ' + "CKCC/v1")
+        s.assertTrue(rc['data'] == '"The only frozen map available is CKCC/v1"')
     
     def test_layoutsValueCheck(s):
         data = '{"map": "CKCC/v1", "layout": "junk", "nodes": {}}'
         opts = ['-d', data, '-H', 'Content-Type:application/json', '-X', 'POST', '-v']
         rc = s.doCurl(opts)
         s.assertTrue(rc['code'] == '400')
-        s.assertTrue(rc['data'] == 'The only map layout available is ' + "mRNA")
+        s.assertTrue(rc['data'] == '"The only map layout available is mRNA"')
     
     def test_bookmarkStub(s):
         data = '{"TESTbookmarkStub": "yes", "map": "CKCC/v1", "layout": "mRNA", "nodes": {}}'
@@ -116,7 +120,7 @@ class TestQueryOverlayNodes(unittest.TestCase):
         rc = s.doCurl(opts)
         s.assertTrue(rc['code'] == '200')
         s.assertTrue(rc['data'] == resData)
-    """
+    
     def test_pythonCallStub(s):
         data = '{"TESTpythonCallStub": "yes", "map": "CKCC/v1", "layout": "mRNA", "nodes": {"node1": {"gene1": "1", "gene2": "2"}, "node2": {"gene1": "3", "gene2": "4"}}}'
         resData = '{"TESTpythonCallStub":"success"}\n';
@@ -128,7 +132,7 @@ class TestQueryOverlayNodes(unittest.TestCase):
 
         s.assertTrue(rc['code'] == '200')
         s.assertTrue(rc['data'] == resData)
-    """
+    
     def test_pythonCallGoodData(s):
         data = '{"TESTpythonCallGoodData": "yes", "map": "CKCC/v1", "nodes": {"Sample-2": {"CTD-2588J6.1": "0", "RP11-433M22.1": "0", "CTD-2588J6.2": "0", "CPHL1P": "0", "RP3-415N12.1": "0", "RP11-181G12.4": "0", "RP11-433M22.2": "0", "SSXP10": "0", "RP11-16E12.2": "2.5424", "PSMA2P3": "0", "CTD-2367A17.1": "0", "RP11-181G12.2": "5.9940", "AC007272.3": "0"}, "Sample-1": {"CTD-2588J6.1": "0", "RP11-433M22.1": "0", "CTD-2588J6.2": "0", "CPHL1P": "0", "RP3-415N12.1": "0", "RP11-181G12.4": "0.5264", "RP11-433M22.2": "0", "SSXP10": "0", "RP11-16E12.2": "2.3112", "PSMA2P3": "0", "CTD-2367A17.1": "0", "RP11-181G12.2": "6.3579", "AC007272.3": "0"}}, "layout": "mRNA"}'
         resData = s.expectedResults() + '\n'
@@ -136,7 +140,7 @@ class TestQueryOverlayNodes(unittest.TestCase):
         rc = s.doCurl(opts)
         s.assertTrue(rc['code'] == '200')
         s.assertTrue(rc['data'] == resData)
-    """
+    
     def test_pythonCallGoodDataBookmark(s):
         data = '{"TESTpythonCallGoodDataBookmark": "yes", "map": "CKCC/v1", "nodes": {"Sample-2": {"CTD-2588J6.1": "0", "RP11-433M22.1": "0", "CTD-2588J6.2": "0", "CPHL1P": "0", "RP3-415N12.1": "0", "RP11-181G12.4": "0", "RP11-433M22.2": "0", "SSXP10": "0", "RP11-16E12.2": "2.5424", "PSMA2P3": "0", "CTD-2367A17.1": "0", "RP11-181G12.2": "5.9940", "AC007272.3": "0"}, "Sample-1": {"CTD-2588J6.1": "0", "RP11-433M22.1": "0", "CTD-2588J6.2": "0", "CPHL1P": "0", "RP3-415N12.1": "0", "RP11-181G12.4": "0.5264", "RP11-433M22.2": "0", "SSXP10": "0", "RP11-16E12.2": "2.3112", "PSMA2P3": "0", "CTD-2367A17.1": "0", "RP11-181G12.2": "6.3579", "AC007272.3": "0"}}, "layout": "mRNA"}'
         book1 = '/?&p=CKCC.v1&node=Sample-1&x=200.5&y=226.5'
