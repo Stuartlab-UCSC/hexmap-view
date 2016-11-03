@@ -277,7 +277,7 @@ exports.reflection_post_calc = function (result, context) {
         PythonCall.report_local_result (result, context);
         return;
     }
-    newLayer.data = context.js_result.data;
+    newLayer.data = context.js_result;
     
     dropInLayerBox(newLayer, userId, toMapId);
     
