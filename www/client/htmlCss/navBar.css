@@ -70,7 +70,7 @@
 }
 
 #navBar ul.file li {
-    width: 7em;
+    width: 7.5em;
 }
 
 #navBar ul.download li {
@@ -292,3 +292,14 @@
 }
 @-webkit-keyframes sweep { to { -webkit-transform: rotate(360deg); } }
 @keyframes sweep { to { transform: rotate(360deg); } }
+
+#bookmarkDialog {
+    display: none;
+    padding: 1.5em;
+}
+
+#bookmarkDialog .message {
+    width: 65em;
+    cursor: text;
+    border: 0;
+}

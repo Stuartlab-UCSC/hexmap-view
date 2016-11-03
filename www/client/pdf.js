@@ -106,8 +106,8 @@ var app = app || {};
  
         // Define the dialog options & create an instance of DialogHex
         var opts = { title: title };
-        dialogHex = createDialogHex(undefined, $button, $dialog, opts, show,
-            hide, true);
+        dialogHex = createDialogHex(undefined, undefined, $dialog, opts, show,
+            hide);
  
         // Listen for the menu clicked
         $button.on('click', function () {

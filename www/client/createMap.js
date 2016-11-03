@@ -255,7 +255,7 @@ CreateMap = (function () { // jshint ignore: line
                 title: title,
                 buttons: [{ text: 'Create', click: create_clicked }],
             };
-            dialogHex = createDialogHex(undefined, $button, $dialog, opts, show,
+            dialogHex = createDialogHex(undefined, undefined, $dialog, opts, show,
                 hide, true, 'help/createMap.html');
      
             Session.set('create_map_show_advanced', false);

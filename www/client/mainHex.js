@@ -36,14 +36,12 @@ Hex = (function () { // jshint ignore: line
 
     function pageReload (page) {
         Session.set('page', page);
- 
         queryFreeReload();
     }
 
      function loadProject (project) {
         ctx.project = project;
         Session.set('page', 'mapPage');
-        ctx.save();
         queryFreeReload();
     }
  
@@ -176,6 +174,7 @@ Hex = (function () { // jshint ignore: line
                 CreateMap.init();
                 Select.init();
                 initGchart();
+                initBookmark();
                 //initDiffAnalysis();
             }, 0);
         }

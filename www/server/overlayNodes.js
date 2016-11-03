@@ -50,25 +50,6 @@ function passOverlayNodeChecks (dataIn, res) {
     return true;
 }
     
-saveBookmark = function(state) {
-
-    // TODO replace this with a hash of the state so the same state may reuse an
-    // existing bookmark of the same state
-    var crypto = Npm.require('crypto');
-    var id = crypto.randomBytes(4).readUInt32LE(0).toString();
-    
-    // TODO put this into dbMethods.js
-    var Fiber = Npm.require('fibers');
-    var f = Fiber(function(id) {
-        Bookmarks.insert({
-            "_id": id,
-            "jsonState": state,
-            "createdAt": new Date(),
-        });
-    }).run(id);
-    return id
-}
-
 overlayNodes = function (dataIn, res, future) {
     
     // Process the data in the overlayNodes request where dataIn is the

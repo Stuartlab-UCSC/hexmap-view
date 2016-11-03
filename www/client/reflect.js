@@ -258,12 +258,10 @@ return { // Public methods
             buttons: [{ text: 'Reflect', click: mapIt }],
         };
         dialogHex = createDialogHex({
-            $button: $button,
             $el: $dialog,
             opts: opts,
             showFx: show,
             hideFx: hide,
-            buttonInitialized: true,
         });
  
         // Listen for the menu clicked

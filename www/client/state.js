@@ -17,7 +17,9 @@ var app = app || {};  // jshint ignore: line
             color: 'inherit',
             background: 'inherit',
         },
-        storageSupported;
+        storageSupported,
+        bookmarkMessage = new ReactiveVar(),
+        bookmarkColor = new ReactiveVar('black');
  
     function getUrlParms() {
         var parms = location.search.substr(1);
@@ -37,7 +39,41 @@ var app = app || {};  // jshint ignore: line
         }
     }
 
-     function centerToArray (centerIn) {
+    Template.bookmarkT.helpers ({
+        message: function () {
+            return bookmarkMessage.get();
+        },
+        color: function () {
+            return bookmarkColor.get();
+        },
+    });
+    
+    function createBookmark () {
+ 
+        // Create a bookmark of the current view for later retrieval.
+        bookmarkMessage.set('Creating bookmark...');
+        bookmarkColor.set('black');
+        var $bookmarkMessage = $('#bookmarkDialog .message');
+ 
+        Meteor.call('createBookmark', ctx.jsonify(), function (error, result) {
+            if (error) {
+                bookmarkMessage.set('Sorry, bookmark could not be created due' +
+                    ' to error: ' + error);
+                bookmarkColor.set('red');
+            } else {
+                var msg = URL_BASE + '/?bookmark=' + result;
+                bookmarkMessage.set(msg);
+                
+                // Wait for the message to be applied to the input element
+                // before selecting the entire string
+                Meteor.setTimeout(function () {
+                    $bookmarkMessage[0].setSelectionRange(0, msg.length)
+                },0);
+            }
+        });
+    };
+ 
+    function centerToArray (centerIn) {
  
         // If needed, translate the latLng center to an array for store.
         var center = centerIn;
@@ -87,6 +123,7 @@ var app = app || {};  // jshint ignore: line
             // Contains the non-project state we want to save with unique keys
             all: [
                 'background',
+                'ignoreUrlQuery',
                 'page',
                 'project',
                 'viewEdges',
@@ -157,28 +194,12 @@ var app = app || {};  // jshint ignore: line
         s.zoom = 3;  // Map zoom level where 3 means zoomed in by 3 levels
     };
 
-    State.prototype.save = function () {
+    State.prototype.jsonify = function () {
  
-        // Save state by writing it to local browser store.
-        if (!storageSupported) {
-            return;
-        }
+        // Convert the current state to json.
+ 
         var s = this,
             store = {};
-
-        // If we have a new project, clear any state related to the old project
-        if (s.lastProject && s.project !== s.lastProject) {
-            Session.set('page', 'mapPage');
-            s.lastProject = s.project;
-            s.setProjectDefaults();
- 
-        } else if (s.alreadySaved) {
- 
-            // We may have already saved this because ?
-            return;
-        }
-        s.alreadySaved = true;
-
         // Gather any dynamic attributes
         var dynamic_attrs =
             Shortlist.get_dynamic_entries_for_persistent_state();
@@ -221,13 +242,39 @@ var app = app || {};  // jshint ignore: line
                 store[key] = Session.get(key);
             });
         });
+ 
+        return JSON.stringify(store);
+    };
+ 
+    State.prototype.save = function () {
+ 
+        // Save state by writing it to local browser store.
+        if (!storageSupported) {
+            return;
+        }
+        var s = this,
+            jsonState;
+
+        // If we have a new project, clear any state related to the old project
+        if (s.lastProject && s.project !== s.lastProject) {
+            Session.set('page', 'mapPage');
+            s.lastProject = s.project;
+            s.setProjectDefaults();
+ 
+        } else if (s.alreadySaved) {
+ 
+            // We may have already saved this because ?
+            return;
+        }
+        s.alreadySaved = true;
+
+        jsonState = s.jsonify();
 
         // Overwrite the previous state in localStorage
         window.localStorage.removeItem(s.storeName);
-        window.localStorage.setItem(s.storeName, JSON.stringify(store));
-
-        //console.log('save store:', store);
+        window.localStorage.setItem(s.storeName, jsonState);
     };
+
  
     State.prototype.load = function (store) {
  
@@ -279,38 +326,12 @@ var app = app || {};  // jshint ignore: line
         }
     };
  
-    State.prototype.loadFromBookmark = function (bookmark) {
- 
-        // Load state from the given bookmark
-        var s = this;
-
-        Meteor.call('findBookmark', bookmark,
-            function (error, result) {
-                if (error) {
-                    Util.banner('error', error);
-                    return;
-                }
-                
-                var store = result.jsonState;
-                if (store === null) {
-                    console.log("No saved state found, so using defaults.");
-                } else {
-                    s.load(store);
-                }
-                s.projectNotFoundNotified = false;
-            }
-        );
-    };
- 
     State.prototype.loadFromLocalStore = function () {
 
         // Load state from local store
         var s = this,
             store = JSON.parse(window.localStorage.getItem(s.storeName));
-        if (store === null) {
-            console.log("No saved state found, so using defaults.");
-
-        } else {
+        if (store) {
             s.load(store);
         }
         
@@ -318,6 +339,42 @@ var app = app || {};  // jshint ignore: line
         //Session.set('overlayNodes', undefined);  // overlay nodes to include
     };
 
+    State.prototype.loadFromBookmark = function (bookmark) {
+ 
+        // Load state from the given bookmark
+ 
+        // First we need to see if we should ignore the url query
+        var s = this,
+            store = JSON.parse(window.localStorage.getItem(s.storeName));
+ 
+        if (store.ignoreUrlQuery) {
+            s.uparms = null;
+            store.ignoreUrlQuery = false;
+            s.load(store);
+            return;
+        }
+ 
+        // Load the bookmarked state.
+        Meteor.call('findBookmark', bookmark,
+            function (error, result) {
+                if (error) {
+                    Util.banner('error', error);
+                    ctx.ignoreUrlQuery = true;
+                    return;
+                }
+                
+                if (result === 'Bookmark not found') {
+                    Util.banner('error', result);
+                    ctx.ignoreUrlQuery = true;
+                    return;
+                }
+                
+                s.load(result);
+                s.projectNotFoundNotified = false;
+            }
+        );
+    };
+ 
     State.prototype.fixUpOldUrls = function (project) {
  
         var xlate = {
@@ -415,12 +472,28 @@ var app = app || {};  // jshint ignore: line
         }
         if (Array.isArray(center)) {
  
-            // This is stored this as an array of two numbers rather
-            // than as latLng since when we retrieve it, we won't know
-            // about google maps yet so won't understand LatLng.
+            // This is stored as an array of two numbers rather
+            // than as the google-specific latLng.
             center = new google.maps.LatLng(center[0], center[1]);
         }
         return center;
+    };
+ 
+    initBookmark = function () {
+
+        // Create an instance of DialogHex
+        var bookmarkDialogHex = createDialogHex({
+            $el: $('#bookmarkDialog'),
+            opts: {
+                title: 'Bookmark',
+                position: { my: "left", at: "left+20", of: window }
+            },
+            showFx: createBookmark,
+        });
+ 
+        // Listen for the 'create bookmark' menu clicked
+        Tool.add("bookmark", function () { bookmarkDialogHex.show(); },
+            'Access this view later by creating a bookmark');
     };
  
     initState = function () {
@@ -434,10 +507,10 @@ var app = app || {};  // jshint ignore: line
 
         // Load state
         if (s.uParm !== null) {
-            if (s.uParm.b) {
+            if (s.uParm.bookmark) {
  
                 // Load from the bookmark ID in the URL
-                s.loadFromBookmark(s.uParm.b);
+                s.loadFromBookmark(s.uParm.bookmark);
             } else {
  
                 // Load from the parms in the URL

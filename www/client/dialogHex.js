@@ -14,14 +14,13 @@ var app = app || {};
             this.$el = parms.$el ? parms.$el : undefined;
             this.opts = parms.opts ? parms.opts : undefined;
             this.showFx = parms.showFx ? parms.showFx : undefined;
-            this.hideFx = parms.hideFx ? parms.hideFx : undefined;
+            this.hideFx = parms.hideFx ? parms.hideFx : this.hide;
             this.helpAnchor = parms.helpAnchor ? parms.helpAnchor : undefined;
- 
         } else {
             this.$el = $el;
             this.opts = opts;
             this.showFx = showFx;
-            this.hideFx = hideFx;
+            this.hideFx = hideFx ? hideFx : this.hide;
             this.helpAnchor = helpAnchor;
         }
 
@@ -116,7 +115,7 @@ var app = app || {};
     }
 
     createDialogHex = function (parms, $button, $el, opts, showFx, hideFx,
-        buttonInitialized, helpAnchor) {
+        helpAnchor) {
 
         /* Creates an instance of our dialog, which contains a button to open
          * the dialog in addition to a dialog
@@ -128,21 +127,17 @@ var app = app || {};
          *          where null indicates the button is already initialized
          * @param $el: jquery DOM element of the dialog anchor
          * @param opts: overrides of this class' jquery-ui dialog options
-         * @param showFx: called after the show function of this class
-         * @param hideFx: called to destroy the jqueryui dialog
-         * @param buttonInitialized: trigger button has already been initialized
+         * @param showFx: called after the show function of this class, optional
+         * @param hideFx: called to destroy the jqueryui dialog, optional
          * @param helpAnchor: the html anchor in the user help doc
          */
-        var instance = new DialogHex(parms, $el, opts, showFx, hideFx, helpAnchor);
-        if (parms) {
- 
-            if (!parms.buttonInitialized) {
-                instance.initButton(parms.$button);
-            }
-        } else {
-            if (!buttonInitialized) {
-                instance.initButton($button);
-            }
+
+        var instance = new DialogHex(parms, $el, opts, showFx, hideFx,
+            helpAnchor);
+        if (parms && parms.button) {
+            instance.initButton(parms.$button);
+        } else if ($button) {
+            instance.initButton($button);
         }
 
         return instance;

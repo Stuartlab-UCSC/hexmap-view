@@ -8,6 +8,9 @@
                 File
                 <img src='/icons/caret-down.png' style='height:8px'>
                 <ul class='file'>
+                    <li class='bookmark mapShow'>
+                        Bookmark This
+                    </li>
                     <li class='createMap homeShow mapShow'>
                         Create Map...
                     </li>
@@ -180,7 +183,16 @@
         </ul>
     </div>
     <div id="banner"></div>
+    
+    {{> bookmarkT}}
     {{> create_map_t}}
+    
+</template>
+
+<template name='bookmarkT'>
+    <div id='bookmarkDialog'>
+        <input class='message' value='{{ message }}' style='color:{{ color }}' readonly />
+    </div>
 </template>
 
 <template name='tutorialMenuT'>

@@ -60,6 +60,7 @@
         "fill_layer_metadata",
         "google",
         "googlemap",
+        "initBookmark",
         "initPdf",
         "initState",
         "initSvg",
