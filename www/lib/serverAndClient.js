@@ -64,18 +64,6 @@ if (Meteor.settings.public.DEV === 'yes') {//no booleans with strict JSON
 // TODO test logic should not be in production code
 TEST_DATA_DIR = '/Users/swat/dev/hexagram/tests/pyUnittest/testData/';
 
-
-
-// accessing remote collections on another server
-//var mongo_url = 'mongodb://127.0.0.1:27017/dev'
-//var database = new MongoInternals.RemoteCollectionDriver(mongo_url);
-//Bookmarks = new Mongo.Collection('bookmarks', { _driver: database });
-
-// This may be all that is required to access a collection on client and server
-Bookmarks = new Mongo.Collection('bookmarks');
-
-
-
 /*
 // Deny all client-side updates to user documents
 Meteor.users.deny({
