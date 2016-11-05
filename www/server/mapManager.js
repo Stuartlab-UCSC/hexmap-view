@@ -266,14 +266,14 @@ function parmMaker(mapId,toMapId, operation,argsObj) {
 exports.reflection_post_calc = function (result, context) {
     
     // Process the results of the reflection request where:
-    // result: { code: <http-code>, data: <result-data> }
+    // result: { statusCode: <http-statusCode>, data: <result-data> }
     
     var newLayer = context.post_calc_parms.newLayer,
         userId = context.post_calc_parms.userId,
         toMapId = context.post_calc_parms.toMapId;
     
     // Report any errors
-    if (result.code !== 200) {
+    if (result.statusCode !== 200) {
         PythonCall.report_local_result (result, context);
         return;
     }

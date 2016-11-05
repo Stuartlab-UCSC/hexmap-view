@@ -191,6 +191,11 @@ var app = app || {};
             'K11_S7': { x: 21.5, y: 19.5},
         },
     };
+ 
+    JING_OVERLAY_NODES = {
+        'surgical sample': { x: 203, y: 172},
+        'relapse sample': { x: 224, y: 210},
+    }
 
     OVERLAY_NODES_YOUNGWOOK_QUANTILE_NORMALIZATION = {
         'sd01': { x: 240.5, y: 147.0},

@@ -132,7 +132,7 @@ overlayNodes = function (dataIn, res, future) {
             console.log('!!!!!!! overlayNodes():callPython called with a future');
         }
     
-        if (result.code !== 0) {
+        if (result.statusCode !== 0) {
             Http.respond(500, res, result.data, future);
             return;
         }
@@ -141,7 +141,7 @@ overlayNodes = function (dataIn, res, future) {
             data = result.data;
         
         if (dataIn.TESTpythonCallStub || dataIn.TESTpythonCallGoodData) {
-            Http.respond(result.code === 0 ? 200 : 500, res, data, future);
+            Http.respond(result.statusCode === 0 ? 200 : 500, res, data, future);
             return;
         }
         

@@ -11,9 +11,9 @@ var CreateMap = require('./createMap');
 exports.post_calc = function (result, context) {
     
     // Process the results of the create map request where:
-    // result: { code: <http-code>, data: <result-data> }
+    // result: { statusCode: <http-statusCode>, data: <result-data> }
     
-    if (result.code !== 200) {
+    if (result.statusCode !== 200) {
         PythonCall.report_local_result (result, context);
         return;
     }
@@ -37,7 +37,7 @@ exports.post_calc = function (result, context) {
         sendMail(ADMIN_EMAIL, subject, msg);
         
         PythonCall.report_local_result ({
-            code: 400,
+            statusCode: 400,
             data: 'Calc script had an unknown error',
             }, context);
     }

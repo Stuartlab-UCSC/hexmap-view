@@ -79,7 +79,7 @@ def pythonWrapper(pythonCallName, jsonRequestFile, temp_dir):
         print writeJsonResponseData({'TESTpythonCallStub': 'success'}, temp_dir);
         return 0
 
-    # Call the the python script, which returns the results as a dict
+    # Call the python script, which returns the results as a dict
     module = importlib.import_module(pythonCallName, package=None)
     result = module.fromNodejs(opts)
     if result == 1:

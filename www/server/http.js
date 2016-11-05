@@ -25,23 +25,19 @@ var MapManager = require('./mapManager');
 var PythonCall = require('./pythonCall');
 var Http = require('./http');
 
-exports.respond = function (code, res, data_in, in_json) {
+exports.respond = function (statusCode, res, data_in, in_json) {
 
     // This responds to an http request after converting data to json.
     // TODO authenticate request for known users ?
-    var data;
-    if (in_json) {
-    
-        // The data is already in json format
-        data = data_in;
-    } else {
+    var data = data_in;
+    if (!in_json) {
     
         // Convert the data to json format
         data = JSON.stringify(data_in);
     }
     
     res.setHeader('Content-Type', 'application/json');
-    res.writeHead(code);
+    res.writeHead(statusCode);
     res.end(data + '\n');
 };
 
@@ -82,7 +78,7 @@ function process_local_python_call (json_data, res, call_name) {
 
     // Process a local python call
 
-    // The json_data may be:
+    // The json_data is a json object with either:
     //   - a filename that contains parameters for a calc call
     //   - parameters for a calc call
        

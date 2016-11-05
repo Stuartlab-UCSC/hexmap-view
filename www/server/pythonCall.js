@@ -9,9 +9,22 @@ var PythonCall = require('./pythonCall');
 
 function make_parm_file (opts, in_json) {
 
-    // Save parameters to a file in json and return the file name as json that
-    // looks like this: {"parm_filename": "<filename>"}
+    // Save parameters to a temporary file in json and return the file name as
+    // json that looks like:
+    //      {"parm_filename": "<filename>"}
     // in_json of true indicates the options are already in json format
+    //
+    // The filename is always passed as a json object of the form:
+    //      '{ "parm_filename": "<parm-filename>" }'
+    //
+    // This format was settled on because:
+    //    - http requests only in json simplifies the code
+    //    - downstream server needs an identifier of 'parm_filename' so it knows
+    //      what to do with the content
+    //    - there are few accessing functions that need to dig inside the json
+    //      object; only receive http & call_python_remote
+    
+    // convert the opts to json if need be
     var json_opts = in_json ? opts : JSON.stringify(opts);
     
     return JSON.stringify({
@@ -53,11 +66,12 @@ function call_post_calc(result, context) {
     post_calc(result, context);
 }
 
-exports.report_local_result = function (result, context) {
+function report_result (remote, result_in, context) {
 
     // Report an error or successful result to http or the client,
     // after running the post-calc function if there is one.
     
+    var result = _.clone(result_in);
     if (context.post_calc) {
     
         call_post_calc(result, context)
@@ -65,23 +79,37 @@ exports.report_local_result = function (result, context) {
     } else if (context.http_response) {
 
         // This is from an http request so respond to that
-        Http.respond (result.code, context.http_response, result.data);
+        var in_json = false;
+        if (remote && result.statusCode === 200) {
+        
+            // Successful returns from a remote calc are already in json.
+            in_json = true;
+        }
+        Http.respond (
+            result.statusCode,
+            context.http_response,
+            result.data,
+            in_json);
 
     } else if (context.future) {
     
         // This has a future, so return the result via the future
-        if (result.code === 200) {
+        if (result.statusCode === 200) {
         
             // Success with a results filename, so extract the data if the
             // the post_calc function did not do it already.
-            if (!context.js_result) {
-                result.data = load_data(result.data, context);
+            if (context.js_result) {
+                result.data = context.js_result;
+            } else {
+                result.data = load_data(result_in.data, context);
             }
+            
+            // Return the success to the future
             context.future.return(result);
             
         } else {
         
-            // An error as a string.
+            // Throw the error to the future
             context.future.throw(result);
         }
         
@@ -93,25 +121,56 @@ exports.report_local_result = function (result, context) {
     }
 };
 
-function local_error (error, pythonCallName, context) {
+exports.report_local_result = function (result_in, context) {
+    report_result(false, result_in, context);
+}
 
-    var result = { code: 500, data: error.toString() };
-    console.log('Error: pythonCall(' + pythonCallName + ')', result.data);
-    PythonCall.report_local_result(result, context);
+function get_fx (remote) {
+    return remote ? 'call_python_remote' : 'call_python_local';
+}
+
+function report_error (
+        remote, statusCode, error, via, pythonCallName, context) {
+    
+    var errorString = error.toString(),
+        result = {
+            statusCode: statusCode ? statusCode : 500,
+            data: errorString,
+        };
+    
+    console.log('Error:', statusCode, errorString,
+        '\n    in:', get_fx(remote) + '(' + pythonCallName + ')',
+        '\n    via:', via);
+    console.trace();
+    
+    report_result(remote, result, context);
+}
+
+function report_success (remote, result, pythonCallName, context) {
+
+    console.log('Info: Success:', result.statusCode,
+        result.data.slice(0, 50) + '...',
+        '\n    in:', get_fx(remote) +'(' + pythonCallName + ')');
+    
+    report_result(remote, result, context);
 }
 
 function local_success (result_filename, pythonCallName, context) {
 
     // Remove any trailing new line char
+    // The filename a string
     var filename = result_filename,
         index = result_filename.indexOf('\n');
     if (index > -1) {
         filename = result_filename.slice(0, index);
     }
-    var result = { code: 200, data: filename };
-    console.log('Info: pythonCall(' + pythonCallName + ') success.',
-            'Results file:', result.data);
-    PythonCall.report_local_result(result, context);
+    
+    report_success(false, { statusCode: 200, data: filename },
+            pythonCallName, context)
+}
+
+function remote_success (result, pythonCallName, context) {
+    report_success(true, result, pythonCallName, context)
 }
 
 function call_python_local (pythonCallName, json, context) {
@@ -135,15 +194,23 @@ function call_python_local (pythonCallName, json, context) {
             TEMP_DIR,
         ];
     
+    // Make array to hold stderr messages. TODO, should these be reported ?
+    // Any errors not caught by the python code will throw an error and be
+    // reported under the 'on error' routine.
+    // Any errors that are caught by the python code will write to stdout and
+    // continue execution.
+    var stderr = [];
+    
     // Make the python call using a spawned process.
     var call = spawn('python', spawn_parms);
 
     call.on('error', function (error) {
-        local_error(error, pythonCallName, context);
+        report_error(
+            false, undefined, error, '"error"', pythonCallName, context);
     });
 
     call.stderr.on('data', function (data) {
-        local_error(data, pythonCallName, context);
+        stderr.push(data.toString());
     });
 
     call.stdout.on('data', function (stdout_in) {
@@ -152,7 +219,8 @@ function call_python_local (pythonCallName, json, context) {
             stdout.slice(0,7).toLowerCase() === 'warning') {
     
             // Return any errors/warnings printed by the python script
-            local_error(stdout, pythonCallName, context);
+            report_error(
+                false, undefined, stdout, '"stdout"', pythonCallName, context);
         } else {
             local_success(stdout, pythonCallName, context);
         }
@@ -169,55 +237,6 @@ function call_python_local (pythonCallName, json, context) {
     });
     
     call.stdin.end();
-}
-
-function report_remote_result (result, context) {
-
-    // Report an error or successful result to http or the client,
-    // after running the post-calc function if there is one.
-    
-    if (context.post_calc) {
-    
-        call_post_calc({
-            code: result.statusCode,
-            data: JSON.parse(result.content),
-            }, context);
-        
-    } else if (context.http_response) {
-    
-        // Send the results back via http.
-        Http.respond(
-            result.statusCode,
-            context.http_response,
-            result.content,
-            result.code === 200 ? true : false);
-        
-    } else if (context.future) {
-        if (result.statusCode === 200) {
-        
-            // Success so return the data as a javascript object
-            var filename = JSON.parse(result.content);
-            var data = load_data(filename, context);
-            context.future.return({
-                code: result.statusCode,
-                data: data
-            });
-        } else {
-        
-            // Error so throw the error as javascript
-            context.future.throw({
-                code: result.statusCode,
-                data: result
-            });
-        }
-    }
-}
-
-function remote_error (via, pythonCallName, code, error, context) {
-    console.log('Error: call_python_remote(' + pythonCallName + '): via:', via,
-        'statusCode:', code, '\n', error);
-    report_remote_result(
-        { statusCode: code ? code : 500, content: error }, context);
 }
 
 function call_python_remote (pythonCallName, json, context) {
@@ -246,33 +265,31 @@ function call_python_remote (pythonCallName, json, context) {
             
             if (error) {
                 var errorMsg = error.toString(),
-                    code;
+                    statusCode;
                 if (error.response && error.response.statusCode) {
-                    code = error.response.statusCode;
+                    statusCode = error.response.statusCode;
                     if (error.response.data) {
                         errorMsg = error.response.data;
                     }
                 }
-                remote_error('error', pythonCallName, code,
-                    errorMsg, context);
+                report_error(true, statusCode, errorMsg, '"error"',
+                    pythonCallName, context);
                 
             } else if (result && result.statusCode === 200) {
-                console.log('Info: call_python_remote(' + pythonCallName +
-                    ')', 'Code, Results file:', result.statusCode,
-                    result.content.slice(0, 50));
-                report_remote_result(result, context);
+            
+                remote_success(result, pythonCallName, context);
                 
             } else if (result && result.statusCode) {
-                remote_error('has statusCode', pythonCallName, result.statusCode,
-                    result.toString(), context);
+                report_error(true, result.statusCode, result.toString(),
+                    '"has statusCode"', pythonCallName, context);
                 
             } else if (result) {
-                remote_error('no statusCode', pythonCallName, undefined,
-                    result.toString(), context);
+                report_error(true, undefined, result.toString(),
+                    '"no statusCode"', pythonCallName, context);
         
             } else {
-                remote_error('no result', pythonCallName, undefined,
-                    'undefined error',  context);
+                report_error(true, undefined, '"no result"', '"no result"',
+                    '"has statusCode"', pythonCallName, context);
             }
         });
     }).run(id);
@@ -284,7 +301,7 @@ exports.call = function (pythonCallName, opts, context) {
     // python call name, call options, and a context.
     // On success or error, the results are received as:
     //  {
-    //      code: <http-status-code>, (whether it called locally or remotely)
+    //      statusCode: <http-status-code>, whether it called locally or remote
     //      data: <data>,
     //  }
 
