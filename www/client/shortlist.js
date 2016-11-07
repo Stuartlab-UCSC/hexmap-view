@@ -911,14 +911,15 @@ Shortlist = (function () { // jshint ignore: line
             // move the layer from the current position to the first
             //move_entry(layer_name, 1);
             
-             // If this layer is already primary, so remove it as primary.
-             // This has a side effect of setting any secondary to primary.
+             // If this layer is already primary, remove it as primary.
+             // This has a side effect of setting any secondary to primary,
+             // or leaving no active layers.
             if (is_primary(layer_name)) {
                 active.splice(0, 1);
 
-            // If this layer is secondary, set it as primary.
-            // Make it primary, retaining any secondary.
-            } else if (is_primary(layer_name)) {
+            // If this layer is secondary,
+            // set it as the primary and only active layer.
+            } else if (is_secondary(layer_name)) {
                 active = [layer_name];
                 
             // This layer is not currently active, so make it primary
