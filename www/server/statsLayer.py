@@ -196,7 +196,9 @@ class ForEachLayer(object):
             # Both layers are not binary so call the chi-squared function
             # http://docs.scipy.org/doc/scipy-0.16.0/reference/generated/scipy.stats.chi2_contingency.html#scipy.stats.chi2_contingency
             try:
-                chi2, pValue, dof, expectedFreq = scipy.stats.chi2_contingency(table, lambda_='log-likelyhood')
+                chi2, pValue, dof, expectedFreq = scipy.stats.chi2_contingency(table)
+                # the below lambda parm is not available in v17 of scipy.stats, the one we're using but is available in v15.
+                #chi2, pValue, dof, expectedFreq = scipy.stats.chi2_contingency(table, lambda_='log-likelyhood')
             except Exception:
             
                 # We probably had all zeros for a column in the contingency table.
