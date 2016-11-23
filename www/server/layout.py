@@ -84,25 +84,27 @@ def parse_args(args):
         help="attribute by which to color the map upon first display")
     parser.add_argument("--directory", "-d", type=str, default=".",
         help="directory in which to create other output files")
-    parser.add_argument("--role", type=str, default=".",
+    parser.add_argument("--role", type=str, default=None,
         help="authorization role for this map")
         
     # Lesser used parameters:
     parser.add_argument("--attributeTags", type=str,
         default=None,
         help="tags for filtering attributes for display, as TSV")
-    parser.add_argument("--min-window-nodes", type=int, default=5,
+    parser.add_argument("--min_window_nodes", type=int, default=5,
+        dest="mi_window_threshold",
         help="min nodes per window for layout-aware stats")
-    parser.add_argument("--max-window-nodes", type=int, default=20,
+    parser.add_argument("--max_window_nodes", type=int, default=20,
+        dest="mi_window_threshold_upper",
         help="max nodes per window for layout-aware stats")
-    parser.add_argument("--no-density-stats", dest="clumpinessStats", action="store_false",
-        default=True,
+    parser.add_argument("--no_density_stats", dest="clumpinessStats",
+        action="store_false", default=True,
         help="don't calculate density stats")
-    parser.add_argument("--no-layout-independent-stats", dest="associations", action="store_false",
-        default=True,
+    parser.add_argument("--no_layout_independent_stats", dest="associations",
+        action="store_false", default=True,
         help="don't calculate layout-independent stats")
-    parser.add_argument("--no-layout-aware-stats", dest="mutualinfo", action="store_false",
-        default=True,
+    parser.add_argument("--no_layout_aware_stats", dest="mutualinfo",
+        action="store_false", default=True,
         help="don't calculate layout-aware stats")
     parser.add_argument("--truncation_edges", type=int, default=6,
         help="edges per node for DrL and the directed graph")
@@ -128,19 +130,20 @@ def parse_args(args):
     
     # Deprecated parameters:
     parser.add_argument("--mi_window_threshold", type=int, default=5,
-        help="deprecated, use --min-window-nodes instead")
+        help="deprecated, use --min_window_nodes instead")
     parser.add_argument("--mi_window_threshold_upper", type=int, default=20,
-        help="deprecated, use --max-window-nodes instead")
-    parser.add_argument("--no-stats", dest="clumpinessStats", action="store_false",
-        default=True,
-        help="deprecated, use --no-density-stats instead")
-    parser.add_argument("--no-associations", dest="associations", action="store_false", 
-        default=True,
-        help="deprecated, use --no-layout-independent-stats instead")
-    parser.add_argument("--no-mutualinfo", dest="mutualinfo", action="store_false", 
-        default=True,
-        help="deprecated, use --no-layout-aware-stats instead")
-
+        help="deprecated, use --max_window_nodes instead")
+    parser.add_argument("--no-stats", dest="clumpinessStats",
+        action="store_false", default=True,
+        help="deprecated, use --no_density_stats instead")
+    parser.add_argument("--no-associations", dest="associations",
+        action="store_false", default=True,
+        help="deprecated, use --no_layout_independent_stats instead")
+    parser.add_argument("--no-mutualinfo", dest="mutualinfo",
+        action="store_false", default=True,
+        help="deprecated, use --no_layout_aware_stats instead")
+    
+    
     return parser.parse_args(args)
 
 def timestamp():

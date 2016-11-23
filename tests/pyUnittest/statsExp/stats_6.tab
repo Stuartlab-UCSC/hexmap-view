@@ -1,0 +1,9 @@
+TP63_expression altered	0.7977925	0.8975166	1.0
+TP63_ mutated	0.6196141	0.8975166	1.0
+TP53_expression altered	0.3173105	0.8975166	1.0
+DNA_Repair Broken	0.7977925	0.8975166	1.0
+categoricalBinary	0.6196141	0.8975166	1.0
+continuousInteger	0.7944034	0.8975166	1.0
+Subtype	0.7857257	0.8975166	1.0
+DNA_signature	0.9653859	0.9653859	1.0
+Apoptosis	0.7411499	0.8975166	1.0

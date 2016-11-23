@@ -1,0 +1,5 @@
+Subtype	0	Subtype 1	#f00	1	Subtype 2	#0f0	2	Subtype 3	#ff0	3	Subtype 4	#0ff
+TP53_altered	0	Not overexpressed	#0000FF	1	Overexpressed	#FF0000
+TP63_mutated	0	No mutation	#0000FF	1	Has mutation	#FF0000
+TP63_altered	0	Not overexpressed	#0000FF	1	Overexpressed	#FF0000
+DNA_Repair	0	Ok	#0000FF	1	Broken	#FF0000

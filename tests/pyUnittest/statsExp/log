@@ -1,0 +1,141 @@
+11-23 10:39:16 Started
+command-line options:
+['--similarity',
+ '/Users/swat/dev/hexagram/tests/pyUnittest/statsIn/artificial_sparse.tab',
+ '--names',
+ 'mRNA',
+ '--scores',
+ '/Users/swat/dev/hexagram/tests/pyUnittest/statsIn/old_attributes.csv',
+ '--colormaps',
+ '/Users/swat/dev/hexagram/tests/pyUnittest/statsIn/colormaps.tab',
+ '--mi_window_threshold',
+ '2',
+ '--mi_window_threshold_upper',
+ '5',
+ '--window_size',
+ '20',
+ '--truncation_edges',
+ '6',
+ '--first_attribute',
+ 'Subtype',
+ '--directory',
+ '/Users/swat/dev/hexagram/tests/pyUnittest/statsOut/']
+all options:
+{'associations': True,
+ 'attributeTags': None,
+ 'clumpinessStats': True,
+ 'colormaps': '/Users/swat/dev/hexagram/tests/pyUnittest/statsIn/colormaps.tab',
+ 'coordinates': None,
+ 'directedGraph': True,
+ 'directory': '/Users/swat/dev/hexagram/tests/pyUnittest/statsOut/',
+ 'drlpath': None,
+ 'feature_space': None,
+ 'first_attribute': 'Subtype',
+ 'layout_method': 'DrL',
+ 'metric': None,
+ 'mi_window_threshold': 2,
+ 'mi_window_threshold_upper': 5,
+ 'mutualinfo': True,
+ 'names': ['mRNA'],
+ 'output_tar': '',
+ 'output_zip': '',
+ 'preprocess_method': '',
+ 'raw': None,
+ 'rawsim': None,
+ 'role': None,
+ 'scores': ['/Users/swat/dev/hexagram/tests/pyUnittest/statsIn/old_attributes.csv'],
+ 'similarity': [['/Users/swat/dev/hexagram/tests/pyUnittest/statsIn/artificial_sparse.tab']],
+ 'similarity_full': None,
+ 'singletons': False,
+ 'truncation_edges': 6,
+ 'tsne_pca_dimensions': '11',
+ 'type': None,
+ 'window_size': 20}
+Using sparse similarity
+Setting first attribute to Subtype
+Writing matrix names...
+Created nodes_multiple list...
+About to open matrices...
+DRL method
+['/Users/swat/dev/hexagram/tests/pyUnittest/statsIn/artificial_sparse.tab']
+None
+None
+Sparse similarity matrices
+Opening Matrix 0 /Users/swat/dev/hexagram/tests/pyUnittest/statsIn/artificial_sparse.tab
+['/Users/swat/dev/hexagram/tests/pyUnittest/statsIn/artificial_sparse.tab']
+enumerating ctx.matrices 0
+11-23 10:39:16 ============== Starting drl computations for layout: 0 ... ==============
+Reach for parts in sim_reader
+11-23 10:39:16 DrL: Truncating...
+Using /var/folders/q2/jn30ll5s59d10fv06my655_h0000gp/T/tmp9LrIy9/layout0.sim for .sim file, 
+Will output /var/folders/q2/jn30ll5s59d10fv06my655_h0000gp/T/tmp9LrIy9/layout0.ind for .ind file,
+            /var/folders/q2/jn30ll5s59d10fv06my655_h0000gp/T/tmp9LrIy9/layout0.int for .int file, and
+            /var/folders/q2/jn30ll5s59d10fv06my655_h0000gp/T/tmp9LrIy9/layout0.full for .full file.
+Using memory = 1
+      topn = 6
+      normalize = 0
+Reading .sim file ... 
+Read 60 nodes and 3540 lines.
+Creating .ind file ...
+Writing to .full file ...
+Creating .int file ...
+Scan 1 of .full file ...
+Program finished successfully.
+DrL: Doing layout...
+Using /var/folders/q2/jn30ll5s59d10fv06my655_h0000gp/T/tmp9LrIy9/layout0.int for .int file, and /var/folders/q2/jn30ll5s59d10fv06my655_h0000gp/T/tmp9LrIy9/layout0.icoord for .icoord file.
+Using random seed = 0
+      edge_cutting = 0.8
+      intermediate output = 0
+      output .iedges file = 0
+Proc. 0 scanning .int file ...
+Processor 0 reading .int file ...
+Entering liquid stage ...........................................................................................................................................................................................................
+Liquid stage completed in 0 seconds, total energy = 171557.
+Entering expansion stage ...........................................................................................................................................................................................................
+Finished expansion stage in 0 seconds, total energy = 94816.6.
+Entering cool-down stage ...........................................................................................................................................................................................................
+Completed cool-down stage in 0 seconds, total energy = 18984.3.
+Entering crunch stage .....................................................
+Finished crunch stage in 0 seconds, total energy = 34758.1.
+Entering simmer stage .......................................................................................................
+Finished simmer stage in 0 seconds, total energy = 5.32741.
+Layout calculation completed in 0 seconds (not including I/O).
+Writing out solution to /var/folders/q2/jn30ll5s59d10fv06my655_h0000gp/T/tmp9LrIy9/layout0.icoord ...
+Total Energy: 5.31053.
+Program terminated successfully.
+11-23 10:39:16 DrL: Restoring names...
+Using /var/folders/q2/jn30ll5s59d10fv06my655_h0000gp/T/tmp9LrIy9/layout0.icoord for .icoord file, and 
+       /var/folders/q2/jn30ll5s59d10fv06my655_h0000gp/T/tmp9LrIy9/layout0.ind for .ind file.
+Will output /var/folders/q2/jn30ll5s59d10fv06my655_h0000gp/T/tmp9LrIy9/layout0.coord for .coord file.
+Reading .ind file ...
+Reading .icoord file ...
+Creating .coord file ...
+Program finished successfully.
+11-23 10:39:16 Reading DrL output...
+11-23 10:39:16 ============== drl computations completed for layout: 0 ==============
+Opened matrices...
+We need to run density statistics for 1 layouts
+11-23 10:39:16 Running tiling clumpiness statistics for layout 0 with window size 20...
+11-23 10:39:16 Hexagon count: 60
+Layout's number of infinite clumpiness p-values of total: 0 10 / 10
+11-23 10:39:16 Attribute counts: 10 = Binary: 5 + Categorical: 2 + Continuous: 3
+Writing layer index...
+Regularizing colormaps file...
+No Data Provided...Skipping Beta Calculations
+23 10:39:16 Running sample-based statistics...
+23 10:39:16 Processing 10 layers
+Starting to build 100 layer pairs...
+Using host: darla.local with 4 processors for parallel jobs.
+10 subprocesses to run, one per layer.
+23 10:39:16 Sample-based statistics complete
+23 10:39:16 Running region-based statistics...
+23 10:39:16 Windowing starting...
+23 10:39:16 Windowing complete
+Starting to build 20 layer pairs...
+Using host: darla.local with 4 processors for parallel jobs.
+5 subprocesses to run, one per layer.
+23 10:39:16 Stats complete for layout: 0
+23 10:39:16 Region-based statistics complete
+23 10:39:17 Found top neighbors
+23 10:39:17 Found top neighbors
+11-23 10:39:17 Visualization generation complete!

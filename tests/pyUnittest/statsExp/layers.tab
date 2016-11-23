@@ -1,0 +1,10 @@
+DNA_signature	layer_8.tab	60		-inf
+TP63_expression altered	layer_4.tab	60	40	-inf
+Random	layer_6.tab	60		-inf
+Apoptosis	layer_5.tab	60		-inf
+TP63_ mutated	layer_2.tab	60	20	-inf
+TP53_expression altered	layer_3.tab	2	1	-inf
+continuousInteger	layer_9.tab	60		-inf
+Subtype	layer_0.tab	60		-inf
+DNA_Repair Broken	layer_7.tab	60	20	-inf
+categoricalBinary	layer_1.tab	60	20	-inf
