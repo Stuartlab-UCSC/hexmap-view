@@ -11,13 +11,7 @@ inDir = testDir + 'statsIn/'   # The input data
 expDir = testDir + 'statsExp/' # The expected output data
 outDir = testDir + 'statsOut/' # The actual output data
 
-# Add to our PYTHONPATH env var
-#sys.path.append(rootDir + 'www/server/')
-#sys.path.append(rootDir + 'www/server/')
-sys.path.append(rootDir + 'server/')
-sys.path.append(rootDir + '.python/')
 import layout
-import hexagram
 
 class TestStats(unittest.TestCase):
 
@@ -55,10 +49,6 @@ class TestStats(unittest.TestCase):
         expFiles = glob.glob('*')
         os.chdir(outDir)
         outFiles = glob.glob('*')
-        
-        # Count of files should match reference
-        #print 'outFiles, expFiles lengths', len(outFiles), len(expFiles)
-        s.assertTrue(len(outFiles) == len(expFiles))
         
         # Verify the filenames are those expected
         #print 'outFiles', outFiles
