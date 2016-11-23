@@ -9,14 +9,21 @@ import unittest
 
 class TestCreateMap(unittest.TestCase):
 
-    localUrlPrefix = "localhost:3333" # needs REMOTE_URL in settings.json
+    # SET-UP
+    
+    # The local server needs REMOTE_URL defined in settings.json
+    # and NOT have IS_CALC_SERVER defined.
+    localUrlPrefix = "localhost:3333"
+    
+    # The remote server needs '"IS_CALC_SERVER": true' in settings.json
+    # and NOT have REMOTE_URL defined.
     remoteUrlPrefix = "localhost:4444" # no REMOTE_URL in settings.json
+    
+    print 'localUrlPrefix and remoteUrlPrefix are defined as:', \
+        localUrlPrefix, ',', remoteUrlPrefix
 
-    unittest.TestCase.appInstallDir = '/Users/swat/dev/hexagram'
-    unittest.TestCase.port = "localhost:3333"
     unittest.TestCase.localUrl = localUrlPrefix + "/calc/layout"
     unittest.TestCase.remoteUrl = remoteUrlPrefix + "/calc/layout"
-    unittest.TestCase.tempDir = '/tmp'
 
     def cleanDataOut(s, dataOut):
         data = dataOut
@@ -94,18 +101,18 @@ class TestCreateMap(unittest.TestCase):
         s.assertTrue(rc['data'] == '"Malformed JSON data given"')
     
     def test_pythonCallGoodDataLocal(s):
-        data = '[ "--names", "layout", "--directory", "/Users/swat/data/view/swat_soe.ucsc.edu/", "--role", "swat_soe.ucsc.edu", "--include-singletons", "--no-density-stats", "--no-layout-independent-stats", "--no-layout-aware-stats",  "--coordinates", "/Users/swat/data/featureSpace/swat_soe.ucsc.edu/features.tab" ]'
+        data = '[ "--names", "layout", "--directory", "/Users/swat/data/view/swat_soe.ucsc.edu/", "--role", "swat_soe.ucsc.edu", "--include-singletons", "--no_density_stats", "--no_layout_independent_stats", "--no_layout_aware_stats",  "--coordinates", "/Users/swat/data/featureSpace/swat_soe.ucsc.edu/features.tab" ]'
         curl_opts = ['-d', data, '-H', 'Content-Type:application/json', '-X', 'POST', '-v']
         rc = s.doCurl(curl_opts, False)
         #print 'code, data:', rc['code'], rc['data']
         s.assertTrue(rc['code'] == '200')
     
     def test_pythonCallGoodDataRemote(s):
-        data = '[ "--names", "layout", "--directory", "/Users/swat/data/view/swat_soe.ucsc.edu/", "--role", "swat_soe.ucsc.edu", "--include-singletons", "--no-density-stats", "--no-layout-independent-stats", "--no-layout-aware-stats",  "--coordinates", "/Users/swat/data/featureSpace/swat_soe.ucsc.edu/features.tab" ]'
+        data = '[ "--names", "layout", "--directory", "/Users/swat/data/view/swat_soe.ucsc.edu/", "--role", "swat_soe.ucsc.edu", "--include-singletons", "--no_density_stats", "--no_layout_independent_stats", "--no_layout_aware_stats",  "--coordinates", "/Users/swat/data/featureSpace/swat_soe.ucsc.edu/features.tab" ]'
         curl_opts = ['-d', data, '-H', 'Content-Type:application/json', '-X', 'POST', '-v']
         rc = s.doCurl(curl_opts, True)
         #print 'code, data:', rc['code'], rc['data']
         s.assertTrue(rc['code'] == '200')
-
+    
 if __name__ == '__main__':
     unittest.main()
