@@ -141,7 +141,6 @@ function report_error (
     console.log('Error:', statusCode, errorString,
         '\n    in:', get_fx(remote) + '(' + pythonCallName + ')',
         '\n    via:', via);
-    console.trace();
     
     report_result(remote, result, context);
 }
@@ -194,27 +193,34 @@ function call_python_local (pythonCallName, json, context) {
             TEMP_DIR,
         ];
     
-    // Make array to hold stderr messages. TODO, should these be reported ?
     // Any errors not caught by the python code will throw an error and be
     // reported under the 'on error' routine.
-    // Any errors that are caught by the python code will write to stdout and
+    // Any errors that are caught by the python code will write to a list and
     // continue execution.
     var stderr = [];
+    
+    // Define a flag so that if nothing is returned other than the return code,
+    // we will report the error via the http response or the future
+    var reported = false;
     
     // Make the python call using a spawned process.
     var call = spawn('python', spawn_parms);
 
     call.on('error', function (error) {
+        reported = true;
         report_error(
             false, undefined, error, '"error"', pythonCallName, context);
     });
 
     call.stderr.on('data', function (data) {
+        // Save stderr messages and only report them if the close returns
+        // a failure.
         stderr.push(data.toString());
     });
 
     call.stdout.on('data', function (stdout_in) {
         var stdout = stdout_in.toString();
+        reported = true;
         if (stdout.slice(0,5).toLowerCase() === 'error' ||
             stdout.slice(0,7).toLowerCase() === 'warning') {
     
@@ -228,11 +234,24 @@ function call_python_local (pythonCallName, json, context) {
     
     call.on('close', function (code) {
         if (code === 0) {
-            console.log('Info: success with call_python_local(' +
-                pythonCallName + ')', 'Exited with:', code);
+            if (reported) {
+                console.log('Info: success with call_python_local(' +
+                    pythonCallName + ')', 'Exited with: 0');
+            } else {
+                console.log('Error: call_python_local(' + pythonCallName + ')',
+                    'Exited with: 0, however nothing was previously reported',
+                    'to the future or http');
+            }
         } else {
             console.log('Error with call_python_local(' + pythonCallName + ')',
-                'Exited with:', code);
+                'Exited with:', code, 'syserr below:');
+        }
+        
+        // If we've not reported back to http or the future, there is some
+        // uncaught error, so report whatever we have in syserr.
+        if (!reported) {
+            report_error(
+                false, undefined, stderr, '"close"', pythonCallName, context);
         }
     });
     
