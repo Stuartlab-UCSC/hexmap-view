@@ -18,7 +18,7 @@ Meteor.startup(function () {
         // so define a job queue in the database
     
         // job-collection debug
-        jobQueue.setLogStream(process.stdout);
+        //jobQueue.setLogStream(process.stdout);
 
         jobQueue.allow({
 
