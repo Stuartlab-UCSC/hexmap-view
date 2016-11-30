@@ -19,7 +19,8 @@ var app = app || {};  // jshint ignore: line
         },
         storageSupported,
         bookmarkMessage = new ReactiveVar(),
-        bookmarkColor = new ReactiveVar('black');
+        bookmarkColor = new ReactiveVar('black'),
+        bookmarkDialogHex;
  
     function getUrlParms() {
         var parms = location.search.substr(1);
@@ -479,14 +480,19 @@ var app = app || {};  // jshint ignore: line
         return center;
     };
  
+    closeBookmark = function () {
+        bookmarkDialogHex.hide()
+    };
+ 
     initBookmark = function () {
 
         // Create an instance of DialogHex
-        var bookmarkDialogHex = createDialogHex({
+        bookmarkDialogHex = createDialogHex({
             $el: $('#bookmarkDialog'),
             opts: {
                 title: 'Bookmark',
-                position: { my: "left", at: "left+20", of: window }
+                position: { my: "left", at: "left+20", of: window },
+                close: closeBookmark,
             },
             showFx: createBookmark,
         });

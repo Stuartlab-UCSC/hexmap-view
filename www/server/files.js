@@ -57,6 +57,10 @@ readFromTsvFileSync = function (filename) {
 readFromJsonFileSync = function (filename) {
     
     // Parse the data after reading the file
+    if (!filename) {
+        console.log('Error: no filename passed to readFromJsonFileSync()');
+        return false;
+    }
     return JSON.parse(fs.readFileSync(filename, 'utf8'));
 };
 

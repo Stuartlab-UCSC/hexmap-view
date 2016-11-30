@@ -98,9 +98,9 @@ CreateMap = (function () { // jshint ignore: line
             '--directory', view_dir,
             '--role', safe_username,
             '--include-singletons',
-            '--no-density-stats',
-            '--no-layout-independent-stats',
-            '--no-layout-aware-stats',
+            '--no_density_stats',
+            '--no_layout_independent_stats',
+            '--no_layout_aware_stats',
         ];
         if (true) { // TODO (feature_format === 'coordinates') {
             opts.push('--coordinates');

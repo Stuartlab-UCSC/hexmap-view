@@ -7,6 +7,12 @@ var spawn = Npm.require('child_process').spawn;
 var Http = require('./http');
 var PythonCall = require('./pythonCall');
 
+var JobsCode = require('./jobs');
+var Fiber = Npm.require('fibers');
+
+// Save job_contexts so we can use them after the job call
+var job_contexts = {};
+
 function make_parm_file (opts, in_json) {
 
     // Save parameters to a temporary file in json and return the file name as
@@ -70,7 +76,6 @@ function report_result (remote, result_in, context) {
 
     // Report an error or successful result to http or the client,
     // after running the post-calc function if there is one.
-    
     var result = _.clone(result_in);
     if (context.post_calc) {
     
@@ -100,7 +105,7 @@ function report_result (remote, result_in, context) {
             // the post_calc function did not do it already.
             if (context.js_result) {
                 result.data = context.js_result;
-            } else {
+            } else if (result_in) {
                 result.data = load_data(result_in.data, context);
             }
             
@@ -119,6 +124,11 @@ function report_result (remote, result_in, context) {
             'future or http_response\ncontext:', context);
         console.trace();
     }
+    
+    // Call this job done.
+    new Fiber(function () {
+        context.job.done({});
+    }).run();
 };
 
 exports.report_local_result = function (result_in, context) {
@@ -169,21 +179,22 @@ function local_success (result_filename, pythonCallName, context) {
 }
 
 function remote_success (result, pythonCallName, context) {
-    report_success(true, result, pythonCallName, context)
+    report_success(true, result, pythonCallName, context);
 }
 
-function call_python_local (pythonCallName, json, context) {
+function execute_job (job, callback) {
 
-    // Generic asynchronous caller from server to python code.
-    // Put the parameters in a file as json, then call the python routine. The
-    // python routine returns either an error string or a filename containing
-    // the results as json. The results are returned to the caller via the
-    // supplied post_calc function as a javascript object on success, or a
-    // string on error.
+    // Execute a job from the job queue.
+    
+    // Extract python parameters from the job
+    var pythonCallName = job._doc.data.pythonCallName;
+    var json = job._doc.data.json;
+    var context = job_contexts[job._doc._id];
+    context.job = job;
     
     // Log every call to python in case we have errors, there will be
     // some sort of bread crumbs to follow.
-    console.log('Info: call_python_local(' + pythonCallName + ')');
+    console.log('Info: execute_job(' + pythonCallName + ')');
     
     // Parms to pass to python
     var spawn_parms = [
@@ -258,6 +269,33 @@ function call_python_local (pythonCallName, json, context) {
     call.stdin.end();
 }
 
+function add_to_job_queue (pythonCallName, json, context) {
+
+    // Create a job and add it to the job queue
+    
+    var job = new Job(jobQueue, 'calc', // type of job
+    
+        // Job data that you define, including anything the job
+        // needs to complete. May contain links to files, etc...
+        {
+            pythonCallName: pythonCallName,
+            json: json,
+            context: context
+        }
+    );
+
+    // Commit it to the server & save the local context for post-processing.
+    
+    console.log('json:', json);
+    
+    //new Fiber(function () {
+        var rc = job.save();
+        console.log('rc:', rc);
+    //}).run();
+    
+    job_contexts[job._doc._id] = context;
+}
+
 function call_python_remote (pythonCallName, json, context) {
 
     // Log every call to python in case we have errors, there will be
@@ -273,7 +311,6 @@ function call_python_remote (pythonCallName, json, context) {
         content: json,
     };
     
-    var Fiber = Npm.require('fibers');
     var id = 1;
     var f = new Fiber(function(id) { // jshint ignore: line
         context.in_json = true;
@@ -368,16 +405,22 @@ exports.call = function (pythonCallName, opts, context) {
             parm_filename = make_parm_file(opts);
         }
         
-        call_python_local(pythonCallName, parm_filename, context);
+        add_to_job_queue(pythonCallName, parm_filename, context);
     }
 };
 
 // These are the valid python calls from the client when using the generic
-// 'pythonCall method below.
+// pythonCall method below.
 var valid_calls_from_client = [
     'diffAnalysis',
     'statsDynamic',
 ];
+
+exports.init = function () {
+
+    // Set up the job queue processing
+    jobQueue.processJobs('calc', {}, execute_job);
+}
 
 Meteor.methods({
 

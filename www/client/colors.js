@@ -232,6 +232,7 @@ Colors = (function () { // jshint ignore: line
                     }
                 ],
                 close: function () {
+                    $form.dialog('destroy');
                     Tool.activity(false);
                 }
             })

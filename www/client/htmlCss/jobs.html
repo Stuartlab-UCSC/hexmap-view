@@ -1,0 +1,19 @@
+<template name='jobT'>
+    <form id="jobDialog" style='display:none'>
+        <table>
+            <tr>
+                <td class='dialog_label'>
+                    Calculation:
+                </td>
+                <td class='dialog_value feature_upload_anchor'>
+                    {{ calculation }}
+                </td>
+            </tr>
+            <tr>
+                <td class='dialog_value' colspan=2>
+                    <textarea class='log' rows=7, name='log' value='{{log}}' readonly></textarea>
+                </td>
+            </tr>
+        </table>
+    </form>
+</template>

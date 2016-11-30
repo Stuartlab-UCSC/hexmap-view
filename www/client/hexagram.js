@@ -337,8 +337,6 @@ fill_layer_metadata = function (container, layer_name) {
 
 createMap = function  () {
 
-    console.log('createMap(): ctx.center:', ctx.center);
-
     // Create the google map.
     var mapOptions = {
         center: ctx.center,

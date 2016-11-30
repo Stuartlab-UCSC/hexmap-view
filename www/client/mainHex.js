@@ -175,6 +175,7 @@ Hex = (function () { // jshint ignore: line
                 Select.init();
                 initGchart();
                 initBookmark();
+                Jobs.init();
                 //initDiffAnalysis();
             }, 0);
         }

@@ -9,21 +9,23 @@ if (Meteor.isClient) {
 }
 
 if (Meteor.isServer) {
+
     SERVER_DIR = Meteor.settings.server.SERVER_DIR;
     TEMP_DIR = Meteor.settings.server.TEMP_DIR;
     CALC_URL = Meteor.settings.server.CALC_URL;
+    IS_MAIN_SERVER = Meteor.settings.server.IS_MAIN_SERVER;
     IS_CALC_SERVER = Meteor.settings.server.IS_CALC_SERVER;
+
     var exec = Npm.require('child_process').exec;
     var process = Npm.require('process');
     
     Meteor.startup(function () {
         process.env.MAIL_URL = 'smtp://hexmap%40ucsc.edu:Juno6666@smtp.gmail.com:587';
     });
-    sendMail = function (users, subject, msg) {
+    sendMail = function (users, subject, msg, callback) {
 
         // Send mail to user(s) with the given subject and message.
-        // users one or more usernames
-        
+        // This can take one username or a list of usernames.
         var command =
             'echo "'
             + msg
@@ -43,7 +45,11 @@ if (Meteor.isServer) {
         
         exec(command, function (error, stdout, stderr) {
             if (error) {
-                console.log('sendMail had an error:', error);
+                var errMsg = 'Error on sendMail(): ' + error;
+                console.log(errMsg);
+                callback(errMsg);
+            } else {
+                callback();
             }
         });
     }
@@ -55,6 +61,7 @@ LAYOUT_INPUT_DIR = Meteor.settings.public.LAYOUT_INPUT_DIR;
 FEATURE_SPACE_DIR = Meteor.settings.public.FEATURE_SPACE_DIR;
 ADMIN_EMAIL = Meteor.settings.public.ADMIN_EMAIL;
 GOOGLE_API_KEY = Meteor.settings.public.GOOGLE_API_KEY;
+
 if (Meteor.settings.public.DEV === 'yes') {//no booleans with strict JSON
     DEV = true; //development functionality will be included
 } else {

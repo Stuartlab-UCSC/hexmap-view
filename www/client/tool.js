@@ -245,17 +245,21 @@ Tool = (function () { // jshint ignore: line
                 '#homePage .createMapHome'
             );
         
+            var $job = $('#navBar .job');
+        
             // Hide, show or disable tools depending on user's authorizations
             Meteor.autorun( function () {
                 var user = Meteor.user(); // jshint ignore: line
 
-                // Check authorization for creating maps
-                Meteor.call('is_user_in_role', ['createMap', 'dev'],
+                // Check authorization for running jobs.
+                Meteor.call('is_user_in_role', ['runJobs', 'dev'],
                     function (error, results) {
                         if (!error && results) {
+                            $job.show();
                             $createMap.show();
                             $overlayNodes.show();
                        } else {
+                            $job.hide();
                             $createMap.hide();
                             $overlayNodes.hide();
                         }
