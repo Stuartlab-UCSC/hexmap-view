@@ -14,7 +14,7 @@ exports.post_calc = function (result, context) {
     // result: { statusCode: <http-statusCode>, data: <result-data> }
     
     if (result.statusCode !== 200) {
-        PythonCall.report_local_result (result, context);
+        PythonCall.report_calc_result (result, context);
         return;
     }
     
@@ -28,7 +28,7 @@ exports.post_calc = function (result, context) {
     if (success) {
 
         // Return the layout log file name
-        PythonCall.report_local_result(result, context);
+        PythonCall.report_calc_result(result, context);
     } else {
        
         // Send the log to the admin & throw an error.
@@ -36,7 +36,7 @@ exports.post_calc = function (result, context) {
         var msg = 'log file: ' + result.data;
         sendMail(ADMIN_EMAIL, subject, msg);
         
-        PythonCall.report_local_result ({
+        PythonCall.report_calc_result ({
             statusCode: 400,
             data: 'Calc script had an unknown error',
             }, context);

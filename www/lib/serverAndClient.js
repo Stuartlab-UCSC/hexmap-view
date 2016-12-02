@@ -12,9 +12,9 @@ if (Meteor.isServer) {
 
     SERVER_DIR = Meteor.settings.server.SERVER_DIR;
     TEMP_DIR = Meteor.settings.server.TEMP_DIR;
-    CALC_URL = Meteor.settings.server.CALC_URL;
     IS_MAIN_SERVER = Meteor.settings.server.IS_MAIN_SERVER;
     IS_CALC_SERVER = Meteor.settings.server.IS_CALC_SERVER;
+    MAIN_MONGO_URL = Meteor.settings.server.MAIN_MONGO_URL;
 
     var exec = Npm.require('child_process').exec;
     var process = Npm.require('process');

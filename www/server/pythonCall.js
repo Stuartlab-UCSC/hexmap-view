@@ -4,21 +4,20 @@
 
 var Future = Npm.require('fibers/future');
 var spawn = Npm.require('child_process').spawn;
+var Fiber = Npm.require('fibers');
 var Http = require('./http');
 var PythonCall = require('./pythonCall');
 
-var JobsCode = require('./jobs');
-var Fiber = Npm.require('fibers');
+var jobQueue;
 
-// Save job_contexts so we can use them after the job call
-var job_contexts = {};
+// Save calc contexts so we can use them after the job call
+var calcContexts = {};
 
-function make_parm_file (opts, in_json) {
+function make_parm_file (opts) {
 
     // Save parameters to a temporary file in json and return the file name as
     // json that looks like:
     //      {"parm_filename": "<filename>"}
-    // in_json of true indicates the options are already in json format
     //
     // The filename is always passed as a json object of the form:
     //      '{ "parm_filename": "<parm-filename>" }'
@@ -28,21 +27,18 @@ function make_parm_file (opts, in_json) {
     //    - downstream server needs an identifier of 'parm_filename' so it knows
     //      what to do with the content
     //    - there are few accessing functions that need to dig inside the json
-    //      object; only receive http & call_python_remote
-    
-    // convert the opts to json if need be
-    var json_opts = in_json ? opts : JSON.stringify(opts);
+    //      object; only receive http
     
     return JSON.stringify({
-        parm_filename: writeToTempFile(json_opts)
+        parm_filename: writeToTempFile(JSON.stringify(opts))
     });
 }
 
-function load_data (filename, context) {
+function load_data (filename, calcCtx) {
 
     // Convert the contents of this file from json or tsv to javascript.
     var data;
-    if (context.tsv) {
+    if (calcCtx.tsv) {
 
         // Read the tsv results file, creating an array of
         // strings, one string per row. Return the array to the
@@ -58,89 +54,72 @@ function load_data (filename, context) {
     return data;
 }
 
-function call_post_calc(result, context) {
+function call_post_calc(result, calcCtx) {
 
     // There is a post_calc function to run before returning to http or
     // the client, so call that after loading the data into javascript
     // from the file with the json results.
-    context.js_result = load_data(result.data, context);
+    calcCtx.js_result = load_data(result.data, calcCtx);
     
-    // Remove the post_calc from the context so we don't call it again.
-    var post_calc = context.post_calc;
-    delete context.post_calc;
+    // Remove the post_calc from the calcCtx so we don't call it again.
+    var post_calc = calcCtx.post_calc;
+    delete calcCtx.post_calc;
     
-    post_calc(result, context);
+    post_calc(result, calcCtx);
 }
 
-function report_result (remote, result_in, context) {
+exports.report_calc_result = function (result_in, calcCtx) {
 
     // Report an error or successful result to http or the client,
     // after running the post-calc function if there is one.
     var result = _.clone(result_in);
-    if (context.post_calc) {
+    if (calcCtx.post_calc) {
     
-        call_post_calc(result, context)
+        call_post_calc(result, calcCtx)
 
-    } else if (context.http_response) {
+    } else if (calcCtx.http_response) {
 
         // This is from an http request so respond to that
-        var in_json = false;
-        if (remote && result.statusCode === 200) {
-        
-            // Successful returns from a remote calc are already in json.
-            in_json = true;
-        }
         Http.respond (
             result.statusCode,
-            context.http_response,
-            result.data,
-            in_json);
+            calcCtx.http_response,
+            result.data);
 
-    } else if (context.future) {
+    } else if (calcCtx.future) {
     
         // This has a future, so return the result via the future
         if (result.statusCode === 200) {
         
             // Success with a results filename, so extract the data if the
             // the post_calc function did not do it already.
-            if (context.js_result) {
-                result.data = context.js_result;
+            if (calcCtx.js_result) {
+                result.data = calcCtx.js_result;
             } else if (result_in) {
-                result.data = load_data(result_in.data, context);
+                result.data = load_data(result_in.data, calcCtx);
             }
             
             // Return the success to the future
-            context.future.return(result);
+            calcCtx.future.return(result);
             
         } else {
         
             // Throw the error to the future
-            context.future.throw(result);
+            calcCtx.future.throw(result);
         }
         
     } else {
-
-        console.log('Error: report_local_result() received a context without a',
-            'future or http_response\ncontext:', context);
-        console.trace();
+        console.log('Error: report_calc_result() received a context without a',
+            'future or http_response\ncalcCtx:', calcCtx);
     }
-    
-    // Call this job done.
-    new Fiber(function () {
-        context.job.done({});
-    }).run();
-};
-
-exports.report_local_result = function (result_in, context) {
-    report_result(false, result_in, context);
 }
 
-function get_fx (remote) {
-    return remote ? 'call_python_remote' : 'call_python_local';
+function report_job_result (job) {
+
+    // Main server retrieves the results from the job document and reports it.
+    PythonCall.report_calc_result(job.result, calcContexts[job._id]);
 }
 
-function report_error (
-        remote, statusCode, error, via, pythonCallName, context) {
+function report_error (statusCode, error, via, pythonCallName, jobCtx) {
     
     var errorString = error.toString(),
         result = {
@@ -148,38 +127,38 @@ function report_error (
             data: errorString,
         };
     
-    console.log('Error:', statusCode, errorString,
-        '\n    in:', get_fx(remote) + '(' + pythonCallName + ')',
+    // Call this job failed.
+    new Fiber(function () {
+        jobCtx.job.fail(result, { "fatal": true });
+        jobCtx.jobCallback();
+    }).run();
+    console.log('Error:', result.statusCode, errorString,
+        '\n    in: execute_job(' + pythonCallName + ')',
         '\n    via:', via);
-    
-    report_result(remote, result, context);
 }
 
-function report_success (remote, result, pythonCallName, context) {
-
-    console.log('Info: Success:', result.statusCode,
-        result.data.slice(0, 50) + '...',
-        '\n    in:', get_fx(remote) +'(' + pythonCallName + ')');
-    
-    report_result(remote, result, context);
-}
-
-function local_success (result_filename, pythonCallName, context) {
+function report_success (result_filename, pythonCallName, jobCtx) {
 
     // Remove any trailing new line char
     // The filename a string
     var filename = result_filename,
         index = result_filename.indexOf('\n');
+    
     if (index > -1) {
         filename = result_filename.slice(0, index);
     }
     
-    report_success(false, { statusCode: 200, data: filename },
-            pythonCallName, context)
-}
+    var result = { statusCode: 200, data: filename };
+    
+    // Call this job done.
+    new Fiber(function () {
+        jobCtx.job.done(result, {});
+        jobCtx.jobCallback();
 
-function remote_success (result, pythonCallName, context) {
-    report_success(true, result, pythonCallName, context);
+    }).run();
+    console.log('Info: Success:', result.statusCode,
+        result.data.slice(0, 50) + '...',
+        '\n    in: execute_job(' + pythonCallName + ')');
 }
 
 function execute_job (job, callback) {
@@ -189,8 +168,13 @@ function execute_job (job, callback) {
     // Extract python parameters from the job
     var pythonCallName = job._doc.data.pythonCallName;
     var json = job._doc.data.json;
-    var context = job_contexts[job._doc._id];
-    context.job = job;
+    
+    // Save the job and its callback for later
+    var jobCtx = {
+        job: job,
+        jobId: job._doc._id,
+        jobCallback: callback,
+    };
     
     // Log every call to python in case we have errors, there will be
     // some sort of bread crumbs to follow.
@@ -219,8 +203,7 @@ function execute_job (job, callback) {
 
     call.on('error', function (error) {
         reported = true;
-        report_error(
-            false, undefined, error, '"error"', pythonCallName, context);
+        report_error(undefined, error, '"error"', pythonCallName, jobCtx);
     });
 
     call.stderr.on('data', function (data) {
@@ -236,43 +219,41 @@ function execute_job (job, callback) {
             stdout.slice(0,7).toLowerCase() === 'warning') {
     
             // Return any errors/warnings printed by the python script
-            report_error(
-                false, undefined, stdout, '"stdout"', pythonCallName, context);
+            report_error(undefined, stdout, '"stdout"', pythonCallName, jobCtx);
         } else {
-            local_success(stdout, pythonCallName, context);
+            report_success(stdout, pythonCallName, jobCtx);
         }
     });
     
     call.on('close', function (code) {
         if (code === 0) {
             if (reported) {
-                console.log('Info: success with call_python_local(' +
-                    pythonCallName + ')', 'Exited with: 0');
+                console.log('Info: success with execute_job(' +
+                    pythonCallName + ')', 'returned with code: 0');
             } else {
-                console.log('Error: call_python_local(' + pythonCallName + ')',
+                console.log('Error: execute_job(' + pythonCallName + ')',
                     'Exited with: 0, however nothing was previously reported',
                     'to the future or http');
             }
         } else {
-            console.log('Error with call_python_local(' + pythonCallName + ')',
-                'Exited with:', code, 'syserr below:');
+            console.log('Error with execute_job(' + pythonCallName + ')',
+                'Returned with code:', code, 'syserr below:');
         }
         
         // If we've not reported back to http or the future, there is some
         // uncaught error, so report whatever we have in syserr.
         if (!reported) {
-            report_error(
-                false, undefined, stderr, '"close"', pythonCallName, context);
+            report_error(undefined, stderr, '"close"', pythonCallName, jobCtx);
         }
     });
     
     call.stdin.end();
 }
 
-function add_to_job_queue (pythonCallName, json, context) {
+function add_to_job_queue (pythonCallName, json, calcCtx) {
 
     // Create a job and add it to the job queue
-    
+
     var job = new Job(jobQueue, 'calc', // type of job
     
         // Job data that you define, including anything the job
@@ -280,133 +261,46 @@ function add_to_job_queue (pythonCallName, json, context) {
         {
             pythonCallName: pythonCallName,
             json: json,
-            context: context
         }
     );
 
-    // Commit it to the server & save the local context for post-processing.
-    
-    console.log('json:', json);
-    
-    //new Fiber(function () {
-        var rc = job.save();
-        console.log('rc:', rc);
-    //}).run();
-    
-    job_contexts[job._doc._id] = context;
+    // Commit it to the server & save the local calcCtx for post-processing.
+    new Fiber(function () {
+        var job_id = job.save();
+        calcContexts[job_id] = calcCtx;
+    }).run();
 }
 
-function call_python_remote (pythonCallName, json, context) {
-
-    // Log every call to python in case we have errors, there will be
-    // some sort of bread crumbs to follow.
-    console.log('Info: call_python_remote calling:',
-        CALC_URL + '/' + pythonCallName);
-    
-    // Define HTTP request options
-    var options = {
-        headers: {
-            'content-type': 'application/json',
-        },
-        content: json,
-    };
-    
-    var id = 1;
-    var f = new Fiber(function(id) { // jshint ignore: line
-        context.in_json = true;
-        
-        // Use the meteor 'http' package to handle the http
-        HTTP.post(CALC_URL + '/' + pythonCallName, options,
-                function (error, result) {
-            
-            if (error) {
-                var errorMsg = error.toString(),
-                    statusCode;
-                if (error.response && error.response.statusCode) {
-                    statusCode = error.response.statusCode;
-                    if (error.response.data) {
-                        errorMsg = error.response.data;
-                    }
-                }
-                report_error(true, statusCode, errorMsg, '"error"',
-                    pythonCallName, context);
-                
-            } else if (result && result.statusCode === 200) {
-            
-                remote_success(result, pythonCallName, context);
-                
-            } else if (result && result.statusCode) {
-                report_error(true, result.statusCode, result.toString(),
-                    '"has statusCode"', pythonCallName, context);
-                
-            } else if (result) {
-                report_error(true, undefined, result.toString(),
-                    '"no statusCode"', pythonCallName, context);
-        
-            } else {
-                report_error(true, undefined, '"no result"', '"no result"',
-                    '"has statusCode"', pythonCallName, context);
-            }
-        });
-    }).run(id);
-}
-
-exports.call = function (pythonCallName, opts, context) {
+exports.call = function (pythonCallName, opts, calcCtx) {
 
     // Call a python function where the caller passes the
-    // python call name, call options, and a context.
+    // python call name, call options, and a calc context.
     // On success or error, the results are received as:
     //  {
-    //      statusCode: <http-status-code>, whether it called locally or remote
+    //      statusCode: <http-status-code>
     //      data: <data>,
     //  }
 
     var json;
     
-    // If the caller wants the results in tsv, save that in the context
+    // If the caller wants the results in tsv, save that in the calc context
     if (opts.hasOwnProperty('tsv')) {
-        context.tsv = true;
+        calcCtx.tsv = true;
     }
 
-    // Call either the local or remote python script.
-    if (CALC_URL) {
+    // Call the local python calc after converting the data to json,
+    // storing in a file, then jsonizing that filename
+    var parm_filename;
+    if (opts.parm_filename) {
     
-        // Execute this remotely.
-        if (opts.parm_filename) {
-            
-            // The opts is a parameter file name in json, so is fine as is
-            // and looks like this: {"parm_filename": "<filename>"}
-            json = opts;
-        } else {
-        
-            // The opts are parameters in json, so save them to a file
-            // and transform the filename to json.
-            if (context.future) {
-                json = make_parm_file(opts);
-            } else {
-                json = make_parm_file(opts, true);
-            }
-        }
-        
-        // Call the remote calc server
-        call_python_remote(pythonCallName, json, context);
-
+        // This is coming from http so parm_filename is already in json
+        parm_filename = opts;
     } else {
-        
-        // Call the local python calc after converting the data to json,
-        // storing in a file, then jsonizing that filename
-        var parm_filename;
-        if (opts.parm_filename) {
-        
-            // This is coming from http so parm_filename is already in json
-            parm_filename = opts;
-        } else {
-        
-            parm_filename = make_parm_file(opts);
-        }
-        
-        add_to_job_queue(pythonCallName, parm_filename, context);
+    
+        parm_filename = make_parm_file(opts);
     }
+    
+    add_to_job_queue(pythonCallName, parm_filename, calcCtx);
 };
 
 // These are the valid python calls from the client when using the generic
@@ -415,12 +309,6 @@ var valid_calls_from_client = [
     'diffAnalysis',
     'statsDynamic',
 ];
-
-exports.init = function () {
-
-    // Set up the job queue processing
-    jobQueue.processJobs('calc', {}, execute_job);
-}
 
 Meteor.methods({
 
@@ -450,4 +338,107 @@ Meteor.methods({
         }
         return future.wait();
     },
+});
+
+Meteor.startup(function () {
+
+    // Define and start up the job queue.
+    
+    if (IS_MAIN_SERVER) {
+    
+        // Define the job queue on the main server
+        jobQueue = JobCollection('jobQueue');
+        
+        // Define permissions
+        jobQueue.allow({
+
+            // Grant full permission to any authenticated user
+            admin: function (userId, method, params) {
+            
+                // Let any one in for now TODO
+                return true;
+             
+                //return (userId ? true : false);
+            }
+        });
+
+        // Publish this collection
+        Meteor.publish('allJobs', function () {
+            return jobQueue.find({});
+        });
+     
+    } else if (IS_CALC_SERVER) {
+    
+        // Define the job queue for remote access
+        // This server is a calc server, but not the main server hosting
+        // the database, so set up remote access to the database.
+        var mongo_url = MAIN_MONGO_URL;
+        var database = new MongoInternals.RemoteCollectionDriver(mongo_url);
+        jobQueue = JobCollection('jobQueue', { _driver: database });
+     
+    } else {
+    
+        // This will never work; a server must be 'main', 'calc' or both.
+        console.log('Error: this server is not defined as a main server',
+            'or a calc server.');
+        return;
+    }
+    
+    // DEBUG
+    //jobQueue.setLogStream(process.stdout);
+            
+    // Set a very long time to poll for delayed jobs that are ready to run.
+    // This shouldn't be needed but polling still happens with pollInterval
+    // set to false.
+    jobQueue.promote(1000000000);
+
+    // Start the job server.
+    jobQueue.startJobServer();
+
+    // Define the queue.
+    var q = jobQueue.processJobs('calc', {
+            pollInterval: false, // Don't poll
+        }, execute_job);
+
+    if (IS_CALC_SERVER) {
+        
+        jobQueue
+        
+            // For any documents of type 'calc'...
+            .find({ type: 'calc'})
+            .observe({
+            
+                // When a document is added...
+                added: function () {
+                
+                    // Tell the queue to seek new work.
+                    q.trigger();
+                },
+            });
+    }
+    if (IS_MAIN_SERVER) {
+
+        // Check the queue whenever a document of type 'calc' is changed,
+        // assuming that change is always a change to a status of 'completed' or
+        // 'failed'.
+        
+        jobQueue
+        
+            // For any documents of type 'calc'...
+            .find({ type: 'calc'})
+            .observe({
+            
+                // When a document is changed ...
+                changed: function (nu, old) {
+                
+                    // When there is a change of status to 'completed' or
+                    // 'failed', report job results.
+                    if (old.status !== nu.status &&
+                            nu.status === 'completed' ||
+                            nu.status === 'failed' ) {
+                        report_job_result(nu);
+                    }
+                }
+            });
+    }
 });

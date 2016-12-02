@@ -25,17 +25,11 @@ var MapManager = require('./mapManager');
 var PythonCall = require('./pythonCall');
 var Http = require('./http');
 
-exports.respond = function (statusCode, res, data_in, in_json) {
+exports.respond = function (statusCode, res, data_in) {
 
     // This responds to an http request after converting data to json.
     // TODO authenticate request for known users ?
-    var data = data_in;
-    if (!in_json) {
-    
-        // Convert the data to json format
-        data = JSON.stringify(data_in);
-    }
-    
+    var data = JSON.stringify(data_in);
     res.setHeader('Content-Type', 'application/json');
     res.writeHead(statusCode);
     res.end(data + '\n');
@@ -64,7 +58,7 @@ function passPostChecks (req, res) {
 
 // A look-up table indexed by call_name and referencing the feature http handler
 var pre_calc = {
-    //
+    // non yet
 };
 
 // A look-up table indexed by call_name and referencing the feature post-calc
@@ -145,19 +139,9 @@ function receive (url, req, res) {
     });
     
     // Process the data in this request
-    req.on('end', function () {
-    
+    req.on('end', function () {    
         var call_name = url.slice(url.lastIndexOf('/') + 1);
-        
-        // We assume anything received is a python call request for now
-        if (CALC_URL) {
-        
-            // Pass the json data as is to the remote python caller
-            PythonCall.call(call_name, json_data, { http_response: res }, true);
-
-        } else {
-            process_local_python_call(json_data, res, call_name);
-        }
+        process_local_python_call(json_data, res, call_name);
     });
 }
 

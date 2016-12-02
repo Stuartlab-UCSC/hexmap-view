@@ -274,14 +274,14 @@ exports.reflection_post_calc = function (result, context) {
     
     // Report any errors
     if (result.statusCode !== 200) {
-        PythonCall.report_local_result (result, context);
+        PythonCall.report_calc_result (result, context);
         return;
     }
     newLayer.data = context.js_result;
     
     dropInLayerBox(newLayer, userId, toMapId);
     
-    PythonCall.report_local_result(result, context);
+    PythonCall.report_calc_result(result, context);
 }
 
 Meteor.methods({
