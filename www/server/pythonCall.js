@@ -19,16 +19,12 @@ function make_parm_file (opts) {
     // json that looks like:
     //      {"parm_filename": "<filename>"}
     //
-    // The filename is always passed as a json object of the form:
-    //      '{ "parm_filename": "<parm-filename>" }'
-    //
     // This format was settled on because:
     //    - http requests only in json simplifies the code
     //    - downstream server needs an identifier of 'parm_filename' so it knows
     //      what to do with the content
     //    - there are few accessing functions that need to dig inside the json
     //      object; only receive http
-    
     return JSON.stringify({
         parm_filename: writeToTempFile(JSON.stringify(opts))
     });
@@ -72,7 +68,12 @@ exports.report_calc_result = function (result_in, calcCtx) {
 
     // Report an error or successful result to http or the client,
     // after running the post-calc function if there is one.
+    
     var result = _.clone(result_in);
+    console.log('Info: job:', calcCtx.jobId +
+        ', Status code:', result.statusCode +
+        ', Data:', result.data);
+    
     if (calcCtx.post_calc) {
     
         call_post_calc(result, calcCtx)
@@ -108,8 +109,9 @@ exports.report_calc_result = function (result_in, calcCtx) {
         }
         
     } else {
-        console.log('Error: report_calc_result() received a context without a',
-            'future or http_response\ncalcCtx:', calcCtx);
+        console.log('Error: job:', calcCtx.jobId +
+            ', report_calc_result() received a context without a',
+            'future or http_response, calcCtx:', calcCtx);
     }
 }
 
@@ -132,9 +134,8 @@ function report_error (statusCode, error, via, pythonCallName, jobCtx) {
         jobCtx.job.fail(result, { "fatal": true });
         jobCtx.jobCallback();
     }).run();
-    console.log('Error:', result.statusCode, errorString,
-        '\n    in: execute_job(' + pythonCallName + ')',
-        '\n    via:', via);
+    console.log('Error:, job:', jobCtx.jobId + ',', result.statusCode,
+        errorString, 'via:', via);
 }
 
 function report_success (result_filename, pythonCallName, jobCtx) {
@@ -156,9 +157,8 @@ function report_success (result_filename, pythonCallName, jobCtx) {
         jobCtx.jobCallback();
 
     }).run();
-    console.log('Info: Success:', result.statusCode,
-        result.data.slice(0, 50) + '...',
-        '\n    in: execute_job(' + pythonCallName + ')');
+    console.log('Info: job:', jobCtx.jobId + ', Success:', result.statusCode,
+        result.data);
 }
 
 function execute_job (job, callback) {
@@ -178,7 +178,8 @@ function execute_job (job, callback) {
     
     // Log every call to python in case we have errors, there will be
     // some sort of bread crumbs to follow.
-    console.log('Info: execute_job(' + pythonCallName + ')');
+    console.log('Info: job:', jobCtx.jobId + ', execute_job(' +
+        pythonCallName + ')');
     
     // Parms to pass to python
     var spawn_parms = [
@@ -227,16 +228,13 @@ function execute_job (job, callback) {
     
     call.on('close', function (code) {
         if (code === 0) {
-            if (reported) {
-                console.log('Info: success with execute_job(' +
-                    pythonCallName + ')', 'returned with code: 0');
-            } else {
-                console.log('Error: execute_job(' + pythonCallName + ')',
+            if (!reported) {
+                console.log('Error: job:', jobCtx.jobId,
                     'Exited with: 0, however nothing was previously reported',
                     'to the future or http');
             }
         } else {
-            console.log('Error with execute_job(' + pythonCallName + ')',
+            console.log('Error: job:', jobCtx.jobId,
                 'Returned with code:', code, 'syserr below:');
         }
         
@@ -263,11 +261,13 @@ function add_to_job_queue (pythonCallName, json, calcCtx) {
             json: json,
         }
     );
-
+    
     // Commit it to the server & save the local calcCtx for post-processing.
     new Fiber(function () {
-        var job_id = job.save();
-        calcContexts[job_id] = calcCtx;
+        calcCtx.jobId = job.save();
+        console.log('Info: job:', calcCtx.jobId + ', add_to_job_queue(' +
+            pythonCallName + ')');
+        calcContexts[calcCtx.jobId] = calcCtx;
     }).run();
 }
 
