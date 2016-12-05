@@ -40,7 +40,7 @@ var app = app || {};
             }
         }
 
-        DialogHex.prototype.init = function () {
+        DialogHex.prototype.finishShow = function () {
 
             var self = this,
                 closeSvg = '/icons/close.svg';
@@ -89,9 +89,9 @@ var app = app || {};
             };
             this.$el.dialog(opts);
 
-            // Give the DOM a chance to load so we can find the elements in init
-            setTimeout(function () {
-                self.init();
+            // Give the DOM a chance to load so we can find the elements
+            Meteor.setTimeout(function () {
+                self.finishShow();
             }, 0);
         }
 

@@ -68,9 +68,9 @@ var post_calc = {
     reflection: MapManager.reflection_post_calc,
 };
 
-function process_local_python_call (json_data, res, call_name) {
+function process_python_call (json_data, res, call_name) {
 
-    // Process a local python call
+    // Process a python call
 
     // The json_data is a json object with either:
     //   - a filename that contains parameters for a calc call
@@ -141,7 +141,7 @@ function receive (url, req, res) {
     // Process the data in this request
     req.on('end', function () {    
         var call_name = url.slice(url.lastIndexOf('/') + 1);
-        process_local_python_call(json_data, res, call_name);
+        process_python_call(json_data, res, call_name);
     });
 }
 

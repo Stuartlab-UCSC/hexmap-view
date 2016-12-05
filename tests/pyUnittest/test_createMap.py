@@ -11,19 +11,28 @@ class TestCreateMap(unittest.TestCase):
 
     # SET-UP
     
-    # The local server needs REMOTE_URL defined in settings.json
-    # and NOT have IS_CALC_SERVER defined.
-    localUrlPrefix = "localhost:3333"
+    # There are three servers involved in these tests:
+    # - single server: main and calc servers are the same server
+    # - main server: main and calc servers are different servers
+    # - calc server: main and calc servers are different servers
     
-    # The remote server needs '"IS_CALC_SERVER": true' in settings.json
-    # and NOT have REMOTE_URL defined.
-    remoteUrlPrefix = "localhost:4444" # no REMOTE_URL in settings.json
+    # The single server needs defined in settings.json:
+    # IS_MAIN_SERVER, IS_CALC_SERVER
+    singleUrlPrefix = "localhost:3333"
     
-    print 'localUrlPrefix and remoteUrlPrefix are defined as:', \
-        localUrlPrefix, ',', remoteUrlPrefix
+    # The main server needs defined in settings.json:
+    # IS_MAIN_SERVER and NOT IS_CALC_SERVER.
+    mainUrlPrefix = "localhost:5555"
+    
+    # The calc server needs defined in settings.json:
+    # IS_CALC_SERVER, MAIN_MONGO_URL and NOT IS_MAIN_SERVER.
+    calcUrlPrefix = "localhost:4444"
+    
+    print 'singleUrlPrefix, mainUrlPrefix and calcUrlPrefix are defined as:', \
+        singleUrlPrefix, ',', mainUrlPrefix, ',', calcUrlPrefix
 
-    unittest.TestCase.localUrl = localUrlPrefix + "/calc/layout"
-    unittest.TestCase.remoteUrl = remoteUrlPrefix + "/calc/layout"
+    unittest.TestCase.singleUrl = singleUrlPrefix + "/calc/layout"
+    unittest.TestCase.mainUrl = mainUrlPrefix + "/calc/layout"
 
     def cleanDataOut(s, dataOut):
         data = dataOut
@@ -42,9 +51,9 @@ class TestCreateMap(unittest.TestCase):
         o, outfile = tempfile.mkstemp()
         e, errfile = tempfile.mkstemp()
         if remote:
-            url = s.remoteUrl
+            url = s.mainUrl
         else:
-            url = s.localUrl
+            url = s.singleUrl
         with open(outfile, 'w') as o:
             e = open(errfile, 'w')
             curl = ['curl', '-s', '-k'] + opts + [url]
@@ -60,28 +69,16 @@ class TestCreateMap(unittest.TestCase):
         os.remove(outfile)
         os.remove(errfile)
         return {'data': data, 'code': code}
-    
+   
     def test_methodCheckLocal(s):
         opts = ['-X', 'GET', '-v']
         rc = s.doCurl(opts, False)
         s.assertTrue(rc['code'] == '405')
         s.assertTrue(rc['data'] == '"Only the POST method is understood here"')
 
-    def test_methodCheckRemote(s):
-        opts = ['-X', 'GET', '-v']
-        rc = s.doCurl(opts, True)
-        s.assertTrue(rc['code'] == '405')
-        s.assertTrue(rc['data']== '"Only the POST method is understood here"')
-    
     def test_contentTypeCheckLocal(s):
         opts = ['-H', 'Content-Type:apjson', '-X', 'POST', '-v']
         rc = s.doCurl(opts, False)
-        s.assertTrue(rc['code'] == '400')
-        s.assertTrue(rc['data'] == '"Only content-type of application/json is understood here"')
-    
-    def test_contentTypeCheckRemote(s):
-        opts = ['-H', 'Content-Type:apjson', '-X', 'POST', '-v']
-        rc = s.doCurl(opts, True)
         s.assertTrue(rc['code'] == '400')
         s.assertTrue(rc['data'] == '"Only content-type of application/json is understood here"')
     
@@ -90,13 +87,6 @@ class TestCreateMap(unittest.TestCase):
         opts = ['-d', data, '-H', 'Content-Type:application/json', '-X', 'POST', '-v']
         rc = s.doCurl(opts, False)
         #print 'rc: code, data', rc['code'],rc['data']
-        s.assertTrue(rc['code'] == '400')
-        s.assertTrue(rc['data'] == '"Malformed JSON data given in file"')
-    
-    def test_jsonCheckRemote(s):
-        data = '{data: oh boy, data!}'
-        opts = ['-d', data, '-H', 'Content-Type:application/json', '-X', 'POST', '-v']
-        rc = s.doCurl(opts, True)
         s.assertTrue(rc['code'] == '400')
         s.assertTrue(rc['data'] == '"Malformed JSON data given"')
     

@@ -7,7 +7,8 @@
 #INSTALL=devCalc
 #INSTALL=devDev
 #INSTALL=swat
-INSTALL=swatCalc
+#INSTALL=swatCalc
+INSTALL=swatMain
 
 if [ $INSTALL == 'prod' ]
     then HEXMAP=/data
@@ -29,6 +30,9 @@ if [ $INSTALL == 'swat' ]
 fi
 if [ $INSTALL == 'swatCalc' ]
     then HEXMAP=/Users/swat/devCalc
+fi
+if [ $INSTALL == 'swatMain' ]
+    then HEXMAP=/Users/swat/devMain
 fi
 
 source $HEXMAP/runInclude

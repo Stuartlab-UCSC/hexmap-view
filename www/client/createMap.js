@@ -238,9 +238,7 @@ CreateMap = (function () { // jshint ignore: line
 
     function hide() {
  
-        // TODO
-        //methodList.destroy();
-        //methodList = undefined;
+        // Free any memory we can before destroying the dialog
         dialogHex.hide();
     }
     

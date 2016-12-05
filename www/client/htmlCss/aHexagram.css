@@ -205,3 +205,9 @@ input.import {
     font-size: 0.8em;
     font-style: italic;
 }
+
+#jobDialog td {
+    padding-right: 0.5em;
+    padding-left: 0.5em;
+}
+

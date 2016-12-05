@@ -67,5 +67,16 @@ if [ $INSTALL == 'swatCalc' ]; then
     export ROOT_URL=http://localhost:$HTTPS_PORT
     echo Using an install of $INSTALL
 fi
+if [ $INSTALL == 'swatMain' ]; then
+    PORT=5555
+    HTTPS_PORT=$PORT
+    DB_PORT=25555
+    DB_NAME=$PORT
+    METEOR_BASE=/Users/swat/.meteor/packages/meteor-tool/.1.4.1_2.fpzmec++os.osx.x86_64+web.browser+web.cordova/mt-os.osx.x86_64/dev_bundle
+    METEOR=/Users/swat/.meteor
+    SETTINGS=/Users/swat/dev/bin/settingsMain.json
+    export ROOT_URL=http://localhost:$HTTPS_PORT
+    echo Using an install of $INSTALL
+fi
 echo SETTINGS: $SETTINGS
 

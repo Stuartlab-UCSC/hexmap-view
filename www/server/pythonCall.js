@@ -169,7 +169,7 @@ function execute_job (job, callback) {
     var pythonCallName = job._doc.data.pythonCallName;
     var json = job._doc.data.json;
     
-    // Save the job and its callback for later
+    // Save some job information for later
     var jobCtx = {
         job: job,
         jobId: job._doc._id,
@@ -248,7 +248,7 @@ function execute_job (job, callback) {
     call.stdin.end();
 }
 
-function add_to_job_queue (pythonCallName, json, calcCtx) {
+function add_to_queue (pythonCallName, json, calcCtx) {
 
     // Create a job and add it to the job queue
 
@@ -259,13 +259,14 @@ function add_to_job_queue (pythonCallName, json, calcCtx) {
         {
             pythonCallName: pythonCallName,
             json: json,
+            showLog: false,
         }
     );
     
     // Commit it to the server & save the local calcCtx for post-processing.
     new Fiber(function () {
         calcCtx.jobId = job.save();
-        console.log('Info: job:', calcCtx.jobId + ', add_to_job_queue(' +
+        console.log('Info: job:', calcCtx.jobId + ', add_to_queue(' +
             pythonCallName + ')');
         calcContexts[calcCtx.jobId] = calcCtx;
     }).run();
@@ -300,7 +301,7 @@ exports.call = function (pythonCallName, opts, calcCtx) {
         parm_filename = make_parm_file(opts);
     }
     
-    add_to_job_queue(pythonCallName, parm_filename, calcCtx);
+    add_to_queue(pythonCallName, parm_filename, calcCtx);
 };
 
 // These are the valid python calls from the client when using the generic
@@ -441,4 +442,11 @@ Meteor.startup(function () {
                 }
             });
     }
+    
+            console.log('about to find jobs');
+            var jobs = jobQueue.find({});
+            jobs.forEach(function (job) {
+                console.log('job id:', job._id);
+            });
+
 });

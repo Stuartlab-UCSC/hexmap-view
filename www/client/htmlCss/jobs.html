@@ -1,19 +1,45 @@
 <template name='jobT'>
-    <form id="jobDialog" style='display:none'>
-        <table>
+    <div id="jobDialog" style='display:none'>
+        <table style='overflow:scroll;width:100%'>
             <tr>
-                <td class='dialog_label'>
-                    Calculation:
-                </td>
-                <td class='dialog_value feature_upload_anchor'>
-                    {{ calculation }}
-                </td>
+                <th>
+                    Operation
+                </th>
+                <th>
+                    Status
+                </th>
+                <th>
+                    Updated
+                </th>
             </tr>
-            <tr>
-                <td class='dialog_value' colspan=2>
-                    <textarea class='log' rows=7, name='log' value='{{log}}' readonly></textarea>
-                </td>
-            </tr>
+            {{#each jobs}}
+                <tr>
+                    <td>
+                        {{ data.pythonCallName }}
+                    </td>
+                    <td>
+                        {{ status }}
+                    </td>
+                    <td>
+                        {{ updated }}
+                    </td>
+                    <td>
+                        <button>
+                            {{ cButtontext }}
+                        </button>
+                    </td>
+                    <td>
+                        <button>
+                            Log
+                        </button>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan='5'>
+                        <textarea class='log' rows=7, name='log' value='{{ log }}' style='display:{{ logDisplay }}' readonly></textarea>
+                    </td>
+                </tr>
+            {{/each}}
         </table>
-    </form>
+    </div>
 </template>
