@@ -312,10 +312,6 @@ def weighted_chi2_statistics (
     #    d. Apply a function to determine the sign of the association, negative
     #       or positive.
     
-    if ctx.binary_layers == 0:
-        print 'No binary layers for layout-aware stats to process'
-        return
-
     for layout in ctx.all_hexagons.iterkeys():
 
         # Create the windows containing lists of node names in each window.
@@ -448,20 +444,19 @@ def normalized_pearson_statistics (
             print 'Skipping sort stats for layout-aware'
             continue
 
-        if ctx.binary_layers == 0:
-            print 'No binary layers for layout-aware stats to process'
-            continue
-
         # The number of pairs to compare without compare to self
-        pairCount = len(ctx.binary_layers) ** 2 - len(ctx.binary_layers)
+        pairCount = len(layerNames) ** 2 - len(layerNames)
         print 'Starting to build', pairCount, 'layer pairs...'
 
         # Create the stats parameters
         parm = {
+            'binLayers': ctx.binary_layers,
+            'catLayers': ctx.categorical_layers,
+            'contLayers': ctx.continuous_layers,
             'directory': options.directory,
             'layers': layers,
             'layout': str(layout),
-            'statsLayers': ctx.binary_layers,
+            'statsLayers': layerNames,
             'windowAdditives': C2,
             'windowNodes': C,
         }
@@ -481,7 +476,7 @@ def normalized_pearson_statistics (
             allLayers.append(ForEachLayer(parm))
 
         print pool.hostProcessorMsg()
-        print len(ctx.binary_layers), 'subprocesses to run, one per layer.'
+        print len(layerNames), 'subprocesses to run, one per layer.'
 
         pool.runSubProcesses(allLayers)
 
