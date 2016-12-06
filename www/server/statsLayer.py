@@ -37,7 +37,23 @@ class ForEachLayer(object):
         s.layerA = parm['layerA']
         s.layers = parm['layers']
         s.statsLayers = parm['statsLayers']
+    
+        s.seq = 0
 
+        # Save the data type lists and determine layerA's data type
+        if 'binLayers' in parm:
+            s.binLayers = parm['binLayers']
+            if s.layerA in s.binLayers:
+                s.layerAtype = 'bin'
+        if 'catLayers' in parm:
+            s.catLayers = parm['catLayers']
+            if s.layerA in s.catLayers:
+                s.layerAtype = 'cat'
+        if 'contLayers' in parm:
+            s.contLayers = parm['contLayers']
+            if s.layerA in s.contLayers:
+                s.layerAtype = 'cont'
+        
         if 'layout' in parm:
 
             # Layout-aware options:
@@ -58,20 +74,6 @@ class ForEachLayer(object):
         else:
 
             # Layout-independent options:
-
-            # Save the data type lists and determine layerA's data type
-            if 'binLayers' in parm:
-                s.binLayers = parm['binLayers']
-                if s.layerA in s.binLayers:
-                    s.layerAtype = 'bin'
-            if 'catLayers' in parm:
-                s.catLayers = parm['catLayers']
-                if s.layerA in s.catLayers:
-                    s.layerAtype = 'cat'
-            if 'contLayers' in parm:
-                s.contLayers = parm['contLayers']
-                if s.layerA in s.contLayers:
-                    s.layerAtype = 'cont'
 
             s.hexNames = parm['hexNames']
 
