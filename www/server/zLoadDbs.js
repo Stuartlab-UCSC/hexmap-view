@@ -12,7 +12,8 @@ AttrDataDB = new Mongo.Collection('AttrDataDB');
 DensityDB = new Mongo.Collection('DensityDB');
 
 function getLayoutsFromDensityDB(project){
-    //here we assume all attributes have the same layouts per project
+    // this returns an array of all the layout names for a given project.
+    // here we assume all attributes have the same number of layouts per project
     // which is true for now
 
     //grab a random attribute to find on
@@ -68,17 +69,19 @@ function fillEmptyDensityDBEntries(){
     namespaces.forEach(function(namespace){
         var projArr = projectsWithNamespace[namespace];
         console.log("projects sharing namespace:",namespace,"->projects:",projArr);
+
         projArr.forEach(function(project){
             console.log(projArr,project);
             var otherProjects = projArr.slice(); //this makes copy instead of just reference
 
             otherProjects.splice(projArr.indexOf(project),1);
-            console.log("project array and other projects arrray",projArr,otherProjects);
-            console.log("other projects with this namespace:", otherProjects);
+            //console.log("project array and other projects arrray",projArr,otherProjects);
+            //console.log("other projects with this namespace:", otherProjects);
             //before we can fill we need to which layout_name s the project has
             var layoutNames = getLayoutsFromDensityDB(project);
-            console.log("layoutnames for project:",project,"->layout_names:",layoutNames);
-            console.log("should be spitting out abunch of attribute names:::");
+            //console.log("layoutnames for project:",project,"->layout_names:",layoutNames);
+            //console.log("should be spitting out abunch of attribute names:::");
+
             DensityDB.aggregate({$match: {namespace: namespace, project : {$in : otherProjects}}},{$group :
             {_id : {attr_name: "$name"}, //get all the attribute names in other project
                 "count": {$sum : 1} }}).forEach(function(attrdoc){
@@ -91,6 +94,8 @@ function fillEmptyDensityDBEntries(){
                             namespace : namespace,
                             project : project,
                             name : attrdoc._id.attr_name,
+                            tags : AttribDB.findOne({namespace: namespace,name: attrdoc._id.attr_name}).tags,
+                            datatype : AttribDB.findOne({namespace: namespace,name: attrdoc._id.attr_name}).datatype,
                             layout_name : layout_name,
                             density : NaN
 
@@ -118,11 +123,15 @@ function initDensityDB(project,namespace){
         var index = 0; // we are using the index for the name values
 
         //fill density array with all the clumpiness values,
+        var dtype = AttribDB.findOne({namespace: namespace, name : attribute_name}).datatype;
+        var tags = AttribDB.findOne({namespace: namespace, name : attribute_name}).tags;
         clumpiArray.forEach(function(strnum){
             DensityDB.insert(
                 {
                     namespace:namespace,
                     project:project,
+                    datatype : dtype,
+                    tags : tags,
                     density:parseFloat(strnum),
                     name: attribute_name,
                     layout_name: String(index)
@@ -351,7 +360,7 @@ function populate_attrib_database(projects){
     _.each(dirStructure, function(minors,major){
         //console.log(major,minors)
 
-        var minorCount = 0; //niave way of dealing with case where no minors exist
+        var minorCount = 0; //brute way of dealing with case where no minors exist
         _.each(minors,function(minor){
 
             minorCount+=1;
@@ -363,29 +372,37 @@ function populate_attrib_database(projects){
             console.log('loading files for:',project);
             var namespace = getNameSpace(project);
 
-            //both grab from layers.tab
-            initDensityDB(project,namespace);
+            //grabs from layers.tab
+            console.log("initing the attribute database for project", project);
             initAttrDB(project,namespace);
 
             //uses *data_type.tab file
+            console.log("initing the data types for project", project);
             insertDataTypesToArrtibDB(project,namespace);
 
             //uses colormaps.tab
+            console.log("initing the colormaps for project", project);
             insertColorMapsToArrtibDB(project,namespace);
 
             //uses attribute_tags.tab
+            console.log("initing the tags for project", project);
             insertTagsToArrtibDB(project,namespace);
+            //need to do this last because it depends on types and tags being there...
+            console.log("initing the density database for project", project);
+            initDensityDB(project,namespace);
+
 
         });
         if (minorCount === 0) { //takes care of case when there is only a major
             var project = major + '/';
             console.log('loading files for:',project);
             var namespace = getNameSpace(project);
-            initDensityDB(project,namespace);
             initAttrDB(project,namespace);
             insertDataTypesToArrtibDB(project,namespace);
             insertColorMapsToArrtibDB(project,namespace);
             insertTagsToArrtibDB(project,namespace);
+            initDensityDB(project,namespace);
+
 
         }
     });

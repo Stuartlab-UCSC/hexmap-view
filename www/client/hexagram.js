@@ -283,6 +283,9 @@ var app = app || {};
             //console.log("filling layer for", attribute, '=',displayDoc[attribute]);
             //console.trace();
 
+            //this means there is a 'positive' value but its not appropriate for
+            // display
+            if(attribute === 'p' && displayDoc.datatype !== "Binary" ) {continue}
             var text;
 
             if ((attribute === 'p' || attribute === 'n')
@@ -1074,9 +1077,7 @@ var app = app || {};
                 });
         }
     };
-
     
-
     initLayerIndex = function () {
         //initLayerIndex does the puts the minimimal amount of information
         // into the layers object

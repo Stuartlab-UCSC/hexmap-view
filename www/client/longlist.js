@@ -313,18 +313,26 @@ var app = app || {};
                 }
                 */
                 var filters = getSelectedTags(); //grab the selected filters from UI
+
+                // most of what we need make a query to the server
                 var queryObj = {
                     namespace : namespace,
                     layout_name : layout_name,
                     term : query.term,
                     project : project,
-                    start : query.context,
+                    start : query.context || 0,
                     tags : filters.tags,
                     dtypes : filters.dtypes,
                     page_size : SEARCH_PAGE_SIZE,// that should probably be put in above, and only what we don't know added here
-                    nodes : Session.get('sortedLayers').slice(0,10)
                 };
-
+                //if we are not searching on a term
+                // then we will use the 'sortedLayers' object
+                //var browsing = (query.term === '');
+                //if (browsing){
+                //    queryObj.nodes = Session.get('sortedLayers').slice(queryObj.start,queryObj.start + 10)
+                //    numOfAttributes = Session.get('sortedLayers').length
+                //}
+                //console.log(queryObj.nodes);
                 Meteor.call("longListQuery",queryObj,function(err,res){
                     if (err) {
                         console.log("longListQuery failed with error:", err);
@@ -339,8 +347,13 @@ var app = app || {};
                         });
 
                         numOfAttributes = res.qcount;
-                        console.log("count from the query is:",numOfAttributes);
-                        console.log("the number skipped was:",res.skip);
+
+                        //if (!browsing) {
+                            //then we are searching on a query term
+                        //    numOfAttributes = res.qcount;
+                        //}
+                        //onsole.log("count from the query is:",numOfAttributes);
+                        //console.log("the number skipped was:",res.skip);
                         //console.log("longlist query esxecuted with:",queryObj);
                         //console.log("calced num of attributes:",numOfAttributes);
 
@@ -348,9 +361,9 @@ var app = app || {};
                         query.callback({
                             results: results,//res.listResponse,//results,
                             // Say there's more if we broke out of the loop.
-                            more: (res.skip || 0) < numOfAttributes, //Session.get('sortedLayers').length,
+                            more: (query.context || 0) < numOfAttributes, //Session.get('sortedLayers').length,
                             // If there are more results, start after where we left off.
-                            context: res.skip//(query.context || 0) + SEARCH_PAGE_SIZE + 1
+                            context: (query.context || 0) + SEARCH_PAGE_SIZE + 1
                         });
                     }
                 });

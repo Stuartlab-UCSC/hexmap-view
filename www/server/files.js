@@ -9,7 +9,6 @@ var crypto = Npm.require('crypto');
 var Path = Npm.require('path');
 
 writeToTempFile = function (data, fileExtension) {
-
     // Write arbitrary data to a file, blocking until the write is complete
     var filename = TEMP_DIR + '/' + crypto.randomBytes(4).readUInt32LE(0);
     if (!_.isUndefined(fileExtension)) {

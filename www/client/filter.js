@@ -4,7 +4,8 @@
 var app = app || {}; 
 
 (function (hex) {
-
+    FILTERTEST =true;
+    var BROWSE_LAYERS_SIZE = 1000;
     var TITLE = 'Filter Attributes',
         BIN_LABEL = 'Binary',
         CAT_LABEL = 'Category',
@@ -208,7 +209,38 @@ var app = app || {};
         Session.set('displayLayers',
             _.filter(Session.get('sortedLayers'), passFilter));
     }
-
+    
+    filterAttributes2 = function () {
+        // here we are going to populate the sorted layers based on a database
+        // call... this happens when ever a check box changes....
+        var filters = getSelectedTags();
+        // Apply all the filters to the sorted list to get the new displayLayers
+        var queryObj = {
+            term: '', //TODO this shouldn't have to be an empty string...
+            tags: filters.tags,
+            dtypes: filters.dtypes,
+            namespace: Session.get('namespace'),
+            project: ctx.project,
+            layout_name: String(Session.get('layoutIndex')),
+            start: 0,
+            page_size: BROWSE_LAYERS_SIZE
+        };
+        var results = [];
+        console.log("starting call to populate sortedLayers... ")
+        Meteor.call("longListQuery", queryObj, function (err, res) {
+            if (err) {
+                console.log("longListQuery from filter.js failed with error:", err);
+            }
+            else {
+                //this filters the results down to the feild of interest...
+                res.listResponse.forEach(function (doc) {
+                    results.push(doc.name);
+                });
+                Session.set('sortedLayers', results)
+                console.log("sortedLayers Set")
+            }
+        });
+    };
     function processTags () {
 
         // Attach the tags to the layers and load them into the filter UI

@@ -6,7 +6,6 @@ var app = app || {};
 
 (function (hex) { 
     //'use strict';
-
     var computingText = 'Computing statistics now...',
         firstSort = true;
 
@@ -257,12 +256,21 @@ var app = app || {};
     }
 
     function cleanPvalue (val) {
+        //if this function is needed then an error has occured
+        // under no circumstances should a p-value be greater than 1 or
+        // less than 0.
         var clean = Number(val);
+        return clean;
+        /*
+         //if this function is needed then an error has occurred.
+         // under no circumstances should a p-value be greater than 1 or
+         // less than 0, if scipy is used to create them it will NEVER happen.
         if (_.isNaN(clean) || clean > 1 || clean < 0) {
             return 1;
         } else {
             return clean;
         }
+        */
     }
 
     function updateIgnoreLayout (parsed, focus_attr, lI, pI, apI, apbI) {
@@ -344,7 +352,7 @@ var app = app || {};
     }
 
     function receive_ignore_layout_stats (parsed, focus_attr, opts) {
-
+        console.log("recieving_ignore_layout_stats with opts:",opts);
         // Handle the response from the server for ignore-layout sort statistics
         var r = {};  // the object return containing type and count
 
@@ -583,7 +591,8 @@ var app = app || {};
         // Clear the stats in the layers before loading new ones
         clearStats();
 
-        print("Fetching " + filename);
+        //DUNCAN
+        console.log("Fetching " + filename);
         Meteor.call('getTsvFile', filename, ctx.project,
             function (error, parsed) {
 

@@ -560,8 +560,6 @@ var app = app || {};
             }
         }
 
-        // Notify others that a new DOM entry has been added to the shortlist
-        new_dom_entry_added_or_removed.set(layer_name);
     }
 
     function create_shortlist_entry_with_data(layer_name, root) {
@@ -630,9 +628,7 @@ var app = app || {};
                 Util.session('filter_value', 'set', layer_name, val);
             }
         }
- 
-        // Notify others that a new DOM entry has been added to the shortlist
-        new_dom_entry_added_or_removed.set(layer_name);
+
     }
 
     function make_layer_name_unique (layer_name) {
@@ -1010,7 +1006,7 @@ var app = app || {};
 
                     // Notify others that a new DOM entry has been added to
                     // or removed from the shortlist
-                    new_dom_entry_added_or_removed.set(layer_name);
+                    //new_dom_entry_added_or_removed.set(layer_name);
 
                 } else { // Handle this layer add
 
@@ -1030,7 +1026,7 @@ var app = app || {};
                         console.log(entries[layer_name]);
                         // the display should already be defined here
                         entries[layer_name].display = {
-                            attribute_name: layer_name,
+                            name: layer_name,
                             datatype: entries[layer_name].datatype,
                             p : entries[layer_name].p,
                             n: entries[layer_name].n,
@@ -1068,7 +1064,7 @@ var app = app || {};
                     //input should be a querry object with following feilds
                     // {
                     //   namespace : ,
-                    //   attribute_name : ,
+                    //   name : ,
                     //   layout_name    : ,
                     //   project         : ,
                     //  }
@@ -1106,7 +1102,7 @@ var app = app || {};
 
                             // Notify others that a new DOM entry has been added to
                             // or removed from the shortlist
-                            new_dom_entry_added_or_removed.set(layer_name);
+                            //new_dom_entry_added_or_removed.set(layer_name);
 
                         } else { // Handle this layer add
 
@@ -1172,7 +1168,7 @@ var app = app || {};
 
                 // Notify others that a new DOM entry has been added to
                 // or removed from the shortlist
-                new_dom_entry_added_or_removed.set(layer_name);
+                //new_dom_entry_added_or_removed.set(layer_name);
 
             } else { // Handle this layer add
 
@@ -1210,7 +1206,7 @@ var app = app || {};
 
     }
 
-    function update_shortlist_metadata () {
+    function update_shortlist_metadata2 () {
  
         // Update the metadata for each layer in the shortlist
         // TODO: make the metadata updates reactive
@@ -1441,7 +1437,7 @@ var app = app || {};
         // Add the 'first layer' to the shortlist if it is empty
         if (shortlist.length < 1) {
             shortlist = [first];
-            console.log('setting shortlist from complete init shortlist',shortlist);
+            //console.log('setting shortlist from complete init shortlist',shortlist);
             Session.set('shortlist', shortlist);
         }
 

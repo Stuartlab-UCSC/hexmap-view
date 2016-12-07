@@ -13,7 +13,846 @@ present in your PATH.
 Re-uses sample code and documentation from 
 <http://users.soe.ucsc.edu/~karplus/bme205/f12/Scaffold.html>
 """
+import numpy as np
+import scipy.spatial.distance as dist
+import scipy.stats as stats
+import pandas as pd
+import networkx as nx
+import collections as col
+import sklearn.metrics.pairwise as sklp
+import itertools as iter
+import time
 
+def getSamps(file='/home/duncan/trash/all_samps_layout_1.txt'):
+    samps=[]
+    for line in open(file,'r'):
+        samps.append(line.strip())
+
+    return samps
+
+#make random numpy
+contTable = np.random.randint(0,200,220**2).reshape(220,220)
+stats.chi2_contingency(contTable)[1]
+
+samps = getSamps()
+len(samps)
+
+def readWindows(filename = '/home/duncan/data/view/Pancan12/SampleMap/windows_0.tab'):
+    windows = []
+    for line in open(filename,'r'):
+        windows.append(line.strip().split('\t')[1:])
+
+    return windows
+
+windows = readWindows()
+#using this to make #  dataframe
+def getNodeIds(windows):
+    nodeIds = []
+
+    for window in windows:
+        print len(window)
+        nodeIds.extend(window)
+
+    #make sure they aren't
+    assert len(nodeIds) == len(set(nodeIds))
+    return nodeIds
+
+def randBinOrNan(p=[.475,.475,.05]):
+    vals = [1,0,numpy.NAN]
+    return numpy.random.choice(vals,p=p)
+
+n = getNodeIds(windows)
+#make random vectors for trying out functions
+nOfRandBinVecs = 1000
+
+p1=  [.5,.5,0]
+n1=20
+p2=  [.3,.7,0]
+n2=30
+p3=  [.1,.9,0]
+n3=50
+p4=  [.05,.95,0]
+n4=50
+p5=  [.025,.975,0]
+n5=50
+p6 = [.01,.99,0]
+n6=50
+
+p7 = [.003, 1-.003,0]
+n7 = 50
+
+ps = [p1,p2,p3,p4,p5,p6,p7]
+ns = [n1,n2,n3,n4,n5,n6,n7]
+
+randomBinDF = pd.DataFrame(index=samps)
+for propor,n in zip(ps,ns):
+    print propor, n
+    for rep in xrange(n):
+        randbins = []
+        for i in xrange(len(samps)):
+            randbins.append(randBinOrNan(propor))
+
+        colname = 'randbin_'+str(propor[0]) + '_' + str(rep)
+        randomBinDF[colname] = randbins
+
+
+randomBinDF.head()
+randomBinDF.shape
+randomBinDF.to_csv("/home/duncan/trash/randomBinAttr.tab",sep='\t')
+randbins =[]
+for i in xrange(len(n)):
+    randbins.append(randBinOrNan([.5,.5,0]))
+
+randbins = numpy.array(randbins).reshape(len(n),nOfRandBinVecs )
+
+df = pd.DataFrame(randbins,index=n)
+
+def binFromProp(p,pos,total):
+    '''
+    determines the bin a value goes into from a proportions vector, number of values, and num of ones
+    :param p:
+    :return:
+    '''
+    numBins = len(p)+1
+    proportion =  pos/float(total)
+    for bin,prop in enumerate(p):
+        if (proportion <= prop):
+            return bin
+    #if we didn't already return then
+    # you're in the last bin
+    return len(p)
+
+def binFromProp2(pos,total,expected,significance=.05):
+    '''
+    returns 0 for significantly less than expected
+    returns 1 for not significatly more/less than expected
+    returns 2 for significantly more than expected
+    :param p:
+    :return:
+    '''
+    bin = 1
+    if stats.binom_test(pos,total,p=expected) <= significance:
+        if pos/float(total) > expected:
+            bin = 2
+        else:
+            bin = 0
+
+    return bin
+
+def binFromProp3(pos,total,expected,significance=.05):
+    '''
+    returns 0 for significantly less than expected
+    returns 1 for not significatly more/less than expected
+    returns 2 for significantly more than expected
+    :param p:
+    :return:
+    '''
+    bin = 0
+    if stats.binom_test(pos,total,p=expected) <= significance:
+        if pos/float(total) > expected:
+            bin = 1
+        else:
+            bin = -1
+
+    return bin
+def contFromProp4(pos,total,expected,significance=.05):
+    '''
+
+    :param p:
+    :return:
+    '''
+    if pos/float(total) > expected:
+        sign = 1
+    else:
+        sign = -1
+
+    return sign * (1-stats.binom_test(pos,total,p=expected))**3
+
+p=[0,1.0/3,2.0/3]
+binFromProp(p,10,10)
+
+def test2(x,y):
+    return numpy.dot(x,y)
+
+
+def windowTransform(dataDF,windows,p,cut):
+    '''
+    transform the data to a windows view
+    the data will now be in the form n*w
+    where n is the number of attributes
+    and w is the number of windows
+    :param dataDF:
+    :param windows:
+    :return:
+    '''
+    nbins =len(p)+1
+    outOfRange = sys.float_info.min#can't use NaN's with scipy pairwise_distance, our distance function ignores these
+    windowDF = pd.DataFrame(index=range(len(windows)))
+    for column in dataDF.columns:
+        winVector = []
+
+        for window in windows:
+            wVals = dataDF[column].loc[window]
+            nVals = numpy.isfinite(wVals).sum()
+
+            if nVals >= cut:
+                winVector.append(binFromProp(p,wVals.sum(),nVals))
+
+            else:
+                winVector.append(outOfRange)
+
+        windowDF[column] = winVector
+
+    return windowDF
+
+
+def windowTransform2(dataDF,windows,cut):
+    '''
+    transform the data to a windows view
+    the data will now be in the form n*w
+    where n is the number of attributes
+    and w is the number of windows
+    :param dataDF:
+    :param windows:
+    :return:
+    '''
+    outOfRange = sys.float_info.min
+    windowDF = pd.DataFrame(index=range(len(windows)))
+    for column in dataDF.columns:
+        winVector = []
+        expected = float(dataDF[column].sum()) / numpy.isfinite(dataDF[column]).sum()
+        for window in windows:
+            wVals = dataDF[column].loc[window]
+            nVals = numpy.isfinite(wVals).sum()
+
+            if nVals >= cut:
+                winVector.append(binFromProp2(wVals.sum(),nVals,expected))
+
+            else:
+                winVector.append(outOfRange)
+
+        windowDF[column] = winVector
+
+    return windowDF
+
+def windowTransform3(dataDF,windows,cut):
+    '''
+    transform the data to a windows view
+    the data will now be in the form n*w
+    where n is the number of attributes
+    and w is the number of windows
+    :param dataDF:
+    :param windows:
+    :return:
+    '''
+    outOfRange = sys.float_info.min
+    windowDF = pd.DataFrame(index=range(len(windows)))
+    for column in dataDF.columns:
+        winVector = []
+        expected = float(dataDF[column].sum()) / numpy.isfinite(dataDF[column]).sum()
+        for window in windows:
+            wVals = dataDF[column].loc[window]
+            nVals = numpy.isfinite(wVals).sum()
+
+            if nVals >= cut:
+                winVector.append(binFromProp3(wVals.sum(),nVals,expected))
+
+            else:
+                winVector.append(outOfRange)
+
+        windowDF[column] = winVector
+
+    return windowDF
+
+def windowTransform4(dataDF,windows,cut):
+    '''
+    transform the data to a windows view
+    the data will now be in the form n*w
+    where n is the number of attributes
+    and w is the number of windows
+    :param dataDF:
+    :param windows:
+    :return:
+    '''
+    outOfRange = 0
+    windowDF = pd.DataFrame(index=range(len(windows)))
+    for column in dataDF.columns:
+        winVector = []
+        expected = float(dataDF[column].sum()) / numpy.isfinite(dataDF[column]).sum()
+        for window in windows:
+            wVals = dataDF[column].loc[window]
+            nVals = numpy.isfinite(wVals).sum()
+
+            if nVals >= cut:
+                winVector.append(contFromProp4(wVals.sum(),nVals,expected))
+
+            else:
+                winVector.append(outOfRange)
+
+        windowDF[column] = winVector
+
+    return windowDF
+
+start = time.time()
+wtry = windowTransform(df,windows,p,3)
+end = time.time()
+print (end - start)
+#time for 50 was 7 seconds
+#time for 1000 was 7 seconds
+
+
+
+
+def chiDist(x,y,debug=False):
+    '''
+    build a contingency table and run weighted chisqed
+    :param x:
+    :param y:
+    :return:
+
+    x=df['randbin_0.1_3']
+
+    y=df['randbin_0.3_28']
+    y=df['randbin_0.1_39']
+    y=df['randbin_0.025_15']
+
+    '''
+
+    psuedoCount = .0001
+    nbins = 4
+
+    #contTable = numpy.repeat(psuedoCount,nbins**2).reshape(nbins,nbins)
+    contTable = numpy.repeat(0,nbins**2).reshape(nbins,nbins)
+
+    #go through each possible pairing of x and y and set the contingency table
+    for xIs, yIs in iter.product(range(nbins),range(nbins)):
+        contTable[xIs,yIs]= numpy.logical_and(x==xIs,y==yIs).sum()
+
+    if debug:
+        chi2  = stats.chi2_contingency(contTable+psuedoCount)
+        elem = (contTable - chi2[3])**2 / chi2[3]
+        numpy.savetxt('/home/duncan/trash/expected_r28-r3.tab',chi2[3],delimiter='\t')
+        numpy.savetxt('/home/duncan/trash/observed_r28-r3.tab',chi2[3],delimiter='\t')
+        numpy.savetxt('/home/duncan/trash/chiValue_r28-r3.tab',chi2[3],delimiter='\t')
+    return stats.chi2_contingency(contTable+psuedoCount)[1] * chiWeight(contTable+psuedoCount)
+
+def chiDist2(x,y,debug=False):
+    '''
+    build a contingency table and run weighted chisqed
+    :param x:
+    :param y:
+    :return:
+
+    x=df['randbin_0.1_3']
+
+    y=df['randbin_0.3_28']
+    y=df['randbin_0.1_39']
+    y=df['randbin_0.025_15']
+
+    [6,2,4,2,0,2,4,2,6]
+    '''
+
+    psuedoCount = .0001
+    nbins = 3
+
+    #contTable = numpy.repeat(psuedoCount,nbins**2).reshape(nbins,nbins)
+    contTable = numpy.repeat(0,nbins**2).reshape(nbins,nbins)
+
+    #go through each possible pairing of x and y and set the contingency table
+    for xIs, yIs in iter.product(range(nbins),range(nbins)):
+        contTable[xIs,yIs]= numpy.logical_and(x==xIs,y==yIs).sum()
+
+    if debug:
+        chi2  = stats.chi2_contingency(contTable+psuedoCount)
+        elem = (contTable - chi2[3])**2 / chi2[3]
+        numpy.savetxt('/home/duncan/trash/expected_r28-r3.tab',chi2[3],delimiter='\t')
+        numpy.savetxt('/home/duncan/trash/observed_r28-r3.tab',chi2[3],delimiter='\t')
+        numpy.savetxt('/home/duncan/trash/chiValue_r28-r3.tab',chi2[3],delimiter='\t')
+
+    return stats.chi2_contingency(contTable+psuedoCount)[1] * chiWeight(contTable+psuedoCount,numpy.array([8,-2,-4,-2,0,-2,-4,-2,8]).reshape(3,3))
+
+stats.binom_test(0,6,p=1.0/6)
+def tester(x,y,windows,p,cut,indexDict):
+    '''
+    :param x: numpy binary vector
+    :param y: numpy binary vector
+    :param windows:
+    :param p:
+    :param cut:
+    :return:
+    x= df[0]
+    y= df[1]
+    cut=0
+    numpy.isfinite(window_vals_x).sum()
+    '''
+    #putting all the same psudo count seems inaccurate because we believe some of the values in the
+    # contingency table are much less likely
+    psuedoCount = .0001
+    nbins =len(p)+1
+    contTable = numpy.repeat(psuedoCount,nbins**2 ).reshape(nbins,nbins)
+
+    #go through the windows and build the contingency table
+    for window in windows:
+        print window
+        window_vals_x = x[indeciesFromSamples(indexDict,window)]
+        window_vals_y = y[indeciesFromSamples(indexDict,window)]
+        number_of_vals_in_window_x = numpy.isfinite(window_vals_x).sum()
+        number_of_vals_in_window_y = numpy.isfinite(window_vals_y).sum()
+
+        if number_of_vals_in_window_x >= cut and number_of_vals_in_window_y >= cut :
+            number_of_ones_x = window_vals_x.sum()
+            number_of_ones_y = window_vals_y.sum()
+            bin_x = binFromProp(p,number_of_ones_x,number_of_vals_in_window_x)
+            bin_y = binFromProp(p,number_of_ones_y,number_of_vals_in_window_y)
+            contTable[bin_x,bin_y] +=1
+
+    #contTable.sum()
+    return stats.chi2_contingency(contTable)[1] * chiWeight(contTable)
+
+def chiWeight(contmat, weights= numpy.array([7,-1,-2,-4,-1,4,-1,-2,-2,-1,4,-1,-4,-2,-1,7]).reshape(4,4)):
+    #returns the sign of the sum of weighted chi-squared scores from a give contingency table and weight matrix
+    # matrix is the contingency table for the chisquared test
+    # weight is the
+    # contmat = numpy.random.randint(0,100,16).reshape(4,4)
+    assert(weights.sum() == 0)#, "positve and negative weights to score association not balanced")
+    assert(contmat.shape == weights.shape)#, "weight and contingency matrices not the same size")
+
+    scores = []
+    rowsum = contmat.sum(axis=1)
+    colsum = contmat.sum(axis=0)
+    total = contmat.sum()
+
+    for col in range(contmat.shape[1]):
+        for row in range(contmat.shape[0]):
+            expect = colsum[col] * (rowsum[row]/float(total))
+            if expect == 0:
+                expect = .000001 #psuedocount, for possible case where row or column sum is 0
+            observe = contmat[row,col]
+
+            scores.append(((observe - expect)**2 / expect) * weights[row,col])
+
+    return numpy.sign(numpy.array(scores).sum())
+
+start = time.time()
+sd=sklp.pairwise_distances(df.transpose(),test2)
+end = time.time()
+print (end - start)
+
+start = time.time()
+sd=sklp.pairwise_distances(wtry.transpose(),metric=chiDist,n_jobs=8)
+end = time.time()
+print (end - start)
+#50 was less than a second
+#300 was 7 seconds
+sd= dist.squareform(sd,checks=False)
+numpy.abs(sd).min()
+
+sd.shape
+numpy()
+
+####################################################################################################
+#concat dataframs and run similarity then make statsL_number
+# need layers file
+#
+import pandas as pd
+import time
+#concat
+f1 = '/home/duncan/trash/binLayoutAwareTest_2_20.tab'
+f2 = '/home/duncan/trash/randomBinAttr.tab'
+df1 = pd.read_csv(f1,sep='\t',index_col=0)
+df1.shape
+df2 = pd.read_csv(f2,sep='\t',index_col=0)
+df2.shape
+df= pd.concat([df1,df2],axis=1)
+df.head()
+(df.apply(lambda x : numpy.isnan(x).sum(),axis=1) > 0 ).sum()
+df.to_csv('/home/duncan/trash/trash.tab',sep='\t')
+#############################################################################3
+#check out contingency table...
+
+#chiDist(df['randbin_0.3_28'],df['randbin_0.1_3'],True)
+
+##############################################################################3
+########################## now 'df' is both the binaries and we want to run similairties
+windows = readWindows()
+p=[0,1.0/3,2.0/3]
+start = time.time()
+df= windowTransform(df,windows,p,6)
+end = time.time()
+print end - start
+df.head()
+
+start = time.time()
+sd=sklp.pairwise_distances(df.transpose(),metric=chiDist,n_jobs=8)
+end = time.time()
+print end - start
+###################3
+########################## now 'df' is both the binaries and we want to run similairties
+windows = readWindows()
+p=[0,1.0/3,2.0/3]
+start = time.time()
+df= windowTransform2(df,windows,6)
+end = time.time()
+print end - start
+df.head()
+
+start = time.time()
+sd=sklp.pairwise_distances(df.transpose(),metric=chiDist2,n_jobs=8)
+end = time.time()
+print end - start
+###################3
+########################## now 'df' is both the binaries and we want to run similairties
+windows = readWindows()
+p=[0,1.0/3,2.0/3]
+start = time.time()
+df= windowTransform3(df,windows,6)
+end = time.time()
+print end - start
+df.head()
+
+########################## now 'df' is both the binaries and we want to run similairties
+windows = readWindows()
+p=[0,1.0/3,2.0/3]
+start = time.time()
+df= windowTransform4(df,windows,6)
+end = time.time()
+print end - start
+
+
+df.head()
+
+
+df.shape
+simMat.shape
+pvaltrans = numpy.dot(simMat,df)
+start = time.time()
+sd=1-sklp.pairwise_distances(pvaltrans.transpose(),metric='cosine',n_jobs=8)
+sd=1-sklp.pairwise_distances(df.transpose(),metric='cosine',n_jobs=8)
+end = time.time()
+print end - start
+
+#need to read in layers.tab so we know what indexes to use
+lfile = '/home/duncan/trash/layers.tab'
+layers = pd.read_csv(lfile,sep='\t',index_col=0,header=None)
+layers[1].iloc[0][layers[1].iloc[0].index('_')+1:layers[1].iloc[0].index('.')]
+def getLayerIndex(layerName,layers):
+    filename = layers[1].loc[layerName]
+    return filename[filename.index('_')+1:filename.index('.')]
+
+getLayerIndex(layers.index[0],layers)
+getLayerIndex('layoutAwarePosTest_43_K_20',layers)
+
+sd[0,]
+df.columns[0]
+df.columns[2]
+df.columns[3]
+
+statsDir = '/home/duncan/trash/statsL5/'
+
+1-stats.norm.cdf(3)
+for i,column in enumerate(df.columns):
+    print column
+    statsO = pd.DataFrame(index= df.columns)
+    statsO[0] = sd[i,] #correlation
+    statsO[1] = 1/ numpy.abs(sd[i,]) #single test pvalue
+    statsO[2] = numpy.abs(sd[i,]) #
+    statsO = statsO.iloc[statsO.index!=column] #get rid of identity
+    filename = 'statsL_'+ getLayerIndex(column,layers)+ '_0.tab'
+    statsO.to_csv(statsDir+filename,sep='\t',header=None)
+
+
+pvaltrans.shape
+
+#########################################
+x=df['randbin_0.1_3']
+y=df['randbin_0.1_39']
+y=df['randbin_0.01_16']
+x=df['layoutAwarePosTest_41_K_20']
+y=df['layoutAwarePosTest_40_K_20']
+myCosin(x,y)
+y=df['layoutAwarePosTest_12_K_10']
+def myCosin(x,y):
+    '''
+    going to ignore both x and y 0 when counting the N for a pvalue in order to deflate
+    '''
+    mask = numpy.logical_and(x != sys.float_info.min,y != sys.float_info.min)
+    if (numpy.linalg.norm(x[mask]) == 0 or numpy.linalg.norm(y[mask])== 0):
+        pval = 1
+    else:
+        r= numpy.dot(x[mask],y[mask]) / ( numpy.linalg.norm(x[mask]) * numpy.linalg.norm(y[mask]) )
+
+        n = mask.sum() - numpy.logical_and( x[mask]==0, y[mask]==0).sum()
+        tstat = r / ( (1 - r**2) / (n-2))**.5
+
+        if tstat == numpy.NAN:
+            tstat=0
+
+        pval = stats.t.sf(numpy.abs(tstat), mask.sum()-1)*2
+
+        if numpy.sign(tstat) != 0:
+            pval = pval * numpy.sign(tstat)
+
+    return pval
+
+'''
+
+'''
+start = time.time()
+sd=sklp.pairwise_distances(df.transpose(),metric=myCosin,n_jobs=8)
+end = time.time()
+print end - start
+
+
+#need to read in layers.tab so we know what indexes to use
+lfile = '/home/duncan/trash/layers.tab'
+layers = pd.read_csv(lfile,sep='\t',index_col=0,header=None)
+layers[1].iloc[0][layers[1].iloc[0].index('_')+1:layers[1].iloc[0].index('.')]
+def getLayerIndex(layerName,layers):
+    filename = layers[1].loc[layerName]
+    return filename[filename.index('_')+1:filename.index('.')]
+getLayerIndex(layers.index[0],layers)
+sd[0,]
+df.columns[0]
+df.columns[2]
+df.columns[3]
+
+statsDir = '/home/duncan/trash/statsL3/'
+
+for i,column in enumerate(df.columns):
+    print column
+    statsO = pd.DataFrame(index= df.columns)
+    statsO[0] = sd[i,]
+    statsO[1] = numpy.abs(sd[i,])
+    statsO[2] = numpy.abs(sd[i,])
+    statsO = statsO.iloc[statsO.index!=column] #get rid of identity
+    filename = 'statsL_'+ getLayerIndex(column,layers)+ '_0.tab'
+    statsO.to_csv(statsDir+filename,sep='\t',header=None)
+
+#
+df.shape
+
+df.columns[(df==-1).sum()>1]
+df[df==1].sum().sum()
+(df==0).sum().sum()
+#####################################################################################################
+import sklearn.cluster as cluster
+
+epsilon = 12
+db = cluster.DBSCAN(eps=epsilon,min_samples=5,metric='euclidean')
+ckust = db.fit(xys)
+
+labels = ckust.labels_
+print len(set(labels))
+for i in set(labels):
+    print i
+    print len(xys.index[labels==i])
+
+clustOfInterest = -1
+
+f = open('/home/duncan/trash/dbclust' + str(clustOfInterest) + '_eps' + str(epsilon),'w')
+for index,label in enumerate(labels):
+    if label == clustOfInterest:
+        f.write(xys.index[index] + '\n')
+f.close()
+
+# Number of clusters in labels, ignoring noise if present.
+n_clusters_ = len(set(labels)) - (1 if -1 in labels else 0)
+n_clusters_
+ckust.labels_
+########################################3
+#iterativec use of db clust... find tightly packed clusters and take them out for next iteration
+#must load xys for this to work
+
+epsilons = [.1,.2,.5,.75,1,2,3,5,7,10,13,15,17,20]
+epsilons = numpy.arange(.1,20,.1)
+
+samplesInPlay = xys.index
+#len(samplesInPlay)
+xys_ = xys
+nclusts = 0
+
+clusterDict ={}
+for epsi in epsilons:
+    print epsi
+    xys_ = xys_.loc[samplesInPlay]
+    db = cluster.DBSCAN(eps=epsi,min_samples=20,metric='euclidean')
+    clust = db.fit(xys_)
+
+    labels = clust.labels_
+    len(labels)
+    for label in set(labels):
+        if label == -1:
+            samplesInPlay  = xys_.index[labels == -1]
+        else:
+            clusterDict[nclusts] = xys_.index[labels == label]
+            nclusts+=1
+
+len(clusterDict)
+total = 0
+for i in clusterDict.keys():
+    total+=len(clusterDict[i])
+    print len(clusterDict[i])
+
+
+
+
+
+
+##########################################3
+windows
+tot =
+
+def nSampsCaptured(windows):
+    total = 0
+    for window in windows:
+        total += len(window)
+
+    return total
+
+nSampsCaptured(windows)
+###########################################3
+#density of Window vector
+
+def area(xys):
+    return ( numpy.max(xys['x']) - numpy.min(xys['x']) ) * ( numpy.max(xys['y']) - numpy.min(xys['y']) )
+def getWindowDensityScoreV(windows,xys):
+    nSamps=len(xys.index)
+    totalArea = area(xys)
+
+    densityV = []
+    for window in windows:
+        densityV.append( (len(window) / float(nSamps) ) / (area(xys.loc[window]) / totalArea) )
+
+    return densityV
+
+v= getWindowDensityScoreV(windows,xys)
+v=numpy.array(v)
+############################################3
+#centriods of windows and then distance matrix thne similarity matrix
+centroids = []
+for window in windows:
+    centroids.append(numpy.mean(xys.loc[window]))
+
+df = pd.DataFrame(centroids)
+distMat = dist.pdist(df,'euclidean')
+distMat=dist.squareform(distMat)
+simMat = 1 / (1 + distMat)
+simMat =
+
+len(numpy.dot(simMat,v))
+###########################################3
+
+############################################
+def graphCut(nodeIds,xys):
+xys = pd.read_csv('/home/duncan/data/view/Pancan12/SampleMap/xyPreSquiggle_0.tab',sep='\t',index_col=0)
+xys.iloc[0]
+dmat = dist.pdist(xys,'Euclidean')
+numpy.mean(dmat)
+numpy.min(dmat)
+#3600*3600 *.05
+cut = numpy.percentile(dmat,.5)
+cut
+dmat[dmat <= cut] = 1
+dmat[dmat > cut] = 0
+dmatsq = dist.squareform(dmat)
+dmatsq.sum(axis=1)
+
+graph = nx.from_numpy_matrix(dmatsq)
+subgraphs = nx.connected_component_subgraphs(graph)
+
+mincount= 20
+count=0
+clusterDict = {}
+
+for sg in subgraphs:
+    l = len(sg.nodes())
+    print l
+
+    oldcount = count
+    if l > 120: #try and divide it further
+        print 'in > 120'
+        #shouldn't recalc, rather index already made one?
+        dmat = dist.pdist(xys.iloc[sg.nodes()],'Euclidean')
+        newNames = xys.index[sg.nodes()]
+        cut = numpy.percentile(dmat,1)
+        dmat[dmat <= cut] = 1
+        dmat[dmat > cut] = 0
+        dmatsq = dist.squareform(dmat)
+        graph2 = nx.from_numpy_matrix(dmatsq)
+        subsubgraphs = nx.connected_component_subgraphs(graph2)
+        for sg2 in subsubgraphs:
+            #print 'in s2'
+            l2 = len(sg2.nodes())
+            print l2
+            if l2 >= mincount:
+                count+=1
+                #newNames[sg2.nodes()].values.tofile('/home/duncan/trash/trash_' + str(l)+ '_X_'+str(l2)+'_'+str(count),sep='\n')
+                clusterDict[count] = newNames[sg2.nodes()].values
+
+    elif l >= mincount and oldcount == count:
+        count+=1
+        #xys.index[sg.nodes()].values.tofile('/home/duncan/trash/trash_'+str(l)+'_'+str(count),sep='\n')
+        clusterDict[count] = xys.index[sg.nodes()].values
+
+
+clusterDict[1]
+
+numclust = len(clusterDict)
+
+binTestDat = pd.DataFrame(index=xys.index)
+
+#100 random test vectors
+colnames = []
+col=0
+
+for i in range(20):
+    binTestDat[col]=0
+    binTestDat[col+1]=0
+    binTestDat[col+2]=0
+    binTestDat[col+3]=0
+    binTestDat[col+4]=0
+    print i
+    numclusts = numpy.random.randint(2,21)
+    #numclusts=20
+    for clust in numpy.random.choice(clusterDict.keys(),numclusts,replace=False):
+        #clust = numpy.random.randint(1,21)
+        binTestDat[col].loc[numpy.random.choice(clusterDict[clust],.3*(len(clusterDict[clust])),replace=False)] = 1
+        binTestDat[col+1].loc[numpy.random.choice(clusterDict[clust],.3*(len(clusterDict[clust])),replace=False)] = 1
+        binTestDat[col+2].loc[numpy.random.choice(clusterDict[clust],.3*(len(clusterDict[clust])),replace=False)] = 1
+        binTestDat[col+3].loc[numpy.random.choice(clusterDict[clust],.3*(len(clusterDict[clust])),replace=False)] = 1
+        binTestDat[col+4].loc[numpy.random.choice(clusterDict[clust],.3*(len(clusterDict[clust])),replace=False)] = 1
+
+    colnames.extend(['layoutAwarePosTest_'+str(col) + '_K_' + str(numclusts),
+                     'layoutAwarePosTest_'+str(col+1) + '_K_' + str(numclusts),
+                     'layoutAwarePosTest_'+str(col+2) + '_K_' + str(numclusts),
+                     'layoutAwarePosTest_'+str(col+3) + '_K_' + str(numclusts),
+                     'layoutAwarePosTest_'+str(col+4) + '_K_' + str(numclusts)])
+    col+=5
+
+colnames
+binTestDat.sum(axis=0)
+numpy.max(binTestDat.sum(axis=0))
+binTestDat.columns = colnames
+binTestDat[0] = 0
+
+
+
+
+d= lambda x,y: x*y
+d(2,3)
+w =3
+p=3
+
+fname = '/home/duncan/trash/binLayoutAwareTest_2_20.tab'
+binTestDat.to_csv(fname,sep='\t',header=True)
+
+count
+len(dmat)
+pd.DataFrame(dmat)
+print 'i'
+##############################3
+#old stuff
+##############################3
 DEV = False; # True if in development mode, False if not
 
 import argparse, sys, os, itertools, math, numpy, subprocess, shutil, tempfile, glob
@@ -332,9 +1171,6 @@ def radial_search(center_x, center_y):
                 
                 # Record that it has ever been enqueued
                 seen.add((neighbor_x, neighbor_y))
-    
-    
-    
 
 def assign_hexagon(hexagons, node_x, node_y, node, scale=1.0):
     """
@@ -570,7 +1406,14 @@ class ClusterFinder(object):
                 # This is the least specific test, so we can stop now
                 break
         badVals = 0
+        #'windowCount' is misleading... it isn't used, and isn't the number of the windows
         windowCount = self.window_size  ** 2
+
+        #"But what if this doesn't work..." - Grinder
+        # here min_ and max_ is the greater window, and we are just taking steps of
+        # 5 until they are done.... so the window can only hold a total of 25 values...
+        # this might be pretty bad, would increase variance which is what we are seeing....
+        #
         for i in xrange(min_x, max_x, self.window_size):
             for j in xrange(min_y, max_y, self.window_size):
                 # Look at tiling windows. We're allowed to go a bit beyond the
@@ -986,7 +1829,6 @@ def normalize_raw_data_values (matrix, numRows, numColumns):
     print (n_matrix)
 
     return n_matrix
-    
 
 def drl_similarity_functions(matrix, index, options):
     """

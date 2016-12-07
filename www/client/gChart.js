@@ -31,7 +31,7 @@ var app = app || {};
             }
             // Find the bar colors
             if (entries[layer_name].datatype === "Binary") {
-                colors = ['#555555', COLOR_BINARY_ON];
+                colors = ['#555555', Colors.binary_on()];
             } else {
                 //ATTRDB
                 // can replace?

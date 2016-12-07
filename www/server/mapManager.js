@@ -195,9 +195,11 @@ function make_layer_name_unique (new_layer_name,old_layer_names) {
 function dropInLayerBox(layerData,user,toMapId){
     //function adds reflection computation to DB
     new Fiber( function (){
-        console.log("Refelction: dropInLayerBox Called with user, layer_name",
+        console.log("Reflection: dropInLayerBox Called with user, layer_name" +
+            "AND the data object",
                      user,
                      layerData.layer_name
+                    //layerData.data
                     );
 
         layerData.data = arrayLayer(layerData);
@@ -280,15 +282,18 @@ exports.reflection_post_calc = function (result, context) {
     
     // Report any errors
     if (result.code !== 200) {
-        PythonCall.report_local_result (result, context);
+        PythonCall.report_local_result(result, context);
         return;
     }
-    newLayer.data = context.js_result.data;
+    //problem area... result.data contains a temp file that the results were
+    // written too?
+    //console.log("result.data from the reflection_post_calc...?:",result.data);
+    newLayer.data = context.js_result; //DCHANGE
     
     dropInLayerBox(newLayer, userId, toMapId);
     
     PythonCall.report_local_result(result, context);
-}
+};
 
 Meteor.methods({
 
@@ -322,7 +327,8 @@ Meteor.methods({
             ctx.post_calc = MapManager.reflection_post_calc;
             post_calc_parms.userId = userId;
             post_calc_parms.toMapId = toMapId;
-            
+
+            console.log('mapManager(): parameters:', parameters);
             PythonCall.call(operation, parameters, ctx);
             
         } else  {
@@ -388,36 +394,30 @@ function regExForLongListSeach(term){
 }
 
 function queryCaseMaker(queryObj){
-    //determine which case is present in the query
-
+    //return a string which describes the query
     var qcase;
+
     //considerations determining case
-    var tagsOn = (queryObj.tags !== undefined);
     var searchOn = (queryObj.term !== '');
     var userDefined = (queryObj.nodes !== undefined);
 
-    //depending on the case execute the appropriate function
     if(userDefined){
         qcase = 'userDefined';
-    } else if (tagsOn && searchOn){
-        qcase = 'tagsAndSearch';
-    } else if( tagsOn && !searchOn){
-        qcase = 'tagsAndNotSearch';
-    } else if( !tagsOn && searchOn){
-        qcase = 'notTagsAndSearch';
-    } else if( !tagsOn && !searchOn){
-        qcase = 'notTagsAndNotSearch';
-    } 
-    else {
+    } else if (searchOn){
+        qcase = 'search';
+    } else if(!searchOn) {
+        qcase = 'browse';
+    }else {
         qcase = undefined;
     }
     return qcase;
 }
 //
 
-function getCountofLongListQuerry(queryObj){
+function getLongListQuerryCount(queryObj){
     //counts the documents that match a request from a longList query
-    var namespace = queryObj.namespace;
+    var project = queryObj.project;
+    var layout_name = queryObj.layout_name;
     var tags = queryObj.tags;
     var term = queryObj.term;
     var dtypes = queryObj.dtypes;
@@ -425,12 +425,13 @@ function getCountofLongListQuerry(queryObj){
     var qcount,regEx;
 
     switch (queryCaseMaker(queryObj)) {
-        case 'tagsAndSearch':
+        case 'search':
             regEx = regExForLongListSeach(term);
-            qcount = AttribDB.find(
+            qcount = DensityDB.find(
                 { $and :
                     [
-                        {namespace: namespace},
+                        {project: project},
+                        {layout_name: layout_name},
                         {"tags.name": {$in: tags}},
                         {datatype: {$in : dtypes}},
                         {name: regEx}
@@ -439,27 +440,16 @@ function getCountofLongListQuerry(queryObj){
             ).count();
             break;
 
-        case 'tagsAndNotSearch':
-            qcount = AttribDB.find(
+        case 'browse':
+            qcount = DensityDB.find(
                 { $and :
                     [
-                        {namespace: namespace},
+                        {project: project},
+                        {layout_name: layout_name},
                         {"tags.name": {$in: tags}},
                         {datatype: {$in : dtypes}}
                     ]
                 }).count();
-            break;
-
-        case 'notTagsAndNotSearch':
-            qcount = AttribDB.find({namespace: namespace}).count();
-            break;
-
-        case 'notTagsAndSearch':
-            regEx = regExForLongListSeach(term);
-            qcount = AttribDB.find({
-                namespace: namespace,
-                name: regEx
-            }).count();
             break;
 
         default :
@@ -501,15 +491,14 @@ function clientDefinedOrder(queryObj){
         };
         listResponse.push(displayDoc);
     });
-    var resDoc = {
-        listResponse : listResponse,
-        qcount : qcount,
-        skip : skip
-    };
-    return resDoc;
-    
-    
+
+    return listResponse;
+
 }
+
+/*
+This was made before I changed the database so I don't have to do joins
+ 
 function testIt(queryObj) {
     // doing joins by "hand" increases performance
     //returns an array with two entries
@@ -569,6 +558,7 @@ function testIt(queryObj) {
     };
     return retObj;
 }
+*/
 //aggregate functions used to query the longlist
 // each function is seperate because the aggregate function has
 // a different pipeline in each case
@@ -577,7 +567,7 @@ function testIt(queryObj) {
 //
 // extra verbosity added by processing query object so that values needed is
 // explicit
-function scrollLongListTags(queryObj){
+function browseLongList(queryObj){
 
     var project = queryObj.project;
     var layout_name = queryObj.layout_name;
@@ -588,71 +578,24 @@ function scrollLongListTags(queryObj){
 
     //console.log("tags and dtypes for this call",tags,dtypes);
     //console.log(queryObj);
-    console.time("test");
-    var test = testIt(queryObj);
-    console.timeEnd("test");
-    //console.log("about to run aggregate querry with tags, dtypes:",tags,dtypes);
+    //console.time("test");
+    //var test = testIt(queryObj);
+    //console.timeEnd("test");
+    
+    console.log("about to run aggregate querry with tags, dtypes:",tags,dtypes);
+    console.time("entriesFound");
 
-    /*
-    console.time("longListArray");
 
-
-    var longListArray =
+    var entriesFound =
         DensityDB.aggregate(
             [
                 {$sort: {density: -1}},
                 //grab the density documents we want
-                {$match: {project: project, layout_name: layout_name}},
-                //sort them now so we can take advantage of any index
-                //join them with the attribute data
-                {
-                    $lookup: {
-                        from: "AttribDB",
-                        localField: "attribute_name",
-                        foreignField: "attribute_name",
-                        as: "attrMetaData"
-                    }
+                {$match: {project: project, 
+                          layout_name: layout_name,
+                          "tags.name": {$in : tags},
+                          datatype: {$in  : dtypes}}
                 },
-                //match the tags and datatypes
-                {$match:
-                { $and :
-                    [
-                        {"attrMetaData.tags.name": {$in: tags}} ,
-                        {"attrMetaData.datatype" : {$in : dtypes}}
-                    ]
-                }
-                },
-                //start is where you left off on the client
-                {$skip: start},
-                //limit the results over the wire to 250
-                {$limit: page_size}
-            ]
-        );
-    console.timeEnd("longListArray");
-    return longListArray;
-    */
-    return test;
-}
-
-function scrollLongListNoTags(queryObj){
-
-    var project = queryObj.project;
-    var layout_name = queryObj.layout_name;
-    var start = queryObj.start || 0;
-    var page_size = queryObj.page_size;
-
-    //generate the longList data to be returned
-    var longListArray =
-        DensityDB.aggregate(
-            [
-                //grab the density documents we want
-                {$match: {project: project,
-                          layout_name: layout_name}
-                },
-                //sort them now so we can take advantage of any index
-                {$sort: {density: -1}},
-                // if their are no tags then we can do the limiting step now
-                //start is where you left off on the client
                 {$skip: start},
                 //limit the results over the wire to 250
                 {$limit: page_size},
@@ -660,17 +603,29 @@ function scrollLongListNoTags(queryObj){
                 {
                     $lookup: {
                         from: "AttribDB",
-                        localField: "attribute_name",
-                        foreignField: "attribute_name",
-                        as: "attrData"
+                        localField: "name",
+                        foreignField: "name",
+                        as: "attrMetaData"
                     }
+                },
+                {$project : {n : "$attrMetaData.n",
+                             p : "$attrMetaData.positives",
+                             datatype: 1,
+                             name :1,
+                             _id : 0,
+                             density :1
+                             }
                 }
             ]
         );
-    return longListArray;
+    
+    console.timeEnd("entriesFound");
+    //return longListArray;
+    
+    return entriesFound;
 }
 
-function searchLongListTags(queryObj){
+function searchLongList(queryObj){
     var project = queryObj.project;
     var layout_name = queryObj.layout_name;
     var term        = queryObj.term;
@@ -681,83 +636,39 @@ function searchLongListTags(queryObj){
 
     //generate case insenitive regular expression to search on
     var regEx = regExForLongListSeach(term);
-
-    var longListArray =
+    var entriesFound =
         DensityDB.aggregate(
             [
-                //grab the density documents we want
-                {$match: {project: project, layout_name: layout_name}},
-                //sort them now so we can take advantage of any index
                 {$sort: {density: -1}},
-
-                {$match: {name: regEx}},
-
-                //join them with the attribute data
-                {
-                    $lookup: {
-                        from: "AttribDB",
-                        localField: "attribute_name",
-                        foreignField: "attribute_name",
-                        as: "attrMetaData"
-                    }
-                },
-                //match the tags and datatypes
-                {$match:
-                    { $and :
-                        [
-                            {"attrMetaData.tags.name": {$in: tags}} ,
-                            {"attrMetaData.datatype" : {$in : dtypes}}
-                        ]
-                    }
-                },
-                //start is where you left off on the client
-                {$skip: start},
-                //limit the results over the wire to 250
-                {$limit: page_size}
-            ]
-        );
-
-    return longListArray;
-}
-function searchLongListNoTags(queryObj){
-
-    var project = queryObj.project;
-    var layout_name = queryObj.layout_name;
-    var term        = queryObj.term;
-    var start = queryObj.start || 0; // for infinite scroll...
-    var page_size = queryObj.page_size;
-
-    //generate case insenitive regular expression to search on
-    var regEx = regExForLongListSeach(term);
-
-    var longListArray =
-        DensityDB.aggregate(
-            [
                 //grab the density documents we want
-                {$match: {project: project, layout_name: layout_name, name: regEx}},
-                //{$match: {attribute_name: regEx}}, //if using index above will want to separate this?
-                //sort them now so we can take advantage of any index
-                {$sort: {density: -1}},
-                //start is where you left off on the client
+                {$match: {project: project,
+                          layout_name: layout_name,
+                          name: regEx,
+                          "tags.name": {$in : tags},
+                          datatype: {$in  : dtypes}}
+                },
                 {$skip: start},
-                //limit the results over the wire to the size of search display???
                 {$limit: page_size},
-
-
-                //join them with the attribute data
                 {
                     $lookup: {
                         from: "AttribDB",
-                        localField: "attribute_name",
-                        foreignField: "attribute_name",
+                        localField: "name",
+                        foreignField: "name",
                         as: "attrMetaData"
                     }
+                },
+                {$project : {n : "$attrMetaData.n",
+                    p : "$attrMetaData.positives",
+                    datatype: 1,
+                    name :1,
+                    _id : 0,
+                    density :1
                 }
-
+                }
             ]
         );
 
-    return longListArray;
+    return entriesFound;
 }
 //end of helper functions of native longList queries
 /////////////////////////////////////////
@@ -782,24 +693,16 @@ Meteor.methods(
 
             //determine which case is present,and execute appropriate function
             switch (queryCaseMaker(queryObj)) {
-                case 'tagsAndSearch':
-                    queryResult.listResponse = searchLongListTags(queryObj);
+                case 'search':
+                    queryResult.listResponse = searchLongList(queryObj);
                     break;
 
-                case 'tagsAndNotSearch':
-                    queryResult = scrollLongListTags(queryObj);
+                case 'browse':
+                    queryResult.listResponse = browseLongList(queryObj);
                     break;
 
-                case 'notTagsAndNotSearch':
-                    queryResult.listResponse = scrollLongListNoTags(queryObj);
-                    break;
-
-                case 'notTagsAndSearch':
-                    queryResult.listResponse = searchLongListNoTags(queryObj);
-                    break;
-                
                 case 'userDefined':
-                    queryResult = clientDefinedOrder(queryObj);
+                    queryResult.listResponse = clientDefinedOrder(queryObj);
                     break;
                 
                 default :
@@ -807,7 +710,7 @@ Meteor.methods(
             }
 
             //getCount also uses a 'switch' for the appropriate case
-            //queryResult.qcount = getCountofLongListQuerry(queryObj);
+            queryResult.qcount = getLongListQuerryCount(queryObj);
 
             return queryResult;
         }
@@ -875,7 +778,7 @@ Meteor.methods(
 
             var displayDoc = {
                 datatype: metadataDoc.datatype,
-                denstiy: densityDoc.density,
+                density: densityDoc.density,
                 n: metadataDoc.n,
                 p: metadataDoc.positives
             };

@@ -3,10 +3,7 @@
 var app = app || {};
 (function (hex) { // jshint ignore: line
 Hex = (function () { // jshint ignore: line
-<<<<<<< HEAD
-=======
- 
->>>>>>> dev
+
     var VERSION = 'Version 1.0';
  
     Template.localStoreT.created = function () {
