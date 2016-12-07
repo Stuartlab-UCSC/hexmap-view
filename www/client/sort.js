@@ -540,7 +540,7 @@ var app = app || {};
         }
         var layer;
         _.each(layers, function (layer, layerName) {
-            if (layer.selection) {
+            if (layer.selection || layer.dynamic) {
                dynamicData[layerName] = layer.data;
             }
         });
