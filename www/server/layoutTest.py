@@ -9,10 +9,10 @@ from pythonCall import pythonWrapper
 
 
 def tester():
-    pythonCallName = 'layout'
+    operation = 'layout'
     jsonRequestFile = '/Users/swat/data/featureSpace/createMapTestBigger/coordinates1.json'
 
-    pythonWrapper(pythonCallName, jsonRequestFile)
+    pythonWrapper(operation, jsonRequestFile)
 
 if __name__ == "__main__" :
     try:

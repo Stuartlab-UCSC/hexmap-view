@@ -231,7 +231,9 @@ var app = app || {};
             text = Session.get('sort').text;
 
         } else if (type === 'noStats') {
-            text = 'None, due to no statistical results';
+            if (!text || text === '') {
+                text = 'None, due to no statistical results';
+            }
             Session.set('sort', {text: text, type: 'noStats',
                 focus_attr: focus_attr, color: 'inherit', background: 'inherit'});
             banner('error', text);
@@ -410,7 +412,7 @@ var app = app || {};
         // Now we're done loading the stats, update the sort properties
         var text = 'BH FDR by: ';
         if (r.count < 1) {
-            updateSortUi('noStats');
+            updateSortUi('noStats', parsed.toString());
         } else {
             if (r.type === 'p_value') {
                 text = ' ';
@@ -472,7 +474,7 @@ var app = app || {};
 
             updateSortUi(type, text, focus_attr, opts);
         } else {
-            updateSortUi('noStats');
+            updateSortUi('noStats', 'Error: response is empty');
         }
     }
 
@@ -565,8 +567,9 @@ var app = app || {};
         Meteor.call('pythonCall', 'statsDynamic', opts,
             function (error, result) {
                 if (error) {
-                    banner('error', error);
-                    updateSortUi('noStats');
+                    var msg = Util.errorToMessage(error);
+                    console.log(msg.long);
+                    updateSortUi('noStats', msg.short);
                 } else {
                     console.log('getDynamicStats: python call success');
                     receive_data(result.data, focus_attr, opts);

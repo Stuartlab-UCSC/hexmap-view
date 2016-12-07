@@ -72,7 +72,8 @@ body,
 
 /* BANNER BOOTSTRAP COLORS */
 #banner.info,
-#banner.stay {
+#banner.stay,
+#jobDialog .status.ui-widget-content.completed {
     background: #D8EECE;
     color: #2E662C;
 }
@@ -82,7 +83,8 @@ body,
     color: #775B2A;
 }
 
-#banner.error {
+#banner.error,
+#jobDialog .status.ui-widget-content.failed {
     background: #EDD4D5;
     color: #993031;
 }

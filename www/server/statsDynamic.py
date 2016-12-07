@@ -69,7 +69,7 @@ def dynamicStats(parm):
     layers = {}
     for layerName in parm['statsLayers']:
 
-        if layerName in parm['dynamicData']:
+        if layerName in parm['dynamicData'].keys():
 
             # This attribute is dynamic with no data file
             # so pull its data from the dynamicData given

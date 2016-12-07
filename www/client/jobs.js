@@ -13,50 +13,51 @@ Jobs = (function () { // jshint ignore: line
         dialogHex, // instance of the class DialogHex
         $dialog; // our dialog DOM element
         logDisplay = new ReactiveDict(),
-        log = new ReactiveDict(),
         jobQueue = JobCollection('jobQueue'),
         jobSubscription = null;
- 
+        
     Template.jobT.helpers({
         jobs: function () {
             return jobQueue.find({});
+            // TODO Show newest tasks at the top
+            // return Tasks.find({}, { sort: { createdAt: -1 } });
         },
-        cButtontext: function () {
+        headerDisplay: function () {
+            return Session.get('dialogIsOpen') ? 'table-row' : 'none';
+        },
+        changeButtonText: function () {
             if (jobQueue.jobStatusRemovable.indexOf(this.status) > -1) {
-                return 'Clear';
+                return 'Remove';
             } else {
                 return 'Cancel';
             }
         },
         logDisplay: function () {
-            //return this.showLog ? 'default' : 'none';
-            return 'default';
+            var display = logDisplay.get(this._id);
+            return (!display) ? 'none' : display;;
         },
         log: function () {
             var lines = '';
-            _.each(log, function (l) {
-                console.log('l:', l);
-                console.log('l.time', l.time);
+            _.each(this.log, function (l) {
                 lines += '\n' + l.time + ' ' + l.level + ' ' + l.message;
             });
+            
+            // Trim the leading newline
+            if (lines.length > 2) {
+                lines = lines.slice(1);
+            }
+            
+            // Give some time for the log message to show up before scrolling
+            Meteor.setTimeout(function () {
+                var $log = $('#jobDialog .log');
+                if ($log && $log[0]) {
+                    $log.scrollTop($log[0].scrollHeight);
+                }
+            }, 0);
             return lines;
         },
     });
- 
-    function report_error (msg) {
-        Util.banner('error', msg);
-        var date = new Date().toString(),
-            i = date.indexOf('GMT');
-        date = date.slice(0, i);
-        feature_upload.log_it(msg + '\nPlease let hexmap@ucsc.edu know you ' +
-            'had a calculation problem on ' + date);
-    }
 
-    function report_info (msg) {
-        Util.banner('info', msg);
-        feature_upload.log_it(msg);
-    }
-    
     function cancel_clicked () {
         hide();
 	}
@@ -67,6 +68,37 @@ Jobs = (function () { // jshint ignore: line
         
         // Retrieve all job IDs for this user
         jobSubscription = Meteor.subscribe("allJobs");
+
+        // Handle log button clicks
+        $dialog.on('click', '.logButton', function (ev) {
+            var job_id = $(ev.target).data().job_id;
+            var display = logDisplay.get(job_id);
+            if (display && (display === 'inline-block')) {
+                display = 'none';
+            } else {
+                display = 'inline-block';
+            }
+            logDisplay.set(job_id, display);
+        });
+        
+        // Handle cancel/remove button click
+        $dialog.on('click', '.changeButton', function (ev) {
+            console.log('changeButton');
+            var job_id = $(ev.target).data().job_id;
+            var job = jobQueue.findOne({_id: job_id});
+            
+            console.log('job.status:', job.status);
+            console.log('job.remove:', job.remove);
+            
+            if (jobQueue.jobStatusRemovable.indexOf(job.status) > -1) {
+                job.remove();
+            } else {
+                job.cancel();
+            }
+        });
+        
+        // Save the dialog open state
+        Session.set('dialogIsOpen', true);
     }
 
     function hide() {
@@ -74,6 +106,9 @@ Jobs = (function () { // jshint ignore: line
         // Free any memory we can before destroying the dialog
         jobSubscription.stop();
         dialogHex.hide();
+        Session.set('dialogIsOpen', false);
+        $dialog.off('click .logButton');
+        $dialog.off('click .changeButton');
     }
     
     return { // Public methods
@@ -89,6 +124,7 @@ Jobs = (function () { // jshint ignore: line
                 position: { my: "center top", at: "center-300 top+150",
                     of: window },
                 maxHeight: $(window).height() - 150,
+                //modal: true,
             };
             dialogHex = createDialogHex(undefined, undefined, $dialog, opts,
                 show, hide, 'help/job.html');

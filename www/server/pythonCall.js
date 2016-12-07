@@ -70,7 +70,20 @@ exports.report_calc_result = function (result_in, calcCtx) {
     // after running the post-calc function if there is one.
     
     var result = _.clone(result_in);
-    console.log('Info: job:', calcCtx.jobId +
+    if (!result) {
+        result = {
+            statusCode: 500,
+            data: 'Warning: job ' + calcCtx.jobId +
+                    ' has no result, so created this one',
+        };
+    }
+    
+    var type = 'Info:';
+    if (result.statusCode === 500) {
+        type = 'Error:';
+    }
+    
+    console.log(type, 'job:', calcCtx.jobId +
         ', Status code:', result.statusCode +
         ', Data:', result.data);
     
@@ -105,7 +118,7 @@ exports.report_calc_result = function (result_in, calcCtx) {
         } else {
         
             // Throw the error to the future
-            calcCtx.future.throw(result);
+            calcCtx.future.throw(new Meteor.Error(result.data));
         }
         
     } else {
@@ -116,12 +129,16 @@ exports.report_calc_result = function (result_in, calcCtx) {
 }
 
 function report_job_result (job) {
-
+    
     // Main server retrieves the results from the job document and reports it.
-    PythonCall.report_calc_result(job.result, calcContexts[job._id]);
+    var result = job.result;
+    if (job.failures && job.failures.length > 0) {
+        result = job.failures[0];
+    }
+    PythonCall.report_calc_result(result, calcContexts[job._id]);
 }
 
-function report_error (statusCode, error, via, pythonCallName, jobCtx) {
+function report_error (statusCode, error, via, operation, jobCtx) {
     
     var errorString = error.toString(),
         result = {
@@ -134,11 +151,9 @@ function report_error (statusCode, error, via, pythonCallName, jobCtx) {
         jobCtx.job.fail(result, { "fatal": true });
         jobCtx.jobCallback();
     }).run();
-    console.log('Error:, job:', jobCtx.jobId + ',', result.statusCode,
-        errorString, 'via:', via);
 }
 
-function report_success (result_filename, pythonCallName, jobCtx) {
+function report_success (result_filename, operation, jobCtx) {
 
     // Remove any trailing new line char
     // The filename a string
@@ -166,7 +181,7 @@ function execute_job (job, callback) {
     // Execute a job from the job queue.
     
     // Extract python parameters from the job
-    var pythonCallName = job._doc.data.pythonCallName;
+    var operation = job._doc.data.operation;
     var json = job._doc.data.json;
     
     // Save some job information for later
@@ -179,12 +194,12 @@ function execute_job (job, callback) {
     // Log every call to python in case we have errors, there will be
     // some sort of bread crumbs to follow.
     console.log('Info: job:', jobCtx.jobId + ', execute_job(' +
-        pythonCallName + ')');
+        operation + ')');
     
     // Parms to pass to python
     var spawn_parms = [
             SERVER_DIR + 'pythonCall.py',
-            pythonCallName,
+            operation,
             json,
             TEMP_DIR,
         ];
@@ -204,7 +219,7 @@ function execute_job (job, callback) {
 
     call.on('error', function (error) {
         reported = true;
-        report_error(undefined, error, '"error"', pythonCallName, jobCtx);
+        report_error(undefined, error, '"error"', operation, jobCtx);
     });
 
     call.stderr.on('data', function (data) {
@@ -220,46 +235,51 @@ function execute_job (job, callback) {
             stdout.slice(0,7).toLowerCase() === 'warning') {
     
             // Return any errors/warnings printed by the python script
-            report_error(undefined, stdout, '"stdout"', pythonCallName, jobCtx);
+            report_error(undefined, stdout, '"stdout"', operation, jobCtx);
         } else {
-            report_success(stdout, pythonCallName, jobCtx);
+            report_success(stdout, operation, jobCtx);
         }
     });
     
     call.on('close', function (code) {
+        var msg = '';
         if (code === 0) {
             if (!reported) {
-                console.log('Error: job:', jobCtx.jobId,
-                    'Exited with: 0, however nothing was previously reported',
-                    'to the future or http');
+                msg = 'Exited with: 0, however nothing was previously ' +
+                    'reported to the future or http\n';
             }
         } else {
-            console.log('Error: job:', jobCtx.jobId,
-                'Returned with code:', code, 'syserr below:');
+            msg = 'Returned with code: ' + code + '\n';
         }
         
         // If we've not reported back to http or the future, there is some
         // uncaught error, so report whatever we have in syserr.
         if (!reported) {
-            report_error(undefined, stderr, '"close"', pythonCallName, jobCtx);
+            report_error(undefined, msg + stderr, 'close with return code of ' + code,
+                            operation, jobCtx);
         }
     });
     
     call.stdin.end();
 }
 
-function add_to_queue (pythonCallName, json, calcCtx) {
+function add_to_queue (operation, json, calcCtx) {
 
     // Create a job and add it to the job queue
-
-    var job = new Job(jobQueue, 'calc', // type of job
+    var operationLabels = {
+            'layout': 'create_map',
+            'overlayNodes': 'N_of_1',
+            'statsDynamic': 'dynamic_stats',
+        },
+        label = operationLabels[operation],
+        job = new Job(jobQueue, 'calc', // type of job
     
         // Job data that you define, including anything the job
         // needs to complete. May contain links to files, etc...
         {
-            pythonCallName: pythonCallName,
+            operation: operation,
+            operationLabel: label ? label : operation,
             json: json,
-            showLog: false,
         }
     );
     
@@ -267,12 +287,12 @@ function add_to_queue (pythonCallName, json, calcCtx) {
     new Fiber(function () {
         calcCtx.jobId = job.save();
         console.log('Info: job:', calcCtx.jobId + ', add_to_queue(' +
-            pythonCallName + ')');
+            operation + ')');
         calcContexts[calcCtx.jobId] = calcCtx;
     }).run();
 }
 
-exports.call = function (pythonCallName, opts, calcCtx) {
+exports.call = function (operation, opts, calcCtx) {
 
     // Call a python function where the caller passes the
     // python call name, call options, and a calc context.
@@ -301,7 +321,7 @@ exports.call = function (pythonCallName, opts, calcCtx) {
         parm_filename = make_parm_file(opts);
     }
     
-    add_to_queue(pythonCallName, parm_filename, calcCtx);
+    add_to_queue(operation, parm_filename, calcCtx);
 };
 
 // These are the valid python calls from the client when using the generic
@@ -313,14 +333,14 @@ var valid_calls_from_client = [
 
 Meteor.methods({
 
-    pythonCall: function (pythonCallName, opts) {
+    pythonCall: function (operation, opts) {
 
         // Asynchronously call a python function with this routine
         // handling the fiber/future.
         this.unblock();
         var future = new Future();
         
-        if (valid_calls_from_client.indexOf(pythonCallName) > -1) {
+        if (valid_calls_from_client.indexOf(operation) > -1) {
             
             // Create a temp file for the results if the client wants us to
             if (opts.hasOwnProperty('tempFile')) {
@@ -328,12 +348,12 @@ Meteor.methods({
             }
         
             // This is a valid python call, so call it.
-            PythonCall.call(pythonCallName, opts, { future: future });
+            PythonCall.call(operation, opts, { future: future });
         } else {
         
             // This is not a valid python call, return an error.
             Meteor.setTimeout(function () {
-                future.return('Error: ' + pythonCallName +
+                future.return('Error: ' + operation +
                     ' is not a python function');
             }, 0);
         }
@@ -356,10 +376,16 @@ Meteor.startup(function () {
             // Grant full permission to any authenticated user
             admin: function (userId, method, params) {
             
-                // Let any one in for now TODO
-                return true;
-             
-                //return (userId ? true : false);
+                var allow = false;
+                var user = Meteor.user();
+
+                console.log('user:', user);
+
+                if (user && (user.roles.indexOf('dev') > -1 ||
+                            user.roles.indexOf('jobs') > -1)) {
+                    allow = true;
+                }
+                return allow;
             }
         });
 
@@ -419,10 +445,7 @@ Meteor.startup(function () {
     }
     if (IS_MAIN_SERVER) {
 
-        // Check the queue whenever a document of type 'calc' is changed,
-        // assuming that change is always a change to a status of 'completed' or
-        // 'failed'.
-        
+        // Check the queue whenever a document of type 'calc' is changed.
         jobQueue
         
             // For any documents of type 'calc'...
@@ -434,7 +457,7 @@ Meteor.startup(function () {
                 
                     // When there is a change of status to 'completed' or
                     // 'failed', report job results.
-                    if (old.status !== nu.status &&
+                    if (old && old.status !== nu.status &&
                             nu.status === 'completed' ||
                             nu.status === 'failed' ) {
                         report_job_result(nu);
@@ -442,11 +465,4 @@ Meteor.startup(function () {
                 }
             });
     }
-    
-            console.log('about to find jobs');
-            var jobs = jobQueue.find({});
-            jobs.forEach(function (job) {
-                console.log('job id:', job._id);
-            });
-
 });

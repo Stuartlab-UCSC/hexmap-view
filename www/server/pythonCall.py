@@ -66,7 +66,7 @@ def writeJsonResponseData(responseData, temp_dir):
 
     return filename
 
-def pythonWrapper(pythonCallName, jsonRequestFile, temp_dir):
+def pythonWrapper(operation, jsonRequestFile, temp_dir):
 
     # Given a request/parm filename in a json object,
     # convert the parameters within the file from json to a python dict.
@@ -80,7 +80,7 @@ def pythonWrapper(pythonCallName, jsonRequestFile, temp_dir):
         return 0
 
     # Call the python script, which returns the results as a dict
-    module = importlib.import_module(pythonCallName, package=None)
+    module = importlib.import_module(operation, package=None)
     result = module.fromNodejs(opts)
     if result == 1:
         print 'Error: pythonCall.py: Unknown error\n'

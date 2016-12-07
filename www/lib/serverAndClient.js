@@ -25,7 +25,7 @@ if (Meteor.isServer) {
     sendMail = function (users, subject, msg, callback) {
 
         // Send mail to user(s) with the given subject and message.
-        // This can take one username or a list of usernames.
+        // This can take one username or an array of usernames.
         var command =
             'echo "'
             + msg
