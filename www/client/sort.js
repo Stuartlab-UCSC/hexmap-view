@@ -233,7 +233,12 @@ var app = app || {};
             delete layers[layer_name].adjusted_p_value_b;
             delete layers[layer_name].correlation;
             delete layers[layer_name].Differential;
-         }
+            delete layers[layer_name].leesL;
+            delete layers[layer_name].rank;
+            delete layers[layer_name].rawLees;
+
+
+        }
     }
 
     updateSortUi = function (type, text, focus_attr, opts) {
