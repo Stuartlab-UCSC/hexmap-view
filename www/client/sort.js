@@ -629,6 +629,14 @@ var app = app || {};
     }
 
     getDynamicStats = function (focus_attr, opts) {
+ 
+        if (ctx.project === 'Pancan12/SampleMap-nov8-LeesL/') {
+            banner('error', 'Sorry, no dynamic stats yet');
+            Meteor.setTimeout(function () {
+                updateSortUi('default');
+            }, 2000);
+            return;
+        }
 
         // This is a dynamically-generated attribute or a request because
         // the stats were not precomputed
