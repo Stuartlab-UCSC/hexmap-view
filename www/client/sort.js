@@ -630,7 +630,9 @@ var app = app || {};
 
     getDynamicStats = function (focus_attr, opts) {
  
-        if (ctx.project === 'Pancan12/SampleMap-nov8-LeesL/') {
+        if (ctx.project === 'Pancan12/SampleMap-nov8-LeesL/' ||
+            ctx.project === 'Pancan12/SampleMap-nov8-LeesLCorrected/' ||
+            ctx.project === 'Pancan12/SampleMap-nov8-LeesLNearest/') {
             banner('error', 'Sorry, no dynamic stats yet');
             Meteor.setTimeout(function () {
                 updateSortUi('default');
