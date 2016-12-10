@@ -75,15 +75,6 @@ Tool = (function () { // jshint ignore: line
         delete tool_listeners[handle];
     }
 
-    function clear_tool_listeners() {
-        // We're starting to use another tool. Remove all current tool
-        // listeners. Run any associated cleanup code for each listener.
-        
-        for(var handle in tool_listeners) {
-            remove_tool_listener(handle);
-        }
-    }
-
     function activity (activate) {
         if (_.isUndefined(activate)) {
             return toolActive;
@@ -245,7 +236,7 @@ Tool = (function () { // jshint ignore: line
                 '#homePage .createMapHome'
             );
         
-            var $job = $('#navBar .job');
+            var $job = $('#navBar .jobs');
         
             // Hide, show or disable tools depending on user's authorizations
             Meteor.autorun( function () {

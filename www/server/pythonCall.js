@@ -89,7 +89,7 @@ exports.report_calc_result = function (result_in, calcCtx) {
     
     if (calcCtx.post_calc) {
     
-        call_post_calc(result, calcCtx)
+        call_post_calc(result, calcCtx);
 
     } else if (calcCtx.http_response) {
 
@@ -126,17 +126,38 @@ exports.report_calc_result = function (result_in, calcCtx) {
             ', report_calc_result() received a context without a',
             'future or http_response, calcCtx:', calcCtx);
     }
-}
+};
 
 function report_job_result (job) {
     
     // Main server retrieves the results from the job document and reports it.
-    var result = job.result;
-    if (job.failures && job.failures.length > 0) {
-        result = job.failures[0];
+    var result;
+    if (job.status === 'cancelled') {
+        result = {
+            statusCode: 205,
+            data: 'user cancelled job',
+        };
+
+    } else { // Status must be 'completed' or 'failed'.
+        result = job.result;
+        if (job.failures && job.failures.length > 0) {
+            result = job.failures[0];
+        }
     }
     PythonCall.report_calc_result(result, calcContexts[job._id]);
 }
+
+exports.status_changed = function (nu, old) {
+    
+    // When there is a change of job status to 'completed', 'failed'
+    // or 'cancelled', report job results.
+    if (old && old.status !== nu.status &&
+            nu.status === 'completed' ||
+            nu.status === 'failed' ||
+            nu.status === 'cancelled' ) {
+        report_job_result(nu);
+    }
+};
 
 function report_error (statusCode, error, via, operation, jobCtx) {
     
@@ -193,8 +214,7 @@ function execute_job (job, callback) {
     
     // Log every call to python in case we have errors, there will be
     // some sort of bread crumbs to follow.
-    console.log('Info: job:', jobCtx.jobId + ', execute_job(' +
-        operation + ')');
+    job.log('job: execute_job(' + operation + ')', { echo: true });
     
     // Parms to pass to python
     var spawn_parms = [
@@ -255,12 +275,20 @@ function execute_job (job, callback) {
         // If we've not reported back to http or the future, there is some
         // uncaught error, so report whatever we have in syserr.
         if (!reported) {
-            report_error(undefined, msg + stderr, 'close with return code of ' + code,
-                            operation, jobCtx);
+            report_error(undefined, msg + stderr, 'close with return code of ' +
+                code, operation, jobCtx);
         }
     });
     
     call.stdin.end();
+}
+
+function jobType () {
+    var suffix = this.userId ? this.userId : "";
+    console.log('this.userId', this.userId);
+    return 'calc_' + suffix;
+    //var suffix = (this.userId) ? "_#{this.userId.substr(0,5)}" : "";
+    //return 'calc#{' + suffix + '}';
 }
 
 function add_to_queue (operation, json, calcCtx) {
@@ -272,11 +300,12 @@ function add_to_queue (operation, json, calcCtx) {
             'statsDynamic': 'dynamic_stats',
         },
         label = operationLabels[operation],
-        job = new Job(jobQueue, 'calc', // type of job
+        job = new Job(jobQueue, jobType(), // type of job
     
         // Job data that you define, including anything the job
         // needs to complete. May contain links to files, etc...
         {
+            userId: Meteor.userId(),
             operation: operation,
             operationLabel: label ? label : operation,
             json: json,
@@ -286,8 +315,7 @@ function add_to_queue (operation, json, calcCtx) {
     // Commit it to the server & save the local calcCtx for post-processing.
     new Fiber(function () {
         calcCtx.jobId = job.save();
-        console.log('Info: job:', calcCtx.jobId + ', add_to_queue(' +
-            operation + ')');
+        job.log('job: add_to_queue(' + operation + ')', { echo: true });
         calcContexts[calcCtx.jobId] = calcCtx;
     }).run();
 }
@@ -301,8 +329,6 @@ exports.call = function (operation, opts, calcCtx) {
     //      statusCode: <http-status-code>
     //      data: <data>,
     //  }
-
-    var json;
     
     // If the caller wants the results in tsv, save that in the calc context
     if (opts.hasOwnProperty('tsv')) {
@@ -368,30 +394,29 @@ Meteor.startup(function () {
     if (IS_MAIN_SERVER) {
     
         // Define the job queue on the main server
-        jobQueue = JobCollection('jobQueue');
+        jobQueue = new JobCollection('jobQueue');
         
         // Define permissions
         jobQueue.allow({
 
             // Grant full permission to any authenticated user
-            admin: function (userId, method, params) {
-            
-                var allow = false;
-                var user = Meteor.user();
-
-                console.log('user:', user);
-
-                if (user && (user.roles.indexOf('dev') > -1 ||
-                            user.roles.indexOf('jobs') > -1)) {
-                    allow = true;
+            admin: function (userId, method, params) { // jshint ignore: line
+                if (userId && Roles.userIsInRole(userId, ['jobs', 'dev'])) {
+                    return true;
                 }
-                return allow;
-            }
+                return false;
+            },
         });
 
         // Publish this collection
-        Meteor.publish('allJobs', function () {
-            return jobQueue.find({});
+        Meteor.publish('myJobs', function (clientUserId) {
+            if (this.userId === clientUserId) {
+                var cursor = jobQueue.find({ type: jobType(),
+                    'data.userId': this.userId });
+                return cursor;
+            } else {
+                return [];
+            }
         });
      
     } else if (IS_CALC_SERVER) {
@@ -401,7 +426,7 @@ Meteor.startup(function () {
         // the database, so set up remote access to the database.
         var mongo_url = MAIN_MONGO_URL;
         var database = new MongoInternals.RemoteCollectionDriver(mongo_url);
-        jobQueue = JobCollection('jobQueue', { _driver: database });
+        jobQueue = new JobCollection('jobQueue', { _driver: database });
      
     } else {
     
@@ -423,46 +448,23 @@ Meteor.startup(function () {
     jobQueue.startJobServer();
 
     // Define the queue.
-    var q = jobQueue.processJobs('calc', {
+    var q = jobQueue.processJobs(jobType(), {
             pollInterval: false, // Don't poll
         }, execute_job);
 
     if (IS_CALC_SERVER) {
         
+        // For any documents of type 'calc',
+        // when a document is added, tell the queue to seek new work.
         jobQueue
-        
-            // For any documents of type 'calc'...
-            .find({ type: 'calc'})
-            .observe({
-            
-                // When a document is added...
-                added: function () {
-                
-                    // Tell the queue to seek new work.
-                    q.trigger();
-                },
-            });
+            .find({ type: jobType()})
+            .observe({ added: function () { q.trigger(); } });
     }
     if (IS_MAIN_SERVER) {
 
-        // Check the queue whenever a document of type 'calc' is changed.
+        // For any documents of type 'calc', when a document is changed...
         jobQueue
-        
-            // For any documents of type 'calc'...
-            .find({ type: 'calc'})
-            .observe({
-            
-                // When a document is changed ...
-                changed: function (nu, old) {
-                
-                    // When there is a change of status to 'completed' or
-                    // 'failed', report job results.
-                    if (old && old.status !== nu.status &&
-                            nu.status === 'completed' ||
-                            nu.status === 'failed' ) {
-                        report_job_result(nu);
+            .find({ type: jobType()})
+            .observe({ changed: PythonCall.status_changed });
                     }
-                }
             });
-    }
-});

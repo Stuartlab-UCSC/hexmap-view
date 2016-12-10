@@ -37,7 +37,7 @@ exports.post_calc = function (result, context) {
         sendMail(ADMIN_EMAIL, subject, msg);
         
         PythonCall.report_calc_result ({
-            statusCode: 400,
+            statusCode: 500,
             data: 'Calc script had an unknown error',
             }, context);
     }
