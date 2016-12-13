@@ -47,9 +47,9 @@ if (Meteor.isServer) {
             if (error) {
                 var errMsg = 'Error on sendMail(): ' + error;
                 console.log(errMsg);
-                callback(errMsg);
+                if (callback) { callback(errMsg); }
             } else {
-                callback();
+                if (callback) { callback(); }
             }
         });
     }

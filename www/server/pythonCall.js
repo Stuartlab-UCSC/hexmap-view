@@ -214,7 +214,7 @@ function execute_job (job, callback) {
     
     // Log every call to python in case we have errors, there will be
     // some sort of bread crumbs to follow.
-    job.log('job: execute_job(' + operation + ')', { echo: true });
+    job.log('job: ' + job._doc._id + ' execute_job(' + operation + ')', { echo: true });
     
     // Parms to pass to python
     var spawn_parms = [
@@ -284,11 +284,7 @@ function execute_job (job, callback) {
 }
 
 function jobType () {
-    var suffix = this.userId ? this.userId : "";
-    console.log('this.userId', this.userId);
-    return 'calc_' + suffix;
-    //var suffix = (this.userId) ? "_#{this.userId.substr(0,5)}" : "";
-    //return 'calc#{' + suffix + '}';
+    return 'calc';
 }
 
 function add_to_queue (operation, json, calcCtx) {
@@ -315,7 +311,7 @@ function add_to_queue (operation, json, calcCtx) {
     // Commit it to the server & save the local calcCtx for post-processing.
     new Fiber(function () {
         calcCtx.jobId = job.save();
-        job.log('job: add_to_queue(' + operation + ')', { echo: true });
+        job.log('job: ' + calcCtx.jobId + ' add_to_queue(' + operation + ')', { echo: true });
         calcContexts[calcCtx.jobId] = calcCtx;
     }).run();
 }
@@ -409,10 +405,10 @@ Meteor.startup(function () {
         });
 
         // Publish this collection
-        Meteor.publish('myJobs', function (clientUserId) {
-            if (this.userId === clientUserId) {
+        Meteor.publish('myJobs', function (userId) {
+            if (this.userId === userId) {
                 var cursor = jobQueue.find({ type: jobType(),
-                    'data.userId': this.userId });
+                    'data.userId': userId });
                 return cursor;
             } else {
                 return [];
@@ -466,5 +462,5 @@ Meteor.startup(function () {
         jobQueue
             .find({ type: jobType()})
             .observe({ changed: PythonCall.status_changed });
-                    }
-            });
+        }
+});
