@@ -1,15 +1,16 @@
 <template name='create_map_t'>
-    <form id="create_map_dialog" style='display:none'>
+    <div id="create_map_dialog" style='display:none'>
         <table>
-            <tr style='display:none'>
+            <tr>
                 <td class='dialog_label'>
                     Map name:
                 </td>
                 <td class='dialog_value'>
-                    <input class='attribute file' type='text'>
+                    <span>{{ major_project }}/</span>
+                    <input class='minor_project' type='text' value='{{ minor_project }}'>
                 </td>
             </tr>
-            <tr style='display:none'>
+            <tr>
                 <td class='dialog_label'>
                     Layout Feature Format:
                 </td>
@@ -100,7 +101,7 @@
                 </td>
             </tr>
         </table>
-    </form>
+    </div>
 </template>
 
 <template name='upload_t'>

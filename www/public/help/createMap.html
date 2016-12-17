@@ -55,12 +55,47 @@
   <div class="section" id="create-a-map">
 <h1>Create a Map<a class="headerlink" href="#create-a-map" title="Permalink to this headline">¶</a></h1>
 <p>You can create a map with your own data by selecting <em>Create map</em> from the <em>File</em>
-menu, then supplying a layout file and an optional color attribute file.</p>
-<div class="section" id="features-used-in-layout">
-<h2>Features used in Layout<a class="headerlink" href="#features-used-in-layout" title="Permalink to this headline">¶</a></h2>
-<p>Features are properties of nodes used to lay out the map. The feature file must
-be in TSV (tab-separated values) format with the x and y coordinates of each
-node, like:</p>
+menu, then supplying at least a layout feature file.</p>
+<p>Note that this is currently available to only certain users due to the
+computationally intensive operations.</p>
+<div class="section" id="features-to-lay-out-the-map">
+<h2>Features to Lay Out the Map<a class="headerlink" href="#features-to-lay-out-the-map" title="Permalink to this headline">¶</a></h2>
+<p>A features are properties of nodes used to lay out the map. The feature file must
+be in TSV (tab-separated values) format in one of the following forms.</p>
+<p><strong>Feature matrix</strong> : This is the most basic of the feature file formats where
+similarities and XY locations will be calculated for you.
+This contains a full matrix with node IDs across the top and feature IDs in the
+first column, like:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">feature</span>   <span class="n">node1</span>   <span class="n">node2</span>   <span class="n">node3</span>   <span class="o">...</span>
+<span class="n">feature1</span>  <span class="n">val</span>     <span class="n">val</span>     <span class="n">val</span>
+<span class="n">feature2</span>  <span class="n">val</span>     <span class="n">val</span>     <span class="n">val</span>
+<span class="n">feature2</span>  <span class="n">val</span>     <span class="n">val</span>     <span class="n">val</span>
+<span class="o">...</span>
+</pre></div>
+</div>
+<p><strong>Full similarity matrix</strong> : This contains similarity scores between node pairs
+as a full matrix where xy locations will be calculated for you.
+This has node IDs across the top and in the first column with
+similarity scores as the values, like:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">nodes</span>   <span class="n">node1</span>   <span class="n">node2</span>   <span class="n">node3</span>   <span class="o">...</span>
+<span class="n">node1</span>   <span class="n">val</span>     <span class="n">val</span>     <span class="n">val</span>
+<span class="n">node2</span>   <span class="n">val</span>     <span class="n">val</span>     <span class="n">val</span>
+<span class="n">node3</span>   <span class="n">val</span>     <span class="n">val</span>     <span class="n">val</span>
+<span class="o">...</span>
+</pre></div>
+</div>
+<p><strong>Sparse similarity matrix</strong> :This contains similarity scores between node pairs
+as a sparse matrix where xy locations will be calculated for you.
+This has node IDs in the first two columns with the the
+similarity scores in the third column, like:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">node1</span>   <span class="n">node2</span>   <span class="n">val</span>
+<span class="n">node1</span>   <span class="n">node3</span>   <span class="n">val</span>
+<span class="n">node1</span>   <span class="n">node5</span>   <span class="n">val</span>
+<span class="o">...</span>
+</pre></div>
+</div>
+<p><strong>XY positions</strong> : This is the most processed of the feature file formats,
+containing the x and y coordinates in two-dimensional space of each node, like:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">node1</span>   <span class="n">x</span><span class="o">-</span><span class="n">val</span>   <span class="n">y</span><span class="o">-</span><span class="n">val</span>
 <span class="n">node2</span>   <span class="n">x</span><span class="o">-</span><span class="n">val</span>   <span class="n">y</span><span class="o">-</span><span class="n">val</span>
 <span class="n">node3</span>   <span class="n">x</span><span class="o">-</span><span class="n">val</span>   <span class="n">y</span><span class="o">-</span><span class="n">val</span>
@@ -68,13 +103,13 @@ node, like:</p>
 </pre></div>
 </div>
 </div>
-<div class="section" id="attributes-used-to-color">
-<h2>Attributes used to Color<a class="headerlink" href="#attributes-used-to-color" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="attributes-to-color-the-map">
+<h2>Attributes to Color the Map<a class="headerlink" href="#attributes-to-color-the-map" title="Permalink to this headline">¶</a></h2>
 <p>Note that attributes are optional.</p>
 <p>Attributes are properties of nodes used to color the map. The attribute file
 must be in TSV (tab-separated values) format with the
 attributes IDs across the top and node IDs in the first column, like:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">nodes</span>   <span class="n">attr1</span>   <span class="n">attr2</span>   <span class="n">attr3</span>   <span class="o">...</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">ID</span>      <span class="n">attr1</span>   <span class="n">attr2</span>   <span class="n">attr3</span>   <span class="o">...</span>
 <span class="n">node1</span>   <span class="n">val</span>     <span class="n">val</span>     <span class="n">val</span>
 <span class="n">node2</span>   <span class="n">val</span>     <span class="n">val</span>     <span class="n">val</span>
 <span class="n">node3</span>   <span class="n">val</span>     <span class="n">val</span>     <span class="n">val</span>
@@ -98,8 +133,8 @@ attributes IDs across the top and node IDs in the first column, like:</p>
 <li class="toctree-l1"><a class="reference internal" href="menus.html">Menus</a></li>
 <li class="toctree-l1"><a class="reference internal" href="advancedControls.html">Advanced Controls</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Create a Map</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#features-used-in-layout">Features used in Layout</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#attributes-used-to-color">Attributes used to Color</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#features-to-lay-out-the-map">Features to Lay Out the Map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#attributes-to-color-the-map">Attributes to Color the Map</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="existingMaps.html">Existing Maps</a></li>

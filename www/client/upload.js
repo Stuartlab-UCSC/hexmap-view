@@ -12,8 +12,8 @@ var app = app || {}; // jshint ignore:line
         this.log = log;
         this.chunk_size = 1024 * 1024; // 1 MB
             
-        Upload.prototype.report_error = function (error, user_file_name) {
-            var msg = 'Uploading ' + user_file_name +
+        Upload.prototype.report_error = function (error, source_file_name) {
+            var msg = 'Uploading ' + source_file_name +
                 ' to server failed with: ' + error;
             Util.banner('error', msg);
             this.log_it(this.log.get() + '\n' + msg);
@@ -59,10 +59,10 @@ var app = app || {}; // jshint ignore:line
             this.log.set(msg);
         };
         
-        Upload.prototype.upload_now = function (upload, callback) {
- 
+        Upload.prototype.upload_now = function (dir, sub_dir, callback) {
+        
             // Do the the upload now
-            var u = upload;
+            var u = this;
             this.startDate = new Date();
         
             // Initiate the upload
@@ -73,7 +73,7 @@ var app = app || {}; // jshint ignore:line
                 return;
             }
  
-            u.user_file_name = u.file.name;
+            u.source_file_name = u.file.name;
  
             this.start = 0;
             u.reader = new FileReader();
@@ -95,7 +95,7 @@ var app = app || {}; // jshint ignore:line
                             // Write the file chunk to the server
                             Meteor.apply(
                                 u.meteor_method,
-                                [u.our_file_name, buf, u.start],
+                                [dir, sub_dir, u.our_file_name, buf, u.start],
                                 {wait: true},
                                 function (error) {
                                     if (error) {

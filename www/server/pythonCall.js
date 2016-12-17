@@ -53,9 +53,14 @@ function load_data (filename, calcCtx) {
 function call_post_calc(result, calcCtx) {
 
     // There is a post_calc function to run before returning to http or
-    // the client, so call that after loading the data into javascript
-    // from the file with the json results.
-    calcCtx.js_result = load_data(result.data, calcCtx);
+    // the client.
+    
+    if (result.statusCode !== 500) {
+    
+        // On success, load the data into javascript
+        // from the file with the json results.
+        calcCtx.js_result = load_data(result.data, calcCtx);
+    }
     
     // Remove the post_calc from the calcCtx so we don't call it again.
     var post_calc = calcCtx.post_calc;
@@ -82,11 +87,6 @@ exports.report_calc_result = function (result_in, calcCtx) {
     if (result.statusCode === 500) {
         type = 'Error:';
     }
-    
-    console.log(type, 'job:', calcCtx.jobId +
-        ', Status code:', result.statusCode +
-        ', Data:', result.data);
-    
     if (calcCtx.post_calc) {
     
         call_post_calc(result, calcCtx);

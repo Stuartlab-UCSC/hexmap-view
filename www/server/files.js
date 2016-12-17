@@ -114,25 +114,28 @@ getTsvFile = function (filename, project, unparsed, alt_dir, future) {
 
 Meteor.methods({
 
-    upload_create_map_feature_space_file: function (file_name, data, start) {
+    upload_feature_space_file: function (
+            dir, sub_dir, file_name, data, start) {
 
         // Upload a tsv file to the server in chunks and synchronously
         var buf = new Buffer(data);
-        var dir = Path.join(FEATURE_SPACE_DIR,
-            clean_file_name(Meteor.user().username));
         var mode = (start === 0) ? 'w' : 'a';
         var fd;
 
         // If this is the first chunk,
-        // create the directory and meta.json if need be
+        // create the directory and meta.json if need be.
         if (mode === 'w') {
             if (!fs.existsSync(dir)) {
                 fs.mkdirSync(dir);
             }
+            var path = Path.join(dir, sub_dir)
+            if (!fs.existsSync(path)) {
+                fs.mkdirSync(path);
+            }
         }
 
         // Write the chunck
-        fd = fs.openSync(Path.join(dir, file_name), mode);
+        fd = fs.openSync(Path.join(dir, sub_dir, file_name), mode);
         fs.writeSync(fd, buf, 0, buf.length, start);
         fs.closeSync(fd);
     },
