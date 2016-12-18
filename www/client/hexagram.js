@@ -232,11 +232,11 @@ fill_layer_metadata = function (container, layer_name) {
     var binaryCountsProcessed = false;
     for(attribute in layers[layer_name]) {
         // Go through everything we know about this layer
-        if(attribute == "data" || attribute == "url" || 
-            attribute == "magnitude" || attribute == "minimum" || 
-            attribute == "maximum" || attribute == "selection" || 
-            attribute == "clumpiness_array" || attribute == "tags" ||
-            attribute == "removeFx") {
+        if(attribute === "data" || attribute === "url" ||
+            attribute === "magnitude" || attribute === "minimum" ||
+            attribute === "maximum" || attribute === "selection" ||
+            attribute === "clumpiness_array" || attribute === "tags" ||
+            attribute === "removeFx" || attribute === 'rank') {
             
             // Skip things we don't want to display
             // TODO: Ought to maybe have all metadata in its own object?
@@ -316,6 +316,8 @@ fill_layer_metadata = function (container, layer_name) {
                 p_value: "Single test p-value",
                 correlation: "Correlation",
                 adjusted_p_value: "BH FDR",
+                leesL: "Lees L",
+                rawLees: "Uncorrected Lees L",
                 adjusted_p_value_b: "Bonferroni p-value",
             }
             

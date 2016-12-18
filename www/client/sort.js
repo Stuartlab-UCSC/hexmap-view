@@ -96,30 +96,54 @@ var app = app || {};
     }
 
     function correlationCompare(a, b, pos) {
+        //hack for properly displaying leesL
+        if (ctx.project === 'Pancan12/SampleMap-nov8-LeesL/' ||
+            ctx.project ==='Pancan12/SampleMap-nov8-LeesLCorrected/' ||
+            ctx.project ==='Pancan12/SampleMap-nov8-LeesLNearest/') {
+            var aSign = layers[a].leesL < 0 ? -1 : 1,
+                bSign = layers[b].leesL < 0 ? -1 : 1;
 
-        // Compare correlation sign, then p-value, then do the final compare
+            if (aSign < bSign && pos) {
+                return 1;
+            } else if (bSign < aSign && pos) {
+                return -1
+            } else if (aSign < bSign && !pos) {
+                return -1;
+            } else if (bSign < aSign && !pos) {
+                return 1
+            }
 
-        // Compare correlation signs with positives first or negatives first,
-        // depending on pos, where true indicates positive, false negative
-        var aSign = layers[a].correlation < 0 ? -1 : 1,
-            bSign = layers[b].correlation < 0 ? -1 : 1;
+            // Compare p_values
+            result = variableCompare(a, b, 'rank');
+            if (result !== 0) return result;
 
-        if (aSign < bSign && pos) {
-            return 1;
-        } else if (bSign < aSign && pos) {
-            return -1
-        } else if (aSign < bSign && !pos) {
-            return -1;
-        } else if (bSign < aSign && !pos) {
-            return 1
+            // The final compare
+            return finalCompare(a, b);
+            // Compare correlation sign, then p-value, then do the final compare
         }
+        else { //what we did before trying leesL as layout stat
+            // Compare correlation signs with positives first or negatives first,
+            // depending on pos, where true indicates positive, false negative
+            var aSign = layers[a].correlation < 0 ? -1 : 1,
+                bSign = layers[b].correlation < 0 ? -1 : 1;
 
-        // Compare p_values
-        result = variableCompare(a, b, 'p_value');
-        if (result !== 0) return result;
+            if (aSign < bSign && pos) {
+                return 1;
+            } else if (bSign < aSign && pos) {
+                return -1
+            } else if (aSign < bSign && !pos) {
+                return -1;
+            } else if (bSign < aSign && !pos) {
+                return 1
+            }
 
-        // The final compare
-        return finalCompare(a, b);
+            // Compare p_values
+            result = variableCompare(a, b, 'p_value');
+            if (result !== 0) return result;
+
+            // The final compare
+            return finalCompare(a, b);
+        }
     }
 
     function positiveCorrelationCompare(a, b) {
@@ -209,7 +233,12 @@ var app = app || {};
             delete layers[layer_name].adjusted_p_value_b;
             delete layers[layer_name].correlation;
             delete layers[layer_name].Differential;
-         }
+            delete layers[layer_name].leesL;
+            delete layers[layer_name].rank;
+            delete layers[layer_name].rawLees;
+
+
+        }
     }
 
     updateSortUi = function (type, text, focus_attr, opts) {
@@ -433,36 +462,74 @@ var app = app || {};
         //      ...
         // ]
         var count = 0;
-        for (var i = 0; i < parsed.length; i++) {
 
-            // First element of each row is the layer name
-            // to which the selected layer is being compared against.
-            //
-            var compare_layer_name = parsed[i][0],
-                r_value = Number(parsed[i][1]),
-                p_value = cleanPvalue(parsed[i][2]);
+        //hack to properly display Lees L for pancan12
+        //console.log(ctx.project)
+        if (ctx.project === 'Pancan12/SampleMap-nov8-LeesL/' ||
+            ctx.project ==='Pancan12/SampleMap-nov8-LeesLCorrected/' ||
+            ctx.project ==='Pancan12/SampleMap-nov8-LeesLNearest/') {
+            for (var i = 0; i < parsed.length; i++) {
 
-            // Save the stats for this layer against the focus layer.
-            if (p_value === 1) {
-                r_value = 'NA';
+                // First element of each row is the layer name
+                // to which the selected layer is being compared against.
+                //
+                var compare_layer_name = parsed[i][0],
+                    leesL = Number(parsed[i][1]),
+                    rank = Number(parsed[i][2]);
+
+                // Save the stats for this layer against the focus layer.
+                if (p_value === 1) {
+                    r_value = 'NA';
+                }
+                layers[compare_layer_name].leesL = leesL;
+                layers[compare_layer_name].rank = rank;
+
+                // If there is an adjusted p-value, set it
+                if (!_.isUndefined(parsed[i][3])) {
+                    layers[compare_layer_name].correlation
+                        = Number(parsed[i][3]);
+                }
+                
+                 if (!_.isUndefined(parsed[i][4])) {
+                 layers[compare_layer_name].rawLees
+                 = Number(parsed[i][4]);
+                 }
+                 
+                count += 1;
             }
-            layers[compare_layer_name].correlation = r_value;
-            layers[compare_layer_name].p_value = p_value;
 
-            // If there is an adjusted p-value, set it
-            if (!_.isUndefined(parsed[i][3])) {
-                layers[compare_layer_name].adjusted_p_value
-                    = cleanPvalue(parsed[i][3]);
-            }
-            if (!_.isUndefined(parsed[i][4])) {
-                layers[compare_layer_name].adjusted_p_value_b
-                    = cleanPvalue(parsed[i][4]);
-            }
+        } else { //what we did before
+            for (var i = 0; i < parsed.length; i++) {
 
-            count += 1;
+                // First element of each row is the layer name
+                // to which the selected layer is being compared against.
+                //
+                var compare_layer_name = parsed[i][0],
+                    r_value = Number(parsed[i][1]),
+                    p_value = cleanPvalue(parsed[i][2]);
+
+                // Save the stats for this layer against the focus layer.
+                if (p_value === 1) {
+                    r_value = 'NA';
+                }
+                layers[compare_layer_name].correlation = r_value;
+                layers[compare_layer_name].p_value = p_value;
+
+                // If there is an adjusted p-value, set it
+                if (!_.isUndefined(parsed[i][3])) {
+                    layers[compare_layer_name].adjusted_p_value
+                        = cleanPvalue(parsed[i][3]);
+                }
+                if (!_.isUndefined(parsed[i][4])) {
+                    layers[compare_layer_name].adjusted_p_value_b
+                        = cleanPvalue(parsed[i][4]);
+                }
+
+                count += 1;
+            }
         }
-
         if (count > 0) {
+        
             // Now we're done loading the stats, update the sort properties
             var corr = 'correlation',
                 type = 'layout-aware-positive';
@@ -549,6 +616,16 @@ var app = app || {};
     }
 
     getDynamicStats = function (focus_attr, opts) {
+ 
+        if (ctx.project === 'Pancan12/SampleMap-nov8-LeesL/' ||
+            ctx.project === 'Pancan12/SampleMap-nov8-LeesLCorrected/' ||
+            ctx.project === 'Pancan12/SampleMap-nov8-LeesLNearest/') {
+            banner('error', 'Sorry, no dynamic stats yet');
+            Meteor.setTimeout(function () {
+                updateSortUi('default');
+            }, 2000);
+            return;
+        }
 
         // This is a dynamically-generated attribute or a request because
         // the stats were not precomputed
