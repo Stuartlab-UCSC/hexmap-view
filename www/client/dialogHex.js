@@ -40,6 +40,37 @@ var app = app || {};
             }
         }
 
+        /* Unused:
+        DialogHex.prototype.fitToWindow = function () {
+ 
+            console.log('fitToWindow');
+ 
+            var self = this;
+            Meteor.setTimeout(function () {
+ 
+                if ($el.height() > 0) {
+                    // Make the bottom of the dialog within the main window.
+                    var $dialog = self.$el.parents('.ui-dialog');
+                    var dHeight = $dialog.height();
+                    var dOffset = $dialog.offset();
+                    var dBottom = dOffset.top + dHeight;
+                    var wBottom = $(window).height();
+                    var diff = dBottom - wBottom;
+                    
+                    console.log('dHeight, dOffset, dBottom, wBottom, diff:',
+                        dHeight, dOffset, dBottom, wBottom, diff);
+     
+                    if (diff > 0) {
+                        self.$el.dialog('option', 'height', dBottom - diff);
+                    }
+                }
+                //var results = $('#select2-drop .select2-results');
+                //results.css(
+                //    'max-height', $(window).height() - results.offset().top - 15);
+            }, 2000);
+        }
+        */
+
         DialogHex.prototype.finishShow = function () {
 
             var self = this,
@@ -60,8 +91,13 @@ var app = app || {};
             }
  
             if (this.showFx) {
-                this.showFx(); // Call the instance init function
+                this.showFx(); // Call the instance show function
             }
+ 
+            // Ununsed:
+            // Fit the dialog to the window whenever it changes size.
+            //this.$el.on('resize', self.fitToWindow);
+
             this.$el.dialog('open');
         }
 

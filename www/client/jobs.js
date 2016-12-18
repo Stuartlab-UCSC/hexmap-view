@@ -18,9 +18,7 @@ Jobs = (function () { // jshint ignore: line
         
     Template.jobT.helpers({
         jobs: function () {
-            return jobQueue.find({});
-            // TODO Show newest tasks at the top
-            // return Tasks.find({}, { sort: { createdAt: -1 } });
+            return jobQueue.find({}, { sort: { updated: -1 } });
         },
         headerDisplay: function () {
             return Session.get('dialogIsOpen') ? 'table-row' : 'none';
@@ -116,11 +114,9 @@ Jobs = (function () { // jshint ignore: line
             // Define the dialog options & create an instance of DialogHex
             var opts = {
                 title: title,
-                buttons: [{ text: 'Cancel', click: dialogCancelClicked }],
-                position: { my: "center top", at: "center-300 top+150",
+                position: { my: "center top", at: "center-300 top+40",
                     of: window },
                 maxHeight: $(window).height() - 150,
-                //modal: true,
             };
             dialogHex = createDialogHex(undefined, undefined, $dialog, opts,
                 show, hide, 'help/job.html');
