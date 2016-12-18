@@ -296,17 +296,19 @@ function add_to_queue (operation, json, calcCtx) {
             'statsDynamic': 'dynamic_stats',
         },
         label = operationLabels[operation],
-        job = new Job(jobQueue, jobType(), // type of job
+        jobData = {
+            operation: operation,
+            operationLabel: label ? label : operation,
+            json: json,
+        },
+        job;
     
-            // Job data that you define, including anything the job
-            // needs to complete. May contain links to files, etc...
-            {
-                userId: Meteor.userId(),
-                operation: operation,
-                operationLabel: label ? label : operation,
-                json: json,
-            }
-        );
+    // If this did not come in through http, we assume it came from a client
+    // request, so save the user ID.
+    if (!calcCtx.http_response) {
+        jobData.userId = Meteor.userId();
+    }
+    job = new Job(jobQueue, jobType(), jobData);
     
     // Commit it to the server & save the local calcCtx for post-processing.
     new Fiber(function () {
