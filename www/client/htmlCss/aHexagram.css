@@ -126,6 +126,10 @@ Read as "The content row", distinct from whatever else that element might be.
     text-align: center;
 }
 
+.no_underline {
+    text-decoration: none;
+}
+
 .cancel {
     float: right;
     margin-right: 5px;

@@ -35,7 +35,10 @@ var app = app || {}; // jshint ignore:line
         };
         
         Upload.prototype.log_it = function (msg_in, start, size, replace_last) {
-            var msg = msg_in;
+ 
+            var msg = msg_in,
+                msgs = log.get();
+
             if (!msg) {
  
                 // This must be an upload progress messsage
@@ -55,8 +58,13 @@ var app = app || {}; // jshint ignore:line
                     ' bytes in ' + elapsed_str + ' minutes.';
             }
 
-            msg = this.log.get() + replace_last ? '' : '\n' + msg;
-            this.log.set(msg);
+            if (replace_last) {
+ 
+                // We want to replace the last message logged so remove it.
+                msgs = msgs.slice(0, msgs.lastIndexOf('\n'));
+            }
+
+            this.log.set(msgs + '\n' + msg);
         };
         
         Upload.prototype.upload_now = function (dir, sub_dir, callback) {

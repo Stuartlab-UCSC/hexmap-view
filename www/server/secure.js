@@ -73,7 +73,8 @@ function createUsers(users, createUserRole) {
                 username: user.email,
             });
            
-            // Add the roles to the user's object
+            // Add the roles to the user's object, including a role for
+            // user-created maps protection
             if (createUserRole) {
                 user.roles = user.roles.concat(file_safe_name);
             }

@@ -1,26 +1,6 @@
 <template name='create_map_t'>
     <div id="create_map_dialog" style='display:none'>
-        <table>
-            <tr>
-                <td class='dialog_label'>
-                    Map name:
-                </td>
-                <td class='dialog_value'>
-                    <span>{{ major_project }}/</span>
-                    <input class='minor_project' type='text' value='{{ minor_project }}'>
-                </td>
-            </tr>
-            <tr>
-                <td class='dialog_label'>
-                    Layout Feature Format:
-                </td>
-                <td class='dialog_value'>
-                    <span class='format_anchor' style='width:15em'></span>
-                    <a href='/help/createMap.html#feature-formats' target='_blank'>
-                        <img class='context-help' src='/icons/question.png'>
-                    </a>
-                </td>
-            </tr>
+        <table style='width:100%'>
             <tr>
                 <td class='dialog_label'>
                     Layout features:
@@ -30,12 +10,32 @@
                 </td>
             </tr>
             <tr>
+                <td class='dialog_label'>
+                    Layout Feature Format:
+                </td>
+                <td class='dialog_value'>
+                    <span class='format_anchor' style='width:15em'></span>
+                    <a class='no_underline' href='/help/createMap.html#feature-formats' target='_blank'>
+                        <img class='context-help' src='/icons/question.png'>
+                    </a>
+                </td>
+            </tr>
+            <tr>
                 <td class='dialog_label' style='vertical-align:top'>
                     Color attributes:
                 </td>
                 <td class='dialog_value attribute_upload_anchor'>
                     {{>upload_t}}
                     <br><span style='font-size:0.8em'>(optional)</span>
+                </td>
+            </tr>
+            <tr>
+                <td class='dialog_label'>
+                    Map name:
+                </td>
+                <td class='dialog_value'>
+                    <span>{{ major_project }}/</span>
+                    <input class='minor_project' type='text' value='{{ minor_project }}'>
                 </td>
             </tr>
             <tr>

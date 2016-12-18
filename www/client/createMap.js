@@ -7,6 +7,7 @@ var app = app || {};
 CreateMap = (function () { // jshint ignore: line
 
     var title = 'Create a Map',
+        initial_log = 'log messages',
         dialogHex, // instance of the class DialogHex
         $dialog, // our dialog DOM element
         feature_upload, // the feature file selector
@@ -21,7 +22,7 @@ CreateMap = (function () { // jshint ignore: line
             ['similarity', 'Sparse similarity matrix'],
             ['coordinates', 'XY positions'],
         ],
-        default_feature_format = 'feature_space',
+        default_feature_format = 'coordinates',
         methods = [
             'DrL',
             'tSNE',
@@ -44,13 +45,14 @@ CreateMap = (function () { // jshint ignore: line
             return ui.get('minor_project');
         },
         log: function () {
+            var text = log.get();
             Meteor.setTimeout(function () {
                 var $log = $('#create_map_dialog .log');
                 if ($log && $log[0]) {
                     $log.scrollTop($log[0].scrollHeight);
                 }
             }, 0); // Give some time for the log message to show up
-            return log.get();
+            return text ? text : initial_log;
         },
         dynamic: function () {
             return !(Session.get('create_map_stats_precompute'));
@@ -190,11 +192,6 @@ CreateMap = (function () { // jshint ignore: line
             return;
         }
         
-        // Find a name to use for this user's projects that will be
-        // safe to use as a directory name. TODO this should be made unique for
-        // the corner case of the safe name duplicates another user's safe name.
-        ui.set('major_project', Util.clean_file_name(username));
- 
         var meteor_method = 'upload_feature_space_file';
  
         // Define the file selector for features file
@@ -206,8 +203,14 @@ CreateMap = (function () { // jshint ignore: line
             create_upload($dialog.find('.attribute_upload_anchor'),
             meteor_method, attr_file_base_name, log);
 
-        // Initialize the file widgets
-        log.set('log messages');
+        // Find a name to use for this user's projects that will be
+        // safe to use as a directory name. TODO this should be made unique for
+        // the corner case of the safe name duplicates another user's safe name.
+        ui.set('major_project', Util.clean_file_name(username));
+ 
+        // Initialize some ui values
+        ui.set('minor_project', 'map');
+        log.set(initial_log);
         
         // Create the feature format list
         var data = [];
@@ -262,7 +265,9 @@ CreateMap = (function () { // jshint ignore: line
 
     function hide() {
  
-        // Free any memory we can before destroying the dialog
+        // Clear the filename values.
+        $dialog.find('.file_name').val('');
+        
         dialogHex.hide();
     }
     
