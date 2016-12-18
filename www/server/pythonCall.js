@@ -298,15 +298,15 @@ function add_to_queue (operation, json, calcCtx) {
         label = operationLabels[operation],
         job = new Job(jobQueue, jobType(), // type of job
     
-        // Job data that you define, including anything the job
-        // needs to complete. May contain links to files, etc...
-        {
-            userId: Meteor.userId(),
-            operation: operation,
-            operationLabel: label ? label : operation,
-            json: json,
-        }
-    );
+            // Job data that you define, including anything the job
+            // needs to complete. May contain links to files, etc...
+            {
+                userId: Meteor.userId(),
+                operation: operation,
+                operationLabel: label ? label : operation,
+                json: json,
+            }
+        );
     
     // Commit it to the server & save the local calcCtx for post-processing.
     new Fiber(function () {
