@@ -17,7 +17,7 @@ if [ $INSTALL == 'dev' ]; then
     HTTPS_PORT=8112
     DB_PORT=28113
     DB_NAME=8111
-    METEOR_BASE=/cluster/home/swat/.meteor/packages/meteor-tool/.1.4.1_2.hkvxw6++os.linux.x86_64+web.browser+web.cordova/mt-os.linux.x86_64/dev_bundle
+    METEOR_BASE=/cluster/home/swat/.meteor/packages/meteor-tool/1.4.1_2/mt-os.linux.x86_64/dev_bundle
     METEOR=/cluster/home/swat/.meteor
     SETTINGS=$HEXMAP/settings.json
     export ROOT_URL=https://tumormap.ucsc.edu:$HTTPS_PORT
@@ -25,24 +25,13 @@ if [ $INSTALL == 'dev' ]; then
 fi
 if [ $INSTALL == 'devCalc' ]; then
     PORT=8223
-    HTTPS_PORT=8223  # 8222
+    HTTPS_PORT=8223
     DB_PORT=28223
     DB_NAME=$PORT
-    METEOR_BASE=/cluster/home/swat/.meteor/packages/meteor-tool/.1.4.1_2.hkvxw6++os.linux.x86_64+web.browser+web.cordova/mt-os.linux.x86_64/dev_bundle
+    METEOR_BASE=/cluster/home/swat/.meteor/packages/meteor-tool/1.4.1_2/mt-os.linux.x86_64/dev_bundle
     METEOR=/cluster/home/swat/.meteor
     SETTINGS=$HEXMAP/settings.json
-    export ROOT_URL=https://juggernaut.sdsc.edu:$HTTPS_PORT
-    echo Using an install of $INSTALL
-fi
-if [ $INSTALL == 'devDev' ]; then
-    PORT=8333
-    HTTPS_PORT=8333  # 8222
-    DB_PORT=28333
-    DB_NAME=$PORT
-    METEOR_BASE=/cluster/home/swat/.meteor/packages/meteor-tool/.1.4.1_2.hkvxw6++os.linux.x86_64+web.browser+web.cordova/mt-os.linux.x86_64/dev_bundle
-    METEOR=/cluster/home/swat/.meteor
-    SETTINGS=$HEXMAP/settings.json
-    export ROOT_URL=http://tumormap.ucsc.edu:$HTTPS_PORT
+    export ROOT_URL=http://kolossus.sdsc.edu:$HTTPS_PORT
     echo Using an install of $INSTALL
 fi
 if [ $INSTALL == 'swat' ]; then
@@ -50,7 +39,7 @@ if [ $INSTALL == 'swat' ]; then
     HTTPS_PORT=$PORT
     DB_PORT=27017
     DB_NAME=live
-    METEOR_BASE=/Users/swat/.meteor/packages/meteor-tool/.1.4.1_2.fpzmec++os.osx.x86_64+web.browser+web.cordova/mt-os.osx.x86_64/dev_bundle
+    METEOR_BASE=/Users/swat/.meteor/packages/meteor-tool/1.4.1_2/mt-os.osx.x86_64/dev_bundle
     METEOR=/Users/swat/.meteor
     SETTINGS=/Users/swat/dev/bin/settings.json
     export ROOT_URL=http://localhost:$HTTPS_PORT
@@ -61,7 +50,7 @@ if [ $INSTALL == 'swatCalc' ]; then
     HTTPS_PORT=$PORT
     DB_PORT=24444
     DB_NAME=$PORT
-    METEOR_BASE=/Users/swat/.meteor/packages/meteor-tool/.1.4.1_2.fpzmec++os.osx.x86_64+web.browser+web.cordova/mt-os.osx.x86_64/dev_bundle
+    METEOR_BASE=/Users/swat/.meteor/packages/meteor-tool/1.4.1_2/mt-os.osx.x86_64/dev_bundle
     METEOR=/Users/swat/.meteor
     SETTINGS=/Users/swat/dev/bin/settingsCalc.json
     export ROOT_URL=http://localhost:$HTTPS_PORT
@@ -72,7 +61,7 @@ if [ $INSTALL == 'swatMain' ]; then
     HTTPS_PORT=$PORT
     DB_PORT=25555
     DB_NAME=$PORT
-    METEOR_BASE=/Users/swat/.meteor/packages/meteor-tool/.1.4.1_2.fpzmec++os.osx.x86_64+web.browser+web.cordova/mt-os.osx.x86_64/dev_bundle
+    METEOR_BASE=/Users/swat/.meteor/packages/meteor-tool/1.4.1_2/mt-os.osx.x86_64/dev_bundle
     METEOR=/Users/swat/.meteor
     SETTINGS=/Users/swat/dev/bin/settingsMain.json
     export ROOT_URL=http://localhost:$HTTPS_PORT

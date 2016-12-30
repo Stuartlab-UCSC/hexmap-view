@@ -398,11 +398,13 @@ var app = app || {};  // jshint ignore: line
         var state = {};
  
         // Find the project if one was included in the URL,
-        // replacing every '.' with '/'
+        // replacing the last '.' with '/'
         if (s.uParm.p) {
-            state.project =
-                s.uParm.p.replace(/\./g, '/') +
-                '/';
+            var i = s.uParm.p.lastIndexOf('.');
+            if (i > -1) {
+                s.uParm.p = s.uParm.p.substr(0, i) + '/' + s.uParm.p.substr(i+1);
+            }
+            state.project = s.uParm.p + '/';
  
             // A project in a url means someone wants to see a particular map
             state.page = 'mapPage';

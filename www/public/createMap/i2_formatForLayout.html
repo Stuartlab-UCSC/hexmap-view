@@ -68,10 +68,10 @@ export PATH=$DRL:$PATH
 </div>
 <p>A more general example where:</p>
 <p><em>HEX</em> is the server directory</p>
-<p><em>DRL</em> is the bin directory of the DrL library</p>
+<p><em>DDRL</em> is the bin directory of the DrL library</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span>export HEXMAP=HEX
 export PYTHONPATH=$HEXMAP/calc:$HEXMAP/www/server
-DRL=$HEXMAP/packages/adam_novak-drl-graph-layout-c41341de8058/bin
+DRL=DDRL
 export PATH=$DRL:$PATH
 </pre></div>
 </div>
@@ -80,7 +80,7 @@ export PATH=$DRL:$PATH
 <h2>compute_sparse_matrix.py<a class="headerlink" href="#compute-sparse-matrix-py" title="Permalink to this headline">¶</a></h2>
 <p>This will convert your genomic matrix into a sparse matrix.</p>
 <p>An example:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span>python2.7 $HEXMAP/.calc/compute_sparse_matrix.py \
+<div class="highlight-default"><div class="highlight"><pre><span></span>python2.7 $HEXMAP/calc/compute_sparse_matrix.py \
   --in_file geneMatrix.tsv \
   --top 6 \
   --metric correlation \
@@ -105,7 +105,7 @@ export PATH=$DRL:$PATH
 where all the values are identical. This just makes finding useful attributes
 easier in the viewer.</p>
 <p>An example:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span>python2.7 $HEXMAP/.calc/remove_single_value_attributes.py \
+<div class="highlight-default"><div class="highlight"><pre><span></span>python2.7 $HEXMAP/calc/remove_single_value_attributes.py \
    meta1_IDs_first.tab \
    meta2_diff_values.tab
 </pre></div>

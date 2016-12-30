@@ -69,32 +69,34 @@ attributes IDs across the top and node IDs in the first column, like::
  node3   val     val     val
  ...
 
+Layout Methods
+--------------
+
+The option to select a layout method other than DrL will be added to the UI soon.
+
+Layout methods are the algorithms used to arrange the nodes on the
+two-dimensional map with the following options available. The default is DrL.
+
+**DrL** : Distributed Recursive (Graph) Layout
+
+**tSNE** : t-distributed Stochastic Neighbor Embedding
+
+**MDS** : Multidimensional scaling
+
+**PCA** : Principal Component analysis
+
+**ICA** : Independent Component Analysis
+
+**isomap** : Isomap Embedding
+
+**spectral embedding** : Project the sample on the first eigenvectors of the graph Laplacian
+
+
 ..
    TBD This section needs to be coded before showing it to the user.
 
     Advanced Options
     ----------------
-
-    Layout Methods
-    ^^^^^^^^^^^^^^
-
-    Layout methods are the algorithms used to arrange the nodes on the
-    two-dimensional map with the following options available. The default is DrL.
-
-    **DrL** : Distributed Recursive (Graph) Layout
-
-    **tSNE** : t-distributed Stochastic Neighbor Embedding
-
-    **MDS** : Multidimensional scaling
-
-    **PCA** : Principal Component analysis
-
-    **ICA** : Independent Component Analysis
-
-    **isomap** : Isomap Embedding
-
-    **spectral embedding** : Project the sample on the first eigenvectors of the graph Laplacian
-
 
     Special color attributes
     ^^^^^^^^^^^^^^^^^^^^^^^^

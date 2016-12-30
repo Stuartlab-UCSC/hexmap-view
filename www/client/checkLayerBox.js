@@ -32,6 +32,33 @@ CheckLayerBox = (function () { // jshint ignore: line
         }
     }
 
+    function receive_layers (layers) {
+        //iterate through layers and place them in the shortlist
+        _.each(layers, function (layer){
+            var attributes = {};
+            attributes.selection = layer.selection;
+            attributes.n         = layer.n;
+            attributes.magnitude = layer.magnitude;
+            attributes.removeFx  = remove_layer;
+            attributes.reflection = true;
+
+            // make Json out of parallel arrays, avoids '.' in mongoDB
+            layer.data = jsonLayer(layer);
+            
+            // Create the colormap
+            var colormap = layer.colormap;
+            _.each(colormap,function(mapentry){
+                //couldn't use the Color() func on the server side, so this:
+                mapentry.color = new Color(mapentry.color);
+                mapentry.fileColor = new Color(mapentry.fileColor);
+            });
+            
+            //Add the layer to the global layers object and global colormaps
+            Shortlist.create_dynamic_category_layer(layer.layer_name,
+                layer.data, attributes, colormap);
+        });
+    }
+        
     function layers_received (layers) {
         // Find and handle new layers and removed layers
 
@@ -42,7 +69,7 @@ CheckLayerBox = (function () { // jshint ignore: line
             return (last_layer_names.indexOf(layer.layer_name) < 0);
         });
 
-        CheckLayerBox.receive_layers(new_layers);
+        receive_layers(new_layers);
 
         // Find any layers removed and remove them from the shortlist
         _.each(last_layer_names, function (layer_name) {
@@ -65,32 +92,8 @@ CheckLayerBox = (function () { // jshint ignore: line
 
     return {
  
-        receive_layers: function (layers) {
-            //iterate through layers and place them in the shortlist
-            _.each(layers, function (layer){
-                var attributes = {};
-                attributes.selection = layer.selection;
-                attributes.n         = layer.n;
-                attributes.magnitude = layer.magnitude;
-                attributes.removeFx  = remove_layer;
-                attributes.reflection = true;
-
-                // make Json out of parallel arrays, avoids '.' in mongoDB
-                layer.data = jsonLayer(layer);
-                
-                // Create the colormap
-                var colormap = layer.colormap;
-                _.each(colormap,function(mapentry){
-                    //couldn't use the Color() func on the server side, so this:
-                    mapentry.color = new Color(mapentry.color);
-                    mapentry.fileColor = new Color(mapentry.fileColor);
-                });
-                
-                //Add the layer to the global layers object and global colormaps
-                Shortlist.create_dynamic_category_layer(layer.layer_name,
-                    layer.data, attributes, colormap);
-            });
-        },
+        receive_layers: receive_layers,
+        
         init: function() {
             var mapId = ctx.project;
             

@@ -7,6 +7,12 @@ import sys, os, subprocess, json, tempfile, pprint
 import string
 import unittest
 
+from rootDir import getRootDir
+
+rootDir = getRootDir()
+inDir = rootDir + '/tests/pyUnittest/createMapIn/'
+outDir = rootDir + '/tests/pyUnittest/createMapOut/'
+
 class TestCreateMap(unittest.TestCase):
 
     # SET-UP
@@ -46,6 +52,14 @@ class TestCreateMap(unittest.TestCase):
     def findStatusCode(s, verbose):
         i = verbose.find('< HTTP/1.1')
         return verbose[i+11:i+14]
+        
+    def checkLog(s, filename):
+        with open(filename, 'r') as f:
+            log = f.read()
+        if log.find('Visualization generation complete!') > -1:
+            return True
+        else:
+            return False
         
     def doCurl(s, opts, remote):
         o, outfile = tempfile.mkstemp()
@@ -104,5 +118,25 @@ class TestCreateMap(unittest.TestCase):
         #print 'code, data:', rc['code'], rc['data']
         s.assertTrue(rc['code'] == '200')
     
+    def test_createMap_sparse(s):
+        #data = '[ "--similarity", inDir + "TGCT_IlluminaHiSeq_RNASeqV2.vs_self.top6.tab", --names", "mRNA", "--scores", inDir + "clin.tumormap.tab", "--colormaps", inDir + "clin.colormaps.final.tab", "--directory", outDir, "--include-singletons", "--first_attribute", "KIT_mutated", "--no_density_stats", "--no_layout_independent_stats", "--no_layout_aware_stats" ]'
+        data = '[ ' + \
+            '"--similarity", "' + inDir + "TGCT_IlluminaHiSeq_RNASeqV2.vs_self.top6.tab" + '", ' + \
+            '"--names", "mRNA", ' + \
+            '"--scores", "' + inDir + "clin.tumormap.tab" + '", ' + \
+            '"--colormaps", "' + inDir + "clin.colormaps.final.tab" + '", ' + \
+            '"--directory", "' + outDir + '", ' + \
+            '"--include-singletons", ' + \
+            '"--first_attribute", "' + "KIT_mutated" + '",' \
+            '"--no_density_stats", ' + \
+            '"--no_layout_independent_stats", ' + \
+            '"--no_layout_aware_stats" ]'
+        
+        curl_opts = ['-d', data, '-H', 'Content-Type:application/json', '-X', 'POST', '-v']
+        rc = s.doCurl(curl_opts, False)
+        print 'code, data:', rc['code'], rc['data']
+        s.assertTrue(rc['code'] == '200')
+        success = s.checkLog(outDir + 'log')
+        s.assertTrue(success, True)
 if __name__ == '__main__':
     unittest.main()

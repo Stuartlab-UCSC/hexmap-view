@@ -1,0 +1,226 @@
+14 17:35:01 Started
+Starting command: hexagram.py /cluster/home/swat/dataraw/pancan12/jan7/layout.MUT.tab --names Mutations --scores /cluster/home/swat/dataraw/pancan12/jan7/attributes.biological_source.txt --scores /cluster/home/swat/dataraw/pancan12/jan7/attributes.BRCA_subtype_scores.tab --scores /cluster/home/swat/dataraw/pancan12/jan7/attributes.COADREAD-Subtypes.tab --scores /cluster/home/swat/dataraw/pancan12/jan7/attributes.drug_pathways_attribute.tab --scores /cluster/home/swat/dataraw/pancan12/jan7/attributes.GBM-Subtypes.tab --scores /cluster/home/swat/dataraw/pancan12/jan7/attributes.genomic_clusters_attributes.tab --scores /cluster/home/swat/dataraw/pancan12/jan7/attributes.major_TF.paradigm.tab --scores /cluster/home/swat/dataraw/pancan12/jan7/attributes.met_vs_primary.tab --scores /cluster/home/swat/dataraw/pancan12/jan7/attributes.mutations.hc.tab --scores /cluster/home/swat/dataraw/pancan12/jan7/attributes.OV-Subtypes.tab --scores /cluster/home/swat/dataraw/pancan12/jan7/attributes.pancan12_event_calls.Giovanni.GENE_MAPPED.no_muts.tab --scores /cluster/home/swat/dataraw/pancan12/jan7/attributes.tcga_clinical_final.tab --scores /cluster/home/swat/dataraw/pancan12/jan7/attributes.UCEC-Subtypes.tab --colormaps /cluster/home/swat/dataraw/pancan12/jan7/colormaps.tab --directory /cluster/home/swat/data/pancan12/test --include-singletons --first_attribute Tissue
+#ARGS ['/cluster/home/swat/dataraw/pancan12/jan7/layout.MUT.tab', '--names', 'Mutations', '--scores', '/cluster/home/swat/dataraw/pancan12/jan7/attributes.biological_source.txt', '--scores', '/cluster/home/swat/dataraw/pancan12/jan7/attributes.BRCA_subtype_scores.tab', '--scores', '/cluster/home/swat/dataraw/pancan12/jan7/attributes.COADREAD-Subtypes.tab', '--scores', '/cluster/home/swat/dataraw/pancan12/jan7/attributes.drug_pathways_attribute.tab', '--scores', '/cluster/home/swat/dataraw/pancan12/jan7/attributes.GBM-Subtypes.tab', '--scores', '/cluster/home/swat/dataraw/pancan12/jan7/attributes.genomic_clusters_attributes.tab', '--scores', '/cluster/home/swat/dataraw/pancan12/jan7/attributes.major_TF.paradigm.tab', '--scores', '/cluster/home/swat/dataraw/pancan12/jan7/attributes.met_vs_primary.tab', '--scores', '/cluster/home/swat/dataraw/pancan12/jan7/attributes.mutations.hc.tab', '--scores', '/cluster/home/swat/dataraw/pancan12/jan7/attributes.OV-Subtypes.tab', '--scores', '/cluster/home/swat/dataraw/pancan12/jan7/attributes.pancan12_event_calls.Giovanni.GENE_MAPPED.no_muts.tab', '--scores', '/cluster/home/swat/dataraw/pancan12/jan7/attributes.tcga_clinical_final.tab', '--scores', '/cluster/home/swat/dataraw/pancan12/jan7/attributes.UCEC-Subtypes.tab', '--colormaps', '/cluster/home/swat/dataraw/pancan12/jan7/colormaps.tab', '--directory', '/cluster/home/swat/data/pancan12/test', '--include-singletons', '--first_attribute', 'Tissue'] Namespace(associations=True, clumpinessStats=True, colormaps='/cluster/home/swat/dataraw/pancan12/jan7/colormaps.tab', directory='/cluster/home/swat/data/pancan12/test', drlpath=None, first_attribute='Tissue', html='index.html', mi_binary_binning=True, mi_window_size=None, mi_window_threshold=5, mi_window_threshold_upper=20, mutualinfo=True, names=['Mutations'], query=None, raw=None, rawsim=None, scores=['/cluster/home/swat/dataraw/pancan12/jan7/attributes.biological_source.txt', '/cluster/home/swat/dataraw/pancan12/jan7/attributes.BRCA_subtype_scores.tab', '/cluster/home/swat/dataraw/pancan12/jan7/attributes.COADREAD-Subtypes.tab', '/cluster/home/swat/dataraw/pancan12/jan7/attributes.drug_pathways_attribute.tab', '/cluster/home/swat/dataraw/pancan12/jan7/attributes.GBM-Subtypes.tab', '/cluster/home/swat/dataraw/pancan12/jan7/attributes.genomic_clusters_attributes.tab', '/cluster/home/swat/dataraw/pancan12/jan7/attributes.major_TF.paradigm.tab', '/cluster/home/swat/dataraw/pancan12/jan7/attributes.met_vs_primary.tab', '/cluster/home/swat/dataraw/pancan12/jan7/attributes.mutations.hc.tab', '/cluster/home/swat/dataraw/pancan12/jan7/attributes.OV-Subtypes.tab', '/cluster/home/swat/dataraw/pancan12/jan7/attributes.pancan12_event_calls.Giovanni.GENE_MAPPED.no_muts.tab', '/cluster/home/swat/dataraw/pancan12/jan7/attributes.tcga_clinical_final.tab', '/cluster/home/swat/dataraw/pancan12/jan7/attributes.UCEC-Subtypes.tab'], similarity=['/cluster/home/swat/dataraw/pancan12/jan7/layout.MUT.tab'], singletons=True, truncation_edges=6, type=None, window_size=20) raw None
+Writing matrix names...
+About to open matrices...
+Opening Matrix 0 /cluster/home/swat/dataraw/pancan12/jan7/layout.MUT.tab
+Opened matrices...
+Created nodes_multiple list...
+14 17:35:01 ============== Starting drl computations for layout: 0 ... ==============
+Reach for parts in sim_reader
+14 17:35:02 DrL: Truncating...
+Using /scratch/tmp/tmpCOdVkM/layout0.sim for .sim file, 
+Will output /scratch/tmp/tmpCOdVkM/layout0.ind for .ind file,
+            /scratch/tmp/tmpCOdVkM/layout0.int for .int file, and
+            /scratch/tmp/tmpCOdVkM/layout0.full for .full file.
+Using memory = 1
+      topn = 6
+      normalize = 0
+Reading .sim file ... 
+Read 3276 nodes and 36036 lines.
+Creating .ind file ...
+Writing to .full file ...
+Creating .int file ...
+Scan 1 of .full file ...
+Program finished successfully.
+DrL: Doing layout...
+Using /scratch/tmp/tmpCOdVkM/layout0.int for .int file, and /scratch/tmp/tmpCOdVkM/layout0.icoord for .icoord file.
+Using random seed = 0
+      edge_cutting = 0.8
+      intermediate output = 0
+      output .iedges file = 0
+Proc. 0 scanning .int file ...
+Processor 0 reading .int file ...
+Entering liquid stage ...........................................................................................................................................................................................................
+Liquid stage completed in 7 seconds, total energy = 2.44693e+10.
+Entering expansion stage ...........................................................................................................................................................................................................
+Finished expansion stage in 6 seconds, total energy = 3.88651e+08.
+Entering cool-down stage ...........................................................................................................................................................................................................
+Completed cool-down stage in 9 seconds, total energy = 3.23771e+08.
+Entering crunch stage .....................................................
+Finished crunch stage in 3 seconds, total energy = 6.97669e+08.
+Entering simmer stage .......................................................................................................
+Finished simmer stage in 5 seconds, total energy = 1272.9.
+Layout calculation completed in 30 seconds (not including I/O).
+Writing out solution to /scratch/tmp/tmpCOdVkM/layout0.icoord ...
+Total Energy: 1272.06.
+Program terminated successfully.
+14 17:35:35 DrL: Restoring names...
+Using /scratch/tmp/tmpCOdVkM/layout0.icoord for .icoord file, and 
+       /scratch/tmp/tmpCOdVkM/layout0.ind for .ind file.
+Will output /scratch/tmp/tmpCOdVkM/layout0.coord for .coord file.
+Reading .ind file ...
+Reading .icoord file ...
+Creating .coord file ...
+Program finished successfully.
+14 17:35:35 Reading DrL output...
+14 17:35:35 ============== drl computations completed for layout: 0 ==============
+Max placement badness: 18.7882942281
+We need to run density statistics for 1 layouts
+14 17:38:46 Running tiling clumpiness statistics for layout 0 with window size 20...
+14 17:38:46 Hexagon count: 3276
+/cluster/home/swat/python/lib/python2.7/site-packages/scipy/stats/stats.py:4008: RuntimeWarning: invalid value encountered in true_divide
+  terms = (f_obs - f_exp)**2 / f_exp
+/cluster/home/swat/python/lib/python2.7/site-packages/scipy/stats/stats.py:4008: RuntimeWarning: divide by zero encountered in true_divide
+  terms = (f_obs - f_exp)**2 / f_exp
+/cluster/home/swat/python/lib/python2.7/site-packages/scipy/stats/stats.py:4008: RuntimeWarning: invalid value encountered in true_divide
+  terms = (f_obs - f_exp)**2 / f_exp
+Writing layer index...
+14 17:40:30 Attribute counts: 4149 = Binary: 3305 + Categorical: 24 + Continuous: 820
+Regularizing colormaps file...
+No Data Provided...Skipping Beta Calculations
+14 17:40:30 Running sample-based statistics...
+14 17:40:30 Processing 4149 layers
+Starting to build 17214201 layer pairs...
+Using host: juggernaut with 32 processors for parallel jobs.
+4149 subprocesses to run, one per layer.
+/cluster/home/swat/python/lib/python2.7/site-packages/numpy/core/_methods.py:83: RuntimeWarning: Degrees of freedom <= 0 for slice
+  warnings.warn("Degrees of freedom <= 0 for slice", RuntimeWarning)
+/cluster/home/swat/python/lib/python2.7/site-packages/numpy/core/_methods.py:117: RuntimeWarning: invalid value encountered in double_scalars
+  ret = ret.dtype.type(ret / rcount)
+/cluster/home/swat/python/lib/python2.7/site-packages/numpy/core/_methods.py:83: RuntimeWarning: Degrees of freedom <= 0 for slice
+  warnings.warn("Degrees of freedom <= 0 for slice", RuntimeWarning)
+/cluster/home/swat/python/lib/python2.7/site-packages/numpy/core/_methods.py:117: RuntimeWarning: invalid value encountered in double_scalars
+  ret = ret.dtype.type(ret / rcount)
+/cluster/home/swat/python/lib/python2.7/site-packages/numpy/core/_methods.py:83: RuntimeWarning: Degrees of freedom <= 0 for slice
+  warnings.warn("Degrees of freedom <= 0 for slice", RuntimeWarning)
+/cluster/home/swat/python/lib/python2.7/site-packages/numpy/core/_methods.py:117: RuntimeWarning: invalid value encountered in double_scalars
+  ret = ret.dtype.type(ret / rcount)
+/cluster/home/swat/python/lib/python2.7/site-packages/numpy/core/_methods.py:83: RuntimeWarning: Degrees of freedom <= 0 for slice
+  warnings.warn("Degrees of freedom <= 0 for slice", RuntimeWarning)
+/cluster/home/swat/python/lib/python2.7/site-packages/numpy/core/_methods.py:117: RuntimeWarning: invalid value encountered in double_scalars
+  ret = ret.dtype.type(ret / rcount)
+/cluster/home/swat/python/lib/python2.7/site-packages/numpy/core/_methods.py:83: RuntimeWarning: Degrees of freedom <= 0 for slice
+  warnings.warn("Degrees of freedom <= 0 for slice", RuntimeWarning)
+/cluster/home/swat/python/lib/python2.7/site-packages/numpy/core/_methods.py:117: RuntimeWarning: invalid value encountered in double_scalars
+  ret = ret.dtype.type(ret / rcount)
+/cluster/home/swat/python/lib/python2.7/site-packages/numpy/core/_methods.py:83: RuntimeWarning: Degrees of freedom <= 0 for slice
+  warnings.warn("Degrees of freedom <= 0 for slice", RuntimeWarning)
+/cluster/home/swat/python/lib/python2.7/site-packages/numpy/core/_methods.py:117: RuntimeWarning: invalid value encountered in double_scalars
+  ret = ret.dtype.type(ret / rcount)
+/cluster/home/swat/python/lib/python2.7/site-packages/numpy/core/_methods.py:83: RuntimeWarning: Degrees of freedom <= 0 for slice
+  warnings.warn("Degrees of freedom <= 0 for slice", RuntimeWarning)
+/cluster/home/swat/python/lib/python2.7/site-packages/numpy/core/_methods.py:117: RuntimeWarning: invalid value encountered in double_scalars
+  ret = ret.dtype.type(ret / rcount)
+/cluster/home/swat/python/lib/python2.7/site-packages/numpy/core/_methods.py:83: RuntimeWarning: Degrees of freedom <= 0 for slice
+  warnings.warn("Degrees of freedom <= 0 for slice", RuntimeWarning)
+/cluster/home/swat/python/lib/python2.7/site-packages/numpy/core/_methods.py:117: RuntimeWarning: invalid value encountered in double_scalars
+  ret = ret.dtype.type(ret / rcount)
+/cluster/home/swat/python/lib/python2.7/site-packages/numpy/core/_methods.py:83: RuntimeWarning: Degrees of freedom <= 0 for slice
+  warnings.warn("Degrees of freedom <= 0 for slice", RuntimeWarning)
+/cluster/home/swat/python/lib/python2.7/site-packages/numpy/core/_methods.py:117: RuntimeWarning: invalid value encountered in double_scalars
+  ret = ret.dtype.type(ret / rcount)
+/cluster/home/swat/python/lib/python2.7/site-packages/numpy/core/_methods.py:83: RuntimeWarning: Degrees of freedom <= 0 for slice
+  warnings.warn("Degrees of freedom <= 0 for slice", RuntimeWarning)
+/cluster/home/swat/python/lib/python2.7/site-packages/numpy/core/_methods.py:117: RuntimeWarning: invalid value encountered in double_scalars
+  ret = ret.dtype.type(ret / rcount)
+/cluster/home/swat/python/lib/python2.7/site-packages/numpy/core/_methods.py:83: RuntimeWarning: Degrees of freedom <= 0 for slice
+  warnings.warn("Degrees of freedom <= 0 for slice", RuntimeWarning)
+/cluster/home/swat/python/lib/python2.7/site-packages/numpy/core/_methods.py:117: RuntimeWarning: invalid value encountered in double_scalars
+  ret = ret.dtype.type(ret / rcount)
+/cluster/home/swat/python/lib/python2.7/site-packages/numpy/core/_methods.py:83: RuntimeWarning: Degrees of freedom <= 0 for slice
+  warnings.warn("Degrees of freedom <= 0 for slice", RuntimeWarning)
+/cluster/home/swat/python/lib/python2.7/site-packages/numpy/core/_methods.py:117: RuntimeWarning: invalid value encountered in double_scalars
+  ret = ret.dtype.type(ret / rcount)
+/cluster/home/swat/python/lib/python2.7/site-packages/numpy/core/_methods.py:83: RuntimeWarning: Degrees of freedom <= 0 for slice
+  warnings.warn("Degrees of freedom <= 0 for slice", RuntimeWarning)
+/cluster/home/swat/python/lib/python2.7/site-packages/numpy/core/_methods.py:117: RuntimeWarning: invalid value encountered in double_scalars
+  ret = ret.dtype.type(ret / rcount)
+/cluster/home/swat/python/lib/python2.7/site-packages/numpy/core/_methods.py:83: RuntimeWarning: Degrees of freedom <= 0 for slice
+  warnings.warn("Degrees of freedom <= 0 for slice", RuntimeWarning)
+/cluster/home/swat/python/lib/python2.7/site-packages/numpy/core/_methods.py:117: RuntimeWarning: invalid value encountered in double_scalars
+  ret = ret.dtype.type(ret / rcount)
+/cluster/home/swat/python/lib/python2.7/site-packages/numpy/core/_methods.py:83: RuntimeWarning: Degrees of freedom <= 0 for slice
+  warnings.warn("Degrees of freedom <= 0 for slice", RuntimeWarning)
+/cluster/home/swat/python/lib/python2.7/site-packages/numpy/core/_methods.py:117: RuntimeWarning: invalid value encountered in double_scalars
+  ret = ret.dtype.type(ret / rcount)
+/cluster/home/swat/python/lib/python2.7/site-packages/numpy/core/_methods.py:83: RuntimeWarning: Degrees of freedom <= 0 for slice
+  warnings.warn("Degrees of freedom <= 0 for slice", RuntimeWarning)
+/cluster/home/swat/python/lib/python2.7/site-packages/numpy/core/_methods.py:117: RuntimeWarning: invalid value encountered in double_scalars
+  ret = ret.dtype.type(ret / rcount)
+/cluster/home/swat/python/lib/python2.7/site-packages/numpy/core/_methods.py:83: RuntimeWarning: Degrees of freedom <= 0 for slice
+  warnings.warn("Degrees of freedom <= 0 for slice", RuntimeWarning)
+/cluster/home/swat/python/lib/python2.7/site-packages/numpy/core/_methods.py:117: RuntimeWarning: invalid value encountered in double_scalars
+  ret = ret.dtype.type(ret / rcount)
+/cluster/home/swat/python/lib/python2.7/site-packages/numpy/core/_methods.py:83: RuntimeWarning: Degrees of freedom <= 0 for slice
+  warnings.warn("Degrees of freedom <= 0 for slice", RuntimeWarning)
+/cluster/home/swat/python/lib/python2.7/site-packages/numpy/core/_methods.py:117: RuntimeWarning: invalid value encountered in double_scalars
+  ret = ret.dtype.type(ret / rcount)
+/cluster/home/swat/python/lib/python2.7/site-packages/numpy/core/_methods.py:83: RuntimeWarning: Degrees of freedom <= 0 for slice
+  warnings.warn("Degrees of freedom <= 0 for slice", RuntimeWarning)
+/cluster/home/swat/python/lib/python2.7/site-packages/numpy/core/_methods.py:117: RuntimeWarning: invalid value encountered in double_scalars
+  ret = ret.dtype.type(ret / rcount)
+/cluster/home/swat/python/lib/python2.7/site-packages/numpy/core/_methods.py:83: RuntimeWarning: Degrees of freedom <= 0 for slice
+  warnings.warn("Degrees of freedom <= 0 for slice", RuntimeWarning)
+/cluster/home/swat/python/lib/python2.7/site-packages/numpy/core/_methods.py:117: RuntimeWarning: invalid value encountered in double_scalars
+  ret = ret.dtype.type(ret / rcount)
+/cluster/home/swat/python/lib/python2.7/site-packages/numpy/core/_methods.py:83: RuntimeWarning: Degrees of freedom <= 0 for slice
+  warnings.warn("Degrees of freedom <= 0 for slice", RuntimeWarning)
+/cluster/home/swat/python/lib/python2.7/site-packages/numpy/core/_methods.py:117: RuntimeWarning: invalid value encountered in double_scalars
+  ret = ret.dtype.type(ret / rcount)
+/cluster/home/swat/python/lib/python2.7/site-packages/numpy/core/_methods.py:83: RuntimeWarning: Degrees of freedom <= 0 for slice
+  warnings.warn("Degrees of freedom <= 0 for slice", RuntimeWarning)
+/cluster/home/swat/python/lib/python2.7/site-packages/numpy/core/_methods.py:117: RuntimeWarning: invalid value encountered in double_scalars
+  ret = ret.dtype.type(ret / rcount)
+/cluster/home/swat/python/lib/python2.7/site-packages/numpy/core/_methods.py:83: RuntimeWarning: Degrees of freedom <= 0 for slice
+  warnings.warn("Degrees of freedom <= 0 for slice", RuntimeWarning)
+/cluster/home/swat/python/lib/python2.7/site-packages/numpy/core/_methods.py:117: RuntimeWarning: invalid value encountered in double_scalars
+  ret = ret.dtype.type(ret / rcount)
+/cluster/home/swat/python/lib/python2.7/site-packages/numpy/core/_methods.py:83: RuntimeWarning: Degrees of freedom <= 0 for slice
+  warnings.warn("Degrees of freedom <= 0 for slice", RuntimeWarning)
+/cluster/home/swat/python/lib/python2.7/site-packages/numpy/core/_methods.py:117: RuntimeWarning: invalid value encountered in double_scalars
+  ret = ret.dtype.type(ret / rcount)
+/cluster/home/swat/python/lib/python2.7/site-packages/numpy/core/_methods.py:83: RuntimeWarning: Degrees of freedom <= 0 for slice
+  warnings.warn("Degrees of freedom <= 0 for slice", RuntimeWarning)
+/cluster/home/swat/python/lib/python2.7/site-packages/numpy/core/_methods.py:117: RuntimeWarning: invalid value encountered in double_scalars
+  ret = ret.dtype.type(ret / rcount)
+/cluster/home/swat/python/lib/python2.7/site-packages/numpy/core/_methods.py:83: RuntimeWarning: Degrees of freedom <= 0 for slice
+  warnings.warn("Degrees of freedom <= 0 for slice", RuntimeWarning)
+/cluster/home/swat/python/lib/python2.7/site-packages/numpy/core/_methods.py:117: RuntimeWarning: invalid value encountered in double_scalars
+  ret = ret.dtype.type(ret / rcount)
+/cluster/home/swat/python/lib/python2.7/site-packages/numpy/core/_methods.py:83: RuntimeWarning: Degrees of freedom <= 0 for slice
+  warnings.warn("Degrees of freedom <= 0 for slice", RuntimeWarning)
+/cluster/home/swat/python/lib/python2.7/site-packages/numpy/core/_methods.py:117: RuntimeWarning: invalid value encountered in double_scalars
+  ret = ret.dtype.type(ret / rcount)
+/cluster/home/swat/python/lib/python2.7/site-packages/numpy/core/_methods.py:83: RuntimeWarning: Degrees of freedom <= 0 for slice
+  warnings.warn("Degrees of freedom <= 0 for slice", RuntimeWarning)
+/cluster/home/swat/python/lib/python2.7/site-packages/numpy/core/_methods.py:117: RuntimeWarning: invalid value encountered in double_scalars
+  ret = ret.dtype.type(ret / rcount)
+/cluster/home/swat/python/lib/python2.7/site-packages/numpy/core/_methods.py:83: RuntimeWarning: Degrees of freedom <= 0 for slice
+  warnings.warn("Degrees of freedom <= 0 for slice", RuntimeWarning)
+/cluster/home/swat/python/lib/python2.7/site-packages/numpy/core/_methods.py:117: RuntimeWarning: invalid value encountered in double_scalars
+  ret = ret.dtype.type(ret / rcount)
+/cluster/home/swat/python/lib/python2.7/site-packages/numpy/core/_methods.py:83: RuntimeWarning: Degrees of freedom <= 0 for slice
+  warnings.warn("Degrees of freedom <= 0 for slice", RuntimeWarning)
+/cluster/home/swat/python/lib/python2.7/site-packages/numpy/core/_methods.py:117: RuntimeWarning: invalid value encountered in double_scalars
+  ret = ret.dtype.type(ret / rcount)
+/cluster/home/swat/python/lib/python2.7/site-packages/numpy/core/_methods.py:83: RuntimeWarning: Degrees of freedom <= 0 for slice
+  warnings.warn("Degrees of freedom <= 0 for slice", RuntimeWarning)
+/cluster/home/swat/python/lib/python2.7/site-packages/numpy/core/_methods.py:117: RuntimeWarning: invalid value encountered in double_scalars
+  ret = ret.dtype.type(ret / rcount)
+/cluster/home/swat/python/lib/python2.7/site-packages/scipy/stats/contingency.py:107: RuntimeWarning: invalid value encountered in true_divide
+  expected = reduce(np.multiply, margsums) / observed.sum() ** (d - 1)
+/cluster/home/swat/python/lib/python2.7/site-packages/scipy/stats/contingency.py:107: RuntimeWarning: invalid value encountered in true_divide
+  expected = reduce(np.multiply, margsums) / observed.sum() ** (d - 1)
+/cluster/home/swat/python/lib/python2.7/site-packages/numpy/core/_methods.py:83: RuntimeWarning: Degrees of freedom <= 0 for slice
+  warnings.warn("Degrees of freedom <= 0 for slice", RuntimeWarning)
+/cluster/home/swat/python/lib/python2.7/site-packages/numpy/core/_methods.py:117: RuntimeWarning: invalid value encountered in double_scalars
+  ret = ret.dtype.type(ret / rcount)
+/cluster/home/swat/python/lib/python2.7/site-packages/scipy/stats/contingency.py:107: RuntimeWarning: invalid value encountered in true_divide
+  expected = reduce(np.multiply, margsums) / observed.sum() ** (d - 1)
+/cluster/home/swat/python/lib/python2.7/site-packages/scipy/stats/contingency.py:107: RuntimeWarning: invalid value encountered in true_divide
+  expected = reduce(np.multiply, margsums) / observed.sum() ** (d - 1)
+/cluster/home/swat/python/lib/python2.7/site-packages/scipy/stats/contingency.py:107: RuntimeWarning: invalid value encountered in true_divide
+  expected = reduce(np.multiply, margsums) / observed.sum() ** (d - 1)
+14 20:31:55 Populating the value matrix for sample-based stats
+14 21:17:46 Writing the files for sample-based stats
+14 21:20:22 Sample-based statistics complete
+14 21:20:22 Running region-based statistics...
+14 21:20:22 Windowing starting...
+14 21:20:23 Windowing complete
+Starting to build 10919720 layer pairs...
+Using host: juggernaut with 32 processors for parallel jobs.
+3305 subprocesses to run, one per layer.
+14 22:46:10 Stats complete for layout: 0
+14 22:46:10 Region-based statistics complete
+14 22:46:10 Visualization generation complete!

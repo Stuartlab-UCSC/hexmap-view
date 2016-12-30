@@ -17,7 +17,7 @@ CreateMap = (function () { // jshint ignore: line
         show_advanced = 'Advanced options...',
         hide_advanced = 'Hide advanced options',
         formats = [
-            ['feature_space', 'Feature matrix'],
+            //['feature_space', 'Feature matrix'],
             ['similarity_full', 'Full similarity matrix'],
             ['similarity', 'Sparse similarity matrix'],
             ['coordinates', 'XY positions'],

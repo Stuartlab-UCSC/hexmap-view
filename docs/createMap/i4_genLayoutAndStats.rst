@@ -16,8 +16,8 @@ Here is an example script with typical parameters to generate input for the Tumo
  OUTPUT_DIR=$BASE_DIR/view/QuakeBrain
 
  python2.7 $HEXMAP/calc/layout.py \
-    $INPUT_DIR/layout_sparse_mrna_data.tab \
-    $INPUT_DIR/layout_sparse_methylation_data.tab \
+    --feature_space $INPUT_DIR/layout_sparse_mrna_data.tab \
+    --feature_space $INPUT_DIR/layout_sparse_methylation_data.tab \
     --names mRNA \
     --names Methylation \
     --scores $INPUT_DIR/attributes_clinical.tsv \

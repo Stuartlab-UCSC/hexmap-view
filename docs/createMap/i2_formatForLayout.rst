@@ -21,12 +21,12 @@ A more general example where:
 
 *HEX* is the server directory
 
-*DRL* is the bin directory of the DrL library
+*DDRL* is the bin directory of the DrL library
 ::
 
  export HEXMAP=HEX
  export PYTHONPATH=$HEXMAP/calc:$HEXMAP/www/server
- DRL=$HEXMAP/packages/adam_novak-drl-graph-layout-c41341de8058/bin
+ DRL=DDRL
  export PATH=$DRL:$PATH
 
 
@@ -37,7 +37,7 @@ This will convert your genomic matrix into a sparse matrix.
 
 An example::
 
- python2.7 $HEXMAP/.calc/compute_sparse_matrix.py \
+ python2.7 $HEXMAP/calc/compute_sparse_matrix.py \
    --in_file geneMatrix.tsv \
    --top 6 \
    --metric correlation \
@@ -72,7 +72,7 @@ easier in the viewer.
 
 An example::
 
- python2.7 $HEXMAP/.calc/remove_single_value_attributes.py \
+ python2.7 $HEXMAP/calc/remove_single_value_attributes.py \
     meta1_IDs_first.tab \
     meta2_diff_values.tab
 

@@ -2,28 +2,20 @@
 # Start a hexmap process passing one of: http, https, db, www
 
 #INSTALL=prod
-#INSTALL=prodCalc
 #INSTALL=dev
 #INSTALL=devCalc
-#INSTALL=devDev
 #INSTALL=swat
 #INSTALL=swatCalc
-INSTALL=swatMain
+#INSTALL=swatMain
 
 if [ $INSTALL == 'prod' ]
     then HEXMAP=/data
-fi
-if [ $INSTALL == 'prodCalc' ]
-    then HEXMAP=/data/?
 fi
 if [ $INSTALL == 'dev' ]
     then HEXMAP=/cluster/home/swat/hexmap
 fi
 if [ $INSTALL == 'devCalc' ]
     then HEXMAP=/cluster/home/swat/hexmapCalc
-fi
-if [ $INSTALL == 'devDev' ]
-    then HEXMAP=/cluster/home/swat/hexmapDev
 fi
 if [ $INSTALL == 'swat' ]
     then HEXMAP=/Users/swat/dev/hexagram
@@ -57,6 +49,16 @@ if [ $1 == 'db' ]
     mv $HEXMAP/db.log $HEXMAP/db.prev.log &&
     (nohup $METEOR_BASE/mongodb/bin/mongod \
             --bind_ip 127.0.0.1 \
+            --port $DB_PORT \
+            --dbpath $HEXMAP/db \
+            &> $HEXMAP/db.log &)
+    echo Starting $1
+fi
+if [ $1 == 'dbInsecure' ]
+    then
+    touch $HEXMAP/db.log
+    mv $HEXMAP/db.log $HEXMAP/db.prev.log &&
+    (nohup $METEOR_BASE/mongodb/bin/mongod \
             --port $DB_PORT \
             --dbpath $HEXMAP/db \
             &> $HEXMAP/db.log &)

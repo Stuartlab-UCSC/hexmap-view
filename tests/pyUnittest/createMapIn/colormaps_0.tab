@@ -1,0 +1,5 @@
+Hist_2class	0	seminoma	#0000FF	1	non-seminoma	#00FF00
+Hist_multiclass	0	mature teratoma dominant	#0000FF	1	mature teratoma	#00FF00	2	non-seminoma	#00FFFF	3	immature teratoma	#FF0000	4	yolk sac dominant	#FF00FF	5	seminoma	#FFFF00	6	embryonal dominant	#FFFFFF	7	immature teratoma dominant	#00007F	8	yolk sac	#00FF7F	9	embryonal	#007F00	10	seminoma dominant	#007FFF
+cnv_k5	0	1	#0000FF	1	3	#00FF00	2	2	#00FFFF	3	5	#FF0000	4	4	#FF00FF
+mRNA_k3	0	1	#0000FF	1	3	#00FF00	2	2	#00FFFF
+mRNA_k7	0	1	#0000FF	1	3	#00FF00	2	2	#00FFFF	3	5	#FF0000	4	4	#FF00FF	5	7	#FFFF00	6	6	#FFFFFF

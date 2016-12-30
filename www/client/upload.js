@@ -90,7 +90,7 @@ var app = app || {}; // jshint ignore:line
  
                 // Read the next chunk of data and write it to the server
                 if (u.start < u.file.size) {
-                    u.log_it(undefined, u.start, u.file.size, true);
+                    u.log_it(undefined, u.start, u.file.size, (u.start > 0));
 
                     u.read(u, function (error, result) {
                         if (error) {
