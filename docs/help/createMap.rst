@@ -5,7 +5,7 @@ Create a Map
 You can create a map with your own data by selecting *Create map* from the *File*
 menu, then supplying at least a layout feature file and specifying its format.
 
-Note that this is currently available to only certain users due to the
+Note that this is only available to certain users due to the
 computationally intensive operations.
 
 Features to Lay Out the Map

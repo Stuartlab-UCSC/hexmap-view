@@ -12,6 +12,7 @@ expDir = testDir + 'statsExp/' # The expected output data
 outDir = testDir + 'statsOut/' # The actual output data
 
 import layout
+import util
 
 class TestStats(unittest.TestCase):
 
@@ -43,33 +44,9 @@ class TestStats(unittest.TestCase):
         rc = layout.main(opts);
         #rc = hexagram.main(opts);
 
-    def test_outFiles(s):
+    def test_stats(s):
         s.runPy()
-        os.chdir(expDir)
-        expFiles = glob.glob('*')
-        os.chdir(outDir)
-        outFiles = glob.glob('*')
-        
-        # Verify the filenames are those expected
-        #print 'outFiles', outFiles
-        #print 'expFiles', expFiles
-        s.assertTrue(outFiles == expFiles)
-
-        # Compare the file contents with the expected
-        # Returns three lists of file names: match, mismatch, errors
-        diff = filecmp.cmpfiles(outDir, expDir, expFiles)
-        #print 'diff', diff
-        
-        # The log file should be different, with the rest matching
-        mismatch = diff[1].remove('log')
-        #if mismatch != [] and mismatch != None:
-        #    print 'mismatched files: ' + str(mismatch)
-        s.assertTrue(mismatch == [] or mismatch == None) # mismatched files
-        
-        # There should be no errors resulting from the diff
-        #if diff[2] != []:
-        #    print 'errors comparing files: ' + str(diff[2])
-        s.assertTrue(diff[2] == []) # errors
+        util.compareActualVsExpectedDir(s, outDir, expDir)
 
 if __name__ == '__main__':
     unittest.main()

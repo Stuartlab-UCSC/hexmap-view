@@ -2149,10 +2149,6 @@ def compute_silhouette(coordinates, *args):        #YN 20160629: compute average
         features.append(numpy.array([coordinates[s]["x"], coordinates[s]["y"]]))
     return(sklearn.metrics.silhouette_score(numpy.array(features), numpy.array(cluster_assignments_lst), metric='euclidean', sample_size=1000, random_state=None))
 
-class Context:
-    def __init__(s):
-        s.matrices = [] # Opened matrices files
-
 def main(args):
     arg_obj = parse_args(args)
     return hexIt(arg_obj, args, arg_obj.__dict__)

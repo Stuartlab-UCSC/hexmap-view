@@ -3,15 +3,17 @@
 # This tests javascript, using python's easier calls to shell commands
 # from here than from mocha
 
-import sys, os, subprocess, json, tempfile, pprint
+import sys, os, glob, subprocess, json, tempfile, pprint
+from os import path
 import string
 import unittest
+import util
 
 from rootDir import getRootDir
 
 rootDir = getRootDir()
-inDir = rootDir + '/tests/pyUnittest/createMapIn/'
-outDir = rootDir + '/tests/pyUnittest/createMapOut/'
+inDir = path.join(rootDir + 'tests/pyUnittest/createMapIn/')
+outDir = path.join(rootDir + 'tests/pyUnittest/createMapOut/')
 
 class TestCreateMap(unittest.TestCase):
 
@@ -33,9 +35,6 @@ class TestCreateMap(unittest.TestCase):
     # The calc server needs defined in settings.json:
     # IS_CALC_SERVER, MAIN_MONGO_URL and NOT IS_MAIN_SERVER.
     calcUrlPrefix = "localhost:4444"
-    
-    print 'singleUrlPrefix, mainUrlPrefix and calcUrlPrefix are defined as:', \
-        singleUrlPrefix, ',', mainUrlPrefix, ',', calcUrlPrefix
 
     unittest.TestCase.singleUrl = singleUrlPrefix + "/calc/layout"
     unittest.TestCase.mainUrl = mainUrlPrefix + "/calc/layout"
@@ -105,26 +104,43 @@ class TestCreateMap(unittest.TestCase):
         s.assertTrue(rc['data'] == '"Malformed JSON data given"')
     
     def test_pythonCallGoodDataLocal(s):
-        data = '[ "--names", "layout", "--directory", "/Users/swat/data/view/swat_soe.ucsc.edu/", "--role", "swat_soe.ucsc.edu", "--include-singletons", "--no_density_stats", "--no_layout_independent_stats", "--no_layout_aware_stats",  "--coordinates", "/Users/swat/data/featureSpace/swat_soe.ucsc.edu/features.tab" ]'
+        util.removeOldOutFiles(outDir)
+        data = '[ ' + \
+            '"--coordinates", "' + path.join(inDir, "example_features_xy.tab") + '", ' + \
+            '"--names", "layout", ' + \
+            '"--directory", "' + outDir + '", ' + \
+            '"--role", "swat_soe.ucsc.edu", ' + \
+            '"--include-singletons", ' + \
+            '"--no_density_stats", ' + \
+            '"--no_layout_independent_stats", ' + \
+            '"--no_layout_aware_stats" ]'
         curl_opts = ['-d', data, '-H', 'Content-Type:application/json', '-X', 'POST', '-v']
         rc = s.doCurl(curl_opts, False)
         #print 'code, data:', rc['code'], rc['data']
         s.assertTrue(rc['code'] == '200')
     
     def test_pythonCallGoodDataRemote(s):
-        data = '[ "--names", "layout", "--directory", "/Users/swat/data/view/swat_soe.ucsc.edu/", "--role", "swat_soe.ucsc.edu", "--include-singletons", "--no_density_stats", "--no_layout_independent_stats", "--no_layout_aware_stats",  "--coordinates", "/Users/swat/data/featureSpace/swat_soe.ucsc.edu/features.tab" ]'
+        data = '[ ' + \
+            '"--coordinates", "' + path.join(inDir, "example_features_xy.tab") + '", ' + \
+            '"--names", "layout", ' + \
+            '"--directory", "' + outDir + '", ' + \
+            '"--role", "swat_soe.ucsc.edu", ' + \
+            '"--include-singletons", ' + \
+            '"--no_density_stats", ' + \
+            '"--no_layout_independent_stats", ' + \
+            '"--no_layout_aware_stats" ]'
         curl_opts = ['-d', data, '-H', 'Content-Type:application/json', '-X', 'POST', '-v']
         rc = s.doCurl(curl_opts, True)
         #print 'code, data:', rc['code'], rc['data']
         s.assertTrue(rc['code'] == '200')
     
     def test_createMap_sparse(s):
-        #data = '[ "--similarity", inDir + "TGCT_IlluminaHiSeq_RNASeqV2.vs_self.top6.tab", --names", "mRNA", "--scores", inDir + "clin.tumormap.tab", "--colormaps", inDir + "clin.colormaps.final.tab", "--directory", outDir, "--include-singletons", "--first_attribute", "KIT_mutated", "--no_density_stats", "--no_layout_independent_stats", "--no_layout_aware_stats" ]'
+        util.removeOldOutFiles(outDir)
         data = '[ ' + \
-            '"--similarity", "' + inDir + "TGCT_IlluminaHiSeq_RNASeqV2.vs_self.top6.tab" + '", ' + \
+            '"--similarity", "' + path.join(inDir, "TGCT_IlluminaHiSeq_RNASeqV2.vs_self.top6.tab") + '", ' + \
             '"--names", "mRNA", ' + \
-            '"--scores", "' + inDir + "clin.tumormap.tab" + '", ' + \
-            '"--colormaps", "' + inDir + "clin.colormaps.final.tab" + '", ' + \
+            '"--scores", "' + path.join(inDir, "clin.tumormap.tab") + '", ' + \
+            '"--colormaps", "' + path.join(inDir, "clin.colormaps.final.tab") + '", ' + \
             '"--directory", "' + outDir + '", ' + \
             '"--include-singletons", ' + \
             '"--first_attribute", "' + "KIT_mutated" + '",' \
@@ -134,9 +150,10 @@ class TestCreateMap(unittest.TestCase):
         
         curl_opts = ['-d', data, '-H', 'Content-Type:application/json', '-X', 'POST', '-v']
         rc = s.doCurl(curl_opts, False)
-        print 'code, data:', rc['code'], rc['data']
+        #print 'code, data:', rc['code'], rc['data']
         s.assertTrue(rc['code'] == '200')
         success = s.checkLog(outDir + 'log')
         s.assertTrue(success, True)
+
 if __name__ == '__main__':
     unittest.main()

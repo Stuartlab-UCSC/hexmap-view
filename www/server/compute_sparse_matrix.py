@@ -7,8 +7,8 @@ VALID_METRICS = ['canberra','cosine','euclidean','manhattan','chebyshev','correl
 VALID_OUTPUT_TYPE = ['SPARSE','FULL']
 
 def parse_args(args):
-	args = args[1:]
-	parser = argparse.ArgumentParser(description=__doc__, 
+	#args = args[1:]
+	parser = argparse.ArgumentParser(description=__doc__,
 		formatter_class=argparse.RawDescriptionHelpFormatter)
 
 	parser.add_argument("--in_file", type=str,
@@ -24,9 +24,9 @@ def parse_args(args):
 	parser.add_argument("--num_jobs",type=int, default=-1,
 		help="number of CPUs to use for similarity computation")
 	parser.add_argument("--out_file", type=str,
-		help="output file name")		
-   
-	return parser.parse_args(args)    
+		help="output file name")
+
+	return parser.parse_args(args)
 
 def read_tabular(input_file, numeric_flag):
 	'''data = open(input_file, 'r')
@@ -61,7 +61,6 @@ def read_tabular(input_file, numeric_flag):
 	data.close()
 	
 	if numeric_flag:
-		#matrix = [map(float,x) for x in init_matrix]
 		matrix = [[float(y) for y in x] for x in init_matrix]
 	else:
 		matrix = init_matrix
@@ -155,7 +154,6 @@ def main(args):
 			
 	#process input arguments:
 	in_file = opts.in_file
-	#metric_type = opts.metric.upper()
 	metric_type = opts.metric.lower()
 	output_type = opts.output_type.upper()
 	top = int(opts.top)
@@ -191,7 +189,6 @@ def main(args):
 		print >> log, "Reading in input..."
 	curr_time = time.time()
 	dt,sample_labels,feature_labels = read_tabular(in_file,True)
-	#dt_t = [list(i) for i in zip(*dt)]	#rows are samples and columns are features now
 	dt_t = numpy.transpose(dt)
 	if not(log == None):
 		print >> log, str(time.time() - curr_time) + " seconds"
@@ -212,7 +209,7 @@ if __name__ == "__main__" :
 	try:
 		# Get the return code to return
 		# Don't just exit with it because sys.exit works by exceptions.
-		return_code = main(sys.argv)
+		return_code = main(sys.argv[1:])
 	except:
 		#traceback.print_exc()
 		# Return a definite number and not some unspecified error code.

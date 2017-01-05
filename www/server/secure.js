@@ -60,7 +60,7 @@ function sendEnrollmentEmail(username) {
 }
 
 function createUsers(users, createUserRole) {
-    // createUserRole: create the user's personal role
+    // createUserRole: if true, create the user's personal role
     // using a clean file name derived from the username.
     _.each(users, function (user) {
         try {

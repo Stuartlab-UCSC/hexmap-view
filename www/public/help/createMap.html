@@ -55,8 +55,8 @@
   <div class="section" id="create-a-map">
 <h1>Create a Map<a class="headerlink" href="#create-a-map" title="Permalink to this headline">¶</a></h1>
 <p>You can create a map with your own data by selecting <em>Create map</em> from the <em>File</em>
-menu, then supplying at least a layout feature file.</p>
-<p>Note that this is currently available to only certain users due to the
+menu, then supplying at least a layout feature file and specifying its format.</p>
+<p>Note that this is only available to certain users due to the
 computationally intensive operations.</p>
 <div class="section" id="features-to-lay-out-the-map">
 <h2>Features to Lay Out the Map<a class="headerlink" href="#features-to-lay-out-the-map" title="Permalink to this headline">¶</a></h2>
@@ -117,6 +117,19 @@ attributes IDs across the top and node IDs in the first column, like:</p>
 </pre></div>
 </div>
 </div>
+<div class="section" id="layout-methods">
+<h2>Layout Methods<a class="headerlink" href="#layout-methods" title="Permalink to this headline">¶</a></h2>
+<p>The option to select a layout method other than DrL will be added to the UI soon.</p>
+<p>Layout methods are the algorithms used to arrange the nodes on the
+two-dimensional map with the following options available. The default is DrL.</p>
+<p><strong>DrL</strong> : Distributed Recursive (Graph) Layout</p>
+<p><strong>tSNE</strong> : t-distributed Stochastic Neighbor Embedding</p>
+<p><strong>MDS</strong> : Multidimensional scaling</p>
+<p><strong>PCA</strong> : Principal Component analysis</p>
+<p><strong>ICA</strong> : Independent Component Analysis</p>
+<p><strong>isomap</strong> : Isomap Embedding</p>
+<p><strong>spectral embedding</strong> : Project the sample on the first eigenvectors of the graph Laplacian</p>
+</div>
 </div>
 
 
@@ -135,6 +148,7 @@ attributes IDs across the top and node IDs in the first column, like:</p>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Create a Map</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#features-to-lay-out-the-map">Features to Lay Out the Map</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#attributes-to-color-the-map">Attributes to Color the Map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#layout-methods">Layout Methods</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="existingMaps.html">Existing Maps</a></li>
