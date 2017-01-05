@@ -1,7 +1,7 @@
 #Yulia Newton
 #python2.7 compute_layout.py --in_file gemomic.tab --method tsne --out_file temp.out.tab
 
-import optparse, sys
+import sys
 import operator
 import numpy
 import multiprocessing

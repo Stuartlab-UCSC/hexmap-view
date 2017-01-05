@@ -4,7 +4,7 @@
 #./create_colormaps.py --in_attributes attr.tab --out_file colormaps.tab
 #python2.7 create_colormaps.py --in_attributes attr.tab --out_file colormaps.tab
 
-import sys, os, optparse, colorsys, math, itertools, argparse
+import sys, os, colorsys, math, itertools, argparse
 import numpy as np
 from decimal import *
 import re

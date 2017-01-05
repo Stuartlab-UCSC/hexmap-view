@@ -1,7 +1,7 @@
 #Yulia Newton
 #python2.7 convert_annotation_to_tumormap_mapping.py --in_colormap clin_all.datafreeze.tumormap.colormaps.tab --in_attributes clin_all.datafreeze.heatmaps.tab --filter_attributes_flag TRUE --output temp7.tab
 
-import optparse, argparse, sys, os, glob
+import argparse, sys, os, glob
 from itertools import imap
 import itertools
 
