@@ -19,7 +19,6 @@ def parse_args(args):
 	parser = optparse.OptionParser()
 	parser.add_option("--in_pivot", dest="in_pivot", action="store", default="", help="")
 	parser.add_option("--in_meta", dest="in_meta", action="store", default="", help="")
-	parser.add_option("--project", dest="project", action="store", default="", help="")
 	parser.add_option("--out_file", dest="out_file", action="store", default="", help="")
 	parser.add_option("--log", dest="log", action="store", default="", help="")
 	parser.add_option("--num_jobs", dest="num_jobs", action="store", default="0", help="http://scikit-learn.org/stable/modules/generated/sklearn.metrics.pairwise.pairwise_distances.html")	

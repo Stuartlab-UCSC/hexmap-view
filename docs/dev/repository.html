@@ -82,10 +82,12 @@ branch through committing your files and merging to dev if you&#8217;ve branched
 of it. If things awry, you may need some other commands.</p>
 <p><strong>#1</strong>. Get a copy of the source code on the dev branch. Change to the directory where
 you want to put the source code, then:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">clone</span> <span class="o">-</span><span class="n">b</span> <span class="n">dev</span> <span class="o">--</span><span class="n">single</span><span class="o">-</span><span class="n">branch</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">ucscHexmap</span><span class="o">/</span><span class="n">hexagram</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">clone</span> <span class="o">-</span><span class="n">b</span> <span class="n">dev</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">ucscHexmap</span><span class="o">/</span><span class="n">hexagram</span>
+<span class="n">git</span> <span class="n">fetch</span>
 <span class="n">cd</span> <span class="n">hexagram</span>
 </pre></div>
 </div>
+<p>The fetch allows other branches in githup to be seen by your local git.</p>
 <p><strong>#2</strong>. Get status to verify things went well and verify the branch:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">status</span>
 </pre></div>
