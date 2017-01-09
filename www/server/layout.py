@@ -48,16 +48,17 @@ from convert_annotation_to_tumormap_mapping import convert_attributes_colormaps_
 #helpers
 def sparsePandasToString(sparseDataFrame):
     '''
-    converts a sparse matrix, to edgefile formatted output stream
+    converts a sparse matrix, to edgefile formatted output string
     @param sparseDataFrame: pandas dataframe
-    @return: a string stream
+    @return: the proper string representation of a sparse matrix
     '''
     #text buffer
     s_buf = StringIO.StringIO()
     #dump pandas data frame into buffer
     sparseDataFrame.to_csv(s_buf,sep='\t',header=False,index=None)
+    #dump the buffer into a string
     bigstr = s_buf.getvalue()
-    #final manipulation to match Yulias output
+    #final manipulation to match output necessary for rest of the script
     bigstr = '\n' + bigstr[:-1]
     return bigstr
 ##
