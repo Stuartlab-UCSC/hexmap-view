@@ -240,6 +240,9 @@ Hex = (function () { // jshint ignore: line
     }
     Meteor.autorun(areWeReadyForMap);
 
+    // Phase 1 init: when meteor has been rendered
+    // For a graphical view see:
+    // https://docs.google.com/presentation/d/1BrHDwcyGkmxD2MeimZ9bU3OPN3KJ85-wPpZxFy0yhmg/edit#slide=id.g12d3244251_0_30
     function initMainMapContainer () { // jshint ignore: line
         setTimeout(function () { // The timeout allows the google libs to load
             resizeMap();

@@ -36,8 +36,11 @@ of it. If things awry, you may need some other commands.
 **#1**. Get a copy of the source code on the dev branch. Change to the directory where
 you want to put the source code, then::
 
- git clone -b dev --single-branch https://github.com/ucscHexmap/hexagram
+ git clone -b dev https://github.com/ucscHexmap/hexagram
+ git fetch
  cd hexagram
+
+The fetch allows other branches in githup to be seen by your local git.
 
 **#2**. Get status to verify things went well and verify the branch::
 
