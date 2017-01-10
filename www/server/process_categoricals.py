@@ -457,7 +457,7 @@ def create_colormaps_file(in_attributes,out_file, pickle='', colormaps='', attrs
         #categories from the given cmap are first string in the array...
         catsFromMap = map(lambda x: x[0],cmaps)
 
-        assert no_dups(catsFromMap)
+        #assert no_dups(catsFromMap)
 
         #store all categoriccal attribute names that we have DATA AND A COLORMAP mapping for
         catsInMetaAndCMs = set(catsFromMap).intersection(catAtts)
