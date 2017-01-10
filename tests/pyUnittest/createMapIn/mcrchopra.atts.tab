@@ -1,4 +1,4 @@
-id	Subtype	TP53_mutated	TP63_ mutated	TP53_expression altered	TP63_expression altered	Apoptosis	Random	DNA_Repair Broken	DNA_signature	RB1 level
+id	Subtype	TP53_mutated	TP63_mutated	TP53_expression altered	TP63_expression altered	Apoptosis	Random	DNA_Repair	DNA_signature	RB1 level
 S1	1	0	0	1	1	45	10.30489359	0	5	2
 S2	1	0	0	1	1	45	0.201684759	0	5	2
 S3	1	0	0	1	1	45	3.88095222	0	5	1

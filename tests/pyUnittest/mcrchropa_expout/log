@@ -1,7 +1,7 @@
-01-09 17:53:43 Started
+01-10 13:52:59 Started
 command-line options:
 ['--similarity',
- '/tmp/tmpSvkwWB/mcr.top6.tab',
+ '/home/duncan/Desktop/TumorMap/TMdev/hexagram/tests/pyUnittest/createMapIn/mcr.top6.tab',
  '--names',
  'mRNA',
  '--scores',
@@ -9,7 +9,7 @@ command-line options:
  '--colormaps',
  '/home/duncan/Desktop/TumorMap/TMdev/hexagram/tests/pyUnittest/createMapIn/mcrchopra.colormaps.tab',
  '--directory',
- '/home/duncan/Desktop/TumorMap/TMdev/hexagram/tests/pyUnittest/top6_out',
+ '/home/duncan/Desktop/TumorMap/TMdev/hexagram/tests/pyUnittest/createMapOut/',
  '--include-singletons',
  '--no_density_stats',
  '--no_layout_independent_stats',
@@ -21,7 +21,7 @@ all options:
  'colormaps': '/home/duncan/Desktop/TumorMap/TMdev/hexagram/tests/pyUnittest/createMapIn/mcrchopra.colormaps.tab',
  'coordinates': None,
  'directedGraph': True,
- 'directory': '/home/duncan/Desktop/TumorMap/TMdev/hexagram/tests/pyUnittest/top6_out',
+ 'directory': '/home/duncan/Desktop/TumorMap/TMdev/hexagram/tests/pyUnittest/createMapOut/',
  'drlpath': None,
  'feature_space': None,
  'first_attribute': '',
@@ -38,7 +38,7 @@ all options:
  'rawsim': None,
  'role': None,
  'scores': ['/home/duncan/Desktop/TumorMap/TMdev/hexagram/tests/pyUnittest/createMapIn/mcrchopra.atts.tab'],
- 'similarity': [['/tmp/tmpSvkwWB/mcr.top6.tab']],
+ 'similarity': [['/home/duncan/Desktop/TumorMap/TMdev/hexagram/tests/pyUnittest/createMapIn/mcr.top6.tab']],
  'similarity_full': None,
  'singletons': True,
  'truncation_edges': 6,
@@ -51,20 +51,20 @@ Writing matrix names...
 Created nodes_multiple list...
 About to open matrices...
 DRL method
-['/tmp/tmpSvkwWB/mcr.top6.tab']
+['/home/duncan/Desktop/TumorMap/TMdev/hexagram/tests/pyUnittest/createMapIn/mcr.top6.tab']
 None
 None
 Sparse similarity matrices
-Opening Matrix 0 /tmp/tmpSvkwWB/mcr.top6.tab
-['/tmp/tmpSvkwWB/mcr.top6.tab']
+Opening Matrix 0 /home/duncan/Desktop/TumorMap/TMdev/hexagram/tests/pyUnittest/createMapIn/mcr.top6.tab
+['/home/duncan/Desktop/TumorMap/TMdev/hexagram/tests/pyUnittest/createMapIn/mcr.top6.tab']
 enumerating ctx.matrices 0
-01-09 17:53:43 ============== Starting drl computations for layout: 0 ... ==============
-Reach for parts in sim_reader:<tsv.TsvReader object at 0x7faee8b23b50>
-01-09 17:53:43 DrL: Truncating...
-Using /tmp/tmpcHTfB6/layout0.sim for .sim file, 
-Will output /tmp/tmpcHTfB6/layout0.ind for .ind file,
-            /tmp/tmpcHTfB6/layout0.int for .int file, and
-            /tmp/tmpcHTfB6/layout0.full for .full file.
+01-10 13:52:59 ============== Starting drl computations for layout: 0 ... ==============
+Reach for parts in sim_reader:<tsv.TsvReader object at 0x7f2b1adaf810>
+01-10 13:52:59 DrL: Truncating...
+Using /tmp/tmpRVXym5/layout0.sim for .sim file, 
+Will output /tmp/tmpRVXym5/layout0.ind for .ind file,
+            /tmp/tmpRVXym5/layout0.int for .int file, and
+            /tmp/tmpRVXym5/layout0.full for .full file.
 Using memory = 1
       topn = 6
       normalize = 0
@@ -76,7 +76,7 @@ Creating .int file ...
 Scan 1 of .full file ...
 Program finished successfully.
 DrL: Doing layout...
-Using /tmp/tmpcHTfB6/layout0.int for .int file, and /tmp/tmpcHTfB6/layout0.icoord for .icoord file.
+Using /tmp/tmpRVXym5/layout0.int for .int file, and /tmp/tmpRVXym5/layout0.icoord for .icoord file.
 Using random seed = 0
       edge_cutting = 0.8
       intermediate output = 0
@@ -94,31 +94,29 @@ Finished crunch stage in 0 seconds, total energy = 33007.7.
 Entering simmer stage .......................................................................................................
 Finished simmer stage in 0 seconds, total energy = 5.68076.
 Layout calculation completed in 0 seconds (not including I/O).
-Writing out solution to /tmp/tmpcHTfB6/layout0.icoord ...
+Writing out solution to /tmp/tmpRVXym5/layout0.icoord ...
 Total Energy: 5.66145.
 Program terminated successfully.
-01-09 17:53:43 DrL: Restoring names...
-Using /tmp/tmpcHTfB6/layout0.icoord for .icoord file, and 
-       /tmp/tmpcHTfB6/layout0.ind for .ind file.
-Will output /tmp/tmpcHTfB6/layout0.coord for .coord file.
+01-10 13:52:59 DrL: Restoring names...
+Using /tmp/tmpRVXym5/layout0.icoord for .icoord file, and 
+       /tmp/tmpRVXym5/layout0.ind for .ind file.
+Will output /tmp/tmpRVXym5/layout0.coord for .coord file.
 Reading .ind file ...
 Reading .icoord file ...
 Creating .coord file ...
 Program finished successfully.
-01-09 17:53:43 Reading DrL output...
-01-09 17:53:43 ============== drl computations completed for layout: 0 ==============
+01-10 13:52:59 Reading DrL output...
+01-10 13:52:59 ============== drl computations completed for layout: 0 ==============
 Opened matrices...
+Regularizing colormaps file...
+getting categoricals from /home/duncan/Desktop/TumorMap/TMdev/hexagram/tests/pyUnittest/createMapOut//colormaps.tab
+{'bin': ['TP53_expression altered', 'TP63_expression altered'], 'cont': ['Apoptosis', 'Random', 'DNA_signature'], 'cat': ['Subtype', 'TP53_mutated', 'TP63_mutated', 'DNA_Repair', 'RB1 level']}
+01-10 13:52:59 Attribute counts:  Binary: 5 + Categorical: 2 + Continuous: 3
 Skipping density statistics.
-01-09 17:53:43 Attribute counts: 10 = Binary: 5 + Categorical: 2 + Continuous: 3
 Writing layer index...
 Regularizing colormaps file...
 No Data Provided...Skipping Beta Calculations
-Skipping sort stats withou layout (sample-based)
-09 17:53:43 Running region-based statistics...
-09 17:53:43 Windowing starting...
-09 17:53:43 Windowing complete
-Skipping sort stats for layout-aware
-09 17:53:43 Region-based statistics complete
-09 17:53:43 Found top neighbors
-09 17:53:43 Found top neighbors
-01-09 17:53:43 Visualization generation complete!
+Skipping sort stats without layout (sample-based)
+10 13:52:59 Found top neighbors
+10 13:52:59 Found top neighbors
+01-10 13:52:59 Visualization generation complete!
