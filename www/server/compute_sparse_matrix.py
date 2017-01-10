@@ -221,7 +221,6 @@ def compute_similarities(dt, sample_labels, metric_type, num_jobs, output_type, 
             print >> log, 'rank transform complete'
 
     #calculate pairwise similarities
-
     x_corr = 1 - sklp.pairwise_distances(X=dt, Y=None, metric=metric_type, n_jobs=num_jobs)
 
     if not(log == None):
@@ -236,18 +235,7 @@ def compute_similarities(dt, sample_labels, metric_type, num_jobs, output_type, 
 
     #fills a dataframe in sparse format
     if output_type == "SPARSE":
-        output = pd.DataFrame()
-        for i in range(len(x_corr)):
-            sample_dict = dict(zip(sample_labels, x_corr[i]))
-            del sample_dict[sample_labels[i]]	#remove self comparison
-            for n_i in range(top):
-                v=list(sample_dict.values())
-                k=list(sample_dict.keys())
-                m=v.index(max(v))
-                #interatively build a dataframe with the neighbors
-                output = output.append(pd.Series([sample_labels[i],k[m],v[m]]),ignore_index=True)
-                del sample_dict[k[m]]
-
+        output = extract_similarities(x_corr, sample_labels, top, log=log)
     #turn the similarity matrix into a dataframe
     elif output_type == "FULL":
         output = pd.DataFrame(x_corr,index = sample_labels,columns=sample_labels)
@@ -259,6 +247,9 @@ def compute_similarities(dt, sample_labels, metric_type, num_jobs, output_type, 
     return output
 
 def compute_similarities_old(dt, sample_labels, metric_type, num_jobs, output_type, top, log):
+    '''
+    This function was erroring with an index error (on output to string) of unknown cause for some inputs.
+    '''
     if not(log == None):
         print >> log, "Computing similarities..."
     curr_time = time.time()

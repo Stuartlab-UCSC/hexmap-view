@@ -36,7 +36,7 @@ class TestCreateMap(unittest.TestCase):
             '--metric', 'spearman',
             '--output_type', 'sparse',
             '--out_file', outDir + outName,
-            '--log', outDir + 'log1',
+            '--log', outDir + 'log',
             '--num_jobs', '2'
         ]
 
@@ -57,7 +57,7 @@ class TestCreateMap(unittest.TestCase):
             '--metric', 'correlation',
             '--output_type', 'sparse',
             '--out_file', outDir + outName,
-            '--log', outDir + 'log2',
+            '--log', outDir + 'log',
             '--num_jobs', '2'
         ]
 
@@ -78,7 +78,7 @@ class TestCreateMap(unittest.TestCase):
             '--metric', 'spearman',
             '--output_type', 'sparse',
             '--out_file', outDir + outName,
-            '--log', outDir + 'log3',
+            '--log', outDir + 'log',
             '--num_jobs', '2'
         ]
 
@@ -99,7 +99,7 @@ class TestCreateMap(unittest.TestCase):
             '--metric', 'correlation',
             '--output_type', 'sparse',
             '--out_file', outDir + outName,
-            '--log', outDir + 'log4',
+            '--log', outDir + 'log',
             '--num_jobs', '2'
         ]
 
@@ -120,7 +120,7 @@ class TestCreateMap(unittest.TestCase):
             '--metric', 'spearman',
             '--output_type', 'sparse',
             '--out_file', outDir + outName,
-            '--log', outDir + 'log5',
+            '--log', outDir + 'log',
             '--num_jobs', '2'
         ]
 
@@ -141,7 +141,7 @@ class TestCreateMap(unittest.TestCase):
             '--metric', 'correlation',
             '--output_type', 'sparse',
             '--out_file', outDir + outName,
-            '--log', outDir + 'log6',
+            '--log', outDir + 'log',
             '--num_jobs', '2'
         ]
 
@@ -161,7 +161,7 @@ class TestCreateMap(unittest.TestCase):
             '--metric', 'correlation',
             '--output_type', 'full',
             '--out_file', outDir + outName,
-            '--log', outDir + 'log7',
+            '--log', outDir + 'log',
             '--num_jobs', '2'
         ]
 
@@ -181,7 +181,7 @@ class TestCreateMap(unittest.TestCase):
             '--metric', 'spearman',
             '--output_type', 'full',
             '--out_file', outDir + outName,
-            '--log', outDir + 'log8',
+            '--log', outDir + 'log',
             '--num_jobs', '2'
         ]
 
@@ -190,5 +190,105 @@ class TestCreateMap(unittest.TestCase):
         s.assertTrue(rc == 0)
         util.compareActualVsExpectedFile(s, outName, outDir, expDir)
 
+    """
+    #The below do not work with each other for an unknown reason
+    # they are split up into the three test_mcr*.py scripts
+    def test_mcr_top6(s):
+        '''
+        This test insures that if you start from the same data,
+          the output does not depend on the input form
+
+        '''
+        rawdatafile = inDir + 'mcrchopra.data.tab'
+        sparse6_path = inDir + 'mcr.top6.tab'
+
+        #opts for compute sparse to create a sparse top 6 spearman
+        optsSparsSim = [
+            '--in_file', rawdatafile,
+            '--metric', 'spearman',
+            '--output_type', 'SPARSE',
+            '--top', '6',
+            '--out_file', sparse6_path,
+            '--num_jobs', '2'
+        ]
+        compute_sparse_matrix.main(optsSparsSim)
+
+        optsLayoutSparse = [
+            "--similarity", sparse6_path,
+            "--names", "mRNA",
+            "--scores", inDir + "mcrchopra.atts.tab",
+            "--colormaps", inDir + 'mcrchopra.colormaps.tab',
+            "--directory", outDir,
+            "--include-singletons",
+            "--no_density_stats",
+            "--no_layout_independent_stats",
+            "--no_layout_aware_stats"]
+
+        #clear output directory
+        util.removeOldOutFiles(outDir)
+
+        #run layout.py
+        layout.main(optsLayoutSparse)
+
+        util.compareActualVsExpectedDir(s, testDir +'mcrchropa_out', outDir)
+
+    def test_mcr_fullsim(s):
+
+        rawdatafile = inDir + 'mcrchopra.data.tab'
+        fullsim_path = inDir + '/mcr.fullsim.tab'
+
+
+        #opts for compute sparse to create a full spearman
+        optsFullSim = [
+            '--in_file', rawdatafile,
+            '--metric', 'spearman',
+            '--output_type', 'full',
+            '--out_file', fullsim_path,
+            '--num_jobs', '2'
+        ]
+
+        compute_sparse_matrix.main(optsFullSim)
+
+        #options for different layout.py executions
+
+        optsLayoutFull = [
+            "--similarity_full", fullsim_path,
+            "--names", "mRNA",
+            "--scores", inDir + "mcrchopra.atts.tab",
+            "--colormaps", inDir + "mcrchopra.colormaps.tab",
+            "--directory", outDir,
+            "--include-singletons",
+            "--no_density_stats",
+            "--no_layout_independent_stats",
+            "--no_layout_aware_stats"]
+
+        #clear output directory
+        util.removeOldOutFiles(outDir)
+
+        layout.main(optsLayoutFull)
+
+        util.compareActualVsExpectedDir(s,testDir +'mcrchropa_out' , outDir)
+
+    def test_mcr_raw(s):
+        rawdatafile = inDir + 'mcrchopra.data.tab'
+
+        optsLayoutRaw = [
+            "--feature_space", rawdatafile,
+            "--names", "mRNA",
+            "--metric", 'spearman',
+            "--scores", inDir + "mcrchopra.atts.tab",
+            "--colormaps", inDir + "mcrchopra.colormaps.tab",
+            "--directory", outDir,
+            "--include-singletons",
+            "--no_density_stats",
+            "--no_layout_independent_stats",
+            "--no_layout_aware_stats"]
+
+        util.removeOldOutFiles(outDir)
+
+        layout.main(optsLayoutRaw)
+
+        util.compareActualVsExpectedDir(s,testDir +'mcrchropa_out' , outDir)
+    """
 if __name__ == '__main__':
     unittest.main()

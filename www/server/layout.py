@@ -60,6 +60,7 @@ def sparsePandasToString(sparseDataFrame):
     bigstr = s_buf.getvalue()
     #final manipulation to match output necessary for rest of the script
     bigstr = '\n' + bigstr[:-1]
+    print bigstr
     return bigstr
 ##
 
@@ -777,6 +778,7 @@ def open_matrices(names):
         
         with open(similarity_filename,'r') as f:
             lines = [l.rstrip('\n') for l in f]
+
         ctx.sparse.append("\n".join(lines))
 
 def compute_beta (coords, PCA, index, options):
@@ -1043,7 +1045,7 @@ def drl_similarity_functions(matrix, index, options):
     # We can use it to add edges to keep singletons.
     signatures = set()
 
-    print "Reach for parts in sim_reader"
+    print "Reach for parts in sim_reader:" + str(sim_reader)
     for parts in sim_reader:
         # Keep the signature names used
         signatures.add(parts[0])
@@ -1372,12 +1374,12 @@ def hexIt(options, cmd_line_list, all_dict):
     print 'all options:'
     pprint.pprint(all_dict)
     sys.stdout.flush()
-    
+
     # Create the metadata json file for the role if there is one
     if options.role != None:
         with open(os.path.join(options.directory, 'meta.json'), 'w') as fout:
             meta = '{ "role": "' + options.role + '" }\n';
-            fout.write(meta);
+            fout.write(meta)
 
     if options.scores == None:
         options.scores = [build_default_scores(options)]
@@ -1547,8 +1549,7 @@ def hexIt(options, cmd_line_list, all_dict):
                     matrix_file = tsv.TsvReader(result_stream)
                     ctx.matrices.append(matrix_file)
                     ctx.sparse.append(result)
-                    #ctx.sparse.append(result_stream.getvalue())
-            
+
             elif not (options.similarity_full == None):    #full similarity matrix given
                 print "Similarity matrices"
                 for i, similarity_filename in enumerate(options.similarity_full):
