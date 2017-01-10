@@ -16,7 +16,7 @@ Re-uses sample code and documentation from
 
 DEV = False; # True if in development mode, False if not
 
-import argparse, sys, os, itertools, math, numpy, subprocess, shutil, tempfile, glob
+import argparse, sys, os, itertools, math, numpy, subprocess, shutil, tempfile, glob, io
 import collections, traceback, numpy, time, datetime, pprint
 import scipy.stats, scipy.linalg, scipy.misc
 import time, socket
@@ -28,7 +28,6 @@ from statsLayout import statsLayout
 import pool
 from topNeighbors import topNeighbors
 from topNeighbors import topNeighbors_from_sparse
-from compute_sparse_matrix import read_tabular2
 from compute_sparse_matrix import read_tabular
 from compute_sparse_matrix import compute_similarities
 from compute_sparse_matrix import extract_similarities
@@ -44,6 +43,26 @@ from sklearn import preprocessing
 from create_colormaps import create_colormaps_file
 from create_colormaps import cat_files
 from convert_annotation_to_tumormap_mapping import convert_attributes_colormaps_mapping
+
+##
+#helpers
+def sparsePandasToString(sparseDataFrame):
+    '''
+    converts a sparse matrix, to edgefile formatted output string
+    @param sparseDataFrame: pandas dataframe
+    @return: the proper string representation of a sparse matrix
+    '''
+    #text buffer
+    s_buf = StringIO.StringIO()
+    #dump pandas data frame into buffer
+    sparseDataFrame.to_csv(s_buf,sep='\t',header=False,index=None)
+    #dump the buffer into a string
+    bigstr = s_buf.getvalue()
+    #final manipulation to match output necessary for rest of the script
+    bigstr = '\n' + bigstr[:-1]
+    print bigstr
+    return bigstr
+##
 
 def parse_args(args):
     """
@@ -335,9 +354,6 @@ def radial_search(center_x, center_y):
                 
                 # Record that it has ever been enqueued
                 seen.add((neighbor_x, neighbor_y))
-    
-    
-    
 
 def assign_hexagon(hexagons, node_x, node_y, node, scale=1.0):
     """
@@ -749,7 +765,7 @@ def open_matrices(names):
     navigate and know what type of visualization map they are looking at -
     gene expression, copy number, etc. 
 
-    Since, the parser no longer opens the files automatically we must, do it
+    Since the parser no longer opens the files automatically we must, do it
     in this function.
     """
     # For each file name, open the file and add it to the matrices list
@@ -762,6 +778,7 @@ def open_matrices(names):
         
         with open(similarity_filename,'r') as f:
             lines = [l.rstrip('\n') for l in f]
+
         ctx.sparse.append("\n".join(lines))
 
 def compute_beta (coords, PCA, index, options):
@@ -989,7 +1006,6 @@ def normalize_raw_data_values (matrix, numRows, numColumns):
     print (n_matrix)
 
     return n_matrix
-    
 
 def drl_similarity_functions(matrix, index, options):
     """
@@ -1029,7 +1045,7 @@ def drl_similarity_functions(matrix, index, options):
     # We can use it to add edges to keep singletons.
     signatures = set()
 
-    print "Reach for parts in sim_reader"
+    print "Reach for parts in sim_reader:" + str(sim_reader)
     for parts in sim_reader:
         # Keep the signature names used
         signatures.add(parts[0])
@@ -1343,7 +1359,6 @@ def build_default_scores(options):
     #options.scores = ['fake_layer_0', 'fake_layer_1']
     return file_name
 
-
 def hexIt(options, cmd_line_list, all_dict):
 
     # Set stdout and stderr to a log file in the destination directory
@@ -1359,17 +1374,17 @@ def hexIt(options, cmd_line_list, all_dict):
     print 'all options:'
     pprint.pprint(all_dict)
     sys.stdout.flush()
-    
+
     # Create the metadata json file for the role if there is one
     if options.role != None:
         with open(os.path.join(options.directory, 'meta.json'), 'w') as fout:
             meta = '{ "role": "' + options.role + '" }\n';
-            fout.write(meta);
+            fout.write(meta)
 
     if options.scores == None:
         options.scores = [build_default_scores(options)]
 
-    #This is probably a bad way to do this but it was a quick and dirty way to store certain arguments as list and not list of lists
+    #This is probably a bad way to do this but it was a 'quick' and dirty way to store certain arguments as list and not list of lists
     if not (options.similarity == None):
         options.similarity = [val for sublist in options.similarity for val in sublist]
         print "Using sparse similarity"
@@ -1454,7 +1469,7 @@ def hexIt(options, cmd_line_list, all_dict):
         if options.layout_method.upper() in ['TSNE', 'MDS', 'PCA', 'ICA', 'ISOMAP', 'SPECTRALEMBEDDING']:
             for i, genomic_filename in enumerate(options.feature_space):
                 print 'Opening feature space matrix', i, genomic_filename
-                dt,sample_labels,feature_labels = read_tabular2(genomic_filename, True)
+                dt,sample_labels,feature_labels = read_tabular(genomic_filename, True)
                 print str(len(dt))+" x "+str(len(dt[0]))
                 #preprocess the data:
                 if not(options.preprocess_method == None or len(options.preprocess_method) == 0):
@@ -1526,22 +1541,22 @@ def hexIt(options, cmd_line_list, all_dict):
                 print "Feature matrices"
                 for i, genomic_filename in enumerate(options.feature_space):
                     print 'Opening Matrix', i, genomic_filename
-                    dt,sample_labels,feature_labels = read_tabular2(genomic_filename, True)
+                    dt,sample_labels,feature_labels = read_tabular(genomic_filename, True)
                     print str(len(dt))+" x "+str(len(dt[0]))
                     dt_t = numpy.transpose(dt)
-                    result = compute_similarities(dt=dt_t, sample_labels=sample_labels, metric_type=options.metric[i], num_jobs=-1, output_type="SPARSE", top=6, log=None)
+                    result = sparsePandasToString(compute_similarities(dt=dt_t, sample_labels=sample_labels, metric_type=options.metric[i], num_jobs=12, output_type="SPARSE", top=6, log=None))
                     result_stream = StringIO.StringIO(result)
                     matrix_file = tsv.TsvReader(result_stream)
                     ctx.matrices.append(matrix_file)
                     ctx.sparse.append(result)
-            
+
             elif not (options.similarity_full == None):    #full similarity matrix given
                 print "Similarity matrices"
                 for i, similarity_filename in enumerate(options.similarity_full):
                     print 'Opening Matrix', i, similarity_filename
-                    dt,sample_labels,feature_labels = read_tabular2(similarity_filename, True)
+                    dt,sample_labels,feature_labels = read_tabular(similarity_filename, True)
                     print str(len(dt))+" x "+str(len(dt[0]))
-                    result = extract_similarities(dt=dt, sample_labels=sample_labels, top=6, log=None)
+                    result = sparsePandasToString(extract_similarities(dt=dt, sample_labels=sample_labels, top=6, log=None))
                     result_stream = StringIO.StringIO(result)
                     matrix_file = tsv.TsvReader(result_stream)
                     ctx.matrices.append(matrix_file)
@@ -1559,7 +1574,7 @@ def hexIt(options, cmd_line_list, all_dict):
             #print "length of ctx.matrices = "+str(len(ctx.matrices))
             for index, i in enumerate (ctx.matrices):
                 print "enumerating ctx.matrices "+str(index)
-                nodes_multiple.append (drl_similarity_functions(i, index, options))
+                nodes_multiple.append(drl_similarity_functions(i, index, options))
 
     print "Opened matrices..."
     #print nodes_multiple
@@ -1584,7 +1599,7 @@ def hexIt(options, cmd_line_list, all_dict):
     # dict for each layout it processes, so we can get hexagon assignments for
     # those layouts when we go to do statistics.
     placement_badnesses_multiple = []
-    for index, i in enumerate (nodes_multiple):
+    for index, i in enumerate(nodes_multiple):
         # Go get the placement badness
         placement_badness = compute_hexagram_assignments(i, index, options)
             
