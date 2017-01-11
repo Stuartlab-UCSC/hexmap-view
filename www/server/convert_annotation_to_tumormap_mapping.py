@@ -90,7 +90,11 @@ def convert_attributes_colormaps_mapping(in_colormap, in_attributes, filter_attr
 							e_v_i = ""
 						else:
 							if not(e_v in attribute_dict[a]) and (len(e_v) > 0) and not(e_v == "NA"):
-								print "ERROR: attribute "+a+" contains a value that has no mapping: "+e_v
+								#print "ERROR: attribute "+a+" contains a value that has no mapping: "+e_v
+								print "ERROR: attribute", a, \
+                                  "contains at least one category that has no mapping: '" + \
+                                  e_v + "'", \
+                                  "There may be more."
 								sys.exit(1)
 											
 							e_v_i = attribute_dict[a][e_v]
@@ -113,7 +117,8 @@ def convert_attributes_colormaps_mapping(in_colormap, in_attributes, filter_attr
 			a_vals_check = check_attribute_values[a]
 			for v in a_vals:
 				if not(v in a_vals_check):
-					print v +" value of "+a+" attribute in colormaps is not present in the data"
+					print v, "value of '"+a+" attribute in colormaps is not present in the data"
+					#print v +" value of "+a+" attribute in colormaps is not present in the data"
 
 def main(args):	
 	sys.stdout.flush()
