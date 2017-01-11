@@ -31,7 +31,7 @@
 #./create_colormaps.py --in_attributes attr.tab --out_file colormaps.tab
 #python2.7 create_colormaps.py --in_attributes attr.tab --out_file colormaps.tab
 
-import sys, os, optparse, colorsys, math, itertools, argparse
+import sys, os, optparse, colorsys, math, itertools, argparse, traceback
 import numpy as np
 import pandas as pd
 from decimal import *
@@ -49,6 +49,9 @@ def parse_args(args):
     parser = argparse.ArgumentParser(description=__doc__,
         formatter_class=argparse.RawDescriptionHelpFormatter)
 
+    # swat: We should be able to add 'required=True' to some args so the parser
+    # will tell the user when they are left out. --directory should be required
+    # since scripts get confused with relative paths sometimes.
     fins = []
     parser.add_argument('-i',"--in_attributes", type=str,nargs='+',
                         help="Input: attributes/meta data tsv files separated by space",metavar=fins)
@@ -64,6 +67,7 @@ def parse_args(args):
     parser.add_argument('-p',"--pickle",type=str,
         help="optional output: name of the transformed metadata in a pickle file, .pi file extension",
                         default ="")
+    # swat: just curious, what would we use this pickle file for?
 
     parser.add_argument('-a',"--attributes",type=str,
         help="optional output: name of the transformed metadata in a tsv file, .tab file extension",
@@ -168,12 +172,21 @@ def getAttributes(fileNameList,dir='',debug=False):
         print 'getAttributes() called with'
         print fileNameList
 
+    # swat: the standard way to handle this is always use os.path.join() to
+    # join a dir with a file, or to join any sort of paths. That utility
+    # adds a '/' if needed.  It can take two or more paths to join.
     if (len(dir) > 0 and dir[-1]!= '/'):
         dir+='/'
 
     dfs = [] #list to hold individual dfs
     for filename in fileNameList:
         filename = dir + filename
+        # swat: we should always pass in full pathnames to files because there
+        # are times when scripts get confused. Passing another parm of dir in
+        # is too restrictive because the user cannot pass in files from
+        # different dirs.
+        # in this case things will break if this script were run from a dir
+        # other than the dir containing the files.
 
         #assume first column is row name and do below to get rid of duplicates
         df = pd.read_csv(filename,sep='\t')#,index_col=0)
@@ -326,9 +339,10 @@ def metaVsCmaps(cmapCats,metaCats,attributeName,debug=False):
         inMetaNotCmap = cmapCats.difference(metaCats)
 
         if len(inCmapNotMeta)>0:
-            chatter("attribute:" + attributeName + ": " + str(len(inCmapNotMeta)) +' categories are in the provided colormap ' \
-                    'file but not in the meta data, these categories are being removed from the colormaps mapping' \
+            chatter("attribute: " + attributeName + ": " + str(len(inCmapNotMeta)) +' categories are in the provided colormap ' \
+                    'file but not in the meta data' \
                                                                         '\n'+str(inCmapNotMeta),'WARNING')
+        
         if len(inMetaNotCmap)>0:
             chatter("attribute-> " + attributeName + " : " + str(len(inMetaNotCmap)) +' categories are in the metadata ' \
                     'but not in colormaps file, new colors will be generated and added to the mappings for categories:' \
@@ -337,6 +351,7 @@ def metaVsCmaps(cmapCats,metaCats,attributeName,debug=False):
 
     return disagreeance,inCmapNotMeta,inMetaNotCmap
 
+# Unused. We want to keep all previous categories for now
 def remove_cats_from_cmap_entry(cmap_entry,catsToRemove,debug=False):
     '''
     iteratively rebuilds the colormaps entry filtering unwanted categories.
@@ -457,8 +472,12 @@ def create_colormaps_file(in_attributes,out_file, pickle='', colormaps='', attrs
         #categories from the given cmap are first string in the array...
         catsFromMap = map(lambda x: x[0],cmaps)
 
+        # swat: this assert was silently failing for some reason. 'pre-assert'
+        # printed and 'post-assert' did not.
+        #print 'pre-assert'
         #assert no_dups(catsFromMap)
-
+        #print 'post-assert'
+        
         #store all categoriccal attribute names that we have DATA AND A COLORMAP mapping for
         catsInMetaAndCMs = set(catsFromMap).intersection(catAtts)
 
@@ -497,11 +516,12 @@ def create_colormaps_file(in_attributes,out_file, pickle='', colormaps='', attrs
             #two cases:
             # if there is a categorical descriptor in the colormap, which is not in the metadata:
             #   then remove that from the meta data
-            # if there is a categorical descriptor in the metadata, which ins not in the colomapping
+            # if there is a categorical descriptor in the metadata, which is not in the colomapping
             #   then add this descriptor the the colormap mapping.
             if disagreeance:
                 # take out any categories in the attribute that we don't have data for:
-                cmapEntry = remove_cats_from_cmap_entry(cmapEntry,inCmapNotMeta)
+                # swat: maybe make this a command-line option?
+                #cmapEntry = remove_cats_from_cmap_entry(cmapEntry,inCmapNotMeta)
 
                 #now for any new category in the meta data, make a new color considering all the old colors
                 # and append the new categoy to the end of the colormap entry
@@ -613,6 +633,9 @@ def main(args):
             directory += '/'
         if len(out_file):    
             out_file = directory + out_file
+        # swat: the standard way to handle this is always use os.path.join() to
+        # join a dir with a file, or to join any sort of paths. That utility
+        # adds a '/' if needed.  It can take two or more paths to join.
         if len(pickleout):        
             pickleout   = directory + pickleout
     
@@ -629,7 +652,7 @@ if __name__ == "__main__" :
         # Don't just exit with it because sys.exit works by exceptions.
         return_code = main(sys.argv[1:])
     except:
-        #traceback.print_exc()
+        traceback.print_exc()
         # Return a definite number and not some unspecified error code.
         return_code = 1
 
