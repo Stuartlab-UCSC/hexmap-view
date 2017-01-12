@@ -1,40 +1,32 @@
-11-23 10:39:16 Started
+01-12 12:37:53 Started
 command-line options:
 ['--similarity',
- '/Users/swat/dev/hexagram/tests/pyUnittest/statsIn/artificial_sparse.tab',
+ '/home/duncan/Desktop/TumorMap/TMdev/hexagram/tests/pyUnittest/createMapIn/mcr.top6.tab',
  '--names',
  'mRNA',
  '--scores',
- '/Users/swat/dev/hexagram/tests/pyUnittest/statsIn/old_attributes.csv',
+ '/home/duncan/Desktop/TumorMap/TMdev/hexagram/tests/pyUnittest/createMapIn/mcrchopra.atts.tab',
  '--colormaps',
- '/Users/swat/dev/hexagram/tests/pyUnittest/statsIn/colormaps.tab',
- '--mi_window_threshold',
- '2',
- '--mi_window_threshold_upper',
- '5',
- '--window_size',
- '20',
- '--truncation_edges',
- '6',
+ '/home/duncan/Desktop/TumorMap/TMdev/hexagram/tests/pyUnittest/createMapIn/mcrchopra.colormaps.tab',
  '--first_attribute',
  'Subtype',
  '--directory',
- '/Users/swat/dev/hexagram/tests/pyUnittest/statsOut/']
+ '/home/duncan/Desktop/TumorMap/TMdev/hexagram/tests/pyUnittest/statsExp/']
 all options:
 {'associations': True,
  'attributeTags': None,
  'clumpinessStats': True,
- 'colormaps': '/Users/swat/dev/hexagram/tests/pyUnittest/statsIn/colormaps.tab',
+ 'colormaps': '/home/duncan/Desktop/TumorMap/TMdev/hexagram/tests/pyUnittest/createMapIn/mcrchopra.colormaps.tab',
  'coordinates': None,
  'directedGraph': True,
- 'directory': '/Users/swat/dev/hexagram/tests/pyUnittest/statsOut/',
+ 'directory': '/home/duncan/Desktop/TumorMap/TMdev/hexagram/tests/pyUnittest/statsExp/',
  'drlpath': None,
  'feature_space': None,
  'first_attribute': 'Subtype',
  'layout_method': 'DrL',
  'metric': None,
- 'mi_window_threshold': 2,
- 'mi_window_threshold_upper': 5,
+ 'mi_window_threshold': 5,
+ 'mi_window_threshold_upper': 20,
  'mutualinfo': True,
  'names': ['mRNA'],
  'output_tar': '',
@@ -43,8 +35,8 @@ all options:
  'raw': None,
  'rawsim': None,
  'role': None,
- 'scores': ['/Users/swat/dev/hexagram/tests/pyUnittest/statsIn/old_attributes.csv'],
- 'similarity': [['/Users/swat/dev/hexagram/tests/pyUnittest/statsIn/artificial_sparse.tab']],
+ 'scores': ['/home/duncan/Desktop/TumorMap/TMdev/hexagram/tests/pyUnittest/createMapIn/mcrchopra.atts.tab'],
+ 'similarity': [['/home/duncan/Desktop/TumorMap/TMdev/hexagram/tests/pyUnittest/createMapIn/mcr.top6.tab']],
  'similarity_full': None,
  'singletons': False,
  'truncation_edges': 6,
@@ -57,32 +49,32 @@ Writing matrix names...
 Created nodes_multiple list...
 About to open matrices...
 DRL method
-['/Users/swat/dev/hexagram/tests/pyUnittest/statsIn/artificial_sparse.tab']
+['/home/duncan/Desktop/TumorMap/TMdev/hexagram/tests/pyUnittest/createMapIn/mcr.top6.tab']
 None
 None
 Sparse similarity matrices
-Opening Matrix 0 /Users/swat/dev/hexagram/tests/pyUnittest/statsIn/artificial_sparse.tab
-['/Users/swat/dev/hexagram/tests/pyUnittest/statsIn/artificial_sparse.tab']
+Opening Matrix 0 /home/duncan/Desktop/TumorMap/TMdev/hexagram/tests/pyUnittest/createMapIn/mcr.top6.tab
+['/home/duncan/Desktop/TumorMap/TMdev/hexagram/tests/pyUnittest/createMapIn/mcr.top6.tab']
 enumerating ctx.matrices 0
-11-23 10:39:16 ============== Starting drl computations for layout: 0 ... ==============
-Reach for parts in sim_reader
-11-23 10:39:16 DrL: Truncating...
-Using /var/folders/q2/jn30ll5s59d10fv06my655_h0000gp/T/tmp9LrIy9/layout0.sim for .sim file, 
-Will output /var/folders/q2/jn30ll5s59d10fv06my655_h0000gp/T/tmp9LrIy9/layout0.ind for .ind file,
-            /var/folders/q2/jn30ll5s59d10fv06my655_h0000gp/T/tmp9LrIy9/layout0.int for .int file, and
-            /var/folders/q2/jn30ll5s59d10fv06my655_h0000gp/T/tmp9LrIy9/layout0.full for .full file.
+01-12 12:37:53 ============== Starting drl computations for layout: 0 ... ==============
+Reach for parts in sim_reader:<tsv.TsvReader object at 0x7f790f9c1750>
+01-12 12:37:53 DrL: Truncating...
+Using /tmp/tmpi5p8Tq/layout0.sim for .sim file, 
+Will output /tmp/tmpi5p8Tq/layout0.ind for .ind file,
+            /tmp/tmpi5p8Tq/layout0.int for .int file, and
+            /tmp/tmpi5p8Tq/layout0.full for .full file.
 Using memory = 1
       topn = 6
       normalize = 0
 Reading .sim file ... 
-Read 60 nodes and 3540 lines.
+Read 60 nodes and 360 lines.
 Creating .ind file ...
 Writing to .full file ...
 Creating .int file ...
 Scan 1 of .full file ...
 Program finished successfully.
 DrL: Doing layout...
-Using /var/folders/q2/jn30ll5s59d10fv06my655_h0000gp/T/tmp9LrIy9/layout0.int for .int file, and /var/folders/q2/jn30ll5s59d10fv06my655_h0000gp/T/tmp9LrIy9/layout0.icoord for .icoord file.
+Using /tmp/tmpi5p8Tq/layout0.int for .int file, and /tmp/tmpi5p8Tq/layout0.icoord for .icoord file.
 Using random seed = 0
       edge_cutting = 0.8
       intermediate output = 0
@@ -90,52 +82,48 @@ Using random seed = 0
 Proc. 0 scanning .int file ...
 Processor 0 reading .int file ...
 Entering liquid stage ...........................................................................................................................................................................................................
-Liquid stage completed in 0 seconds, total energy = 171557.
+Liquid stage completed in 0 seconds, total energy = 180411.
 Entering expansion stage ...........................................................................................................................................................................................................
-Finished expansion stage in 0 seconds, total energy = 94816.6.
+Finished expansion stage in 0 seconds, total energy = 93784.4.
 Entering cool-down stage ...........................................................................................................................................................................................................
-Completed cool-down stage in 0 seconds, total energy = 18984.3.
+Completed cool-down stage in 0 seconds, total energy = 31196.2.
 Entering crunch stage .....................................................
-Finished crunch stage in 0 seconds, total energy = 34758.1.
+Finished crunch stage in 0 seconds, total energy = 43797.9.
 Entering simmer stage .......................................................................................................
-Finished simmer stage in 0 seconds, total energy = 5.32741.
+Finished simmer stage in 0 seconds, total energy = 3.9727.
 Layout calculation completed in 0 seconds (not including I/O).
-Writing out solution to /var/folders/q2/jn30ll5s59d10fv06my655_h0000gp/T/tmp9LrIy9/layout0.icoord ...
-Total Energy: 5.31053.
+Writing out solution to /tmp/tmpi5p8Tq/layout0.icoord ...
+Total Energy: 3.95464.
 Program terminated successfully.
-11-23 10:39:16 DrL: Restoring names...
-Using /var/folders/q2/jn30ll5s59d10fv06my655_h0000gp/T/tmp9LrIy9/layout0.icoord for .icoord file, and 
-       /var/folders/q2/jn30ll5s59d10fv06my655_h0000gp/T/tmp9LrIy9/layout0.ind for .ind file.
-Will output /var/folders/q2/jn30ll5s59d10fv06my655_h0000gp/T/tmp9LrIy9/layout0.coord for .coord file.
+01-12 12:37:54 DrL: Restoring names...
+Using /tmp/tmpi5p8Tq/layout0.icoord for .icoord file, and 
+       /tmp/tmpi5p8Tq/layout0.ind for .ind file.
+Will output /tmp/tmpi5p8Tq/layout0.coord for .coord file.
 Reading .ind file ...
 Reading .icoord file ...
 Creating .coord file ...
 Program finished successfully.
-11-23 10:39:16 Reading DrL output...
-11-23 10:39:16 ============== drl computations completed for layout: 0 ==============
+01-12 12:37:54 Reading DrL output...
+01-12 12:37:54 ============== drl computations completed for layout: 0 ==============
 Opened matrices...
-We need to run density statistics for 1 layouts
-11-23 10:39:16 Running tiling clumpiness statistics for layout 0 with window size 20...
-11-23 10:39:16 Hexagon count: 60
-Layout's number of infinite clumpiness p-values of total: 0 10 / 10
-11-23 10:39:16 Attribute counts: 10 = Binary: 5 + Categorical: 2 + Continuous: 3
-Writing layer index...
+Regularizing colormaps file...
+getting categoricals from /home/duncan/Desktop/TumorMap/TMdev/hexagram/tests/pyUnittest/statsExp//colormaps.tab
+{'bin': ['TP53_expression altered', 'TP63_expression altered'], 'cont': ['Apoptosis', 'Random', 'DNA_signature'], 'cat': ['Subtype', 'TP53_mutated', 'TP63_mutated', 'DNA_Repair', 'RB1 level']}
+01-12 12:37:54 Attribute counts:  Binary: 5 + Categorical: 2 + Continuous: 3
+calculating density for layer 0
+categorical attribute being processed: Subtype
+shape of dummy matrix after exclusion: (60, 3)
+categorical attribute being processed: RB1 level
+shape of dummy matrix after exclusion: (60, 3)
 Regularizing colormaps file...
 No Data Provided...Skipping Beta Calculations
-23 10:39:16 Running sample-based statistics...
-23 10:39:16 Processing 10 layers
+12 12:37:54 Running sample-based statistics...
+12 12:37:54 Processing 10 layers
 Starting to build 100 layer pairs...
-Using host: darla.local with 4 processors for parallel jobs.
+Using host: Mr with 4 processors for parallel jobs.
 10 subprocesses to run, one per layer.
-23 10:39:16 Sample-based statistics complete
-23 10:39:16 Running region-based statistics...
-23 10:39:16 Windowing starting...
-23 10:39:16 Windowing complete
-Starting to build 20 layer pairs...
-Using host: darla.local with 4 processors for parallel jobs.
-5 subprocesses to run, one per layer.
-23 10:39:16 Stats complete for layout: 0
-23 10:39:16 Region-based statistics complete
-23 10:39:17 Found top neighbors
-23 10:39:17 Found top neighbors
-11-23 10:39:17 Visualization generation complete!
+12 12:37:54 Sample-based statistics complete
+LeesL layout aware stats being calculated
+12 12:37:54 Found top neighbors
+12 12:37:54 Found top neighbors
+01-12 12:37:54 Visualization generation complete!

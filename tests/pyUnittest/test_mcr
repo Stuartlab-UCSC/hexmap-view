@@ -8,3 +8,4 @@
 test_mcr_raw.py 
 test_mcr_full.py
 test_mcr_top6.py
+test_stats.py
