@@ -32,12 +32,6 @@ class TestStats(unittest.TestCase):
             '--names', 'mRNA',
             '--scores', inDir + 'mcrchopra.atts.tab',
             '--colormaps', inDir + 'mcrchopra.colormaps.tab',
-            #'--min_window_nodes', '2',
-            #'--max_window_nodes', '5',
-            #'--mi_window_threshold', '2',
-            #'--mi_window_threshold_upper', '5',
-            #'--window_size', '20',
-            #'--truncation_edges', '6', #6 is the default
             '--first_attribute', 'Subtype',
             '--directory', outDir,
         ]
