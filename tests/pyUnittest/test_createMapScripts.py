@@ -14,12 +14,6 @@ rootDir = getRootDir()
 testDir = rootDir + 'tests/pyUnittest/'
 inDir = testDir + 'createMapIn/'   # The input data
 outDir = testDir + 'createMapOut/' # The actual output data
-scriptDir = rootDir + 'www/server'
-
-#http://stackoverflow.com/questions/3108285/in-python-script-how-do-i-set-pythonpath
-#point the python path to the script directory
-sys.path.append(scriptDir)
-
 import compute_sparse_matrix
 
 class TestCreateMap(unittest.TestCase):

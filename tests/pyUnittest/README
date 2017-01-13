@@ -1,0 +1,5 @@
+Please use the run script so your PYTHONPATH is always correctly set.
+Usage:
+    run test_stats
+    run test_stats.TestStats.test_stats
+
