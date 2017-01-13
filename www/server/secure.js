@@ -12,10 +12,10 @@
 //removeRoles(['Pancan12']);
 //removeUsersFromRoles(['jstuart@ucsc.edu'], ['dev', 'Pancan12']);
 //showUsernames();
-//addUsersToRoles (['reviewer@unknown'] , ['Pancan12']);
+addUsersToRoles (['vjuanpor@ucsc.edu'] , ['CKCC']);
 //removeUser('reviewer@');
 //var users = [
-//    {email: 'hexmap@ucsc.edu', roles: ['dev']},
+//    {email: 'vjuanpor@ucsc.edu', roles: ['ckcc']},
 //];
 //createUsers(users);
 //createUsers(users, true); // create user and a personal role
