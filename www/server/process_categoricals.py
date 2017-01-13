@@ -31,15 +31,13 @@
 #./create_colormaps.py --in_attributes attr.tab --out_file colormaps.tab
 #python2.7 create_colormaps.py --in_attributes attr.tab --out_file colormaps.tab
 
-import sys, os, optparse, colorsys, math, itertools, argparse, traceback
+import sys, argparse
 import numpy as np
 import pandas as pd
-from decimal import *
-import re
-import sklearn.metrics.pairwise as sklp
 from colormath.color_diff import delta_e_cmc
 from colormath.color_objects import LabColor, sRGBColor
 from colormath.color_conversions import convert_color
+import traceback
 
 #find a good place to set the seed this isn't it
 np.random.seed(1)
@@ -249,12 +247,23 @@ def write_colormaps(outfile,cmaps):
     
     fout.close()
 
-def no_dups(attrList):
+def duplicatesCheck(attrList):
     '''
     :param attrList: a list of objects
-    :return: boolean describing whether the list had duplicates in it
+    :return: boolean describing whether the list had duplicates in it,
+             and a list of those duplicated items.
     '''
-    return (len(attrList) == len(set(attrList)) )
+    dups_present = len(attrList) != len(set(attrList))
+    not_unique = []
+    #want to return the duplicated attributes so we can properly complain
+    if dups_present:
+        seen = set()
+        for attr in attrList:
+            if attr not in seen:
+                seen.add(attr)
+            else:
+                not_unique.append(attr)
+    return dups_present, not_unique
 
 def cmaps_index_dict(cmaps):
     '''
@@ -454,7 +463,10 @@ def create_colormaps_file(in_attributes,out_file, pickle='', colormaps='', attrs
 
     chatter( str(nCategoricals) + " categorical attributes detected in metadata")
 
-    assert no_dups(catAtts)
+    #make sure there are not duplicate attribute names because things will likely break down the line
+    dups = duplicatesCheck(catAtts)
+    if dups[0]: #dups are present
+        raise ValueError, 'there are repeated attribute names in the metadata file: ' + str(dups[1])
 
     #reads the old colormaps file
     cmaps = read_colormaps(colormaps)
@@ -472,12 +484,10 @@ def create_colormaps_file(in_attributes,out_file, pickle='', colormaps='', attrs
         #categories from the given cmap are first string in the array...
         catsFromMap = map(lambda x: x[0],cmaps)
 
-        # swat: this assert was silently failing for some reason. 'pre-assert'
-        # printed and 'post-assert' did not.
-        #print 'pre-assert'
-        #assert no_dups(catsFromMap)
-        #print 'post-assert'
-        
+        dups = duplicatesCheck(catAtts)
+        if dups[0]: #dups are present
+            raise ValueError, 'there are repeated attribute names in colormaps file: ' + str(dups[1])
+
         #store all categoriccal attribute names that we have DATA AND A COLORMAP mapping for
         catsInMetaAndCMs = set(catsFromMap).intersection(catAtts)
 
@@ -552,7 +562,7 @@ def create_colormaps_file(in_attributes,out_file, pickle='', colormaps='', attrs
 
     if debug:
         print 'cats in metadata not in CMs: ' + str(catAttsInMetaNotInCMs)
-
+        print 'XXXcolormaps list of list: ' + str(cmaps)
     #make a new colormap entry for everthing not in the given (or not given) colormaps
     for catAtt in list(catAttsInMetaNotInCMs):
         if debug:
@@ -652,7 +662,11 @@ if __name__ == "__main__" :
         # Don't just exit with it because sys.exit works by exceptions.
         return_code = main(sys.argv[1:])
     except:
+        exc_type, exc_value, exc_traceback = sys.exc_info()
         traceback.print_exc()
+        traceback.print_exception(exc_type, exc_value, exc_traceback,
+                                  limit=2, file=sys.stdout)
+
         # Return a definite number and not some unspecified error code.
         return_code = 1
 

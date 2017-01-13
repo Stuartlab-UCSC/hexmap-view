@@ -16,8 +16,8 @@ Re-uses sample code and documentation from
 
 DEV = False; # True if in development mode, False if not
 
-import argparse, sys, os, itertools, math, numpy, subprocess, shutil, tempfile, glob, io
-import collections, traceback, numpy, time, datetime, pprint
+import argparse, sys, os, itertools, math, subprocess, shutil, tempfile, glob, io
+import collections, traceback, time, datetime, pprint
 import scipy.stats, scipy.linalg, scipy.misc
 import time, socket
 from types import *
@@ -39,13 +39,32 @@ from compute_layout import computeMDS
 from compute_layout import computeICA
 from compute_layout import computeSpectralEmbedding
 from compute_sparse_matrix import read_coordinates
-from sklearn import preprocessing
 from create_colormaps import create_colormaps_file
 from create_colormaps import cat_files
 from convert_annotation_to_tumormap_mapping import convert_attributes_colormaps_mapping
+from process_categoricals import getAttributes
+import leesL
+from sklearn import preprocessing
+import sklearn.metrics
+import sklearn.metrics.pairwise as sklp
+import numpy as np
 
+'''
+Notes about peculiarities in code:
+    1.) --include_singletons option: the name suggests you are including nodes
+        that would otherwise not be there, but from the code it is clear this is
+        not the case. --include_singletons simply draws a self connecting edge on all the nodes already on the
+        map before running through DRL. It is unclear what affect this should have on a spring embedded layout
+        clustering algorithm. Its action can be viewed in the drl_similarity_functions() code.
+    2.) --truncate_edges option: This is defaulted to 6, and gets fed into the DRL clustering algorithm.
+                                 The name suggests that even if you provided 20 neighbors, downstream the
+                                 DRL clustering algorthm would trim it down to six.
+
+    3.) if --first_attribute is not specified then the first attribute is arbitraily selected.
+              This messes with the ordering given by the density values and may not be desired behavior
+'''
 ##
-#helpers
+#DCM helpers
 def sparsePandasToString(sparseDataFrame):
     '''
     converts a sparse matrix, to edgefile formatted output string
@@ -62,6 +81,110 @@ def sparsePandasToString(sparseDataFrame):
     bigstr = '\n' + bigstr[:-1]
     print bigstr
     return bigstr
+
+def writeColorMapsTab(options):
+    '''
+    copied this out of the old copy_files_for_UI() function.
+    :param options: the parse_args object
+    :return: writes the colomap file
+    '''
+
+    # This holds a writer for the sim file. Creating it creates the file.
+    colormaps_writer = tsv.TsvWriter(open(os.path.join(options.directory,
+                                                    "colormaps.tab"), "w"))
+
+    if options.colormaps is not None:
+
+        # The user specified colormap data, so copy it over
+        # This holds a reader for the colormaps file
+        colormaps_reader = tsv.TsvReader(open(options.colormaps, 'r'))
+
+        print "Regularizing colormaps file..."
+        sys.stdout.flush()
+
+        for parts in colormaps_reader:
+            colormaps_writer.list_line(parts)
+
+        colormaps_reader.close()
+
+    # Close the colormaps file we wrote. It may have gotten data, or it may
+    # still be empty.
+    colormaps_writer.close()
+
+def getCategoricalsFromColorMapFile(filename,debug=True):
+    '''
+    :param filename: the name of the colormaps file
+    :return: a list of attributes thought to be categorical by the colormaps processor
+    '''
+    if debug:
+        print 'getting categoricals from ' + filename
+    colormaps_reader = tsv.TsvReader(open(filename, 'r'))
+    categoricals = []
+    for row in colormaps_reader:
+        categoricals.append(row[0])
+    colormaps_reader.close()
+
+    return categoricals
+
+def checkForBinaryCategorical(catAtts,datatypes):
+    '''
+    looks for attributes that are named categorical, because they have a colormap
+     but only have two categories, and therefor should be treated as binaries
+    :param catAtts: the attribute dataframe for categical attributes
+    :param datatypes:
+    :return: a refined datatypes,
+    '''
+    for attr in catAtts.columns:
+        #print attr
+        #print len(catAtts[attr].dropna().unique())
+        if len(catAtts[attr].dropna().unique()) == 2:
+            #print 'found bin'
+            datatypes['bin'].append(attr)
+            datatypes['cat'].remove(attr)
+
+    return datatypes
+
+def getDataTypes(attributeDF,colormapFile,debug=True):
+    '''
+    logic for getting datatype from attribute files,
+         also checks to make sure an attribute in the colormap has an attribute in the scores/attribute matrix
+    :param attributeDF: The pandas dataframe that holds all the attributes for a map
+    :param colormapFile: The name/path to the colormap file, used to determine possible categoricals
+    :return: a dictionary {'bin' -> ['binary_attrname',...,],
+                            'cont' -> ['continuous_attrname',...,],
+                           'cat' -> ['categorical_attrname',...,]
+                          }
+
+    '''
+
+    categoricals =  getCategoricalsFromColorMapFile(colormapFile)
+    binaries = []
+    continuouses = []
+
+
+    #remove any attriibutes that made there way into the colormap but aren't in the metadata
+    for attrName in categoricals:
+        try:
+            attributeDF[attrName]
+        except KeyError:
+            categoricals.remove(attrName)
+
+    for attrName in attributeDF.columns:
+        # if the name was in the colormap, and in the attribute matrix then we say its a categorical
+        if attrName in categoricals:
+            continue
+        #otherwise if it only has values 0 or 1, then call it binary
+        elif (np.logical_or(attributeDF[attrName]==0,attributeDF[attrName]==1).sum() == (attributeDF[attrName]).count()):
+            binaries.append(attrName)
+        else:
+            continuouses.append(attrName)
+
+    #create a dictionary to reference datatypes
+    datatypeDict = {'bin':binaries,'cat':categoricals,'cont':continuouses}
+    if debug:
+        print datatypeDict
+    #return a corrected version of the datatype dictionary
+    return checkForBinaryCategorical(attributeDF[datatypeDict['cat']],datatypeDict)
 ##
 
 def parse_args(args):
@@ -477,10 +600,10 @@ class ClusterFinder(object):
             raise ValueError("Background group is empty!")
         
         # This holds the observed frequency of 1s in out_values
-        frequency = numpy.sum(out_values) / len(out_values)
+        frequency = np.sum(out_values) / len(out_values)
         
         # This holds the number of 1s in in_values
-        successes = numpy.sum(in_values)
+        successes = np.sum(in_values)
         
         # This holds the number of "trials" we got that many successes in
         trials = len(in_values)
@@ -512,12 +635,12 @@ class ClusterFinder(object):
         out_values = out_values.astype(int)
         
         # How many categories are there (count 0 to the maximum value)
-        num_categories = max(numpy.max(in_values), numpy.max(out_values)) + 1
+        num_categories = max(np.max(in_values), np.max(out_values)) + 1
         
         # Count the number of in_values and out_values in each category
-        in_counts = numpy.array([len(in_values[in_values == i]) for i in 
+        in_counts = np.array([len(in_values[in_values == i]) for i in 
             xrange(num_categories)])
-        out_counts = numpy.array([len(out_values[out_values == i]) for i in 
+        out_counts = np.array([len(out_values[out_values == i]) for i in 
             xrange(num_categories)])
         
         # Get the p value for the window being from the estimated distribution
@@ -540,10 +663,10 @@ class ClusterFinder(object):
         max_y = max(coords[1] for coords in self.hexagons.iterkeys()) 
         
         # This holds a Numpy array of all the data by x, y
-        layer_data = numpy.empty((max_x - min_x + 1, max_y - min_y + 1))
+        layer_data = np.empty((max_x - min_x + 1, max_y - min_y + 1))
         
         # Fill it with NaN so we can mask those out later
-        layer_data[:] = numpy.NAN
+        layer_data[:] = np.NAN
         
         for (hex_x, hex_y), name in self.hexagons.iteritems():
             # Copy the layer values into the Numpy array
@@ -551,7 +674,7 @@ class ClusterFinder(object):
                 layer_data[hex_x - min_x, hex_y - min_y] = self.layer[name]
         
         # This holds a masked version of the layer data
-        layer_data_masked = numpy.ma.masked_invalid(layer_data, copy=False) 
+        layer_data_masked = np.ma.masked_invalid(layer_data, copy=False) 
         
         # This holds the smallest p value we have found for this layer
         best_p = float("+inf")
@@ -561,14 +684,14 @@ class ClusterFinder(object):
         # The most specific test is the dichotomous test (0 or 1)
         statistical_test = self.dichotomous_p
         
-        if numpy.sum(~layer_data_masked.mask) == 0: 
+        if np.sum(~layer_data_masked.mask) == 0: 
             # There is actually no data in this layer at all.
             # nditer complains if we try to iterate over an empty thing.
             # So quit early and say we couldn't find anything.
             print 'No data in this layer, so no density stats:', self.layer_name
             return best_p
  
-        for value in numpy.nditer(layer_data_masked[~layer_data_masked.mask]):
+        for value in np.nditer(layer_data_masked[~layer_data_masked.mask]):
             # Check all the values in the layer.
             # If this value is out of the domain of the current statistical 
             # test, upgrade to a more general test.
@@ -602,16 +725,16 @@ class ClusterFinder(object):
                     j:j + self.window_size]
                     
                 # And as a 1d Numpy array
-                in_values = numpy.reshape(in_region[~in_region.mask], -1).data
+                in_values = np.reshape(in_region[~in_region.mask], -1).data
                 
                 # And out of the window (all the other hexes) as a masked array
-                out_region = numpy.ma.copy(layer_data_masked)
+                out_region = np.ma.copy(layer_data_masked)
                 # We get this by masking out everything in the region
                 out_region.mask[i:i + self.window_size, 
                     j:j + self.window_size] = True
                 
                 # And as a 1d Numpy array
-                out_values = numpy.reshape(out_region[~out_region.mask], 
+                out_values = np.reshape(out_region[~out_region.mask], 
                     -1).data
                  
                     
@@ -648,6 +771,34 @@ class ClusterFinder(object):
 
         # We have now found the best p for any window for this layer.
         return best_p                
+
+def writeAndPutLayerDatatypes(datatypeDict, options):
+    """
+    This function writes the datatypes to the UI's data type file,
+     and puts the data types into the ctx global
+    @param datatypeDict:
+    @param options:
+    @return:
+    """
+    ctx.continuous_layers  = datatypeDict['cont']
+    ctx.binary_layers      = datatypeDict['bin']
+    ctx.categorical_layers = datatypeDict['cat']
+
+    # Write the lists of continuous, binary, and categorical layers to files
+    # The client side will use these to determine how to display values and
+    # which layers to include when the user filters by data type.
+    type_writer = tsv.TsvWriter(open(os.path.join(options.directory,
+    "Layer_Data_Types.tab"), "w"))
+
+    if (options.first_attribute):
+        type_writer.line("FirstAttribute", options.first_attribute)
+    type_writer.line("Continuous", *ctx.continuous_layers)
+    type_writer.line("Binary", *ctx.binary_layers)
+    type_writer.line("Categorical", *ctx.categorical_layers)
+
+    type_writer.close()
+
+    print timestamp(), 'Attribute counts:',' Binary:', len(ctx.binary_layers), '+ Categorical:', len(ctx.categorical_layers), '+ Continuous:', len(ctx.continuous_layers)
 
 def determine_layer_data_types (layers, layer_names, options):
     """
@@ -793,7 +944,7 @@ def compute_beta (coords, PCA, index, options):
     beta = coords * PCA
 
     # Write Beta to a File
-    beta_t = numpy.transpose(numpy.asmatrix(beta))
+    beta_t = np.transpose(np.asmatrix(beta))
     beta_writer = tsv.TsvWriter(open(os.path.join(options.directory, 
         "beta.tab"), "w"))
 
@@ -853,7 +1004,7 @@ def raw_data_to_matrix(raw_data, hexagons_dict, data_type, options, index):
     numColumns = numColumns - 1 
 
     # Create the data matrix.
-    data_matrix = numpy.zeros(shape=(numRows,numColumns))
+    data_matrix = np.zeros(shape=(numRows,numColumns))
     
     # Close the data file as we have alreaedy exhausted the iterator
     raw.close()
@@ -906,7 +1057,7 @@ def raw_data_to_matrix(raw_data, hexagons_dict, data_type, options, index):
     # raw data values, later when we compute the betas for the linear regression.
   
     # This will hold the appropriately listed data.
-    correct_matrix = numpy.zeros(shape=(numRows,len(hexagons_dict)))
+    correct_matrix = np.zeros(shape=(numRows,len(hexagons_dict)))
     
     # Extract the values from the hexagon_dict
     hexagon_values = hexagons_dict.values()
@@ -958,7 +1109,7 @@ def extract_coords (axis, size, hexagons):
     Extract the coordinate values for a certain set of hexagons.
     Then assign them to a numpy matrix, and return this matrix.
     """
-    coords_matrix = numpy.zeros(shape=(size, 1))
+    coords_matrix = np.zeros(shape=(size, 1))
     min_val = min(coords[axis] for coords in hexagons.iterkeys())
 
     index = 0
@@ -976,7 +1127,7 @@ def normalize_raw_data_values (matrix, numRows, numColumns):
     Normalizes data values of a raw data matrix.
     """
     # Create the empty normalized matrix.
-    n_matrix = numpy.zeros(shape=(numRows, numColumns))
+    n_matrix = np.zeros(shape=(numRows, numColumns))
 
     # An array of mean values, one mean value per sample (column)
     m_val = []
@@ -989,9 +1140,9 @@ def normalize_raw_data_values (matrix, numRows, numColumns):
     print ("Columns:", numColumns)
     while (i < numColumns):
         column = matrix[:, i]
-        mean = numpy.mean(column)
+        mean = np.mean(column)
         m_val.append(mean)
-        std_Dev = numpy.std(column)
+        std_Dev = np.std(column)
         std_Dev_Val.append(mean)
         i += 1
 
@@ -1274,7 +1425,7 @@ def run_clumpiness_statistics(layers, layer_names, window_size, layout_index):
         for layer_name, best_p_value in itertools.izip(layer_names, 
         best_p_values)}
 
-    infs = filter(lambda x: numpy.isinf(x), dict.values())
+    infs = filter(lambda x: np.isinf(x), dict.values())
     #nans = filter(lambda x: math.isnan(x), dict.values())
     print "Layout's number of infinite clumpiness p-values of total:", \
         layout_index, len(infs), '/', len(best_p_values)
@@ -1290,29 +1441,32 @@ def copy_files_for_UI(options, layer_files, layers, layer_positives, clumpiness_
     # <layer>\t<file>\t<number of signatures with data>\t<number of signatures
     # that are 1 for binary layers, or NaN> and then columns with the clumpiness
     # score for each layout.
-    
-    # This is the writer to use.
-    index_writer = tsv.TsvWriter(open(os.path.join(options.directory, 
-        "layers.tab"), "w"))
 
-    print "Writing layer index..."
-        
-    for layer_name, layer_file in layer_files.iteritems():
-        # Gather together the parts to write
-        parts = [layer_name, os.path.basename(layer_file),
-            len(layers[layer_name]), layer_positives[layer_name]]
-            
-        for clumpiness_dict in clumpiness_scores:
-            # Go through each dict of clumpiness scores by layer, in layout
-            # order, and put the score for this layer in this layout at the end
-            # of the line.
-            
-            parts.append(clumpiness_dict[layer_name])
-    
-        # Write the index entry for this layer
-        index_writer.list_line(parts)
-        
-    index_writer.close()
+    #if we use the new density, then layers.tab is printed else where.
+    # namely leesL.writeLayersTab()
+    if not options.clumpinessStats:
+        # This is the writer to use.
+        index_writer = tsv.TsvWriter(open(os.path.join(options.directory,
+            "layers.tab"), "w"))
+
+        print "Writing layer index..."
+
+        for layer_name, layer_file in layer_files.iteritems():
+            # Gather together the parts to write
+            parts = [layer_name, os.path.basename(layer_file),
+                len(layers[layer_name]), layer_positives[layer_name]]
+
+            for clumpiness_dict in clumpiness_scores:
+                # Go through each dict of clumpiness scores by layer, in layout
+                # order, and put the score for this layer in this layout at the end
+                # of the line.
+
+                parts.append(clumpiness_dict[layer_name])
+
+            # Write the index entry for this layer
+            index_writer.list_line(parts)
+
+        index_writer.close()
 
     # Copy over the tags file if one exists
     if options.attributeTags is not None:
@@ -1322,28 +1476,7 @@ def copy_files_for_UI(options, layer_files, layers, layer_positives, clumpiness_
 
     # Copy over the user-specified colormaps file, or make an empty TSV if it's
     # not specified.
-    
-    # This holds a writer for the sim file. Creating it creates the file.
-    colormaps_writer = tsv.TsvWriter(open(os.path.join(options.directory,
-        "colormaps.tab"), "w"))
-    
-    if options.colormaps is not None:
-
-        # The user specified colormap data, so copy it over
-        # This holds a reader for the colormaps file
-        colormaps_reader = tsv.TsvReader(open(options.colormaps, 'r'))
-
-        print "Regularizing colormaps file..."
-        sys.stdout.flush()
-        
-        for parts in colormaps_reader:
-            colormaps_writer.list_line(parts)
-        
-        colormaps_reader.close()
-    
-    # Close the colormaps file we wrote. It may have gotten data, or it may 
-    # still be empty.
-    colormaps_writer.close()
+    writeColorMapsTab(options)
 
 def build_default_scores(options):
 
@@ -1360,14 +1493,24 @@ def build_default_scores(options):
     return file_name
 
 def hexIt(options, cmd_line_list, all_dict):
+    '''
+    main function, contains entire pipeline for Tumor Map generation
+    :param options: parsed command line, or user supplied arguemnts, see parse_args() for details
+    :param cmd_line_list: the commands parsed off of the command line
+    :param all_dict: a dict made from cmd_line_list
+    :return: None, writes out a plethora of needed files to a directory specified in 'options'
+    '''
 
-    # Set stdout and stderr to a log file in the destination directory
+    #make the destination directpry for output if its not there
     if not os.path.exists(options.directory):
         os.makedirs(options.directory)
+    #Set stdout and stderr to a log file in the destination directory
     log_file_name = options.directory + '/log'
     stdoutFd = sys.stdout
     sys.stdout = open(log_file_name, 'w')
     sys.stderr = sys.stdout
+
+    #Start chattering to the log file
     print timestamp(), 'Started'
     print 'command-line options:'
     pprint.pprint(cmd_line_list)
@@ -1381,10 +1524,13 @@ def hexIt(options, cmd_line_list, all_dict):
             meta = '{ "role": "' + options.role + '" }\n';
             fout.write(meta)
 
+    #javascript expects at least one attribute so put something fake there
+    # if none exist
     if options.scores == None:
         options.scores = [build_default_scores(options)]
 
-    #This is probably a bad way to do this but it was a 'quick' and dirty way to store certain arguments as list and not list of lists
+    #Make sure arguements are lists instead of list of lists
+    # needed for backward compatibiliy of scripts
     if not (options.similarity == None):
         options.similarity = [val for sublist in options.similarity for val in sublist]
         print "Using sparse similarity"
@@ -1400,8 +1546,10 @@ def hexIt(options, cmd_line_list, all_dict):
         options.coordinates = [val for sublist in options.coordinates for val in sublist]
         print "Using coordinates"
     
-    #if no colormaps file is specified then assume it needs to be created and annotations need to be converted to tumor map mappings:
-    if options.colormaps == None and not(options.scores == None):    #if attributes are not specified then there's no colormaps to create
+    #if no colormaps file is specified then assume it needs to be created
+    # and annotations need to be converted to tumor map mappings.
+    # If attributes are not specified then there's no colormaps to create
+    if options.colormaps == None and not(options.scores == None):
         new_score_files = []
         combine_files = []
         for i, attribute_filename in enumerate(options.scores):
@@ -1415,20 +1563,16 @@ def hexIt(options, cmd_line_list, all_dict):
             print "finished converting annotations"
             #store the new mapped file for the downstream code to use to build the map(s):
             new_score_files.append(os.path.join(options.directory, 'tm_converted_attributes_' + str(i) + '.tab'))
-            
+
         options.scores = new_score_files
         #combine the colormaps files into a single file:
         #print "rolling all colormaps into "+os.path.join(options.directory, 'colormaps_all.tab')
         cat_files(";".join(combine_files), os.path.join(options.directory, 'colormaps_all.tab'))
         options.colormaps = os.path.join(options.directory, 'colormaps_all.tab')
-        #options.colormaps = os.path.join(options.directory, 'colormaps_0.tab')
-        #print "options.scores:"
-        #print options.scores
-        #print "options.colormaps:"
-        #print options.colormaps
-    
-    if len(options.first_attribute) == 0:    #first attribute is not specified; just use the first attribute in the first file
-        if not(options.scores == None):    #maybe it was not specified because there are no attributes
+
+    #first attribute is not specified; just use the first attribute in the first file
+    if len(options.first_attribute) == 0:
+        if not(options.scores == None):  #maybe it was not specified because there are no attributes
             with open(options.scores[0], 'r') as f:
                 first_line_elems = f.readline().split("\t")
                 options.first_attribute = first_line_elems[1]
@@ -1444,7 +1588,9 @@ def hexIt(options, cmd_line_list, all_dict):
         raise Exception("Picking is broken!")
     
     print "Writing matrix names..."
-    # We must write the file names for hexagram.js to access.
+    #write the option,names out,
+    # options.names is a human readable description of the data used to create
+    # the 2 dimensional clustering
     write_similarity_names(options)
     
     # The nodes list stores the list of nodes for each matrix
@@ -1456,7 +1602,7 @@ def hexIt(options, cmd_line_list, all_dict):
 
     # We have file names stored in options.similarity
     # We must open the files and store them in matrices list for access
-    if not(options.coordinates == None):
+    if not(options.coordinates == None): #TODO: this needs to be fixed, x-y pos should just go into squiggle algorithm
         for i, coords_filename in enumerate(options.coordinates):
             coord = read_coordinates(coords_filename)
             nodes_multiple.append(coord)
@@ -1481,7 +1627,7 @@ def hexIt(options, cmd_line_list, all_dict):
                         dt = dt_preprocessed
                     else:
                         raise InvalidAction("Invalid preprocessing method")
-                dt_t = numpy.transpose(dt)
+                dt_t = np.transpose(dt)
                 if options.layout_method.upper() == "PCA":
                     coord = computePCA(dt_t,sample_labels)
                     nodes_multiple.append(coord)
@@ -1543,7 +1689,7 @@ def hexIt(options, cmd_line_list, all_dict):
                     print 'Opening Matrix', i, genomic_filename
                     dt,sample_labels,feature_labels = read_tabular(genomic_filename, True)
                     print str(len(dt))+" x "+str(len(dt[0]))
-                    dt_t = numpy.transpose(dt)
+                    dt_t = np.transpose(dt)
                     result = sparsePandasToString(compute_similarities(dt=dt_t, sample_labels=sample_labels, metric_type=options.metric[i], num_jobs=12, output_type="SPARSE", top=6, log=None))
                     result_stream = StringIO.StringIO(result)
                     matrix_file = tsv.TsvReader(result_stream)
@@ -1701,9 +1847,6 @@ def hexIt(options, cmd_line_list, all_dict):
 
     # We're done with all the input score matrices, so our index is done too.
     matrix_index_writer.close()
-    
-    # We have now loaded all layer data into memory as Python objects. What
-    # could possibly go wrong?
 
     if DEV:
         # Stick our placement badness layer on the end
@@ -1756,68 +1899,105 @@ def hexIt(options, cmd_line_list, all_dict):
     
     # This holds a list of dicts of clumpiness scores by layer, ordered by
     # layout.
+    #this is an array filled with pandas Series describing the density for each layout.
+    densityArray = []
     clumpiness_scores = []
-    
+
+    #writing the colormaps out now so the data types dict can use it...
+    writeColorMapsTab(options)
+    datatypeDict = {'bin':[],'cat':[],'cont':[]}
+    # Determine Data Type
+    if len(layer_names) > 0:
+        attrDF = getAttributes(options.scores)
+        datatypeDict = getDataTypes(attrDF,options.directory + '/colormaps.tab')
+
+    #puts the datatypes in the global object and writes them to the UI file
+    writeAndPutLayerDatatypes(datatypeDict, options)
+
+    '''
+    #DCM - commented out on 011017
+    #this is incorrect. It says that if we are given x-y positions then we can not do density stats.
+    #at this point there is always xyPreSquiggle* files, therefor we can do density stats.
     if not(options.coordinates == None):
         #options.layout_method.upper() in ['TSNE', 'MDS', 'PCA', 'ICA', 'ISOMAP', 'SPECTRALEMBEDDING'] or 
         clumpiness_scores = [collections.defaultdict(lambda: float("-inf")) for _ in options.coordinates]
     else:
-        if len(layer_names) > 0 and options.clumpinessStats:
-            # We want to do clumpiness scores. We skip it when there are no layers,
-            # so we don't try to join a never-used multiprocessing pool, which
-            # seems to hang.
-            if options.layout_method.upper() in ['TSNE', 'MDS', 'PCA', 'ICA', 'ISOMAP', 'SPECTRALEMBEDDING']:
-                    print "We need to run density statistics for {} layouts".format(
-                        len(options.feature_space))
-                    for layout_index in xrange(len(options.feature_space)):
-                        # Do the clumpiness statistics for each layout.
-                        clumpiness_scores.append(run_clumpiness_statistics(layers, 
-                            layer_names, options.window_size, layout_index))
-            else:    #'DRL'
-                if not (options.feature_space == None):    #full feature matrix given
-                    print "We need to run density statistics for {} layouts".format(
-                        len(options.feature_space))
-                    for layout_index in xrange(len(options.feature_space)):
-                        # Do the clumpiness statistics for each layout.
-                        clumpiness_scores.append(run_clumpiness_statistics(layers, 
-                            layer_names, options.window_size, layout_index))
-                elif not (options.similarity_full == None):    #full similarity matrix given
-                    print "We need to run density statistics for {} layouts".format(
-                        len(options.similarity_full))     
-                    for layout_index in xrange(len(options.similarity_full)):
-                        # Do the clumpiness statistics for each layout.
-                        clumpiness_scores.append(run_clumpiness_statistics(layers, 
-                            layer_names, options.window_size, layout_index))
-                elif not (options.similarity == None):        #sparse similarity matrix given
-                    print "We need to run density statistics for {} layouts".format(
-                        len(options.similarity))
-                    for layout_index in xrange(len(options.similarity)):
-                        # Do the clumpiness statistics for each layout.
-                        clumpiness_scores.append(run_clumpiness_statistics(layers, 
-                            layer_names, options.window_size, layout_index))
-                else:    #no matrix is given
-                    raise InvalidAction("Invalid matrix input is provided")
-        
-        else:
-            # We aren't doing any stats.
-            print "Skipping density statistics."        
+    '''
+    if len(layer_names) > 0 and options.clumpinessStats:
+        ###############################DCM121916###################################3
+        #calculates density using the Lees'L method
+
+        for index in range(len(nodes_multiple)):
+            print 'calculating density for layer ' + str(index)
+            xys = leesL.readXYs(options.directory + '/xyPreSquiggle_' + str(index)+'.tab')
+            densityArray.append(leesL.densityOpt(attrDF,datatypeDict,xys,debug=True))
+
+        leesL.writeLayersTab(attrDF,layers,layer_files,densityArray,datatypeDict,options)
+        ###########################################################################3
+
+        '''
+        ##DCM 011017:
+        ##Old method for doing density stats.
+        ##Note that the cases below run the same commands, and therefor are superfluous in the
+        ##case when the input is standardized.
+
+        # We want to do clumpiness scores. We skip it when there are no layers,
+        # so we don't try to join a never-used multiprocessing pool, which
+        # seems to hang.
+        if options.layout_method.upper() in ['TSNE', 'MDS', 'PCA', 'ICA', 'ISOMAP', 'SPECTRALEMBEDDING']:
+                print "We need to run density statistics for {} layouts".format(
+                    len(options.feature_space))
+                for layout_index in xrange(len(options.feature_space)):
+                    # Do the clumpiness statistics for each layout.
+                    clumpiness_scores.append(run_clumpiness_statistics(layers,
+                        layer_names, options.window_size, layout_index))
+        else:    #'DRL'
             if not (options.feature_space == None):    #full feature matrix given
-                # Set everything's clumpiness score to -inf.
-                clumpiness_scores = [collections.defaultdict(lambda: float("-inf")) 
-                    for _ in options.feature_space]
+                print "We need to run density statistics for {} layouts".format(
+                    len(options.feature_space))
+                for layout_index in xrange(len(options.feature_space)):
+                    # Do the clumpiness statistics for each layout.
+                    clumpiness_scores.append(run_clumpiness_statistics(layers,
+                        layer_names, options.window_size, layout_index))
             elif not (options.similarity_full == None):    #full similarity matrix given
-                # Set everything's clumpiness score to -inf.
-                clumpiness_scores = [collections.defaultdict(lambda: float("-inf")) 
-                    for _ in options.similarity_full]            
+                print "We need to run density statistics for {} layouts".format(
+                    len(options.similarity_full))
+                for layout_index in xrange(len(options.similarity_full)):
+                    # Do the clumpiness statistics for each layout.
+                    clumpiness_scores.append(run_clumpiness_statistics(layers,
+                        layer_names, options.window_size, layout_index))
             elif not (options.similarity == None):        #sparse similarity matrix given
-                # Set everything's clumpiness score to -inf.
-                clumpiness_scores = [collections.defaultdict(lambda: float("-inf")) 
-                    for _ in options.similarity]
+                print "We need to run density statistics for {} layouts".format(
+                    len(options.similarity))
+                for layout_index in xrange(len(options.similarity)):
+                    # Do the clumpiness statistics for each layout.
+                    clumpiness_scores.append(run_clumpiness_statistics(layers,
+                        layer_names, options.window_size, layout_index))
             else:    #no matrix is given
                 raise InvalidAction("Invalid matrix input is provided")
-            
-    # Sort Layers According to Data Type
-    determine_layer_data_types (layers, layer_names, options)
+        '''
+    else:
+        #We aren't doing any stats.
+        ##DCM 011017:
+        ##Note that the cases below run the same command, and therefor are superfluous in the
+        ##case when the input is standardized.
+        print "Skipping density statistics."
+        if not (options.feature_space == None):    #full feature matrix given
+            # Set everything's clumpiness score to -inf.
+            clumpiness_scores = [collections.defaultdict(lambda: float("-inf"))
+                for _ in options.feature_space]
+        elif not (options.similarity_full == None):    #full similarity matrix given
+            # Set everything's clumpiness score to -inf.
+            clumpiness_scores = [collections.defaultdict(lambda: float("-inf"))
+                for _ in options.similarity_full]
+        elif not (options.similarity == None):        #sparse similarity matrix given
+            # Set everything's clumpiness score to -inf.
+            clumpiness_scores = [collections.defaultdict(lambda: float("-inf"))
+                for _ in options.similarity]
+        else:    #no matrix is given
+            raise InvalidAction("Invalid matrix input is provided")
+
+
 
     # Count how many layer entries are greater than 0 for each binary layer, and
     # store that number in this dict by layer name. Things with the default
@@ -1844,11 +2024,17 @@ def hexIt(options, cmd_line_list, all_dict):
     copy_files_for_UI(options, layer_files, layers, layer_positives, clumpiness_scores)
 
     #create_gmt(layers, layer_names, options)
-    
+
+    #################################################################################################
+    ##############################~200 lines of DEPRECATED code######################################
+    #################################################################################################
+    #DCM- what does it do?
+
     # Check Whether User Provided Raw Data for Dynamic Loading
     should_compute = return_beta(options)
 
     if (should_compute == True):
+        print 'doing mysterious "beta computations."'
         # Extract Files Related to Beta Computation
         raw_data_files = options.raw
 
@@ -1896,7 +2082,7 @@ def hexIt(options, cmd_line_list, all_dict):
 
             hex_values = ctx.all_hexagons[index].values()
 
-            coords = numpy.zeros(shape=(len(hex_values), 2))
+            coords = np.zeros(shape=(len(hex_values), 2))
 
             for index, x in enumerate (x_coords):
                 coords[index, 0] = x
@@ -1906,8 +2092,8 @@ def hexIt(options, cmd_line_list, all_dict):
             
             """        
             # Samples to Train Algorithm
-            t_matrix = numpy.zeros(shape=(d_shape[0], 1811))
-            t_coords = numpy.zeros(shape=(2,1811))
+            t_matrix = np.zeros(shape=(d_shape[0], 1811))
+            t_coords = np.zeros(shape=(2,1811))
             t_hex_values = []
 
             sample_index = 0
@@ -1924,8 +2110,8 @@ def hexIt(options, cmd_line_list, all_dict):
                 sample_index += 2
 
             # Samples to Test Algorithm
-            s_matrix = numpy.zeros(shape=(d_shape[0], 1811))
-            s_coords = numpy.zeros(shape=(2,1811))
+            s_matrix = np.zeros(shape=(d_shape[0], 1811))
+            s_coords = np.zeros(shape=(2,1811))
             s_hex_values = []
 
             sample_index = 1
@@ -1946,7 +2132,7 @@ def hexIt(options, cmd_line_list, all_dict):
             sample_writer = tsv.TsvWriter(open(os.path.join(options.directory, 
             "samples" + ".tab"), "w"))
 
-            s_coords_t = numpy.transpose(numpy.asmatrix(s_coords))
+            s_coords_t = np.transpose(np.asmatrix(s_coords))
           
             for index, row in enumerate (s_hex_values):
                 x = str(s_coords_t[index, 0])
@@ -1957,13 +2143,13 @@ def hexIt(options, cmd_line_list, all_dict):
 
             # Testing cache file printing with 10 samples
             # Hack 
-            sample = numpy.transpose(numpy.asmatrix(data_val[0]))
+            sample = np.transpose(np.asmatrix(data_val[0]))
             sample = sample[0:10]
-            sample = numpy.transpose(sample)
-            U, S, V = numpy.linalg.svd(sample, full_matrices=False)
+            sample = np.transpose(sample)
+            U, S, V = np.linalg.svd(sample, full_matrices=False)
             """
             # Take Single Value Decomposition of Matrix & Find PCA
-            U, S, V = numpy.linalg.svd(data_val[0], full_matrices=False)
+            U, S, V = np.linalg.svd(data_val[0], full_matrices=False)
             print ("U", U.shape)
             print ("S", S.shape)
             print ("V", V.shape)
@@ -1972,12 +2158,12 @@ def hexIt(options, cmd_line_list, all_dict):
             PCA = V[0:25]
 
             #PCA = V[0:3585]
-            PCA = numpy.transpose(PCA)
+            PCA = np.transpose(PCA)
 
             #PCA = numpy.transpose(V)
 
             #beta = compute_beta (numpy.asmatrix(numpy.transpose(coords[0:10])), PCA, index, options)
-            beta = compute_beta (numpy.asmatrix(numpy.transpose(coords)), PCA, index, options)
+            beta = compute_beta (np.asmatrix(np.transpose(coords)), PCA, index, options)
             #beta = compute_beta (numpy.asmatrix(t_coords), PCA, index, options)
             print ("Beta shape", beta.shape)
             
@@ -1991,18 +2177,18 @@ def hexIt(options, cmd_line_list, all_dict):
             # This way the SVD can be accessed to load new patient data
             S_writer = tsv.TsvWriter(open(os.path.join(options.directory, 
             "S.tab"), "w"))
-            S_writer.line(*numpy.transpose(S))
+            S_writer.line(*np.transpose(S))
             S_writer.close()
 
             #S = S[0:3585]
             S = S[0:25]
-            S_diag = numpy.diag(numpy.transpose(S))
+            S_diag = np.diag(np.transpose(S))
 
             # We also need a truncated version of U
             # New PCA Mapping: S_diag * U^T * new_sample_data
             # S_diag = 3585 * 3585, U^T = 3585 * 12724, new_sample_data = 12724 * n_samples
 
-            U_t = numpy.transpose(U)
+            U_t = np.transpose(U)
             #U_trunc_t = U_t[0:3585] 
             U_trunc_t = U_t[0:25]   
             #U_trunc_t = numpy.asmatrix(U_trunc_t)
@@ -2018,15 +2204,15 @@ def hexIt(options, cmd_line_list, all_dict):
             
             # Demo Map Generation
             """       
-            PCA_Test = numpy.asmatrix(S_diag) * numpy.asmatrix(U_trunc_t) * s_matrix 
+            PCA_Test = np.asmatrix(S_diag) * np.asmatrix(U_trunc_t) * s_matrix 
             # Real Command for Mapping   
-            PCA_Test = numpy.asmatrix(S_diag) * numpy.asmatrix(U_trunc_t) * data_val[0]
+            PCA_Test = np.asmatrix(S_diag) * np.asmatrix(U_trunc_t) * data_val[0]
             print ("PCA_Test Shape", PCA_Test.shape)
             
             print (PCA_Test)
               
             coords_2_swapped = beta * PCA_Test
-            coords_2 = numpy.transpose(coords_2_swapped)
+            coords_2 = np.transpose(coords_2_swapped)
 
             hexagon_writer = tsv.TsvWriter(open(os.path.join(options.directory, 
             "assignments"+ str(1) + ".tab"), "w"))
@@ -2037,9 +2223,18 @@ def hexIt(options, cmd_line_list, all_dict):
                 hexagon_writer.line(hex_values[index], x, y)    
             """              
 
+    #################################################################################################
+    #################################################################################################
+    #################################################################################################
     else:
         print ("No Data Provided...Skipping Beta Calculations")
-    
+
+    '''
+    DCM Note : The file hexNames isn't used anywhere.
+    This is also misleading because hexnames only has the node ID's for one layer
+     and there is often new nodes in different datatypes, which is a common use case for
+     multiple layouts.
+    '''
     # Create the hex names file accessed by the stats subprocesses,
     # even if we don't pre-compute stats, do this for dynamic  stats
     hexNames = ctx.all_hexagons[0].values()
@@ -2048,17 +2243,41 @@ def hexIt(options, cmd_line_list, all_dict):
         for name in hexNames:
             f.writerow([name])
 
-    # Run sample-based stats
+    # Run pairwise meta data stats
     if options.associations == True:
         statsNoLayout(layers, layer_names, ctx, options)
     else:
-        print 'Skipping sort stats withou layout (sample-based)'
+        print 'Skipping sort stats without layout (sample-based)'
 
+    '''
+    this is replaced by the leesL method for doing layout-aware stats
     # Run region-based stats
     # Call this no matter if these stats were requested or not so that the
     # Sampling windows are built in case the user requests a dynamic stats
     # from the viz UI.
     statsLayout(options.directory, layers, layer_names, nodes_multiple, ctx, options)
+    '''
+
+    if (options.mutualinfo and len(layer_names) > 0):
+        print 'LeesL layout aware stats being calculated'
+
+        #subset down  to binary attributes
+        binAttrDF= attrDF[datatypeDict['bin']]
+
+        #need to get layers file to know the indecies used for the outputted filenames
+        layers = leesL.readLayers(options.directory + '/layers.tab')
+
+        for index in range(len(nodes_multiple)):
+            xys = leesL.readXYs(options.directory + '/xyPreSquiggle_' + str(index)+'.tab')
+
+            #filter and preprocess the binary attributes on the map
+            attrOnMap = leesL.attrPreProcessing4Lee(binAttrDF,xys)
+            # attributes ar e
+            leeMatrix = leesL.leesL(leesL.spatialWieghtMatrix(xys),attrOnMap)
+            #take all pairwise correlations of Binaries to display along with Lees L
+            corMat=1-sklp.pairwise_distances(attrOnMap.transpose(),metric='correlation',n_jobs=8)
+
+            leesL.writeToDirectoryLee(options.directory + '/',leeMatrix,corMat,attrOnMap.columns.tolist(),layers,index)
 
     # Find the top neighbors of each node
     if not(options.coordinates == None):
@@ -2119,14 +2338,14 @@ def PCA(dt):    #YN 20160620
     
 def tSNE(dt):    #YN 20160620
     pca = sklearn.decomposition.PCA(n_components=50)
-    dt_pca = pca.fit_transform(numpy.array(dt))
+    dt_pca = pca.fit_transform(np.array(dt))
     model = sklearn.manifold.TSNE(n_components=2, random_state=0)
-    numpy.set_printoptions(suppress=True)
+    np.set_printoptions(suppress=True)
     return(model.fit_transform(dt_pca))
 
 def tSNE2(dt):    #YN 20160620
     model = sklearn.manifold.TSNE(n_components=2, random_state=0)
-    numpy.set_printoptions(suppress=True)
+    np.set_printoptions(suppress=True)
     return(model.fit_transform(dt))
 
 def isomap(dt):    #YN 20160620
@@ -2161,8 +2380,8 @@ def compute_silhouette(coordinates, *args):        #YN 20160629: compute average
     samples_lst = [item for sublist in samples for item in sublist]
     features = []
     for s in samples_lst:
-        features.append(numpy.array([coordinates[s]["x"], coordinates[s]["y"]]))
-    return(sklearn.metrics.silhouette_score(numpy.array(features), numpy.array(cluster_assignments_lst), metric='euclidean', sample_size=1000, random_state=None))
+        features.append(np.array([coordinates[s]["x"], coordinates[s]["y"]]))
+    return(sklearn.metrics.silhouette_score(np.array(features), np.array(cluster_assignments_lst), metric='euclidean', sample_size=1000, random_state=None))
 
 def main(args):
     arg_obj = parse_args(args)

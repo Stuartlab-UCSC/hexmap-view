@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+#script runs all three test_mcr scripts
+# they could not be run together for an unknown reason,
+# that likely has to do with the parallel processing going 
+# on in both layout.py and the unitTesting.. (?)
+
+test_mcr_raw.py 
+test_mcr_full.py
+test_mcr_top6.py
+test_stats.py

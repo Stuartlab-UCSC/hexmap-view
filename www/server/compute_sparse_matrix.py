@@ -84,8 +84,7 @@ def read_tabular(in_file,numeric_flag=True,log=sys.stdout):
         print >> log, "WARNING: " + str(nas) + " Na's found in data matrix " + in_file + ". Set all to 0"
 
     if len(colsHadStrings) and numeric_flag:
-            raise ValueError('Strings were found in your input matrix in columns ' + str(colsHadStrings))
-
+            raise ValueError('Strings were found in input matrix, columns:' + str(colsHadStrings))
 
     col_header = df.columns.values.tolist()
     row_header = df.index.tolist()
@@ -130,7 +129,7 @@ def read_tabular_dep(input_file, numeric_flag):
         matrix = [[float(y) for y in x] for x in init_matrix]
     else:
         matrix = init_matrix
-    return (numpy.array(matrix), col_headers, row_headers)
+    return (matrix, col_headers, row_headers)
 
 def read_tabular2(input_file, numeric_flag):	#YN 20160629, a faster (still TBD) version of the above function but doesn't do invalid value conversion
     with open(input_file,'r') as f:
