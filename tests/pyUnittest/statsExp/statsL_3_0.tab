@@ -1,4 +1,4 @@
-TP63_expression altered	0.0676625490507	0.2	1.0
-TP53_mutated	-0.0548848224983	0.7	0.5
-TP63_mutated	-0.0548848224983	0.7	0.5
-DNA_Repair	-0.0676625490507	0.2	-1.0
+categoricalBinary	-8.89167392979e-06	0.7	0.0
+TP63_ mutated	-8.89167392979e-06	0.7	0.0
+TP63_expression altered	2.05728012163e-05	0.2	0.0
+DNA_Repair Broken	-2.05728012163e-05	0.4	0.0

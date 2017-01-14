@@ -10,7 +10,7 @@ rootDir = getRootDir()
 # These dirs should depend only on the above rootDir
 # using the repository directory structure starting at 'hexagram/'
 testDir = rootDir + 'tests/pyUnittest/'
-inDir = testDir + 'createMapIn/'   # The input data
+inDir = testDir + 'statsIn/'   # The input data
 expDir = testDir + 'statsExp/' # The expected output data
 outDir = testDir + 'statsOut/' # The actual output data
 scriptDir = rootDir + 'www/server'
@@ -28,10 +28,10 @@ class TestStats(unittest.TestCase):
     
         # Build the parms to be passed to layout.py
         opts = [
-            '--similarity', inDir + 'mcr.top6.tab',
+            '--similarity', inDir + 'artificial_sparse.tab',
             '--names', 'mRNA',
-            '--scores', inDir + 'mcrchopra.atts.tab',
-            '--colormaps', inDir + 'mcrchopra.colormaps.tab',
+            '--scores', inDir + 'old_attributes.csv',
+            '--colormaps', inDir + 'colormaps.tab',
             '--first_attribute', 'Subtype',
             '--directory', outDir,
         ]
@@ -45,6 +45,7 @@ class TestStats(unittest.TestCase):
     def test_stats(s):
         s.runPy()
         util.compareActualVsExpectedDir(s, outDir, expDir)
+
 
 if __name__ == '__main__':
     unittest.main()
