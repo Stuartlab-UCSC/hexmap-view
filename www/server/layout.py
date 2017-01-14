@@ -14,7 +14,7 @@ Re-uses sample code and documentation from
 <http://users.soe.ucsc.edu/~karplus/bme205/f12/Scaffold.html>
 """
 
-DEV = False; # True if in development mode, False if not
+DEV = False # True if in development mode, False if not
 
 import argparse, sys, os, itertools, math, subprocess, shutil, tempfile, glob, io
 import collections, traceback, time, datetime, pprint
@@ -56,6 +56,7 @@ Notes about peculiarities in code:
         not the case. --include_singletons simply draws a self connecting edge on all the nodes already on the
         map before running through DRL. It is unclear what affect this should have on a spring embedded layout
         clustering algorithm. Its action can be viewed in the drl_similarity_functions() code.
+        Update: Testing with the mcrchropra test data suggests this argument does nothing.
     2.) --truncate_edges option: This is defaulted to 6, and gets fed into the DRL clustering algorithm.
                                  The name suggests that even if you provided 20 neighbors, downstream the
                                  DRL clustering algorthm would trim it down to six.
@@ -144,7 +145,7 @@ def checkForBinaryCategorical(catAtts,datatypes):
 
     return datatypes
 
-def getDataTypes(attributeDF,colormapFile,debug=True):
+def getDataTypes(attributeDF,colormapFile,debug=False):
     '''
     logic for getting datatype from attribute files,
          also checks to make sure an attribute in the colormap has an attribute in the scores/attribute matrix
@@ -160,17 +161,26 @@ def getDataTypes(attributeDF,colormapFile,debug=True):
     categoricals =  getCategoricalsFromColorMapFile(colormapFile)
     binaries = []
     continuouses = []
+    if debug:
+        print 'categoricals read: ' + str(len(categoricals))
+        print categoricals
 
-
+    prunedCats = []
     #remove any attriibutes that made there way into the colormap but aren't in the metadata
     for attrName in categoricals:
-        try:
-            attributeDF[attrName]
-        except KeyError:
-            categoricals.remove(attrName)
+        if debug:
+            print attrName
+        if attrName in attributeDF.columns.tolist():
+            prunedCats.append(attrName)
+        else:
+            if debug:
+                print 'removed'
 
+    categoricals= prunedCats
+
+    #figure out the datatype
     for attrName in attributeDF.columns:
-        # if the name was in the colormap, and in the attribute matrix then we say its a categorical
+        # if the name was in the colormap, and in the attribute matrix then, for now, it's a categorical
         if attrName in categoricals:
             continue
         #otherwise if it only has values 0 or 1, then call it binary
@@ -181,8 +191,7 @@ def getDataTypes(attributeDF,colormapFile,debug=True):
 
     #create a dictionary to reference datatypes
     datatypeDict = {'bin':binaries,'cat':categoricals,'cont':continuouses}
-    if debug:
-        print datatypeDict
+
     #return a corrected version of the datatype dictionary
     return checkForBinaryCategorical(attributeDF[datatypeDict['cat']],datatypeDict)
 ##
