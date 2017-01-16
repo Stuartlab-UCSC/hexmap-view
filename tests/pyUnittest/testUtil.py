@@ -1,5 +1,5 @@
 #!/usr/bin/env python2.7
-
+# testutil.py
 # This tests javascript, using python's easier calls to shell commands
 # from here than from mocha
 
@@ -37,23 +37,21 @@ def compareActualVsExpectedDir(s, outDir, expDir):
     # Compare the file contents with the expected
     # Returns three lists of file names: match, mismatch, errors
     diff = filecmp.cmpfiles(outDir, expDir, expFiles)
-
-    #The log file should be different, with the rest matching
-    if 'log' in diff[1]: #in case we are comparing dirs without a log file
-        diff[1].remove('log')
-
+    #print 'diff', diff
+    
+    # The log file should be different, with the rest matching
+    diff[1].remove('log')
     mismatch = diff[1]
-
-    #print out which of the files are mismatching to give
-    # the user a quick indication of what has gone wrong
-    #if len(mismatch):
-    #    print 'mismatching files: ', mismatch
-
+    
+    #if mismatch != [] and mismatch != None:
+    #    print 'mismatched files: ' + str(mismatch)
     s.assertTrue(mismatch == [] or mismatch == None) # mismatched files
     
     # There should be no errors resulting from the diff
     #if diff[2] != []:
     #    print 'errors comparing files: ' + str(diff[2])
+    s.assertTrue(diff[2] == []) # errors
+
     s.assertTrue(diff[2] == []) # errors
 
 def compareActualVsExpectedFile(s, fname, outDir, expDir):

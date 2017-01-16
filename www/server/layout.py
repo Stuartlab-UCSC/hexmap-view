@@ -23,6 +23,7 @@ import time, socket
 from types import *
 import os.path
 import tsv, csv, json
+from utils import sigDigs
 from statsNoLayout import statsNoLayout
 from statsLayout import statsLayout
 import pool
@@ -320,14 +321,6 @@ class InvalidAction(Exception):
         self.value = value
     def __str__(self):
         return repr(self.value)
-
-def sigDigs(x, sig=7):
-    if sig < 1:
-        raise ValueError("number of significant digits must be >= 1")
-
-    # Use %e format to get the n most significant digits, as a string.
-    format = "%." + str(sig-1) + "e"
-    return float(format % x)
 
 def hexagon_center(x, y, scale=1.0):
     """

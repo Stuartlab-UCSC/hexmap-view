@@ -166,7 +166,7 @@ class TestCreateMap(unittest.TestCase):
 
     def test_similarityFullSpear(s):
 
-        # Test for sparse matrix with 3 top neighbors and spearman correlation
+        # Test for full matrix with spearman correlation
         baseName = 'TGCT_IlluminaHiSeq_RNASeqV2'
         outName = baseName + '.full.spearman.tab'
         expDir = testDir + 'computeSimExp/' # The expected output data

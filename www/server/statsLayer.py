@@ -8,25 +8,7 @@ layout-independent and for both pre-computed and dynamic stats
 import sys, os, json, copy, csv, math, operator, traceback, pprint
 import scipy.stats
 import numpy
-
-def sigDigs(x, sig=7):
-
-    if sig < 1:
-        raise ValueError("number of significant digits must be >= 1")
-
-    if math.isnan(x):
-        return 1
-
-    # Use %e format to get the n most significant digits, as a string.
-    format = "%." + str(sig-1) + "e"
-    return float(format % x)
-
-def is_number(x):
-    try:
-        float(x)
-        return True
-    except ValueError:
-        return False
+from utils import sigDigs
 
 class ForEachLayer(object):
 
