@@ -48,7 +48,7 @@ from sklearn import preprocessing
 import sklearn.metrics
 import sklearn.metrics.pairwise as sklp
 import numpy as np
-
+from statsNoLayoutOpt import runAllbyAllForUI
 '''
 Notes about peculiarities in code:
     1.) --include_singletons option: the name suggests you are including nodes
@@ -2254,7 +2254,14 @@ def hexIt(options, cmd_line_list, all_dict):
 
     # Run pairwise meta data stats
     if options.associations == True:
+        print 'layout independent stats starting'
+        indstats_time = time.time()
         statsNoLayout(layers, layer_names, ctx, options)
+        #new optimized function for computing stats.
+        # testing on Pancan12 soon.
+        #runAllbyAllForUI(options.directory,leesL.readLayers(options.directory+'\layers.tab'),attrDF, dataTypeDict)
+        mins_taken = (time.time() - indstats_time) / 60.0
+        print 'layout independent stats finished in ' + str(mins_taken) + ' minutes'
     else:
         print 'Skipping sort stats without layout (sample-based)'
 

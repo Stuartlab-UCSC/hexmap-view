@@ -3,10 +3,11 @@ This is an optimized version of our pairwise attribute statistics.
 Instead of using the lower level paralell processing of initiallizing n**2 classes
  it takes advantage of the parallel processing implemented in sklearn
 
- Notable changes:
+ Notable changes to occur after testing passes:
       If a test fails and returns NA, we will not set that values to 1
        because a p-values of NA or 1 have very differnent meaning
-
+'''
+'''
  Notes on implementation:
   In order to take advantage of sklearn's parallel all-pairwise computation, and maintain
   the pairwise-complete observation of the statistical tests (i.e. nodes with Na in either of the
@@ -20,9 +21,13 @@ Instead of using the lower level paralell processing of initiallizing n**2 class
   For continuous data types, the maximum float value is used. The argument for choosing this value
     is that it should not occur naturally because of the dangers of overflow.
 
-  Those decisions can be easily changed by setting the globals below.
+  Those decisions can be easily changed by setting *NAN the globals below.
   ---------------
-  Adjustments are done in the write*() function
+  Pvalue Adjustments are done in the write*() function
+  ---------------
+  dropQuantiles() function makes no sense in the context of rank sums test. Outliers are treated in the rank sums
+   by a rank transform, and therefor you don't need to get rid of outliers that may affect the test. It is implemented
+   here for reasurance that the statistical tests are producing the same numbers before changes.
 '''
 import pandas as pd
 import numpy as np
@@ -32,11 +37,23 @@ from layout import getAttributes
 from leesL import getLayerIndex
 from leesL import readLayers
 import statsmodels.sandbox.stats.multicomp as multicomp
-
+import math
 
 #globals numbers used to represent NA values
 FLOATNAN  = np.finfo(np.float64).max
 BINCATNAN = -1
+
+def sigDigs(x, sig=7):
+
+    if sig < 1:
+        raise ValueError("number of significant digits must be >= 1")
+
+    if math.isnan(x):
+        return 1
+
+    # Use %e format to get the n most significant digits, as a string.
+    format = "%." + str(sig-1) + "e"
+    return float(format % x)
 
 def filterBinCat(x,y):
     '''
@@ -73,6 +90,34 @@ def filterCont(x,y):
     x=x[~eitherNan]
     y=y[~eitherNan]
     return x,y
+
+def dropQuantiles(binx,conty):
+    '''
+
+    @param x:
+    @param y:
+    @return:
+    '''
+
+    QUANTILE_DIVISOR = 100
+    #taken/modified out of statsLayer
+    length = len(conty)
+    quantile = int(round(float(length) / QUANTILE_DIVISOR))
+
+    if quantile == 0:
+        return binx,conty
+
+    hexKeyValsSorted = np.sort(conty)
+    lower = hexKeyValsSorted[quantile]
+    upper = hexKeyValsSorted[length - quantile]
+
+    maskit = np.logical_and(conty >= lower, conty <= upper)
+    #maskit.sum()
+    binx = binx[maskit]
+    conty = conty[maskit]
+
+    return binx,conty
+
 ###############################################################################################3
 ###################################DM122016####################################################3
 #these are the individual functions for calculating layout-independent statistics, i.e.
@@ -122,6 +167,7 @@ def catBinOrCatCatTest(x,y):
     '''
     handles binary and categical or categorical ccategorical
     '''
+    x,y = filterBinCat(x,y)
     #build contingency table
     table = contingencyTable(x,y)
     chi2, pValue, dof, expectedFreq = stats.chi2_contingency(table)
@@ -145,13 +191,23 @@ def catContTest(catx,conty):
     return pValue
 
 def binContTest(binx,conty):
-    binx, conty = filterBinOrCatCont(binx,conty)
-    groups = pd.DataFrame([binx,conty]).transpose().groupby([0])
+    '''
 
+    @param binx:
+    @param conty:
+    @return:
+    '''
+    binx, conty = filterBinOrCatCont(binx, conty)
+    #binx, conty = dropQuantiles(binx, conty)
+
+    #drop quantiles can cause problems by excluding too many values.. need better comment
+    #separate into continuos values tagged with '1' and '0'
+    groups = pd.DataFrame([binx, conty]).transpose().groupby([0])
+    #make those groups into format expected by stats function
     samples = groups.aggregate(lambda x: list(x))[1].tolist()
     stat, pValue = stats.ranksums(*samples)
-    return pValue
 
+    return pValue
 ################################################################################################3
 ################################################################################################3
 def read_matrices(projectDir):
@@ -224,8 +280,8 @@ def allbyallStatsNoLayout(attrDF,datatypeDict):
     @param datatypeDict:
     @return:
     '''
-    #attrDF = getAttributes(read_matrices('/home/duncan/Desktop/TumorMap/TMdev/hexagram/tests/pyUnittest/statsExp'))
-    #datatypeDict = read_data_types('/home/duncan/Desktop/TumorMap/TMdev/hexagram/tests/pyUnittest/statsExp')
+    attrDF = getAttributes(read_matrices('/home/duncan/Desktop/TumorMap/TMdev/hexagram/tests/pyUnittest/statsExp'))
+    datatypeDict = read_data_types('/home/duncan/Desktop/TumorMap/TMdev/hexagram/tests/pyUnittest/statsExp')
     #separate the metadata out into the perspective data types
     binAtts = attrDF[datatypeDict['bin']]
     binAtts = binAtts.fillna(BINCATNAN)
@@ -234,12 +290,12 @@ def allbyallStatsNoLayout(attrDF,datatypeDict):
     catAtts = catAtts.fillna(BINCATNAN)
 
     contAtts = attrDF[datatypeDict['cont']]
-    catAtts = catAtts.fillna(FLOATNAN)
+    contAtts = contAtts.fillna(FLOATNAN)
 
-    binAtts = binAtts[binAtts.columns[-3:-1]]
+    #binAtts = binAtts[binAtts.columns[-3:-1]]
 
-    #x= binAtts[binAtts.columns[0]]
-    #y= binAtts[binAtts.columns[1]]
+    #conty= contAtts['Random']
+    #binx= binAtts['TP63_expression altered']
 
     #Do all by alls and convert to pandas dataframe
     # naming scheme:
@@ -252,7 +308,7 @@ def allbyallStatsNoLayout(attrDF,datatypeDict):
     coXco = pd.DataFrame(coXco,columns=datatypeDict['cont'],index=datatypeDict['cont'] )
     #
     caXca = sklp.pairwise_distances(catAtts.transpose(),metric=catBinOrCatCatTest)
-    caXca = pd.DataFrame(coXco,columns=datatypeDict['cat'],index=datatypeDict['cat'] )
+    caXca = pd.DataFrame(caXca,columns=datatypeDict['cat'],index=datatypeDict['cat'] )
     #
     caXbi = sklp.pairwise_distances(catAtts.transpose(),binAtts.transpose(),metric=catBinOrCatCatTest)
     caXbi = pd.DataFrame(caXbi,columns=datatypeDict['bin'],index=datatypeDict['cat'] )
@@ -262,8 +318,9 @@ def allbyallStatsNoLayout(attrDF,datatypeDict):
     #
     biXco = sklp.pairwise_distances(binAtts.transpose(),contAtts.transpose(),metric=binContTest)
     biXco = pd.DataFrame(biXco,columns=datatypeDict['cont'],index=datatypeDict['bin'] )
+
     '''
-    all = stitchTogether(biXbi,caXbi,biXco,coXco,caXco,caXca)
+    all_ = stitchTogether(biXbi,caXbi,biXco,coXco,caXco,caXca)
     '''
     return stitchTogether(biXbi,caXbi,biXco,coXco,caXco,caXca)
 
@@ -290,9 +347,12 @@ def writeToDirectoryStats(dirName,allbyall,layers):
 
         statsO.to_csv(dirName+filename,sep='\t',header=None)
 
-all = all.fillna(1)
-layersfile = '/home/duncan/Desktop/TumorMap/TMdev/hexagram/tests/pyUnittest/statsExp/layers.tab'
-writeToDirectoryStats('/home/duncan/Desktop/TumorMap/TMdev/hexagram/tests/pyUnittest/statsFromOpt/',all,readLayers(layersfile))
+#these need to happen for comparable output
+#all_ = all_.fillna(1)
+#all_ = all_.apply(lambda x: x.apply(sigDigs))
+#layersfile = '/home/duncan/Desktop/TumorMap/TMdev/hexagram/tests/pyUnittest/statsExp/layers.tab'
+#writeToDirectoryStats('/home/duncan/Desktop/TumorMap/TMdev/hexagram/tests/pyUnittest/statsFromOpt/',all_,readLayers(layersfile))
+
 def runAllbyAllForUI(dir,layers,attrDF,dataTypeDict):
 
     writeToDirectoryStats(dir,allbyallStatsNoLayout(attrDF,dataTypeDict),layers)
