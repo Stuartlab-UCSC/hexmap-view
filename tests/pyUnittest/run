@@ -4,6 +4,6 @@
 #     run test_stats
 #     run test_stats.TestStats.test_stats
 
-export PYTHONPATH=$(pwd)/../../www/server
+export PYTHONPATH=$(pwd)/../../www/server:./
 python2.7 -m unittest $1
 
