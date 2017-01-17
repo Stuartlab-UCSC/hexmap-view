@@ -9,6 +9,8 @@ from scipy import stats
 import numpy as np
 import scipy.spatial.distance as dist
 from utils import sigDigs
+from utils import truncateNP
+
 
 #input/output helpers
 def readLayers(layerFile):
@@ -85,10 +87,11 @@ def writeToDirectoryLee(dirName,leeMatrix,simMatrix,colNameList,layers,index):
         #print getLayerIndex(column,layers)
         statsO = pd.DataFrame(index= colNameList)
         statsO[0] = leeMatrix[i,]
-
+        #truncate as an attempt to be reproducible on different machines.
+        statsO[0] = truncateNP(statsO[0],11)
         #two cases of output, if correlation is present then we need to
         # change the p-value so that attributes rank properly
-        statsO[1] = 1- (stats.rankdata(np.abs(leeMatrix[i,])) / len(leeMatrix[i,]))
+        statsO[1] = 1- (stats.rankdata(np.abs(statsO[0]),method='average') / len(leeMatrix[i,]))
 
         statsO[2] = simMatrix[i,]
         #
