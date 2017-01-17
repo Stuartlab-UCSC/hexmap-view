@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+# sorts the individual file lines in DIR2 and DIR1 so they are standardized.
+# this scirpt is for cases when the output of stats line placement doesn't agree
+# but we want to use a diff to compare the values
+
+DIR1=notadirj
+DIR2=notadir 
+
+find $DIR1 -prune -type f |grep -v .sort| while read file
+do
+sort "$file" > "$file"
+done
+
+find $DIR2 -prune -type f |grep -v .sort| while read file
+do
+sort "$file" > "$file"
+done
