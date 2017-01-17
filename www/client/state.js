@@ -397,13 +397,18 @@ var app = app || {};  // jshint ignore: line
         var s = this;
         var state = {};
  
-        // Find the project if one was included in the URL,
-        // replacing the last '.' with '/'
+        // Find the project if one was included in the URL.
         if (s.uParm.p) {
-            var i = s.uParm.p.lastIndexOf('.');
-            if (i > -1) {
-                s.uParm.p = s.uParm.p.substr(0, i) + '/' + s.uParm.p.substr(i+1);
+            if (s.uParm.p.substr(0, 4) === 'CKCC') {
+ 
+                // Replace the last '.' with '/' so old CKCC URLs still work.
+                var i = s.uParm.p.lastIndexOf('.');
+                if (i > -1) {
+                    s.uParm.p = s.uParm.p.substr(0, i) + '/' + s.uParm.p.substr(i+1);
+                }
             }
+ 
+            // Append a slash to make the standard project form.
             state.project = s.uParm.p + '/';
  
             // A project in a url means someone wants to see a particular map
