@@ -4,37 +4,38 @@ Requirements & Installation
 Required libraries
 ------------------
 
-**Python and modules**
-::
+**Python**
 
- Python 2.7.10
- ...
- >>> import statsmodels
- >>> statsmodels.__version__
- '0.6.1'
- >>> import numpy
- >>> numpy.__version__
- '1.10.4'
- >>> import scipy
- >>> scipy.__version__
- '0.17.0'
- >>> import sklearn
- >>> sklearn.__version__
- '0.17.1'
+python v2.7
 
-Miniconda was used to install these versions.
+**Python modules**
+
+colormath (2.1.1)
+
+numpy (1.11.0)
+
+pandas (0.17.1)
+
+scikit-learn (0.17.1)
+
+scipy (0.17.1)
+
+statsmodels (0.6.1)
+
+Miniconda was used to install these versions. If you want to use this to install
+the python libraries, it is at:
 
 http://conda.pydata.org/docs/install/quick.html
 
 Use this form of the conda command to install the specific versions of packages
 listed above::
 
- conda install numpy=1.10.4 scipy=0.17.0 statsmodels=0.6.1 scikit-learn=0.17.1
-
+ conda install numpy=1.11.0
 
 **DrL graph layout [1]**
 
-Install::
+To install in most unices. Other platforms may be installed as indicated in the
+drl-graph-layout/readme.txt::
 
  wget https://bitbucket.org/adam_novak/drl-graph-layout/get/c41341de8058.zip
  #alternatively:

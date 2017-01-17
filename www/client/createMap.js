@@ -17,12 +17,12 @@ CreateMap = (function () { // jshint ignore: line
         show_advanced = 'Advanced options...',
         hide_advanced = 'Hide advanced options',
         formats = [
-            //['feature_space', 'Feature matrix'],
+            ['feature_space', 'Feature matrix'],
             ['similarity_full', 'Full similarity matrix'],
             ['similarity', 'Sparse similarity matrix'],
             ['coordinates', 'XY positions'],
         ],
-        default_feature_format = 'coordinates',
+        default_feature_format = 'feature_space',
         methods = [
             'DrL',
             'tSNE',
@@ -131,6 +131,11 @@ CreateMap = (function () { // jshint ignore: line
         opts.push('--' + ui.get('feature_format'));
         
         opts.push(feature_file_name());
+        
+        if (ui.get('feature_format') === 'feature_space') {
+            opts.push('--metric');
+            opts.push('spearman');
+        }
 
         if (attribute_upload.file) {
             opts.push('--scores');
@@ -142,7 +147,7 @@ CreateMap = (function () { // jshint ignore: line
                 report_error('Error: ' + error);
                 
             } else {
-                report_info('Map was successfully created.');
+                report_info('Map was successfully created and is loading now.');
 
                 // Open the new map.
                 Hex.loadProject(project());

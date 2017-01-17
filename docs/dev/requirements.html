@@ -18,13 +18,15 @@
         VERSION:     '0.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
       };
     </script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="Tumor Map Developer Documentation" href="index.html" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="This Document" href="docs.html" />
     <link rel="prev" title="Code Repository" href="repository.html" /> 
   </head>
@@ -56,32 +58,26 @@
 <h1>Requirements &amp; Installation<a class="headerlink" href="#requirements-installation" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="required-libraries">
 <h2>Required libraries<a class="headerlink" href="#required-libraries" title="Permalink to this headline">¶</a></h2>
-<p><strong>Python and modules</strong></p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">Python</span> <span class="mf">2.7</span><span class="o">.</span><span class="mi">10</span>
-<span class="o">...</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">statsmodels</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="n">statsmodels</span><span class="o">.</span><span class="n">__version__</span>
-<span class="s1">&#39;0.6.1&#39;</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">numpy</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="n">numpy</span><span class="o">.</span><span class="n">__version__</span>
-<span class="s1">&#39;1.10.4&#39;</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">scipy</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="n">scipy</span><span class="o">.</span><span class="n">__version__</span>
-<span class="s1">&#39;0.17.0&#39;</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">sklearn</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="n">sklearn</span><span class="o">.</span><span class="n">__version__</span>
-<span class="s1">&#39;0.17.1&#39;</span>
-</pre></div>
-</div>
-<p>Miniconda was used to install these versions.</p>
+<p><strong>Python</strong></p>
+<p>python v2.7</p>
+<p><strong>Python modules</strong></p>
+<p>colormath (2.1.1)</p>
+<p>numpy (1.11.0)</p>
+<p>pandas (0.17.1)</p>
+<p>scikit-learn (0.17.1)</p>
+<p>scipy (0.17.1)</p>
+<p>statsmodels (0.6.1)</p>
+<p>Miniconda was used to install these versions. If you want to use this to install
+the python libraries, it is at:</p>
 <p><a class="reference external" href="http://conda.pydata.org/docs/install/quick.html">http://conda.pydata.org/docs/install/quick.html</a></p>
 <p>Use this form of the conda command to install the specific versions of packages
 listed above:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">install</span> <span class="n">numpy</span><span class="o">=</span><span class="mf">1.10</span><span class="o">.</span><span class="mi">4</span> <span class="n">scipy</span><span class="o">=</span><span class="mf">0.17</span><span class="o">.</span><span class="mi">0</span> <span class="n">statsmodels</span><span class="o">=</span><span class="mf">0.6</span><span class="o">.</span><span class="mi">1</span> <span class="n">scikit</span><span class="o">-</span><span class="n">learn</span><span class="o">=</span><span class="mf">0.17</span><span class="o">.</span><span class="mi">1</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">install</span> <span class="n">numpy</span><span class="o">=</span><span class="mf">1.11</span><span class="o">.</span><span class="mi">0</span>
 </pre></div>
 </div>
 <p><strong>DrL graph layout [1]</strong></p>
-<p>Install:</p>
+<p>To install in most unices. Other platforms may be installed as indicated in the
+drl-graph-layout/readme.txt:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">wget</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">bitbucket</span><span class="o">.</span><span class="n">org</span><span class="o">/</span><span class="n">adam_novak</span><span class="o">/</span><span class="n">drl</span><span class="o">-</span><span class="n">graph</span><span class="o">-</span><span class="n">layout</span><span class="o">/</span><span class="n">get</span><span class="o">/</span><span class="n">c41341de8058</span><span class="o">.</span><span class="n">zip</span>
 <span class="c1">#alternatively:</span>
     <span class="n">curl</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">bitbucket</span><span class="o">.</span><span class="n">org</span><span class="o">/</span><span class="n">adam_novak</span><span class="o">/</span><span class="n">drl</span><span class="o">-</span><span class="n">graph</span><span class="o">-</span><span class="n">layout</span><span class="o">/</span><span class="n">get</span><span class="o">/</span><span class="n">c41341de8058</span><span class="o">.</span><span class="n">zip</span> <span class="o">&gt;</span> <span class="n">c41341de8058</span><span class="o">.</span><span class="n">zip</span>
@@ -223,7 +219,7 @@ Applications.</p>
           </div>
           <div role="note" aria-label="source link">
               <br/>
-              <a href="_sources/requirements.txt"
+              <a href="_sources/requirements.rst.txt"
                 rel="nofollow">Show Source</a>
           </div>
         </div>
@@ -232,7 +228,7 @@ Applications.</p>
           
     <div class="footer" role="contentinfo">
         &#169; Copyright 2016, UCSC Tumor Map development team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.6.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.1.
     </div>
         </div>
         <div class="clearer"></div>
