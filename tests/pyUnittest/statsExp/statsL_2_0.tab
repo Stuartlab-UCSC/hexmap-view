@@ -1,4 +1,4 @@
-categoricalBinary	0.314121405119	0.1	1.0
-TP53_expression altered	-8.89167392979e-06	0.8	0.0
-TP63_expression altered	-0.0828428749739	0.6	0.5
-DNA_Repair Broken	0.0828428749739	0.4	-0.5
+categoricalBinary	0.3141214	0.1	1.0
+TP53_expression altered	-8.891674e-06	0.8	0.0
+TP63_expression altered	-0.08284287	0.6	0.5
+DNA_Repair Broken	0.08284287	0.4	-0.5

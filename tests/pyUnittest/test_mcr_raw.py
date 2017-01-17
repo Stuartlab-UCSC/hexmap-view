@@ -18,7 +18,7 @@ scriptDir = rootDir + 'www/server'
 
 #http://stackoverflow.com/questions/3108285/in-python-script-how-do-i-set-pythonpath
 #point the python path to the script directory
-sys.path.append(scriptDir)
+#sys.path.append(scriptDir)
 
 import layout
 
@@ -42,7 +42,7 @@ class TestCreateMap(unittest.TestCase):
         util.removeOldOutFiles(outDir)
 
         layout.main(optsLayoutRaw)
-
+        #calls a bash script that puts the lines of the files in standard order so they can be compared.
         util.compareActualVsExpectedDir(s,testDir +'mcrchropa_expout' , outDir)
 
 if __name__ == '__main__':

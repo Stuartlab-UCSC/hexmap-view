@@ -3,6 +3,12 @@
 # This tests python, using python's easier calls to shell commands
 # from here than from mocha
 
+'''
+This test doesn't pass, but the only differences in the files are the order of the lines.
+
+This can be seen by using the sort_files script (hand code the directories you want to order)
+ and then performing a diff. The only differences will be in the scrambled log file.
+'''
 import sys, os, glob, filecmp, subprocess, json, tempfile, pprint, shutil
 from os import path
 import string
@@ -19,7 +25,7 @@ scriptDir = rootDir + 'www/server'
 #http://stackoverflow.com/questions/3108285/in-python-script-how-do-i-set-pythonpascriptDir = rootDir + 'www/server'
 
 #point the python path to the script directory
-sys.path.append(scriptDir)
+#sys.path.append(scriptDir)
 
 import compute_sparse_matrix
 import layout
@@ -63,7 +69,6 @@ class TestCreateMap(unittest.TestCase):
         layout.main(optsLayoutSparse)
 
         util.compareActualVsExpectedDir(s, testDir +'mcrchropa_expout', outDir)
-
 
 if __name__ == '__main__':
     unittest.main()

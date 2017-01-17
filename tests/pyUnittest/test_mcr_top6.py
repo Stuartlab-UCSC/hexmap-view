@@ -19,7 +19,7 @@ scriptDir = rootDir + 'www/server'
 #http://stackoverflow.com/questions/3108285/in-python-script-how-do-i-set-pythonpascriptDir = rootDir + 'www/server'
 
 #point the python path to the script directory
-sys.path.append(scriptDir)
+#sys.path.append(scriptDir)
 
 import compute_sparse_matrix
 import layout

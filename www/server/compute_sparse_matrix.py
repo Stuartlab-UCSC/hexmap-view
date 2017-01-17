@@ -17,6 +17,7 @@ import argparse, sys, numpy, multiprocessing, time,traceback
 import sklearn.metrics.pairwise as sklp
 import scipy.stats
 import pandas as pd
+from utils import truncateNP
 
 VALID_METRICS = ['canberra','cosine','euclidean','manhattan','chebyshev','correlation','hamming',
                  'jaccard','rogerstanimoto','spearman']
@@ -186,6 +187,7 @@ def extract_similarities(dt, sample_labels, top, log=None):
             output = output.append(pd.Series([sample_labels[i],k[m],v[m]]),ignore_index=True)
             del sample_dict[k[m]]
 
+
     return output
 
 def compute_similarities(dt, sample_labels, metric_type, num_jobs, output_type, top, log):
@@ -221,6 +223,13 @@ def compute_similarities(dt, sample_labels, metric_type, num_jobs, output_type, 
 
     #calculate pairwise similarities
     x_corr = 1 - sklp.pairwise_distances(X=dt, Y=None, metric=metric_type, n_jobs=num_jobs)
+
+    #this function gets rid of the last decimal place of all the calculated similarities.
+    # its use is an effort to make results reproducible on different machines, which may
+    # handle floats differently.
+    # In essence, this function represents our distrust in the last decimal of the floating point
+    # representation.
+    x_corr = truncateNP(x_corr,11)
 
     if not(log == None):
         print >> log, "Resulting similarity matrix: "+str(len(x_corr))+" x "+str(len(x_corr[0]))

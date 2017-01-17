@@ -1,4 +1,4 @@
-01-14 09:29:41 Started
+01-17 12:00:17 Started
 command-line options:
 ['--similarity',
  '/home/duncan/Desktop/TumorMap/TMdev/hexagram/tests/pyUnittest/statsIn/artificial_sparse.tab',
@@ -56,13 +56,13 @@ Sparse similarity matrices
 Opening Matrix 0 /home/duncan/Desktop/TumorMap/TMdev/hexagram/tests/pyUnittest/statsIn/artificial_sparse.tab
 ['/home/duncan/Desktop/TumorMap/TMdev/hexagram/tests/pyUnittest/statsIn/artificial_sparse.tab']
 enumerating ctx.matrices 0
-01-14 09:29:41 ============== Starting drl computations for layout: 0 ... ==============
-Reach for parts in sim_reader:<tsv.TsvReader object at 0x7fbbb0751950>
-01-14 09:29:41 DrL: Truncating...
-Using /tmp/tmp6n0UJQ/layout0.sim for .sim file, 
-Will output /tmp/tmp6n0UJQ/layout0.ind for .ind file,
-            /tmp/tmp6n0UJQ/layout0.int for .int file, and
-            /tmp/tmp6n0UJQ/layout0.full for .full file.
+01-17 12:00:17 ============== Starting drl computations for layout: 0 ... ==============
+Reach for parts in sim_reader:<tsv.TsvReader object at 0x7f8b1d10ce90>
+01-17 12:00:17 DrL: Truncating...
+Using /tmp/tmpAqiY2m/layout0.sim for .sim file, 
+Will output /tmp/tmpAqiY2m/layout0.ind for .ind file,
+            /tmp/tmpAqiY2m/layout0.int for .int file, and
+            /tmp/tmpAqiY2m/layout0.full for .full file.
 Using memory = 1
       topn = 6
       normalize = 0
@@ -74,7 +74,7 @@ Creating .int file ...
 Scan 1 of .full file ...
 Program finished successfully.
 DrL: Doing layout...
-Using /tmp/tmp6n0UJQ/layout0.int for .int file, and /tmp/tmp6n0UJQ/layout0.icoord for .icoord file.
+Using /tmp/tmpAqiY2m/layout0.int for .int file, and /tmp/tmpAqiY2m/layout0.icoord for .icoord file.
 Using random seed = 0
       edge_cutting = 0.8
       intermediate output = 0
@@ -92,35 +92,37 @@ Finished crunch stage in 0 seconds, total energy = 31503.
 Entering simmer stage .......................................................................................................
 Finished simmer stage in 0 seconds, total energy = 6.37615.
 Layout calculation completed in 0 seconds (not including I/O).
-Writing out solution to /tmp/tmp6n0UJQ/layout0.icoord ...
+Writing out solution to /tmp/tmpAqiY2m/layout0.icoord ...
 Total Energy: 6.37721.
 Program terminated successfully.
-01-14 09:29:41 DrL: Restoring names...
-Using /tmp/tmp6n0UJQ/layout0.icoord for .icoord file, and 
-       /tmp/tmp6n0UJQ/layout0.ind for .ind file.
-Will output /tmp/tmp6n0UJQ/layout0.coord for .coord file.
+01-17 12:00:17 DrL: Restoring names...
+Using /tmp/tmpAqiY2m/layout0.icoord for .icoord file, and 
+       /tmp/tmpAqiY2m/layout0.ind for .ind file.
+Will output /tmp/tmpAqiY2m/layout0.coord for .coord file.
 Reading .ind file ...
 Reading .icoord file ...
 Creating .coord file ...
 Program finished successfully.
-01-14 09:29:41 Reading DrL output...
-01-14 09:29:41 ============== drl computations completed for layout: 0 ==============
+01-17 12:00:17 Reading DrL output...
+01-17 12:00:17 ============== drl computations completed for layout: 0 ==============
 Opened matrices...
 Regularizing colormaps file...
 getting categoricals from /home/duncan/Desktop/TumorMap/TMdev/hexagram/tests/pyUnittest/statsOut//colormaps.tab
-01-14 09:29:41 Attribute counts:  Binary: 5 + Categorical: 1 + Continuous: 4
+01-17 12:00:17 Attribute counts:  Binary: 5 + Categorical: 1 + Continuous: 4
 calculating density for layer 0
 categorical attribute being processed: Subtype
 shape of dummy matrix after exclusion: (60, 3)
 Regularizing colormaps file...
 No Data Provided...Skipping Beta Calculations
-14 09:29:42 Running sample-based statistics...
-14 09:29:42 Processing 10 layers
+layout independent stats starting
+17 12:00:18 Running sample-based statistics...
+17 12:00:18 Processing 10 layers
 Starting to build 100 layer pairs...
 Using host: Mr with 4 processors for parallel jobs.
 10 subprocesses to run, one per layer.
-14 09:29:42 Sample-based statistics complete
+17 12:00:18 Sample-based statistics complete
+layout independent stats finished in 0.00189078251521 minutes
 LeesL layout aware stats being calculated
-14 09:29:42 Found top neighbors
-14 09:29:42 Found top neighbors
-01-14 09:29:42 Visualization generation complete!
+17 12:00:18 Found top neighbors
+17 12:00:18 Found top neighbors
+01-17 12:00:18 Visualization generation complete!

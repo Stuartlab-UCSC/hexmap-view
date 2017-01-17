@@ -8,6 +8,7 @@ import sklearn.metrics.pairwise as sklp
 from scipy import stats
 import numpy as np
 import scipy.spatial.distance as dist
+from utils import sigDigs
 
 #input/output helpers
 def readLayers(layerFile):
@@ -57,7 +58,9 @@ def writeLayersTab(attributeDF,layers,layer_files,densityArray,datatypes,options
 
         layersTab[3+it] = np.repeat(np.NAN,len(layers.keys()))
         #making sure the order is the same with the loc, might be unneeded
-        layersTab.loc[series_.index,3+it] = series_
+        layersTab.loc[series_.index,3+it] = series_.apply(sigDigs)
+
+
 
     layersTab.to_csv(options.directory + '/layers.tab',sep='\t',header=None)
 
@@ -81,7 +84,7 @@ def writeToDirectoryLee(dirName,leeMatrix,simMatrix,colNameList,layers,index):
     for i,column in enumerate(colNameList):
         #print getLayerIndex(column,layers)
         statsO = pd.DataFrame(index= colNameList)
-        statsO[0] = leeMatrix[i,] #correlation
+        statsO[0] = leeMatrix[i,]
 
         #two cases of output, if correlation is present then we need to
         # change the p-value so that attributes rank properly
@@ -92,6 +95,7 @@ def writeToDirectoryLee(dirName,leeMatrix,simMatrix,colNameList,layers,index):
         statsO = statsO.iloc[statsO.index!=column] #get rid of identity
         filename = 'statsL_'+ getLayerIndex(column,layers)+ '_' + str(index) + '.tab'
 
+        statsO = statsO.apply(lambda x: x.apply(sigDigs))
         statsO.to_csv(dirName+filename,sep='\t',header=None)
 #
 
