@@ -32,6 +32,8 @@ def truncate(f, n):
     @param n: the number of decimal places we wish to keep
     @return: a float f to n decimal places without rounding
     '''
+    if np.isnan(f):
+        return np.NAN
 
     s = '{}'.format(f)
     if 'e' in s or 'E' in s:
