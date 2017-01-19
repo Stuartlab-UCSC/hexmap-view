@@ -18,3 +18,5 @@ echo testing layout and non layout stats test
 python2.7 test_stats.py
 echo testing compute_similarities output
 python2.7 test_createMapScripts.py
+echo testing capability for layout to run from bash without error
+run_layout_from_bash
