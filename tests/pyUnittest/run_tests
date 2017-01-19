@@ -12,6 +12,8 @@ echo testing results of mcr data and full similarity entry
 python2.7 test_mcr_full.py
 echo testing results of mcr data and top6 entry 
 python2.7 test_mcr_top6.py
+echo testing results of mcr data and xy entry 
+python2.7 test_mcr_xy.py
 echo testing layout and non layout stats test
 python2.7 test_stats.py
 echo testing compute_similarities output

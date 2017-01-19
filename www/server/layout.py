@@ -39,7 +39,6 @@ from compute_layout import computeisomap
 from compute_layout import computeMDS
 from compute_layout import computeICA
 from compute_layout import computeSpectralEmbedding
-from compute_sparse_matrix import read_coordinates
 from create_colormaps import create_colormaps_file
 from create_colormaps import cat_files
 from convert_annotation_to_tumormap_mapping import convert_attributes_colormaps_mapping
@@ -49,7 +48,7 @@ from sklearn import preprocessing
 import sklearn.metrics
 import sklearn.metrics.pairwise as sklp
 import numpy as np
-from statsNoLayoutOpt import runAllbyAllForUI
+#from statsNoLayoutOpt import runAllbyAllForUI
 '''
 Notes about peculiarities in code:
     1.) --include_singletons option: the name suggests you are including nodes
@@ -195,6 +194,35 @@ def getDataTypes(attributeDF,colormapFile,debug=False):
 
     #return a corrected version of the datatype dictionary
     return checkForBinaryCategorical(attributeDF[datatypeDict['cat']],datatypeDict)
+
+def read_nodes(filename):
+    '''
+    This reads in an x-y position file and stores in the
+     'nodes' type data structure. Namely a dictionary
+     of nodeId -> (x_pos,y_pos) , of strings pointing to tuples
+    Code was copies from the drl_similarity function
+
+    @param filename: the file from which to read.
+    @return:
+    '''
+    # We want to read that.
+    # This holds a reader for the DrL output
+    coord_reader = tsv.TsvReader(open(filename, "r"))
+
+    # This holds a dict from signature name string to (x, y) float tuple. It is
+    # also our official collection of node names that made it through DrL, and
+    # therefore need their score data sent to the client.
+    nodes = {}
+
+    print timestamp(), "Reading x-y positions..."
+    sys.stdout.flush()
+    for parts in coord_reader:
+        nodes[parts[0]] = (float(parts[1]), float(parts[2]))
+
+    coord_reader.close()
+
+    # Return nodes dict back to main method for further processes
+    return nodes
 ##
 
 def parse_args(args):
@@ -1273,6 +1301,7 @@ def drl_similarity_functions(matrix, index, options):
 
     print timestamp(), '============== drl computations completed for layout:', index, '=============='
 
+
     # Return nodes dict back to main method for further processes
     return nodes
 
@@ -1290,6 +1319,7 @@ def compute_hexagram_assignments(nodes, index, options):
     index.
     
     """
+
     # Write out the xy coordinates before squiggling. First find the x and y
     # offsets needed to make all hexagon positions positive
     min_x = min_y = None
@@ -1300,6 +1330,7 @@ def compute_hexagram_assignments(nodes, index, options):
         else:
             min_x = min(min_x, coords[0])
             min_y = min(min_y, coords[1])
+
     node_writer = tsv.TsvWriter(open(os.path.join(options.directory, "xyPreSquiggle_"+ str(index) + ".tab"), "w"))
 
     # Write this file header.
@@ -1606,13 +1637,13 @@ def hexIt(options, cmd_line_list, all_dict):
     # We must open the files and store them in matrices list for access
     if not(options.coordinates == None): #TODO: this needs to be fixed, x-y pos should just go into squiggle algorithm
         for i, coords_filename in enumerate(options.coordinates):
-            coord = read_coordinates(coords_filename)
-            nodes_multiple.append(coord)
-            coord_lst = [list(x) for x in coord.values()]
-            eucl = scipy.spatial.distance.squareform(scipy.spatial.distance.pdist(coord_lst, metric='euclidean', p=2, w=None, V=None, VI=None))
-            eucl_sparse = extract_similarities(dt=eucl, sample_labels=coord.keys(), top=options.truncation_edges, log=None)
-            ctx.sparse.append(eucl_sparse)
-    
+            nodes = read_nodes(coords_filename)
+            nodes_multiple.append(nodes)
+            dt = leesL.readXYs(coords_filename)
+            eucl = scipy.spatial.distance.squareform(scipy.spatial.distance.pdist(dt, metric='euclidean', p=2, w=None, V=None, VI=None))
+            #append the sparse matrix representation so the neighbors_x file can be created.
+            ctx.sparse.append(sparsePandasToString(extract_similarities(dt=eucl, sample_labels=dt.index, top=options.truncation_edges, log=None)))
+
     else:
         if options.layout_method.upper() in ['TSNE', 'MDS', 'PCA', 'ICA', 'ISOMAP', 'SPECTRALEMBEDDING']:
             for i, genomic_filename in enumerate(options.feature_space):
@@ -1714,15 +1745,20 @@ def hexIt(options, cmd_line_list, all_dict):
                 print "Sparse similarity matrices"
                 open_matrices(options.similarity)
                 print options.similarity
+            elif not(options.coordinates == None):
+                #do nothing.
+                '''already have x-y coords so don't need to do anything.'''
             else:    #no matrix is given
                 raise InvalidAction("Invalid matrix input is provided")
             
             # Index for drl.tab and drl.layout file naming. With indexes we can match
             # file names, to matrices, to drl output files.
             #print "length of ctx.matrices = "+str(len(ctx.matrices))
-            for index, i in enumerate (ctx.matrices):
-                print "enumerating ctx.matrices "+str(index)
-                nodes_multiple.append(drl_similarity_functions(i, index, options))
+            # if we have x-ys then we don't need to do drl.
+            if (options.coordinates == None):
+                for index, i in enumerate (ctx.matrices):
+                    print "enumerating ctx.matrices "+str(index)
+                    nodes_multiple.append(drl_similarity_functions(i, index, options))
 
     print "Opened matrices..."
     #print nodes_multiple
@@ -1996,6 +2032,10 @@ def hexIt(options, cmd_line_list, all_dict):
             # Set everything's clumpiness score to -inf.
             clumpiness_scores = [collections.defaultdict(lambda: float("-inf"))
                 for _ in options.similarity]
+        elif not (options.coordinates == None):
+            # Set everything's clumpiness score to -inf.
+            clumpiness_scores = [collections.defaultdict(lambda: float("-inf"))
+                for _ in options.coordinates]
         else:    #no matrix is given
             raise InvalidAction("Invalid matrix input is provided")
 

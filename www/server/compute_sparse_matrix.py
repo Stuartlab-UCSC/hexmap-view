@@ -143,23 +143,6 @@ def read_tabular2(input_file, numeric_flag):	#YN 20160629, a faster (still TBD) 
         dt = [l[1:] for l in lines[1:]]
     return (dt, col_headers, row_headers)
 
-def read_coordinates(input_file):	#assumes the first line is the column headers
-    input = open(input_file, 'r')
-    line_num = 1
-    coords = []
-    nodes = []
-    for line in input:
-        if line_num > 1:
-            line_elems = line.strip().split("\t")
-            if len(line_elems) == 3:
-                coords.append([float(line_elems[1]), float(line_elems[2])])
-                nodes.append(line_elems[0])
-
-        line_num += 1
-
-    input.close()
-    return (dict(zip(nodes, [tuple(val) for val in coords])))
-
 def extract_similarities(dt, sample_labels, top, log=None):
     '''
     sparsity operation to reduce a matrix to the 'top' highest numbers for each row

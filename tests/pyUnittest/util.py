@@ -23,7 +23,7 @@ def removeOldOutFiles(outDir):
         pass
     os.makedirs(outDir)
 
-def compareActualVsExpectedDir(s, outDir, expDir):
+def compareActualVsExpectedDir(s, outDir, expDir,excludeFiles=['log']):
     os.chdir(expDir)
     expFiles = glob.glob('*')
     os.chdir(outDir)
@@ -38,9 +38,11 @@ def compareActualVsExpectedDir(s, outDir, expDir):
     # Returns three lists of file names: match, mismatch, errors
     diff = filecmp.cmpfiles(outDir, expDir, expFiles)
 
-    #The log file should be different, with the rest matching
-    if 'log' in diff[1]: #in case we are comparing dirs without a log file
-        diff[1].remove('log')
+    #Files given by the exludeFiles list we know will be different,
+    # so ignore them
+    for file in excludeFiles:
+        if file in diff[1]: #in case we are comparing dirs without a log file
+           diff[1].remove(file)
 
     mismatch = diff[1]
 
