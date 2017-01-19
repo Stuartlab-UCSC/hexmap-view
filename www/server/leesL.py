@@ -44,11 +44,12 @@ def writeLayersTab(attributeDF,layers,layer_files,densityArray,datatypes,options
              and then each density
     '''
 
-    #making an empty data frame and then filling each one of the columns
 
+    #have a dict of attribute names pointing to their layer_x.tab file
     layer_files = trimLayerFiles(layer_files)
-
+    #making an empty data frame and then filling each one of the columns
     layersTab = pd.DataFrame(index=layer_files.keys())
+
     layersTab[0] = pd.Series(layer_files)
 
     layersTab[1] = attributeDF[layer_files.keys()].count()
@@ -57,10 +58,10 @@ def writeLayersTab(attributeDF,layers,layer_files,densityArray,datatypes,options
     layersTab.loc[datatypes['bin'],2] = attributeDF[datatypes['bin']].sum(axis=0)
 
     for it, series_ in enumerate(densityArray):
-
+        #fill all density with NAN in case we don't have some in the density array
         layersTab[3+it] = np.repeat(np.NAN,len(layers.keys()))
-        #making sure the order is the same with the loc, might be unneeded
-        layersTab.loc[series_.index,3+it] = series_.apply(sigDigs)
+        #put the density in the dataframe
+        layersTab[3+it] = series_.apply(sigDigs)
 
 
 
