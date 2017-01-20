@@ -30,10 +30,12 @@ def parse_args(args):
 
     parser.add_argument("--in_file", type=str,
         help="input file name (matrix formatted genomic data)")
+    parser.add_argument("--in_file2", type=str,default="",
+        help="Second matrix file, used for n-of-1 placement")
     parser.add_argument("--top", type=int, default=6,
         help="number of top neighbors to use in DrL layout")
     parser.add_argument("--metric", type=str, default="correlation",
-        help="valid metrics: canberra,cosine,euclidean,manhattan,chebyshev,correlation,hamming,jaccard,rogerstanimoto")
+        help="valid metrics: spearman,canberra,cosine,euclidean,manhattan,chebyshev,correlation,hamming,jaccard,rogerstanimoto")
     parser.add_argument("--output_type",type=str, default="sparse",
         help="either sparse or full")
     parser.add_argument("--log",type=str, default="",
@@ -143,7 +145,37 @@ def read_tabular2(input_file, numeric_flag):	#YN 20160629, a faster (still TBD) 
         dt = [l[1:] for l in lines[1:]]
     return (dt, col_headers, row_headers)
 
-def extract_similarities(dt, sample_labels, top, log=None):
+def numpyToPandas(mat,col_list,row_list):
+    return pd.DataFrame(mat,index=row_list,columns=col_list)
+
+def pandasToNumpy(df):
+    '''
+    does conversion of a pandas data frame to type returned by read_tabular
+    @param df: pandas data frame
+    @return: numpy.array, column list, row list
+    '''
+
+    mat = df.as_matrix()
+    col_list = df.columns.values.tolist()
+    row_list = df.index.tolist()
+
+    return mat, col_list, row_list
+
+def common_rows(p1, p2):
+    '''
+    takes two pandas data frames and reduces them to have the same rows in the same order
+    @param p1: a pandas dataframe
+    @param p2: a pandas dataframe
+    @return: tuple of pandas dataframes reduced to have the same rows in same order
+    '''
+    p1rows = set(p1.index)
+    p2rows = set(p2.index)
+    rowsInCommon = p1rows.intersection(p2rows)
+    p1 = p1.loc[rowsInCommon]
+    p2 = p2.loc[rowsInCommon]
+    return p1,p2
+
+def extract_similarities(dt, sample_labels, top, log=None,sample_labels2=[]):
     '''
     sparsity operation to reduce a matrix to the 'top' highest numbers for each row
     @param dt: numpy matrix to be sparsified
@@ -167,13 +199,16 @@ def extract_similarities(dt, sample_labels, top, log=None):
             k=list(sample_dict.keys())
             m=v.index(max(v))
             #interatively build a dataframe with the neighbors
-            output = output.append(pd.Series([sample_labels[i],k[m],v[m]]),ignore_index=True)
+            if len(sample_labels2):
+                output = output.append(pd.Series([sample_labels2[i],k[m],v[m]]),ignore_index=True)
+            else:
+                output = output.append(pd.Series([sample_labels[i],k[m],v[m]]),ignore_index=True)
             del sample_dict[k[m]]
 
 
     return output
 
-def compute_similarities(dt, sample_labels, metric_type, num_jobs, output_type, top, log):
+def compute_similarities(dt, sample_labels, metric_type, num_jobs, output_type, top, log,dt2=numpy.array([]),sample_labels2=[]):
     '''
     :param dt: a numpy's two dimensional array holding the read in matrix data
     :param sample_labels: the names of the columns in order parallel to 'dt'
@@ -183,6 +218,7 @@ def compute_similarities(dt, sample_labels, metric_type, num_jobs, output_type, 
                         nearest neighbor output
     :param top: when using 'SPARSE' output, the number of nearest neighbors to output in the edge file
     :param log: the file descriptor pointed to where you want the chatter to go to, may be omitted
+    :param dt2: a second, optional two dimensional numpy.array, if used similarities between dt and dt2 returned.
     :return: returns a pandas dataframe
     '''
 
@@ -199,13 +235,20 @@ def compute_similarities(dt, sample_labels, metric_type, num_jobs, output_type, 
             print >> log, 'rank transform for spearman being computed'
         #column wise rank transform
         dt = numpy.apply_along_axis(scipy.stats.rankdata,1,dt)
+        #do the other matrix if necessary
+        if len(dt2):
+            dt2 = numpy.apply_along_axis(scipy.stats.rankdata,1,dt2)
         #set metric type to pearson
         metric_type = 'correlation'
         if not(log == None):
             print >> log, 'rank transform complete'
 
-    #calculate pairwise similarities
-    x_corr = 1 - sklp.pairwise_distances(X=dt, Y=None, metric=metric_type, n_jobs=num_jobs)
+    #calculate pairwise similarities,
+    # if you have a second matrix then do those
+    if len(dt2):
+        x_corr = 1 - sklp.pairwise_distances(X=dt, Y=dt2, metric=metric_type, n_jobs=num_jobs)
+    else:
+        x_corr = 1 - sklp.pairwise_distances(X=dt, Y=None, metric=metric_type, n_jobs=num_jobs)
 
     #this function gets rid of the last decimal place of all the calculated similarities.
     # its use is an effort to make results reproducible on different machines, which may
@@ -226,10 +269,17 @@ def compute_similarities(dt, sample_labels, metric_type, num_jobs, output_type, 
 
     #fills a dataframe in sparse format
     if output_type == "SPARSE":
-        output = extract_similarities(x_corr, sample_labels, top, log=log)
+        if len(dt2):
+            output = extract_similarities(x_corr.transpose(), sample_labels, top, log,sample_labels2)
+        else:
+            output = extract_similarities(x_corr, sample_labels, top, log=log)
     #turn the similarity matrix into a dataframe
     elif output_type == "FULL":
-        output = pd.DataFrame(x_corr,index = sample_labels,columns=sample_labels)
+        if len(dt2):
+            output = pd.DataFrame(x_corr,index = sample_labels,columns=sample_labels2)
+        else:
+            output = pd.DataFrame(x_corr,index = sample_labels,columns=sample_labels)
+
         output.index.name = 'sample'
 
     if not(log == None):
@@ -282,6 +332,7 @@ def main(args):
 
     #process input arguments:
     in_file = opts.in_file
+    in_file2 = opts.in_file2
     metric_type = opts.metric.lower()
     output_type = opts.output_type.upper()
     top = opts.top
@@ -327,10 +378,28 @@ def main(args):
 
     dt = numpy.transpose(dt)
 
+    #if we are doing a second input (n-of-1 like)
+    if len(in_file2):
+        dt2,sample_labels2,feature_labels2 = read_tabular(in_file2,True)
+        #switch types so that reducing rows is easier
+        dt = numpyToPandas(dt.transpose(),sample_labels,feature_labels)
+        dt2 = numpyToPandas(dt2,sample_labels2,feature_labels2)
+        #reduce to common rows
+        dt,dt2 = common_rows(dt,dt2)
+        #switch back to numpy datatype
+        dt,sample_labels,feature_labels = pandasToNumpy(dt)
+        dt2,sample_labels2,feature_labels2 = pandasToNumpy(dt2)
+        dt =dt.transpose()
+        dt2=dt2.transpose()
+
+    else: #set them empty so compute_sim* ignores them.
+        dt2=numpy.array([])
+        sample_labels2=[]
+
     if not(log == None):
         print >> log, str(time.time() - curr_time) + " seconds"
 
-    result = compute_similarities(dt, sample_labels, metric_type, num_jobs, output_type, top, log)
+    result = compute_similarities(dt, sample_labels, metric_type, num_jobs, output_type, top, log,dt2,sample_labels2)
 
     #with the sparse out put we need to ignore column and rownames
     if output_type == 'SPARSE':
