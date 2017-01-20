@@ -32,7 +32,10 @@ def compareActualVsExpectedDir(s, outDir, expDir,excludeFiles=['log']):
     # Verify the filenames are those expected
     #print 'outFiles', outFiles
     #print 'expFiles', expFiles
-    s.assertTrue(outFiles == expFiles)
+    s.assertTrue(outFiles == expFiles,
+                 msg='Differences in file names: ' +
+                     str( set(expFiles).symmetric_difference(set(outFiles)))
+                 )
 
     # Compare the file contents with the expected
     # Returns three lists of file names: match, mismatch, errors
@@ -46,17 +49,16 @@ def compareActualVsExpectedDir(s, outDir, expDir,excludeFiles=['log']):
 
     mismatch = diff[1]
 
-    #print out which of the files are mismatching to give
-    # the user a quick indication of what has gone wrong
-    #if len(mismatch):
-    #    print 'mismatching files: ', mismatch
-
-    s.assertTrue(mismatch == [] or mismatch == None) # mismatched files
+    s.assertTrue(mismatch == [] or mismatch == None,
+                 msg='mismatching files: ' + str(mismatch)
+                 ) # mismatched files
     
     # There should be no errors resulting from the diff
     #if diff[2] != []:
     #    print 'errors comparing files: ' + str(diff[2])
-    s.assertTrue(diff[2] == []) # errors
+    s.assertTrue(diff[2] == [],
+                 msg='Errors with diff: ' + str(diff[2])
+                 ) # errors
 
 def compareActualVsExpectedFile(s, fname, outDir, expDir):
     
