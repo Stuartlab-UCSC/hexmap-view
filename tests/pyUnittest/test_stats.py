@@ -30,7 +30,7 @@ class TestStats(unittest.TestCase):
         opts = [
             '--similarity', inDir + 'artificial_sparse.tab',
             '--names', 'mRNA',
-            '--scores', inDir + 'old_attributes.csv',
+            '--scores', inDir + 'attributes.tab',
             '--colormaps', inDir + 'colormaps.tab',
             '--first_attribute', 'Subtype',
             '--directory', outDir,
