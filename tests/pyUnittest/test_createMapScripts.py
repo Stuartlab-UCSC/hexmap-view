@@ -186,6 +186,53 @@ class TestCreateMap(unittest.TestCase):
         s.assertTrue(rc == 0)
         util.compareActualVsExpectedFile(s, outName, outDir, expDir)
 
+    def test_similarity_with_in_file2(s):
+        #this tests if the --in_file2 arg has anticipated behavior.
+        # if we feed in the same file for --in_file2 as --in_file
+        # the output should be equivelent to only using --in_file
+
+        baseName = 'TGCT_IlluminaHiSeq_RNASeqV2'
+        outName = baseName + '.top6.spearman.tab'
+        expDir = testDir + 'computeSimExp/' # The expected output data
+        opts = [
+            '--in_file', inDir + baseName + '.tab',
+            '--in_file2', inDir + baseName + '.tab',
+            '--metric', 'spearman',
+            '--top', "6",
+            '--output_type', 'sparse',
+            '--out_file', outDir + outName,
+            '--log', outDir + 'log',
+            '--num_jobs', '2'
+        ]
+
+        util.removeOldOutFiles(outDir)
+        rc = compute_sparse_matrix.main(opts)
+        s.assertTrue(rc == 0)
+        util.compareActualVsExpectedFile(s, outName, outDir, expDir)
+
+    def test_n_of_1_like(s):
+        #this tests if the --in_file2 arg has anticipated behavior.
+        # if we feed in the same file for --in_file2 as --in_file
+        # the output should be equivelent to only using --in_file
+
+        baseName = 'nOf1'
+        outName = baseName + '.top6.spearman.tab'
+        expDir = testDir + 'computeSimExp/' # The expected output data
+        opts = [
+            '--in_file', inDir + baseName + 'Mat.tab',
+            '--in_file2', inDir + baseName + 'Vector.tab',
+            '--metric', 'spearman',
+            '--top', "6",
+            '--output_type', 'sparse',
+            '--out_file', outDir + outName,
+            '--log', outDir + 'log',
+            '--num_jobs', '2'
+        ]
+
+        util.removeOldOutFiles(outDir)
+        rc = compute_sparse_matrix.main(opts)
+        s.assertTrue(rc == 0)
+        util.compareActualVsExpectedFile(s, outName, outDir, expDir)
 
 if __name__ == '__main__':
     unittest.main()
