@@ -69,10 +69,9 @@ There are two views of the map available under the *View* menu:
 * *Map Layout* is the primary view and allows display attribute values
 * *Node Density* shows the positions of the nodes before they are force-fitted into the hexagonal grid. They are force-fitted to the grid so that nodes will not be overlapping one another, obscuring colors of nodes underneath.
 
-Once in *Node Density* view, there are additional options in the *View* menu:
+Once in *Node Density* view, there is an additional option in the *View* menu:
 
 * *Show Edges* shows the directed graph of node edges so you can see the relationships used in positioning the nodes
-* *Show Windows* shows the adaptive windows used to calculate the layout-aware statistics
 
 
 Data Operations
