@@ -165,18 +165,18 @@ def leesL(spW,Ztrans_attrDF):
 def densityOpt(allAtts,datatypes,xys,debug=True):
     '''
     An optimized version of Density calculation.
-     An attributes density is only based on the values it has data for, so A new spatial weight matrix is calculated
+     An attribute's density is only based on the values it has data for, so A new spatial weight matrix is calculated
      for every attribute based on the nodes that it has missing values for.
      Because attributes often come in groups, and the profile of missing values is dependent on those groups, instead
-     of calculating an spatial weight matrix for each attribute we can calculate one for each missing data profile.
+     of calculating a spatial weight matrix for each attribute we can calculate one for each missing data profile.
      This is done by creating an all by all distance matrix of the missing value profiles, and using it to determine
      what attributes have the same profile, i.e. a distance of 0.
 
-    :param allAtts:
-    :param datatypes:
-    :param xys:
-    :param debug:
-    :return:
+    :param allAtts: the entire attribute matrix (pandas dataframe) , density calculated for each column
+    :param datatypes: a datatype dict, {'bin': [],'cont':[],'cat': []}
+    :param xys: a x-y (column) by nodeId position matrix (pandas dataframe)
+    :param debug: if true this function spits a bunch of chatter
+    :return: a pandas Series of attributes paired with their density values.
     '''
 
     #parallel arrays to be stuffed with density values for each attribute
@@ -194,8 +194,8 @@ def densityOpt(allAtts,datatypes,xys,debug=True):
             subAtts = allAtts[datatypes[type_]]
             #group by NaN profile. An attribute X attribute matrix
             distMat = sklp.pairwise_distances(subAtts.isnull().transpose(),metric='hamming',n_jobs=8)
-            #go through the distance matrix and find groups
-            # of attributes with the same NaN profile
+            #we will be going through the distance matrix and find groups
+            # of attributes with the same NaN profile (distance == 0 )
 
             #this keeps track of the attributes that haven't been processed
             indecies_to_check = range(len(datatypes[type_]))
@@ -212,6 +212,7 @@ def densityOpt(allAtts,datatypes,xys,debug=True):
                 attrNames.extend(subAtts.columns[mask])
                 #get rid of the Na's in those attributes
                 datMat = subAtts[subAtts.columns[mask]].dropna()
+                datMat = ztransDF(datMat)
                 #fill in the return structure with the lee SSS's
 
                 #case out whether the map will have data
