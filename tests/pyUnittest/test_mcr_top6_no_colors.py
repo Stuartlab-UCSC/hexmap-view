@@ -22,7 +22,7 @@ scriptDir = rootDir + 'www/server'
 
 import layout
 
-class TestCreateMap(unittest.TestCase):
+class Test_mcr_top6_no_atts(unittest.TestCase):
 
     def test_mcr_top6_no_atts(s):
 

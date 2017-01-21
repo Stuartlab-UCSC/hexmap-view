@@ -19,7 +19,7 @@ from rootDir import getRootDir
 rootDir = getRootDir()
 testDir = rootDir + 'tests/pyUnittest/'
 inDir = testDir + 'createMapIn/'   # The input data
-outDir = testDir + 'createMapOut/' # The actual output data
+outDir = testDir + 'mcr_noincludesingletonsOut/' # The actual output data
 scriptDir = rootDir + 'www/server'
 
 #http://stackoverflow.com/questions/3108285/in-python-script-how-do-i-set-pythonpascriptDir = rootDir + 'www/server'
@@ -30,9 +30,9 @@ scriptDir = rootDir + 'www/server'
 import compute_sparse_matrix
 import layout
 
-class TestCreateMap(unittest.TestCase):
+class Test_mcr_noincludesingletons(unittest.TestCase):
 
-    def test_mcr_top6(s):
+    def test_mcr_noincludesingletons(s):
         '''
         This test insures that if you start from the same data,
           the output does not depend on the input form

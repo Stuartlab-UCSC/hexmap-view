@@ -13,7 +13,7 @@ from rootDir import getRootDir
 rootDir = getRootDir()
 testDir = rootDir + 'tests/pyUnittest/'
 inDir = testDir + 'createMapIn/'   # The input data
-outDir = testDir + 'createMapOut/' # The actual output data
+outDir = testDir + 'mcr_top6Out/' # The actual output data
 scriptDir = rootDir + 'www/server'
 
 #http://stackoverflow.com/questions/3108285/in-python-script-how-do-i-set-pythonpascriptDir = rootDir + 'www/server'
@@ -24,7 +24,7 @@ scriptDir = rootDir + 'www/server'
 import compute_sparse_matrix
 import layout
 
-class TestCreateMap(unittest.TestCase):
+class Test_mcr_top6(unittest.TestCase):
 
     def test_mcr_top6(s):
         '''

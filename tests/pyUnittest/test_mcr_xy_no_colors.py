@@ -13,7 +13,7 @@ from rootDir import getRootDir
 rootDir = getRootDir()
 testDir = rootDir + 'tests/pyUnittest/'
 inDir = testDir + 'createMapIn/'   # The input data
-outDir = testDir + 'createMapOut/' # The actual output data
+outDir = testDir + 'mcr_xy_no_colorsOut/' # The actual output data
 scriptDir = rootDir + 'www/server'
 
 #http://stackoverflow.com/questions/3108285/in-python-script-how-do-i-set-pythonpath
@@ -22,9 +22,9 @@ scriptDir = rootDir + 'www/server'
 
 import layout
 
-class TestCreateMap(unittest.TestCase):
+class Test_mcr_xy(unittest.TestCase):
 
-    def test_mcr_xy(s):
+    def test_mcr_xy_no_colors(s):
         coord = testDir +'mcrchropa_expout' + '/xyPreSquiggle_0.tab'
 
         optsLayoutRaw = [

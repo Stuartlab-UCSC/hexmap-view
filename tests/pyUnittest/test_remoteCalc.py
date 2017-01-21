@@ -1,7 +1,6 @@
 #!/usr/bin/env python2.7
 
-# This tests javascript, using python's easier calls to shell commands
-# from here than from mocha
+# This tests the remote calc server
 
 import sys, os, glob, subprocess, json, tempfile, pprint
 from os import path
@@ -15,18 +14,13 @@ rootDir = getRootDir()
 inDir = path.join(rootDir + 'tests/pyUnittest/createMapIn/')
 outDir = path.join(rootDir + 'tests/pyUnittest/createMapOut/')
 
-class TestCreateMap(unittest.TestCase):
+class TestRemoteCalc(unittest.TestCase):
 
     # SET-UP
     
-    # There are three servers involved in these tests:
-    # - single server: main and calc servers are the same server
+    # There are two servers involved in these tests:
     # - main server: main and calc servers are different servers
     # - calc server: main and calc servers are different servers
-    
-    # The single server needs defined in settings.json:
-    # IS_MAIN_SERVER, IS_CALC_SERVER
-    singleUrlPrefix = "localhost:3333"
     
     # The main server needs defined in settings.json:
     # IS_MAIN_SERVER and NOT IS_CALC_SERVER.
@@ -60,13 +54,10 @@ class TestCreateMap(unittest.TestCase):
         else:
             return False
         
-    def doCurl(s, opts, remote):
+    def doCurl(s, opts):
         o, outfile = tempfile.mkstemp()
         e, errfile = tempfile.mkstemp()
-        if remote:
-            url = s.mainUrl
-        else:
-            url = s.singleUrl
+        url = s.mainUrl
         with open(outfile, 'w') as o:
             e = open(errfile, 'w')
             curl = ['curl', '-s', '-k'] + opts + [url]
@@ -82,9 +73,8 @@ class TestCreateMap(unittest.TestCase):
         os.remove(outfile)
         os.remove(errfile)
         return {'data': data, 'code': code}
-    
-    def test_pythonCallGoodDataLocal(s):
-        util.removeOldOutFiles(outDir)
+   
+    def test_pythonCallGoodDataRemote(s):
         data = '[ ' + \
             '"--coordinates", "' + path.join(inDir, "example_features_xy.tab") + '", ' + \
             '"--names", "layout", ' + \
@@ -95,30 +85,9 @@ class TestCreateMap(unittest.TestCase):
             '"--no_layout_independent_stats", ' + \
             '"--no_layout_aware_stats" ]'
         curl_opts = ['-d', data, '-H', 'Content-Type:application/json', '-X', 'POST', '-v']
-        rc = s.doCurl(curl_opts, False)
+        rc = s.doCurl(curl_opts, True)
         #print 'code, data:', rc['code'], rc['data']
         s.assertTrue(rc['code'] == '200')
-
-    def test_createMap_sparse(s):
-        util.removeOldOutFiles(outDir)
-        data = '[ ' + \
-            '"--similarity", "' + path.join(inDir, "TGCT_IlluminaHiSeq_RNASeqV2.vs_self.top6.tab") + '", ' + \
-            '"--names", "mRNA", ' + \
-            '"--scores", "' + path.join(inDir, "clin.tumormap.tab") + '", ' + \
-            '"--colormaps", "' + path.join(inDir, "clin.colormaps.final.tab") + '", ' + \
-            '"--directory", "' + outDir + '", ' + \
-            '"--include-singletons", ' + \
-            '"--first_attribute", "' + "KIT_mutated" + '",' \
-            '"--no_density_stats", ' + \
-            '"--no_layout_independent_stats", ' + \
-            '"--no_layout_aware_stats" ]'
-        
-        curl_opts = ['-d', data, '-H', 'Content-Type:application/json', '-X', 'POST', '-v']
-        rc = s.doCurl(curl_opts, False)
-        #print 'code, data:', rc['code'], rc['data']
-        s.assertTrue(rc['code'] == '200')
-        success = s.checkLog(outDir + 'log')
-        s.assertTrue(success, True)
-
+    
 if __name__ == '__main__':
     unittest.main()

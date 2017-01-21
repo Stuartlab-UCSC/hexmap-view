@@ -1,9 +1,55 @@
 #!/bin/bash
 # Run a test after setting the path
-# Usage:
-#     run test_stats
-#     run test_stats.TestStats.test_stats
+
+if [ $# -eq 0 ]; then
+    echo "one argument is needed like this:"
+    echo "    all tests: run all"
+    echo "     one file: run test_stats"
+    echo "     one test: run test_stats.TestStats.test_stats"
+    exit 1
+fi
+
+# Note alphabetical order
+ALL=( \
+    test_createMapScripts \
+    test_mcr_full \
+    test_mcr_full_no_atts \
+    test_mcr_full_no_colors \
+    test_mcr_raw \
+    test_mcr_raw_no_atts \
+    test_mcr_raw_no_colors \
+    test_mcr_top6_no_atts \
+    test_mcr_top6_no_colors \
+    test_mcr_xy \
+    test_mcr_xy_no_atts \
+    test_mcr_xy_no_colors \
+)
+PARALLEL_CHALLENGED=( \
+    test_mcr_top6 \
+    test_stats \
+)
+# these need fixing up:
+    #test_createMap \
+    #test_http \
+    #test_mcr_noincludesingletons \
+    #test_queryOverlayNodes \
+    #test_remoteCalc \
 
 export PYTHONPATH=$(pwd)/../../www/server:./
-python2.7 -m unittest $1
+TO_RUN=($1)
+if [ $1 == 'all' ]
+    then TO_RUN="${ALL[@]}"
+fi
 
+# Run our well-behaved tests in parallel
+python2.7 -m unittest $TO_RUN
+
+# Run our parallel-challenged tests independently
+if [ $1 == 'all' ]
+    then
+    echo Running parallel-challenged tests independently
+    for TEST in "${PARALLEL_CHALLENGED[@]}"
+    do
+        python2.7 $TEST.py
+    done
+fi

@@ -22,7 +22,7 @@ scriptDir = rootDir + 'www/server'
 
 import layout
 
-class TestCreateMap(unittest.TestCase):
+class Test_mcr_no_colormap_with_raw(unittest.TestCase):
 
     def test_mcr_no_colormap_with_raw(s):
         rawdatafile = inDir + 'mcrchopra.data.tab'

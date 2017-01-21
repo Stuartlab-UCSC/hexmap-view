@@ -23,7 +23,7 @@ scriptDir = rootDir + 'www/server'
 import compute_sparse_matrix
 import layout
 
-class TestCreateMap(unittest.TestCase):
+class Test_mcr_fullsim(unittest.TestCase):
 
     def test_mcr_fullsim(s):
 

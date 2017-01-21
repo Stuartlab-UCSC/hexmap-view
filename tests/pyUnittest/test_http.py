@@ -1,7 +1,6 @@
 #!/usr/bin/env python2.7
 
-# This tests javascript, using python's easier calls to shell commands
-# from here than from mocha
+# This tests http
 
 import sys, os, glob, subprocess, json, tempfile, pprint
 from os import path
@@ -13,31 +12,13 @@ from rootDir import getRootDir
 
 rootDir = getRootDir()
 inDir = path.join(rootDir + 'tests/pyUnittest/createMapIn/')
-outDir = path.join(rootDir + 'tests/pyUnittest/createMapOut/')
+outDir = path.join(rootDir + 'tests/pyUnittest/httpOut/')
 
-class TestCreateMap(unittest.TestCase):
+class TestHttp(unittest.TestCase):
 
-    # SET-UP
-    
-    # There are three servers involved in these tests:
-    # - single server: main and calc servers are the same server
-    # - main server: main and calc servers are different servers
-    # - calc server: main and calc servers are different servers
-    
-    # The single server needs defined in settings.json:
-    # IS_MAIN_SERVER, IS_CALC_SERVER
     singleUrlPrefix = "localhost:3333"
-    
-    # The main server needs defined in settings.json:
-    # IS_MAIN_SERVER and NOT IS_CALC_SERVER.
-    mainUrlPrefix = "localhost:5555"
-    
-    # The calc server needs defined in settings.json:
-    # IS_CALC_SERVER, MAIN_MONGO_URL and NOT IS_MAIN_SERVER.
-    calcUrlPrefix = "localhost:4444"
 
     unittest.TestCase.singleUrl = singleUrlPrefix + "/calc/layout"
-    unittest.TestCase.mainUrl = mainUrlPrefix + "/calc/layout"
 
     def cleanDataOut(s, dataOut):
         data = dataOut
@@ -60,13 +41,10 @@ class TestCreateMap(unittest.TestCase):
         else:
             return False
         
-    def doCurl(s, opts, remote):
+    def doCurl(s, opts):
         o, outfile = tempfile.mkstemp()
         e, errfile = tempfile.mkstemp()
-        if remote:
-            url = s.mainUrl
-        else:
-            url = s.singleUrl
+        url = s.singleUrl
         with open(outfile, 'w') as o:
             e = open(errfile, 'w')
             curl = ['curl', '-s', '-k'] + opts + [url]
@@ -82,6 +60,26 @@ class TestCreateMap(unittest.TestCase):
         os.remove(outfile)
         os.remove(errfile)
         return {'data': data, 'code': code}
+   
+    def test_methodCheckLocal(s):
+        opts = ['-X', 'GET', '-v']
+        rc = s.doCurl(opts, False)
+        s.assertTrue(rc['code'] == '405')
+        s.assertTrue(rc['data'] == '"Only the POST method is understood here"')
+
+    def test_contentTypeCheckLocal(s):
+        opts = ['-H', 'Content-Type:apjson', '-X', 'POST', '-v']
+        rc = s.doCurl(opts, False)
+        s.assertTrue(rc['code'] == '400')
+        s.assertTrue(rc['data'] == '"Only content-type of application/json is understood here"')
+    
+    def test_jsonCheckLocal(s):
+        data = '{data: oh boy, data!}'
+        opts = ['-d', data, '-H', 'Content-Type:application/json', '-X', 'POST', '-v']
+        rc = s.doCurl(opts, False)
+        #print 'rc: code, data', rc['code'],rc['data']
+        s.assertTrue(rc['code'] == '400')
+        s.assertTrue(rc['data'] == '"Malformed JSON data given"')
     
     def test_pythonCallGoodDataLocal(s):
         util.removeOldOutFiles(outDir)
@@ -98,7 +96,7 @@ class TestCreateMap(unittest.TestCase):
         rc = s.doCurl(curl_opts, False)
         #print 'code, data:', rc['code'], rc['data']
         s.assertTrue(rc['code'] == '200')
-
+    
     def test_createMap_sparse(s):
         util.removeOldOutFiles(outDir)
         data = '[ ' + \

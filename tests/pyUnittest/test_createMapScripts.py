@@ -13,12 +13,12 @@ from rootDir import getRootDir
 rootDir = getRootDir()
 testDir = rootDir + 'tests/pyUnittest/'
 inDir = testDir + 'createMapIn/'   # The input data
-outDir = testDir + 'createMapOut/' # The actual output data
+outDir = testDir + 'createMapScriptsOut/' # The actual output data
 scriptDir = rootDir + 'www/server'
 
 import compute_sparse_matrix
 
-class TestCreateMap(unittest.TestCase):
+class TestCreateMapScripts(unittest.TestCase):
 
     def test_similarityTop20Spear(s):
 

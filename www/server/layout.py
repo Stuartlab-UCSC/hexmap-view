@@ -342,7 +342,6 @@ class Context:
 
     def printIt(s):
         print json.dumps(s, indent=4, sort_keys=True)
-ctx = Context();
 
 class InvalidAction(Exception):
     def __init__(self, value):
@@ -802,7 +801,7 @@ class ClusterFinder(object):
         # We have now found the best p for any window for this layer.
         return best_p                
 
-def writeAndPutLayerDatatypes(datatypeDict, options):
+def writeAndPutLayerDatatypes(datatypeDict, options, ctx):
     """
     This function writes the datatypes to the UI's data type file,
      and puts the data types into the ctx global
@@ -830,115 +829,7 @@ def writeAndPutLayerDatatypes(datatypeDict, options):
 
     print timestamp(), 'Attribute counts:',' Binary:', len(ctx.binary_layers), '+ Categorical:', len(ctx.categorical_layers), '+ Continuous:', len(ctx.continuous_layers)
 
-def determine_layer_data_types (layers, layer_names, options):
-    """
-    This tool will act as the organizational control for all association 
-    stats tools. It will break up the layers into arrays based upon their
-    data type. For the moment, there will only be arrays for binary,
-    continuous, and categorical variables. 
-    """
-    # For the moment, we are only going to worry about single layouts.
-    hex_dict_num = 0
-
-    # Retrieve the hexagon names from the appropriate hexagon dictionary
-    hex_values = ctx.all_hexagons[hex_dict_num].values()
-
-    if options.colormaps is not None:
-
-        # Read the colormap file because we need this to tell the difference
-        # between two-category layers and binary layers
-        colormaps_reader = tsv.TsvReader(open(options.colormaps, 'r'))
-        colormap_entry = []
-        for row in colormaps_reader:
-            colormap_entry.append(row[0])
-        colormaps_reader.close()
-
-    # For each layer name, scan through all its values. If you find a non-integer
-    # value, it's continuous. Otherwise, if you find a value greater than 1 or
-    # less than 0, it's categorical Otherwise, it's binary.
-    # TODO unfortunately, this is typing integer continuous as categorical,
-    # where they should be typed as continuous.
-
-    for layer_name, layer in layers.iteritems():
-
-        # Skip any layers with no values. This means the clumper did not
-        # put any values in this layer.
-        if len(layer) < 0:
-            continue
-
-        # Assume this layer meets the requirements of a binary or
-        # categorical layer until proven otherwise
-        can_be_binary = can_be_categorical = True
-
-        for value in layer.itervalues():
-            if value % 1 != 0:
-
-                # This is not binary or categorial due to its fractional
-                # component, so it must be continuous and we're done checking
-                # this layer's values
-                can_be_binary = False
-                can_be_categorical = False
-                break
-            
-            if value > 1 or value < 0:
-
-                # This is not binary due to a value other than zero or one. The
-                # layer may still have a continuous value so we continue to
-                # check more of its values.
-                # TODO we could have continuous values which happen to be
-                # integers. For now those will be mis-placed as categorical.
-                can_be_binary = False
-
-            if layer_name in colormap_entry:
-
-                # This is not binary because it is assumed
-                # to be categorical due to an entry in the colormap
-                can_be_binary = False
-
-        if can_be_binary:
-
-            # Nothing rules out this layer being binary, so call it such.
-            # TODO is this capturing layers with nan values ?
-            # Or do we never write nan values?
-            ctx.binary_layers.append(layer_name)
-
-        elif can_be_categorical:
-
-            # Nothing rules out this layer being categorical, so call it such.
-            # TODO this is improperly capturing integer continuous layers.
-            ctx.categorical_layers.append(layer_name)
-
-            # TODO this is improperly capturing integer continuous layers.
-            # TODO later:
-            # One last check: if this integer-only attribute has an entry in the
-            # colormap, consider it categorical.
-            #if layer_name in colormap_entry:
-            #    ctx.categorical_layers.append(layer_name)
-            #else:
-            #    # Otherwise this is an integer-only continuous attribute
-            #    ctx.continuous_layers.append(layer_name)
-        else:
-
-            # It is not binary or categorical, so it is continuous
-            ctx.continuous_layers.append(layer_name)
-
-    # Write the lists of continuous, binary, and categorical layers to files
-    # The client side will use these to determine how to display values and
-    # which layers to include when the user filters by data type.
-    type_writer = tsv.TsvWriter(open(os.path.join(options.directory, 
-    "Layer_Data_Types.tab"), "w"))
-
-    if (options.first_attribute):
-        type_writer.line("FirstAttribute", options.first_attribute)
-    type_writer.line("Continuous", *ctx.continuous_layers)
-    type_writer.line("Binary", *ctx.binary_layers)
-    type_writer.line("Categorical", *ctx.categorical_layers)
-
-    type_writer.close()
-
-    print timestamp(), 'Attribute counts:', len(ctx.binary_layers) + len(ctx.categorical_layers) + len(ctx.continuous_layers), '= Binary:', len(ctx.binary_layers), '+ Categorical:', len(ctx.categorical_layers), '+ Continuous:', len(ctx.continuous_layers)
-
-def open_matrices(names):
+def open_matrices(names, ctx):
     """
     The argument parser now take multiple similarity matrices as input and
     saves their file name as strings. We want to store the names of these
@@ -951,6 +842,8 @@ def open_matrices(names):
     """
     # For each file name, open the file and add it to the matrices list
     # 'r' is the argument stating that the file will be read-only
+    # swat: why are we opening the same file twice, once as a steam and once as
+    # a std file where lines are added to ctx.sparse?
     for i, similarity_filename in enumerate(names):
         print 'Opening Matrix', i, similarity_filename
         
@@ -1305,7 +1198,7 @@ def drl_similarity_functions(matrix, index, options):
     # Return nodes dict back to main method for further processes
     return nodes
 
-def compute_hexagram_assignments(nodes, index, options):
+def compute_hexagram_assignments(nodes, index, options, ctx):
     """
     Now that we are taking multiple similarity matrices as inputs, we must
     compute hexagram assignments for each similarity matrix. These assignments 
@@ -1415,7 +1308,10 @@ def write_similarity_names(options):
         for i, name in enumerate(options.names):
             f.writerow([name])
 
-def run_clumpiness_statistics(layers, layer_names, window_size, layout_index):
+# TODO: if this is no longer being used, take it out. All of the places it is
+# called are commented out.
+def run_clumpiness_statistics(layers, layer_names, window_size, layout_index,
+    ctx):
     """
     
     Takes in a dict of layers by name, a list of layer names, an integer tiling
@@ -1551,6 +1447,7 @@ def hexIt(options, cmd_line_list, all_dict):
     pprint.pprint(all_dict)
     sys.stdout.flush()
 
+    ctx = Context();
     # Create the metadata json file for the role if there is one
     if options.role != None:
         with open(os.path.join(options.directory, 'meta.json'), 'w') as fout:
@@ -1743,7 +1640,7 @@ def hexIt(options, cmd_line_list, all_dict):
             
             elif not (options.similarity == None):        #sparse similarity matrix given
                 print "Sparse similarity matrices"
-                open_matrices(options.similarity)
+                open_matrices(options.similarity, ctx)
                 print options.similarity
             elif not(options.coordinates == None):
                 #do nothing.
@@ -1785,7 +1682,7 @@ def hexIt(options, cmd_line_list, all_dict):
     placement_badnesses_multiple = []
     for index, i in enumerate(nodes_multiple):
         # Go get the placement badness
-        placement_badness = compute_hexagram_assignments(i, index, options)
+        placement_badness = compute_hexagram_assignments(i, index, options, ctx)
             
         # Record the placement badness under this layout.
         placement_badnesses_multiple.append(placement_badness)
@@ -1950,7 +1847,7 @@ def hexIt(options, cmd_line_list, all_dict):
         datatypeDict = getDataTypes(attrDF,options.directory + '/colormaps.tab')
 
     #puts the datatypes in the global object and writes them to the UI file
-    writeAndPutLayerDatatypes(datatypeDict, options)
+    writeAndPutLayerDatatypes(datatypeDict, options, ctx)
 
     '''
     #DCM - commented out on 011017
@@ -1974,6 +1871,8 @@ def hexIt(options, cmd_line_list, all_dict):
         ###########################################################################3
 
         '''
+        # TODO: take this dead code out if we are not going to use it. Also 
+        # remove it's associated functions if they are not used elsewhere.
         ##DCM 011017:
         ##Old method for doing density stats.
         ##Note that the cases below run the same commands, and therefor are superfluous in the
