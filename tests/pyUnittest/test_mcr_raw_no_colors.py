@@ -28,8 +28,9 @@ class TestCreateMap(unittest.TestCase):
         rawdatafile = inDir + 'mcrchopra.data.tab'
 
         optsLayoutRaw = [
+            "--role", "mcrchopra",
             "--feature_space", rawdatafile,
-            "--names", "mRNA",
+            "--names", "layout",
             "--metric", 'spearman',
             "--scores", inDir + "mcrchopra.atts.with_strs.tab",
             "--directory", outDir,

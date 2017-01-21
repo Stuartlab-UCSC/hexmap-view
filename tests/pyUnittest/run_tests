@@ -8,14 +8,28 @@ export PYTHONPATH=$(pwd)/../../www/server
  
 echo testing results of mcr data and full genomic entry 
 python2.7 test_mcr_raw.py 
+echo testing results of mcr data and full genomic entry and no atts
+python2.7 test_mcr_raw_no_atts.py
 echo testing results of mcr data and full similarity entry 
 python2.7 test_mcr_full.py
+echo testing results of mcr data and full similarity entry and no atts
+python2.7 test_mcr_full_no_atts.py
 echo testing results of mcr data and top6 entry 
 python2.7 test_mcr_top6.py
+echo testing results of mcr data and top6 entry and no atts 
+python2.7 test_mcr_top6_no_atts.py
 echo testing results of mcr data and xy entry 
 python2.7 test_mcr_xy.py
-echo testing results of mcr data and no colormap 
-python2.7 test_mcr_no_colormap.py
+echo testing results of mcr data and xy entry and no atts
+python2.7 test_mcr_xy_no_atts.py
+echo testing results of mcr data genomic entry and no colormap 
+python2.7 test_mcr_raw_no_colors.py
+echo testing results of mcr data full entry and no colormap 
+python2.7 test_mcr_full_no_colors.py
+echo testing results of mcr data top6 entry and no colormap 
+python2.7 test_mcr_top6_no_colors.py
+echo testing results of mcr data xy entry and no colormap 
+python2.7 test_mcr_xy_no_colors.py
 echo testing layout and non layout stats test
 python2.7 test_stats.py
 echo testing compute_similarities output
