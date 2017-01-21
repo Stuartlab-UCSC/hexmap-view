@@ -162,7 +162,7 @@ def leesL(spW,Ztrans_attrDF):
     '''
     return (np.dot(np.dot(Ztrans_attrDF.transpose(),np.dot(spW.transpose(),spW)),Ztrans_attrDF)) / np.dot(spW.transpose(),spW).sum().sum()
 
-def densityOpt(allAtts,datatypes,xys,debug=True):
+def densityOpt(allAtts,datatypes,xys,debug=False):
     '''
     An optimized version of Density calculation.
      An attribute's density is only based on the values it has data for, so A new spatial weight matrix is calculated
@@ -235,7 +235,7 @@ def densityOpt(allAtts,datatypes,xys,debug=True):
                 datMat = pd.get_dummies(subAtts[attr].dropna()).apply(pd.to_numeric)
                 #in case we lost any categories for the map we are looking at
                 datMat = datMat[datMat.columns[datMat.sum() != 0]]
-
+                datMat = ztransDF(datMat)
                 if debug:
                     print 'categorical attribute being processed: ' + attr
                     print 'shape of dummy matrix after exclusion: ' + str(datMat.shape)

@@ -5,6 +5,6 @@ Apoptosis	layer_5.tab	60		0.5857782
 TP63_ mutated	layer_2.tab	60	20.0	0.3141214
 TP53_expression altered	layer_3.tab	2	1.0	0.5
 continuousInteger	layer_9.tab	60		0.03376203
-Subtype	layer_0.tab	60		0.1220643
+Subtype	layer_0.tab	60		0.5401346
 DNA_Repair Broken	layer_7.tab	60	20.0	0.1431704
 categoricalBinary	layer_1.tab	60	20.0	0.3141214
