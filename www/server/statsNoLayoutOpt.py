@@ -1,3 +1,4 @@
+#! /usr/bin/env python2.7
 '''
 This is an optimized version of our pairwise attribute statistics.
 Instead of using the lower level paralell processing of initiallizing n**2 classes
@@ -33,7 +34,7 @@ import pandas as pd
 import numpy as np
 import sklearn.metrics.pairwise as sklp
 from scipy import stats
-from layout import getAttributes
+from process_categoricals import getAttributes
 from leesL import getLayerIndex
 from leesL import readLayers
 import statsmodels.sandbox.stats.multicomp as multicomp
@@ -265,7 +266,7 @@ def stitchTogether(biXbi,caXbi,biXco,coXco,caXco,caXca):
 
     return pd.concat([bins,conts,cats],axis=1)
 
-def allbyallStatsNoLayout(attrDF,datatypeDict):
+def allbyallStatsNoLayout(attrDF,datatypeDict,n_jobs=12):
     '''
     @param projectDir:
     @param attrDF:
@@ -280,8 +281,7 @@ def allbyallStatsNoLayout(attrDF,datatypeDict):
     @param datatypeDict:
     @return:
     '''
-    attrDF = getAttributes(read_matrices('/home/duncan/Desktop/TumorMap/TMdev/hexagram/tests/pyUnittest/statsExp'))
-    datatypeDict = read_data_types('/home/duncan/Desktop/TumorMap/TMdev/hexagram/tests/pyUnittest/statsExp')
+
     #separate the metadata out into the perspective data types
     binAtts = attrDF[datatypeDict['bin']]
     binAtts = binAtts.fillna(BINCATNAN)
@@ -301,22 +301,22 @@ def allbyallStatsNoLayout(attrDF,datatypeDict):
     # naming scheme:
     #bi == binary , co == continuous , ca == categorical
     #xxXyy == xx in the rows, yy are the columns
-    biXbi = sklp.pairwise_distances(binAtts.transpose(),metric=binBinTest)
+    biXbi = sklp.pairwise_distances(binAtts.transpose(),metric=binBinTest,n_jobs=n_jobs)
     biXbi = pd.DataFrame(biXbi,columns=datatypeDict['bin'],index=datatypeDict['bin'] )
     #
-    coXco = sklp.pairwise_distances(contAtts.transpose(),metric=contContTest)
+    coXco = sklp.pairwise_distances(contAtts.transpose(),metric=contContTest,n_jobs=n_jobs)
     coXco = pd.DataFrame(coXco,columns=datatypeDict['cont'],index=datatypeDict['cont'] )
     #
-    caXca = sklp.pairwise_distances(catAtts.transpose(),metric=catBinOrCatCatTest)
+    caXca = sklp.pairwise_distances(catAtts.transpose(),metric=catBinOrCatCatTest,n_jobs=n_jobs)
     caXca = pd.DataFrame(caXca,columns=datatypeDict['cat'],index=datatypeDict['cat'] )
     #
-    caXbi = sklp.pairwise_distances(catAtts.transpose(),binAtts.transpose(),metric=catBinOrCatCatTest)
+    caXbi = sklp.pairwise_distances(catAtts.transpose(),binAtts.transpose(),metric=catBinOrCatCatTest,n_jobs=n_jobs)
     caXbi = pd.DataFrame(caXbi,columns=datatypeDict['bin'],index=datatypeDict['cat'] )
     #
-    caXco = sklp.pairwise_distances(catAtts.transpose(),contAtts.transpose(),metric=catContTest)
+    caXco = sklp.pairwise_distances(catAtts.transpose(),contAtts.transpose(),metric=catContTest,n_jobs=n_jobs)
     caXco = pd.DataFrame(caXco,columns=datatypeDict['cont'],index=datatypeDict['cat'] )
     #
-    biXco = sklp.pairwise_distances(binAtts.transpose(),contAtts.transpose(),metric=binContTest)
+    biXco = sklp.pairwise_distances(binAtts.transpose(),contAtts.transpose(),metric=binContTest,n_jobs=n_jobs)
     biXco = pd.DataFrame(biXco,columns=datatypeDict['cont'],index=datatypeDict['bin'] )
 
     '''
@@ -354,7 +354,13 @@ def writeToDirectoryStats(dirName,allbyall,layers):
 #writeToDirectoryStats('/home/duncan/Desktop/TumorMap/TMdev/hexagram/tests/pyUnittest/statsFromOpt/',all_,readLayers(layersfile))
 
 def runAllbyAllForUI(dir,layers,attrDF,dataTypeDict):
-
+    '''
+    @param dir:
+    @param layers:
+    @param attrDF:
+    @param dataTypeDict:
+    @return:
+    '''
     writeToDirectoryStats(dir,allbyallStatsNoLayout(attrDF,dataTypeDict),layers)
 
     return None
