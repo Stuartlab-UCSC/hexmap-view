@@ -78,9 +78,9 @@ def parse_args(args):
     parser.add_argument("--scores", type=str,
         action="append",
         help="values for each signature as TSV")
-    parser.add_argument("--include-singletons", dest="singletons",
+    parser.add_argument("--self-connected-edges", dest="singletons",
         action="store_true", default=False,
-        help="add self-edges to retain unconnected points")
+        help="add self-edges to input of DRL algorithm")
     parser.add_argument("--colormaps", type=str,
         default=None,
         help="colormap for categorical attributes as TSV")
@@ -146,6 +146,9 @@ def parse_args(args):
     parser.add_argument("--no-mutualinfo", dest="mutualinfo",
         action="store_false", default=True,
         help="deprecated, use --no_layout_aware_stats instead")
+    parser.add_argument("--include-singletons", dest="singletons",
+        action="store_true", default=False,
+        help="deprecated, use --self-connected-edges instead")
 
 
     return parser.parse_args(args)
@@ -1131,6 +1134,17 @@ def drl_similarity_functions(matrix, index, options):
     if options.singletons:
         # Now add a self-edge on every node, so we don't drop nodes with no
         # other strictly positive edges
+        '''
+        DCM012317 : it is unclear what this does to the DRL layout algorithm,
+        however the flag seems to make the layouts more aesthetic.
+        The argument was originally named --include-singletons, suggesting
+         that new nodes may be included if the flag is raised. However,
+         this code goes through all the nodes that are already present
+         in the input and hence can not include something that isn't there.
+         Note that DRL is an un-directed graph method, so directionality
+          does not resolve the issue of including something that would
+          otherwise not be present.
+        '''
         for signature in signatures:
             sim_writer.line(signature, signature, 1)
         
