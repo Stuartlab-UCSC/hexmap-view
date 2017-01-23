@@ -304,15 +304,7 @@ class ForEachLayer(object):
         #       ...
         #   ]
         DEBUG = False
-        #"dropping quantiles" is not appropriate for the test being performed.
-        # the wilcox rank sums test does a rank transform on the data in order
-        # to be free of distribution assumptions. The rank transform is the
-        # test's way of dealing with outliers, which would be the motivation for
-        # dropping continuos values out side of some notion of quantile. In this
-        # implementation, 'dropping quantiles' simply excludes data, and doesn't
-        # have the benefit of getting rid of outliers. For this reason it should
-        # not be used.
-        QUANTILE_DIVISOR = 100
+
         if DEBUG and contL != 'GP17_Basal signaling program':
             DEBUG = False
             fname = '/cluster/home/swat/tmpDebug'
