@@ -1,16 +1,7 @@
+Place new nodes on a map
+------------------------
 
-Python API: overlayNodes
-========================
-
-Overlay new nodes on a frozen map.
-
-See :doc:`pythonApi` for general information about python APIs as well as an
-example call and response.
-
-The data within the temporary files are explained here.
-
-Request
--------
+**Request**
 
 Example::
 
@@ -18,8 +9,7 @@ Example::
     "map": "CKCC/v1",
     "layout": "mRNA",
     "email": [
-        "IamInterested@any.com",
-        "meToo@any.com",
+        "mok66@gmail.com",
         ...
     ],
     "nodes": {
@@ -51,8 +41,7 @@ It should return a bookmark of the form::
 
 Definitions
 
- | *neighborNode* : a neighbor node of the given node
- | *email* : email addresses where the bookmark will be sent
+ | *email* : optional parameter, one or more email addresses to receive the bookmark
  | *layout* : type of values by which the new node will be placed on the map. e.g., "mRNA"
  | *mapID* : frozen map ID. e.g., "CKCC/v1"
  | *nodes* : the nodes to be placed on the map
@@ -77,65 +66,33 @@ Generalized Format::
     },
  }
 
-Response
---------
+**Response success**
 
-**Success**
+These are returned as HTTP 200.
 
 Example::
 
  {
-    "map": "CKCC/v1",
-    "layout": "mRNA",
-    "email": [
-        "IamInterested@any.com",
-        "meToo@any.com",
-        ...
-    ],
-    "nodes": {
-        "mySample1": {
-            "hash": "267831025yhs3fzxwi",
-            "neighbors": [
-                "TCGA-HT-7686-01",
-                "TCGA-P5-A780-01", 
-                "TCGA-28-5216-01", 
-                "TCGA-DU-A7TD-01", 
-                "TCGA-06-0187-01", 
-                "TCGA-QR-A70E-01"
-            ],
-            "x": "42",
-            "y": "23",
-        },
-    },
+    "bookmark": "https://tumormap.ucsc.edu/?b=18XFlfJG8ijJUVP_CYIbA3qhvCw5pADF651XTi8haPnE",
  }
 
-Generalized Format::
+Generalized format::
 
  {
-    "map": <map ID>,
-    "layout": <layout>,
-    "email": [
-        <email>,
-        (1 to N email addresses ...)
-    ],
-    "nodes": {
-        <node>: {
-            "hash": <hash-generated-over-data>,
-            "neighbors": [
-                <neighborNode>,
-                <neighborNode>,
-                <neighborNode>,
-                <neighborNode>,
-                <neighborNode>,
-                (1 to N neighborNodes ...)
-            ],
-            "x": <x-value>,
-            "y": <y-value>,
-        },
-        (1 to N nodes ...)
-    },
+    "bookmark": <bookmark>
  }
 
-**Errors**
+**Response errors**
 
-Response errors are at :doc:`pythonApi`
+These are returned as HTTP 400.
+
+There may be more or less than listed here.
+
+ | map "pancan44" not found
+ | layout "sRNA" of map "pancan12" not found
+ | map missing or malformed
+ | layout missing or malformed
+ | layoutData missing or malformed
+ | nodes missing or malformed
+ | node properties missing or malformed
+ | query malformed

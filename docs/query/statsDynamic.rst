@@ -1,20 +1,14 @@
-
-Python API: statsDynamic
-========================
-
-Request the dynamic calculation of statistics for a dynamically-generated
-attribute, or because stats were not precomputed.
-
-See :doc:`pythonApi` for general information about python APIs as well as an
-example call and response.
-
-The data within the temporary files are explained here.
+Dynamic Statistics
+------------------
 
 Note that this request returns data as tsv rather than as json. It was
-implemented prior to standardizing on json.
+implemented prior to standardizing on json. We should move to json so this API
+can be called from anywhere and not just from the UI.
 
-Request
--------
+Below is just one sort of call. We should define each parameter and its possible
+values
+
+**Request**
 
 Example::
 
@@ -41,8 +35,7 @@ Generalized format::
 
  TBD
 
-Response
---------
+**Response**
 
 **Success**
 
@@ -50,5 +43,5 @@ TBD
 
 **Errors**
 
-Response errors are at :doc:`pythonApi`
+TBD
 

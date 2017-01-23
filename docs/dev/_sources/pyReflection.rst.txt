@@ -2,6 +2,8 @@
 Python API: syncMaps
 ====================
 
+NOTE: Some of this information is no longer correct and needs updating.
+
 This python API is used in communications between the map manager and the
 agent to feature translator. The full pipeline is at
 :doc:`mapManager`
