@@ -1500,14 +1500,6 @@ def hexIt(options, cmd_line_list, all_dict):
         cat_files(";".join(combine_files), os.path.join(options.directory, 'colormaps_all.tab'))
         options.colormaps = os.path.join(options.directory, 'colormaps_all.tab')
 
-    #first attribute is not specified; just use the first attribute in the first file
-    if len(options.first_attribute) == 0:
-        if not(options.scores == None):  #maybe it was not specified because there are no attributes
-            with open(options.scores[0], 'r') as f:
-                first_line_elems = f.readline().split("\t")
-                options.first_attribute = first_line_elems[1]
-    print "Setting first attribute to " + options.first_attribute
-    
     # Set some global context values
     ctx.extract_coords = extract_coords
     ctx.timestamp = timestamp
