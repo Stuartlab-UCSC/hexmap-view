@@ -48,7 +48,108 @@ from sklearn import preprocessing
 import sklearn.metrics
 import sklearn.metrics.pairwise as sklp
 import numpy as np
-#from statsNoLayoutOpt import runAllbyAllForUI
+
+def parse_args(args):
+    """
+    This just defines parser arguments but does not actually parse the values
+    """
+    parser = argparse.ArgumentParser(description=__doc__,
+        formatter_class=argparse.RawDescriptionHelpFormatter)
+
+    # The primary parameters:
+    parser.add_argument("--similarity", nargs='+',action = 'append',
+        help="similarity sparse matrix file")
+    parser.add_argument("--similarity_full", nargs='+',action = 'append',
+        help="similarity full matrix file")
+    parser.add_argument("--feature_space", nargs='+',action = 'append',
+        help="full feature space matrix")
+    parser.add_argument("--coordinates", nargs='+',action = 'append',
+        help="file containing coordinates for the samples")
+    parser.add_argument("--metric", nargs='+',action = 'append',
+        help="metric corresponding to the feature matrix of the same index")
+    parser.add_argument("--layout_method", type=str, default="DrL",
+        help="DrL, tSNE, MDS, PCA, ICA, isomap, spectralembedding")
+    parser.add_argument("--preprocess_method", type=str, default="",
+        help="Preprocessing methods for feature data when tSNE, MDS, PCA, ICA, isomap, or spectralembedding methods are used; valid options are: standardize, normalize")
+    parser.add_argument("--tsne_pca_dimensions", type=str, default="11",
+        help="Number of PCA dimensions to reduce data to prior to performing t-SNE")
+    parser.add_argument("--names", type=str, action="append", default=[],
+        help="human-readable unique name/label for one the similarity matrix")
+    parser.add_argument("--scores", type=str,
+        action="append",
+        help="values for each signature as TSV")
+    parser.add_argument("--include-singletons", dest="singletons",
+        action="store_true", default=False,
+        help="add self-edges to retain unconnected points")
+    parser.add_argument("--colormaps", type=str,
+        default=None,
+        help="colormap for categorical attributes as TSV")
+    parser.add_argument("--first_attribute", type=str, default="",
+        help="attribute by which to color the map upon first display")
+    parser.add_argument("--directory", "-d", type=str, default=".",
+        help="directory in which to create other output files")
+    parser.add_argument("--role", type=str, default=None,
+        help="authorization role for this map")
+
+    # Lesser used parameters:
+    parser.add_argument("--attributeTags", type=str,
+        default=None,
+        help="tags for filtering attributes for display, as TSV")
+    parser.add_argument("--min_window_nodes", type=int, default=5,
+        dest="mi_window_threshold",
+        help="min nodes per window for layout-aware stats")
+    parser.add_argument("--max_window_nodes", type=int, default=20,
+        dest="mi_window_threshold_upper",
+        help="max nodes per window for layout-aware stats")
+    parser.add_argument("--no_density_stats", dest="clumpinessStats",
+        action="store_false", default=True,
+        help="don't calculate density stats")
+    parser.add_argument("--no_layout_independent_stats", dest="associations",
+        action="store_false", default=True,
+        help="don't calculate layout-independent stats")
+    parser.add_argument("--no_layout_aware_stats", dest="mutualinfo",
+        action="store_false", default=True,
+        help="don't calculate layout-aware stats")
+    parser.add_argument("--truncation_edges", type=int, default=6,
+        help="edges per node for DrL and the directed graph")
+    parser.add_argument("--window_size", type=int, default=20,
+        help="clustering window count is this value squared")
+    parser.add_argument("--drlpath", "-r", type=str,
+        help="DrL binaries")
+
+    # Rarely used, if ever, parameters:
+    parser.add_argument("--raw", type=str, nargs='+',
+        help="raw data matrix file name")
+    parser.add_argument("--type", type=str, nargs='+',
+        help="the data types of the raw data matrices")
+    parser.add_argument("--rawsim", type=str, nargs='+',
+        help="correlates the raw data file to its similarity matrix")
+    parser.add_argument("--directed_graph", dest="directedGraph",
+        action="store_true", default=True,
+        help="generate the data to draw the directed graph")
+    parser.add_argument("--output_zip", type=str, default="",
+        help="compress the output files into a zip file")
+    parser.add_argument("--output_tar", type=str, default="",
+        help="compress the output files into a tar file")
+
+    # Deprecated parameters:
+    parser.add_argument("--mi_window_threshold", type=int, default=5,
+        help="deprecated, use --min_window_nodes instead")
+    parser.add_argument("--mi_window_threshold_upper", type=int, default=20,
+        help="deprecated, use --max_window_nodes instead")
+    parser.add_argument("--no-stats", dest="clumpinessStats",
+        action="store_false", default=True,
+        help="deprecated, use --no_density_stats instead")
+    parser.add_argument("--no-associations", dest="associations",
+        action="store_false", default=True,
+        help="deprecated, use --no_layout_independent_stats instead")
+    parser.add_argument("--no-mutualinfo", dest="mutualinfo",
+        action="store_false", default=True,
+        help="deprecated, use --no_layout_aware_stats instead")
+
+
+    return parser.parse_args(args)
+
 '''
 Notes about peculiarities in code:
     1.) --include_singletons option: the name suggests you are including nodes
@@ -224,107 +325,6 @@ def read_nodes(filename):
     # Return nodes dict back to main method for further processes
     return nodes
 ##
-
-def parse_args(args):
-    """
-    This just defines parser arguments but does not actually parse the values
-    """    
-    parser = argparse.ArgumentParser(description=__doc__,
-        formatter_class=argparse.RawDescriptionHelpFormatter)
-    
-    # The primary parameters:
-    parser.add_argument("--similarity", nargs='+',action = 'append',
-        help="similarity sparse matrix file")
-    parser.add_argument("--similarity_full", nargs='+',action = 'append',
-        help="similarity full matrix file")
-    parser.add_argument("--feature_space", nargs='+',action = 'append',
-        help="full feature space (genomic) matrix")
-    parser.add_argument("--coordinates", nargs='+',action = 'append',
-        help="file containing coordinates for the samples")
-    parser.add_argument("--metric", nargs='+',action = 'append',
-        help="metric corresponding to the genomic matrix of the same index")
-    parser.add_argument("--layout_method", type=str, default="DrL",
-        help="DrL, tSNE, MDS, PCA, ICA, isomap, spectralembedding")
-    parser.add_argument("--preprocess_method", type=str, default="",
-        help="Preprocessing methods for genomic data when tSNE, MDS, PCA, ICA, isomap, or spectralembedding methods are used; valid options are: standardize, normalize")
-    parser.add_argument("--tsne_pca_dimensions", type=str, default="11",
-        help="Number of PCA dimensions to reduce data to prior to performing t-SNE")
-    parser.add_argument("--names", type=str, action="append", default=[],
-        help="human-readable unique name/label for one the similarity matrix")
-    parser.add_argument("--scores", type=str,
-        action="append",
-        help="values for each signature as TSV")
-    parser.add_argument("--include-singletons", dest="singletons", 
-        action="store_true", default=False,
-        help="add self-edges to retain unconnected points")
-    parser.add_argument("--colormaps", type=str,
-        default=None,
-        help="colormap for categorical attributes as TSV")
-    parser.add_argument("--first_attribute", type=str, default="",
-        help="attribute by which to color the map upon first display")
-    parser.add_argument("--directory", "-d", type=str, default=".",
-        help="directory in which to create other output files")
-    parser.add_argument("--role", type=str, default=None,
-        help="authorization role for this map")
-        
-    # Lesser used parameters:
-    parser.add_argument("--attributeTags", type=str,
-        default=None,
-        help="tags for filtering attributes for display, as TSV")
-    parser.add_argument("--min_window_nodes", type=int, default=5,
-        dest="mi_window_threshold",
-        help="min nodes per window for layout-aware stats")
-    parser.add_argument("--max_window_nodes", type=int, default=20,
-        dest="mi_window_threshold_upper",
-        help="max nodes per window for layout-aware stats")
-    parser.add_argument("--no_density_stats", dest="clumpinessStats",
-        action="store_false", default=True,
-        help="don't calculate density stats")
-    parser.add_argument("--no_layout_independent_stats", dest="associations",
-        action="store_false", default=True,
-        help="don't calculate layout-independent stats")
-    parser.add_argument("--no_layout_aware_stats", dest="mutualinfo",
-        action="store_false", default=True,
-        help="don't calculate layout-aware stats")
-    parser.add_argument("--truncation_edges", type=int, default=6,
-        help="edges per node for DrL and the directed graph")
-    parser.add_argument("--window_size", type=int, default=20,
-        help="clustering window count is this value squared")
-    parser.add_argument("--drlpath", "-r", type=str,
-        help="DrL binaries")
-        
-    # Rarely used, if ever, parameters:
-    parser.add_argument("--raw", type=str, nargs='+',
-        help="raw data matrix file name")
-    parser.add_argument("--type", type=str, nargs='+',
-        help="the data types of the raw data matrices")
-    parser.add_argument("--rawsim", type=str, nargs='+',
-        help="correlates the raw data file to its similarity matrix")
-    parser.add_argument("--directed_graph", dest="directedGraph",
-        action="store_true", default=True,
-        help="generate the data to draw the directed graph")
-    parser.add_argument("--output_zip", type=str, default="",
-        help="compress the output files into a zip file")
-    parser.add_argument("--output_tar", type=str, default="",
-        help="compress the output files into a tar file")
-    
-    # Deprecated parameters:
-    parser.add_argument("--mi_window_threshold", type=int, default=5,
-        help="deprecated, use --min_window_nodes instead")
-    parser.add_argument("--mi_window_threshold_upper", type=int, default=20,
-        help="deprecated, use --max_window_nodes instead")
-    parser.add_argument("--no-stats", dest="clumpinessStats",
-        action="store_false", default=True,
-        help="deprecated, use --no_density_stats instead")
-    parser.add_argument("--no-associations", dest="associations",
-        action="store_false", default=True,
-        help="deprecated, use --no_layout_independent_stats instead")
-    parser.add_argument("--no-mutualinfo", dest="mutualinfo",
-        action="store_false", default=True,
-        help="deprecated, use --no_layout_aware_stats instead")
-    
-    
-    return parser.parse_args(args)
 
 def timestamp():
     return str(datetime.datetime.now())[5:-7]
