@@ -19,7 +19,7 @@ Then run this script to compare the output with the expected.
     raw_no_colors  mcrchopra.data.tab, mcrchopra.atts.with_strs.tab
     full_no_atts   mcr.fullsim.stable.tab
     top6_no_atts   mcr.top6.stable.tab
-    xy_no_atts     exp/layoutBasicParms/xyPreSquiggle_0.tab
+    xy_no_atts     exp/layoutBasic/xyPreSquiggle_0.tab
 """
 
 rootDir = getRootDir()
@@ -28,7 +28,7 @@ rootDir = getRootDir()
 # using the repository directory structure starting at 'hexagram/'
 testDir = rootDir + 'tests/pyUnittest/'
 inDir = testDir + 'statsIn/'   # The input data
-expDir = testDir + 'exp/layoutBasicParmsNoAtts/' # The default expected output data
+expDir = testDir + 'exp/layoutBasicNoAtts/' # The default expected output data
 
 import testUtil as util
 
@@ -42,7 +42,7 @@ class Test_createMapUI(unittest.TestCase):
     def test_raw_no_colors(s):
     
         outDir = outDirBase + 'raw_no_colors'
-        expDir = testDir + 'exp/layoutBasicParmsNoColor/'
+        expDir = testDir + 'exp/layoutBasicNoColor/'
         util.compareActualVsExpectedDir(s, outDir, expDir)
 
     def test_full_no_atts(s):

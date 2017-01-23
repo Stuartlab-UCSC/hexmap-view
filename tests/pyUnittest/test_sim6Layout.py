@@ -13,8 +13,8 @@ from rootDir import getRootDir
 rootDir = getRootDir()
 testDir = rootDir + 'tests/pyUnittest/'
 inDir = testDir + 'in/layout/'   # The input data
-outDirBase = testDir + 'out/layoutBasicParms'
-expDirBase = testDir + 'exp/layoutBasicParms'
+outDirBase = testDir + 'out/layoutBasic'
+expDirBase = testDir + 'exp/layoutBasic'
 expDir = expDirBase + '/'
 outSim6File = testDir + 'out/sim6Layout'
 

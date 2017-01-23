@@ -11,7 +11,7 @@ fi
 # Note: the below are currently order-dependent due to issues with parallel code
 ALL=( \
     test_similarity \
-    test_layoutBasicParms \
+    test_layoutBasic \
     test_stats \
 )
 PARALLEL_CHALLENGED=( \

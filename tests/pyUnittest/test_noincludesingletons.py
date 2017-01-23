@@ -32,7 +32,7 @@ class Test_noincludesingletons(unittest.TestCase):
           the output does not depend on the input form
 
         '''
-        expDir = testDir +'exp/layoutBasicParms/'
+        expDir = testDir +'exp/layoutBasic/'
         rawdatafile = inDir + 'mcrchopra.data.tab'
         sparse6_path = inDir + 'mcr.top6.tab'
 

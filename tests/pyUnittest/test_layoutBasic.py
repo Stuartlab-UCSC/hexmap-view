@@ -15,8 +15,8 @@ from rootDir import getRootDir
 rootDir = getRootDir()
 testDir = rootDir + 'tests/pyUnittest/'
 inDir = testDir + 'in/layout/'   # The input data
-outDirBase = testDir + 'out/layoutBasicParms'
-expDirBase = testDir + 'exp/layoutBasicParms'
+outDirBase = testDir + 'out/layoutBasic'
+expDirBase = testDir + 'exp/layoutBasic'
 expDir = expDirBase + '/'
 expNoAttsDir = expDirBase + 'NoAtts/'
 expNoColorDir = expDirBase + 'NoColor/'
@@ -25,7 +25,7 @@ expXyDir = expDirBase + 'Xy/'
 rawDataFile = inDir + 'mcrchopra.data.tab'
 fullSimDataFile = inDir + 'mcr.fullsim.stable.tab'
 top6SimDataFile = inDir + 'mcr.top6.stable.tab'
-coordDataFile = testDir +'exp/layoutBasicParms' + '/xyPreSquiggle_0.tab'
+coordDataFile = testDir +'exp/layoutBasic' + '/xyPreSquiggle_0.tab'
 
 colorDataFile = inDir + 'mcrchopra.colormaps.tab'
 attsStringsFile = inDir + 'mcrchopra.atts.with_strs.tab'
@@ -34,7 +34,7 @@ attsCodedFile = inDir + 'mcrchopra.atts.tab'
 import layout
 import compute_sparse_matrix
 
-class Test_layoutBasicParms(unittest.TestCase):
+class Test_layoutBasic(unittest.TestCase):
 
     def test_full_no_atts(s):
         outDir = outDirBase + '_full_no_atts/'
