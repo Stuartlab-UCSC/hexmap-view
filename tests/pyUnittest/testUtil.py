@@ -23,7 +23,7 @@ def removeOldOutFiles(outDir):
         pass
     os.makedirs(outDir)
 
-def compareActualVsExpectedDir(s, outDir, expDir):
+def compareActualVsExpectedDir(s, outDir, expDir,excludeFiles=['log']):
     os.chdir(expDir)
     expFiles = glob.glob('*')
     os.chdir(outDir)
@@ -32,27 +32,33 @@ def compareActualVsExpectedDir(s, outDir, expDir):
     # Verify the filenames are those expected
     #print 'outFiles', outFiles
     #print 'expFiles', expFiles
-    s.assertTrue(outFiles == expFiles)
+    s.assertTrue(outFiles == expFiles,
+                 msg='Differences in file names: ' +
+                     str( set(expFiles).symmetric_difference(set(outFiles)))
+                 )
 
     # Compare the file contents with the expected
     # Returns three lists of file names: match, mismatch, errors
     diff = filecmp.cmpfiles(outDir, expDir, expFiles)
-    #print 'diff', diff
-    
-    # The log file should be different, with the rest matching
-    diff[1].remove('log')
+
+    #Files given by the exludeFiles list we know will be different,
+    # so ignore them
+    for file in excludeFiles:
+        if file in diff[1]: #in case we are comparing dirs without a log file
+           diff[1].remove(file)
+
     mismatch = diff[1]
-    
-    #if mismatch != [] and mismatch != None:
-    #    print 'mismatched files: ' + str(mismatch)
-    s.assertTrue(mismatch == [] or mismatch == None) # mismatched files
+
+    s.assertTrue(mismatch == [] or mismatch == None,
+                 msg='mismatching files: ' + str(mismatch)
+                 ) # mismatched files
     
     # There should be no errors resulting from the diff
     #if diff[2] != []:
     #    print 'errors comparing files: ' + str(diff[2])
-    s.assertTrue(diff[2] == []) # errors
-
-    s.assertTrue(diff[2] == []) # errors
+    s.assertTrue(diff[2] == [],
+                 msg='Errors with diff: ' + str(diff[2])
+                 ) # errors
 
 def compareActualVsExpectedFile(s, fname, outDir, expDir):
     

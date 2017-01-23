@@ -194,11 +194,6 @@
     line-height: 2.1em;
 }
 
-#project,
-#s2id_project {
-    width: 15em;
-}
-
 #banner {
     position: fixed;
     top: 0;

@@ -1,9 +1,43 @@
 #!/bin/bash
 # Run a test after setting the path
-# Usage:
-#     run test_stats
-#     run test_stats.TestStats.test_stats
+
+if [ $# -eq 0 ]; then
+    echo "one argument is needed like this:"
+    echo "    all tests: run all"
+    echo "     one file: run test_stats"
+    echo "     one test: run test_stats.TestStats.test_stats"
+    exit 1
+fi
+# Note: the below are currently order-dependent due to issues with parallel code
+ALL=( \
+    test_similarity \
+    test_layoutBasic \
+    test_stats \
+)
+PARALLEL_CHALLENGED=( \
+    test_sim6Layout)
+# these need fixing up:
+    #test_createMapUi \
+    #test_http \
+    #test_noincludesingletons \
+    #test_queryOverlayNodes \
+    #test_remoteCalc \
 
 export PYTHONPATH=$(pwd)/../../www/server:./
-python2.7 -m unittest $1
+TO_RUN=($1)
+if [ $1 == 'all' ]
+    then TO_RUN="${ALL[@]}"
+fi
 
+# Run our well-behaved tests in parallel
+python2.7 -m unittest $TO_RUN
+
+# Run our parallel-challenged tests independently
+if [ $1 == 'all' ]
+    then
+    echo Running parallel-challenged tests independently
+    for TEST in "${PARALLEL_CHALLENGED[@]}"
+    do
+        python2.7 $TEST.py
+    done
+fi

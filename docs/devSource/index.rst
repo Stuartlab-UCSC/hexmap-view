@@ -7,7 +7,6 @@ Developer Docs
    :maxdepth: 2
 
    pythonApi
-   queryApi
    mapManager
    source
    clientSource

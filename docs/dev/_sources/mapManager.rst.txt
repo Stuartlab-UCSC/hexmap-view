@@ -2,6 +2,8 @@
 Map Manager
 ===========
 
+NOTE: Some of this information is no longer correct and needs updating.
+
 The map manager handles the communications for synchronizing a user
 selection of node IDs from one map to another map. The map manager queries the
 target map database using the source map's node IDs. The translator then does

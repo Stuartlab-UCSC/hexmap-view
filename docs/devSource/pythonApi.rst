@@ -1,5 +1,5 @@
-Python API, internal
-====================
+Python API
+==========
 
 The server initiates calls to python scripts, while the python script is a
 responder to the server's requests.
@@ -58,8 +58,9 @@ Example::
 
 **Python API JSON data:**
 
-.. toctree::
-   pyCreateSubMap
-   pyOverlayNodes
-   pyStatsDynamic
+Descriptions of the JSON data for APIs are at:
+
+* overlayNodes: https://SERVER/query/overlayNodes.html
+* reflection: :doc:`pyReflection`
+* statsDynamic: https://SERVER/query/statsDynamic.html
 
