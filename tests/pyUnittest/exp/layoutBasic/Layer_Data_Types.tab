@@ -1,4 +1,3 @@
-FirstAttribute	Subtype
 Continuous	Apoptosis	Random	DNA_signature
 Binary	TP53_expression altered	TP63_expression altered	TP53_mutated	TP63_mutated	DNA_Repair
 Categorical	Subtype	RB1 level
