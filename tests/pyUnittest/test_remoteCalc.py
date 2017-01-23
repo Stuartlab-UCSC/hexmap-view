@@ -6,15 +6,15 @@ import sys, os, glob, subprocess, json, tempfile, pprint
 from os import path
 import string
 import unittest
-import util
+import testUtil as util
 
 from rootDir import getRootDir
 
 rootDir = getRootDir()
-inDir = path.join(rootDir + 'tests/pyUnittest/createMapIn/')
-outDir = path.join(rootDir + 'tests/pyUnittest/createMapOut/')
+inDir = path.join(rootDir + 'tests/pyUnittest/in/layout/')
+outDir = path.join(rootDir + 'tests/pyUnittest/out/remoteCalc/')
 
-class TestRemoteCalc(unittest.TestCase):
+class Test_remoteCalc(unittest.TestCase):
 
     # SET-UP
     
@@ -79,7 +79,6 @@ class TestRemoteCalc(unittest.TestCase):
             '"--coordinates", "' + path.join(inDir, "example_features_xy.tab") + '", ' + \
             '"--names", "layout", ' + \
             '"--directory", "' + outDir + '", ' + \
-            '"--role", "swat_soe.ucsc.edu", ' + \
             '"--include-singletons", ' + \
             '"--no_density_stats", ' + \
             '"--no_layout_independent_stats", ' + \

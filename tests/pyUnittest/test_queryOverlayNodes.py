@@ -7,7 +7,7 @@ import sys, os, subprocess, json, tempfile, pprint
 import string
 import unittest
 
-class TestQueryOverlayNodes(unittest.TestCase):
+class Test_queryOverlayNodes(unittest.TestCase):
 
     unittest.TestCase.appInstallDir = '/Users/swat/dev/hexagram'
     unittest.TestCase.port = "localhost:4444"

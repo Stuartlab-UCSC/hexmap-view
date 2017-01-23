@@ -1,6 +1,6 @@
 
-Existing Maps
-=============
+Public Maps
+===========
 
 Pancan12
 --------

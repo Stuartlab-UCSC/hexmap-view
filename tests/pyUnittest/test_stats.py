@@ -10,19 +10,14 @@ rootDir = getRootDir()
 # These dirs should depend only on the above rootDir
 # using the repository directory structure starting at 'hexagram/'
 testDir = rootDir + 'tests/pyUnittest/'
-inDir = testDir + 'statsIn/'   # The input data
-expDir = testDir + 'statsExp/' # The expected output data
-outDir = testDir + 'statsOut/' # The actual output data
-#scriptDir = rootDir + 'www/server'
-
-#http://stackoverflow.com/questions/3108285/in-python-script-how-do-i-set-pythonpath
-#point the python path to the script directory
-#sys.path.append(scriptDir)
+inDir = testDir + 'in/stats/'   # The input data
+expDir = testDir + 'exp/stats/' # The expected output data
+outDir = testDir + 'out/stats/' # The actual output data
 
 import layout
-import util
+import testUtil as util
 
-class TestStats(unittest.TestCase):
+class Test_stats(unittest.TestCase):
 
     def runPy(s):
     

@@ -6,15 +6,15 @@ import sys, os, glob, subprocess, json, tempfile, pprint
 from os import path
 import string
 import unittest
-import util
+import testUtil as util
 
 from rootDir import getRootDir
 
 rootDir = getRootDir()
-inDir = path.join(rootDir + 'tests/pyUnittest/createMapIn/')
-outDir = path.join(rootDir + 'tests/pyUnittest/httpOut/')
+inDir = path.join(rootDir + 'tests/pyUnittest/in/layout/')
+outDir = path.join(rootDir + 'tests/pyUnittest/out/http/')
 
-class TestHttp(unittest.TestCase):
+class Test_http(unittest.TestCase):
 
     singleUrlPrefix = "localhost:3333"
 
@@ -87,7 +87,6 @@ class TestHttp(unittest.TestCase):
             '"--coordinates", "' + path.join(inDir, "example_features_xy.tab") + '", ' + \
             '"--names", "layout", ' + \
             '"--directory", "' + outDir + '", ' + \
-            '"--role", "swat_soe.ucsc.edu", ' + \
             '"--include-singletons", ' + \
             '"--no_density_stats", ' + \
             '"--no_layout_independent_stats", ' + \

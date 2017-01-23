@@ -8,30 +8,18 @@ if [ $# -eq 0 ]; then
     echo "     one test: run test_stats.TestStats.test_stats"
     exit 1
 fi
-
-# Note alphabetical order
+# Note: the below are currently order-dependent due to issues with parallel code
 ALL=( \
-    test_createMapScripts \
-    test_mcr_full \
-    test_mcr_full_no_atts \
-    test_mcr_full_no_colors \
-    test_mcr_raw \
-    test_mcr_raw_no_atts \
-    test_mcr_raw_no_colors \
-    test_mcr_top6_no_atts \
-    test_mcr_top6_no_colors \
-    test_mcr_xy \
-    test_mcr_xy_no_atts \
-    test_mcr_xy_no_colors \
-)
-PARALLEL_CHALLENGED=( \
-    test_mcr_top6 \
+    test_similarity \
+    test_layoutBasicParms \
     test_stats \
 )
+PARALLEL_CHALLENGED=( \
+    test_sim6Layout)
 # these need fixing up:
-    #test_createMap \
+    #test_createMapUi \
     #test_http \
-    #test_mcr_noincludesingletons \
+    #test_noincludesingletons \
     #test_queryOverlayNodes \
     #test_remoteCalc \
 

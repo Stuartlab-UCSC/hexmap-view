@@ -19,19 +19,24 @@
     line-height: 2.7em;
 }
 
-#s2id_project .select2-choice span.noProject {
-    color: #999;
-}
+/* ***************** select2 widgets of: map, layer, layout **************** */
 
 #s2id_search {
     padding-top: 0.45em;
     margin-right: 0.5em;
     width: 15em;
 }
-
+#project,
+#layout-search,
 #search {
     width: 29em;
 }
+
+#s2id_project .select2-choice span.noProject {
+    color: #999;
+}
+
+/* ***************** LAYER header row **************** */
 
 .layer-entry {
     padding-right: 20px;
@@ -81,25 +86,13 @@
     margin-left: 0;
 }
 
-/* ***************** layout **************** */
+/* ***************** LAYOUT header row **************** */
 
 /*
 #layout-row {
     margin-top: -0.3em;
 }
 */
-
-#s2id_project,
-#s2id_layout-search {
-    padding-top: 0.2em;
-}
-#s2id_layout-search {
-    width: 15em;
-}
-
-#layout-search {
-    width: 29em;
-}
 
 .layout-entry {
     padding-right: 20px;
