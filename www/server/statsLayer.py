@@ -304,7 +304,6 @@ class ForEachLayer(object):
         #       ...
         #   ]
         DEBUG = False
-        DROP_QUANTILES = True
         #"dropping quantiles" is not appropriate for the test being performed.
         # the wilcox rank sums test does a rank transform on the data in order
         # to be free of distribution assumptions. The rank transform is the
@@ -320,6 +319,7 @@ class ForEachLayer(object):
             file = open(fname, 'w')
             f = csv.writer(file, delimiter='\t')
             f.writerow(['#node', binL, contL])
+
         hexKeyVals = []
         for hexagon in hexNames:
 
@@ -339,42 +339,12 @@ class ForEachLayer(object):
 
             hexKeyVals.append([binVal, float(contVal)])
             if DEBUG: f.writerow([hexagon, binVal, float(contVal)])
-            
-        if DROP_QUANTILES:
-        
-            # Find the lower and upper quantile cutoffs of the continuous values
-            hexKeyValsSorted = sorted(hexKeyVals, key=operator.itemgetter(1))
-            length = len(hexKeyValsSorted)
-            quantile = int(round(float(length) / QUANTILE_DIVISOR))
-        
-        if DROP_QUANTILES and quantile > 0:
-            if length < 4:
-                # With so few values in the combined list,
-                # no good stats will come of this
-                if DEBUG:
-                    f.writerow(['There are less than 4 values, so stats not computed.'])
-                return [layerB, 1]
 
-            lower = hexKeyValsSorted[quantile][1]
-            upper = hexKeyValsSorted[length - quantile][1]
-
-            if DEBUG:
-                f.writerow(['#length', 'quantile', 'lower', 'upper'])
-                f.writerow([length, quantile, lower, upper])
-            
-            # Build two vectors. Each vector will contain the continuous values
-            # associated with one binary value, with the cutoffs applied, inclusive.
-            lists = [[], []]
-            for x in hexKeyValsSorted:
-                if x[1] >= lower and x[1] <= upper:
-                    lists[x[0]].append(x[1])
-            
-        else:
-            # Build two vectors. Each vector will contain the continuous values
-            # associated with one binary value, with the cutoffs applied, inclusive.
-            lists = [[], []]
-            for x in hexKeyVals:
-                lists[x[0]].append(x[1])
+        # Build two vectors. Each vector will contain the continuous values
+        # associated with one binary value, with the cutoffs applied, inclusive.
+        lists = [[], []]
+        for x in hexKeyVals:
+            lists[x[0]].append(x[1])
 
         if DEBUG:
             f.writerow(['#lists[0]'])
@@ -396,6 +366,7 @@ class ForEachLayer(object):
             # http://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.ranksums.html
             
             statistic, pValue = scipy.stats.ranksums(lists[0], lists[1])
+
         except Exception:
             if DEBUG: f.writerow(['exception on lib call'])
             pValue = 1
