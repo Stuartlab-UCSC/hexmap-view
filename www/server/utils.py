@@ -24,6 +24,12 @@ def sigDigs(x, sig=7,debug=False):
     # Then convert back to a float
     return float(format % x)
 
+def toFloat(x):
+    try:
+        return float(x)
+    except ValueError:
+        return float('NaN')
+
 def truncate(f, n):
     '''
     Truncates/pads a float f to n decimal places without rounding

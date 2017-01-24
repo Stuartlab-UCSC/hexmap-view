@@ -17,7 +17,7 @@ Re-uses sample code and documentation from
 DEV = False # True if in development mode, False if not
 
 import argparse, sys, os, itertools, math, subprocess, shutil, tempfile, glob, io
-import collections, traceback, time, datetime, pprint
+import collections, traceback, time, datetime, pprint, string
 import scipy.stats, scipy.linalg, scipy.misc
 import time, socket
 from types import *
@@ -311,7 +311,8 @@ def read_nodes(filename):
     '''
     # We want to read that.
     # This holds a reader for the DrL output
-    coord_reader = tsv.TsvReader(open(filename, "r"))
+    # The last parm is a list of columns that should be floats
+    coord_reader = tsv.TsvReader(open(filename, "r"), [1, 2])
 
     # This holds a dict from signature name string to (x, y) float tuple. It is
     # also our official collection of node names that made it through DrL, and
@@ -321,8 +322,7 @@ def read_nodes(filename):
     print timestamp(), "Reading x-y positions..."
     sys.stdout.flush()
     for parts in coord_reader:
-        nodes[parts[0]] = (float(parts[1]), float(parts[2]))
-
+        nodes[parts[0]] = (parts[1], parts[2])
     coord_reader.close()
 
     # Return nodes dict back to main method for further processes
@@ -1462,9 +1462,16 @@ def hexIt(options, cmd_line_list, all_dict):
     sys.stdout.flush()
 
     ctx = Context();
-    # Create the metadata json file for the role if there is one
+
     if options.role != None:
-        with open(os.path.join(options.directory, 'meta.json'), 'w') as fout:
+    
+        # Create the metadata json file.
+        # We're going to make the assumption that any project being created with
+        # a role will have major and minor project dirs. So insert the metadata
+        # file into the major directory.
+        i = string.rfind(options.directory[:-1], '/')
+        majorDir = options.directory[:i]
+        with open(os.path.join(majorDir, 'meta.json'), 'w') as fout:
             meta = '{ "role": "' + options.role + '" }\n';
             fout.write(meta)
 

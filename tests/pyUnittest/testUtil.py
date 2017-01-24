@@ -26,8 +26,10 @@ def removeOldOutFiles(outDir):
 def compareActualVsExpectedDir(s, outDir, expDir,excludeFiles=['log']):
     os.chdir(expDir)
     expFiles = glob.glob('*')
+    expFiles.sort()
     os.chdir(outDir)
     outFiles = glob.glob('*')
+    outFiles.sort()
     
     # Verify the filenames are those expected
     #print 'outFiles', outFiles
