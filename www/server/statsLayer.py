@@ -172,7 +172,7 @@ class ForEachLayer(object):
             try:
                 oddsratio, pValue = scipy.stats.fisher_exact(table)
             except Exception:
-                pValue = 1
+                pValue = float('NaN')
         else:
 
             # Both layers are not binary so call the chi-squared function
@@ -186,7 +186,7 @@ class ForEachLayer(object):
                 # We probably had all zeros for a column in the contingency table.
                 # See <http://stats.stackexchange.com/q/73708>. Chi-squared can't be
                 # done in this case.
-                pValue = 1
+                pValue = float('NaN')
 
         return [layerB, sigDigs(pValue)]
 
@@ -224,7 +224,7 @@ class ForEachLayer(object):
             correlation, pValue = scipy.stats.pearsonr(layers[layerA].values(),
                 layers[layerB].values())
         except Exception:
-            pValue = 1
+            pValue = float('NaN')
 
         return [layerB, sigDigs(pValue)]
 
@@ -275,7 +275,7 @@ class ForEachLayer(object):
             # a variable number of lists to pass in
             stat, pValue = eval('scipy.stats.mstats.kruskalwallis(' + str(lists)[1:-1] + ')')
         except Exception:
-            pValue = 1
+            pValue = float('NaN')
 
         return [layerB, sigDigs(pValue)]
 
@@ -350,7 +350,7 @@ class ForEachLayer(object):
         
             # With no values in one of the lists,
             # no good stats will come of this
-            return [layerB, 1]
+            return [layerB, float('NaN')]
 
         try:
             # Ranksums test returns like so [statistic, p-value]
@@ -361,7 +361,7 @@ class ForEachLayer(object):
 
         except Exception:
             if DEBUG: f.writerow(['exception on lib call'])
-            pValue = 1
+            pValue = float('NaN')
 
         if DEBUG:
             f.writerow(['#attribute', 'pValue', 'adjPvalue'])
@@ -459,10 +459,10 @@ class ForEachLayer(object):
                 correlation, pValue = scipy.stats.pearsonr(A, B)
             except Exception:
                 correlation = float('NaN')
-                pValue = 1
+                pValue = float('NaN')
         else:
             correlation = float('NaN')
-            pValue = 1
+            pValue = float('NaN')
 
         return [layerB, sigDigs(correlation), sigDigs(pValue)]
 
@@ -496,10 +496,8 @@ class ForEachLayer(object):
                     continue
 
                 # Extract the p-values from the data.
-                # Translate NaNs to one so the stats routine will take it.
-                if math.isnan(row[idx]):
-                    preAdjVals.append(1)
-                else:
+                # Skip NaNs so the stats routine will take it.
+                if not math.isnan(row[idx]):
                     preAdjVals.append(row[idx])
             
             if not adjust:
@@ -512,7 +510,7 @@ class ForEachLayer(object):
                 reject, adjPvals, alphacSidak, alphacBonf = multicomp.multipletests(preAdjVals, alpha=0.05, method='fdr_bh')
 
             except Exception:
-                adjPvals = [1 for x in preAdjusted]
+                adjPvals = [float('NaN') for x in preAdjusted]
 
             try:
                 # Bonferroni correction for p-values returns:
@@ -521,10 +519,17 @@ class ForEachLayer(object):
                 reject, adjPvalsB, alphacSidak, alphacBonf = multicomp.multipletests(preAdjVals, alpha=0.05, method='bonferroni')
 
             except Exception:
-                adjPvalsB = [1 for x in preAdjusted]
+                adjPvalsB = [float('NaN') for x in preAdjusted]
 
+            #need an iterator so we can skip NaN values
+            adjPiter = 0
             for i, row in enumerate(preAdjusted):
-                f.writerow(row + [sigDigs(adjPvals[i]), sigDigs(adjPvalsB[i])])
+                #if the original p-value was NaN then so are the corrected.
+                if math.isnan(row[idx]):
+                    f.writerow(row + [sigDigs(float('NaN')), sigDigs(float('NaN'))])
+                else:
+                    f.writerow(row + [sigDigs(adjPvals[adjPiter]), sigDigs(adjPvalsB[adjPiter])])
+                    adjPiter += 1
 
     def __call__(s):
 
