@@ -11,6 +11,8 @@ TODO: What does this do that the python CSV library does not?
 TSV is most useful as the basis for other, more tightly specified file formats.
 
 """
+import math
+import utils
 
 class TsvWriter(object):
     """
@@ -82,26 +84,49 @@ class TsvReader(object):
     Field values consisting of only whitespace are not allowed.
     """
     
-    def __init__(self, stream):
+    def __init__(self, stream, floatIndices=[]):
         """
         Make a new TsvReader to read from the given stream.
+        numberIndices is a list of indices whose values should be a number.
         """
         
         self.stream = stream
+        self.floatIndices = floatIndices
         
     def __iter__(self):
         """
         Yields lists of all fields on each line, as strings, until all lines are
-        exhausted. Strips whitespace around field contents. 
+        exhausted.
         """
         
         for line in self.stream:
+        
+            # Remove leading and trailing white space
             line = line.strip()
+            
+            # Skip comment lines and empty lines
             if line == "" or line[0] == "#":
-                # Skip comments and empty lines
                 continue
             
-            yield map(str.strip, line.split("\t"))
+            # Parse the line into columns/fields
+            columns = map(str.strip, line.split("\t"))
+            
+            # Convert strings to floats as requested in floatIndices
+            badNumbers = False
+            for i in self.floatIndices:
+                
+                # Convert the string to a float
+                columns[i] = utils.toFloat(columns[i])
+                
+                # Skip any lines without a number where it should be
+                if math.isnan(columns[i]):
+                    badNumbers = True
+                    break
+            
+            if badNumbers:
+                continue
+            
+            yield columns
             
     def close(self):
         """
