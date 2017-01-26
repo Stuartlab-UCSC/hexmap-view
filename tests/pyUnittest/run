@@ -15,7 +15,9 @@ ALL=( \
     test_stats \
 )
 PARALLEL_CHALLENGED=( \
-    test_sim6Layout)
+    test_dynLayoutAware \
+    test_sim6Layout \
+)
 # these need fixing up:
     #test_createMapUi \
     #test_http \
