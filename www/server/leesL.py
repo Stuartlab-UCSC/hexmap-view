@@ -3,6 +3,7 @@
 File description coming soon.
 '''
 
+import os
 import pandas as pd
 import sklearn.metrics.pairwise as sklp
 from scipy import stats
@@ -10,7 +11,7 @@ import numpy as np
 import scipy.spatial.distance as dist
 from utils import sigDigs
 from utils import truncateNP
-
+from process_categoricals import getAttributes
 
 #input/output helpers
 def readLayers(layerFile):
@@ -67,7 +68,29 @@ def writeLayersTab(attributeDF,layers,layer_files,densityArray,datatypes,options
 
     layersTab.to_csv(options.directory + '/layers.tab',sep='\t',header=None)
 
-def writeToDirectoryLee(dirName,leeMatrix,simMatrix,colNameList,layers,index):
+def writeToFileLee(fout,leeLV,simV,colNames):
+    '''
+    write a single lees L to file, for use with singleLeesL function
+    @param fout:
+    @param leeLV:
+    @param simV:
+    @param colNames:
+    @return:
+    '''
+    #truncate as an attempt to be reproducible on different machines.
+    # also needed to properly determine ranks are equal when vectors have -1 correlation
+    # ( so the leeL values are -.xxxxxxxxx3 and .xxxxxxxxx4, and should have been determined
+    # .xxxxxxxxx35 and .xxxxxxxxx35 )
+    leeLV = truncateNP(leeLV,11)
+    #ranks is how the UI knows the order in which to display
+    ranks =  1- (stats.rankdata(np.abs(leeLV),method='average') / len(leeLV))
+    outDF = pd.DataFrame({0:leeLV,1:ranks,2:simV},index=colNames)
+    #apply significant digit cutoff of 7 to all the numbers in table
+    outDF = outDF.apply(lambda x: x.apply(sigDigs))
+
+    outDF.to_csv(fout,sep='\t',header=None)
+
+def writeToDirectoryLee(dirName,leeMatrix,simMatrix,colNameList,layers,index=0,dynamic=False):
     '''
     this function writes the computed similarities, i.e. lees L, to a directory
     if we wanted to do p-values or something else computations for corrections would
@@ -90,17 +113,57 @@ def writeToDirectoryLee(dirName,leeMatrix,simMatrix,colNameList,layers,index):
         statsO[0] = leeMatrix[i,]
         #truncate as an attempt to be reproducible on different machines.
         statsO[0] = truncateNP(statsO[0],11)
-        #two cases of output, if correlation is present then we need to
-        # change the p-value so that attributes rank properly
-        statsO[1] = 1- (stats.rankdata(np.abs(statsO[0]),method='average') / len(leeMatrix[i,]))
+
+        #place holder for rank, need because of use of parallel structures simMat and leeMat
+        statsO[1] = np.repeat(np.NAN,statsO.shape[0])
 
         statsO[2] = simMatrix[i,]
-        #
+
         statsO = statsO.iloc[statsO.index!=column] #get rid of identity
+
+        # second column is how the UI ranks, it uses that column and the sign of leesL
+        # to determine order
+        statsO[1] = 1- (stats.rankdata(np.abs(statsO[0]),method='average') / (statsO.shape[0]))
+
         filename = 'statsL_'+ getLayerIndex(column,layers)+ '_' + str(index) + '.tab'
 
         statsO = statsO.apply(lambda x: x.apply(sigDigs))
         statsO.to_csv(dirName+filename,sep='\t',header=None)
+
+def read_matrices(projectDir):
+    '''
+    Puts the metadata matrices files in a list, to be used in layout.getAttributes()
+     and is dependent upon the matrix file being in proper format.
+    @param projectDir: the project directory
+    @return: a list of the matrix file names
+    '''
+    matlist = []
+    #grab each name
+    for line in open(projectDir + '/matrices.tab'):
+        matlist.append(projectDir + '/' + line.strip())
+
+    return matlist
+
+def read_data_types(projectDir):
+    '''
+
+    @param projectDir:
+    @return:
+    '''
+    #mapping from what is in the file to abbreviations used in dataTypeDict
+    dtypemap = {"Continuous":"cont","Binary":"bin","Categorical":"cat"}
+    dtfin = open(projectDir + '/Layer_Data_Types.tab')
+    dataTypeDict = {}
+    for line in dtfin:
+        line = line.strip().split('\t')
+        #if we recognize the category
+        if line[0] in dtypemap:
+            try:
+                dataTypeDict[dtypemap[line[0]]] = line[1:]
+            except IndexError:
+                dataTypeDict[dtypemap[line[0]]] = []
+
+    return dataTypeDict
 #
 
 #Math helpers
@@ -148,7 +211,7 @@ def attrPreProcessing4Lee(attrDF,xys):
     #we treat missing data by first z scoring, then setting NA's to 0, order here matters
     attrOnMap = ztransDF(attrOnMap)
     attrOnMap.fillna(0,inplace=True)
-    return (attrOnMap)
+    return attrOnMap
 #
 
 #main utility
@@ -161,6 +224,18 @@ def leesL(spW,Ztrans_attrDF):
              spatial smoothing scalar
     '''
     return (np.dot(np.dot(Ztrans_attrDF.transpose(),np.dot(spW.transpose(),spW)),Ztrans_attrDF)) / np.dot(spW.transpose(),spW).sum().sum()
+
+def singleLeesL(spW,ztrans_attr,ztrans_attrDF):
+    '''
+    spW and attributes should already have matching indecies
+    Excessive detail: https://www.researchgate.net/publication/220449126
+    @param spw: spatial weight matrix
+    @param ztrans_attr: z transformaed attribute vector (single attribute)
+    @param ztrans_attrDF: z transformaed attribute dataframe (reference attributes)
+    @return: returns a vector of the the length of columns in ztrans_attrDF
+             giving the leesL association of the vector with each of the columns
+    '''
+    return (np.dot(np.dot(ztrans_attr.transpose(),np.dot(spW.transpose(),spW)),ztrans_attrDF)) / np.dot(spW.transpose(),spW).sum().sum()
 
 def densityOpt(allAtts,datatypes,xys,debug=False):
     '''
@@ -270,4 +345,61 @@ def catSSS(catLee):
 
     #         average of on_diagonal                           average of off diagonal
     return (catLee.trace() / catLee.shape[0]) - ((catLee.sum() - catLee.trace())/ (catLee.shape[1]**2 - catLee.shape[1]))
+
+def dynamicCallLeesL(parm):
+    '''
+    making dynamic function that will call everything.
+    We need to figue out how we interface with
+    @param parm:
+       dictionary with three keys:
+          directory: "the/full/path/to/server/dir"
+          layout   : int (the index of the layout in the project dir"
+          layerA : layerName (str) of dynamic attr of interest
+          dynamicData : {layerName -> (sample: value}, }
+          tempFile : "the/output/file/path"
+    @return: writes
+    '''
+
+    #make the path of the file containing x-y placements
+    preSquiggleFile = os.path.join(parm['directory'], 'xyPreSquiggle_' + str(parm['layout']) +'.tab')
+
+    #get the x-y placements for the map layout of interest
+    xys = readXYs(preSquiggleFile)
+
+    #get all the attribute data
+    attrDF = getAttributes(read_matrices(parm['directory']))
+
+    #get the datatypes from the project directory
+    datatypeDict = read_data_types(parm['directory'])
+
+    #subset down to only binary attributes.
+    attrDF = attrDF[datatypeDict['bin']]
+
+    #get pearson correlations for output
+    #do the appropriate preprocessing for each of your data
+    dynamicAttr = attrPreProcessing4Lee(pd.Series(parm['dynamicData'][parm['layerA']]),xys)
+    attrDF      = attrPreProcessing4Lee(attrDF,xys)
+
+    #if the dynamic attribute is already in the data then we want to remove
+    # it so there is no self comparison.
+    try:
+        attrDF.drop(parm['layerA'],axis=1,inplace=True)
+    except ValueError:
+        '''do nothing'''
+
+    #get pearson correlation of all attributes
+    simV= 1-(sklp.pairwise_distances(dynamicAttr.reshape(1,-1),attrDF.transpose(),metric='correlation',n_jobs=8)[0,:])
+
+    leeslV = singleLeesL(spatialWieghtMatrix(xys),dynamicAttr,attrDF)
+
+    writeToFileLee(parm['tempFile'],leeslV,simV,attrDF.columns)
+
+    #return the output file for dynamic stats
+    return parm['tempFile']
+
+
+
+
+
+
 
