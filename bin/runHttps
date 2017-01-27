@@ -1,9 +1,0 @@
-#!/bin/bash
-# Start the https server for a hexmap installation
-
-INSTALL=dev
-
-source /cluster/home/swat/sec/runIncludes
-touch $HEXMAP/https.log
-mv $HEXMAP/https.log $HEXMAP/https.prev.log
-$METEORBASE/bin/node $HEXMAP/https/https.js &> $HEXMAP/https.log &

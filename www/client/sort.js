@@ -261,11 +261,12 @@ var app = app || {};
 
         } else if (type === 'noStats') {
             if (!text || text === '') {
-                text = 'None, due to no statistical results';
+                text = 'No stats, due to an error';
             }
-            Session.set('sort', {text: text, type: 'noStats',
-                focus_attr: focus_attr, color: 'inherit', background: 'inherit'});
             banner('error', text);
+            var shortText = 'None, due to an error';
+            Session.set('sort', {text: shortText, type: 'noStats',
+                focus_attr: focus_attr, color: '#993031', background: '#EDD4D5'});
         } else {
 
             Session.set('sort', {text: text, type: type,
@@ -644,9 +645,13 @@ var app = app || {};
         Meteor.call('pythonCall', 'statsDynamic', opts,
             function (error, result) {
                 if (error) {
-                    var msg = Util.errorToMessage(error);
-                    console.log(msg.long);
-                    updateSortUi('noStats', msg.short);
+                    var text = error;
+                
+                    // If this is a Meteor.Error, the error prop has the text
+                    if (error.error) {
+                        text = error.error;
+                    }
+                    updateSortUi('noStats', text);
                 } else {
                     console.log('getDynamicStats: python call success');
                     receive_data(result.data, focus_attr, opts);

@@ -10,28 +10,25 @@ import testUtil as util
 
 from rootDir import getRootDir
 
+# There are two servers involved in these tests:
+# - main server
+mainUrlPrefix = "localhost:5555"
+mainUrl = mainUrlPrefix + "/calc/layout"
+# - calc server
+calcUrlPrefix = "localhost:4444"
+
 rootDir = getRootDir()
 inDir = path.join(rootDir + 'tests/pyUnittest/in/layout/')
 outDir = path.join(rootDir + 'tests/pyUnittest/out/remoteCalc/')
 
 class Test_remoteCalc(unittest.TestCase):
 
-    # SET-UP
-    
-    # There are two servers involved in these tests:
-    # - main server: main and calc servers are different servers
-    # - calc server: main and calc servers are different servers
-    
+
     # The main server needs defined in settings.json:
     # IS_MAIN_SERVER and NOT IS_CALC_SERVER.
-    mainUrlPrefix = "localhost:5555"
     
     # The calc server needs defined in settings.json:
     # IS_CALC_SERVER, MAIN_MONGO_URL and NOT IS_MAIN_SERVER.
-    calcUrlPrefix = "localhost:4444"
-
-    unittest.TestCase.singleUrl = singleUrlPrefix + "/calc/layout"
-    unittest.TestCase.mainUrl = mainUrlPrefix + "/calc/layout"
 
     def cleanDataOut(s, dataOut):
         data = dataOut
@@ -57,12 +54,13 @@ class Test_remoteCalc(unittest.TestCase):
     def doCurl(s, opts):
         o, outfile = tempfile.mkstemp()
         e, errfile = tempfile.mkstemp()
-        url = s.mainUrl
+        url = mainUrl
         with open(outfile, 'w') as o:
             e = open(errfile, 'w')
             curl = ['curl', '-s', '-k'] + opts + [url]
-            #print 'curl:\n', curl, '\n\n'
+            print 'curl:\n', curl, '\n\n'
 # curl -s -k -d '{"map": "CKCC/v1", "nodes": {"Sample-2": {"CTD-2588J6.1": "0", "RP11-433M22.1": "0", "CTD-2588J6.2": "0", "CPHL1P": "0", "RP3-415N12.1": "0", "RP11-181G12.4": "0", "RP11-433M22.2": "0", "SSXP10": "0", "RP11-16E12.2": "2.5424", "PSMA2P3": "0", "CTD-2367A17.1": "0", "RP11-181G12.2": "5.9940", "AC007272.3": "0"}, "Sample-1": {"CTD-2588J6.1": "0", "RP11-433M22.1": "0", "CTD-2588J6.2": "0", "CPHL1P": "0", "RP3-415N12.1": "0", "RP11-181G12.4": "0.5264", "RP11-433M22.2": "0", "SSXP10": "0", "RP11-16E12.2": "2.3112", "PSMA2P3": "0", "CTD-2367A17.1": "0", "RP11-181G12.2": "6.3579", "AC007272.3": "0"}}, "layout": "mRNA"}' -H Content-Type:application/json -X POST -v localhost:3333/query/overlayNodes
+# curl -s -k -d '{"map": "CKCC/v1", "nodes": {"Sample-2": {"CTD-2588J6.1": "0", "RP11-433M22.1": "0", "CTD-2588J6.2": "0", "CPHL1P": "0", "RP3-415N12.1": "0", "RP11-181G12.4": "0", "RP11-433M22.2": "0", "SSXP10": "0", "RP11-16E12.2": "2.5424", "PSMA2P3": "0", "CTD-2367A17.1": "0", "RP11-181G12.2": "5.9940", "AC007272.3": "0"}, "Sample-1": {"CTD-2588J6.1": "0", "RP11-433M22.1": "0", "CTD-2588J6.2": "0", "CPHL1P": "0", "RP3-415N12.1": "0", "RP11-181G12.4": "0.5264", "RP11-433M22.2": "0", "SSXP10": "0", "RP11-16E12.2": "2.3112", "PSMA2P3": "0", "CTD-2367A17.1": "0", "RP11-181G12.2": "6.3579", "AC007272.3": "0"}}, "layout": "mRNA"}' -H Content-Type:application/json -X POST -v localhost:4444/query/overlayNodes
             subprocess.check_call(curl, stdout=o, stderr=e);
             e.close()
         with open(outfile, 'r') as o:
@@ -84,7 +82,7 @@ class Test_remoteCalc(unittest.TestCase):
             '"--no_layout_independent_stats", ' + \
             '"--no_layout_aware_stats" ]'
         curl_opts = ['-d', data, '-H', 'Content-Type:application/json', '-X', 'POST', '-v']
-        rc = s.doCurl(curl_opts, True)
+        rc = s.doCurl(curl_opts)
         #print 'code, data:', rc['code'], rc['data']
         s.assertTrue(rc['code'] == '200')
     

@@ -1,9 +1,8 @@
 #!/bin/bash
-# Update this port with the tar-ball
-
-DIR=/cluster/home/swat/hexmap
+# Update this server with the tar-ball
 
 echo 'cleaning directory'
-rm -rf $DIR/calc $DIR/www/*
+rm -rf bin calc www/*
 echo 'untarring'
-tar -C $DIR -x -f $DIR/t.tar
+tar -xf /cluster/home/swat/hexmap/t.tar
+echo 'tar done'

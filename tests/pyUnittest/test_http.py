@@ -10,13 +10,14 @@ import testUtil as util
 
 from rootDir import getRootDir
 
+######  SETUP ######
+singleUrlPrefix = "localhost:3333"
+
 rootDir = getRootDir()
 inDir = path.join(rootDir + 'tests/pyUnittest/in/layout/')
 outDir = path.join(rootDir + 'tests/pyUnittest/out/http/')
 
 class Test_http(unittest.TestCase):
-
-    singleUrlPrefix = "localhost:3333"
 
     unittest.TestCase.singleUrl = singleUrlPrefix + "/calc/layout"
 
@@ -63,20 +64,20 @@ class Test_http(unittest.TestCase):
    
     def test_methodCheckLocal(s):
         opts = ['-X', 'GET', '-v']
-        rc = s.doCurl(opts, False)
+        rc = s.doCurl(opts)
         s.assertTrue(rc['code'] == '405')
         s.assertTrue(rc['data'] == '"Only the POST method is understood here"')
 
     def test_contentTypeCheckLocal(s):
         opts = ['-H', 'Content-Type:apjson', '-X', 'POST', '-v']
-        rc = s.doCurl(opts, False)
+        rc = s.doCurl(opts)
         s.assertTrue(rc['code'] == '400')
         s.assertTrue(rc['data'] == '"Only content-type of application/json is understood here"')
     
     def test_jsonCheckLocal(s):
         data = '{data: oh boy, data!}'
         opts = ['-d', data, '-H', 'Content-Type:application/json', '-X', 'POST', '-v']
-        rc = s.doCurl(opts, False)
+        rc = s.doCurl(opts)
         #print 'rc: code, data', rc['code'],rc['data']
         s.assertTrue(rc['code'] == '400')
         s.assertTrue(rc['data'] == '"Malformed JSON data given"')
@@ -92,7 +93,7 @@ class Test_http(unittest.TestCase):
             '"--no_layout_independent_stats", ' + \
             '"--no_layout_aware_stats" ]'
         curl_opts = ['-d', data, '-H', 'Content-Type:application/json', '-X', 'POST', '-v']
-        rc = s.doCurl(curl_opts, False)
+        rc = s.doCurl(curl_opts)
         #print 'code, data:', rc['code'], rc['data']
         s.assertTrue(rc['code'] == '200')
     
@@ -111,7 +112,7 @@ class Test_http(unittest.TestCase):
             '"--no_layout_aware_stats" ]'
         
         curl_opts = ['-d', data, '-H', 'Content-Type:application/json', '-X', 'POST', '-v']
-        rc = s.doCurl(curl_opts, False)
+        rc = s.doCurl(curl_opts)
         #print 'code, data:', rc['code'], rc['data']
         s.assertTrue(rc['code'] == '200')
         success = s.checkLog(outDir + 'log')

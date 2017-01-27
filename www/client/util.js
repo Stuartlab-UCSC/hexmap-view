@@ -263,27 +263,11 @@ Util = (function () { // jshint ignore: line
         setHeightSelect2: setHeightSelect2,
         createOurSelect2: createOurSelect2,
         
-        errorToMessage: function (error) {
-        
-            // Convert an error message to something displayable.
-            var msg = {
-                short: error,
-                long: error,
-            };
-        
-            // If this is a Meteor.Error, the error prop has the text
-            if (error.error) {
-                msg.short = msg.long = 'Error: ' + error.error;
-            }
-            
-            // If the message is multi-lined, return a shorter message
-            // along with the longer message.
-            var newlineIndex = msg.short.indexOf('\n');
-            if (newlineIndex > -1) {
-                msg.short = msg.short.slice(0, newlineIndex);
-            }
-            
-            return msg;
+        timestamp: function () {
+
+            // This returns a timestamp of the form: Jan 26 2017 11:20:48:295
+            var now = new Date();
+            return now.toString().slice(4, -15) + ':' + now.getMilliseconds()
         },
     };
 }());

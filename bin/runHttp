@@ -1,9 +1,0 @@
-#!/bin/bash
-# Start the http server for a hexmap installation
-
-INSTALL=dev
-
-source /cluster/home/swat/sec/runIncludes
-touch $HEXMAP/http.log
-mv $HEXMAP/http.log $HEXMAP/http.prev.log
-$METEOR_BASE/bin/node $HEXMAP/http/http.js &> $HEXMAP/http.log &

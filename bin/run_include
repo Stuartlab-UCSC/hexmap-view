@@ -1,0 +1,140 @@
+#!/bin/bash
+
+# $SERVER_
+SERVER_TYPE=$1 # Type of server to start, one of: / db / http / https / www /
+INSTALL=$2     # The ID of the server: prod / prodCalc / dev / devCalc / ....
+HEXMAP=$3
+
+# One of the below install variables should be uncommented
+#INSTALL=prod
+#INSTALL=dev
+#INSTALL=devCalc
+#INSTALL=swat
+#INSTALL=swatCalc
+#INSTALL=swatMain
+
+if [ -z ${1} ]; then
+    echo Supply one of: db, http, https, www
+    echo Exiting
+    exit
+else
+    echo Starting $SERVER_TYPE
+fi
+
+if [ -z ${INSTALL} ]; then
+    echo You need to set the value of INSTALL in the run script.
+    echo Exiting
+    exit
+else
+    echo Using install: $INSTALL
+fi
+
+if [ $INSTALL == swat ] || \
+    [ $INSTALL == swatMain ] || \
+    [ $INSTALL == swatCalc ]
+    then
+    FOREGROUND=yes
+fi
+
+#############  CONFIGURE THE SERVER  #######################
+if [ $INSTALL == 'prod' ]; then
+    PORT=8443       # Port on which the server listens
+    HTTPS_PORT=443  # Https proxy port if using https, otherwise the same as PORT
+    DB_PORT=27017   # Port on which the database listens
+    DB_NAME=$PORT   # Name of the mongo database
+    METEOR_BASE=/data/home/hexmap/.meteor/packages/meteor-tool/.1.1.10.ki0ccv++os.linux.x86_64+web.browser+web.cordova/mt-os.linux.x86_64/dev_bundle
+    METEOR=/data/home/hexmap/.meteor  # the meteor installation
+    export ROOT_URL=https://tumormap.ucsc.edu:$HTTPS_PORT # User's view of the URL
+
+elif [ $INSTALL == 'dev' ]; then
+    PORT=8113
+    HTTPS_PORT=8112
+    DB_PORT=28113
+    DB_NAME=8111
+    METEOR_BASE=/cluster/home/swat/.meteor/packages/meteor-tool/1.4.1_2/mt-os.linux.x86_64/dev_bundle
+    METEOR=/cluster/home/swat/.meteor
+    export ROOT_URL=https://tumormap.ucsc.edu:$HTTPS_PORT
+
+elif [ $INSTALL == 'devCalc' ]; then
+    PORT=8223
+    HTTPS_PORT=8223
+    DB_PORT=28223
+    DB_NAME=$PORT
+    METEOR_BASE=/cluster/home/swat/.meteor/packages/meteor-tool/1.4.1_2/mt-os.linux.x86_64/dev_bundle
+    METEOR=/cluster/home/swat/.meteor
+    export ROOT_URL=http://kolossus.sdsc.edu:$HTTPS_PORT
+
+elif [ $INSTALL == 'swat' ]; then
+    PORT=3333
+    HTTPS_PORT=$PORT
+    DB_PORT=27017
+    DB_NAME=live
+    METEOR_BASE=/Users/swat/.meteor/packages/meteor-tool/1.4.1_2/mt-os.osx.x86_64/dev_bundle
+    METEOR=/Users/swat/.meteor
+    export ROOT_URL=http://localhost:$HTTPS_PORT
+
+elif [ $INSTALL == 'swatCalc' ]; then
+    PORT=4444
+    HTTPS_PORT=$PORT
+    DB_PORT=24444
+    DB_NAME=$PORT
+    METEOR_BASE=/Users/swat/.meteor/packages/meteor-tool/1.4.1_2/mt-os.osx.x86_64/dev_bundle
+    METEOR=/Users/swat/.meteor
+    export ROOT_URL=http://localhost:$HTTPS_PORT
+    
+elif [ $INSTALL == 'swatMain' ]; then
+    PORT=5555
+    HTTPS_PORT=$PORT
+    DB_PORT=25555
+    DB_NAME=$PORT
+    METEOR_BASE=/Users/swat/.meteor/packages/meteor-tool/1.4.1_2/mt-os.osx.x86_64/dev_bundle
+    METEOR=/Users/swat/.meteor
+    export ROOT_URL=http://localhost:$HTTPS_PORT
+else
+    echo Invalid INSTALL of $INSTALL
+    echo Exiting
+fi
+
+#############  RUN THE SERVER BY TYPE  #######################
+if [ $SERVER_TYPE == 'http' ]; then
+    touch $HEXMAP/http.log
+    mv $HEXMAP/http.log $HEXMAP/http.prev.log
+    (nohup $METEOR_BASE/bin/node $HEXMAP/http/http.js &> $HEXMAP/http.log &)
+
+elif [ $SERVER_TYPE == 'https' ] ; then
+    touch $HEXMAP/https.log
+    mv $HEXMAP/https.log $HEXMAP/https.prev.log
+    (nohup $METEOR_BASE/bin/node $HEXMAP/https/https.js &> $HEXMAP/https.log &)
+
+elif [ $SERVER_TYPE == 'dbSecure' ]; then
+    touch $HEXMAP/db.log
+    mv $HEXMAP/db.log $HEXMAP/db.prev.log
+    (nohup $METEOR_BASE/mongodb/bin/mongod \
+            --bind_ip 127.0.0.1 \
+            --port $DB_PORT \
+            --dbpath $HEXMAP/db \
+            &> $HEXMAP/db.log &)
+
+elif [ $SERVER_TYPE == 'db' ]; then
+    touch $HEXMAP/db.log
+    mv $HEXMAP/db.log $HEXMAP/db.prev.log
+    (nohup $METEOR_BASE/mongodb/bin/mongod \
+            --port $DB_PORT \
+            --dbpath $HEXMAP/db \
+            &> $HEXMAP/db.log &)
+
+elif [ $SERVER_TYPE == 'www' ]; then
+    export MONGO_URL=mongodb://localhost:$DB_PORT/$DB_NAME
+    cd $HEXMAP/www
+    touch $HEXMAP/www.log
+    mv $HEXMAP/www.log $HEXMAP/prev.log
+    cat $HEXMAP/bin/settingsA.$INSTALL.json $HEXMAP/bin/settingsB.json > $HEXMAP/bin/settings.json
+    if [ -z ${FOREGROUND} ]; then
+        (nohup $METEOR/meteor --port $PORT --settings $HEXMAP/bin/settings.json &> $HEXMAP/www.log &)
+    else
+        $METEOR/meteor --port $PORT --settings $HEXMAP/bin/settings.json
+    fi
+else
+    echo Invalid server type of $SERVER_TYPE
+    echo Exiting
+fi

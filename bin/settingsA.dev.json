@@ -1,0 +1,16 @@
+{
+    "public": {
+        "DEV": true,
+        "URL_BASE": "https://tumormap.ucsc.edu:8112",
+        "FEATURE_SPACE_DIR": "/hive/groups/hexmap/dev/featureSpace/",
+        "LAYOUT_INPUT_DIR": "/hive/groups/hexmap/dev/layoutInput/",
+        "VIEW_DIR": "/hive/groups/hexmap/dev/view/",
+        "GOOGLE_API_KEY": "AIzaSyBb8AJUB4x-xxdUCnjzb-Xbcg0-T1mPw3I",
+        "ADMIN_EMAIL": "hexmap@ucsc.edu"
+    },
+    "server": {
+        "jobs": {
+            "IS_MAIN_SERVER": true
+        },
+        "SERVER_DIR": "/cluster/home/swat/hexmap/www/server/",
+        "TEMP_DIR": "/cluster/home/swat/tmp/",
