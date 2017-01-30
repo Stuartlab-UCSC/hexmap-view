@@ -68,8 +68,10 @@ def compareActualVsExpectedFile(s, fname, outDir, expDir):
     s.assertTrue(path.exists(outDir))
 
     # Verify the file exists
-    s.assertTrue(path.isfile(outDir + fname))
+    s.assertTrue(path.isfile(path.join(outDir,fname)),
+                 msg='is not a file: ' + path.join(outDir,fname))
 
     # Compare the file contents
-    s.assertTrue(filecmp.cmp(outDir + fname, expDir + fname))
+    s.assertTrue(filecmp.cmp(path.join(outDir,fname),path.join(expDir,fname)),
+                 msg='file did not match: ' + fname)
     

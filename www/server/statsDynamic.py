@@ -6,7 +6,7 @@ to dynamic and pre-computed stats: statsSortLayer.
 """
 
 import sys, os, json, copy, csv, math, traceback, pprint
-
+import leesL
 from statsLayer import ForEachLayer
 
 def dynamicLayoutAwareStats(parm):
@@ -16,6 +16,7 @@ def dynamicLayoutAwareStats(parm):
     # Populate a window node and additives arrays from windows_*.tab
     fname = "windows_" + str(parm['layout']) + ".tab"
     fpath = os.path.join(parm['directory'], fname)
+
     if not os.path.isfile(fpath):
         print "Error:", fname, "not found, so statistics could not be computed\n"
         return 0;
@@ -54,11 +55,16 @@ def dynamicStats(parm):
 
     # This handles dynamic stats initiated by the client
 
+    if 'layout' in parm:
+        resultFile = leesL.dynamicCallLeesL(parm)
+        return resultFile
+
     # Populate the layer to file names dict by pulling the
     # layernames and base layer filenames from layers.tab
     fOut = None
     with open(os.path.join(parm['directory'], "layers.tab"), 'rU') as f:
         f = csv.reader(f, delimiter='\t')
+        #layerFiles is a dictionary of attribute names -> the base name of the layer/data file
         layerFiles = {}
         for i, line in enumerate(f.__iter__()):
             layerFiles[line[0]] = line[1]
@@ -83,12 +89,11 @@ def dynamicStats(parm):
                 layers[layerName] = {}
                 for i, line in enumerate(f.__iter__()):
                     layers[layerName][line[0]] = float(line[1])
+
     parm['layers'] = layers
 
     # Complete populating the parms for layout-aware or layout-ignore
-    if 'layout' in parm:
-        ret = dynamicLayoutAwareStats(parm)
-    else:
+    if 'layout' not in parm:
         ret = dynamicIgnoreLayoutStats(parm)
     if ret == 0: return 0
 

@@ -69,6 +69,7 @@ def std_iszero(dt,log=sys.stdout):
 def read_tabular(in_file,numeric_flag=True,log=sys.stdout):
     '''
     Reads a tabular matrix file and returns numpy matrix, col names, row names
+    drops columns and rows that are full of nan
     @param in_file: name of tab seperated input file
     @param numeric_flag: if strings are found throws a value error
     @param log: where info chatter goes to
@@ -76,7 +77,9 @@ def read_tabular(in_file,numeric_flag=True,log=sys.stdout):
     '''
 
     df = pd.read_csv(in_file,sep='\t',index_col=0)
-
+    #drop rows and columns that are full of na's
+    df.dropna(axis=1,how='all',inplace=True)
+    df.dropna(axis=0,how='all',inplace=True)
     #count the number of Nas so we can warn the user
     nas = df.isnull().sum().sum()
     df = df.fillna(0)

@@ -216,7 +216,7 @@ def writeColorMapsTab(options):
     # still be empty.
     colormaps_writer.close()
 
-def getCategoricalsFromColorMapFile(filename,debug=True):
+def getCategoricalsFromColorMapFile(filename,debug=False):
     '''
     :param filename: the name of the colormaps file
     :return: a list of attributes thought to be categorical by the colormaps processor
@@ -1198,6 +1198,7 @@ def drl_similarity_functions(matrix, index, options):
 
     print timestamp(), "Reading DrL output..."
     sys.stdout.flush()
+
     for parts in coord_reader:
         nodes[parts[0]] = (float(parts[1]), float(parts[2]))
 
@@ -2221,7 +2222,8 @@ def hexIt(options, cmd_line_list, all_dict):
     statsLayout(options.directory, layers, layer_names, nodes_multiple, ctx, options)
     '''
 
-    if (options.mutualinfo and len(layer_names) > 0):
+    #need at least two attribures to do mutual info
+    if (options.mutualinfo and len(layer_names) > 1):
         print 'LeesL layout aware stats being calculated'
 
         #subset down  to binary attributes
