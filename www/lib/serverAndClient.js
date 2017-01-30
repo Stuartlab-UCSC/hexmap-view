@@ -19,9 +19,6 @@ if (Meteor.isServer) {
     var exec = Npm.require('child_process').exec;
     var process = Npm.require('process');
     
-    Meteor.startup(function () {
-        process.env.MAIL_URL = 'smtp://hexmap%40ucsc.edu:Juno6666@smtp.gmail.com:587';
-    });
     sendMail = function (users, subject, msg, callback) {
 
         // Send mail to user(s) with the given subject and message.
@@ -35,7 +32,6 @@ if (Meteor.isServer) {
             + '" -S from="'
             + ADMIN_EMAIL
             + '" '
-          //+ '" -S from="hexmap@ucsc.edu" '
             + users.toString();
         
         console.log('sendMail():', command);

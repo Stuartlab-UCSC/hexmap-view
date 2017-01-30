@@ -42,9 +42,20 @@ if [ $INSTALL == 'prod' ]; then
     HTTPS_PORT=443  # Https proxy port if using https, otherwise the same as PORT
     DB_PORT=27017   # Port on which the database listens
     DB_NAME=$PORT   # Name of the mongo database
-    METEOR_BASE=/data/home/hexmap/.meteor/packages/meteor-tool/.1.1.10.ki0ccv++os.linux.x86_64+web.browser+web.cordova/mt-os.linux.x86_64/dev_bundle
+    METEOR_BASE=/cluster/home/hexmap/.meteor/packages/meteor-tool/.1.1.10.ki0ccv++os.linux.x86_64+web.browser+web.cordova/mt-os.linux.x86_64/dev_bundle
     METEOR=/data/home/hexmap/.meteor  # the meteor installation
     export ROOT_URL=https://tumormap.ucsc.edu:$HTTPS_PORT # User's view of the URL
+    export PATH=/cluster/home/hexmap/adam_novak-drl-graph-layout-c41341de8058/bin:$PATH
+
+elif [ $INSTALL == 'prodCalc' ]; then
+    PORT=8333
+    HTTPS_PORT=8333
+    DB_PORT=28333
+    DB_NAME=$PORT
+    METEOR_BASE=/cluster/home/hexmap/.meteor/packages/meteor-tool/.1.1.10.ki0ccv++os.linux.x86_64+web.browser+web.cordova/mt-os.linux.x86_64/dev_bundle
+    METEOR=/data/home/hexmap/.meteor
+    export ROOT_URL=http://kolossus.sdsc.edu:$HTTPS_PORT
+    export PATH=/cluster/home/hexmap/adam_novak-drl-graph-layout-c41341de8058/bin:$PATH
 
 elif [ $INSTALL == 'dev' ]; then
     PORT=8113
@@ -54,6 +65,7 @@ elif [ $INSTALL == 'dev' ]; then
     METEOR_BASE=/cluster/home/swat/.meteor/packages/meteor-tool/1.4.1_2/mt-os.linux.x86_64/dev_bundle
     METEOR=/cluster/home/swat/.meteor
     export ROOT_URL=https://tumormap.ucsc.edu:$HTTPS_PORT
+    export PATH=/cluster/home/swat/packages/drl-graph-layout/bin:$PATH
 
 elif [ $INSTALL == 'devCalc' ]; then
     PORT=8223
@@ -63,6 +75,8 @@ elif [ $INSTALL == 'devCalc' ]; then
     METEOR_BASE=/cluster/home/swat/.meteor/packages/meteor-tool/1.4.1_2/mt-os.linux.x86_64/dev_bundle
     METEOR=/cluster/home/swat/.meteor
     export ROOT_URL=http://kolossus.sdsc.edu:$HTTPS_PORT
+    export PATH=/cluster/home/swat/packages/drl-graph-layout/bin:$PATH
+
 
 elif [ $INSTALL == 'swat' ]; then
     PORT=3333
@@ -72,6 +86,7 @@ elif [ $INSTALL == 'swat' ]; then
     METEOR_BASE=/Users/swat/.meteor/packages/meteor-tool/1.4.1_2/mt-os.osx.x86_64/dev_bundle
     METEOR=/Users/swat/.meteor
     export ROOT_URL=http://localhost:$HTTPS_PORT
+    export PATH=/Users/swat/drl/drl-graph-layout/bin:$PATH
 
 elif [ $INSTALL == 'swatCalc' ]; then
     PORT=4444
@@ -81,7 +96,8 @@ elif [ $INSTALL == 'swatCalc' ]; then
     METEOR_BASE=/Users/swat/.meteor/packages/meteor-tool/1.4.1_2/mt-os.osx.x86_64/dev_bundle
     METEOR=/Users/swat/.meteor
     export ROOT_URL=http://localhost:$HTTPS_PORT
-    
+    export PATH=/Users/swat/drl/drl-graph-layout/bin:$PATH
+
 elif [ $INSTALL == 'swatMain' ]; then
     PORT=5555
     HTTPS_PORT=$PORT
@@ -90,6 +106,8 @@ elif [ $INSTALL == 'swatMain' ]; then
     METEOR_BASE=/Users/swat/.meteor/packages/meteor-tool/1.4.1_2/mt-os.osx.x86_64/dev_bundle
     METEOR=/Users/swat/.meteor
     export ROOT_URL=http://localhost:$HTTPS_PORT
+    export PATH=/Users/swat/drl/drl-graph-layout/bin:$PATH
+
 else
     echo Invalid INSTALL of $INSTALL
     echo Exiting

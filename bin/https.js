@@ -9,7 +9,7 @@ if (DEV) {
 } else {
     var PROXY_PORT = 443,
         TARGET_PORT = 8443;
-        SECDIR = '/data/home/hexmap/sec';
+        SECDIR = '/data/certs';
 }
 
 const httpProxy = require('http-proxy');

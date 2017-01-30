@@ -67,8 +67,8 @@ def parse_args(args):
         help="file containing coordinates for the samples")
     parser.add_argument("--metric", nargs='+',action = 'append',
         help="metric corresponding to the feature matrix of the same index")
-    parser.add_argument("--layout_method", type=str, default="DrL",
-        help="DrL, tSNE, MDS, PCA, ICA, isomap, spectralembedding")
+    #parser.add_argument("--layout_method", type=str, default="DrL",
+    #    help="DrL, tSNE, MDS, PCA, ICA, isomap, spectralembedding")
     parser.add_argument("--preprocess_method", type=str, default="",
         help="Preprocessing methods for feature data when tSNE, MDS, PCA, ICA, isomap, or spectralembedding methods are used; valid options are: standardize, normalize")
     parser.add_argument("--tsne_pca_dimensions", type=str, default="11",
@@ -1462,6 +1462,8 @@ def hexIt(options, cmd_line_list, all_dict):
     sys.stdout.flush()
 
     ctx = Context();
+    
+    options.layout_method = 'DrL'
 
     if options.role != None:
     

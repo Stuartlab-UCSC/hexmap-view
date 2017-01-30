@@ -1,8 +1,8 @@
 #!/usr/bin/env python2.7
 """
-replace_NA_with_null.py
+replace_NA_attribute_values_with_null.py
 
-Example: replace_NA_with_null.py attributes.tab attributes_no_NA.tab
+Example: replace_NA_attribute_values_with_null.py meta.cleaned.tab meta_no_NA.tab
 
 In an attribute file, replace all 'n/a', and 'na', case-insensitive, with nulls
 and write the results to another file.

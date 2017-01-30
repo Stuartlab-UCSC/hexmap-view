@@ -1,7 +1,7 @@
 {
     "public": {
         "DEV": true,
-        "URL_BASE": "http://kolossus.sdsc.edu:8222",
+        "URL_BASE": "http://kolossus.sdsc.edu:8223",
         "FEATURE_SPACE_DIR": "/hive/groups/hexmap/dev/featureSpace/",
         "LAYOUT_INPUT_DIR": "/hive/groups/hexmap/dev/layoutInput/",
         "VIEW_DIR": "/hive/groups/hexmap/dev/view/",
