@@ -56,7 +56,8 @@ def main(opt):
                 
                 outRow = []
                 for value in row:
-                    val = value.lower()
+                    val = value.strip()
+                    val = val.lower()
                     if val == 'na' or val == 'n/a':
                         value = ''
                     outRow.append(value)

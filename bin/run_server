@@ -1,17 +1,8 @@
 #!/bin/bash
 
-# $SERVER_
 SERVER_TYPE=$1 # Type of server to start, one of: / db / http / https / www /
 INSTALL=$2     # The ID of the server: prod / prodCalc / dev / devCalc / ....
 HEXMAP=$3
-
-# One of the below install variables should be uncommented
-#INSTALL=prod
-#INSTALL=dev
-#INSTALL=devCalc
-#INSTALL=swat
-#INSTALL=swatCalc
-#INSTALL=swatMain
 
 if [ -z ${1} ]; then
     echo Supply one of: db, http, https, www
@@ -42,8 +33,8 @@ if [ $INSTALL == 'prod' ]; then
     HTTPS_PORT=443  # Https proxy port if using https, otherwise the same as PORT
     DB_PORT=27017   # Port on which the database listens
     DB_NAME=$PORT   # Name of the mongo database
-    METEOR_BASE=/cluster/home/hexmap/.meteor/packages/meteor-tool/.1.1.10.ki0ccv++os.linux.x86_64+web.browser+web.cordova/mt-os.linux.x86_64/dev_bundle
-    METEOR=/data/home/hexmap/.meteor  # the meteor installation
+    METEOR_BASE=/cluster/home/hexmap/.meteor/packages/meteor-tool/1.4.1_2/mt-os.linux.x86_64/dev_bundle
+    METEOR=/cluster/home/hexmap/.meteor  # the meteor installation
     export ROOT_URL=https://tumormap.ucsc.edu:$HTTPS_PORT # User's view of the URL
     export PATH=/cluster/home/hexmap/adam_novak-drl-graph-layout-c41341de8058/bin:$PATH
 
@@ -52,8 +43,8 @@ elif [ $INSTALL == 'prodCalc' ]; then
     HTTPS_PORT=8333
     DB_PORT=28333
     DB_NAME=$PORT
-    METEOR_BASE=/cluster/home/hexmap/.meteor/packages/meteor-tool/.1.1.10.ki0ccv++os.linux.x86_64+web.browser+web.cordova/mt-os.linux.x86_64/dev_bundle
-    METEOR=/data/home/hexmap/.meteor
+    METEOR_BASE=/cluster/home/hexmap/.meteor/packages/meteor-tool/1.4.1_2/mt-os.linux.x86_64/dev_bundle
+    METEOR=/cluster/home/hexmap/.meteor
     export ROOT_URL=http://kolossus.sdsc.edu:$HTTPS_PORT
     export PATH=/cluster/home/hexmap/adam_novak-drl-graph-layout-c41341de8058/bin:$PATH
 
@@ -145,7 +136,7 @@ elif [ $SERVER_TYPE == 'www' ]; then
     export MONGO_URL=mongodb://localhost:$DB_PORT/$DB_NAME
     cd $HEXMAP/www
     touch $HEXMAP/www.log
-    mv $HEXMAP/www.log $HEXMAP/prev.log
+    mv $HEXMAP/www.log $HEXMAP/www.prev.log
     cat $HEXMAP/bin/settingsA.$INSTALL.json $HEXMAP/bin/settingsB.json > $HEXMAP/bin/settings.json
     if [ -z ${FOREGROUND} ]; then
         (nohup $METEOR/meteor --port $PORT --settings $HEXMAP/bin/settings.json &> $HEXMAP/www.log &)

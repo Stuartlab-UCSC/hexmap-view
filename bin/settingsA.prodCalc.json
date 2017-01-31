@@ -9,9 +9,8 @@
     },
     "server": {
         "jobs": {
-            "IS_MAIN_SERVER": true
             "IS_CALC_SERVER": true,
-            "MAIN_MONGO_URL": "mongodb://localhost:27017/8443",
+            "MAIN_MONGO_URL": "mongodb://hexmap.sdsc.edu:27017/8443"
         },
         "SERVER_DIR": "/hive/groups/hexmap/prod/calcServer/www/server/",
         "TEMP_DIR": "/cluster/home/swat/tmp/",

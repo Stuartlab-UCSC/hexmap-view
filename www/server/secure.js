@@ -12,7 +12,7 @@
 //removeRoles(['Pancan12']);
 //removeUsersFromRoles(['jstuart@ucsc.edu'], ['dev', 'Pancan12']);
 //showUsernames();
-addUsersToRoles (['vjuanpor@ucsc.edu'] , ['CKCC']);
+//addUsersToRoles (['vjuanpor@ucsc.edu'] , ['CKCC']);
 //removeUser('reviewer@');
 //var users = [
 //    {email: 'vjuanpor@ucsc.edu', roles: ['ckcc']},
