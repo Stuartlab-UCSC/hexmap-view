@@ -163,9 +163,9 @@ Hex = (function () { // jshint ignore: line
                 if (DEV) { initOverlayNodeUi(); }
                 initLegend();
                 Shortlist.init();
-                CheckLayerBox.init();
                 initCoords();
-                Reflect.init();
+                //CheckLayerBox.init();
+                //Reflect.init();
                 Tool.initLabelTool();
                 Download.init();
                 Colors.init();
