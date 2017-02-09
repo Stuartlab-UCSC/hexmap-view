@@ -27,7 +27,10 @@ if [ $INSTALL == swat ] || \
     FOREGROUND=yes
 fi
 
-#############  CONFIGURE THE SERVER  #######################
+#!/bin/bash
+
+#############  CONFIGURE THE SERVERS  #######################
+
 if [ $INSTALL == 'prod' ]; then
     PORT=8443       # Port on which the server listens
     HTTPS_PORT=443  # Https proxy port if using https, otherwise the same as PORT
@@ -51,6 +54,26 @@ elif [ $INSTALL == 'prodCalc' ]; then
 elif [ $INSTALL == 'dev' ]; then
     PORT=8113
     HTTPS_PORT=8112
+    DB_PORT=27017
+    DB_NAME=dev
+    METEOR_BASE=/cluster/home/swat/.meteor/packages/meteor-tool/1.4.1_2/mt-os.linux.x86_64/dev_bundle
+    METEOR=/cluster/home/swat/.meteor
+    export ROOT_URL=https://hexdev.sdsc.edu:$HTTPS_PORT
+    export PATH=/cluster/home/swat/packages/drl-graph-layout/bin:$PATH
+
+elif [ $INSTALL == 'devCalc' ]; then
+    PORT=8333
+    HTTPS_PORT=$PORT
+    DB_PORT=28333
+    DB_NAME=$PORT
+    METEOR_BASE=/cluster/home/swat/.meteor/packages/meteor-tool/1.4.1_2/mt-os.linux.x86_64/dev_bundle
+    METEOR=/cluster/home/swat/.meteor
+    export ROOT_URL=http://kolossus.sdsc.edu:$HTTPS_PORT
+    export PATH=/cluster/home/swat/packages/drl-graph-layout/bin:$PATH
+
+elif [ $INSTALL == 'devOld' ]; then
+    PORT=8113
+    HTTPS_PORT=8112
     DB_PORT=28113
     DB_NAME=8111
     METEOR_BASE=/cluster/home/swat/.meteor/packages/meteor-tool/1.4.1_2/mt-os.linux.x86_64/dev_bundle
@@ -58,7 +81,7 @@ elif [ $INSTALL == 'dev' ]; then
     export ROOT_URL=https://tumormap.ucsc.edu:$HTTPS_PORT
     export PATH=/cluster/home/swat/packages/drl-graph-layout/bin:$PATH
 
-elif [ $INSTALL == 'devCalc' ]; then
+elif [ $INSTALL == 'devCalcOld' ]; then
     PORT=8223
     HTTPS_PORT=8223
     DB_PORT=28223
@@ -67,7 +90,6 @@ elif [ $INSTALL == 'devCalc' ]; then
     METEOR=/cluster/home/swat/.meteor
     export ROOT_URL=http://kolossus.sdsc.edu:$HTTPS_PORT
     export PATH=/cluster/home/swat/packages/drl-graph-layout/bin:$PATH
-
 
 elif [ $INSTALL == 'swat' ]; then
     PORT=3333
@@ -104,7 +126,9 @@ else
     echo Exiting
 fi
 
-#############  RUN THE SERVER BY TYPE  #######################
+
+#####  RUN THE SERVER BY TYPE USING ONE OF THE ABOVE CONFIGS ###################
+
 if [ $SERVER_TYPE == 'http' ]; then
     touch $HEXMAP/http.log
     mv $HEXMAP/http.log $HEXMAP/http.prev.log

@@ -1,12 +1,13 @@
 Query API
 =========
 
-All Queries use thse standards:
+All Queries are made via http and use thse standards:
 
-API query URLs begin with "https://tumormap.ucsc.edu/query/" followed by the
+URLs begin with "https://tumormap.ucsc.edu/query/" followed by the
 specific query ID.
 
-API query parameters are sent in the HTTP POST message body in JSON format.
+Parameters are sent in the HTTP POST message body in JSON format.
+
+Content-Type: application/json
 
 API responses are returned in JSON format.
-

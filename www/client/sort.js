@@ -554,7 +554,10 @@ var app = app || {};
     }
 
     getDynamicStats = function (focus_attr, opts) {
-
+ 
+        updateSortUi('noStats', 'Sorry, the dynamic stats are disabled for now');
+        return;
+ 
         // This is a dynamically-generated attribute or a request because
         // the stats were not precomputed
 

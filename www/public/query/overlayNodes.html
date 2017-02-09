@@ -57,6 +57,7 @@
   <div class="section" id="place-new-nodes-on-a-map">
 <h1>Place new nodes on a map<a class="headerlink" href="#place-new-nodes-on-a-map" title="Permalink to this headline">¶</a></h1>
 <p><strong>Request</strong></p>
+<p>Query ID for the request URL: <strong>overlayNodes</strong></p>
 <p>Example:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span>
    <span class="s2">&quot;map&quot;</span><span class="p">:</span> <span class="s2">&quot;CKCC/v1&quot;</span><span class="p">,</span>
@@ -65,6 +66,7 @@
        <span class="s2">&quot;mok66@gmail.com&quot;</span><span class="p">,</span>
        <span class="o">...</span>
    <span class="p">],</span>
+   <span class="s2">&quot;numberOfNeighbors&quot;</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span>
    <span class="s2">&quot;nodes&quot;</span><span class="p">:</span> <span class="p">{</span>
        <span class="s2">&quot;mySample1&quot;</span><span class="p">:</span> <span class="p">{</span>
            <span class="s2">&quot;ALK&quot;</span><span class="p">:</span> <span class="s2">&quot;0.897645&quot;</span><span class="p">,</span>
@@ -77,7 +79,7 @@
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>This curl example using the development server should work:</p>
+<p>A curl example using the development server:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">curl</span> <span class="o">-</span><span class="n">s</span> <span class="o">-</span><span class="n">k</span> <span class="o">-</span><span class="n">d</span> <span class="s1">&#39;{&quot;map&quot;: &quot;CKCC/v1&quot;, &quot;nodes&quot;: {&quot;Sample-2&quot;: {&quot;CTD-2588J6.1&quot;: &quot;0&quot;, &quot;RP11-433M22.1&quot;:</span>
 <span class="s2">&quot;0&quot;</span><span class="p">,</span> <span class="s2">&quot;CTD-2588J6.2&quot;</span><span class="p">:</span> <span class="s2">&quot;0&quot;</span><span class="p">,</span> <span class="s2">&quot;CPHL1P&quot;</span><span class="p">:</span> <span class="s2">&quot;0&quot;</span><span class="p">,</span> <span class="s2">&quot;RP3-415N12.1&quot;</span><span class="p">:</span> <span class="s2">&quot;0&quot;</span><span class="p">,</span> <span class="s2">&quot;RP11-181G12.4&quot;</span><span class="p">:</span> <span class="s2">&quot;0&quot;</span><span class="p">,</span>
 <span class="s2">&quot;RP11-433M22.2&quot;</span><span class="p">:</span> <span class="s2">&quot;0&quot;</span><span class="p">,</span> <span class="s2">&quot;SSXP10&quot;</span><span class="p">:</span> <span class="s2">&quot;0&quot;</span><span class="p">,</span> <span class="s2">&quot;RP11-16E12.2&quot;</span><span class="p">:</span>  <span class="s2">&quot;2.5424&quot;</span><span class="p">,</span> <span class="s2">&quot;PSMA2P3&quot;</span><span class="p">:</span> <span class="s2">&quot;0&quot;</span><span class="p">,</span> <span class="s2">&quot;CTD-2367A17.1&quot;</span><span class="p">:</span>
@@ -88,11 +90,24 @@
 <span class="s1">Content-Type:application/json -X POST -v https://tumormap.ucsc.edu:8112/query/overlayNodes</span>
 </pre></div>
 </div>
-<p>It should return a bookmark of the form:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s2">&quot;bookmarks&quot;</span><span class="p">:[</span><span class="s2">&quot;https://tumormap.ucsc.edu:8112/?&amp;p=CKCC.v1&amp;node=Sample-1&amp;x=277.5&amp;y=171.5&quot;</span><span class="p">,</span>
- <span class="s2">&quot;https://tumormap.ucsc.edu:8112/?&amp;p=CKCC.v1&amp;node=Sample-2&amp;x=264&amp;y=151&quot;</span><span class="p">]}</span>
+<p>A URL would be returned as a json string of this form:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="s1">&#39;{&quot;bookmark&quot;:&quot;https://tumormap.ucsc.edu/?bookmark=5563fdf09484a241d066022bf91a9e96d6ae1976c4d7502d384cc2a87001067a&quot;}&#39;</span>
 </pre></div>
 </div>
+<p>Going to this URL would bring up a tumor map with:</p>
+<blockquote>
+<div><ul class="simple">
+<li>the requested nodes in red with google markers</li>
+<li>the six nearest neighbors of the first node requested highlighted in yellow as a newly-generated attribute of <em>&lt;requested-node-id&gt;: neighbors</em>. There will be one newly-generated attribute for each requested node.</li>
+<li>all other nodes in grey</li>
+</ul>
+</div></blockquote>
+<p>If multiple nodes are in the request, they and their neighbors will
+all appear with a single URL with one new neighbor attribute per requested node.
+If multiple nodes are to be placed with one URL per node, make one request
+for each node.</p>
+<p>To obtain a list of closest neighbors, select the new neighbors attribute then
+go to the File menu -&gt; Download -&gt; Node IDs.</p>
 <p>Definitions</p>
 <blockquote>
 <div><div class="line-block">
@@ -102,9 +117,10 @@
 <div class="line"><em>nodes</em> : the nodes to be placed on the map</div>
 <div class="line"><em>node</em> : ID of the node to be placed on the map. e.g., TCGA sample ID</div>
 <div class="line"><em>node-property</em> : identifier for a node&#8217;s property, e.g., &#8220;TP53&#8221;</div>
+<div class="line"><em>numberOfNeighbors</em> : optional parameter, the number of nearest neighbors to consider in the placement for each node, defaults to 6</div>
 </div>
 </div></blockquote>
-<p>Generalized Format:</p>
+<p>Generalized Format of request:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span>
    <span class="s2">&quot;map&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">mapID</span><span class="o">&gt;</span><span class="p">,</span>
    <span class="s2">&quot;layout&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">layout</span><span class="o">&gt;</span><span class="p">,</span>
@@ -112,7 +128,8 @@
        <span class="o">&lt;</span><span class="n">email</span><span class="o">&gt;</span><span class="p">,</span>
        <span class="p">(</span><span class="mi">1</span> <span class="n">to</span> <span class="n">N</span> <span class="n">email</span> <span class="n">addresses</span> <span class="o">...</span><span class="p">)</span>
    <span class="p">],</span>
-   <span class="s2">&quot;nodes: {</span>
+   <span class="s2">&quot;numberOfNeighbors&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">number</span><span class="o">&gt;</span><span class="p">,</span>
+   <span class="s2">&quot;nodes&quot;</span><span class="p">:</span> <span class="p">{</span>
        <span class="o">&lt;</span><span class="n">node</span><span class="o">&gt;</span><span class="p">:</span> <span class="p">{</span>
            <span class="o">&lt;</span><span class="n">node</span><span class="o">-</span><span class="nb">property</span><span class="o">&gt;</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">node</span><span class="o">-</span><span class="nb">property</span> <span class="n">value</span><span class="o">&gt;</span><span class="p">,</span>
            <span class="p">(</span><span class="mi">1</span> <span class="n">to</span> <span class="n">N</span> <span class="n">properties</span> <span class="o">...</span><span class="p">)</span>
@@ -123,22 +140,21 @@
 </pre></div>
 </div>
 <p><strong>Response success</strong></p>
-<p>These are returned as HTTP 200.</p>
-<p>Example:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span>
-   <span class="s2">&quot;bookmark&quot;</span><span class="p">:</span> <span class="s2">&quot;https://tumormap.ucsc.edu/?b=18XFlfJG8ijJUVP_CYIbA3qhvCw5pADF651XTi8haPnE&quot;</span><span class="p">,</span>
-<span class="p">}</span>
+<p>This is returned as HTTP 200:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="s1">&#39;{&quot;bookmark&quot;:&quot;https://tumormap.ucsc.edu/?bookmark=5563fdf09484a241d066022bf91a9e96d6ae1976c4d7502d384cc2a87001067a&quot;}&#39;</span>
 </pre></div>
 </div>
-<p>Generalized format:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span>
-   <span class="s2">&quot;bookmark&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">bookmark</span><span class="o">&gt;</span>
-<span class="p">}</span>
-</pre></div>
-</div>
+<p>Going to this URL would bring up a tumor map with:</p>
+<blockquote>
+<div><ul class="simple">
+<li>the requested nodes in red with google markers</li>
+<li>the six nearest neighbors of the first node requested highlighted in yellow as a newly-generated attribute of <em>&lt;requested-node-id&gt;: neighbors</em>. There will be one newly-generated attribute for each requested node.</li>
+<li>all other nodes in grey</li>
+</ul>
+</div></blockquote>
 <p><strong>Response errors</strong></p>
 <p>These are returned as HTTP 400.</p>
-<p>There may be more or less than listed here.</p>
+<p>There may be more errors returned than listed here.</p>
 <blockquote>
 <div><div class="line-block">
 <div class="line">map &#8220;pancan44&#8221; not found</div>
