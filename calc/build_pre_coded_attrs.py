@@ -1,93 +1,85 @@
 #!/usr/bin/env python2.7
-"""
-NOTE THAT THIS WAS NOT COMPLETED BUT MAY BE OF USE SOMEDAYZZ
-"""
-"""
-build_pre_coded_attrs.py
+'''
 
-Usage: build_pre_coded_attrs.py <coded-attribute-filename> <colormap-filename>
 
-Build a source attribute file given a coded attribute file and a colormap. 
-Useful when you've lost the original source attribute file containing strings.
-The output is a file with the same name given in the command line with 'strings'
-appended.
-"""
 
-import sys, argparse, csv, traceback, pprint
+'''
+
+from process_categoricals import *
 
 def parse_args(args):
-    args = args[1:]
+
     parser = argparse.ArgumentParser(description=__doc__,
         formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("codedAttrs", type=str,
-        help="coded attribute file name")
-    parser.add_argument("colormap", type=str, help="colormap file name")
-    a = parser.parse_args(args)
-    return a
 
-def main(opt):
+    # swat: We should be able to add 'required=True' to some args so the parser
+    # will tell the user when they are left out. --directory should be required
+    # since scripts get confused with relative paths sometimes.
+    fins = []
+    parser.add_argument('-i',"--codedAttrs", type=str,nargs='+',
+                        help="Input: attributes/meta data tsv files separated by space",metavar=fins)
 
-    # Load the colormap
-    colormap = {}
-    with open(opt.colormap, 'rU') as fin:
-        fin = csv.reader(fin, delimiter='\t')
-        for row in fin:
-            attr = row[0]
-            cats = []
-            index = None
-            cat = None
-            for col in row[1:]:
-                if index is None:
-                    index = col
-                elif cat is None:
-                    cat = col
-                else:
-                    # Skip the color code and add the category to the list of
-                    # categories for this attribute
-                    cats.append(cat)
-                    index = cat = None
-            colormap[attr] = cats
-    
-    print 'colormap:', pprint.pprint(colormap, indent=4)
+    parser.add_argument('-o',"--strAttrs", type=str,
+        help="name of output file, defaults to str_attrs.tab",
+                        default="str_attrs.tab")
 
-    # Write out the stringed attr file as we read the coded attr file
-    with open(opt.codedAttrs, 'rU') as fin:
-        fin = csv.reader(fin, delimiter='\t')
-        with open(opt.codedAttrs + 'stringed', 'w') as fout:
-            fout = csv.writer(fout, delimiter='\t')
-            for i, row in enumerate(fin.__iter__()):
-                if i == 0:
-                    
-                    # write the header line
-                    fields = row
-                    print 'fields:', fields
-                    fout.writerow(fields)
-            
-                else:
-                
-                    # initialize the out row with the node ID
-                    outRow = [row[0]]
-                    
-                    for j, col in enumerate(row[1:].__iter__()):
-                        print 'col:', col
-                        if fields[j] in colormap:
-                            print 'col:', col
-                            print 'fields[j]:', fields[j]
+    parser.add_argument('-c',"--colormaps", type=str,
+                        help="path to a previously generated colormapping file",
+                        )
 
-                            #print colormap[fields(j)]:', colormap[fields(j)]
-                            #str = colormap[fields[j]][col]
-                            #print 'str:', str
-                            #outRow.append[str]
-                        #else:
-                            #outRow.append(col)
+    return parser.parse_args(args)
 
-    return 0
+
+def main(args):
+
+    sys.stdout.flush()
+    opts = parse_args(args)
+
+    #process input arguments:
+    in_attributes = opts.codedAttrs
+    out_file = opts.strAttrs
+    colormaps = opts.colormaps
+
+    print 'converting these files: ' + str(in_attributes)
+
+    #get all the attributes into one place
+    codedattrs    = getAttributes(in_attributes)
+    #get colormaps into a list of lists
+    colormaps     = read_colormaps(colormaps)
+    #maps the attributes to a index in the colormap
+    attrToIndex   = cmaps_index_dict(colormaps)
+    #pulls out all the attributes from the colormap
+    attrsWithCodes= get_attrs_from_cmaps(colormaps)
+
+    #this dict creates the mapping that will change codes back to their strings
+    replaceDict = {}
+    for attr in attrsWithCodes:
+        #if that entry is really in the data
+        # then make the mapping for that attribute
+        if attr in codedattrs.columns:
+            cmapentry = colormaps[attrToIndex[attr]]
+            replaceDict[attr] = dict(zip(get_indecies_from_cmaps_entry(cmapentry,type_='int'),
+                                         get_cats_from_cmaps_entry(cmapentry)
+                                         )
+                                     )
+
+    codedattrs.replace(replaceDict,inplace=True)
+    #part of the expected format.
+    codedattrs.index.rename('nodes',inplace=True)
+    codedattrs.to_csv(out_file,sep='\t')
 
 if __name__ == "__main__" :
     try:
-        return_code = main(parse_args(sys.argv))
+        # Get the return code to return
+        # Don't just exit with it because sys.exit works by exceptions.
+        return_code = main(sys.argv[1:])
     except:
+        exc_type, exc_value, exc_traceback = sys.exc_info()
         traceback.print_exc()
-        return_code = 1
-    sys.exit(return_code)
+        traceback.print_exception(exc_type, exc_value, exc_traceback,
+                                  limit=2, file=sys.stdout)
 
+        # Return a definite number and not some unspecified error code.
+        return_code = 1
+
+    sys.exit(return_code)
