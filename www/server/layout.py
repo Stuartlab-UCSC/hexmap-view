@@ -39,15 +39,13 @@ from compute_layout import computeisomap
 from compute_layout import computeMDS
 from compute_layout import computeICA
 from compute_layout import computeSpectralEmbedding
-from create_colormaps import create_colormaps_file
-from create_colormaps import cat_files
-from convert_annotation_to_tumormap_mapping import convert_attributes_colormaps_mapping
 from process_categoricals import getAttributes
 import leesL
 from sklearn import preprocessing
 import sklearn.metrics
 import sklearn.metrics.pairwise as sklp
 import numpy as np
+from process_categoricals import create_colormaps_file
 
 def parse_args(args):
     """
@@ -82,7 +80,7 @@ def parse_args(args):
         action="store_true", default=False,
         help="add self-edges to input of DRL algorithm")
     parser.add_argument("--colormaps", type=str,
-        default=None,
+        default='',
         help="colormap for categorical attributes as TSV")
     parser.add_argument("--first_attribute", type=str, default="",
         help="attribute by which to color the map upon first display")
@@ -186,35 +184,6 @@ def sparsePandasToString(sparseDataFrame):
     bigstr = '\n' + bigstr[:-1]
     print bigstr
     return bigstr
-
-def writeColorMapsTab(options):
-    '''
-    copied this out of the old copy_files_for_UI() function.
-    :param options: the parse_args object
-    :return: writes the colomap file
-    '''
-
-    # This holds a writer for the sim file. Creating it creates the file.
-    colormaps_writer = tsv.TsvWriter(open(os.path.join(options.directory,
-                                                    "colormaps.tab"), "w"))
-
-    if options.colormaps is not None:
-
-        # The user specified colormap data, so copy it over
-        # This holds a reader for the colormaps file
-        colormaps_reader = tsv.TsvReader(open(options.colormaps, 'r'))
-
-        print "Regularizing colormaps file..."
-        sys.stdout.flush()
-
-        for parts in colormaps_reader:
-            colormaps_writer.list_line(parts)
-
-        colormaps_reader.close()
-
-    # Close the colormaps file we wrote. It may have gotten data, or it may
-    # still be empty.
-    colormaps_writer.close()
 
 def getCategoricalsFromColorMapFile(filename,debug=False):
     '''
@@ -1418,10 +1387,6 @@ def copy_files_for_UI(options, layer_files, layers, layer_positives, clumpiness_
         shutil.copy(options.attributeTags, tagsPath)
         print 'Tags file copied to', tagsPath
 
-    # Copy over the user-specified colormaps file, or make an empty TSV if it's
-    # not specified.
-    writeColorMapsTab(options)
-
 def build_default_scores(options):
 
     # Build a fake scores file from the node IDs in the first layout. This is a
@@ -1503,26 +1468,14 @@ def hexIt(options, cmd_line_list, all_dict):
     #if no colormaps file is specified then assume it needs to be created
     # and annotations need to be converted to tumor map mappings.
     # If attributes are not specified then there's no colormaps to create
-    if options.colormaps == None and not(options.scores == None):
-        new_score_files = []
-        combine_files = []
-        for i, attribute_filename in enumerate(options.scores):
-            #create colormaps file for each attributes/score file:
-            create_colormaps_file(options.scores[i], os.path.join(options.directory, 'colormaps_' + str(i) + '.tab'))
-            print "finished creating colormaps"
-            combine_files.append(os.path.join(options.directory, 'colormaps_' + str(i) + '.tab'))
-            #convert the atributes/scores file to the tumor map numeric mappings:
-            print "converting annotations to the new mappings"
-            convert_attributes_colormaps_mapping(in_colormap=os.path.join(options.directory, 'colormaps_' + str(i) + '.tab'), in_attributes=options.scores[i], filter_attributes_flag=False, output=os.path.join(options.directory, 'tm_converted_attributes_' + str(i) + '.tab'))
-            print "finished converting annotations"
-            #store the new mapped file for the downstream code to use to build the map(s):
-            new_score_files.append(os.path.join(options.directory, 'tm_converted_attributes_' + str(i) + '.tab'))
+    if not(options.scores == None):
 
-        options.scores = new_score_files
-        #combine the colormaps files into a single file:
-        #print "rolling all colormaps into "+os.path.join(options.directory, 'colormaps_all.tab')
-        cat_files(";".join(combine_files), os.path.join(options.directory, 'colormaps_all.tab'))
-        options.colormaps = os.path.join(options.directory, 'colormaps_all.tab')
+        create_colormaps_file(options.scores,os.path.join(options.directory,'colormaps.tab'),
+                              colormaps=options.colormaps,
+                              attrsfile=os.path.join(options.directory,'allAttributes.tab')
+                              )
+        options.scores = [os.path.join(options.directory,'allAttributes.tab')]
+        options.colormaps = os.path.join(options.directory,'colormaps.tab')
 
     # Set some global context values
     ctx.extract_coords = extract_coords
@@ -1854,8 +1807,6 @@ def hexIt(options, cmd_line_list, all_dict):
     densityArray = []
     clumpiness_scores = []
 
-    #writing the colormaps out now so the data types dict can use it...
-    writeColorMapsTab(options)
     datatypeDict = {'bin':[],'cat':[],'cont':[]}
     # Determine Data Type
     if len(layer_names) > 0:
