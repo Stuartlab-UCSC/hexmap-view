@@ -182,7 +182,7 @@ def sparsePandasToString(sparseDataFrame):
     bigstr = s_buf.getvalue()
     #final manipulation to match output necessary for rest of the script
     bigstr = '\n' + bigstr[:-1]
-    print bigstr
+
     return bigstr
 
 def getCategoricalsFromColorMapFile(filename,debug=False):
