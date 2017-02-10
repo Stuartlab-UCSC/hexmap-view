@@ -26,6 +26,14 @@
          --out_file      : name of colormaps file produced, default colormaps.tab
          --pickle        : name of transformed attributes, default allAttr.pi
 
+    Modifications:
+    code is now set up to pull from defaultColors() until they are exhausted.
+     these defaults can be easily changed by putting new hexadecimal stings in that function
+     the code must have at least one default or it will break.
+
+    The code now excludes dark colors, it does so by using a minimum intensity on each
+     bit when generating a random color. This can be changed my searhing from "minIntense";
+     0 will allow all colors
 '''
 # Example:
 #./create_colormaps.py --in_attributes attr.tab --out_file colormaps.tab
@@ -39,7 +47,7 @@ from colormath.color_objects import LabColor, sRGBColor
 from colormath.color_conversions import convert_color
 import traceback
 
-#find a good place to set the seed this isn't it
+#find a good place to set the seed... this isn't it
 np.random.seed(1)
 
 def parse_args(args):
@@ -87,7 +95,13 @@ def colorPicker(colors, n=100):
     :param n: the number of random colors to generate and choose from 
     :return: the color that was most different (had the maximum minium-distance to any other color in 'colors'
     '''
-    randcolors = Nrandomcolors(n)
+
+    dcolors = defaultColors()
+    if len(colors) < len(dcolors):
+        pickAColor=dcolors
+    else:
+        pickAColor = Nrandomcolors(n)
+
     mindistances = []
 
     #check the distances of the random generated colors to the provided colors.
@@ -96,7 +110,7 @@ def colorPicker(colors, n=100):
     # then we keep the color that provides the maximum minium distance...
 
     #print randcolors
-    for newcolor in randcolors:
+    for newcolor in pickAColor:
 
         distances = []
         for havecolor in colors:
@@ -104,7 +118,7 @@ def colorPicker(colors, n=100):
 
         mindistances.append(np.min(distances))
 
-    return (np.array(randcolors)[mindistances == np.max(mindistances)][0])
+    return (np.array(pickAColor)[mindistances == np.max(mindistances)][0])
 
 def randomcolor(type_='Lab'):
     '''
@@ -114,8 +128,14 @@ def randomcolor(type_='Lab'):
     :param type_: only 'Lab' (default) and 'sRGB' are supported
     :return: a color picked at random
     '''
-    rgb = np.random.rand(1,3)[0].tolist()
-    color = sRGBColor(rgb[0],rgb[1],rgb[2])
+
+    #this did not exclude black
+    #rgb = np.random.rand(1,3)[0].tolist()
+
+    #this excludes black by adding a minimum intensity
+    minIntense=40
+    rgb = np.random.random_integers(minIntense,256,3).tolist()
+    color = sRGBColor(rgb[0],rgb[1],rgb[2],is_upscaled=True)
 
     if type_ == 'Lab':
         color = convert_color(color,LabColor)
@@ -131,6 +151,29 @@ def Nrandomcolors(n):
     :return:  an array of 'n' random colors
     '''
     return [randomcolor() for x in range(n)]
+
+def defaultColors():
+    '''
+    # http://colorbrewer2.org Qualitative, 12-class Set3, minus the grey
+    colors = [
+        '#8dd3c7', '#ffffb3', '#bebada',
+        '#fb8072', '#80b1d3', '#fdb462',
+        '#b3de69', '#fccde5', '#bc80bd',
+        '#ccebc5', '#ffed6f'
+    ]
+    '''
+    colors = [
+              '#0000FF','#00FF00','#00FFFF',
+              '#FF0000','#FF00FF','#FFFF00',
+              '#FFFFFF','#00007F','#00FF7F',
+              '#007F00','#007FFF','#007F7F',
+              '#FF007F','#FFFF7F','#FF7F00',
+              '#FF7FFF','#FF7F7F','#7F0000',
+              '#7F00FF','#7F007F'
+              ]
+    #change them to color objects
+    colors = map(convertHexToLab,colors)
+    return colors
 
 def convertHexToLab(hexString):
     '''
@@ -291,13 +334,18 @@ def get_cats_from_cmaps_entry(cmap_entry):
     #appropriate slicing to get categories
     return cmap_entry[2::3]
 
-def get_indecies_from_cmaps_entry(cmap_entry):
+def get_indecies_from_cmaps_entry(cmap_entry,type_='str'):
     '''
+    :param type_: type of output, 'int' or string
     :param cmap_entry: a single entry or row of a colormaps object 
     :return: the indecies present in the given colormaps entry
     '''
     #appropriate slicing to get indecies
-    return cmap_entry[1::3]
+    inds = cmap_entry[1::3]
+    if type_ == 'int':
+        inds = [int(x) for x in inds]
+
+    return inds
 
 def get_colors_from_cmaps_entry(cmap_entry):
     '''
@@ -426,7 +474,12 @@ def transformToColormapInts(attrDF,colormaps,debug=False):
     attrDF = attrDF.apply(pd.to_numeric)
 
     return attrDF
-
+'''
+create_colormaps_file(['/home/duncan/Desktop/TumorMap/TMdev/hexagram/tests/pyUnittest/in/layout/mcrchopra.atts.with_strs.tab'],
+                      out_file='/home/duncan/trash/trash.cmaps.tab',
+                      colormaps='/home/duncan/Desktop/TumorMap/TMdev/hexagram/tests/pyUnittest/in/layout/mcrchopra.colormaps.tab',
+                      attrsfile='/home/duncan/trash/trash_attr.tab')
+'''
 def create_colormaps_file(in_attributes,out_file, pickle='', colormaps='', attrsfile='',debug=False):
     '''
     This function is the top of the hieracy of functions used for creating a
@@ -580,7 +633,7 @@ def create_colormaps_file(in_attributes,out_file, pickle='', colormaps='', attrs
 
             if counter == 0:
                 #no old colors
-                newColor = randomcolor()
+                newColor = defaultColors()[0]
 
             else:
                 #get the old colors so we can pick a new one
@@ -602,6 +655,7 @@ def create_colormaps_file(in_attributes,out_file, pickle='', colormaps='', attrs
     # Here we convert to integer codes and write out the data
     # as a pickle file
     attributes = transformToColormapInts(attributes,cmaps)
+    attributes.index.rename('nodes',inplace=True)
     if debug:
         print cmaps
         print 'writing pickle to: ' + pickle
