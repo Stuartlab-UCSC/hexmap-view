@@ -55,7 +55,7 @@ var app = app || {};
             showInfoWindow(event, hexagon, xy.x, xy.y);
         });
 
-        // Subscribe the tool listeners to events on this hexagon
+        // Listen to mouse events on this hexagon
         Tool.subscribe_listeners(hexagon);
         
         return hexagon;

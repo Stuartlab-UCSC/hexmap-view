@@ -1,7 +1,7 @@
 {
     "public": {
         "DEV": true,
-        "URL_BASE": "http://kolossus.sdsc.edu:8223",
+        "URL_BASE": "http://kolossus.sdsc.edu:8444",
         "FEATURE_SPACE_DIR": "/hive/groups/hexmap/dev/featureSpace/",
         "LAYOUT_INPUT_DIR": "/hive/groups/hexmap/dev/layoutInput/",
         "VIEW_DIR": "/hive/groups/hexmap/dev/view/",
@@ -11,7 +11,7 @@
     "server": {
         "jobs": {
             "IS_CALC_SERVER": true,
-            "MAIN_MONGO_URL": "mongodb://hexmap.sdsc.edu:28113/8111"
+            "MAIN_MONGO_URL": "mongodb://hexdev.sdsc.edu:28223/dev"
         },
-        "SERVER_DIR": "/cluster/home/swat/hexmapCalc/www/server/",
+        "SERVER_DIR": "/cluster/home/swat/devCalc/www/server/",
         "TEMP_DIR": "/cluster/home/swat/tmp/",

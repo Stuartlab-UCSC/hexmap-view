@@ -6,7 +6,7 @@ API
 .. toctree::
    :maxdepth: 1
 
-   queryApi
    overlayNodes
+   createMap
    statsDynamic
    

@@ -1,7 +1,9 @@
 Dynamic Statistics
 ------------------
 
-Note that this request returns data as tsv rather than as json. It was
+This API is currently only available to be called from viewer.
+
+This request returns data as tsv rather than as json. It was
 implemented prior to standardizing on json. We should move to json so this API
 can be called from anywhere and not just from the UI.
 
@@ -26,22 +28,3 @@ Example::
     anticorrelated: anticorrelated,
     tempFile: 'yes',
  }
-
-Definitions
-
-TBD
-
-Generalized format::
-
- TBD
-
-**Response**
-
-**Success**
-
-TBD
-
-**Errors**
-
-TBD
-

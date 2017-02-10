@@ -64,10 +64,7 @@ function createUsers(users, createUserRole) {
     // using a clean file name derived from the username.
     _.each(users, function (user) {
         try {
-            var file_safe_name = clean_file_name(user.email)
-            console.log('file_safe_name', file_safe_name);
             var id = Accounts.createUser({
-                file_safe_name: file_safe_name,
                 email: user.email,
                 password: "changeMe",
                 username: user.email,
@@ -76,6 +73,7 @@ function createUsers(users, createUserRole) {
             // Add the roles to the user's object, including a role for
             // user-created maps protection
             if (createUserRole) {
+                var file_safe_name = clean_file_name(user.email);
                 user.roles = user.roles.concat(file_safe_name);
             }
             if (user.roles.length > 0) {

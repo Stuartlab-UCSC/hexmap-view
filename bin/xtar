@@ -4,5 +4,5 @@
 echo 'cleaning directory'
 rm -rf bin calc www/*
 echo 'untarring'
-tar -xf /cluster/home/swat/hexmap/t.tar
+tar -xf /cluster/home/swat/dev/t.tar
 echo 'tar done'

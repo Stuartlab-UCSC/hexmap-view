@@ -1,21 +1,36 @@
 
 var DEV = false;
+var DEV_OLD = false;
 ///////////////
 
 if (DEV) {
-    var PROXY_PORT = 8112,
-        TARGET_PORT = 8113,
-        SECDIR = '/cluster/home/swat/sec/';
+    var PROXY_PORT = 8222,
+        TARGET_PORT = 8223,
+        TARGET = "http://hexdev.sdsc.edu:" + TARGET_PORT,
+        SECDIR = '/data/certs/',
+        KEY = SECDIR + 'hexdev.key',
+        CERT = SECDIR + 'hexdev.crt';
+    
+    if (DEV_OLD) {
+        var PROXY_PORT = 8112,
+            TARGET_PORT = 8113,
+            SECDIR = '/cluster/home/swat/sec/',
+            TARGET = "http://tumormap.ucsc.edu:" + TARGET_PORT,
+            KEY = SECDIR + 'tumormap.key',
+            CERT = SECDIR + 'tumormap.crt';
+        }
+    
 } else {
     var PROXY_PORT = 443,
         TARGET_PORT = 8443;
-        SECDIR = '/data/certs';
+        SECDIR = '/data/certs/',
+        TARGET = "http://tumormap.ucsc.edu:" + TARGET_PORT,
+        KEY = SECDIR + 'tumormap.key',
+        CERT = SECDIR + 'tumormap.crt';
 }
 
 const httpProxy = require('http-proxy');
 const fs = require('fs');
-const KEY = SECDIR + 'tumormap.key';
-const CERT = SECDIR + 'tumormap.crt';
 const PATH_TO_CHAIN = SECDIR + 'chain.crt';
 
 var options = {
@@ -24,7 +39,7 @@ var options = {
         cert: fs.readFileSync(CERT, 'utf8'),
         ca : fs.readFileSync(PATH_TO_CHAIN, 'utf8')
     },
-    target : "http://tumormap.ucsc.edu:" + TARGET_PORT,
+    target : TARGET,
     secure: true, // Depends on your needs, could be false.
     ws: true, // proxy websocket requests
     xfwd: true

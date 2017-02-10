@@ -380,7 +380,7 @@ createMap = function  () {
         setHexagonStrokes();
     });
     
-    // Subscribe all the tool listeners to the map
+    // Listen to mouse events on this map
     Tool.subscribe_listeners(googlemap);
 }
 
@@ -476,6 +476,7 @@ function refreshColorsInner() {
         
 
         // Turn all the hexes the filtered-out color, pre-emptively
+        // TODO redrawing would be faster to not change colors twice
         for(var signature in polygons) {
             setHexagonColor(polygons[signature], Colors.noDataColor());
         }

@@ -848,12 +848,13 @@ Shortlist = (function () { // jshint ignore: line
     }
 
     function make_sortable () {
-        $shortlist.sortable({
+        var $entries = $shortlist.find(.shortlist_entry')
+        $entries.sortable({
             update: function () {
             
                 // Update the shortlist UI with the new order and refresh
-                var shortlist = _.map($shortlist.children(), function (el) {
-                     return $(el).data("layer");
+                var shortlist = _.map($entries.children(), function (el) {
+                    return $(el).data("layer");
                 });
                 Session.set('shortlist', shortlist);
             },

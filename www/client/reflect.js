@@ -139,7 +139,7 @@ Reflect = (function () { // jshint ignore: line
                         var major = pathPeices[0];
                         var minor = pathPeices[1];
                         //how to open a new window
-                        window.open(URL_BASE + '/?p=' + major + '.' + minor);
+                        window.open(URL_BASE + '/?p=' + major + '/' + minor);
                     }
                 });
             
