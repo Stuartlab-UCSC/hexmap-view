@@ -22,7 +22,12 @@ def getLayerIndex(layerName,layers):
     return filename[filename.index('_')+1:filename.index('.')]
 
 def readXYs(fpath):
-    return pd.read_csv(fpath,sep='\t',index_col=0)
+	'''
+    reads the xy positions from file
+    :param fpath: file path  to tab seperated x-y position file, 1st col should be row names
+    :return: a pandas data frame with index set to node Ids and the 
+    '''
+	return pd.read_csv(fpath,sep='\t',index_col=0)
 
 def trimLayerFiles(layer_files):
     '''
