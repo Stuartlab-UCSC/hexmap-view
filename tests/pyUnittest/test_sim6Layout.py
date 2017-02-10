@@ -22,7 +22,7 @@ rawDataFile = inDir + 'mcrchopra.data.tab'
 top6SimDataFile = inDir + 'mcr.top6.stable.tab'
 
 colorDataFile = inDir + 'mcrchopra.colormaps.tab'
-attsCodedFile = inDir + 'mcrchopra.atts.tab'
+attsCodedFile = inDir + 'mcrchopra.atts.with_strs.tab'
 
 import compute_sparse_matrix
 import layout
