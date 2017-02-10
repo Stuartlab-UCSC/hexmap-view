@@ -1,19 +1,27 @@
 
 var DEV = false;
+var DEV_OLD = false;
 ///////////////
 
 if (DEV) {
-    var LISTEN_PORT = 8111,
-        HTTPS_PORT = 8112;
+    var LISTEN_PORT = 8221,
+        HTTPS_PORT = 8222,
+        TARGET = 'https://hexdev.sdsc.edu:' + HTTPS_PORT;
+    
+    if (DEV_OLD) {
+        var LISTEN_PORT = 8111,
+            HTTPS_PORT = 8112,
+            TARGET = 'https://tumormap.ucsc.edu:' + HTTPS_PORT;
+    }
 } else {
     var LISTEN_PORT = 80,
-        HTTPS_PORT = 443;
+        HTTPS_PORT = 443,
+        TARGET = 'https://tumormap.ucsc.edu:' + HTTPS_PORT;
 }
 
 var http = require("http");
-var target = "https://tumormap.ucsc.edu:".concat(HTTPS_PORT);
 var server = http.createServer(function (req, res) {
-    res.writeHead(301, {"Location": target.concat(req.url)});
+    res.writeHead(301, {"Location": TARGET.concat(req.url)});
     res.end();
 });
 
@@ -36,4 +44,4 @@ server.on('error', function (err, req, res) {
 });
 
 server.listen(LISTEN_PORT);
-console.log(timestamp(), 'http server starting on', LISTEN_PORT, 'forwarding to', target);
+console.log(timestamp(), 'http server starting on', LISTEN_PORT, 'forwarding to', TARGET);

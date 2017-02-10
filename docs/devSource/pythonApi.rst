@@ -60,7 +60,7 @@ Example::
 
 Descriptions of the JSON data for APIs are at:
 
-* overlayNodes: https://SERVER/query/overlayNodes.html
+* overlayNodes: https://tumormap.ucsc.edu:8112/query/overlayNodes.html
 * reflection: :doc:`pyReflection`
-* statsDynamic: https://SERVER/query/statsDynamic.html
+* statsDynamic: https://tumormap.ucsc.edu:8112/query/statsDynamic.html
 

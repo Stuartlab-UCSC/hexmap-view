@@ -27,7 +27,7 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="prev" title="Place new nodes on a map" href="overlayNodes.html" /> 
+    <link rel="prev" title="Create a map" href="createMap.html" /> 
   </head>
   <body role="document">
     <div class="header-wrapper" role="banner">
@@ -35,7 +35,7 @@
         <div class="headertitle"><a
           href="index.html">Tumor Map Web API</a></div>
         <div class="rel" role="navigation" aria-label="related navigation">
-          <a href="overlayNodes.html" title="Place new nodes on a map"
+          <a href="createMap.html" title="Create a map"
              accesskey="P">previous</a> |
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a>
@@ -53,7 +53,8 @@
             
   <div class="section" id="dynamic-statistics">
 <h1>Dynamic Statistics<a class="headerlink" href="#dynamic-statistics" title="Permalink to this headline">¶</a></h1>
-<p>Note that this request returns data as tsv rather than as json. It was
+<p>This API is currently only available to be called from viewer.</p>
+<p>This request returns data as tsv rather than as json. It was
 implemented prior to standardizing on json. We should move to json so this API
 can be called from anywhere and not just from the UI.</p>
 <p>Below is just one sort of call. We should define each parameter and its possible
@@ -76,17 +77,6 @@ values</p>
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>Definitions</p>
-<p>TBD</p>
-<p>Generalized format:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">TBD</span>
-</pre></div>
-</div>
-<p><strong>Response</strong></p>
-<p><strong>Success</strong></p>
-<p>TBD</p>
-<p><strong>Errors</strong></p>
-<p>TBD</p>
 </div>
 
 
@@ -97,8 +87,8 @@ values</p>
         <div class="sidebar">
           <h3>Table Of Contents</h3>
           <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="queryApi.html">Query API</a></li>
-<li class="toctree-l1"><a class="reference internal" href="overlayNodes.html">Place new nodes on a map</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overlayNodes.html">Overlay new nodes on a map</a></li>
+<li class="toctree-l1"><a class="reference internal" href="createMap.html">Create a map</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Dynamic Statistics</a></li>
 </ul>
 
@@ -120,7 +110,7 @@ values</p>
       <div class="footer">
         <div class="left">
           <div role="navigation" aria-label="related navigaton">
-            <a href="overlayNodes.html" title="Place new nodes on a map"
+            <a href="createMap.html" title="Create a map"
               >previous</a> |
             <a href="genindex.html" title="General Index"
               >index</a>

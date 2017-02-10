@@ -15,6 +15,7 @@ if (Meteor.isServer) {
     IS_MAIN_SERVER = Meteor.settings.server.jobs.IS_MAIN_SERVER;
     IS_CALC_SERVER = Meteor.settings.server.jobs.IS_CALC_SERVER;
     MAIN_MONGO_URL = Meteor.settings.server.jobs.MAIN_MONGO_URL;
+    ADMIN_EMAIL = Meteor.settings.public.ADMIN_EMAIL;
 
     var exec = Npm.require('child_process').exec;
     var process = Npm.require('process');
@@ -55,7 +56,6 @@ URL_BASE = Meteor.settings.public.URL_BASE;
 VIEW_DIR = Meteor.settings.public.VIEW_DIR;
 LAYOUT_INPUT_DIR = Meteor.settings.public.LAYOUT_INPUT_DIR;
 FEATURE_SPACE_DIR = Meteor.settings.public.FEATURE_SPACE_DIR;
-ADMIN_EMAIL = Meteor.settings.public.ADMIN_EMAIL;
 GOOGLE_API_KEY = Meteor.settings.public.GOOGLE_API_KEY;
 
 if (Meteor.settings.public.DEV === 'yes') {//no booleans with strict JSON

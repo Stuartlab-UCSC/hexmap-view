@@ -1,7 +1,7 @@
 {
     "public": {
         "DEV": true,
-        "URL_BASE": "https://tumormap.ucsc.edu:8112",
+        "URL_BASE": "https://hexdev.sdsc.edu:8222",
         "FEATURE_SPACE_DIR": "/hive/groups/hexmap/dev/featureSpace/",
         "LAYOUT_INPUT_DIR": "/hive/groups/hexmap/dev/layoutInput/",
         "VIEW_DIR": "/hive/groups/hexmap/dev/view/",
@@ -10,7 +10,8 @@
     },
     "server": {
         "jobs": {
-            "IS_MAIN_SERVER": true
+            "IS_MAIN_SERVER": true,
+            "IS_CALC_SERVER:" true
         },
-        "SERVER_DIR": "/cluster/home/swat/hexmap/www/server/",
+        "SERVER_DIR": "/cluster/home/swat/dev/www/server/",
         "TEMP_DIR": "/cluster/home/swat/tmp/",

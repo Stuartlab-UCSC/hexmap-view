@@ -28,10 +28,10 @@ Tool = (function () { // jshint ignore: line
     // They are indexed by handle, and are objects with a "handler" and "event".
     var tool_listeners = {};
 
-    // This holds the next tool listener handle to give out
+    // Initialize the next tool listener handle to give out
     var tool_listener_next_id = 0;
 
-    // Indicator that a tool is in use
+    // Initialize the tool-in-use indicator.
     var toolActive = false;
 
     function add_tool_listener (name, handler, cleanup) {
@@ -77,8 +77,13 @@ Tool = (function () { // jshint ignore: line
 
     function activity (activate) {
         if (_.isUndefined(activate)) {
+        
+            // Return the state of the tool activity. Only one may be active at
+            // a time so we know who is receiving mouse events on the map.
             return toolActive;
         } else {
+        
+            // Set the activity to the given activate of true or false.
             toolActive = activate;
         }
     }
@@ -153,7 +158,7 @@ Tool = (function () { // jshint ignore: line
                     return;
                 }
                 
-                // Add a tool listenerr that places the label. It fires on a
+                // Add a tool listener that places the label. It fires on a
                 // click anywhere on anything on the map, including the
                 // background. We keep a handle to it so we can remove it when
                 // it fires, ensuring we get just one label.
@@ -161,7 +166,7 @@ Tool = (function () { // jshint ignore: line
                 var handle = add_tool_listener("click", function(event) {
                     
                     // Make a new MapLabel at the click position
-                    // See http://bit.ly/18MbLhR (MapLabel library example page)
+                    // See the MapLabel library example page.
                     var map_label = new MapLabel({
                         text: text,
                         position: event.latLng,
@@ -170,7 +175,7 @@ Tool = (function () { // jshint ignore: line
                         align: "left"
                     });
                     
-                    // Subscribe tool listeners to the label
+                    // Listen to mouse events on this new label
                     Tool.subscribe_listeners(map_label);
                     
                     // Don't trigger again

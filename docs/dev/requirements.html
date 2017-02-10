@@ -56,23 +56,28 @@
             
   <div class="section" id="requirements-installation">
 <h1>Requirements &amp; Installation<a class="headerlink" href="#requirements-installation" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="required-libraries">
-<h2>Required libraries<a class="headerlink" href="#required-libraries" title="Permalink to this headline">¶</a></h2>
+<p>Get an SSL certificate.</p>
+<div class="section" id="required-python-libraries">
+<h2>Required python libraries<a class="headerlink" href="#required-python-libraries" title="Permalink to this headline">¶</a></h2>
 <p><strong>Python</strong></p>
 <p>python v2.7</p>
 <p><strong>Python modules</strong></p>
-<p>colormath (2.1.1)</p>
-<p>numpy (1.11.0)</p>
-<p>pandas (0.17.1)</p>
-<p>scikit-learn (0.17.1)</p>
-<p>scipy (0.17.1)</p>
-<p>statsmodels (0.6.1)</p>
+<blockquote>
+<div><div class="line-block">
+<div class="line">colormath=2.1.1</div>
+<div class="line">numpy=1.10.4</div>
+<div class="line">pandas=0.17.1</div>
+<div class="line">scikit-learn=0.17.1</div>
+<div class="line">scipy=0.17.1</div>
+<div class="line">statsmodels=0.6.1</div>
+</div>
+</div></blockquote>
 <p>Miniconda was used to install these versions. If you want to use this to install
 the python libraries, it is at:</p>
 <p><a class="reference external" href="http://conda.pydata.org/docs/install/quick.html">http://conda.pydata.org/docs/install/quick.html</a></p>
 <p>Use this form of the conda command to install the specific versions of packages
 listed above:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">install</span> <span class="n">numpy</span><span class="o">=</span><span class="mf">1.11</span><span class="o">.</span><span class="mi">0</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">install</span> <span class="n">numpy</span><span class="o">=</span><span class="mf">1.10</span><span class="o">.</span><span class="mi">4</span>
 </pre></div>
 </div>
 <p><strong>DrL graph layout [1]</strong></p>
@@ -88,68 +93,117 @@ drl-graph-layout/readme.txt:</p>
 <span class="n">ls</span> <span class="o">../</span><span class="nb">bin</span>
 </pre></div>
 </div>
-<p>Set your path to include the DrL binaries:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span>export PATH=./:DRL:$PATH
+</div>
+<div class="section" id="install-meteor">
+<h2>Install meteor<a class="headerlink" href="#install-meteor" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">curl</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">install</span><span class="o">.</span><span class="n">meteor</span><span class="o">.</span><span class="n">com</span><span class="o">/</span> <span class="o">|</span> <span class="n">sh</span>
 </pre></div>
 </div>
 </div>
-<div class="section" id="web-application-deployment">
-<h2>Web application deployment<a class="headerlink" href="#web-application-deployment" title="Permalink to this headline">¶</a></h2>
-<p>After all of the above tools have been installed, these steps will bring up the server.</p>
-<p>Substitute your directories for these tokens:</p>
-<p><em>HEXSRC</em> : directory of sources from the code repository</p>
-<p><em>HEX</em> : directory from which server code will be run</p>
-<p><em>DATA</em> : directory for your data</p>
-<p><em>DB</em> : directory for your database</p>
-<p><em>METEOR_SUBDIR</em> : the base binary directory specific to the meteor version</p>
-<p><em>CONDA</em> : miniconda install directory</p>
-<p><em>DRL</em> : DrL layout install directory</p>
-<p>** : your</p>
-<p><strong>Create directories</strong></p>
-<p>Create some directories:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">mkdir</span> <span class="o">-</span><span class="n">P</span> <span class="n">HEX</span><span class="o">/</span><span class="n">www</span>
-<span class="n">mkdir</span> <span class="n">DB</span>
-<span class="n">mkdir</span> <span class="o">-</span><span class="n">p</span> <span class="n">DATA</span><span class="o">/</span><span class="n">featureSpace</span> <span class="n">DATA</span><span class="o">/</span><span class="n">layoutInput</span> <span class="n">DATA</span><span class="o">/</span><span class="n">view</span>
+<div class="section" id="set-up-the-environment">
+<h2>Set up the environment<a class="headerlink" href="#set-up-the-environment" title="Permalink to this headline">¶</a></h2>
+<p>Add these to the bash login profile, editing CONDA, DRLPATH AND HEXMAP to match
+your install:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>CONDA=&quot;$HOME/packages/miniconda2/bin&quot;
+METEORPATH=$HOME/.meteor
+METEORBASE=$METEORPATH/packages/meteor-tool/1.4.1_2/mt-os.linux.x86_64/dev_bundle
+NODEPATH=$METEORBASE/bin
+MONGOPATH=$METEORBASE/mongodb/bin
+DRLPATH=$HOME/packages/drl-graph-layout/bin
+export HEXMAP=$HOME/dev
+export PYTHONPATH=$HEXMAP/www/server:$HEXMAP/calc
+export PATH=&quot;.:$CONDA:$METEORPATH:$NODEPATH:$MONGOPATH:$DRLPATH:$PATH&quot;
 </pre></div>
 </div>
-<p><strong>Copy source code to the server directory</strong>:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="n">HEXSRC</span>
-<span class="n">cp</span> <span class="o">-</span><span class="n">R</span> <span class="o">.</span><span class="n">meteor</span> <span class="n">client</span> <span class="n">lib</span> <span class="n">public</span> <span class="n">server</span> <span class="n">HEX</span><span class="o">/</span><span class="n">www</span>
-<span class="n">cp</span> <span class="o">-</span><span class="n">R</span> <span class="o">.</span><span class="n">calc</span> <span class="o">*</span><span class="n">HEX</span><span class="o">*/</span><span class="n">calc</span>
+<p>Exit and login to pick up the above changes.</p>
+</div>
+<div class="section" id="prepare-your-installation">
+<h2>Prepare your installation<a class="headerlink" href="#prepare-your-installation" title="Permalink to this headline">¶</a></h2>
+<p>Make some directories and copy files from your github clone:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>REP=&lt;wherever your githup clone is located&gt;
+mkdir $HEXMAP
+cd $HEXMAP
+mkdir db www http https
+cp -r $REP/bin bin
+cp -r $REP/calc calc
+cp -r $REP/www www
 </pre></div>
 </div>
-<p><strong>Environment variables</strong>:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span># Map creators need these:
-export HEXMAP=HEX
-export PYTHONPATH=$HEXMAP/calc:$HEXMAP/www/server
-export PATH=./:DRL:$PATH
-
-# Developers need these.
-METEOR=$HOME/.meteor
-BASE=$HOME/.meteor/packages/meteor-tool/METEOR_VERSION/dev_bundle
-NPM_NODE=$BASE/bin
-MONGO=$BASE/mongodb/bin
-CONDA=$HOME/packages/miniconda2/bin
-export PATH=./:$PYTHONPATH:$CONDA:$MONGO:$METEOR:$NPM_NODE:$PATH
+<p>Set your application the correct meteor release:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="n">www</span>
+<span class="n">meteor</span> <span class="o">--</span><span class="n">release</span> <span class="mf">1.4</span><span class="o">.</span><span class="mf">1.2</span>
 </pre></div>
 </div>
-<p><strong>Customize the Run Scripts</strong></p>
-<p>Copy some scripts and modify them to match your environment:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="n">HEXSRC</span><span class="o">/.</span><span class="n">bin</span>
-<span class="n">cp</span> <span class="n">runDb</span> <span class="n">runHex</span> <span class="n">settings</span><span class="o">.</span><span class="n">json</span> <span class="o">*</span><span class="n">HEX</span><span class="o">*</span>
+<p>After the server is up, kill it with CTRL-C.</p>
+<p>Install some meteor packages so this is the end-result of &#8216;meteor list&#8217;:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>accounts-password      1.3.0* Password support for accounts
+accounts-ui            1.1.9  Simple templates to add login widgets to an app
+alanning:roles         1.2.15  Authorization package for Meteor
+blaze-html-templates   1.0.5* Compile HTML templates into reactive UI with Me...
+check                  1.2.3* Check whether a value matches a pattern
+dburles:google-maps    1.1.5  Google Maps Javascript API v3
+ecmascript             0.5.8_1* Compiler plugin that supports ES2015+ in all ...
+ejson                  1.0.12* Extended and Extensible JSON library
+es5-shim               4.6.14_1* Shims and polyfills to improve ECMAScript 5 ...
+force-ssl              1.0.12* Require this application to use HTTPS
+http                   1.2.9_1* Make HTTP calls to remote servers
+jquery                 1.11.9* Manipulate the DOM using CSS selectors
+meteor-base            1.0.4  Packages that every Meteor app needs
+mobile-experience      1.0.4  Packages for a great mobile user experience
+mongo                  1.1.12_1* Adaptor for using MongoDB and Minimongo over...
+nourharidy:ssl         0.2.2  Sexy SSL support for Meteor
+random                 1.0.10  Random number generator and utilities
+reactive-dict          1.1.8  Reactive dictionary
+reactive-var           1.0.10* Reactive variable
+session                1.1.6* Session variable
+shell-server           0.2.1  Server-side component of the `meteor shell` com...
+standard-minifier-css  1.2.1* Standard css minifier used with Meteor apps by ...
+standard-minifier-js   1.2.0_1* Standard javascript minifiers used with Meteo...
+tracker                1.1.0* Dependency tracker to allow reactive callbacks
+vsivsi:job-collection  1.4.0  A persistent and reactive job queue for Meteor,...
 </pre></div>
 </div>
-<p><strong>Start the servers</strong>:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">nohup</span> <span class="n">runDB</span>
-<span class="n">nohup</span> <span class="n">runWww</span>
+<p>Install some node modules:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>cd $HEXMAP
+npm install http-proxy
+cd www
+meteor npm install --save bcrypt
+</pre></div>
+</div>
+<p>Make an entry in bin/run_server under the config section for your server and
+its configuration.</p>
+<p>Create your run script with this content, editing the definitions HEXMAP and
+INSTALL:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>#!/bin/bash
+INSTALL=&lt;myServer?
+HEXMAP=/data
+$HEXMAP/bin/run_server $1 $INSTALL $HEXMAP
+</pre></div>
+</div>
+<p>Modify these files for your environment:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="nb">bin</span><span class="o">/</span><span class="n">run_server</span> <span class="n">to</span> <span class="n">make</span> <span class="n">an</span> <span class="n">entry</span> <span class="k">for</span> <span class="n">INSTALL</span> <span class="n">of</span> <span class="o">&lt;</span><span class="n">myServer</span><span class="o">&gt;</span>
+<span class="n">http</span><span class="o">/</span><span class="n">http</span><span class="o">.</span><span class="n">js</span> <span class="k">for</span> <span class="n">ports</span>
+<span class="n">https</span><span class="o">/</span><span class="n">https</span><span class="o">.</span><span class="n">js</span> <span class="k">for</span> <span class="n">ports</span> <span class="o">&amp;</span> <span class="n">certificate</span> <span class="n">directory</span>
+<span class="n">settingsA</span><span class="o">.*.</span><span class="n">json</span>
+</pre></div>
+</div>
+<p>Create directories for your data:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">mkdir</span> <span class="o">&lt;</span><span class="n">top</span><span class="o">-</span><span class="n">of</span><span class="o">-</span><span class="n">data</span><span class="o">-</span><span class="nb">dir</span><span class="o">-</span><span class="n">tree</span><span class="o">&gt;</span>
+<span class="n">cd</span> <span class="o">&lt;</span><span class="n">top</span><span class="o">-</span><span class="n">of</span><span class="o">-</span><span class="n">data</span><span class="o">-</span><span class="nb">dir</span><span class="o">-</span><span class="n">tree</span><span class="o">&gt;</span>
+<span class="n">mkdir</span> <span class="n">featureSpace</span> <span class="n">layoutInput</span> <span class="n">view</span>
 </pre></div>
 </div>
 </div>
-<div class="section" id="meteor">
-<h2>Meteor<a class="headerlink" href="#meteor" title="Permalink to this headline">¶</a></h2>
-<p>Meteor is a full-stack web application environment. This only needs to be
-installed if you will be modifying the UI.</p>
-<p><a class="reference external" href="https://www.meteor.com/install">https://www.meteor.com/install</a></p>
+<div class="section" id="starting-the-application">
+<h2>Starting the application<a class="headerlink" href="#starting-the-application" title="Permalink to this headline">¶</a></h2>
+<p>Start the servers:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>cd $HEXMAP
+run http
+run https
+run db
+run www
+</pre></div>
+</div>
 </div>
 <div class="section" id="sphinx">
 <h2>Sphinx<a class="headerlink" href="#sphinx" title="Permalink to this headline">¶</a></h2>
@@ -179,9 +233,11 @@ Applications.</p>
 <li class="toctree-l1"><a class="reference internal" href="serverSource.html">Source: Server</a></li>
 <li class="toctree-l1"><a class="reference internal" href="repository.html">Code Repository</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Requirements &amp; Installation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#required-libraries">Required libraries</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#web-application-deployment">Web application deployment</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#meteor">Meteor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#required-python-libraries">Required python libraries</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#install-meteor">Install meteor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#set-up-the-environment">Set up the environment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#prepare-your-installation">Prepare your installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#starting-the-application">Starting the application</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#sphinx">Sphinx</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#references">References</a></li>
 </ul>

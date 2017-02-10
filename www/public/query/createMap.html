@@ -1,0 +1,178 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Create a map &#8212; Tumor Map Web API</title>
+    
+    <link rel="stylesheet" href="_static/agogo.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Dynamic Statistics" href="statsDynamic.html" />
+    <link rel="prev" title="Overlay new nodes on a map" href="overlayNodes.html" /> 
+  </head>
+  <body role="document">
+    <div class="header-wrapper" role="banner">
+      <div class="header">
+        <div class="headertitle"><a
+          href="index.html">Tumor Map Web API</a></div>
+        <div class="rel" role="navigation" aria-label="related navigation">
+          <a href="overlayNodes.html" title="Overlay new nodes on a map"
+             accesskey="P">previous</a> |
+          <a href="statsDynamic.html" title="Dynamic Statistics"
+             accesskey="N">next</a> |
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a>
+        </div>
+       </div>
+    </div>
+
+    <div class="content-wrapper">
+      <div class="content">
+        <div class="document">
+            
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="create-a-map">
+<h1>Create a map<a class="headerlink" href="#create-a-map" title="Permalink to this headline">¶</a></h1>
+<p><a class="reference external" href="http://tumormap.ucsc.edu/query/">http://tumormap.ucsc.edu/query/</a><strong>createMap</strong></p>
+<p>Content-Type: application/json</p>
+<p><strong>Content Example</strong>:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span>
+   <span class="s2">&quot;map&quot;</span><span class="p">:</span> <span class="s2">&quot;CKCC/v1&quot;</span><span class="p">,</span>
+   <span class="s2">&quot;layout&quot;</span><span class="p">:</span> <span class="s2">&quot;mRNA&quot;</span><span class="p">,</span>
+   <span class="s2">&quot;authGroup&quot;</span><span class="p">:</span> <span class="s2">&quot;CKCC&quot;</span><span class="p">,</span>
+   <span class="s2">&quot;email&quot;</span><span class="p">:</span> <span class="p">[</span>
+       <span class="s2">&quot;mok66@gmail.com&quot;</span><span class="p">,</span>
+       <span class="o">...</span>
+   <span class="p">],</span>
+   <span class="s2">&quot;layoutFileFormat&quot;</span><span class="p">:</span> <span class="s2">&quot;featureMatrix&quot;</span><span class="p">,</span>
+   <span class="s2">&quot;layoutAttributeFiles&quot;</span><span class="p">:</span> <span class="p">{</span>
+       <span class="s2">&quot;mRNA&quot;</span><span class="p">:</span> <span class="s2">&quot;/a/b/c/mRNA_expression.tab&quot;</span><span class="p">,</span>
+       <span class="s2">&quot;CNV&quot;</span><span class="p">:</span> <span class="s2">&quot;/a/b/c/CNV.tab&quot;</span><span class="p">,</span>
+       <span class="o">...</span>
+   <span class="p">},</span>
+   <span class="s2">&quot;colorAttributeFiles&quot;</span><span class="p">:</span> <span class="p">[</span>
+       <span class="s2">&quot;clinical.tab&quot;</span><span class="p">,</span>
+       <span class="s2">&quot;phenontype&quot;</span><span class="p">,</span>
+       <span class="o">...</span>
+   <span class="p">],</span>
+   <span class="s2">&quot;colormapFile&quot;</span><span class="p">:</span> <span class="s2">&quot;/a/b/c/colormap.tab&quot;</span><span class="p">,</span>
+   <span class="s2">&quot;outDirectory&quot;</span><span class="p">:</span> <span class="s2">&quot;/a/b/view/CKCC/v1&quot;</span><span class="p">,</span>
+   <span class="s2">&quot;neighborCount&quot;</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>
+   <span class="s2">&quot;firstColorAttribute&quot;</span><span class="p">:</span> <span class="s2">&quot;Tissue&quot;</span><span class="p">,</span>
+   <span class="s2">&quot;layoutAwareStats&quot;</span><span class="p">:</span> <span class="n">true</span><span class="p">,</span>
+   <span class="s2">&quot;layoutIndependentStats&quot;</span><span class="p">:</span> <span class="n">true</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Where:</p>
+<ul class="simple">
+<li><strong>map</strong> : a unique ID in the form: &lt;group&gt;/&lt;map&gt; or simply: &lt;map&gt;</li>
+<li><strong>authGroup</strong> : optional, the authorization group to which a user must belong to view this map, defaults to publicly viewable</li>
+<li><strong>email</strong> : optional, one or more email addresses to receive the response</li>
+<li><strong>layoutFileFormat</strong> : Note 1</li>
+<li><strong>layoutAttributeFiles</strong> : one or more, the full path to the attribute data file containing the values to use for the layout: the keys are the layout names. Note 1</li>
+<li><strong>colorAttributeFiles</strong> : optional, one or more, the full path to the attribute data file containing the values to use for coloring the nodes. Note 1</li>
+<li><strong>colormapFile</strong> : optional, the full path to the existing colormap to which new categorical color attributes will be added and existing attributes with new categories will be added. If a colormap is not provided one will be automatically generated</li>
+<li><strong>outDirectory</strong> : full directory path for the output files</li>
+<li><strong>neighborCount</strong> : optional, the number of neighbors of each node to consider in laying out the map; defaults to 6 <strong>Duncan</strong> is this the truncation_edges parm to layout.py?</li>
+<li><strong>firstColorAttribute</strong> : optional, the attribute to be used to color the map on initial display. If not supplied and densityStats are requested then the attribute with the highest density will be displayed first. Otherwise the first attribute alphabetically will be used.</li>
+<li><strong>layout*Stats</strong> : optional, true indicates this class of stats should be calculated, defaults to false. Note that these are compute-intensive so you may want to run them only when you are satisfied with your layout and coloring attributes.</li>
+</ul>
+<p>Note 1: For file formats go to the viewer -&gt; Help menu -&gt; User guide -&gt; Create a Map.</p>
+<p>A URL pointing to the new map will be returned as a json string in the form:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span> <span class="s2">&quot;bookmark&quot;</span><span class="p">:</span> <span class="s2">&quot;https://tumormap.ucsc.edu/?p=CKCC/V1&quot;</span> <span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Response success</strong></p>
+<p>This is returned as HTTP 200 with the content as a JSON string in the form above.</p>
+<p><strong>Response errors</strong></p>
+<p>Response errors are returned as HTTP 400 with an explanation.</p>
+<p>There may be more errors returned than listed here.</p>
+<ul class="simple">
+<li>malformed JSON</li>
+<li>name has unprintable characters (not ASCII 32-126), unprintable chars replaced with ‘_’ in &lt;name&gt;</li>
+<li>parameter missing or malformed: &lt;parameter&gt;</li>
+</ul>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+        </div>
+        <div class="sidebar">
+          <h3>Table Of Contents</h3>
+          <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="overlayNodes.html">Overlay new nodes on a map</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Create a map</a></li>
+<li class="toctree-l1"><a class="reference internal" href="statsDynamic.html">Dynamic Statistics</a></li>
+</ul>
+
+          <div role="search">
+            <h3 style="margin-top: 1.5em;">Search</h3>
+            <form class="search" action="search.html" method="get">
+                <input type="text" name="q" />
+                <input type="submit" value="Go" />
+                <input type="hidden" name="check_keywords" value="yes" />
+                <input type="hidden" name="area" value="default" />
+            </form>
+          </div>
+        </div>
+        <div class="clearer"></div>
+      </div>
+    </div>
+
+    <div class="footer-wrapper">
+      <div class="footer">
+        <div class="left">
+          <div role="navigation" aria-label="related navigaton">
+            <a href="overlayNodes.html" title="Overlay new nodes on a map"
+              >previous</a> |
+            <a href="statsDynamic.html" title="Dynamic Statistics"
+              >next</a> |
+            <a href="genindex.html" title="General Index"
+              >index</a>
+          </div>
+          <div role="note" aria-label="source link">
+              <br/>
+              <a href="_sources/createMap.rst.txt"
+                rel="nofollow">Show Source</a>
+          </div>
+        </div>
+
+        <div class="right">
+          
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2016, UCSC Tumor Map development team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.1.
+    </div>
+        </div>
+        <div class="clearer"></div>
+      </div>
+    </div>
+
+  </body>
+</html>

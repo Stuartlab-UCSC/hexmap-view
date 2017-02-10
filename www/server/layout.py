@@ -69,10 +69,10 @@ def parse_args(args):
         help="metric corresponding to the feature matrix of the same index")
     #parser.add_argument("--layout_method", type=str, default="DrL",
     #    help="DrL, tSNE, MDS, PCA, ICA, isomap, spectralembedding")
-    parser.add_argument("--preprocess_method", type=str, default="",
-        help="Preprocessing methods for feature data when tSNE, MDS, PCA, ICA, isomap, or spectralembedding methods are used; valid options are: standardize, normalize")
-    parser.add_argument("--tsne_pca_dimensions", type=str, default="11",
-        help="Number of PCA dimensions to reduce data to prior to performing t-SNE")
+    #parser.add_argument("--preprocess_method", type=str, default="",
+    #    help="Preprocessing methods for feature data when tSNE, MDS, PCA, ICA, isomap, or spectralembedding methods are used; valid options are: standardize, normalize")
+    #parser.add_argument("--tsne_pca_dimensions", type=str, default="11",
+    #    help="Number of PCA dimensions to reduce data to prior to performing t-SNE")
     parser.add_argument("--names", type=str, action="append", default=[],
         help="human-readable unique name/label for one the similarity matrix")
     parser.add_argument("--scores", type=str,
@@ -1415,7 +1415,7 @@ def copy_files_for_UI(options, layer_files, layers, layer_positives, clumpiness_
     # Copy over the tags file if one exists
     if options.attributeTags is not None:
         tagsPath = os.path.join(options.directory, 'attribute_tags.tab')
-        shutil.copy2(options.attributeTags, tagsPath)
+        shutil.copy(options.attributeTags, tagsPath)
         print 'Tags file copied to', tagsPath
 
     # Copy over the user-specified colormaps file, or make an empty TSV if it's
@@ -1726,7 +1726,7 @@ def hexIt(options, cmd_line_list, all_dict):
     for matrix_number, score_filename in enumerate(options.scores):
         # First, copy the whole matrix into our output. This holds its filename.
         output_filename = "matrix_{}.tab".format(matrix_number)
-        shutil.copy2(score_filename, os.path.join(options.directory, 
+        shutil.copy(score_filename, os.path.join(options.directory, 
             output_filename))
             
         # Record were we put it

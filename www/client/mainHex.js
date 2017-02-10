@@ -164,8 +164,8 @@ Hex = (function () { // jshint ignore: line
                 initLegend();
                 Shortlist.init();
                 initCoords();
-                //CheckLayerBox.init();
-                //Reflect.init();
+                CheckLayerBox.init();
+                Reflect.init();
                 Tool.initLabelTool();
                 Download.init();
                 Colors.init();

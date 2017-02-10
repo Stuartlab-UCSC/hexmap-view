@@ -110,8 +110,6 @@ function initManagerHelper() {
         read_nodenames(entry,insertNodeNames);
     });
 }
-//populate the helper database from settings.json file
-initManagerHelper();
 
 //The following are helper functions specific to reflection functionality
 function colorMapMaker(){
@@ -189,10 +187,8 @@ function make_layer_name_unique (new_layer_name,old_layer_names) {
 function dropInLayerBox(layerData,user,toMapId){
     //function adds reflection computation to DB
     new Fiber( function (){
-        console.log("Refelction: dropInLayerBox Called with user, layer_name",
-                     user,
-                     layerData.layer_name
-                    );
+        //console.log("Reflection: dropInLayerBox Called with user, layer_name",
+        //             user, layerData.layer_name);
 
         layerData.data = arrayLayer(layerData);
         var old_layer_names = [];
@@ -201,13 +197,19 @@ function dropInLayerBox(layerData,user,toMapId){
                   old_layer_names.push(layer.layer_name);
                });
         
+        //console.log('dropInLayerBox: old_layer_names:', old_layer_names);
+        
         layerData.layer_name =
             make_layer_name_unique(layerData.layer_name,old_layer_names);
-
-        LayerPostOffice.update({user:user,toMapId:toMapId},
+        
+        //console.log('dropInLayerBox: layerData.layer_name:', layerData.layer_name);
+        
+        var rc = LayerPostOffice.update({user:user,toMapId:toMapId},
                                {$set: {lastChange: 'inserted'},
                                 $push: {layers : layerData}});
 
+        //console.log('dropInLayerBox: rc:', rc);
+        
     }).run();
 }
 
@@ -221,8 +223,8 @@ function parmMaker(mapId,toMapId, operation,argsObj) {
                                     mapId: mapId,
                                     toMapId: toMapId
                                     });
-    console.log("parmMaker being called for mapManager" +
-                "/reflection with these two maps:", mapId,toMapId);
+    //console.log("parmMaker being called for mapManager" +
+    //            "/reflection with these two maps:", mapId,toMapId);
 
     var parm = {};
     //TODO: make cleaner by using precedence and writing over if necessary (?)
@@ -272,6 +274,10 @@ exports.reflection_post_calc = function (result, context) {
         userId = context.post_calc_parms.userId,
         toMapId = context.post_calc_parms.toMapId;
     
+    //console.log('reflection_post_calc: newLayer, userId, toMapId:',
+    //    newLayer, userId, toMapId);
+    //console.log('context.post_calc_parms:', context.post_calc_parms);
+    
     // Report any errors
     if (result.statusCode !== 200) {
         PythonCall.report_calc_result (result, context);
@@ -316,6 +322,9 @@ Meteor.methods({
             ctx.post_calc = MapManager.reflection_post_calc;
             post_calc_parms.userId = userId;
             post_calc_parms.toMapId = toMapId;
+            
+            //console.log('pre-pythonCall: userId, toMapId:', userId, toMapId);
+            //console.log('- ctx:', ctx);
             
             PythonCall.call(operation, parameters, ctx);
             
@@ -398,72 +407,76 @@ function getWindowCount(WindowsDoc,mapId){
 
 }
 
-//The following 2 publish functions are for manipulating the Windows database.
-// the windows database is
-// a state database that keeps track of how many and which windows
-// are opened by a client
-// We keep track of this so that the manager can open a new window if desired
-Meteor.publish('OpenedWindow', function(userId,mapId) {
-    //prevents update if user isn't signed in, or not on defined map
-    if(!this.userId || ! userId || ! mapId) { return this.stop(); }
+function initPublishers () {
 
-    //if we don't have a window open then make an entry
-    if( !Windows.findOne({user: userId, "maps.mapId": mapId}) ) {
-        Windows.upsert({user: userId},
-                       {$push :
-                           { maps :
-                               {mapId: mapId, count : 1 } }} );
-    } else { //otherwise update
-        Windows.update( {user: userId,"maps.mapId":mapId},
-                        {$inc : {"maps.$.count": 1} } );
-    }
-    //console.log('user',userId, 'has just opened a window for', mapId);
-    return this.stop();
-});
+    //The following 2 publish functions are for manipulating the Windows database.
+    // the windows database is
+    // a state database that keeps track of how many and which windows
+    // are opened by a client
+    // We keep track of this so that the manager can open a new window if desired
+    Meteor.publish('OpenedWindow', function(userId,mapId) {
+        //prevents update if user isn't signed in, or not on defined map
+        if(!this.userId || ! userId || ! mapId) { return this.stop(); }
 
-Meteor.publish('ClosedWindow', function(userId,mapId) {
+        //if we don't have a window open then make an entry
+        if( !Windows.findOne({user: userId, "maps.mapId": mapId}) ) {
+            Windows.upsert({user: userId},
+                           {$push :
+                               { maps :
+                                   {mapId: mapId, count : 1 } }} );
+        } else { //otherwise update
+            Windows.update( {user: userId,"maps.mapId":mapId},
+                            {$inc : {"maps.$.count": 1} } );
+        }
+        //console.log('user',userId, 'has just opened a window for', mapId);
+        return this.stop();
+    });
 
-    //Decrement count, and make sure it is never negative
-    if (getWindowCount(
-            Windows.findOne({user: userId,"maps.mapId":mapId}),
-            mapId
-            ) > 0) {
-        Windows.update({user: userId,"maps.mapId":mapId},
-                       {$inc : {"maps.$.count": -1} } );
-    }
+    Meteor.publish('ClosedWindow', function(userId,mapId) {
 
-    return this.stop();
-});
+        //Decrement count, and make sure it is never negative
+        if (getWindowCount(
+                Windows.findOne({user: userId,"maps.mapId":mapId}),
+                mapId
+                ) > 0) {
+            Windows.update({user: userId,"maps.mapId":mapId},
+                           {$inc : {"maps.$.count": -1} } );
+        }
 
-//deletes a layer (specified by layer_name)
-// from a (userId, mapId) LayerBox entry
-Meteor.publish('deleteLayer',function(userId,mapId,layer_name) {
-    // if not logged in function won't do anything
-    if(!this.userId) { return this.stop(); }
+        return this.stop();
+    });
 
-    LayerPostOffice.update({user: userId, toMapId: mapId},
-                           {$set :
-                              { lastChange: "removed"},
-                               $pull:
-                                  {layers: {layer_name: layer_name}} });
-});
+    //deletes a layer (specified by layer_name)
+    // from a (userId, mapId) LayerBox entry
+    Meteor.publish('deleteLayer',function(userId,mapId,layer_name) {
+        // if not logged in function won't do anything
+        if(!this.userId) { return this.stop(); }
 
-//Gives client access to the address database
-// so that user knows where they can 'reflect' to.
-Meteor.publish('reflectionToMapIds', function(currMapId) {
-    return ManagerAddressBook.find({mapId: currMapId, operation: 'reflection'});
-});
+        LayerPostOffice.update({user: userId, toMapId: mapId},
+                               {$set :
+                                  { lastChange: "removed"},
+                                   $pull:
+                                      {layers: {layer_name: layer_name}} });
+    });
 
-Meteor.publish('ManagerFileCabinet',function(mapId) {
-    //publishes a subset of the fileCabinet, mainly so the client is aware of
-    // nodes reflection is available to
-    
-    // if not logged in function won't do anything
-    if(!this.userId) { return this.stop(); }
+    //Gives client access to the address database
+    // so that user knows where they can 'reflect' to.
+    Meteor.publish('reflectionToMapIds', function(currMapId) {
+        //console.log('publish ManagerAddressBook currMapId:', currMapId);
+        return ManagerAddressBook.find({mapId: currMapId, operation: 'reflection'});
+    });
 
-    return ManagerFileCabinet.find({mapId: mapId},{fields:{mapId:1,available_nodes:1, datatype:1,toMapId:1,operation:1}});
+    Meteor.publish('ManagerFileCabinet',function(mapId) {
+        //publishes a subset of the fileCabinet, mainly so the client is aware of
+        // nodes reflection is available to
+        
+        // if not logged in function won't do anything
+        if(!this.userId) { return this.stop(); }
 
-});
+        return ManagerFileCabinet.find({mapId: mapId},{fields:{mapId:1,available_nodes:1, datatype:1,toMapId:1,operation:1}});
+
+    });
+}
 
 Meteor.methods({
     isWindowOpen: function (userId, mapId) {
@@ -478,4 +491,10 @@ Meteor.methods({
         return future.wait();
     }
 });
+
+//populate the helper database from settings.json file
+initManagerHelper();
+
+initPublishers();
+
 //end Windows collection manipulators

@@ -848,14 +848,16 @@ Shortlist = (function () { // jshint ignore: line
     }
 
     function make_sortable () {
-        $shortlist.sortable({
+         $shortlist.sortable({
             update: function () {
             
                 // Update the shortlist UI with the new order and refresh
                 var shortlist = _.map($shortlist.children(), function (el) {
-                     return $(el).data("layer");
+                    return $(el).data("layer");
                 });
-                Session.set('shortlist', shortlist);
+                
+                // Remove the first null entry created by the dynamic controls widget
+                Session.set('shortlist', shortlist.slice(1));
             },
             // Use the controls area as the handle to move entries.
             // This allows the user to select any text in the entry
