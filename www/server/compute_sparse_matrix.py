@@ -21,7 +21,7 @@ from utils import truncateNP
 
 VALID_METRICS = ['canberra','cosine','euclidean','manhattan','chebyshev','correlation','hamming',
                  'jaccard','rogerstanimoto','spearman']
-VALID_OUTPUT_TYPE = ['SPARSE','FULL']
+VALID_OUTPUT_TYPE = ['SPARSE','FULL','SPARSE_PERCENT']
 
 def parse_args(args):
 
@@ -44,6 +44,8 @@ def parse_args(args):
         help="number of CPUs to use for similarity computation")
     parser.add_argument("--out_file", type=str,
         help="output file name")
+    parser.add_argument("--rows", action="store_true",
+        help="will take row wise similarity instead of columns")
 
     return parser.parse_args(args)
 
@@ -203,7 +205,7 @@ def percentile_sparsify(simdf,top):
 
         #the index is now the column name of the original similairty matrix
         for col_name in row.index:
-            output = output.append(pd.Series(row_name,col_name,row.loc[col_name]), ignore_index=True)
+            output = output.append(pd.Series([row_name,col_name,row.loc[col_name]]), ignore_index=True)
 
     return output
 
@@ -397,6 +399,7 @@ def main(args):
     num_jobs = opts.num_jobs
     out_file = opts.out_file
     log_file = opts.log
+    rowwise = opts.rows
 
     #sets the log file appropriatly for chatter
     if len(log_file) > 0:
@@ -434,7 +437,11 @@ def main(args):
 
     std_iszero(dt,log)
 
-    dt = numpy.transpose(dt)
+    if rowwise:
+        sample_labels, feature_labels = feature_labels, sample_labels
+    else:
+        dt = numpy.transpose(dt)
+
 
     #if we are doing a second input (n-of-1 like)
     if len(in_file2):
@@ -447,8 +454,13 @@ def main(args):
         #switch back to numpy datatype
         dt,sample_labels,feature_labels = pandasToNumpy(dt)
         dt2,sample_labels2,feature_labels2 = pandasToNumpy(dt2)
-        dt =dt.transpose()
-        dt2=dt2.transpose()
+
+        if rowwise:
+            sample_labels, feature_labels = feature_labels, sample_labels
+            sample_labels2, feature_labels2 = feature_labels2, sample_labels2
+        else:
+            dt =dt.transpose()
+            dt2=dt2.transpose()
 
     else: #set them empty so compute_sim* ignores them.
         dt2=numpy.array([])
