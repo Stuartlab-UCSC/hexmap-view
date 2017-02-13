@@ -1,66 +1,69 @@
 Python API
 ==========
 
-The server initiates calls to python scripts, while the python script is a
-responder to the server's requests.
-
-**Python API Helpers**
-
-Use the helper function: readJsonRequestData() to read the json-formatted data
-from the file and convert the json to a python dict.
-
-Use the helper function: writeJsonResponseData() to convert the python data to
-json, write it to a file, and pass the filename back to the caller via stdout.
-
-This file is checked into the repository as server/pythonApiHelpers.py.
+The server calls python scripts for computations.
 
 **Requests**
 
-Requests and responses have only one parameter: a file name containing the data
-in JSON format. Use the helper function: readJsonRequestData() to read the json-formatted data
-from the file and convert the json to a python dict. The data are described
-in the individual python APIs listed at the bottom of this page.
+Requests are made from nodejs to python scripts via pythonCall.js:call(), the
+entry point to the 'pythonCall agent'. Parameters are passed as a javascript
+array. The python routine will be called with this array as if
+it were called from the command line so the parameters will go through the
+python routine's command-line parser.
 
-Example::
+The call from nodejs is::
 
- python placeNewNodes.py /tmp/x.txt
+ PythonCall.call(operation, opts, calcCtx)
+
+Where:
+
+* operation : the name of the python script
+* opts : array of parameters to be passed to the python script
+* calcCtx : optional, any data to be used in processing the result
 
 **Response success**
 
-The response from the python script is returned in stdout, so that just a print
-statement is required to pass the temporary filename. This means the only print
-statements you may have in your scripts include the one to return the
-filename containing the response data, and errors as described in **Response errors**.
+The python script responds with either a python data structure or a filename
+containing the results in json. The pythonCall agent returns the results as a
+javascript structure to the original nodejs caller as::
 
-Use the helper function:
-writeJsonResponseData() to convert the python data to json, write it
-to a file, and pass the filename back to the caller via stdout. The data are described
-in the individual python APIs listed at the bottom of this page.
+ {
+    statusCode: 200,
+    data: <results>
+ }
 
-**Response errors**
+**Response for captured error**
 
-In place of the temporary file name used for success, use stdout to return error
-and warning messages. Use one of these forms for your message so the UI can echo it.
-Return a zero after printing the message so the caller will know this is a captured
-error/warning, and not an unknown exception.
+When the python script captures an error, the error string is returned via
+stdout with a prefix of "Error:" and the script returns a zero.
 
-Warning: <some warning, not a failure, but no data>
+This is the only case when the python script should use a print statement to
+stdout while stdout is not redirected elsewhere. The zero returned indicates the
+script captured this error already and the error message has already been
+reported.
 
-Error: <some real error that prevented something from happening>
+The pythonCall agent returns the results as a javascript structure to the
+original nodejs caller as::
 
-Example::
+ {
+    statusCode: <400 or 500 series>,
+    data: "Error: <error-message>"
+ }
 
- print 'Warning: some minor issue occurred'
- return 0
+**Response for uncaptured errors**
 
- print 'Error: that just blew everything up'
- return 0
+If the python code exits on an uncaptured error, a one is returned.
+The pythonCall agent returns the results as a javascript structure to the
+original nodejs caller as::
 
-**Python API JSON data:**
+ {
+    statusCode: 500,
+    data: "Error: <error-message>"
+ }
 
-Descriptions of the JSON data for APIs are at:
+**Web APIs**
 
-* overlayNodes: https://tumormap.ucsc.edu:8112/query/overlayNodes.html
-* reflection: :doc:`pyReflection`
-* statsDynamic: https://tumormap.ucsc.edu:8112/query/statsDynamic.html
+Most python computation scripts should be available via a call from nodejs or
+via the web API. Descriptions of the web APIs are at:
 
+https://tumormap.ucsc.edu/query/index.html

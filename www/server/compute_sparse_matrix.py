@@ -9,7 +9,7 @@ Note: NaN's in the input matrix are replaced by 0. In cases where this is inappr
       have na's replaced with the users desired method.
 
 #Yulia Newton
-#python2.7 compute_sparse_matrix.py --in_file temp.tab --top 10 --metric correlation \
+#python2.7 compute_sparse_matrix.py --in_file --in_file2 temp.tab --top 10 --metric correlation \
                                     --output_type sparse --out_file temp.out.tab --log log.tab --num_jobs 0
 '''
 

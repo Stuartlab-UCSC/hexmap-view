@@ -1,7 +1,7 @@
 Create a map
 ------------
 
-http://tumormap.ucsc.edu/query/**createMap**
+https://<server>/query/**createMap**
 
 Content-Type: application/json
 
@@ -64,6 +64,6 @@ Response errors are returned as HTTP 400 with an explanation.
 
 There may be more errors returned than listed here.
 
-* malformed JSON
-* name has unprintable characters (not ASCII 32-126), unprintable chars replaced with ‘_’ in <name>
-* parameter missing or malformed: <parameter>
+* Error: malformed JSON
+* Error: name has unprintable characters (not ASCII 32-126), unprintable chars replaced with ‘_’ in <name>
+* Error: parameter missing or malformed: <parameter>

@@ -1,7 +1,7 @@
 Overlay new nodes on a map
 --------------------------
 
-http://tumormap.ucsc.edu/query/**overlayNodes**
+https://<server>/query/**overlayNodes**
 
 Content-Type: application/json
 
@@ -60,10 +60,12 @@ This is returned as HTTP 200 with the content as a JSON string in the form above
 
 **Response errors**
 
-Response errors are returned as HTTP 400 with the text below.
+Response errors are returned as HTTP 400 with the text below. Message text may
+not be exact.
 
-* malformed JSON
-* map not found: pancan44
-* layout of map "pancan12" not found: sRNA
-* parameter missing or malformed: <parameter>
+* Error: malformed JSON
+* Error: map not found: pancan44
+* Error: layout of map "pancan12" not found: sRNA
+* Error: name has unprintable characters (not ASCII 32-126), unprintable chars replaced with ‘_’ in <name>
+* Error: parameter missing or malformed: <parameter>
 

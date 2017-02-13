@@ -9,4 +9,5 @@ API
    overlayNodes
    createMap
    statsDynamic
+   reflect
    

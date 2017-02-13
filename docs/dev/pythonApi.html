@@ -56,54 +56,62 @@
             
   <div class="section" id="python-api">
 <h1>Python API<a class="headerlink" href="#python-api" title="Permalink to this headline">¶</a></h1>
-<p>The server initiates calls to python scripts, while the python script is a
-responder to the server&#8217;s requests.</p>
-<p><strong>Python API Helpers</strong></p>
-<p>Use the helper function: readJsonRequestData() to read the json-formatted data
-from the file and convert the json to a python dict.</p>
-<p>Use the helper function: writeJsonResponseData() to convert the python data to
-json, write it to a file, and pass the filename back to the caller via stdout.</p>
-<p>This file is checked into the repository as server/pythonApiHelpers.py.</p>
+<p>The server calls python scripts for computations.</p>
 <p><strong>Requests</strong></p>
-<p>Requests and responses have only one parameter: a file name containing the data
-in JSON format. Use the helper function: readJsonRequestData() to read the json-formatted data
-from the file and convert the json to a python dict. The data are described
-in the individual python APIs listed at the bottom of this page.</p>
-<p>Example:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">placeNewNodes</span><span class="o">.</span><span class="n">py</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">x</span><span class="o">.</span><span class="n">txt</span>
+<p>Requests are made from nodejs to python scripts via pythonCall.js:call(), the
+entry point to the &#8216;pythonCall agent&#8217;. Parameters are passed as a javascript
+array. The python routine will be called with this array as if
+it were called from the command line so the parameters will go through the
+python routine&#8217;s command-line parser.</p>
+<p>The call from nodejs is:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">PythonCall</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">operation</span><span class="p">,</span> <span class="n">opts</span><span class="p">,</span> <span class="n">calcCtx</span><span class="p">)</span>
 </pre></div>
 </div>
-<p><strong>Response success</strong></p>
-<p>The response from the python script is returned in stdout, so that just a print
-statement is required to pass the temporary filename. This means the only print
-statements you may have in your scripts include the one to return the
-filename containing the response data, and errors as described in <strong>Response errors</strong>.</p>
-<p>Use the helper function:
-writeJsonResponseData() to convert the python data to json, write it
-to a file, and pass the filename back to the caller via stdout. The data are described
-in the individual python APIs listed at the bottom of this page.</p>
-<p><strong>Response errors</strong></p>
-<p>In place of the temporary file name used for success, use stdout to return error
-and warning messages. Use one of these forms for your message so the UI can echo it.
-Return a zero after printing the message so the caller will know this is a captured
-error/warning, and not an unknown exception.</p>
-<p>Warning: &lt;some warning, not a failure, but no data&gt;</p>
-<p>Error: &lt;some real error that prevented something from happening&gt;</p>
-<p>Example:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="nb">print</span> <span class="s1">&#39;Warning: some minor issue occurred&#39;</span>
-<span class="k">return</span> <span class="mi">0</span>
-
-<span class="nb">print</span> <span class="s1">&#39;Error: that just blew everything up&#39;</span>
-<span class="k">return</span> <span class="mi">0</span>
-</pre></div>
-</div>
-<p><strong>Python API JSON data:</strong></p>
-<p>Descriptions of the JSON data for APIs are at:</p>
+<p>Where:</p>
 <ul class="simple">
-<li>overlayNodes: <a class="reference external" href="https://tumormap.ucsc.edu:8112/query/overlayNodes.html">https://tumormap.ucsc.edu:8112/query/overlayNodes.html</a></li>
-<li>reflection: <a class="reference internal" href="pyReflection.html"><span class="doc">Python API: syncMaps</span></a></li>
-<li>statsDynamic: <a class="reference external" href="https://tumormap.ucsc.edu:8112/query/statsDynamic.html">https://tumormap.ucsc.edu:8112/query/statsDynamic.html</a></li>
+<li>operation : the name of the python script</li>
+<li>opts : array of parameters to be passed to the python script</li>
+<li>calcCtx : optional, any data to be used in processing the result</li>
 </ul>
+<p><strong>Response success</strong></p>
+<p>The python script responds with either a python data structure or a filename
+containing the results in json. The pythonCall agent returns the results as a
+javascript structure to the original nodejs caller as:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span>
+   <span class="n">statusCode</span><span class="p">:</span> <span class="mi">200</span><span class="p">,</span>
+   <span class="n">data</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">results</span><span class="o">&gt;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Response for captured error</strong></p>
+<p>When the python script captures an error, the error string is returned via
+stdout with a prefix of &#8220;Error:&#8221; and the script returns a zero.</p>
+<p>This is the only case when the python script should use a print statement to
+stdout while stdout is not redirected elsewhere. The zero returned indicates the
+script captured this error already and the error message has already been
+reported.</p>
+<p>The pythonCall agent returns the results as a javascript structure to the
+original nodejs caller as:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span>
+   <span class="n">statusCode</span><span class="p">:</span> <span class="o">&lt;</span><span class="mi">400</span> <span class="ow">or</span> <span class="mi">500</span> <span class="n">series</span><span class="o">&gt;</span><span class="p">,</span>
+   <span class="n">data</span><span class="p">:</span> <span class="s2">&quot;Error: &lt;error-message&gt;&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Response for uncaptured errors</strong></p>
+<p>If the python code exits on an uncaptured error, a one is returned.
+The pythonCall agent returns the results as a javascript structure to the
+original nodejs caller as:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span>
+   <span class="n">statusCode</span><span class="p">:</span> <span class="mi">500</span><span class="p">,</span>
+   <span class="n">data</span><span class="p">:</span> <span class="s2">&quot;Error: &lt;error-message&gt;&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Web APIs</strong></p>
+<p>Most python computation scripts should be available via a call from nodejs or
+via the web API. Descriptions of the web APIs are at:</p>
+<p><a class="reference external" href="https://tumormap.ucsc.edu/query/index.html">https://tumormap.ucsc.edu/query/index.html</a></p>
 </div>
 
 

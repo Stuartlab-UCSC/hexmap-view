@@ -1,8 +1,0 @@
-#!/bin/bash
-# Update this server with the tar-ball
-
-echo 'cleaning directory'
-rm -rf bin calc www/*
-echo 'untarring'
-tar -xf /cluster/home/swat/dev/t.tar
-echo 'tar done'
