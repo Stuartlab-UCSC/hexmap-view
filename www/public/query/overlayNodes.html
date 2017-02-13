@@ -56,7 +56,7 @@
             
   <div class="section" id="overlay-new-nodes-on-a-map">
 <h1>Overlay new nodes on a map<a class="headerlink" href="#overlay-new-nodes-on-a-map" title="Permalink to this headline">¶</a></h1>
-<p><a class="reference external" href="http://tumormap.ucsc.edu/query/">http://tumormap.ucsc.edu/query/</a><strong>overlayNodes</strong></p>
+<p><a class="reference external" href="https:/">https:/</a>/&lt;server&gt;/query/<strong>overlayNodes</strong></p>
 <p>Content-Type: application/json</p>
 <p><strong>Content Example</strong>:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span>
@@ -116,12 +116,14 @@ If one URL per node is desired, make a request for each node.</p>
 <p><strong>Response success</strong></p>
 <p>This is returned as HTTP 200 with the content as a JSON string in the form above.</p>
 <p><strong>Response errors</strong></p>
-<p>Response errors are returned as HTTP 400 with the text below.</p>
+<p>Response errors are returned as HTTP 400 with the text below. Message text may
+not be exact.</p>
 <ul class="simple">
-<li>malformed JSON</li>
-<li>map not found: pancan44</li>
-<li>layout of map &#8220;pancan12&#8221; not found: sRNA</li>
-<li>parameter missing or malformed: &lt;parameter&gt;</li>
+<li>Error: malformed JSON</li>
+<li>Error: map not found: pancan44</li>
+<li>Error: layout of map &#8220;pancan12&#8221; not found: sRNA</li>
+<li>Error: name has unprintable characters (not ASCII 32-126), unprintable chars replaced with ‘_’ in &lt;name&gt;</li>
+<li>Error: parameter missing or malformed: &lt;parameter&gt;</li>
 </ul>
 </div>
 
@@ -136,6 +138,7 @@ If one URL per node is desired, make a request for each node.</p>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Overlay new nodes on a map</a></li>
 <li class="toctree-l1"><a class="reference internal" href="createMap.html">Create a map</a></li>
 <li class="toctree-l1"><a class="reference internal" href="statsDynamic.html">Dynamic Statistics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reflect.html">Reflect from one map to another</a></li>
 </ul>
 
           <div role="search">

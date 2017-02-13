@@ -1,0 +1,54 @@
+#!/bin/bash
+# tar the contents of hexagram and scp to dev
+# or untar the contents of a tar ball
+
+ACTION=$1
+INSTALL=$2
+
+
+TAR_FILES=" \
+    bin/http* \
+    bin/run_server \
+    bin/settingsA \
+    bin/settingsB.json \
+    bin/tarAction \
+    calc \
+    www/client \
+    www/lib \
+    www/public/*svg \
+    www/public/*ico \
+    www/public/*png \
+    www/public/icons \
+    www/public/images \
+    www/public/*js \
+    www/public/*gif \
+    www/server \
+    www/package.json \
+    "
+if [ $ACTION == 'maketarDocs' ]; then
+    TAR_FILES=" \
+        www/public/createMap \
+        www/public/query \
+        www/public/useCases \
+        $TAR_FILES \
+        "
+fi
+
+if [ $ACTION == 'maketar' ] || [ $ACTION == 'maketarDocs' ]; then
+    echo 'tarring to t.tar'
+    rm t.tar
+    tar -cf t.tar $TAR_FILES
+    ls -l t.tar
+    scp t.tar juggernaut:dev
+
+elif [ $ACTION == 'xtar' ]; then
+    echo 'cleaning directories'
+    rm -rf $TAR_FILES
+    echo 'untarring'
+    tar -xf /cluster/home/swat/dev/t.tar
+    echo 'xtar done'
+
+else
+    echo Invalid tar action: $ACTION
+    echo Exiting
+fi

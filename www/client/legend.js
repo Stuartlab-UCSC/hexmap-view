@@ -14,7 +14,7 @@ var app = app || {};
 
     function horizontalBandLabels (colormap, context) {
 
-        // We have a layer with horizontal bands
+        // We have a layer with horizontal bands, the secondary active.
         // Add labels to the key if we have names to use.
         // TODO: Vertical text for vertical bands?
     
@@ -105,7 +105,7 @@ var app = app || {};
             colorCount0 = -1,
             colorCount1 = -1;
 
-        // Get the vertical color count
+        // Get the vertical color count, the primary active attr.
         colorCount0 = findColorCount(current_layers[0]);
         if (colorCount0 > 0) {
 
@@ -137,7 +137,7 @@ var app = app || {};
         // This holds the 2d rendering context
         var context = canvas.getContext("2d");
 
-        // Get the horizontal color count
+        // Get the horizontal color count, the secondary active attr.
         colorCount1 = findColorCount(current_layers[1]);
 
         for (var i = 0; i < KEY_WT; i++) {

@@ -856,8 +856,10 @@ Shortlist = (function () { // jshint ignore: line
                     return $(el).data("layer");
                 });
                 
-                // Remove the first null entry created by the dynamic controls widget
-                Session.set('shortlist', shortlist.slice(1));
+                // Remove the null entry created by the dynamic controls widget
+                var i = shortlist.indexOf(undefined);
+                shortlist.splice(i, 1)
+                Session.set('shortlist', shortlist);
             },
             // Use the controls area as the handle to move entries.
             // This allows the user to select any text in the entry

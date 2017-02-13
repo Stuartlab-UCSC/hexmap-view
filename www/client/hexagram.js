@@ -713,7 +713,7 @@ get_color = function (u_name, u, v_name, v) {
     // If we get here, we only have non-colormap layers.
     
     // We want the same grey/yellow/blue/white scheme as for binary layers, but
-    // interpolated.
+    // interpolated. TODO do we still use these colors?
     
     // Remember: u and v are backwards. I.e.  (-1, -1) is the upper left of the
     // key.

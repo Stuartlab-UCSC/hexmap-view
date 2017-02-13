@@ -1,7 +1,7 @@
 Dynamic Statistics
 ------------------
 
-This API is currently only available to be called from viewer.
+This API is currently only available for calling from the viewer.
 
 This request returns data as tsv rather than as json. It was
 implemented prior to standardizing on json. We should move to json so this API

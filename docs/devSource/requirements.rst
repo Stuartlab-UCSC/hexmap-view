@@ -3,8 +3,8 @@ Requirements & Installation
 
 Get an SSL certificate.
 
-Required python libraries
--------------------------
+Install python and libraries
+----------------------------
 
 **Python**
 
@@ -43,19 +43,13 @@ drl-graph-layout/readme.txt::
  make
  ls ../bin
 
-Install meteor
---------------
-
-::
-
- curl https://install.meteor.com/ | sh
-
 Set up the environment
 ----------------------
 
-Add these to the bash login profile, editing CONDA, DRLPATH AND HEXMAP to match
-your install::
+Add these to the bash login profile, editing CONDA, DRLPATH and HEXMAP to match
+your install. HEXMAP is the root path of where you will place the server::
 
+ METEOR_VERSION=1.4.1.2
  CONDA="$HOME/packages/miniconda2/bin"
  METEORPATH=$HOME/.meteor
  METEORBASE=$METEORPATH/packages/meteor-tool/1.4.1_2/mt-os.linux.x86_64/dev_bundle
@@ -68,7 +62,18 @@ your install::
 
 Exit and login to pick up the above changes.
 
-Prepare your installation
+Install meteor
+--------------
+
+Install the specific meteor release::
+
+ cd
+ curl https://install.meteor.com/ > meteor.install
+ vi meteor.install
+   (set the definition of RELEASE as RELEASE=$METEOR_VERSION)
+ sh meteor.install
+
+Set up server directories
 -------------------------
 
 Make some directories and copy files from your github clone::
@@ -80,66 +85,76 @@ Make some directories and copy files from your github clone::
  cp -r $REP/bin bin
  cp -r $REP/calc calc
  cp -r $REP/www www
+ cp bin/http.js http
+ cp bin/https.js https
 
-Set your application the correct meteor release::
+Install meteor packages
+-----------------------
 
- cd www
- meteor --release 1.4.1.2
+Check to see what packages are currently installed::
 
-After the server is up, kill it with CTRL-C.
+ meteor list
 
-Install some meteor packages so this is the end-result of 'meteor list'::
+This may take a while because meteor will download any packages needed.
 
- accounts-password      1.3.0* Password support for accounts
+This should be the result of 'meteor list'::
+
+ accounts-password      1.3.3  Password support for accounts
  accounts-ui            1.1.9  Simple templates to add login widgets to an app
  alanning:roles         1.2.15  Authorization package for Meteor
- blaze-html-templates   1.0.5* Compile HTML templates into reactive UI with Me...
- check                  1.2.3* Check whether a value matches a pattern
+ blaze-html-templates   1.0.5* Compile HTML templates into reactive UI with Meteor Blaze
+ check                  1.2.4  Check whether a value matches a pattern
  dburles:google-maps    1.1.5  Google Maps Javascript API v3
- ecmascript             0.5.8_1* Compiler plugin that supports ES2015+ in all ...
- ejson                  1.0.12* Extended and Extensible JSON library
- es5-shim               4.6.14_1* Shims and polyfills to improve ECMAScript 5 ...
- force-ssl              1.0.12* Require this application to use HTTPS
- http                   1.2.9_1* Make HTTP calls to remote servers
- jquery                 1.11.9* Manipulate the DOM using CSS selectors
+ ecmascript             0.6.1  Compiler plugin that supports ES2015+ in all .js files
+ ejson                  1.0.13  Extended and Extensible JSON library
+ es5-shim               4.6.15  Shims and polyfills to improve ECMAScript 5 support
+ force-ssl              1.0.13  Require this application to use HTTPS
+ http                   1.1.8* Make HTTP calls to remote servers
+ jquery                 1.11.10  Manipulate the DOM using CSS selectors
  meteor-base            1.0.4  Packages that every Meteor app needs
  mobile-experience      1.0.4  Packages for a great mobile user experience
- mongo                  1.1.12_1* Adaptor for using MongoDB and Minimongo over...
+ mongo                  1.1.14  Adaptor for using MongoDB and Minimongo over DDP
  nourharidy:ssl         0.2.2  Sexy SSL support for Meteor
  random                 1.0.10  Random number generator and utilities
  reactive-dict          1.1.8  Reactive dictionary
- reactive-var           1.0.10* Reactive variable
- session                1.1.6* Session variable
- shell-server           0.2.1  Server-side component of the `meteor shell` com...
- standard-minifier-css  1.2.1* Standard css minifier used with Meteor apps by ...
- standard-minifier-js   1.2.0_1* Standard javascript minifiers used with Meteo...
- tracker                1.1.0* Dependency tracker to allow reactive callbacks
- vsivsi:job-collection  1.4.0  A persistent and reactive job queue for Meteor,...
+ reactive-var           1.0.11  Reactive variable
+ session                1.1.7  Session variable
+ shell-server           0.2.1  Server-side component of the `meteor shell` command.
+ standard-minifier-css  1.3.2* Standard css minifier used with Meteor apps by default.
+ standard-minifier-js   1.2.1* Standard javascript minifiers used with Meteor apps by default.
+ tracker                1.1.1  Dependency tracker to allow reactive callbacks
+ vsivsi:job-collection  1.4.0  A persistent and reactive job queue for Meteor, supporting distributed workers that can run anyw...
 
-Install some node modules::
+Install any missing packages with 'meteor add <pkg>'.
+
+Install server
+--------------
+
+Install a node module needed for the http proxies that allow https::
 
  cd $HEXMAP
  npm install http-proxy
- cd www
+
+Set up node and install a node module needed for the meteor package: 'random'::
+
+ cd $HEXMAP/www
+ meteor npm install
  meteor npm install --save bcrypt
+ meteor npm install --save babel-runtime
+ 
+Note that this warning may safely be ignored::
 
-Make an entry in bin/run_server under the config section for your server and
-its configuration.
+ npm WARN www@1.0.0 No repository field
 
-Create your run script with this content, editing the definitions HEXMAP and
+Make an entry in $HEXMAP/bin/run_server under the config section for your server,
+giving it a unique INSTALL string which we will reference as <myInstall>.
+
+Create your run script in $HEXMAP with this content, editing the definition of
 INSTALL::
 
  #!/bin/bash
- INSTALL=<myServer?
- HEXMAP=/data
+ INSTALL=<myInstall>
  $HEXMAP/bin/run_server $1 $INSTALL $HEXMAP
-
-Modify these files for your environment::
-
- bin/run_server to make an entry for INSTALL of <myServer>
- http/http.js for ports
- https/https.js for ports & certificate directory
- settingsA.*.json
 
 Create directories for your data::
 
@@ -147,8 +162,20 @@ Create directories for your data::
  cd <top-of-data-dir-tree>
  mkdir featureSpace layoutInput view
 
-Starting the application
-------------------------
+Make a copy of the settings file specific to your install::
+
+ cd $HEXMAP
+ cp bin/settingsA.prod.json bin/settingsA.<myInstall>.json
+
+Modify these files for your environment::
+
+ bin/run_server to make an entry for INSTALL of <myServer>
+ http/http.js for ports
+ https/https.js for ports & certificate directory
+ settingsA.<myInstall>.json
+
+Start server
+------------
 
 Start the servers::
 
@@ -158,12 +185,13 @@ Start the servers::
  run db
  run www
 
+Each server has a log file with an extension of: '.log'.
+
 Sphinx
 ------
 
 Sphinx is used to build this document. To modify this document, Sphinx needs to
 be installed according to http://www.sphinx-doc.org/en/stable/install.html
-
 
 References
 ----------

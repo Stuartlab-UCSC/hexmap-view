@@ -399,7 +399,16 @@ var app = app || {};  // jshint ignore: line
  
         // Find the project if one was included in the URL.
         if (s.uParm.p) {
-            if (s.uParm.p.substr(0, 4) === 'CKCC') {
+ 
+            // Allow the old dot delimiter in case the paper reviewers are
+            // using it
+            if (s.uParm.p === 'Pancan12.GeneMap') {
+                s.uParm.p = 'Pancan12/GeneMap';
+
+            } else if (s.uParm.p === 'Pancan12.SampleMap') {
+                s.uParm.p = 'Pancan12/SampleMap';
+
+            } else if (s.uParm.p.substr(0, 4) === 'CKCC') {
  
                 // Replace the last '.' with '/' so old CKCC URLs still work.
                 var i = s.uParm.p.lastIndexOf('.');
