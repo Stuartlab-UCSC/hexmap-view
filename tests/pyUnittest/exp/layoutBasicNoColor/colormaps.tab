@@ -1,2 +1,5 @@
-catOne	0	four	#0000FF	1	three	#00FF00	2	two	#00FFFF	3	one	#FF0000
-catTwo	0	meow	#0000FF	1	cat	#00FF00	2	feline	#00FFFF	3	kitty	#FF0000	4	kitten	#FF00FF
+Subtype	0	Subtype 1	#0000ff	1	Subtype 2	#ffffff	2	Subtype 3	#7f0000
+TP63_mutated	0	No mutation	#0000ff	1	Has mutation	#ffffff
+TP53_mutated	0	No mutation	#0000ff	1	Has mutation	#ffffff
+DNA_Repair	0	Ok	#0000ff	1	Broken	#ffffff
+RB1 level	0	Medium	#0000ff	1	Low	#ffffff	2	High	#7f0000

@@ -12,7 +12,7 @@ import scipy.spatial.distance as dist
 from utils import sigDigs
 from utils import truncateNP
 from process_categoricals import getAttributes
-
+import  math
 #input/output helpers
 def readLayers(layerFile):
     return pd.read_csv(layerFile,sep='\t',index_col=0,header=None)
@@ -22,7 +22,12 @@ def getLayerIndex(layerName,layers):
     return filename[filename.index('_')+1:filename.index('.')]
 
 def readXYs(fpath):
-    return pd.read_csv(fpath,sep='\t',index_col=0)
+	'''
+    reads the xy positions from file
+    :param fpath: file path  to tab seperated x-y position file, 1st col should be row names
+    :return: a pandas data frame with index set to node Ids and the 
+    '''
+	return pd.read_csv(fpath,sep='\t',index_col=0)
 
 def trimLayerFiles(layer_files):
     '''
@@ -51,20 +56,23 @@ def writeLayersTab(attributeDF,layers,layer_files,densityArray,datatypes,options
     #making an empty data frame and then filling each one of the columns
     layersTab = pd.DataFrame(index=layer_files.keys())
 
+    #second column is the name of the layer files
     layersTab[0] = pd.Series(layer_files)
 
+    #third column is count of non-Na's
     layersTab[1] = attributeDF[layer_files.keys()].count()
 
+    #forth column is the count of 1's if the layer is binary, Na if not
     layersTab[2] = np.repeat(np.NAN,len(layers.keys()))
+
     layersTab.loc[datatypes['bin'],2] = attributeDF[datatypes['bin']].sum(axis=0)
 
+    #the rest of the columns are the density for each layout (in order)
     for it, series_ in enumerate(densityArray):
         #fill all density with NAN in case we don't have some in the density array
         layersTab[3+it] = np.repeat(np.NAN,len(layers.keys()))
         #put the density in the dataframe
         layersTab[3+it] = series_.apply(sigDigs)
-
-
 
     layersTab.to_csv(options.directory + '/layers.tab',sep='\t',header=None)
 
@@ -90,7 +98,7 @@ def writeToFileLee(fout,leeLV,simV,colNames):
 
     outDF.to_csv(fout,sep='\t',header=None)
 
-def writeToDirectoryLee(dirName,leeMatrix,simMatrix,colNameList,layers,index=0,dynamic=False):
+def writeToDirectoryLee(dirName,leeMatrix,simMatrix,colNameList,layers,index=0):
     '''
     this function writes the computed similarities, i.e. lees L, to a directory
     if we wanted to do p-values or something else computations for corrections would
@@ -261,12 +269,18 @@ def densityOpt(allAtts,datatypes,xys,debug=False):
     #subset the attributes to the xy positions for this map.
     allAtts = allAtts.loc[xys.index]
 
+    # constants used to determine whether there is enough data to calculate density
+    minNeeded = 5
+    perNeeded = .025 #percent needed
+    minNodes = math.ceil(len(xys.index) * perNeeded) + minNeeded
+    #
     #deal with each datatype individually
     for type_ in datatypes.keys():
         #types continuos and binary get dealt with the same
         if type_ != 'cat':
             #subset of the attributes to their type
             subAtts = allAtts[datatypes[type_]]
+
             #group by NaN profile. An attribute X attribute matrix
             distMat = sklp.pairwise_distances(subAtts.isnull().transpose(),metric='hamming',n_jobs=8)
             #we will be going through the distance matrix and find groups
@@ -290,8 +304,8 @@ def densityOpt(allAtts,datatypes,xys,debug=False):
                 datMat = ztransDF(datMat)
                 #fill in the return structure with the lee SSS's
 
-                #case out whether the map will have data
-                if datMat.shape[0] == 0: #the attribute matrix has no rows, i.e. nodes with data
+                #case out whether the map has enough data
+                if datMat.shape[0] < minNodes: #the doesn't have enough nodes with data
                     densities.extend(np.repeat(np.NAN,mask.sum()))
                     print 'attributes ' + str(subAtts.columns[mask]) + ' had no values for this xy position set'
                 else:
@@ -305,17 +319,22 @@ def densityOpt(allAtts,datatypes,xys,debug=False):
         #deal with categoricals
         else:
             subAtts = allAtts[datatypes[type_]]
+
             for attr in subAtts.columns:
                 #expand our categorical vector to dummy variables
                 datMat = pd.get_dummies(subAtts[attr].dropna()).apply(pd.to_numeric)
+
+                nNodes = datMat.sum().sum()
                 #in case we lost any categories for the map we are looking at
                 datMat = datMat[datMat.columns[datMat.sum() != 0]]
                 datMat = ztransDF(datMat)
+
                 if debug:
                     print 'categorical attribute being processed: ' + attr
                     print 'shape of dummy matrix after exclusion: ' + str(datMat.shape)
-                if datMat.shape == (0,0):
-                    print 'attribute ' + attr + ' had no values for this xy position set'
+                #make sure there is enough data to calculate density
+                if nNodes < minNodes:
+                    print 'attribute ' + attr + ' didn\'t have enough values for this xy position set'
                     densities.append(np.NAN)
                 else:
                     densities.append(catSSS(leesL(spatialWieghtMatrix(xys.loc[datMat.index]),datMat)))
@@ -396,10 +415,3 @@ def dynamicCallLeesL(parm):
 
     #return the output file for dynamic stats
     return parm['tempFile']
-
-
-
-
-
-
-

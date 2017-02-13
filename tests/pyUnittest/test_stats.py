@@ -25,7 +25,7 @@ class Test_stats(unittest.TestCase):
         opts = [
             '--similarity', inDir + 'artificial_sparse.tab',
             '--names', 'mRNA',
-            '--scores', inDir + 'attributes.tab',
+            '--scores', inDir + 'attributes.tabstringed',
             '--colormaps', inDir + 'colormaps.tab',
             '--first_attribute', 'Subtype',
             '--directory', outDir,

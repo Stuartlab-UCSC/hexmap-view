@@ -21,7 +21,7 @@ from utils import truncateNP
 
 VALID_METRICS = ['canberra','cosine','euclidean','manhattan','chebyshev','correlation','hamming',
                  'jaccard','rogerstanimoto','spearman']
-VALID_OUTPUT_TYPE = ['SPARSE','FULL']
+VALID_OUTPUT_TYPE = ['SPARSE','FULL','SPARSE_PERCENT']
 
 def parse_args(args):
 
@@ -44,6 +44,8 @@ def parse_args(args):
         help="number of CPUs to use for similarity computation")
     parser.add_argument("--out_file", type=str,
         help="output file name")
+    parser.add_argument("--rows", action="store_true",
+        help="will take row wise similarity instead of columns")
 
     return parser.parse_args(args)
 
@@ -178,7 +180,36 @@ def common_rows(p1, p2):
     p2 = p2.loc[rowsInCommon]
     return p1,p2
 
-def extract_similarities(dt, sample_labels, top, log=None,sample_labels2=[]):
+def percentile_sparsify(simdf,top):
+    '''
+    returns a sparsified version of simdf in edge format, keeping only the
+    highest top * simdf.shape[0] edges in the matrix
+    @param simdf: a simlarity matrix (or otherwise)
+    @param top: used to determine cutoff, top * number of columns in simdf values will be kept
+    @return: edge format dataframe: column 1 is the row name, column 2 is the col name,
+             and column 3 is the value of simdf[row name, col name]
+    '''
+    output = pd.DataFrame()
+
+
+    ncols = len(simdf.index)
+    #automatically determine percentile cutoff
+    cutoff = 100 - 100*( (float(top)*ncols) / ncols**2)
+    #set all diagonal values to 0, so they are not included in percentile
+    simdf.values[[numpy.arange(ncols)]*2] = 0
+
+    cut = numpy.percentile(simdf.values, cutoff)
+
+    for row_name in simdf.index:
+        row = simdf.loc[row_name][numpy.array(simdf.loc[row_name] > cut)]
+
+        #the index is now the column name of the original similairty matrix
+        for col_name in row.index:
+            output = output.append(pd.Series([row_name,col_name,row.loc[col_name]]), ignore_index=True)
+
+    return output
+
+def extract_similarities(dt, sample_labels, top, log=None,sample_labels2=[],percentile_cut=False):
     '''
     sparsity operation to reduce a matrix to the 'top' highest numbers for each row
     @param dt: numpy matrix to be sparsified
@@ -194,19 +225,37 @@ def extract_similarities(dt, sample_labels, top, log=None,sample_labels2=[]):
     curr_time = time.time()
     #container for edge format
     output = pd.DataFrame()
-    for i in range(len(dt)):
-        sample_dict = dict(zip(sample_labels, dt[i]))
-        del sample_dict[sample_labels[i]]	#remove self comparison
-        for n_i in range(top):
-            v=list(sample_dict.values())
-            k=list(sample_dict.keys())
-            m=v.index(max(v))
-            #interatively build a dataframe with the neighbors
-            if len(sample_labels2):
-                output = output.append(pd.Series([sample_labels2[i],k[m],v[m]]),ignore_index=True)
-            else:
-                output = output.append(pd.Series([sample_labels[i],k[m],v[m]]),ignore_index=True)
-            del sample_dict[k[m]]
+
+    #'percentile cut' is a different sparsity operation.
+    # instead of taking the top X for all nodes, we will take similiarities meeting a
+    # threshold. The threshold is determined by keeping the same amount of edges as if
+    # you have performed top 6. e.g. if you have 100 samples and did top 6 you would have
+    # 600 edges, if you did percentile_cut with --top 6, you would also have 600 edges, but
+    # the number of edges per node would be variable.
+    if percentile_cut:
+        #has to be a little awkward because we aren't using dataframes.
+        #essentially these cases out how we will convert numpy struct to pandas depending on
+        # if the rows and column names are the same.
+        if len(sample_labels2):
+            output = percentile_sparsify(numpyToPandas(dt,sample_labels,sample_labels2),top)
+        else:
+            output = percentile_sparsify(numpyToPandas(dt,sample_labels,sample_labels),top)
+
+    #this is the normal top X sparsify operation
+    else:
+        for i in range(len(dt)):
+            sample_dict = dict(zip(sample_labels, dt[i]))
+            del sample_dict[sample_labels[i]]	#remove self comparison
+            for n_i in range(top):
+                v=list(sample_dict.values())
+                k=list(sample_dict.keys())
+                m=v.index(max(v))
+                #interatively build a dataframe with the neighbors
+                if len(sample_labels2):
+                    output = output.append(pd.Series([sample_labels2[i],k[m],v[m]]),ignore_index=True)
+                else:
+                    output = output.append(pd.Series([sample_labels[i],k[m],v[m]]),ignore_index=True)
+                del sample_dict[k[m]]
 
 
     return output
@@ -247,8 +296,7 @@ def compute_similarities(dt, sample_labels, metric_type, num_jobs, output_type, 
             print >> log, 'rank transform complete'
 
     #calculate pairwise similarities,
-    # if you have a second matrix then do those
-    if len(dt2):
+    if len(dt2):   #if you have a second matrix then slightly different input
         x_corr = 1 - sklp.pairwise_distances(X=dt, Y=dt2, metric=metric_type, n_jobs=num_jobs)
     else:
         x_corr = 1 - sklp.pairwise_distances(X=dt, Y=None, metric=metric_type, n_jobs=num_jobs)
@@ -269,13 +317,22 @@ def compute_similarities(dt, sample_labels, metric_type, num_jobs, output_type, 
 
     #the string which holds all of the output in format specified
 
-
     #fills a dataframe in sparse format
     if output_type == "SPARSE":
         if len(dt2):
             output = extract_similarities(x_corr.transpose(), sample_labels, top, log,sample_labels2)
         else:
             output = extract_similarities(x_corr, sample_labels, top, log=log)
+
+    #new method implemented for feature maps
+    elif output_type == "SPARSE_PERCENT":
+        if len(dt2):
+            output = extract_similarities(x_corr.transpose(), sample_labels, top, log, sample_labels2,
+                                          percentile_cut=True)
+        else:
+            output = extract_similarities(x_corr, sample_labels, top, log=log,
+                                          percentile_cut=True)
+
     #turn the similarity matrix into a dataframe
     elif output_type == "FULL":
         if len(dt2):
@@ -342,6 +399,7 @@ def main(args):
     num_jobs = opts.num_jobs
     out_file = opts.out_file
     log_file = opts.log
+    rowwise = opts.rows
 
     #sets the log file appropriatly for chatter
     if len(log_file) > 0:
@@ -379,7 +437,11 @@ def main(args):
 
     std_iszero(dt,log)
 
-    dt = numpy.transpose(dt)
+    if rowwise:
+        sample_labels, feature_labels = feature_labels, sample_labels
+    else:
+        dt = numpy.transpose(dt)
+
 
     #if we are doing a second input (n-of-1 like)
     if len(in_file2):
@@ -392,8 +454,13 @@ def main(args):
         #switch back to numpy datatype
         dt,sample_labels,feature_labels = pandasToNumpy(dt)
         dt2,sample_labels2,feature_labels2 = pandasToNumpy(dt2)
-        dt =dt.transpose()
-        dt2=dt2.transpose()
+
+        if rowwise:
+            sample_labels, feature_labels = feature_labels, sample_labels
+            sample_labels2, feature_labels2 = feature_labels2, sample_labels2
+        else:
+            dt =dt.transpose()
+            dt2=dt2.transpose()
 
     else: #set them empty so compute_sim* ignores them.
         dt2=numpy.array([])
@@ -405,7 +472,7 @@ def main(args):
     result = compute_similarities(dt, sample_labels, metric_type, num_jobs, output_type, top, log,dt2,sample_labels2)
 
     #with the sparse out put we need to ignore column and rownames
-    if output_type == 'SPARSE':
+    if 'SPARSE' in output_type:
         result.to_csv(out_file,index=None,header=False,sep='\t')
     elif output_type == 'FULL':
         result.to_csv(out_file,sep='\t')

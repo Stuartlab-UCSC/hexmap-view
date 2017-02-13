@@ -50,7 +50,7 @@ class Test_noincludesingletons(unittest.TestCase):
         opts = [
             "--similarity", sparse6_path,
             "--names", "mRNA",
-            "--scores", inDir + "mcrchopra.atts.tab",
+            "--scores", inDir + "mcrchopra.atts.with_strs.tab",
             "--colormaps", inDir + 'mcrchopra.colormaps.tab',
             "--directory", outDir,
             "--no_density_stats",

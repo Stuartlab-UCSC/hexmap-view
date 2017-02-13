@@ -29,7 +29,8 @@ coordDataFile = testDir +'exp/layoutBasic' + '/xyPreSquiggle_0.tab'
 
 colorDataFile = inDir + 'mcrchopra.colormaps.tab'
 attsStringsFile = inDir + 'mcrchopra.atts.with_strs.tab'
-attsCodedFile = inDir + 'mcrchopra.atts.tab'
+#now we never give layout coded attrs
+attsCodedFile = inDir + 'mcrchopra.atts.with_strs.tab'
 
 import layout
 import compute_sparse_matrix
