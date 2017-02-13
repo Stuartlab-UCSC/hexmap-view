@@ -277,7 +277,7 @@ def densityOpt(allAtts,datatypes,xys,debug=False):
     #deal with each datatype individually
     for type_ in datatypes.keys():
         #types continuos and binary get dealt with the same
-        if type_ != 'cat':
+        if type_ != 'cat' and len(datatypes[type_]) > 1:
             #subset of the attributes to their type
             subAtts = allAtts[datatypes[type_]]
 
@@ -317,7 +317,7 @@ def densityOpt(allAtts,datatypes,xys,debug=False):
                     indecies_to_check.remove(colnum)
 
         #deal with categoricals
-        else:
+        if type_ == 'cat' and len(datatypes[type_]) > 0:
             subAtts = allAtts[datatypes[type_]]
 
             for attr in subAtts.columns:
