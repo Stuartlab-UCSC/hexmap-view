@@ -852,7 +852,7 @@ def copy_files_for_UI(options, layer_files, layers, layer_positives, clumpiness_
 
     #if we use the new density, then layers.tab is printed else where.
     # namely leesL.writeLayersTab()
-    if not options.clumpinessStats:
+    if not options.clumpinessStats or not len(layers) > 1:
         # This is the writer to use.
         index_writer = tsv.TsvWriter(open(os.path.join(options.directory,
             "layers.tab"), "w"))
@@ -996,7 +996,7 @@ def hexIt(options, cmd_line_list, all_dict):
 
     # We have file names stored in options.similarity
     # We must open the files and store them in matrices list for access
-    if not(options.coordinates == None): #TODO: this needs to be fixed, x-y pos should just go into squiggle algorithm
+    if not(options.coordinates == None): #TODO: x-y pos should be a way for reproducing maps
         for i, coords_filename in enumerate(options.coordinates):
             nodes = read_nodes(coords_filename)
             nodes_multiple.append(nodes)
@@ -1084,7 +1084,7 @@ def hexIt(options, cmd_line_list, all_dict):
                     dt,sample_labels,feature_labels = read_tabular(genomic_filename, True)
                     print str(len(dt))+" x "+str(len(dt[0]))
                     dt_t = np.transpose(dt)
-                    result = sparsePandasToString(compute_similarities(dt=dt_t, sample_labels=sample_labels, metric_type=options.metric[i], num_jobs=12, output_type="SPARSE", top=6, log=None))
+                    result = sparsePandasToString(compute_similarities(dt=dt_t, sample_labels=sample_labels, metric_type=options.metric[i], num_jobs=12, output_type="SPARSE", top=options.truncation_edges, log=None))
                     result_stream = StringIO.StringIO(result)
                     matrix_file = tsv.TsvReader(result_stream)
                     ctx.matrices.append(matrix_file)
@@ -1096,7 +1096,7 @@ def hexIt(options, cmd_line_list, all_dict):
                     print 'Opening Matrix', i, similarity_filename
                     dt,sample_labels,feature_labels = read_tabular(similarity_filename, True)
                     print str(len(dt))+" x "+str(len(dt[0]))
-                    result = sparsePandasToString(extract_similarities(dt=dt, sample_labels=sample_labels, top=6, log=None))
+                    result = sparsePandasToString(extract_similarities(dt=dt, sample_labels=sample_labels, top=options.truncation_edges, log=None))
                     result_stream = StringIO.StringIO(result)
                     matrix_file = tsv.TsvReader(result_stream)
                     ctx.matrices.append(matrix_file)
@@ -1311,7 +1311,7 @@ def hexIt(options, cmd_line_list, all_dict):
     #puts the datatypes in the global object and writes them to the UI file
     writeAndPutLayerDatatypes(datatypeDict, options, ctx)
 
-    if len(layer_names) > 0 and options.clumpinessStats:
+    if len(layer_names) > 1 and options.clumpinessStats:
         ###############################DCM121916###################################3
         #calculates density using the Lees'L method
 
