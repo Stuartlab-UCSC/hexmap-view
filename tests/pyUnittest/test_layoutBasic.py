@@ -23,8 +23,8 @@ expNoColorDir = expDirBase + 'NoColor/'
 expXyDir = expDirBase + 'Xy/'
 
 rawDataFile = inDir + 'mcrchopra.data.tab'
-fullSimDataFile = inDir + 'mcr.fullsim.stable.tab'
-top6SimDataFile = inDir + 'mcr.top6.stable.tab'
+fullSimDataFile = inDir + 'mcr.fullsim.tab'
+top6SimDataFile = inDir + 'mcr.top6.tab'
 coordDataFile = testDir +'exp/layoutBasic' + '/xyPreSquiggle_0.tab'
 
 colorDataFile = inDir + 'mcrchopra.colormaps.tab'
