@@ -1,5 +1,5 @@
 
-API: Create a map
-=================
+Calc API: Create a map
+======================
 
 TBD

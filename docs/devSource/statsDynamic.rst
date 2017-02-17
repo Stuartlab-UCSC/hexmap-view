@@ -1,7 +1,11 @@
-Dynamic Statistics
-------------------
+Web API: Dynamic Statistics
+---------------------------
 
-This API is currently only available for calling from the viewer.
+https://<hub>/query/**dynamicStats**
+
+POST with content-type: application/json
+
+data-type: ?
 
 This request returns data as tsv rather than as json. It was
 implemented prior to standardizing on json. We should move to json so this API
@@ -28,3 +32,5 @@ Example::
     anticorrelated: anticorrelated,
     tempFile: 'yes',
  }
+
+TBD

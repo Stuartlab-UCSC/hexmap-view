@@ -1,5 +1,14 @@
-Internal computation API
+Internal Calc API on Hub
 ========================
+
+.. toctree::
+   :maxdepth: 1
+
+   overlayNodes
+   createMap
+
+General information
+-------------------
 
 The 'hub' contains an http server, data files and scripts that perform
 computations on those data files. The http server responds to requests for data

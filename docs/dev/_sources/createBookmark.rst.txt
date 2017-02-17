@@ -1,17 +1,28 @@
-Future: Overlay new nodes on a map
-==================================
+Web API: Create a bookmark
+==========================
 
-https://<hub>/query/**overlayNodes**
+https://<viewer>/query/**createBookmark**
 
 POST with content-type: application/json
 
 data-type: json
 
-This API takes data for one or more of your nodes and performs an N-of-1 analysis
-on each of your nodes against the background nodes of an existing map.
+This API creates a bookmark on a view server with the given client state data.
 
 Content Example
 ---------------
+
+This creates a bookmark with overlay nodes
+
+TBD
+
+
+
+
+
+
+
+
 ::
 
  {

@@ -7,8 +7,7 @@ Developer Docs
    :maxdepth: 1
 
    internalApi
-   overlayNodes
-   createMap
+   internalWebApi
    source
    clientSource
    serverSource

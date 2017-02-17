@@ -1,18 +1,18 @@
-API: N-of-1 Analysis
-====================
+Calc API: N-of-1 Analysis
+=========================
 
-This performs the computations to overlay new nodes on an existing map described
-at https://tumormap.ucsc.edu/query/overlayNodes.html.
+This performs the computations for the public web API to overlay new nodes on an
+existing map described at https://tumormap.ucsc.edu/query/overlayNodes.html.
 
 Example call
 ------------
 ::
 
- webApi( \
-    neighborCount=8, \
-    fullFeatureMatrixFile='/hexData/featureSpace/CKCC/v3/expression.2016.12.21.tab', \
-    xyPositionsFile='/hexData/view/CKCC/v3/.tab', \
-    nodes={ \
+ compute_sparse_matrix.webApi( \
+    top=8, \
+    in_file1='/hexData/featureSpace/CKCC/v3/expression.2016.12.21.tab', \
+    in_eucledian_positions='/hexData/view/CKCC/v3/xyPreSquiggle_0.tab', \
+    newNodes={ \
         mySample1: { \
             ALK: 0.897645, \
             TP53: 0.904140, \
@@ -31,9 +31,9 @@ Example call
 
 Where:
 
-* **neighborCount** : optional, number of nearest neighbors to consider in the placement for each node, defaults to 6
-* **fullFeatureMatrixFile** : full file path containing the full feature matrix against which each node will be analyzed independently
-* **xyPositionsFile** : full file path containing the positions of the existing nodes in the frozen map
+* **top** : optional, number of nearest neighbors to consider in the placement for each node, defaults to 6
+* **in_file1** : full file path containing the full feature matrix against which each node will be analyzed independently
+* **in_eucledian_positions** : full file path containing the xy positions of the existing nodes in the frozen map
 
 Return success
 --------------
