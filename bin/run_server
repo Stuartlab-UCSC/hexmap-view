@@ -27,7 +27,11 @@ if [ $INSTALL == swat ] || \
     FOREGROUND=yes
 fi
 
-if [ $SERVER_TYPE == 'maketar' ] || [ $SERVER_TYPE == 'maketarDocs' ] || [ $SERVER_TYPE == 'xtar' ]; then
+if [ $SERVER_TYPE == 'maketar' ] \
+    || [ $SERVER_TYPE == 'maketarDocs' ] \
+    || [ $SERVER_TYPE == 'maketarTests' ] \
+    || [ $SERVER_TYPE == 'xtar' ]
+    then
     $HEXMAP/bin/tarAction $SERVER_TYPE $INSTALL
     exit
 fi

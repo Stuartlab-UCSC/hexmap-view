@@ -6,35 +6,51 @@ ACTION=$1
 INSTALL=$2
 
 
-TAR_FILES=" \
-    bin/http* \
-    bin/run_server \
-    bin/settingsA \
-    bin/settingsB.json \
-    bin/tarAction \
-    calc \
-    www/client \
-    www/lib \
-    www/public/*svg \
-    www/public/*ico \
-    www/public/*png \
-    www/public/icons \
-    www/public/images \
-    www/public/*js \
-    www/public/*gif \
-    www/server \
-    www/package.json \
-    "
-if [ $ACTION == 'maketarDocs' ]; then
+if [ $ACTION == 'maketar' ]; then
+    echo transferring everything except docs and tests/pyUnittest
+    TAR_FILES=" \
+        bin/http* \
+        bin/run_server \
+        bin/settingsA \
+        bin/settingsB.json \
+        bin/tarAction \
+        calc/*py \
+        www/client \
+        www/lib \
+        www/public/*svg \
+        www/public/*ico \
+        www/public/*png \
+        www/public/icons \
+        www/public/images \
+        www/public/*js \
+        www/public/*gif \
+        www/server/*js \
+        www/server/*py \
+        www/package.json \
+        "
+elif [ $ACTION == 'maketarDocs' ]; then
+    echo transferring only the docs in www/public
     TAR_FILES=" \
         www/public/createMap \
         www/public/query \
         www/public/useCases \
-        $TAR_FILES \
+        "
+elif [ $ACTION == 'maketarTests' ]; then
+    echo transferring only tests/pyUnittest
+    TAR_FILES=" \
+        tests/pyUnittest/README \
+        tests/pyUnittest/exp \
+        tests/pyUnittest/in \
+        tests/pyUnittest/run* \
+        tests/pyUnittest/sort_files \
+        tests/pyUnittest/*py \
         "
 fi
 
-if [ $ACTION == 'maketar' ] || [ $ACTION == 'maketarDocs' ]; then
+if [ $ACTION == 'maketar' ] \
+    || [ $ACTION == 'maketarDocs' ] \
+    || [ $ACTION == 'maketarTests' ]
+    then
     echo 'tarring to t.tar'
     rm t.tar
     tar -cf t.tar $TAR_FILES

@@ -13,7 +13,7 @@ with the python APIs being these two steps:
 
 #5 syncMapTranslateReply
 
-See :doc:`pythonApi` for general information about python APIs as well as an
+See :doc:`internalApi` for general information about python APIs as well as an
 example call and response.
 
 Response
