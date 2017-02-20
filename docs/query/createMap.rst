@@ -1,11 +1,17 @@
-Create a map
-------------
+Future: Create a map
+====================
 
-https://<server>/query/**createMap**
+https://<hub>/query/**createMap**
 
-Content-Type: application/json
+POST with content-type: application/json
 
-**Content Example**::
+data-type: json
+
+This API builds a new map from data you supply.
+
+Content Example
+---------------
+::
 
  {
     "map": "CKCC/v1",
@@ -50,15 +56,16 @@ Where:
 
 Note 1: For file formats go to the viewer -> Help menu -> User guide -> Create a Map.
 
-A URL pointing to the new map will be returned as a json string in the form::
+Response success
+----------------
+
+This is returned as HTTP 200 with the content as a JSON string containing a URL
+pointing to the new map in the form::
 
  { "bookmark": "https://tumormap.ucsc.edu/?p=CKCC/V1" }
 
-**Response success**
-
-This is returned as HTTP 200 with the content as a JSON string in the form above.
-
-**Response errors**
+Response error
+--------------
 
 Response errors are returned as HTTP 400 with an explanation.
 

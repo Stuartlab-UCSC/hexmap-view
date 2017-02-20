@@ -27,7 +27,7 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Dynamic Statistics" href="statsDynamic.html" />
+    <link rel="next" title="Future APIs" href="future.html" />
     <link rel="prev" title="Overlay new nodes on a map" href="overlayNodes.html" /> 
   </head>
   <body role="document">
@@ -38,7 +38,7 @@
         <div class="rel" role="navigation" aria-label="related navigation">
           <a href="overlayNodes.html" title="Overlay new nodes on a map"
              accesskey="P">previous</a> |
-          <a href="statsDynamic.html" title="Dynamic Statistics"
+          <a href="future.html" title="Future APIs"
              accesskey="N">next</a> |
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a>
@@ -56,9 +56,12 @@
             
   <div class="section" id="create-a-map">
 <h1>Create a map<a class="headerlink" href="#create-a-map" title="Permalink to this headline">¶</a></h1>
-<p><a class="reference external" href="https:/">https:/</a>/&lt;server&gt;/query/<strong>createMap</strong></p>
-<p>Content-Type: application/json</p>
-<p><strong>Content Example</strong>:</p>
+<p><a class="reference external" href="https:/">https:/</a>/&lt;hub&gt;/query/<strong>createMap</strong></p>
+<p>POST with content-type: application/json</p>
+<p>data-type: json</p>
+<p>This API builds a new map from data you supply.</p>
+<div class="section" id="content-example">
+<h2>Content Example<a class="headerlink" href="#content-example" title="Permalink to this headline">¶</a></h2>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span>
    <span class="s2">&quot;map&quot;</span><span class="p">:</span> <span class="s2">&quot;CKCC/v1&quot;</span><span class="p">,</span>
    <span class="s2">&quot;layout&quot;</span><span class="p">:</span> <span class="s2">&quot;mRNA&quot;</span><span class="p">,</span>
@@ -102,13 +105,17 @@
 <li><strong>layout*Stats</strong> : optional, true indicates this class of stats should be calculated, defaults to false. Note that these are compute-intensive so you may want to run them only when you are satisfied with your layout and coloring attributes.</li>
 </ul>
 <p>Note 1: For file formats go to the viewer -&gt; Help menu -&gt; User guide -&gt; Create a Map.</p>
-<p>A URL pointing to the new map will be returned as a json string in the form:</p>
+</div>
+<div class="section" id="response-success">
+<h2>Response success<a class="headerlink" href="#response-success" title="Permalink to this headline">¶</a></h2>
+<p>This is returned as HTTP 200 with the content as a JSON string containing a URL
+pointing to the new map in the form:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span> <span class="s2">&quot;bookmark&quot;</span><span class="p">:</span> <span class="s2">&quot;https://tumormap.ucsc.edu/?p=CKCC/V1&quot;</span> <span class="p">}</span>
 </pre></div>
 </div>
-<p><strong>Response success</strong></p>
-<p>This is returned as HTTP 200 with the content as a JSON string in the form above.</p>
-<p><strong>Response errors</strong></p>
+</div>
+<div class="section" id="response-error">
+<h2>Response error<a class="headerlink" href="#response-error" title="Permalink to this headline">¶</a></h2>
 <p>Response errors are returned as HTTP 400 with an explanation.</p>
 <p>There may be more errors returned than listed here.</p>
 <ul class="simple">
@@ -116,6 +123,7 @@
 <li>Error: name has unprintable characters (not ASCII 32-126), unprintable chars replaced with ‘_’ in &lt;name&gt;</li>
 <li>Error: parameter missing or malformed: &lt;parameter&gt;</li>
 </ul>
+</div>
 </div>
 
 
@@ -128,8 +136,7 @@
           <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="overlayNodes.html">Overlay new nodes on a map</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Create a map</a></li>
-<li class="toctree-l1"><a class="reference internal" href="statsDynamic.html">Dynamic Statistics</a></li>
-<li class="toctree-l1"><a class="reference internal" href="reflect.html">Reflect from one map to another</a></li>
+<li class="toctree-l1"><a class="reference internal" href="future.html">Future APIs</a></li>
 </ul>
 
           <div role="search">
@@ -152,7 +159,7 @@
           <div role="navigation" aria-label="related navigaton">
             <a href="overlayNodes.html" title="Overlay new nodes on a map"
               >previous</a> |
-            <a href="statsDynamic.html" title="Dynamic Statistics"
+            <a href="future.html" title="Future APIs"
               >next</a> |
             <a href="genindex.html" title="General Index"
               >index</a>

@@ -4,10 +4,10 @@ Developer Docs
 ==============
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
 
-   pythonApi
-   mapManager
+   internalApi
+   internalWebApi
    source
    clientSource
    serverSource
@@ -15,4 +15,3 @@ Developer Docs
    requirements
    docs
    licenses
-

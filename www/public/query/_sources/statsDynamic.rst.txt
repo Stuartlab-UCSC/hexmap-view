@@ -7,7 +7,7 @@ This request returns data as tsv rather than as json. It was
 implemented prior to standardizing on json. We should move to json so this API
 can be called from anywhere and not just from the UI.
 
-Below is just one sort of call. We should define each parameter and its possible
+Below is just one sort of call. Need to define each parameter and its possible
 values
 
 **Request**
