@@ -7,8 +7,16 @@ from hubUtil import SuccessResp, ErrorResp, log
 import Nof1_hub
 
 app = Flask(__name__)
+
+# TODO use env vars for these installation-specific config values
 app.config.from_object('config.DevelopmentSwatConfig')
 #app.config.from_object('config.ProductionKolossusConfig')
+
+# TODO: can this be stashed in flask's app.config object?
+ctx = {
+    'viewDir': '/Users/swat/data/view'
+    #'viewDir': '/hive/groups/hexmap/prod/data/view'
+}
 
 # Validate a post
 def validatePost():
@@ -22,7 +30,7 @@ def validatePost():
 
 # Register the success handler
 @app.errorhandler(SuccessResp)
-def handle_invalid_usage(success):
+def successResponse(success):
     response = jsonify(success.to_dict())
     response.status_code = 200
     #log('debug', 'response: ' + str(response), current_app)
@@ -30,12 +38,9 @@ def handle_invalid_usage(success):
 
 # Register the error handler
 @app.errorhandler(ErrorResp)
-def handle_invalid_usage(error):
+def errorResponse(error):
     response = jsonify(error.to_dict())
     response.status_code = error.status_code
-    ##log('error', 'Request failed with: ' + str(self.status_code) + ': ' + \
-     #   rv['message'], current_app)
-
     log('error', 'Request failed with: ' + str(response.status_code) + ': ' + \
         str(response), current_app)
     return response
@@ -54,7 +59,7 @@ def queryRoute(operation):
     dataIn = validatePost()
 
     if operation == 'overlayNodes':
-        Nof1_hub.calc(dataIn, app)
+        Nof1_hub.calc(dataIn, ctx)
         
     else:
         raise ErrorResp('URL not found', 404)
@@ -63,12 +68,12 @@ def queryRoute(operation):
 
     raise SuccessResp('Success!')
 
-# Handle the test root
+# Handle the route to test
 @app.route('/test', methods=['POST', 'GET'])
 def testRoute():
 
     app.logger.debug('testRoute current_app: ' + str(current_app))
 
-    raise ErrorResp('just testing')
+    raise SuccessResp('just testing')
 
 

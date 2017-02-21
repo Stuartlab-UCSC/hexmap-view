@@ -2,51 +2,73 @@
 import os.path, json, types
 from argparse import Namespace
 from flask import Response
-from hubUtil import ErrorResp, getMetaData, isLayoutExistant, isMapExistant, log
+from hubUtil import ErrorResp, log, getMetaData, availableMapLayouts
+from hubUtil import validateMap, validateLayout, validateEmail, \
+    validateViewServer
 import Nof1
 
-# TODO where to we configure our app similar to app.config?
-FEATURE_SPACE_DIR = '/Users/swat/data/featureSpace'
-VIEW_DIR = '/Users/swat/data/view'
-
 # Validate an overlayNodes query
-def validateOverlayNodes(dataIn):
-    if 'map' not in dataIn:
-        raise ErrorResp('Map parameter missing or malformed')
+def validateNof1(data):
 
-    if 'layout' not in dataIn:
-        raise ErrorResp('Layout parameter missing or malformed')
+    # Do some basic checks on required parameters
+    validateMap(data, True)
+    validateLayout(data, True)
+    if 'nodes' not in data:
+        raise ErrorResp('nodes parameter missing or malformed')
+    if not isinstance(data['nodes'], dict):
+        raise ErrorResp('nodes parameter should be a dictionary')
+        
+    # TODO if we make nodes a tsv list...
+    #if not isinstance(data['nodes'], list):
+    #    raise ErrorResp('nodes parameter should be a list/array')
 
-    if 'nodes' not in dataIn:
-        raise ErrorResp('Nodes parameter missing or malformed')
+    # Do some basic checks on optional parameters
+    validateEmail(data)
+    validateViewServer(data)
+    if 'neighborCount' in data and \
+        (not isinstance(data['neighborCount'], int) or \
+        data['neighborCount'] < 1):
+        raise ErrorResp('neighborCount parameter should be a positive integer')
 
-    if not isinstance(dataIn['nodes'], types.DictType):
-        raise ErrorResp('Nodes parameter should result in a python dict')
+    # Check for valid map and layout
+    mapLayouts = availableMapLayouts('Nof1')
+    if not data['map'] in mapLayouts:
+        raise ErrorResp(
+            'Map does not have any layouts with background data: ' +
+            data['map'])
+    if not data['layout'] in mapLayouts[data['map']]:
+        raise ErrorResp('Layout does not have background data: ' +
+            data['layout'])
 
-    if not isMapExistant(dataIn['map']):
-        raise ErrorResp('Map does not exist: ' + dataIn['map'])
+# The entry point from the hub URL routing
+def calc(dataIn, ctx):
 
-    if not isLayoutExistant(dataIn['layout'], dataIn['map']):
-        raise ErrorResp('Layout does not exist: ' + dataIn['layout'])
-
-def calc(dataIn, app):
-
-    validateOverlayNodes(dataIn)
+    validateNof1(dataIn)
     
     # Find the Nof1 data files for this map and layout
-    meta = getMetaData(map)
-    files = meta['Nof1'][dataIn['layout']]
+    meta = getMetaData(map, ctx)
+    files = meta['layouts'][dataIn['layout']]
     
-    # Create a namespace the same as that returned by parseargs
+    # Check to see if the data files exist
+    # TODO: test both of these checks
+    if not os.path.exists(files['fullFeatureMatrix']):
+        raise ErrorResp('full feature matrix file not found: ' +
+            files['fullFeatureMatrix'])
+
+    if not os.path.exists(files['xyPositions']):
+        raise ErrorResp('xy positions file not found: ' +
+            files['xyPositions'])
+
+    # Put the options to be passed to the calc script in a Namespace object,the
+    # same object returned by argparse.parse_args().
     opts = Namespace(
-        fullFeatureMatrix = os.path.join(
-            FEATURE_SPACE_DIR, files['fullFeatureMatrix']),
-        xyPositions = os.path.join(
-            VIEW_DIR, files['xyPreSquiggle']),
+        fullFeatureMatrix = files['fullFeatureMatrix'],
+        xyPositions = files['xyPositions'],
         newNodes = dataIn['nodes'],
     )
     
-    # Set any optional parms included
+    # Set any optional parms included, letting
+    # defaults be set by the calc script.
     if 'neighborCount' in dataIn:
         opts.neighborCount = dataIn['neighborCount']
 
@@ -54,7 +76,9 @@ def calc(dataIn, app):
     # TODO spawn a process
     rc = Nof1.whateverRoutine(opts)
     
-    # TODO Handle errors and success response
+    # TODO Handle errors and success response,
+    # generate URLs
+    #
     #response = Response()
     #response.data = json.dumps(rc)
     #return response
