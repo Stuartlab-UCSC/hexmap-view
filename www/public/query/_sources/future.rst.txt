@@ -1,6 +1,6 @@
 
-Future APIs
-===========
+More Future APIs
+================
 
 Get available maps
 ------------------

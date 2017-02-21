@@ -1,18 +1,16 @@
 
-# This is a stub for testing the call to the calc script
-def viaHub(opts):
+# NOTE: This is just a stub for testing the call to the calc script.
+# The real call will be in the calc script file.
 
-    #rc = main(opt)
+def whateverRoutine(opts):
+
+    #rc = main(opts) # The implementation goes here
     rc = 0
     
     # An error return
-    # TODO is this how we want to return errors?
-    # TODO error should contain captured errors as well as stack traces
     if rc == 1:
-    
         return {
-            'code': 1,
-            'error': error
+            'error': 'Some error message or stack trace'
         }
 
     # A successful return

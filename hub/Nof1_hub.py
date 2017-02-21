@@ -37,11 +37,11 @@ def calc(dataIn, app):
     meta = getMetaData(map)
     files = meta['Nof1'][dataIn['layout']]
     
-    # Create a namespace to simulate that returned by parseargs
+    # Create a namespace the same as that returned by parseargs
     opts = Namespace(
-        fullFeatureMatrixFile = os.path.join(
+        fullFeatureMatrix = os.path.join(
             FEATURE_SPACE_DIR, files['fullFeatureMatrix']),
-        xyPreSquiggle = os.path.join(
+        xyPositions = os.path.join(
             VIEW_DIR, files['xyPreSquiggle']),
         newNodes = dataIn['nodes'],
     )
@@ -52,9 +52,9 @@ def calc(dataIn, app):
 
     # Call the calc script
     # TODO spawn a process
-    rc = Nof1.viaHub(opts)
+    rc = Nof1.whateverRoutine(opts)
     
-    # TODO Handle any errors and success response
+    # TODO Handle errors and success response
     #response = Response()
     #response.data = json.dumps(rc)
     #return response

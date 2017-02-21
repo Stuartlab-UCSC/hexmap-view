@@ -8,4 +8,3 @@ Web API
 
    overlayNodes
    createMap
-   future
