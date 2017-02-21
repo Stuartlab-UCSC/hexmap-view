@@ -1,5 +1,5 @@
-Create a map
-============
+Future: Create a map
+====================
 
 https://<hub>/query/**createMap**
 

@@ -51,14 +51,14 @@ def log(level, message, app):
 
 # Find the maps available
 def availableMaps():
-    # TODO: really go get the maps available
+    # TODO: really go get all of the maps
     return [
         'CKCC/v3'
     ]
     
 # Find the layouts available for this map
 def availableLayouts(map):
-    # TODO: really go get the layouts available
+    # TODO: really go get the layouts for this map
     return [
         'mRNA'
     ]
@@ -89,3 +89,23 @@ def getMetaData(map):
     } \
     '
     return json.loads(metaJson)
+
+# Convert a list of TSV lines to a python 2d array
+def tsvListToPythonArray(tsvList):
+    import csv
+    
+    tsvReader = csv.reader(tsvList, delimiter='\t')
+    pyArray = []
+    i = 0
+    for row in tsvReader:
+        pyArray[i] = []
+        j = 0
+        for cell in row:
+            pyArray[i][j] = cell
+            j += 1
+        i += 1
+
+    return pyArray
+
+# Convert a list of TSV lines to a numpy 2d array
+#def tsvListToNumpyArray(tsvList):

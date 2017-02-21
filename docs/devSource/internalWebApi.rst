@@ -25,23 +25,43 @@ Retrieve the map names available on this view server, both major and minor.
 TBD
 
 
-Get map view data
------------------
+Get map file by file name
+-------------------------
 
-https://<hub>/query/data/view/<mapID>/<data-file>
+https://<hub>/file/<filename>/<map>
 
 GET or POST with content-type: application/json
 
 data-type: json
 
 This is a general data file retrieval API usable for any data file within a
-map's view data directory.
+map's view data directory. Used by the viewer to retrieve view files.
 
 Example: retrieve the attribute names for the treehouse v3 map::
 
- https://treehouseHexHub.ucsc.edu/query/data/view/CKCC/v3/layers.tab
+ https://treehouseHexHub.ucsc.edu/file/layers.tab/CKCC/v3
 
- TBD
+TBD
+
+Get map file by type
+--------------------
+
+https://<hub>/file/<type>/<name>/<mapID>
+
+GET or POST with content-type: application/json
+
+data-type: json
+
+This retrieves certain data files by type within a map's view data directory.
+
+* <type> : one of: 'attr', 'node', 'layout', 'xyPreSquiggle'
+* <name> : the name of the attribute, node or layout for types layout and xyPreSquiggle
+
+Example: retrieve the attribute names for the treehouse v3 map::
+
+ https://treehouseHexHub.ucsc.edu/data/attr/Tissue/CKCC/v3
+
+TBD
 
 
 Reflect from one map to another

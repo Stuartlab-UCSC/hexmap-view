@@ -4,8 +4,7 @@ Internal Calc API on Hub
 .. toctree::
    :maxdepth: 1
 
-   overlayNodes
-   createMap
+   Nof1
 
 General information
 -------------------
@@ -21,46 +20,20 @@ receipt of a request via the web API.
 Prior to script call
 --------------------
 Prior to calling the script, parameters received in the http request are
-extracted from JSON into a python data structure and validated.
+extracted from JSON into a python, sanity validated, and
+file locations are derived from the map, layout and/or attribute.
 
 File paths are derived from the map ID, etc before calling the script.
 
 Script call
 -----------
 The computation script is called from the http server via a spawned python
-process, passing the parameters as a python data structure to a function named
-'webApi'.
+process, passing the parameters as a python Namespace object.
 
-Defaults for parameters not provided should be set by the computation script in
-webApi's parameters. Any other defaults should be set in common code used via
+Defaults for parameters not provided should be set by the computation script
+in common code used via
 the web API, command-line, or other entry points so that they are set in only
 one place.
-
-Successful return
------------------
-The script should return a python data struct upon success. Any output written
-to stdout or stderr is ignored.
-
-Failure return
----------------
-The script should return a one upon failure. Explicitly-caught errors should be
-reported via stderr before returning with a one.
-
-The script should capture any errors not explicitly captured with this sort of
-logic::
-
-    try:
-        return_value = main(opts)
-    except:
-        traceback.print_exc()
-        return_value = 1
-    sys.exit(return_value)
-
-Any output to stdout is ignored.
-
-Note that this is more standard and different from our previous way of calling
-scripts where an explicitly-caught error wrote a message beginning with 'Error'
-to stdout and returned a value of zero.
 
 After script call
 -----------------
