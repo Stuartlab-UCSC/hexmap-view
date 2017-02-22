@@ -21,7 +21,7 @@ def getLayerIndex(layerName,layers):
     filename = layers[1].loc[layerName]
     return filename[filename.index('_')+1:filename.index('.')]
 
-def readXYs(fpath,preOrPost='post'):
+def readXYs(fpath,preOrPost='pre'):
     '''
     reads the xy positions from file
     the preOrPost arg specifies whether a pre or post squiggle file is being read,
@@ -31,9 +31,9 @@ def readXYs(fpath,preOrPost='post'):
     '''
 
     if preOrPost == 'post':
-        return pd.read_csv(fpath,sep='\t',index_col=0)
-    else:
         return pd.read_csv(fpath,sep='\t',index_col=0,header=None)
+    else:
+        return pd.read_csv(fpath,sep='\t',index_col=0)
 
 def trimLayerFiles(layer_files):
     '''
