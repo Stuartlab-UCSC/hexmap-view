@@ -8,11 +8,11 @@ import Nof1_hub
 
 app = Flask(__name__)
 
-# TODO use env vars for these installation-specific config values
+# TODO use env vars for this installation-specific config
 app.config.from_object('config.DevelopmentSwatConfig')
 #app.config.from_object('config.ProductionKolossusConfig')
 
-# TODO: can this be stashed in flask's app.config object?
+# TODO: can ctx this be stashed in flask's app.config object?
 ctx = {
     'viewDir': '/Users/swat/data/view'
     #'viewDir': '/hive/groups/hexmap/prod/data/view'
@@ -33,7 +33,7 @@ def validatePost():
 def successResponse(success):
     response = jsonify(success.to_dict())
     response.status_code = 200
-    #log('debug', 'response: ' + str(response), current_app)
+    log('info', 'response: ' + str(response), current_app)
     return response
 
 # Register the error handler
@@ -46,12 +46,12 @@ def errorResponse(error):
     return response
 
 """
-# Handle the file routes by filename
+# Handle file request routes by view file name
 @app.route('/file/<string:filename>/<path:map>', methods=['POST', 'GET'])
 def queryFile(filename, map):
 """
 
-# Handle the query routes
+# Handle query/<operation> routes
 @app.route('/query/<string:operation>', methods=['POST'])
 def queryRoute(operation):
 

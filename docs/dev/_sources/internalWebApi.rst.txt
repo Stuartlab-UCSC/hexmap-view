@@ -1,5 +1,5 @@
-Internal Web API on Hub
-=======================
+Internal Web API Overview
+=========================
 
 .. toctree::
    :maxdepth: 1
