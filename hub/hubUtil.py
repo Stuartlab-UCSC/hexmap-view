@@ -1,5 +1,7 @@
 
 import json
+import pandas as pd
+from cStringIO import StringIO
 
 # Define a success response class
 class SuccessResp(Exception):
@@ -29,8 +31,6 @@ class ErrorResp(Exception):
         rv = dict(self.payload or ())
         rv['message'] = self.message
         return rv
-
-from argparse import Namespace
 
 # Log a message referencing the job ID if there is one
 def log(level, message, app):
@@ -64,11 +64,9 @@ def availableLayouts(map):
     ]
     
 # Does this map exist?
-def isMapExistant(map):
-    if map in availableMaps():
-        return True
-    return False
-    
+def isMapExistant(mapId):
+    return mapId in availableMaps()
+
 # Does this layout exist for this map?
 def isLayoutExistant(layout, map):
     if layout in availableLayouts(map):
@@ -83,7 +81,7 @@ def getMetaData(map):
         "Nof1": { \
             "mRNA": { \
                 "fullFeatureMatrix": "CKCC/v3/expression.tab", \
-                "xyPreSquiggle": "CKCC/v3/xyPreSquiggle_0.tab" \
+                "xyPreSquiggle": "CKCC/v3/assignments0.tab" \
             } \
         } \
     } \
@@ -107,5 +105,12 @@ def tsvListToPythonArray(tsvList):
 
     return pyArray
 
+def tabArrayToPandas(tabArray):
+    '''
+    Takes a tab delemited array and makes a pandas dataframe
+    @param tabArray:
+    @return: pandas dataframe
+    '''
+    return pd.read_csv(StringIO('\n'.join(tabArray)),sep='\t',index_col=0)
 # Convert a list of TSV lines to a numpy 2d array
 #def tsvListToNumpyArray(tsvList):
