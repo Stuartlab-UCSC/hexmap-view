@@ -1,8 +1,7 @@
 
 import os.path, json, types,sys
-from argparse import Namespace
 from flask import Response
-from hubUtil import ErrorResp, getMetaData, isLayoutExistant, isMapExistant, log, tabArrayToPandas
+from hubUtil import *
 import numpy as np
 
 import newplacement
@@ -10,28 +9,44 @@ import compute_sparse_matrix
 import leesL
 
 # TODO where to we configure our app similar to app.config?
-FEATURE_SPACE_DIR = '/home/duncan/dtmp_data/data/featureSpace'
-VIEW_DIR = '/home/duncan/dtmp_data/data/view/'
+# these are now in the meta.jsons which we aren't reading yet???
+FEATURE_SPACE_DIR = ''
+VIEW_DIR = ''
 
 # Validate an overlayNodes query
-def validateOverlayNodes(dataIn):
-    if 'map' not in dataIn:
-        raise ErrorResp('Map parameter missing or malformed')
+def validateNof1(data):
 
-    if 'layout' not in dataIn:
-        raise ErrorResp('Layout parameter missing or malformed')
+    # Do some basic checks on required parameters
+    validateMap(data, True)
+    validateLayout(data, True)
+    if 'nodes' not in data:
+        raise ErrorResp('nodes parameter missing or malformed')
+    if not isinstance(data['nodes'], dict):
+        raise ErrorResp('nodes parameter should be a dictionary')
+    if len(data['nodes'].keys()) < 1:
+        raise ErrorResp('there are no nodes in the nodes dictionary')
+    
+    # TODO if we make nodes a tsv list...
+    #if not isinstance(data['nodes'], list):
+    #    raise ErrorResp('nodes parameter should be a list/array')
 
-    if 'nodes' not in dataIn:
-        raise ErrorResp('Nodes parameter missing or malformed')
+    # Do some basic checks on optional parameters
+    validateEmail(data)
+    validateViewServer(data)
+    if 'neighborCount' in data and \
+        (not isinstance(data['neighborCount'], int) or \
+        data['neighborCount'] < 1):
+        raise ErrorResp('neighborCount parameter should be a positive integer')
 
-    if not isinstance(dataIn['nodes'], types.DictType):
-        raise ErrorResp('Nodes parameter should result in a python dict')
-
-    if not isMapExistant(dataIn['map']):
-        raise ErrorResp('Map does not exist: ' + dataIn['map'])
-
-    if not isLayoutExistant(dataIn['layout'], dataIn['map']):
-        raise ErrorResp('Layout does not exist: ' + dataIn['layout'])
+    # Check for valid map and layout
+    mapLayouts = availableMapLayouts('Nof1')
+    if not data['map'] in mapLayouts:
+        raise ErrorResp(
+            'Map does not have any layouts with background data: ' +
+            data['map'])
+    if not data['layout'] in mapLayouts[data['map']]:
+        raise ErrorResp('Layout does not have background data: ' +
+            data['layout'])
 
 def outputToJson(neighboorhood, xys, urls):
     '''
@@ -63,24 +78,42 @@ def outputToJson(neighboorhood, xys, urls):
 
     return retDict
 
-def calc(dataIn,app):
+# The entry point from the hub URL routing
+def calc(dataIn, ctx):
 
-    validateOverlayNodes(dataIn)
+
+    validateNof1(dataIn)
     
     # Find the Nof1 data files for this map and layout
+
     meta = getMetaData(dataIn['map'])
     files = meta['Nof1'][dataIn['layout']]
 
-    #file paths to the needed reference files
-    ref_filepath = os.path.join(FEATURE_SPACE_DIR, files['fullFeatureMatrix'])
-    xy_filepath  = os.path.join(VIEW_DIR, files['xyPreSquiggle'])
+    meta = getMetaData(map, ctx)
+    files = meta['layouts'][dataIn['layout']]
+    
+    # Check to see if the data files exist
+    # TODO: test both of these checks
+    if not os.path.exists(files['fullFeatureMatrix']):
+        raise ErrorResp('full feature matrix file not found: ' +
+            files['fullFeatureMatrix'])
 
-    #python data structures needed by function
-    newNodesDF = tabArrayToPandas(dataIn['nodes'])
-    referenceDF = compute_sparse_matrix.numpyToPandas(*compute_sparse_matrix.read_tabular(ref_filepath))
-    xyDF        = leesL.readXYs(xy_filepath,preOrPost='pre')
+    elif not os.path.exists(files['xyPositions']):
+        raise ErrorResp('xy positions file not found: ' +
+            files['xyPositions'])
 
-    # Set optional parms
+    else:
+        #file paths to the needed reference files
+        ref_filepath = os.path.join(FEATURE_SPACE_DIR, files['fullFeatureMatrix'])
+        xy_filepath  = os.path.join(VIEW_DIR, files['xyPreSquiggle'])
+
+        #python data structures needed by function
+        newNodesDF =  tabArrayToPandas(dataIn['nodes'])
+        referenceDF = compute_sparse_matrix.numpyToPandas(*compute_sparse_matrix.read_tabular(ref_filepath))
+        xyDF        = leesL.readXYs(xy_filepath,preOrPost='pre')
+
+
+    # Set any optional parms included, letting the calc script set defaults.
     if 'neighborCount' in dataIn:
         top = dataIn['neighborCount']
     else:
@@ -98,9 +131,4 @@ def calc(dataIn,app):
         Do what we want with the error, throw a meaningful exception that the server knows how to respond to
         '''
         # TODO Handle errors and success response
-        response = Response()
-        response.data = "there was an error with the thingy"
-        return response
-
-
-
+        raise ErrorResp("There was an error during nOf1")

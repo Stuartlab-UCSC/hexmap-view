@@ -14,24 +14,24 @@ This parameter contains the options as a Namespace object,
 the same object returned by argparse.parse_args()::
 
  options = Namespace(
-    neighborCount=8, \
-    fullFeatureMatrix='/hexData/featureSpace/CKCC/v3/expression.2016.12.21.tab', \
-    xyPositions='/hexData/view/CKCC/v3/xyPreSquiggle_0.tab', \
-    newNodes={ \
-        mySample1: { \
-            ALK: 0.897645, \
-            TP53: 0.904140, \
-            POGZ: 0.792754, \
-            ... \
-        }, \
-        mySample2: { \
-            ALK: 0.655793, \
-            TP53: 0.279733, \
-            POGZ: 0.729547, \
-            ... \
-        }, \
-        ... \
-    } \
+    neighborCount=8,
+    fullFeatureMatrix='/hexData/featureSpace/CKCC/v3/expression.2016.12.21.tab',
+    xyPositions='/hexData/view/CKCC/v3/xyPreSquiggle_0.tab',
+    newNodes={
+        mySample1: {
+            ALK: 0.897645,
+            TP53: 0.904140,
+            POGZ: 0.792754,
+            ...
+        },
+        mySample2: {
+            ALK: 0.655793,
+            TP53: 0.279733,
+            POGZ: 0.729547,
+            ...
+        },
+        ...
+    }
  )
 
 Where:
@@ -46,25 +46,27 @@ Return success
 Upon success the return data will be a python data structure in the form::
 
  {
-    mySample1: {
-        x: 42,
-        y: 36
-        neighbors: {
-            node1: 0.352,
-            node2: 0.742,
-            ...
+    nodes: {
+        mySample1: {
+            x: 42,
+            y: 36
+            neighbors: {
+                node1: 0.352,
+                node2: 0.742,
+                ...
+            },
         },
-    },
-    mySample2: {
-        x: 42,
-        y: 36
-        neighbors: {
-            node1: 0.275,
-            node2: 0.965,
-            ...
+        mySample2: {
+            x: 42,
+            y: 36
+            neighbors: {
+                node1: 0.275,
+                node2: 0.965,
+                ...
+            },
         },
-    },
-    ...
+        ...
+    }
  }
 
 Where:

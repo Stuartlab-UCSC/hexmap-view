@@ -25,7 +25,7 @@ Content Example
     "individualViewUrls": True,
     "neighborCount": 8,
     "nodes": {
-        MySample1": {
+        "MySample1": {
             "ALK": "0.897645",
             "TP53": "0.904140",
             "POGZ": "0.792754",

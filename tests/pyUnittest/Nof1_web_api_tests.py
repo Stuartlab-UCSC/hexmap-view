@@ -29,7 +29,7 @@ class Nof1TestCase(unittest.TestCase):
             #content_type='application/json',
             data=dict(
                 username='username',
-                password='password'
+                password='password',
             )
         )
         try:
@@ -37,13 +37,13 @@ class Nof1TestCase(unittest.TestCase):
         except:
             s.assertTrue('', 'no json data in response')
         s.assertTrue(rv.status_code == 400)
-        s.assertTrue(data['message'] == 'Content-Type must be application/json')
+        s.assertTrue(data['error'] == 'Content-Type must be application/json')
 
-    def test_data_not_json(s):
+    def test_invalid_json(s):
         rv = s.app.post('/query/overlayNodes',
             content_type='application/json',
             data=dict(
-                map='someMapId'
+                map='someMapId',
             )
         )
         try:
@@ -51,13 +51,28 @@ class Nof1TestCase(unittest.TestCase):
         except:
             s.assertTrue('', 'no json data in response')
         s.assertTrue(rv.status_code == 400)
-        s.assertTrue(data['message'] == 'Post content is invalid JSON')
+        s.assertTrue(data['error'] == 'Post content is invalid JSON')
     
     def test_no_map(s):
         rv = s.app.post('/query/overlayNodes',
             content_type='application/json',
             data=json.dumps(dict(
-                someData='someData'
+                someData='someData',
+            ))
+        )
+        try:
+            data = json.loads(rv.data)
+        except:
+            s.assertTrue('', 'no json data in response')
+        #print "data['error']", data['error']
+        s.assertTrue(rv.status_code == 400)
+        s.assertTrue(data['error'] == 'map parameter missing or malformed')
+    
+    def test_map_not_string(s):
+        rv = s.app.post('/query/overlayNodes',
+            content_type='application/json',
+            data=json.dumps(dict(
+                map=1,
             ))
         )
         try:
@@ -65,13 +80,14 @@ class Nof1TestCase(unittest.TestCase):
         except:
             s.assertTrue('', 'no json data in response')
         s.assertTrue(rv.status_code == 400)
-        s.assertTrue(data['message'] == 'Map parameter missing or malformed')
-
+        s.assertTrue(data['error'] ==
+            'map parameter should be a string')
+    
     def test_no_layout(s):
         rv = s.app.post('/query/overlayNodes',
             content_type='application/json',
             data=json.dumps(dict(
-                map='someMap'
+                map='someMap',
             ))
         )
         try:
@@ -79,8 +95,24 @@ class Nof1TestCase(unittest.TestCase):
         except:
             s.assertTrue('', 'no json data in response')
         s.assertTrue(rv.status_code == 400)
-        s.assertTrue(data['message'] == 'Layout parameter missing or malformed')
+        s.assertTrue(data['error'] == 'layout parameter missing or malformed')
 
+    def test_layout_not_string(s):
+        rv = s.app.post('/query/overlayNodes',
+            content_type='application/json',
+            data=json.dumps(dict(
+                map='someMap',
+                layout=1,
+            ))
+        )
+        try:
+            data = json.loads(rv.data)
+        except:
+            s.assertTrue('', 'no json data in response')
+        s.assertTrue(rv.status_code == 400)
+        s.assertTrue(data['error'] ==
+            'layout parameter should be a string')
+    
     def test_no_nodes(s):
         rv = s.app.post('/query/overlayNodes',
             content_type='application/json',
@@ -94,7 +126,7 @@ class Nof1TestCase(unittest.TestCase):
         except:
             s.assertTrue('', 'no json data in response')
         s.assertTrue(rv.status_code == 400)
-        s.assertTrue(data['message'] == 'Nodes parameter missing or malformed')
+        s.assertTrue(data['error'] == 'nodes parameter missing or malformed')
 
     def test_nodes_not_python_dict(s):
         rv = s.app.post('/query/overlayNodes',
@@ -110,10 +142,93 @@ class Nof1TestCase(unittest.TestCase):
         except:
             s.assertTrue('', 'no json data in response')
         s.assertTrue(rv.status_code == 400)
-        s.assertTrue(data['message'] ==
-            'Nodes parameter should result in a python dict')
+        s.assertTrue(data['error'] ==
+            'nodes parameter should be a dictionary')
 
-    def test_map_exists(s):
+    def test_node_count_of_one_or_more(s):
+        rv = s.app.post('/query/overlayNodes',
+            content_type='application/json',
+            data=json.dumps(dict(
+                map='someMap',
+                layout='someLayout',
+                nodes = dict(
+                ),
+            ))
+        )
+        try:
+            data = json.loads(rv.data)
+        except:
+            s.assertTrue('', 'no json data in response')
+        s.assertTrue(rv.status_code == 400)
+        s.assertTrue(data['error'] ==
+            'there are no nodes in the nodes dictionary')
+
+    def test_email_not_python_list(s):
+        rv = s.app.post('/query/overlayNodes',
+            content_type='application/json',
+            data=json.dumps(dict(
+                map='someMap',
+                layout='someLayout',
+                nodes = dict(
+                    someNode='someValue',
+                ),
+                email=1,
+            ))
+        )
+        try:
+            data = json.loads(rv.data)
+        except:
+            s.assertTrue('', 'no json data in response')
+        s.assertTrue(rv.status_code == 400)
+        s.assertTrue(data['error'] ==
+            'email parameter should be a list/array of strings')
+
+    def test_viewServer_not_string(s):
+        rv = s.app.post('/query/overlayNodes',
+            content_type='application/json',
+            data=json.dumps(dict(
+                map='someMap',
+                layout='someLayout',
+                nodes = dict(
+                    someNode='someValue',
+                ),
+                email=['someone@somewhere'],
+                viewServer=1,
+            ))
+        )
+        try:
+            data = json.loads(rv.data)
+        except:
+            s.assertTrue('', 'no json data in response')
+        s.assertTrue(rv.status_code == 400)
+        #print "data['error']", data['error']
+        s.assertTrue(data['error'] ==
+            'viewServer parameter should be a string')
+
+    def test_neighborCount_not_integer(s):
+        rv = s.app.post('/query/overlayNodes',
+            content_type='application/json',
+            data=json.dumps(dict(
+                map='someMap',
+                layout='someLayout',
+                nodes = dict(
+                    someNode='someValue',
+                ),
+                email=['someone@somewhere'],
+                viewServer='https:tumormap.ucsc.edu',
+                neighborCount='a',
+            ))
+        )
+        try:
+            data = json.loads(rv.data)
+        except:
+            s.assertTrue('', 'no json data in response')
+        s.assertTrue(rv.status_code == 400)
+        #print "data['error']", data['error']
+        s.assertTrue(data['error'] ==
+            'neighborCount parameter should be a positive integer')
+    
+    def test_map_has_background_data(s):
         rv = s.app.post('/query/overlayNodes',
             content_type='application/json',
             data=json.dumps(dict(
@@ -129,17 +244,18 @@ class Nof1TestCase(unittest.TestCase):
         except:
             s.assertTrue('', 'no json data in response')
         s.assertTrue(rv.status_code == 400)
-        s.assertTrue(data['message'] == 'Map does not exist: someMap')
+        s.assertTrue(data['error'] ==
+            'Map does not have any layouts with background data: someMap')
 
-    def test_layout_exists(s):
+    def test_layout_has_background_data(s):
         rv = s.app.post('/query/overlayNodes',
             content_type='application/json',
             data=json.dumps(dict(
-                map='CKCC/v3',
+                map='Pancan12/SampleMap',
                 layout='someLayout',
                 nodes = dict(
                     someNode='someValue',
-                )
+                ),
             ))
         )
         try:
@@ -147,8 +263,10 @@ class Nof1TestCase(unittest.TestCase):
         except:
             s.assertTrue('', 'no json data in response')
         s.assertTrue(rv.status_code == 400)
-        s.assertTrue(data['message'] == 'Layout does not exist: someLayout')
-
+        #print "data['error']", data['error']
+        s.assertTrue(data['error'] ==
+            'Layout does not have background data: someLayout')
+    """
     def test_passing_all_validations(s):
         rv = s.app.post('/query/overlayNodes',
             content_type='application/json',
@@ -157,7 +275,7 @@ class Nof1TestCase(unittest.TestCase):
                 layout = 'mRNA',
                 nodes = dict(
                     someNode='someValue',
-                )
+                ),
             ))
         )
         try:
@@ -166,6 +284,7 @@ class Nof1TestCase(unittest.TestCase):
             s.assertTrue('', 'no json data in response')
         s.assertTrue(rv.status_code == 200)
         s.assertTrue(data['data'] == 'Success!')
+    """
     """
     def test_bookmark_creation(s):
 
@@ -204,9 +323,9 @@ class Nof1TestCase(unittest.TestCase):
         #print 'rv.status_code:', rv.status_code
         #print 'rv.data:', rv.data
         #print 'data:', data
-        #print "data['message']:", data["message"]
+        #print "data['error']:", data["message"]
         s.assertTrue(rv.status_code == 200)
-        """
+    """
     
 if __name__ == '__main__':
     unittest.main()

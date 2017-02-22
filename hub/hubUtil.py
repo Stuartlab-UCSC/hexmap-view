@@ -1,7 +1,10 @@
 
-import json
+
+
 import pandas as pd
 from cStringIO import StringIO
+import json, types
+
 
 # Define a success response class
 class SuccessResp(Exception):
@@ -29,12 +32,12 @@ class ErrorResp(Exception):
 
     def to_dict(self):
         rv = dict(self.payload or ())
-        rv['message'] = self.message
+        rv['error'] = self.message
         return rv
 
 # Log a message referencing the job ID if there is one
 def log(level, message, app):
-    # TODO we should report the job id here, maybe url
+    # TODO we should report the job id here, and maybe the url of the web API
 
     # Don't clutter up the testing output
     if app.config['TESTING']:
@@ -49,29 +52,31 @@ def log(level, message, app):
     elif level == 'debug':
         app.logger.debug(message)
 
-# Find the maps available
-def availableMaps():
-    # TODO: really go get all of the maps
-    return [
-        'CKCC/v3'
-    ]
+# Find the maps and layouts for a specific operation
+def availableMapLayouts(operation):
+
+    if operation == 'Nof1':
     
-# Find the layouts available for this map
-def availableLayouts(map):
-    # TODO: really go get the layouts for this map
-    return [
-        'mRNA'
-    ]
-    
-# Does this map exist?
-def isMapExistant(mapId):
-    return mapId in availableMaps()
+        # Scrape the data directories for meta.json files containing file paths
+        # for a full feature matrix and xyPositions.
+        # TODO: really go get these
+        return {
+            'Pancan12/SampleMap': [
+                'mRNA',
+                'CNV',
+            ],
+            'Pancan12/GeneMap': [
+                'mRNA',
+                'CNV',
+            ],
+        }
+    else:
+        # Not a supported operation
+        return None
 
 # Does this layout exist for this map?
 def isLayoutExistant(layout, map):
-    if layout in availableLayouts(map):
-        return True
-    return False
+    return layout in availableMapLayouts(map)
 
 # Retrieve the meta data for this map
 def getMetaData(map):
@@ -87,6 +92,29 @@ def getMetaData(map):
     } \
     '
     return json.loads(metaJson)
+
+# Retrieve the meta data for this map
+def getMetaData(map, ctx):
+    # Note: A full path name is used for the fullFeatureMatrix so this file may
+    # be located anywhere. A full path name is used for the xyPositions, rather
+    # than using the standard name of ../view/<map>/xyPreSquiggle_1.tab so that
+    # any xyPosition file could be associated with this map's layout. This would
+    # be useful if a better method to overlay a new node is found rather than
+    # using the centroid of the nearest neighbors pre-squiggle locations.
+
+    # TODO get real meta data from the view/<map>/meta.json file
+    meta =  {
+        "layouts": {
+            "mRNA": {
+                "fullFeatureMatrix":
+                    "/hive/groups/hexmap/data/prod/featureSpace/CKCC/v3/expression.tab",
+                "xyPositions":
+                    "/hive/groups/hexmap/data/prod/view/CKCC/v3/xyPreSquiggle_0.tab"
+            }
+        }
+    }
+    
+    return meta
 
 # Convert a list of TSV lines to a python 2d array
 def tsvListToPythonArray(tsvList):
@@ -112,5 +140,45 @@ def tabArrayToPandas(tabArray):
     @return: pandas dataframe
     '''
     return pd.read_csv(StringIO('\n'.join(tabArray)),sep='\t',index_col=0)
+
 # Convert a list of TSV lines to a numpy 2d array
 #def tsvListToNumpyArray(tsvList):
+
+# Convert a list of TSV lines to a pandas 2d array
+#def tsvListToPandasArray(tsvList):
+
+# Validate a string parameter
+def validateString(name, data, required=False):
+    if required and name not in data:
+        raise ErrorResp(name + ' parameter missing or malformed')
+    if not isinstance(data[name], types.StringTypes):
+        raise ErrorResp(name + ' parameter should be a string')
+
+# Validate a map parameter
+def validateMap(data, required):
+    validateString('map', data, required)
+
+# Validate a layout parameter
+def validateLayout(data, required):
+    validateString('layout', data, required)
+
+# Validate an optional email parameter
+def validateEmail(data):
+    if 'email' in data and not isinstance(data['email'], list):
+        raise ErrorResp('email parameter should be a list/array of strings')
+
+# Validate an optional view server parameter
+def validateViewServer(data):
+    if 'viewServer' not in data:
+        return
+    validateString('viewServer', data)
+    """
+    # TODO send a request to data['viewServer'] + '/testViewerUrl'
+    try:
+        viewerResponse = TODO
+    except:
+        raise ErrorResp('viewServer parameter is not a valid URL')
+
+    if viewerResponse.statusCode != 200:
+        raise ErrorResp('viewServer parameter is not a valid view server URL')
+    """
