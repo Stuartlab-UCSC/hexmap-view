@@ -71,7 +71,7 @@ on each of your nodes against the background nodes of an existing map.</p>
        <span class="o">...</span>
    <span class="p">],</span>
    <span class="s2">&quot;viewServer&quot;</span><span class="p">:</span> <span class="s1">&#39;https://tumormap.ucsc.edu&#39;</span><span class="p">,</span>
-   <span class="s2">&quot;individualViewUrls&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+   <span class="s2">&quot;individualViewUrls&quot;</span><span class="p">:</span> <span class="n">true</span><span class="p">,</span>
    <span class="s2">&quot;neighborCount&quot;</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>
    <span class="s2">&quot;nodes&quot;</span><span class="p">:</span> <span class="p">{</span>
        <span class="s2">&quot;MySample1&quot;</span><span class="p">:</span> <span class="p">{</span>
@@ -104,66 +104,10 @@ on each of your nodes against the background nodes of an existing map.</p>
 <li><strong>individualViewUrls</strong> : optional; defaults to False; True means a view URL for each node will be returned; False means all node positions will be returned in one view URL</li>
 <li><strong>neighborCount</strong> : optional; defaults to 6; number of nearest neighbors to consider in placing each node</li>
 </ul>
-<p>The nodes in this expanded json form would go over the wire with:</p>
-<p>stringCount = featureCount * nodeCount * 2</p>
-<p>Alternatively, a list of tsv lines would be more compact, which would make a
-difference in wire time for large node counts:</p>
-<p>stringCount = featureCount * (nodeCount + 1):</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="s2">&quot;nodes&quot;</span><span class="p">:</span> <span class="p">[</span>
-    <span class="s2">&quot;feature</span><span class="se">\t</span><span class="s2">MySample1</span><span class="se">\t</span><span class="s2">MySample2</span><span class="se">\t</span><span class="s2">MySample3&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;ALK</span><span class="se">\t</span><span class="s2">0.897645</span><span class="se">\t</span><span class="s2">0.897645</span><span class="se">\t</span><span class="s2">0.897645&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;TP53</span><span class="se">\t</span><span class="s2">0.904140</span><span class="se">\t</span><span class="s2">0.904140</span><span class="se">\t</span><span class="s2">0.904140&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;POGZ</span><span class="se">\t</span><span class="s2">0.792754</span><span class="se">\t</span><span class="s2">0.792754</span><span class="se">\t</span><span class="s2">0.792754&quot;</span><span class="p">,</span>
-    <span class="o">...</span>
-<span class="p">]</span>
-</pre></div>
-</div>
-<p>Caller considerations:</p>
-<ul class="simple">
-<li>Is this more error-prone being less readable, or are callers simply going load a tsv file into a list?</li>
-</ul>
-<p>Implementation considerations:</p>
-<ul class="simple">
-<li>when a python 2d array is desired, use hubUtil.tsvListToPythonArray()</li>
-<li>a similar method may be needed for tsv-list-to-numpy-2d-array, or to pandas if they don&#8217;t already exist</li>
-</ul>
 </div>
 <div class="section" id="response-success">
 <h2>Response success<a class="headerlink" href="#response-success" title="Permalink to this headline">¶</a></h2>
 <p>This is returned as HTTP 200 with the content as a JSON string in the form:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span>
-   <span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://tumormap.ucsc.edu/?bookmark=5563fdf09484a241d066022bf91a9e96d6ae1976c4d7502d384cc2a87001067a&quot;</span><span class="p">,</span>
-   <span class="s2">&quot;neighbors&quot;</span><span class="p">:</span> <span class="p">{</span>
-       <span class="s2">&quot;MySample1&quot;</span><span class="p">:</span> <span class="p">{</span>
-           <span class="s2">&quot;node1&quot;</span><span class="p">:</span> <span class="mf">0.352</span><span class="p">,</span>
-           <span class="s2">&quot;node2&quot;</span><span class="p">:</span> <span class="mf">0.742</span><span class="p">,</span>
-           <span class="o">...</span>
-       <span class="p">},</span>
-       <span class="s2">&quot;MySample2&quot;</span><span class="p">:</span> <span class="p">{</span>
-           <span class="s2">&quot;node1&quot;</span><span class="p">:</span> <span class="mf">0.275</span><span class="p">,</span>
-           <span class="s2">&quot;node2&quot;</span><span class="p">:</span> <span class="mf">0.965</span><span class="p">,</span>
-           <span class="o">...</span>
-       <span class="p">},</span>
-       <span class="o">...</span>
-    <span class="p">}</span>
-<span class="p">}</span>
-</pre></div>
-</div>
-<p>Where:</p>
-<ul class="simple">
-<li><dl class="first docutils">
-<dt><strong>url</strong>: view the new nodes overlaying the map with:</dt>
-<dd><ul class="first last">
-<li>the requested nodes in red with a pin/marker</li>
-<li>a newly-generated attribute of &#8216;&lt;requested-node&gt;: neighbors&#8217; for each requested node</li>
-</ul>
-</dd>
-</dl>
-</li>
-<li><strong>neighbors</strong> : contains the scores of the most similar neighbors.</li>
-</ul>
-<p>Alternatively, to support multiple nodes with a view URL for each node, we could
-return the data in this form:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span>
    <span class="s2">&quot;nodes&quot;</span><span class="p">:</span> <span class="p">{</span>
        <span class="s2">&quot;MySample1&quot;</span><span class="p">:</span> <span class="p">{</span>
@@ -188,6 +132,22 @@ return the data in this form:</p>
 <span class="p">}</span>
 </pre></div>
 </div>
+<p>Where:</p>
+<ul class="simple">
+<li><strong>neighbors</strong> : contains the scores of the most similar neighbors.</li>
+<li><dl class="first docutils">
+<dt><strong>url</strong>: view the new nodes overlaying the map with:</dt>
+<dd><ul class="first last">
+<li>the requested nodes in red with a pin/marker</li>
+<li>a newly-generated attribute of &#8216;&lt;requested-node&gt;: neighbors&#8217; for each requested node</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+<p>Note that if the optional input parameter of &#8216;individualViewUrls&#8217; is true, only
+one node will be at each URL. Otherwise the URLs returned for each node will be
+identical and contain all nodes.</p>
 </div>
 <div class="section" id="response-error">
 <h2>Response error<a class="headerlink" href="#response-error" title="Permalink to this headline">¶</a></h2>

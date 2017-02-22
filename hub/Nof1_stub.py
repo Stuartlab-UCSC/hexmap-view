@@ -4,8 +4,9 @@
 
 def whateverRoutine(opts):
 
-    #rc = main(opts) # The implementation goes here
-    rc = 0
+    if opts[
+    #result = main(opts) # The implementation goes here
+    result = 0
     
     # An error return
     if rc == 1:
