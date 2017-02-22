@@ -1,6 +1,10 @@
 
+
+
+import pandas as pd
+from cStringIO import StringIO
 import json, types
-from argparse import Namespace
+
 
 # Define a success response class
 class SuccessResp(Exception):
@@ -31,7 +35,7 @@ class ErrorResp(Exception):
         rv['error'] = self.message
         return rv
 
-# Log a message to the server's console
+# Log a message referencing the job ID if there is one
 def log(level, message, app):
     # TODO we should report the job id here, and maybe the url of the web API
 
@@ -67,10 +71,28 @@ def availableMapLayouts(operation):
             ],
         }
     else:
-    
         # Not a supported operation
         return None
-    
+
+# Does this layout exist for this map?
+def isLayoutExistant(layout, map):
+    return layout in availableMapLayouts(map)
+
+# Retrieve the meta data for this map
+def getMetaData(map):
+    # TODO get real meta data
+    metaJson = ' \
+    { \
+        "Nof1": { \
+            "mRNA": { \
+                "fullFeatureMatrix": "CKCC/v3/expression.tab", \
+                "xyPreSquiggle": "CKCC/v3/assignments0.tab" \
+            } \
+        } \
+    } \
+    '
+    return json.loads(metaJson)
+
 # Retrieve the meta data for this map
 def getMetaData(map, ctx):
     # Note: A full path name is used for the fullFeatureMatrix so this file may
@@ -85,9 +107,9 @@ def getMetaData(map, ctx):
         "layouts": {
             "mRNA": {
                 "fullFeatureMatrix":
-                    "/hive/groups/hexmap/data/prod/featureSpace/CKCC/v3/expression.tab", \
+                    "/hive/groups/hexmap/data/prod/featureSpace/CKCC/v3/expression.tab",
                 "xyPositions":
-                    "/hive/groups/hexmap/data/prod/view/CKCC/v3/xyPreSquiggle_0.tab" \
+                    "/hive/groups/hexmap/data/prod/view/CKCC/v3/xyPreSquiggle_0.tab"
             }
         }
     }
@@ -110,6 +132,14 @@ def tsvListToPythonArray(tsvList):
         i += 1
 
     return pyArray
+
+def tabArrayToPandas(tabArray):
+    '''
+    Takes a tab delemited array and makes a pandas dataframe
+    @param tabArray:
+    @return: pandas dataframe
+    '''
+    return pd.read_csv(StringIO('\n'.join(tabArray)),sep='\t',index_col=0)
 
 # Convert a list of TSV lines to a numpy 2d array
 #def tsvListToNumpyArray(tsvList):

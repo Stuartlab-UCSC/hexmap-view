@@ -21,13 +21,19 @@ def getLayerIndex(layerName,layers):
     filename = layers[1].loc[layerName]
     return filename[filename.index('_')+1:filename.index('.')]
 
-def readXYs(fpath):
-	'''
+def readXYs(fpath,preOrPost='pre'):
+    '''
     reads the xy positions from file
+    the preOrPost arg specifies whether a pre or post squiggle file is being read,
+       one of the file types doesn't have a header TODO: both file types should have a header
     :param fpath: file path  to tab seperated x-y position file, 1st col should be row names
     :return: a pandas data frame with index set to node Ids and the 
     '''
-	return pd.read_csv(fpath,sep='\t',index_col=0)
+
+    if preOrPost == 'post':
+        return pd.read_csv(fpath,sep='\t',index_col=0,header=None)
+    else:
+        return pd.read_csv(fpath,sep='\t',index_col=0)
 
 def trimLayerFiles(layer_files):
     '''
