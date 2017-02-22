@@ -2,7 +2,7 @@
 import os.path, json, types
 from argparse import Namespace
 from flask import Response
-from hubUtil import ErrorResp, log, getMetaData, availableMapLayouts
+from hubUtil import ErrorResp, getMetaData, availableMapLayouts
 from hubUtil import validateMap, validateLayout, validateEmail, \
     validateViewServer
 import Nof1
@@ -17,7 +17,9 @@ def validateNof1(data):
         raise ErrorResp('nodes parameter missing or malformed')
     if not isinstance(data['nodes'], dict):
         raise ErrorResp('nodes parameter should be a dictionary')
-        
+    if len(data['nodes'].keys()) < 1:
+        raise ErrorResp('there are no nodes in the nodes dictionary')
+    
     # TODO if we make nodes a tsv list...
     #if not isinstance(data['nodes'], list):
     #    raise ErrorResp('nodes parameter should be a list/array')
@@ -59,7 +61,7 @@ def calc(dataIn, ctx):
         raise ErrorResp('xy positions file not found: ' +
             files['xyPositions'])
 
-    # Put the options to be passed to the calc script in a Namespace object,the
+    # Put the options to be passed to the calc script in a Namespace object, the
     # same object returned by argparse.parse_args().
     opts = Namespace(
         fullFeatureMatrix = files['fullFeatureMatrix'],
@@ -67,17 +69,25 @@ def calc(dataIn, ctx):
         newNodes = dataIn['nodes'],
     )
     
-    # Set any optional parms included, letting
-    # defaults be set by the calc script.
+    # Set any optional parms included, letting the calc script set defaults.
     if 'neighborCount' in dataIn:
         opts.neighborCount = dataIn['neighborCount']
 
     # Call the calc script
     # TODO spawn a process
-    rc = Nof1.whateverRoutine(opts)
+    result = Nof1.whateverRoutine(opts)
+
+    # TODO test
+    if error in result:
+        raise ErrorResp(result['error'])
+
+    
+
+
     
     # TODO Handle errors and success response,
-    # generate URLs
+    # Generate URLs
+    # Send completion Email
     #
     #response = Response()
     #response.data = json.dumps(rc)

@@ -3,9 +3,10 @@
 
 if [ $# -eq 0 ]; then
     echo "one argument is needed like this:"
-    echo "    all tests: run all"
-    echo "     one file: run test_stats"
-    echo "     one test: run test_stats.TestStats.test_stats"
+    echo "  all tests: run all (all except for hub tests)"
+    echo "  hub tests: run hub"
+    echo "   one file: run test_stats"
+    echo "   one test: run test_stats.TestStats.test_stats"
     exit 1
 fi
 # Note: the below are currently order-dependent due to issues with parallel code
@@ -18,6 +19,11 @@ PARALLEL_CHALLENGED=( \
     test_dynLayoutAware \
     test_sim6Layout \
 )
+HUB=( \
+    hub_web_api_tests \
+    Nof1_web_api_tests \
+)
+
 # these need fixing up:
     #test_createMapUi \
     #test_http \
@@ -25,10 +31,13 @@ PARALLEL_CHALLENGED=( \
     #test_queryOverlayNodes \
     #test_remoteCalc \
 
-export PYTHONPATH=$(pwd)/../../www/server:./
+export PYTHONPATH=$(pwd)/../../www/server:$(pwd)/../../hub:./
 TO_RUN=($1)
 if [ $1 == 'all' ]
     then TO_RUN="${ALL[@]}"
+elif [ $1 == 'hub' ]
+    then TO_RUN="${HUB[@]}"
+
 fi
 
 # Run our well-behaved tests in parallel

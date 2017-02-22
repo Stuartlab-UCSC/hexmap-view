@@ -126,7 +126,7 @@ class Nof1TestCase(unittest.TestCase):
         except:
             s.assertTrue('', 'no json data in response')
         s.assertTrue(rv.status_code == 400)
-        s.assertTrue(data['error'] == 'parameter missing or malformed: nodes ')
+        s.assertTrue(data['error'] == 'nodes parameter missing or malformed')
 
     def test_nodes_not_python_dict(s):
         rv = s.app.post('/query/overlayNodes',
@@ -144,6 +144,24 @@ class Nof1TestCase(unittest.TestCase):
         s.assertTrue(rv.status_code == 400)
         s.assertTrue(data['error'] ==
             'nodes parameter should be a dictionary')
+
+    def test_node_count_of_one_or_more(s):
+        rv = s.app.post('/query/overlayNodes',
+            content_type='application/json',
+            data=json.dumps(dict(
+                map='someMap',
+                layout='someLayout',
+                nodes = dict(
+                ),
+            ))
+        )
+        try:
+            data = json.loads(rv.data)
+        except:
+            s.assertTrue('', 'no json data in response')
+        s.assertTrue(rv.status_code == 400)
+        s.assertTrue(data['error'] ==
+            'there are no nodes in the nodes dictionary')
 
     def test_email_not_python_list(s):
         rv = s.app.post('/query/overlayNodes',
@@ -233,7 +251,7 @@ class Nof1TestCase(unittest.TestCase):
         rv = s.app.post('/query/overlayNodes',
             content_type='application/json',
             data=json.dumps(dict(
-                map='CKCC/v3',
+                map='Pancan12/SampleMap',
                 layout='someLayout',
                 nodes = dict(
                     someNode='someValue',
@@ -245,6 +263,7 @@ class Nof1TestCase(unittest.TestCase):
         except:
             s.assertTrue('', 'no json data in response')
         s.assertTrue(rv.status_code == 400)
+        #print "data['error']", data['error']
         s.assertTrue(data['error'] ==
             'Layout does not have background data: someLayout')
     """

@@ -57,9 +57,14 @@ def availableMapLayouts(operation):
         # for a full feature matrix and xyPositions.
         # TODO: really go get these
         return {
-            'CKCC/v3': [
-                'mRNA'
-            ]
+            'Pancan12/SampleMap': [
+                'mRNA',
+                'CNV',
+            ],
+            'Pancan12/GeneMap': [
+                'mRNA',
+                'CNV',
+            ],
         }
     else:
     
