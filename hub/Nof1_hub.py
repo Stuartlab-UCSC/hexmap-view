@@ -50,13 +50,14 @@ def validateNof1(data):
 
 def outputToJson(neighboorhood, xys, urls):
     '''
-
-    @param neighboorhood:
-    @param xys:
-    @param urls:
-    @return:
+    This function takes the output from the newplacement call
+     and puts it into the expected format
+    @param neighboorhood: pandas df
+    @param xys: pandas df
+    @param urls: an array of URLs
+    @return: dictionary to be turned into a JSON str
     '''
-    #a dictionary to populate with results
+    #return dictionary to populate with results
     retDict = {"nodes":{}}
 
     #seperating the columns of the neighborhood df
@@ -64,7 +65,7 @@ def outputToJson(neighboorhood, xys, urls):
     newNodes  = neighboorhood[neighboorhood.columns[0]]
     neighbors = neighboorhood[neighboorhood.columns[1]]
     scores    = neighboorhood[neighboorhood.columns[2]]
-
+    #grab column names for indexing
     xcol = xys.columns[0]
     ycol = xys.columns[1]
 
@@ -78,6 +79,22 @@ def outputToJson(neighboorhood, xys, urls):
 
     return retDict
 
+def putDataIntoPythonStructs(featurePath,xyPath,tabSepArray):
+    '''
+    takes in the filenames and tab seperated array and puts in structures needed
+     for placement calc
+    @param featurePath:
+    @param xyPath:
+    @param tabSepArray:
+    @return:
+    '''
+    return (compute_sparse_matrix.numpyToPandas(
+                 *compute_sparse_matrix.read_tabular(featurePath)
+                                                 ),
+             leesL.readXYs(xyPath,preOrPost='pre'),
+             tabArrayToPandas(tabSepArray)
+             )
+
 # The entry point from the hub URL routing
 def calc(dataIn, ctx):
 
@@ -86,12 +103,9 @@ def calc(dataIn, ctx):
     
     # Find the Nof1 data files for this map and layout
 
-    meta = getMetaData(dataIn['map'])
+    meta = getMetaData(dataIn['map'],ctx)
     files = meta['Nof1'][dataIn['layout']]
 
-    meta = getMetaData(map, ctx)
-    files = meta['layouts'][dataIn['layout']]
-    
     # Check to see if the data files exist
     # TODO: test both of these checks
     if not os.path.exists(files['fullFeatureMatrix']):
@@ -102,16 +116,11 @@ def calc(dataIn, ctx):
         raise ErrorResp('xy positions file not found: ' +
             files['xyPositions'])
 
-    else:
-        #file paths to the needed reference files
-        ref_filepath = os.path.join(FEATURE_SPACE_DIR, files['fullFeatureMatrix'])
-        xy_filepath  = os.path.join(VIEW_DIR, files['xyPreSquiggle'])
-
-        #python data structures needed by function
-        newNodesDF =  tabArrayToPandas(dataIn['nodes'])
-        referenceDF = compute_sparse_matrix.numpyToPandas(*compute_sparse_matrix.read_tabular(ref_filepath))
-        xyDF        = leesL.readXYs(xy_filepath,preOrPost='pre')
-
+    else: #the files are good lets get the python structs
+        referenceDF, xyDF, newNodesDF =\
+             putDataIntoPythonStructs(files['fullFeatureMatrix'],
+                                      files['xyPreSquiggle'],
+                                      dataIn['nodes'])
 
     # Set any optional parms included, letting the calc script set defaults.
     if 'neighborCount' in dataIn:
@@ -119,11 +128,12 @@ def calc(dataIn, ctx):
     else:
         top = 6
 
+    #call the nOf1 function
     try:
         neighboorhood, xys, urls = newplacement.placeNew(newNodesDF,referenceDF,xyDF,top,num_jobs=1)
         jdict = outputToJson(neighboorhood,xys,urls)
         response = Response()
-        response.data = json.dumps(rc)
+        response.data = json.dumps(jdict)
         return response
 
     except:
