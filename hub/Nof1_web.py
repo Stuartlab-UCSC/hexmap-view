@@ -114,6 +114,25 @@ def calcComplete(result, ctx):
                 dataIn['viewServer'] + '/?bookmark=' + bData['bookmark']
 
     # TODO: Send completion Email
+    """
+    # old javascript routine:
+    // Send email to interested parties
+    var subject = 'tumor map results: ',
+        msg = 'Tumor Map results are ready to view at:\n\n';
+    
+    _.each(emailUrls, function (node, nodeName) {
+        msg += nodeName + ' : ' + node + '\n';
+        subject += node + '  ';
+    });
+        
+    if ('email' in dataIn) {
+        sendMail(dataIn.email, subject, msg);
+        msg += '\nAlso sent to: ' + dataIn.email;
+    } else {
+        msg += '\nNo emails included in request';
+    }
+    sendMail(ADMIN_EMAIL, subject, msg);
+    """
 
     raise SuccessResp(result)
 

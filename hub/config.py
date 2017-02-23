@@ -3,10 +3,10 @@ class Config(object):
     DEBUG = False
     TESTING = False
 
-class ProductionKolossusConfig(Config):
+class Production(Config):
     pass
 
-class DevelopmentSwatConfig(Config):
+class Development(Config):
     DEBUG = True
 
 class TestingConfig(Config):

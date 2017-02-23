@@ -9,12 +9,12 @@ import Nof1_web
 app = Flask(__name__)
 
 # TODO use env vars for this installation-specific config
-app.config.from_object('config.DevelopmentSwatConfig')
-#app.config.from_object('config.ProductionKolossusConfig')
+app.config.from_object('config.Development')
+#app.config.from_object('config.Production')
 
 # TODO: can ctx be stashed in flask's app.config object?
-# If not, clean up config.py to just dev & prod
-# or ctx be stashed in the request object?
+# If not, clean up config.py to just dev & prod.
+# Or should ctx be stashed in the request object?
 ctx = {
     'viewServerDefault': 'http://localhost:3333'
     #'viewServerDefault': 'https://tumormap.ucsc.edu'

@@ -292,7 +292,6 @@ function add_to_queue (operation, json, calcCtx) {
     // Create a job and add it to the job queue
     var operationLabels = {
             'layout': 'create_map',
-            'overlayNodes': 'N_of_1',
             'statsDynamic': 'dynamic_stats',
         },
         label = operationLabels[operation],
