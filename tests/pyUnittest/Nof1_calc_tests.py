@@ -57,7 +57,7 @@ class Nof1CalcTestCase(unittest.TestCase):
 
         refDF,xyDF,newNodesDF = putDataIntoPythonStructs(featMat,preSquig,nodesDict)
 
-        retDict = outputToDict(*newplacement.placeNew(newNodesDF,refDF,xyDF,6))
+        retDict = outputToDict(*newplacement.placeNew(newNodesDF,refDF,xyDF,6,'mapId'))
         s.assertTrue(len(retDict['nodes'].keys()) == 60,
                      'json output has wrong number of nodes:')
 
