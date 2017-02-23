@@ -18,8 +18,9 @@ import pandas as pd
 import sys
 import leesL
 import argparse
+import numpy as np
 
-def parse_args(args):
+def parse_args():
 
     parser = argparse.ArgumentParser(description=__doc__,
         formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -142,30 +143,30 @@ def getPlacementUrl(xy,sampleId='',mapID='CKCC/v3'):
                     "&x=" + str(x) +  "&y=" + str(y)
     return url_
 
-def main(args):
+def main():
     '''
     This isn't implemented yet
     @param args:
     @return:
     '''
 
-    args = parse_args(args)
+    args = parse_args()
+    #get filenames from args
     fin = args.refdata
     xyDF = args.xys
     newSamples = args.newNodes
+
+    #needed parmaters
+    mapId = args.mapID
     top = args.top
     num_jobs = args.num_jobs
     outbase = args.outputbase
+
+    #make the output file names from the given base name
     neiFile = outbase + '_neighbors.tab'
     xyFile = outbase + '_xypositions.tab'
-    urlFile = outbase + '_urls.tab'
-    mapId = args.mapID
+    urlFile = outbase + '_urls.list'
 
-    '''
-    fin = '/home/duncan/dtmp_data/data/v3/data0.tab'
-    xyDF = '/home/duncan/dtmp_data/data/v3/assignments0.tab'
-    newSamples = '/home/duncan/Desktop/TumorMap/TMdev/hexagram/tests/pyUnittest/in/layout/nOf1Vector.tab'
-    '''
     #read needed data in as pandas dataframe
     referenceDF = compute_sparse_matrix.numpyToPandas(*compute_sparse_matrix.read_tabular(fin))
     newNodesDF  = compute_sparse_matrix.numpyToPandas(*compute_sparse_matrix.read_tabular(newSamples))
@@ -174,10 +175,10 @@ def main(args):
     #do computation
     neighboorhoods, xys, urls = placeNew(newNodesDF,referenceDF,xyDF,top,num_jobs,mapId)
 
-    #write them out to files
+    #write all output to files
     neighboorhoods.to_csv(neiFile,sep='\t')
     xyDF.to_csv(xyFile,sep='\t')
+    np.array(urls).tofile(urlFile,sep='\n')
 
-    #now what are we doing with these when called from main?
-    print 'the main function is not implemented completely'
-    sys.exit(1)
+if __name__ == "__main__":
+    sys.exit(main())
