@@ -205,6 +205,7 @@ def calc(dataIn, ctx, app):
         fullFeatureMatrix = files['fullFeatureMatrix'],
         xyPositions = files['xyPositions'],
         newNodes = dataIn['nodes'],
+        mapId = dataIn['map']
     )
     
     # Set any optional parms, letting the calc script set defaults.
