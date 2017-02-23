@@ -8,7 +8,7 @@ POST with content-type: application/json
 data-type: json
 
 This API takes data for one or more of your nodes and performs an N-of-1 analysis
-on each of your nodes against the background nodes of an existing map.
+on each against the background nodes of an existing map.
 
 Content Example
 ---------------

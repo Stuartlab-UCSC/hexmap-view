@@ -1,22 +1,17 @@
 
-import os.path, json, types,sys
+import os.path, json, types, requests
+from argparse import Namespace
 from flask import Response
-from hubUtil import *
-import numpy as np
+from hubUtil import SuccessResp, ErrorResp, getMetaData, availableMapLayouts
+from hubUtil import validateMap, validateLayout, validateEmail, \
+    validateViewServer
+import Nof1_stub
 
-import newplacement
-import compute_sparse_matrix
-import leesL
+def validateParameters(data):
 
-# TODO where to we configure our app similar to app.config?
-# these are now in the meta.jsons which we aren't reading yet???
-FEATURE_SPACE_DIR = ''
-VIEW_DIR = ''
+    # Validate an overlayNodes query
 
-# Validate an overlayNodes query
-def validateNof1(data):
-
-    # Do some basic checks on required parameters
+    # Basic checks on required parameters
     validateMap(data, True)
     validateLayout(data, True)
     if 'nodes' not in data:
@@ -26,11 +21,7 @@ def validateNof1(data):
     if len(data['nodes'].keys()) < 1:
         raise ErrorResp('there are no nodes in the nodes dictionary')
     
-    # TODO if we make nodes a tsv list...
-    #if not isinstance(data['nodes'], list):
-    #    raise ErrorResp('nodes parameter should be a list/array')
-
-    # Do some basic checks on optional parameters
+    # Basic checks on optional parameters
     validateEmail(data)
     validateViewServer(data)
     if 'neighborCount' in data and \
@@ -38,7 +29,7 @@ def validateNof1(data):
         data['neighborCount'] < 1):
         raise ErrorResp('neighborCount parameter should be a positive integer')
 
-    # Check for valid map and layout
+    # Check that map and layout are available for n-of-1 analysis
     mapLayouts = availableMapLayouts('Nof1')
     if not data['map'] in mapLayouts:
         raise ErrorResp(
@@ -48,97 +39,128 @@ def validateNof1(data):
         raise ErrorResp('Layout does not have background data: ' +
             data['layout'])
 
-def outputToJson(neighboorhood, xys, urls):
-    '''
-    This function takes the output from the newplacement call
-     and puts it into the expected format
-    @param neighboorhood: pandas df
-    @param xys: pandas df
-    @param urls: an array of URLs
-    @return: dictionary to be turned into a JSON str
-    '''
-    #return dictionary to populate with results
-    retDict = {"nodes":{}}
+def createBookmark(state, viewServer):
 
-    #seperating the columns of the neighborhood df
-    # for processing
-    newNodes  = neighboorhood[neighboorhood.columns[0]]
-    neighbors = neighboorhood[neighboorhood.columns[1]]
-    scores    = neighboorhood[neighboorhood.columns[2]]
-    #grab column names for indexing
-    xcol = xys.columns[0]
-    ycol = xys.columns[1]
+    # Ask the view server to create a bookmark of this client state
+    bResult = requests.post(viewServer + '/query/createBookmark',
+        headers = { 'Content-type': 'application/json' },
+        data = json.dumps(state)
+    )
+    bData = json.loads(bResult.text)
+    if bResult.status_code == 200:
+        return bData
+    else:
+        ErrorResp(bData)
 
-    for i,node in enumerate(set(newNodes)):
-        maskArr = np.array(newNodes == node)
-        retDict['nodes'][node] = {}
-        retDict['nodes'][node]['neighbors'] = dict(zip(neighbors.iloc[maskArr],scores.iloc[maskArr]))
-        retDict['nodes'][node]['url'] = urls[i]
-        retDict['nodes'][node]['x'] = xys.loc[node,xcol]
-        retDict['nodes'][node]['y'] = xys.loc[node,ycol]
+def calcComplete(result, ctx):
 
-    return retDict
+    # The calculation has completed, so create bookmarks and send email
+    
+    dataIn = ctx['dataIn']
 
-def putDataIntoPythonStructs(featurePath,xyPath,tabSepArray):
-    '''
-    takes in the filenames and tab seperated array and puts in structures needed
-     for placement calc
-    @param featurePath:
-    @param xyPath:
-    @param tabSepArray:
-    @return:
-    '''
-    return (compute_sparse_matrix.numpyToPandas(
-                 *compute_sparse_matrix.read_tabular(featurePath)
-                                                 ),
-             leesL.readXYs(xyPath,preOrPost='pre'),
-             tabArrayToPandas(tabSepArray)
-             )
+    if 'error' in result:
+        raise ErrorResp(result['error'])
 
-# The entry point from the hub URL routing
-def calc(dataIn, ctx):
+    # Be sure we have a view server
+    if not 'viewServer' in dataIn:
+        dataIn['viewServer'] = ctx['viewServerDefault']
+
+    # Format the result as client state in preparation to create a bookmark
+    if 'firstAttribute' in ctx['meta']:
+        firstAttr = ctx['meta']['firstAttribute']
+    else:
+        firstAttr = None
+    state = {
+        'page': 'mapPage',
+        'project': dataIn['map'] + '/',
+        'layout': dataIn['layout'],
+        'shortlist': [firstAttr],
+        'first_layer': [firstAttr],
+        'overlayNodes': {},
+        'dynamic_attrs': {},
+    }
+
+    # Populate state for each node
+    for node in result['nodes']:
+        nData = result['nodes'][node]
+        state['overlayNodes'][node] = { 'x': nData['x'], 'y': nData['y'] }
+        attr = node + ': ' + dataIn['layout'] + ': neighbors'
+        state['shortlist'].append(attr)
+        state['dynamic_attrs'][attr] = {
+            'dynamic': True,
+            'datatype': 'continuous',
+            'data': {},
+        }
+        for neighbor in nData['neighbors']:
+            state['dynamic_attrs'][attr]['data'][neighbor] = \
+                nData['neighbors'][neighbor]
+
+        # If individual Urls were requested, create a bookmark for this node
+        if 'individualUrls' in dataIn and dataIn['individualUrls']:
+            bData = createBookmark(state, dataIn['viewServer'])
+            result['nodes'][node]['url'] = \
+                dataIn['viewServer'] + '/?bookmark=' + bData['bookmark']
+
+            # Clear the node data to get ready for the next node
+            state['overlayNodes'] = {}
+            state['dynamic_attrs'] = {}
+        
+    # If individual urls were not requested, create one bookmark containing all
+    # nodes and return that url for each node
+    if not 'individualUrls' in dataIn or not dataIn['individualUrls']:
+        bData = createBookmark(state, dataIn['viewServer'])
+        for node in result['nodes']:
+            result['nodes'][node]['url'] = \
+                dataIn['viewServer'] + '/?bookmark=' + bData['bookmark']
+
+    # TODO: Send completion Email
+
+    raise SuccessResp(result)
 
 
-    validateNof1(dataIn)
+def calc(dataIn, ctx, app):
+
+    # The entry point from the hub URL routing
+
+    validateParameters(dataIn)
     
     # Find the Nof1 data files for this map and layout
-
-    meta = getMetaData(dataIn['map'],ctx)
-    files = meta['Nof1'][dataIn['layout']]
-
+    meta = getMetaData(map, ctx)
+    files = meta['layouts'][dataIn['layout']]
+    
     # Check to see if the data files exist
     # TODO: test both of these checks
+    """
     if not os.path.exists(files['fullFeatureMatrix']):
         raise ErrorResp('full feature matrix file not found: ' +
             files['fullFeatureMatrix'])
-
-    elif not os.path.exists(files['xyPositions']):
+    if not os.path.exists(files['xyPositions']):
         raise ErrorResp('xy positions file not found: ' +
             files['xyPositions'])
-
-    else: #the files are good lets get the python structs
-        referenceDF, xyDF, newNodesDF =\
-             putDataIntoPythonStructs(files['fullFeatureMatrix'],
-                                      files['xyPreSquiggle'],
-                                      dataIn['nodes'])
-
-    # Set any optional parms included, letting the calc script set defaults.
+    """
+    
+    # Put the options to be passed to the calc script in a Namespace object,
+    # the same object returned by argparse.parse_args().
+    opts = Namespace(
+        fullFeatureMatrix = files['fullFeatureMatrix'],
+        xyPositions = files['xyPositions'],
+        newNodes = dataIn['nodes'],
+    )
+    
+    # Set any optional parms, letting the calc script set defaults.
     if 'neighborCount' in dataIn:
-        top = dataIn['neighborCount']
+        opts.neighborCount = dataIn['neighborCount']
+    
+    if 'testStub' in dataIn:
+        result = Nof1_stub.whateverRoutine(opts)
+        
     else:
-        top = 6
+    
+        # Call the calc script.
+        # TODO spawn a process
+        # result = Nof1.whateverRoutine(opts)
+        pass
 
-    #call the nOf1 function
-    try:
-        neighboorhood, xys, urls = newplacement.placeNew(newNodesDF,referenceDF,xyDF,top,num_jobs=1)
-        jdict = outputToJson(neighboorhood,xys,urls)
-        response = Response()
-        response.data = json.dumps(jdict)
-        return response
-
-    except:
-        '''
-        Do what we want with the error, throw a meaningful exception that the server knows how to respond to
-        '''
-        # TODO Handle errors and success response
-        raise ErrorResp("There was an error during nOf1")
+    ctx['dataIn'] = dataIn
+    ctx['meta'] = meta
+    calcComplete(result, ctx)

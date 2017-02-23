@@ -3,6 +3,7 @@ import hub
 import unittest
 import tempfile
 import json
+"""
 from rootDir import getRootDir
 from Nof1_hub import *
 import newplacement
@@ -11,10 +12,11 @@ rootDir = getRootDir()
 testDir = rootDir + 'tests/pyUnittest/'
 inDir = testDir + 'in/layout/'
 expDir = testDir + 'exp/layoutBasic/'
-
+"""
 class Nof1TestCase(unittest.TestCase):
 
     viewServer = 'http://localhost:3333'
+    viewServerLen = len(viewServer)
 
     def setUp(self):
         #self.db_fd, hub.app.config['DATABASE'] = tempfile.mkstemp()
@@ -46,7 +48,7 @@ class Nof1TestCase(unittest.TestCase):
             s.assertTrue('', 'no json data in response')
         s.assertTrue(rv.status_code == 400)
         s.assertTrue(data['error'] == 'Content-Type must be application/json')
-
+    """
     def test_data_reading(s):
         '''
         test for Nof1_hubs data input into python structures
@@ -103,7 +105,7 @@ class Nof1TestCase(unittest.TestCase):
         retDict = outputToJson(*newplacement.placeNew(newNodesDF,refDF,xyDF,6))
         s.assertTrue(len(retDict['nodes'].keys()) == 60,
                      'json output has wrong number of nodes:')
-
+    """
 
     def test_invalid_json(s):
         rv = s.app.post('/query/overlayNodes',
@@ -332,16 +334,37 @@ class Nof1TestCase(unittest.TestCase):
         #print "data['error']", data['error']
         s.assertTrue(data['error'] ==
             'Layout does not have background data: someLayout')
-    """
-    def test_passing_all_validations(s):
+            
+    def test_some_calc_error(s):
         rv = s.app.post('/query/overlayNodes',
             content_type='application/json',
             data=json.dumps(dict(
-                map = 'CKCC/v3',
-                layout = 'mRNA',
+                map='Pancan12/SampleMap',
+                layout='mRNA',
                 nodes = dict(
-                    someNode='someValue',
+                    testError='something',
                 ),
+                testStub=True
+            ))
+        )
+        try:
+            data = json.loads(rv.data)
+        except:
+            s.assertTrue('', 'no json data in response')
+        s.assertTrue(rv.status_code == 400)
+        #print "data['error']", data['error']
+        s.assertTrue(data['error'] == 'Some error message or stack trace')
+    """
+    def test_some_calc_success(s):
+        rv = s.app.post('/query/overlayNodes',
+            content_type='application/json',
+            data=json.dumps(dict(
+                map='Pancan12/SampleMap',
+                layout='mRNA',
+                nodes = dict(
+                    testSuccess='someValue',
+                ),
+                testStub=True
             ))
         )
         try:
@@ -349,49 +372,234 @@ class Nof1TestCase(unittest.TestCase):
         except:
             s.assertTrue('', 'no json data in response')
         s.assertTrue(rv.status_code == 200)
-        s.assertTrue(data['data'] == 'Success!')
+        #print "data", data
+        s.assertTrue(data['someSuccess'] == 'someSuccess')
     """
-    """
-    def test_bookmark_creation(s):
-
-    def test_bookmark_works(s):
-
-    def test_good(s):
+    def test_single_node_no_individual_urls(s):
         rv = s.app.post('/query/overlayNodes',
             content_type='application/json',
-            data = json.dumps({
-                map: "CKCC/v1",
-                layout: "mRNA",
-                email: [
-                    "swat@soe.ucsc.edu",
-               ],
-               viewServer: viewServer,
-               neighborCount: 8,
-               nodes: {
-                   mySample1: {
-                       ALK: "0.897645",
-                       TP53: "0.904140",
-                       POGZ: "0.792754",
-                   },
-                   mySample2: {
-                       ALK: "0.897645",
-                       TP53: "0.904140",
-                       POGZ: "0.792754",
-                   },
-               },
-            }
+            data=json.dumps(dict(
+                map='Pancan12/SampleMap',
+                layout='mRNA',
+                nodes = dict(
+                    newNode1= {
+                        'TP53': 0.54,
+                        'ALK': 0.32,
+                    },
+                ),
+                testStub=True
+            ))
         )
         try:
             data = json.loads(rv.data)
         except:
             s.assertTrue('', 'no json data in response')
-        #print 'rv:', str(rv)
-        #print 'rv.status_code:', rv.status_code
-        #print 'rv.data:', rv.data
-        #print 'data:', data
-        #print "data['error']:", data["message"]
         s.assertTrue(rv.status_code == 200)
-    """
+        # print "data", data
+        s.assertTrue('newNode1' in data['nodes'])
+        s.assertTrue('x' in data['nodes']['newNode1'])
+        s.assertTrue(data['nodes']['newNode1']['x'] == 73)
+        s.assertTrue('neighbors' in data['nodes']['newNode1'])
+        s.assertTrue('TCGA-BP-4790' in data['nodes']['newNode1']['neighbors'])
+        s.assertTrue(data['nodes']['newNode1']['neighbors']['TCGA-BP-4790'] == \
+            0.352)
+        bookmarkParm = '/?bookmark='
+        sLen = len(s.viewServer) + len(bookmarkParm)
+        s.assertTrue(data['nodes']['newNode1']['url'][:sLen] == \
+            s.viewServer + bookmarkParm)
+    
+    def test_single_node_individual_urls_false(s):
+        rv = s.app.post('/query/overlayNodes',
+            content_type='application/json',
+            data=json.dumps(dict(
+                map='Pancan12/SampleMap',
+                layout='mRNA',
+                individualUrls=False,
+                nodes = dict(
+                    newNode1= {
+                        'TP53': 0.54,
+                        'ALK': 0.32,
+                    },
+                ),
+                testStub=True
+            ))
+        )
+        try:
+            data = json.loads(rv.data)
+        except:
+            s.assertTrue('', 'no json data in response')
+        s.assertTrue(rv.status_code == 200)
+        # print "data", data
+        s.assertTrue('newNode1' in data['nodes'])
+        s.assertTrue('x' in data['nodes']['newNode1'])
+        s.assertTrue(data['nodes']['newNode1']['x'] == 73)
+        s.assertTrue('neighbors' in data['nodes']['newNode1'])
+        s.assertTrue('TCGA-BP-4790' in data['nodes']['newNode1']['neighbors'])
+        s.assertTrue(data['nodes']['newNode1']['neighbors']['TCGA-BP-4790'] == \
+            0.352)
+        bookmarkParm = '/?bookmark='
+        sLen = len(s.viewServer) + len(bookmarkParm)
+        s.assertTrue(data['nodes']['newNode1']['url'][:sLen] == \
+            s.viewServer + bookmarkParm)
+
+    def test_single_node_individual_urls_true(s):
+        rv = s.app.post('/query/overlayNodes',
+            content_type='application/json',
+            data=json.dumps(dict(
+                map='Pancan12/SampleMap',
+                layout='mRNA',
+                individualUrls=True,
+                nodes = dict(
+                    newNode1= {
+                        'TP53': 0.54,
+                        'ALK': 0.32,
+                    },
+                ),
+                testStub=True
+            ))
+        )
+        try:
+            data = json.loads(rv.data)
+        except:
+            s.assertTrue('', 'no json data in response')
+        s.assertTrue(rv.status_code == 200)
+        # print "data", data
+        s.assertTrue('newNode1' in data['nodes'])
+        s.assertTrue('x' in data['nodes']['newNode1'])
+        s.assertTrue(data['nodes']['newNode1']['x'] == 73)
+        s.assertTrue('neighbors' in data['nodes']['newNode1'])
+        s.assertTrue('TCGA-BP-4790' in data['nodes']['newNode1']['neighbors'])
+        s.assertTrue(data['nodes']['newNode1']['neighbors']['TCGA-BP-4790'] == \
+            0.352)
+        bookmarkParm = '/?bookmark='
+        sLen = len(s.viewServer) + len(bookmarkParm)
+        s.assertTrue(data['nodes']['newNode1']['url'][:sLen] == \
+            s.viewServer + bookmarkParm)
+
+    def test_multi_nodes_no_individual_urls(s):
+        rv = s.app.post('/query/overlayNodes',
+            content_type='application/json',
+            data=json.dumps(dict(
+                map='Pancan12/SampleMap',
+                layout='mRNA',
+                nodes = dict(
+                    newNode1= {
+                        'TP53': 0.54,
+                        'ALK': 0.32,
+                    },
+                    newNode2= {
+                        'TP53': 0.42,
+                        'ALK': 0.36,
+                    },
+                ),
+                testStub=True
+            ))
+        )
+        try:
+            data = json.loads(rv.data)
+        except:
+            s.assertTrue('', 'no json data in response')
+        s.assertTrue(rv.status_code == 200)
+        #print "data", data
+        s.assertTrue('newNode1' in data['nodes'])
+        s.assertTrue('newNode2' in data['nodes'])
+        s.assertTrue('x' in data['nodes']['newNode1'])
+        s.assertTrue(data['nodes']['newNode1']['x'] == 73)
+        s.assertTrue('neighbors' in data['nodes']['newNode2'])
+        s.assertTrue('TCGA-BP-4790' in data['nodes']['newNode1']['neighbors'])
+        s.assertTrue(data['nodes']['newNode1']['neighbors']['TCGA-BP-4790'] == \
+            0.352)
+        bookmarkParm = '/?bookmark='
+        sLen = len(s.viewServer) + len(bookmarkParm)
+        s.assertTrue(data['nodes']['newNode1']['url'][:sLen] == \
+            s.viewServer + bookmarkParm)
+        # urls for all nodes should be the same
+        s.assertTrue(data['nodes']['newNode1']['url'] == \
+            data['nodes']['newNode2']['url'])
+            
+    def test_multi_nodes_individual_urls_false(s):
+        rv = s.app.post('/query/overlayNodes',
+            content_type='application/json',
+            data=json.dumps(dict(
+                map='Pancan12/SampleMap',
+                layout='mRNA',
+                individualUrls=False,
+                nodes = dict(
+                    newNode1= {
+                        'TP53': 0.54,
+                        'ALK': 0.32,
+                    },
+                    newNode2= {
+                        'TP53': 0.42,
+                        'ALK': 0.36,
+                    },
+                ),
+                testStub=True
+            ))
+        )
+        try:
+            data = json.loads(rv.data)
+        except:
+            s.assertTrue('', 'no json data in response')
+        s.assertTrue(rv.status_code == 200)
+        # print "data", data
+        s.assertTrue('newNode1' in data['nodes'])
+        s.assertTrue('newNode2' in data['nodes'])
+        s.assertTrue('x' in data['nodes']['newNode1'])
+        s.assertTrue(data['nodes']['newNode1']['x'] == 73)
+        s.assertTrue('neighbors' in data['nodes']['newNode2'])
+        s.assertTrue('TCGA-BP-4790' in data['nodes']['newNode1']['neighbors'])
+        s.assertTrue(data['nodes']['newNode1']['neighbors']['TCGA-BP-4790'] == \
+            0.352)
+        bookmarkParm = '/?bookmark='
+        sLen = len(s.viewServer) + len(bookmarkParm)
+        s.assertTrue(data['nodes']['newNode1']['url'][:sLen] == \
+            s.viewServer + bookmarkParm)
+        # urls for all nodes should be the same
+        s.assertTrue(data['nodes']['newNode1']['url'] == \
+            data['nodes']['newNode2']['url'])
+
+    def test_multi_nodes_individual_urls_true(s):
+        rv = s.app.post('/query/overlayNodes',
+            content_type='application/json',
+            data=json.dumps(dict(
+                map='Pancan12/SampleMap',
+                layout='mRNA',
+                individualUrls=True,
+                nodes = dict(
+                    newNode1= {
+                        'TP53': 0.54,
+                        'ALK': 0.32,
+                    },
+                    newNode2= {
+                        'TP53': 0.42,
+                        'ALK': 0.36,
+                    },
+                ),
+                testStub=True
+            ))
+        )
+        try:
+            data = json.loads(rv.data)
+        except:
+            s.assertTrue('', 'no json data in response')
+        s.assertTrue(rv.status_code == 200)
+        # print "data", data
+        s.assertTrue('newNode1' in data['nodes'])
+        s.assertTrue('newNode2' in data['nodes'])
+        s.assertTrue('x' in data['nodes']['newNode1'])
+        s.assertTrue(data['nodes']['newNode1']['x'] == 73)
+        s.assertTrue('neighbors' in data['nodes']['newNode2'])
+        s.assertTrue('TCGA-BP-4790' in data['nodes']['newNode1']['neighbors'])
+        s.assertTrue(data['nodes']['newNode1']['neighbors']['TCGA-BP-4790'] == \
+            0.352)
+        bookmarkParm = '/?bookmark='
+        sLen = len(s.viewServer) + len(bookmarkParm)
+        s.assertTrue(data['nodes']['newNode1']['url'][:sLen] == \
+            s.viewServer + bookmarkParm)
+        # urls for all nodes should be differnet
+        s.assertTrue(data['nodes']['newNode1']['url'] != \
+            data['nodes']['newNode2']['url'])
     
 if __name__ == '__main__':
     unittest.main()

@@ -1,35 +1,53 @@
 
-# NOTE: This is just a stub for testing the call to the calc script.
-# The real call will be in the calc script file.
+import os.path, json, types, requests
+from argparse import Namespace
+from flask import Response
+from hubUtil import ErrorResp, getMetaData, availableMapLayouts
+from hubUtil import validateMap, validateLayout, validateEmail, \
+    validateViewServer
 
 def whateverRoutine(opts):
 
-    if opts[
-    #result = main(opts) # The implementation goes here
-    result = 0
+    #print 'opts.newNodes', opts.newNodes
     
-    # An error return
-    if rc == 1:
+    if 'testError' in opts.newNodes:
         return {
             'error': 'Some error message or stack trace'
         }
+    elif 'testSuccess' in opts.newNodes:
+        return {
+           'someSuccess': 'someSuccess'
+        }
+    elif len(opts.newNodes) == 1:
+        return {'nodes': {
+            'newNode1': {
+                'x': 73,
+                'y': 91,
+                'neighbors': {
+                    'TCGA-BP-4790': 0.352,
+                    'TCGA-AK-3458': 0.742,
+                }
+            },
+        }}
+    elif len(opts.newNodes) > 1:
+        return {'nodes': {
+            'newNode1': {
+                'x': 73,
+                'y': 91,
+                'neighbors': {
+                    'TCGA-BP-4790': 0.352,
+                    'TCGA-AK-3458': 0.742,
+                }
+            },
+            'newNode2': {
+                'x': 53,
+                'y': 47,
+                'neighbors': {
+                    'neighbor1': 0.567,
+                    'neighbor2': 0.853,
+                }
+            },
+        }}
+    else:
+        return { 'error': 'unknown test' }
 
-    # A successful return
-    return {
-       'mySample1': {
-           'x': 42,
-           'y': 36,
-           'neighbors': {
-               'node1': 0.352,
-               'node2': 0.742,
-           },
-       },
-       'mySample2': {
-           'x': 42,
-           'y': 36,
-           'neighbors': {
-               'node1': 0.275,
-               'node2': 0.965,
-           },
-       }
-    }

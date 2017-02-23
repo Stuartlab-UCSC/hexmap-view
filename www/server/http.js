@@ -23,6 +23,7 @@
 var CreateMap = require('./createMap');
 var MapManager = require('./mapManager');
 var PythonCall = require('./pythonCall');
+var DbMethods = require('./dbMethods');
 var Http = require('./http');
 
 exports.respond = function (statusCode, res, data_in) {
@@ -123,7 +124,7 @@ function process_python_call (json_data, res, call_name) {
     PythonCall.call(call_name, data, context);
 }
 
-function receive (url, req, res) {
+function receiveDeprecated (url, req, res) {
     
     // Receive http post requests and process them
     
@@ -145,18 +146,52 @@ function receive (url, req, res) {
     });
 }
 
+function receiveQuery (operation, req, res) {
+
+    // Receive a query for an operation and process it
+    
+    var json_data = '';
+    
+    if (!passPostChecks(req, res)) { return; }
+    
+    req.setEncoding('utf8');
+    
+    // Continue to receive chunks of this request
+    req.on('data', function (chunk) {
+        json_data += chunk;
+    });
+    
+    // Process the data in this request
+    req.on('end', function () {
+    
+        if (operation === 'createBookmark') {
+            data = JSON.parse(json_data);
+           
+            // Create the bookmark, letting it return the http response
+            DbMethods.createBookmarkFiber(json_data, res)
+        } else {
+            Http.respond(500, res,
+                {error: 'no handler for this query operation: ' + operation});
+        }
+    });
+}
+
 WebApp.connectHandlers.use('/calc/layout', function (req, res, next) {
-    receive('/calc/layout', req, res, next);
+    receiveDeprecated('/calc/layout', req, res, next);
 });
 
 WebApp.connectHandlers.use('/calc/reflection', function (req, res, next) {
-    receive('/calc/reflection', req, res, next);
+    receiveDeprecated('/calc/reflection', req, res, next);
 });
 
 WebApp.connectHandlers.use('/calc/statsDynamic', function (req, res, next) {
-    receive('/calc/statsDynamic', req, res, next);
+    receiveDeprecated('/calc/statsDynamic', req, res, next);
 });
 
-WebApp.connectHandlers.use('/query/overlayNodes', function (req, res, next) {
-    receive('/query/overlayNodes', req, res, next);
+WebApp.connectHandlers.use('/test', function (req, res, next) {
+    Http.respond(200, res, 'just testing');
+});
+
+WebApp.connectHandlers.use('/query/createBookmark', function (req, res, next) {
+    receiveQuery('createBookmark', req, res, next);
 });

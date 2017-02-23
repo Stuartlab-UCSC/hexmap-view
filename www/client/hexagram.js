@@ -236,7 +236,8 @@ fill_layer_metadata = function (container, layer_name) {
             attribute === "magnitude" || attribute === "minimum" ||
             attribute === "maximum" || attribute === "selection" ||
             attribute === "clumpiness_array" || attribute === "tags" ||
-            attribute === "removeFx" || attribute === 'rank') {
+            attribute === "removeFx" || attribute === 'rank' ||
+            attribute === "dynamic" || attribute === 'datatype') {
             
             // Skip things we don't want to display
             // TODO: Ought to maybe have all metadata in its own object?

@@ -401,7 +401,7 @@ var app = app || {};  // jshint ignore: line
         if (s.uParm.p) {
  
             // Allow the old dot delimiter in case the paper reviewers are
-            // using it
+            // using it. And this may be needed by reflections.
             if (s.uParm.p === 'Pancan12.GeneMap') {
                 s.uParm.p = 'Pancan12/GeneMap';
 

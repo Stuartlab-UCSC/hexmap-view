@@ -3,6 +3,9 @@
 
 var crypto = Npm.require('crypto');
 var Future = Npm.require('fibers/future');
+var Fiber = Npm.require('fibers');
+var Http = require('./http');
+var DbMethods = require('./dbMethods');
 
 var Bookmarks = new Mongo.Collection('bookmarks');
 
@@ -58,6 +61,33 @@ function createBookmark (state, future) {
         console.log('saveBookmark() failed with:', e.toString());
         future.throw(e.toString());
     }
+}
+
+exports.createBookmarkFiber = function (state, res) {
+    
+    new Fiber(function () {
+        
+        // Save state in a bookmark, returning the hash ID in the future return
+        try {
+            var hash = crypto.createHash('sha256');
+            hash.update(state);
+            var id = hash.digest('hex');
+
+            var upsertReturn = Bookmarks.upsert({ _id: id },
+                {$set: {
+                    jsonState: state,
+                    username: 'query/createBookmark',
+                    lastAccess: humanToday(),
+                }},
+            );
+            Http.respond(200, res, { bookmark: id });
+            
+        } catch (e) {
+            console.log('saveBookmark() failed with:', e.toString());
+            
+            Http.respond(500, res, { error: e.toString() });
+        }
+    }).run();
 }
 
 Meteor.methods({

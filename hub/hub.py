@@ -12,10 +12,12 @@ app = Flask(__name__)
 app.config.from_object('config.DevelopmentSwatConfig')
 #app.config.from_object('config.ProductionKolossusConfig')
 
-# TODO: can ctx this be stashed in flask's app.config object?
+# TODO: can ctx be stashed in flask's app.config object?
+# If not, clean up config.py to just dev & prod
+# or ctx be stashed in the request object?
 ctx = {
-    'viewDir': '/Users/swat/data/view'
-    #'viewDir': '/hive/groups/hexmap/prod/data/view'
+    'viewServerDefault': 'http://localhost:3333'
+    #'viewServerDefault': 'https://tumormap.ucsc.edu'
 }
 
 # Validate a post
@@ -59,14 +61,14 @@ def queryRoute(operation):
     dataIn = validatePost()
 
     if operation == 'overlayNodes':
-        Nof1_hub.calc(dataIn, ctx)
+        result = Nof1_hub.calc(dataIn, ctx, current_app)
         
     else:
         raise ErrorResp('URL not found', 404)
 
     log('info', 'Success with query operation: ' + operation, current_app)
 
-    raise SuccessResp('Success!')
+    #raise SuccessResp(result)
 
 # Handle the route to test
 @app.route('/test', methods=['POST', 'GET'])

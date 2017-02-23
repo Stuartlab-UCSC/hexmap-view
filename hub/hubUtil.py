@@ -1,26 +1,22 @@
 
-
-
-import pandas as pd
-from cStringIO import StringIO
 import json, types
+from argparse import Namespace
 
-
-# Define a success response class
 class SuccessResp(Exception):
 
-    def __init__(self, data, payload=None):
+    # Define a success response class
+
+    def __init__(self, data):
         Exception.__init__(self)
         self.data = data
-        self.payload = payload
 
     def to_dict(self):
-        rv = dict(self.payload or ())
-        rv['data'] = self.data
-        return rv
+        return self.data
 
-# Define an error response class 
 class ErrorResp(Exception):
+
+    # Define an error response class
+
     status_code = 400 # default to 'invalid usage'
 
     def __init__(self, message, status_code=None, payload=None):
@@ -35,11 +31,16 @@ class ErrorResp(Exception):
         rv['error'] = self.message
         return rv
 
-# Log a message referencing the job ID if there is one
 def log(level, message, app):
+
+    # Log a message to the server's console
+
     # TODO we should report the job id here, and maybe the url of the web API
 
     # Don't clutter up the testing output
+    # TODO but this only prints this routine's line #, rather than the caller's
+    # info, useless. Can we modify the logger to leave out the routine & line
+    # number and decorators?
     if app.config['TESTING']:
         return
     
@@ -52,133 +53,103 @@ def log(level, message, app):
     elif level == 'debug':
         app.logger.debug(message)
 
-# Find the maps and layouts for a specific operation
 def availableMapLayouts(operation):
+
+    # Find the maps and layouts for a specific operation
 
     if operation == 'Nof1':
     
-        # Scrape the data directories for meta.json files containing file paths
-        # for a full feature matrix and xyPositions.
         # TODO: really go get these
+        # by scraping the data directories for meta.json files containing file
+        # paths for a full feature matrix and xyPositions.
         return {
             'Pancan12/SampleMap': [
                 'mRNA',
-                'CNV',
-            ],
-            'Pancan12/GeneMap': [
-                'mRNA',
-                'CNV',
+                'miRNA',
+                'RPPA',
+                'Methylation',
+                'SCNV',
+                'Mutations',
+                'PARADIGM (inferred)',
             ],
         }
     else:
+    
         # Not a supported operation
         return None
-
-# Does this layout exist for this map?
-def isLayoutExistant(layout, map):
-    return layout in availableMapLayouts(map)
-
-# Retrieve the meta data for this map
-def getMetaData(map):
-    # TODO get real meta data
-    metaJson = ' \
-    { \
-        "Nof1": { \
-            "mRNA": { \
-                "fullFeatureMatrix": "CKCC/v3/expression.tab", \
-                "xyPreSquiggle": "CKCC/v3/assignments0.tab" \
-            } \
-        } \
-    } \
-    '
-    return json.loads(metaJson)
-
-# Retrieve the meta data for this map
+    
 def getMetaData(map, ctx):
-    # Note: A full path name is used for the fullFeatureMatrix so this file may
-    # be located anywhere. A full path name is used for the xyPositions, rather
-    # than using the standard name of ../view/<map>/xyPreSquiggle_1.tab so that
-    # any xyPosition file could be associated with this map's layout. This would
-    # be useful if a better method to overlay a new node is found rather than
-    # using the centroid of the nearest neighbors pre-squiggle locations.
-
+    
+    # Retrieve the meta data for this map
+    
     # TODO get real meta data from the view/<map>/meta.json file
     meta =  {
+        "firstAttribute": "Tissue",
         "layouts": {
             "mRNA": {
                 "fullFeatureMatrix":
-                    "/hive/groups/hexmap/data/prod/featureSpace/CKCC/v3/expression.tab",
+                    "/hive/groups/hexmap/prod/data/featureSpace/Pancan12/2017_02_21/layout.mRNA.tsv",
                 "xyPositions":
-                    "/hive/groups/hexmap/data/prod/view/CKCC/v3/xyPreSquiggle_0.tab"
+                    "/hive/groups/hexmap/prod/data/view/Pancan12/SampleMap/assignments0.tab",
+            },
+            "miRNA": {
+                "fullFeatureMatrix":
+                    "/hive/groups/hexmap/prod/data/featureSpace/Pancan12/2017_02_21/layout.miRNA.tsv",
+                "xyPositions":
+                    "/hive/groups/hexmap/prod/data/view/Pancan12/SampleMap/assignments1.tab",
+            },
+            "RPPA": {
+                "fullFeatureMatrix":
+                    "/hive/groups/hexmap/prod/data/featureSpace/Pancan12/2017_02_21/layout.RPPA.tsv",
+                "xyPositions":
+                    "/hive/groups/hexmap/prod/data/view/Pancan12/SampleMap/assignments2.tab",
+            },
+            "Methylation": {
+                "fullFeatureMatrix":
+                    "/hive/groups/hexmap/prod/data/featureSpace/Pancan12/2017_02_21/layout.methylation27.autosomal.tsv",
+                "xyPositions":
+                    "/hive/groups/hexmap/prod/data/view/Pancan12/SampleMap/assignments3.tab",
+            },
+            "SCNV": {
+                "fullFeatureMatrix":
+                    "/hive/groups/hexmap/prod/data/featureSpace/Pancan12/2017_02_21/layout.SCNV.tsv",
+                "xyPositions":
+                    "/hive/groups/hexmap/prod/data/view/Pancan12/SampleMap/assignments4.tab",
+            },
+            "Mutations": {
+                "fullFeatureMatrix":
+                    "/hive/groups/hexmap/prod/data/featureSpace/Pancan12/2017_02_21/layout.mutations.hc.tsv",
+                "xyPositions":
+                    "/hive/groups/hexmap/prod/data/view/Pancan12/SampleMap/assignments5.tab",
+            },
+            "PARADIGM (inferred)": {
+                "fullFeatureMatrix":
+                    "/hive/groups/hexmap/prod/data/featureSpace/Pancan12/2017_02_21/layout.paradigm.tsv",
+                "xyPositions":
+                    "/hive/groups/hexmap/prod/data/view/Pancan12/SampleMap/assignments6.tab",
             }
         }
     }
     
     return meta
 
-# Convert a list of TSV lines to a python 2d array
-def tsvListToPythonArray(tsvList):
-    import csv
-    
-    tsvReader = csv.reader(tsvList, delimiter='\t')
-    pyArray = []
-    i = 0
-    for row in tsvReader:
-        pyArray[i] = []
-        j = 0
-        for cell in row:
-            pyArray[i][j] = cell
-            j += 1
-        i += 1
-
-    return pyArray
-
-def tabArrayToPandas(tabArray):
-    '''
-    Takes a tab delemited array and makes a pandas dataframe
-    @param tabArray:
-    @return: pandas dataframe
-    '''
-    return pd.read_csv(StringIO('\n'.join(tabArray)),sep='\t',index_col=0)
-
-# Convert a list of TSV lines to a numpy 2d array
-#def tsvListToNumpyArray(tsvList):
-
-# Convert a list of TSV lines to a pandas 2d array
-#def tsvListToPandasArray(tsvList):
-
-# Validate a string parameter
 def validateString(name, data, required=False):
     if required and name not in data:
         raise ErrorResp(name + ' parameter missing or malformed')
     if not isinstance(data[name], types.StringTypes):
         raise ErrorResp(name + ' parameter should be a string')
 
-# Validate a map parameter
 def validateMap(data, required):
     validateString('map', data, required)
 
-# Validate a layout parameter
 def validateLayout(data, required):
     validateString('layout', data, required)
 
-# Validate an optional email parameter
 def validateEmail(data):
     if 'email' in data and not isinstance(data['email'], list):
         raise ErrorResp('email parameter should be a list/array of strings')
 
-# Validate an optional view server parameter
 def validateViewServer(data):
     if 'viewServer' not in data:
         return
     validateString('viewServer', data)
-    """
-    # TODO send a request to data['viewServer'] + '/testViewerUrl'
-    try:
-        viewerResponse = TODO
-    except:
-        raise ErrorResp('viewServer parameter is not a valid URL')
-
-    if viewerResponse.statusCode != 200:
-        raise ErrorResp('viewServer parameter is not a valid view server URL')
-    """
