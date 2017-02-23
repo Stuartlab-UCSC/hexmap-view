@@ -5,6 +5,7 @@ import json
 
 from rootDir import getRootDir
 import newplacement
+from Nof1_calc import *
 
 rootDir = getRootDir()
 testDir = rootDir + 'tests/pyUnittest/'
@@ -22,13 +23,9 @@ class Nof1CalcTestCase(unittest.TestCase):
         #make expected input from json:
         featMat = inDir+ 'mcrchopra.data.tab'
         preSquig = expDir + '/xyPreSquiggle_0.tab'
-        fin = open(featMat,'r')
-        tabArr = []
-        for line in fin:
-            #put the line in the array minus the new line
-            tabArr.append(line[:-1])
+        nodesDict = pd.read_csv(featMat,index_col=0,sep='\t').to_dict()
 
-        refDF,xyDF,newNodesDF = putDataIntoPythonStructs(featMat,preSquig,tabArr)
+        refDF,xyDF,newNodesDF = putDataIntoPythonStructs(featMat,preSquig,nodesDict)
         s.assertTrue(refDF.shape == newNodesDF.shape,'reading of tab array incorrect')
 
     def test_data_reading2(s):
@@ -40,13 +37,10 @@ class Nof1CalcTestCase(unittest.TestCase):
         #make expected input from json:
         featMat = inDir+ 'mcrchopra.data.tab'
         preSquig = expDir + '/xyPreSquiggle_0.tab'
-        fin = open(featMat,'r')
-        tabArr = []
-        for line in fin:
-            #put the line in the array minus the new line
-            tabArr.append(line[:-1])
+        nodesDict = pd.read_csv(featMat,index_col=0,sep='\t').to_dict()
 
-        refDF,xyDF,newNodesDF = putDataIntoPythonStructs(featMat,preSquig,tabArr)
+
+        refDF,xyDF,newNodesDF = putDataIntoPythonStructs(featMat,preSquig,nodesDict)
         s.assertTrue(xyDF.shape == (60,2),'reading of xy positions incorrect')
 
     def test_json_out(s):
@@ -58,15 +52,12 @@ class Nof1CalcTestCase(unittest.TestCase):
         #make expected input from json:
         featMat = inDir+ 'mcrchopra.data.tab'
         preSquig = expDir + '/xyPreSquiggle_0.tab'
-        fin = open(featMat,'r')
-        tabArr = []
-        for line in fin:
-            #put the line in the array minus the new line
-            tabArr.append(line[:-1])
+        nodesDict = pd.read_csv(featMat,index_col=0,sep='\t').to_dict()
 
-        refDF,xyDF,newNodesDF = putDataIntoPythonStructs(featMat,preSquig,tabArr)
 
-        retDict = outputToJson(*newplacement.placeNew(newNodesDF,refDF,xyDF,6))
+        refDF,xyDF,newNodesDF = putDataIntoPythonStructs(featMat,preSquig,nodesDict)
+
+        retDict = outputToDict(*newplacement.placeNew(newNodesDF,refDF,xyDF,6))
         s.assertTrue(len(retDict['nodes'].keys()) == 60,
                      'json output has wrong number of nodes:')
 
