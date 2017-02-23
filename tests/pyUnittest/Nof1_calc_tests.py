@@ -5,6 +5,7 @@ import json
 
 from rootDir import getRootDir
 import newplacement
+from Nof1_calc import putDataIntoPythonStructs, outputToDict
 
 rootDir = getRootDir()
 testDir = rootDir + 'tests/pyUnittest/'
@@ -66,7 +67,7 @@ class Nof1CalcTestCase(unittest.TestCase):
 
         refDF,xyDF,newNodesDF = putDataIntoPythonStructs(featMat,preSquig,tabArr)
 
-        retDict = outputToJson(*newplacement.placeNew(newNodesDF,refDF,xyDF,6))
+        retDict = outputToDict(*newplacement.placeNew(newNodesDF,refDF,xyDF,6))
         s.assertTrue(len(retDict['nodes'].keys()) == 60,
                      'json output has wrong number of nodes:')
 

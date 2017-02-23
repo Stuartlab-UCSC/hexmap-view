@@ -61,7 +61,7 @@ def availableMapLayouts(operation):
     
         # TODO: really go get these
         # by scraping the data directories for meta.json files containing file
-        # paths for a full feature matrix and xyPositions.
+        # paths for a full feature matrix, xyPositions and firstAttribute.
         return {
             'Pancan12/SampleMap': [
                 'mRNA',
