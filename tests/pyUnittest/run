@@ -20,8 +20,8 @@ PARALLEL_CHALLENGED=( \
     test_sim6Layout \
 )
 HUB=( \
-    hub_web_api_tests \
-    Nof1_web_api_tests \
+    hub_web_tests \
+    Nof1_web_tests \
 )
 
 # these need fixing up:

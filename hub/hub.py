@@ -2,9 +2,9 @@
 import json
 from flask import Flask, request, jsonify, current_app
 import config
-import hubUtil
-from hubUtil import SuccessResp, ErrorResp, log
-import Nof1_hub
+import webUtil
+from webUtil import SuccessResp, ErrorResp, log
+import Nof1_web
 
 app = Flask(__name__)
 
@@ -61,7 +61,7 @@ def queryRoute(operation):
     dataIn = validatePost()
 
     if operation == 'overlayNodes':
-        result = Nof1_hub.calc(dataIn, ctx, current_app)
+        result = Nof1_web.calc(dataIn, ctx, current_app)
         
     else:
         raise ErrorResp('URL not found', 404)

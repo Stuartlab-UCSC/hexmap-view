@@ -2,10 +2,10 @@
 import os.path, json, types, requests
 from argparse import Namespace
 from flask import Response
-from hubUtil import SuccessResp, ErrorResp, getMetaData, availableMapLayouts
-from hubUtil import validateMap, validateLayout, validateEmail, \
+from webUtil import SuccessResp, ErrorResp, getMetaData, availableMapLayouts
+from webUtil import validateMap, validateLayout, validateEmail, \
     validateViewServer
-import Nof1_stub
+import Nof1_calc
 
 def validateParameters(data):
 
@@ -118,6 +118,47 @@ def calcComplete(result, ctx):
     raise SuccessResp(result)
 
 
+def calcTestStub(opts):
+
+    #print 'opts.newNodes', opts.newNodes
+    
+    if 'testError' in opts.newNodes:
+        return {
+            'error': 'Some error message or stack trace'
+        }
+    elif len(opts.newNodes) == 1:
+        return {'nodes': {
+            'newNode1': {
+                'x': 73,
+                'y': 91,
+                'neighbors': {
+                    'TCGA-BP-4790': 0.352,
+                    'TCGA-AK-3458': 0.742,
+                }
+            },
+        }}
+    elif len(opts.newNodes) > 1:
+        return {'nodes': {
+            'newNode1': {
+                'x': 73,
+                'y': 91,
+                'neighbors': {
+                    'TCGA-BP-4790': 0.352,
+                    'TCGA-AK-3458': 0.742,
+                }
+            },
+            'newNode2': {
+                'x': 53,
+                'y': 47,
+                'neighbors': {
+                    'neighbor1': 0.567,
+                    'neighbor2': 0.853,
+                }
+            },
+        }}
+    else:
+        return { 'error': 'unknown test' }
+
 def calc(dataIn, ctx, app):
 
     # The entry point from the hub URL routing
@@ -149,17 +190,16 @@ def calc(dataIn, ctx, app):
     
     # Set any optional parms, letting the calc script set defaults.
     if 'neighborCount' in dataIn:
-        opts.neighborCount = dataIn['neighborCount']
+        opts.top = dataIn['neighborCount']
     
     if 'testStub' in dataIn:
-        result = Nof1_stub.whateverRoutine(opts)
+        result = calcTestStub(opts)
         
     else:
     
         # Call the calc script.
         # TODO spawn a process
-        # result = Nof1.whateverRoutine(opts)
-        pass
+        result = Nof1_calc.entryPointFromWebApi(opts)
 
     ctx['dataIn'] = dataIn
     ctx['meta'] = meta
