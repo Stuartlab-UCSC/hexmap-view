@@ -1,17 +1,17 @@
 # Perform the calculations for n-of-1 analysis
 
-"""
+
 import os.path, json, types,sys
 import numpy as np
-
+import pandas as pd
 import newplacement
 import compute_sparse_matrix
 import leesL
 
-def outputToJson(neighboorhood, xys, urls):
+def outputToDict(neighboorhood, xys, urls):
     '''
     This function takes the output from the newplacement call
-     and puts it into the expected format
+      into the expected format
     @param neighboorhood: pandas df
     @param xys: pandas df
     @param urls: an array of URLs
@@ -33,21 +33,24 @@ def outputToJson(neighboorhood, xys, urls):
         maskArr = np.array(newNodes == node)
         retDict['nodes'][node] = {}
         retDict['nodes'][node]['neighbors'] = dict(zip(neighbors.iloc[maskArr],scores.iloc[maskArr]))
-        retDict['nodes'][node]['url'] = urls[i]
+        #add urls to the return struct
+        #retDict['nodes'][node]['url'] = urls[i]
         retDict['nodes'][node]['x'] = xys.loc[node,xcol]
         retDict['nodes'][node]['y'] = xys.loc[node,ycol]
 
     return retDict
 
-def tabArrayToPandas(tabArray):
+def nodesToPandas(pydict):
     '''
-    Takes a tab delemited array and makes a pandas dataframe
-    @param tabArray:
-    @return: pandas dataframe
-    '''
-    return pd.read_csv(StringIO('\n'.join(tabArray)),sep='\t',index_col=0)
+    function that takes the json['nodes'] stucture
 
-def putDataIntoPythonStructs(featurePath,xyPath,tabSepArray):
+    @param pydict: the dataIn['nodes'] structure,
+                   currently a dict of dicts {columns -> {rows -> values}}
+    @return: a pandas dataframe
+    '''
+    return pd.DataFrame(pydict)
+
+def putDataIntoPythonStructs(featurePath,xyPath,nodesDict):
     '''
     takes in the filenames and tab seperated array and puts in structures needed
      for placement calc
@@ -60,7 +63,7 @@ def putDataIntoPythonStructs(featurePath,xyPath,tabSepArray):
                  *compute_sparse_matrix.read_tabular(featurePath)
                                                  ),
              leesL.readXYs(xyPath,preOrPost='pre'),
-             tabArrayToPandas(tabSepArray)
+             nodesToPandas(nodesDict)
              )
 
 def entryPointFromWebApi(opts):
@@ -77,9 +80,9 @@ def entryPointFromWebApi(opts):
     #call the nOf1 function
     try:
         neighboorhood, xys, urls = newplacement.placeNew(newNodesDF,referenceDF,xyDF,opt.top,num_jobs=1)
-        jdict = outputToJson(neighboorhood,xys,urls)
+        retDict = outputToDict(neighboorhood,xys,urls)
         return retDict
     except:
         return { 'error': 'Some error when calling newplacement.placeNew' }
-"""
+
 
