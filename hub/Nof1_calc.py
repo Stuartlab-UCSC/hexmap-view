@@ -42,8 +42,7 @@ def outputToDict(neighboorhood, xys, urls):
 
 def nodesToPandas(pydict):
     '''
-    function that takes the json['nodes'] stucture
-
+    input the json['nodes'] structure and outputs pandas df
     @param pydict: the dataIn['nodes'] structure,
                    currently a dict of dicts {columns -> {rows -> values}}
     @return: a pandas dataframe
@@ -60,11 +59,11 @@ def putDataIntoPythonStructs(featurePath,xyPath,nodesDict):
     @return:
     '''
     return (compute_sparse_matrix.numpyToPandas(
-                 *compute_sparse_matrix.read_tabular(featurePath)
-                                                 ),
-             leesL.readXYs(xyPath,preOrPost='pre'),
-             nodesToPandas(nodesDict)
-             )
+            *compute_sparse_matrix.read_tabular(featurePath)
+                                                ),
+            leesL.readXYs(xyPath,preOrPost='pre'),
+            nodesToPandas(nodesDict)
+            )
 
 def entryPointFromWebApi(opts):
 
@@ -79,7 +78,7 @@ def entryPointFromWebApi(opts):
                                   opts.newNodes)
     #call the nOf1 function
     try:
-        neighboorhood, xys, urls = newplacement.placeNew(newNodesDF,referenceDF,xyDF,opt.top,num_jobs=1)
+        neighboorhood, xys, urls = newplacement.placeNew(newNodesDF,referenceDF,xyDF,opts.top,opts.mapId,num_jobs=1)
         retDict = outputToDict(neighboorhood,xys,urls)
         return retDict
     except:
