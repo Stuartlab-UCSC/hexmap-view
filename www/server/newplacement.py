@@ -1,7 +1,15 @@
 #!/usr/bin/env python2.7
 """
 This module is dedicated to placeing samples on an already existing map.
-Currently this functionality can not be called from main
+
+
+When called from main:
+    all tab seperated input files are expected to have a column header and the 1st column as rownames
+    output is currently 3 files, all with the base name specified by the --outputbase argument
+        the three files are
+            ouputbase_neighbors.tab: tab sep matrix with dimensions (number of new samples X --top)
+            ouputbase_urls.list:  a list of urls seperated by lines (number of new samples X 1)
+            ouputbase_xypositions.tab: tab sep matrix with dimensions (number of new samples X 2)
 """
 
 
@@ -12,32 +20,42 @@ import leesL
 import argparse
 
 def parse_args(args):
-    '''
-    THIS ISN"T FULLY IMPLEMENTED
-    @param args:
-    @return:
-    '''
+
     parser = argparse.ArgumentParser(description=__doc__,
         formatter_class=argparse.RawDescriptionHelpFormatter)
 
-    # swat: We should be able to add 'required=True' to some args so the parser
-    # will tell the user when they are left out. --directory should be required
-    # since scripts get confused with relative paths sometimes.
-    fins = []
-    parser.add_argument('-i',"--codedAttrs", type=str,nargs='+',
-                        help="Input: attributes/meta data tsv files separated by space",metavar=fins)
+    parser.add_argument('-i1',"--refdata", type=str,
+        help="path to reference data (tab sep matrix), "
+             "i.e. data used to create 2d clustering")
 
-    parser.add_argument('-o',"--strAttrs", type=str,
-        help="name of output file, defaults to str_attrs.tab",
+    parser.add_argument('-i2',"--newNodes", type=str,
+        help="path to new nodes data, tab sep matrix ",
                         default="str_attrs.tab")
 
-    parser.add_argument('-c',"--colormaps", type=str,
-                        help="path to a previously generated colormapping file",
+    parser.add_argument('-p',"--xypositions", type=str,
+        help="path to 2d clustering placement, tab sep matrix ",
+                        )
+
+    parser.add_argument('-o',"--outputbase", type=str,
+                        help="output file name",
+                        )
+
+    parser.add_argument('-t',"--top", type=int,
+                        help="the number of nearest neighbors to use",
+                        default=6)
+
+    parser.add_argument("--num_jobs", type=int,
+                        help="number of processors to use in computation",
+                        default=4
+                        )
+    parser.add_argument("--mapID", type=str,
+                        help="name of the mapId needed for URL generation",
+                        default="CKCC/v3"
                         )
 
     return parser.parse_args(args)
 
-def placeNew(newNodesDF,referenceDF,xyDF,top,num_jobs=1):
+def placeNew(newNodesDF,referenceDF,xyDF,top,mapId,num_jobs=1):
     '''
 
     @return:
@@ -52,7 +70,7 @@ def placeNew(newNodesDF,referenceDF,xyDF,top,num_jobs=1):
     #stich together the URLs for each sample
     urls = []
     for label in sample_labels:
-        urls.append(getPlacementUrl(xys.loc[label],sampleId=label,mapID='CKCC/v3'))
+        urls.append(getPlacementUrl(xys.loc[label],sampleId=label,mapID =mapId))
 
     return neighborhoods,xys,urls
 
@@ -120,7 +138,7 @@ def getPlacementUrl(xy,sampleId='',mapID='CKCC/v3'):
     '''
     x=xy[0]
     y=xy[1]
-    url_ ="https://tumormap.ucsc.edu/?p=CKCC/v3&node=" + sampleId + \
+    url_ ="https://tumormap.ucsc.edu/?p=" + mapID + "&node=" + sampleId + \
                     "&x=" + str(x) +  "&y=" + str(y)
     return url_
 
@@ -132,23 +150,33 @@ def main(args):
     '''
 
     args = parse_args(args)
-    fin = args.fin
+    fin = args.refdata
     xyDF = args.xys
-    newSamples = args.newsamples
+    newSamples = args.newNodes
     top = args.top
     num_jobs = args.num_jobs
+    outbase = args.outputbase
+    neiFile = outbase + '_neighbors.tab'
+    xyFile = outbase + '_xypositions.tab'
+    urlFile = outbase + '_urls.tab'
+    mapId = args.mapID
 
     '''
     fin = '/home/duncan/dtmp_data/data/v3/data0.tab'
     xyDF = '/home/duncan/dtmp_data/data/v3/assignments0.tab'
     newSamples = '/home/duncan/Desktop/TumorMap/TMdev/hexagram/tests/pyUnittest/in/layout/nOf1Vector.tab'
     '''
-    #read them in as pandas dataframe
+    #read needed data in as pandas dataframe
     referenceDF = compute_sparse_matrix.numpyToPandas(*compute_sparse_matrix.read_tabular(fin))
     newNodesDF  = compute_sparse_matrix.numpyToPandas(*compute_sparse_matrix.read_tabular(newSamples))
-    xyDF        = leesL.readXYs(xyDF,header=False)
-    #do the computation
-    neighboorhoods, xys, urls = placeNew(newNodesDF,referenceDF,xyDF,top,num_jobs=1)
+    xyDF        = leesL.readXYs(xyDF,preOrPost='pre')
+
+    #do computation
+    neighboorhoods, xys, urls = placeNew(newNodesDF,referenceDF,xyDF,top,num_jobs,mapId)
+
+    #write them out to files
+    neighboorhoods.to_csv(neiFile,sep='\t')
+    xyDF.to_csv(xyFile,sep='\t')
 
     #now what are we doing with these when called from main?
     print 'the main function is not implemented completely'
