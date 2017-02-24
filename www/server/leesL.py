@@ -21,15 +21,14 @@ def getLayerIndex(layerName,layers):
     filename = layers[1].loc[layerName]
     return filename[filename.index('_')+1:filename.index('.')]
 
-def readXYs(fpath,preOrPost='pre'):
+def readXYs(fpath):
     '''
     reads the xy positions from file
-    the preOrPost arg specifies whether a pre or post squiggle file is being read,
-       one of the file types doesn't have a header TODO: both file types should have a header
-    :param fpath: file path  to tab seperated x-y position file, 1st col should be row names
+    :param fpath: file path  to tab seperated x-y position file, 1st col should
+                  be row names
     :return: a pandas data frame with index set to node Ids and the 
     '''
-   
+
     return pd.read_csv(fpath,sep='\t',index_col=0,comment='#',header=None)
 
 def trimLayerFiles(layer_files):
@@ -42,17 +41,20 @@ def trimLayerFiles(layer_files):
         layer_files[attr] = layer_files[attr].split('/')[-1]
     return layer_files
 
-def writeLayersTab(attributeDF,layers,layer_files,densityArray,datatypes,options):
+def writeLayersTab(attributeDF,layers,layer_files,densityArray,
+                   datatypes,options):
     '''
     :param attributeDF: the pandas data frame holding attribute values
-    :param densityArray: an array of series, each of which are returned by densityOpt()
+    :param densityArray: an array of series, each of which are returned by
+                         densityOpt()
     :param layer_files: layer_files are the names of each layer
-                        produced when they are written one by one to the given directory
+                        produced when they are written one by one to the given
+                        directory
     :return: Layers.tab is a file used to build the UI,
-             the format is tab delimited: layout_name, layout_file, number we have data for, (if binary how many 1's, else NA)
+             the format is tab delimited: layout_name, layout_file, number we
+             have data for, (if binary how many 1's, else NA)
              and then each density
     '''
-
 
     #have a dict of attribute names pointing to their layer_x.tab file
     layer_files = trimLayerFiles(layer_files)
@@ -89,8 +91,10 @@ def writeToFileLee(fout,leeLV,simV,colNames):
     @return:
     '''
     #truncate as an attempt to be reproducible on different machines.
-    # also needed to properly determine ranks are equal when vectors have -1 correlation
-    # ( so the leeL values are -.xxxxxxxxx3 and .xxxxxxxxx4, and should have been determined
+    # also needed to properly determine ranks are equal when vectors have
+    #  -1 correlation
+    # ( so the leeL values are -.xxxxxxxxx3 and .xxxxxxxxx4, and should have
+    # been determined
     # .xxxxxxxxx35 and .xxxxxxxxx35 )
     leeLV = truncateNP(leeLV,11)
     #ranks is how the UI knows the order in which to display
@@ -104,10 +108,11 @@ def writeToFileLee(fout,leeLV,simV,colNames):
 def writeToDirectoryLee(dirName,leeMatrix,simMatrix,colNameList,layers,index=0):
     '''
     this function writes the computed similarities, i.e. lees L, to a directory
-    if we wanted to do p-values or something else computations for corrections would
-    be done here
+    if we wanted to do p-values or something else computations for corrections
+    would be done here
 
-    The way this works is that the sign of the correlation informs the positive-negative selection
+    The way this works is that the sign of the correlation informs the
+    positive-negative selection
     and they are ranked by closness to zero of the pvalue
     :param dirName: ends in '/'
     :param colNameList: needs to be in the same order as the leeMatrix names
@@ -125,14 +130,16 @@ def writeToDirectoryLee(dirName,leeMatrix,simMatrix,colNameList,layers,index=0):
         #truncate as an attempt to be reproducible on different machines.
         statsO[0] = truncateNP(statsO[0],11)
 
-        #place holder for rank, need because of use of parallel structures simMat and leeMat
+        #place holder for rank, need because of use of parallel structures
+        # simMat and leeMat
         statsO[1] = np.repeat(np.NAN,statsO.shape[0])
 
         statsO[2] = simMatrix[i,]
 
         statsO = statsO.iloc[statsO.index!=column] #get rid of identity
 
-        # second column is how the UI ranks, it uses that column and the sign of leesL
+        # second column is how the UI ranks, it uses that column and the sign
+        # of leesL
         # to determine order
         statsO[1] = 1- (stats.rankdata(np.abs(statsO[0]),method='average') / (statsO.shape[0]))
 

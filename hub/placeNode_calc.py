@@ -32,7 +32,8 @@ def outputToDict(neighboorhood, xys, urls):
     for i,node in enumerate(set(newNodes)):
         maskArr = np.array(newNodes == node)
         retDict['nodes'][node] = {}
-        retDict['nodes'][node]['neighbors'] = dict(zip(neighbors.iloc[maskArr],scores.iloc[maskArr]))
+        retDict['nodes'][node]['neighbors'] = dict(zip(neighbors.iloc[maskArr],
+                                                       scores.iloc[maskArr]))
         #add urls to the return struct
         #retDict['nodes'][node]['url'] = urls[i]
         retDict['nodes'][node]['x'] = xys.loc[node,xcol]
@@ -61,7 +62,7 @@ def putDataIntoPythonStructs(featurePath,xyPath,nodesDict):
     return (compute_sparse_matrix.numpyToPandas(
             *compute_sparse_matrix.read_tabular(featurePath)
                                                 ),
-            leesL.readXYs(xyPath,preOrPost='pre'),
+            leesL.readXYs(xyPath),
             nodesToPandas(nodesDict)
             )
 
@@ -78,7 +79,9 @@ def entryPointFromWebApi(opts):
                                   opts.newNodes)
     #call the nOf1 function
     try:
-        neighboorhood, xys, urls = placeNode.placeNew(newNodesDF,referenceDF,xyDF,opts.top,opts.mapId,num_jobs=1)
+        neighboorhood, xys, urls = placeNode.placeNew(newNodesDF,referenceDF,
+                                                      xyDF,opts.top,opts.mapId,
+                                                      num_jobs=1)
         retDict = outputToDict(neighboorhood,xys,urls)
         return retDict
     except:

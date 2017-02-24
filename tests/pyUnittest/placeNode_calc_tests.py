@@ -25,8 +25,12 @@ class Nof1CalcTestCase(unittest.TestCase):
         preSquig = expDir + '/xyPreSquiggle_0.tab'
         nodesDict = pd.read_csv(featMat,index_col=0,sep='\t').to_dict()
 
-        refDF,xyDF,newNodesDF = putDataIntoPythonStructs(featMat,preSquig,nodesDict)
-        s.assertTrue(refDF.shape == newNodesDF.shape,'reading of tab array incorrect')
+        refDF,xyDF,newNodesDF = putDataIntoPythonStructs(featMat,
+                                                         preSquig,
+                                                         nodesDict)
+
+        s.assertTrue(refDF.shape == newNodesDF.shape,
+                     'reading of tab array incorrect')
 
     def test_data_reading2(s):
         '''
@@ -40,7 +44,10 @@ class Nof1CalcTestCase(unittest.TestCase):
         nodesDict = pd.read_csv(featMat,index_col=0,sep='\t').to_dict()
 
 
-        refDF,xyDF,newNodesDF = putDataIntoPythonStructs(featMat,preSquig,nodesDict)
+        refDF,xyDF,newNodesDF = putDataIntoPythonStructs(featMat,
+                                                         preSquig,
+                                                         nodesDict)
+
         s.assertTrue(xyDF.shape == (60,2),'reading of xy positions incorrect')
 
     def test_json_out(s):
@@ -55,9 +62,16 @@ class Nof1CalcTestCase(unittest.TestCase):
         nodesDict = pd.read_csv(featMat,index_col=0,sep='\t').to_dict()
 
 
-        refDF,xyDF,newNodesDF = putDataIntoPythonStructs(featMat,preSquig,nodesDict)
+        refDF,xyDF,newNodesDF = putDataIntoPythonStructs(featMat,
+                                                         preSquig,
+                                                         nodesDict)
 
-        retDict = outputToDict(*placeNode.placeNew(newNodesDF,refDF,xyDF,6,'mapId'))
+        retDict = outputToDict(*placeNode.placeNew(newNodesDF,
+                                                   refDF,
+                                                   xyDF,
+                                                   6,
+                                                   'mapId'))
+
         s.assertTrue(len(retDict['nodes'].keys()) == 60,
                      'json output has wrong number of nodes:')
 

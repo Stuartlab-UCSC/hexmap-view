@@ -4,12 +4,17 @@ This module is dedicated to placeing samples on an already existing map.
 
 
 When called from main:
-    all tab seperated input files are expected to have a column header and the 1st column as rownames
-    output is currently 3 files, all with the base name specified by the --outputbase argument
+    all tab seperated input files are expected to have a column header and
+    the 1st column as rownames
+    output is currently 3 files, all with the base name specified by the
+    --outputbase argument
         the three files are
-            ouputbase_neighbors.tab: tab sep matrix with dimensions (number of new samples X --top)
-            ouputbase_urls.list:  a list of urls seperated by lines (number of new samples X 1)
-            ouputbase_xypositions.tab: tab sep matrix with dimensions (number of new samples X 2)
+            ouputbase_neighbors.tab: tab sep matrix with dimensions
+            (number of new samples X --top)
+            ouputbase_urls.list:  a list of urls seperated by lines
+            (number of new samples X 1)
+            ouputbase_xypositions.tab: tab sep matrix with dimensions
+            (number of new samples X 2)
 """
 
 
@@ -89,22 +94,28 @@ def getNeighbors(newNodesDF,referenceDF,top,num_jobs=1):
     @return:
     '''
 
-    newNodesDF,referenceDF = compute_sparse_matrix.common_rows(newNodesDF,referenceDF)
+    newNodesDF,referenceDF = compute_sparse_matrix.common_rows(newNodesDF,
+                                                               referenceDF)
 
     #chacnge pandas to nps, compute_similarities() expects numpy's
-    refnp,sample_labels,feature_labels = compute_sparse_matrix.pandasToNumpy(referenceDF)
-    newnp,sample_labels2,feature_labels2 = compute_sparse_matrix.pandasToNumpy(newNodesDF)
+    refnp,sample_labels,feature_labels = \
+        compute_sparse_matrix.pandasToNumpy(referenceDF)
+
+    newnp,sample_labels2,feature_labels2 = \
+        compute_sparse_matrix.pandasToNumpy(newNodesDF)
+
     #returns a data frame with first column as the new pivots, second column as the neighbor
     # and third column as the similairty score.
-    neighborhoods = compute_sparse_matrix.compute_similarities(refnp.transpose(),
+    neighborhoods = \
+        compute_sparse_matrix.compute_similarities(refnp.transpose(),
                                                            sample_labels,
                                                            "spearman",
                                                            num_jobs,
                                                            "SPARSE",
                                                            top,
                                                            log=None,
-                                                           dt2=newnp.transpose(),
-                                                           sample_labels2=sample_labels2)
+                                                          dt2=newnp.transpose(),
+                                                  sample_labels2=sample_labels2)
     return neighborhoods
 
 def getNewPostions(neighborhoods,xyDF):
@@ -123,7 +134,8 @@ def getNewPostions(neighborhoods,xyDF):
     #go through and find the median of all the points for placement.
     for sample in sample_labels:
         #grab the nearest neighbors.
-        neighbors = neighborhoods.loc[neighborhoods[pivCol] == sample, [neiCol]].values.flatten()
+        neighbors = \
+            neighborhoods.loc[neighborhoods[pivCol] == sample, [neiCol]].values.flatten()
         #add the x-y position to the dataframe
         xyRet.loc[sample] =  xyDF.loc[neighbors].median(axis=0).values
 
@@ -163,12 +175,18 @@ def main():
     urlFile = outbase + '_urls.list'
 
     #read needed data in as pandas dataframe
-    referenceDF = compute_sparse_matrix.numpyToPandas(*compute_sparse_matrix.read_tabular(fin))
-    newNodesDF  = compute_sparse_matrix.numpyToPandas(*compute_sparse_matrix.read_tabular(newSamples))
-    xyDF        = leesL.readXYs(xyDF,preOrPost='pre')
+    referenceDF = \
+        compute_sparse_matrix.numpyToPandas(*compute_sparse_matrix.read_tabular(fin))
+
+    newNodesDF  = \
+        compute_sparse_matrix.numpyToPandas(*compute_sparse_matrix.read_tabular(newSamples))
+
+    xyDF        = \
+        leesL.readXYs(xyDF)
 
     #do computation
-    neighboorhoods, xys, urls = placeNew(newNodesDF,referenceDF,xyDF,top,mapId,num_jobs)
+    neighboorhoods, xys, urls = placeNew(newNodesDF,referenceDF,
+                                         xyDF,top,mapId,num_jobs)
 
     #write all output to files
     neighboorhoods.to_csv(neiFile,sep='\t',header=None,index=False)
