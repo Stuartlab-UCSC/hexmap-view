@@ -4,7 +4,7 @@
 import os.path, json, types,sys
 import numpy as np
 import pandas as pd
-import newplacement
+import placeNode
 import compute_sparse_matrix
 import leesL
 
@@ -78,10 +78,10 @@ def entryPointFromWebApi(opts):
                                   opts.newNodes)
     #call the nOf1 function
     try:
-        neighboorhood, xys, urls = newplacement.placeNew(newNodesDF,referenceDF,xyDF,opts.top,opts.mapId,num_jobs=1)
+        neighboorhood, xys, urls = placeNode.placeNew(newNodesDF,referenceDF,xyDF,opts.top,opts.mapId,num_jobs=1)
         retDict = outputToDict(neighboorhood,xys,urls)
         return retDict
     except:
-        return { 'error': 'Some error when calling newplacement.placeNew' }
+        return { 'error': 'Some error when calling placeNode.placeNew' }
 
 

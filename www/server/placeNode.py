@@ -54,7 +54,7 @@ def parse_args():
                         default="CKCC/v3"
                         )
 
-    return parser.parse_args(args)
+    return parser.parse_args()
 
 def placeNew(newNodesDF,referenceDF,xyDF,top,mapId,num_jobs=1):
     '''
@@ -144,23 +144,18 @@ def getPlacementUrl(xy,sampleId='',mapID='CKCC/v3'):
     return url_
 
 def main():
-    '''
-    This isn't implemented yet
-    @param args:
-    @return:
-    '''
 
     args = parse_args()
     #get filenames from args
     fin = args.refdata
-    xyDF = args.xys
+    xyDF = args.xypositions
     newSamples = args.newNodes
 
     #needed parmaters
-    mapId = args.mapID
-    top = args.top
+    mapId    = args.mapID
+    top      = args.top
     num_jobs = args.num_jobs
-    outbase = args.outputbase
+    outbase  = args.outputbase
 
     #make the output file names from the given base name
     neiFile = outbase + '_neighbors.tab'
@@ -173,11 +168,11 @@ def main():
     xyDF        = leesL.readXYs(xyDF,preOrPost='pre')
 
     #do computation
-    neighboorhoods, xys, urls = placeNew(newNodesDF,referenceDF,xyDF,top,num_jobs,mapId)
+    neighboorhoods, xys, urls = placeNew(newNodesDF,referenceDF,xyDF,top,mapId,num_jobs)
 
     #write all output to files
-    neighboorhoods.to_csv(neiFile,sep='\t')
-    xyDF.to_csv(xyFile,sep='\t')
+    neighboorhoods.to_csv(neiFile,sep='\t',header=None,index=False)
+    xys.to_csv(xyFile,sep='\t')
     np.array(urls).tofile(urlFile,sep='\n')
 
 if __name__ == "__main__":

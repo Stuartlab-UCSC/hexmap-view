@@ -4,7 +4,7 @@ import tempfile
 import json
 
 from rootDir import getRootDir
-import newplacement
+import placeNode
 from placeNode_calc import *
 
 rootDir = getRootDir()
@@ -57,7 +57,7 @@ class Nof1CalcTestCase(unittest.TestCase):
 
         refDF,xyDF,newNodesDF = putDataIntoPythonStructs(featMat,preSquig,nodesDict)
 
-        retDict = outputToDict(*newplacement.placeNew(newNodesDF,refDF,xyDF,6,'mapId'))
+        retDict = outputToDict(*placeNode.placeNew(newNodesDF,refDF,xyDF,6,'mapId'))
         s.assertTrue(len(retDict['nodes'].keys()) == 60,
                      'json output has wrong number of nodes:')
 
