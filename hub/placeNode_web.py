@@ -5,7 +5,7 @@ from flask import Response
 from webUtil import SuccessResp, ErrorResp, getMetaData, availableMapLayouts
 from webUtil import validateMap, validateLayout, validateEmail, \
     validateViewServer
-import Nof1_calc
+import placeNode_calc
 
 def validateParameters(data):
 
@@ -216,10 +216,9 @@ def calc(dataIn, ctx, app):
         result = calcTestStub(opts)
         
     else:
-    
         # Call the calc script.
         # TODO spawn a process
-        result = Nof1_calc.entryPointFromWebApi(opts)
+        result = placeNode_calc.entryPointFromWebApi(opts)
 
     ctx['dataIn'] = dataIn
     ctx['meta'] = meta

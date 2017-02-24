@@ -5,7 +5,7 @@ import json
 
 from rootDir import getRootDir
 import newplacement
-from Nof1_calc import *
+from placeNode_calc import *
 
 rootDir = getRootDir()
 testDir = rootDir + 'tests/pyUnittest/'
