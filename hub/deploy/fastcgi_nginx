@@ -1,0 +1,46 @@
+
+# fastcgi_nginx.py
+
+server {
+    location / { try_files $uri @hub; }
+    location @hub {
+        include fastcgi_params;
+        fastcgi_param PATH_INFO /Users/swat/dev/hexagram/hex/hub.fcgi;
+        fastcgi_param SCRIPT_NAME "";
+        fastcgi_pass unix:/tmp/hub-fcgi.sock;
+    }
+}
+"""
+# nginx: basic Flask FastCGI configuration for nginx
+# http://flask.pocoo.org/docs/0.12/deploying/fastcgi/#configuring-nginx
+server {
+    location / { try_files $uri @yourapplication; }
+    location @yourapplication {
+        include fastcgi_params;
+        fastcgi_param PATH_INFO $fastcgi_script_name;
+        fastcgi_param SCRIPT_NAME "";
+        fastcgi_pass unix:/tmp/yourapplication-fcgi.sock;
+    }
+}
+
+# nginx: a WebSocket Reverse Proxy
+# https://flask-socketio.readthedocs.io/en/latest/
+server {
+    listen 8333;
+    server_name _;
+
+    location / {
+        include proxy_params;
+        proxy_pass http://127.0.0.1:8334;
+    }
+
+    location /socket.io {
+        include proxy_params;
+        proxy_http_version 1.1;
+        proxy_buffering off;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "Upgrade";
+        proxy_pass http://127.0.0.1:8334/socket.io;
+    }
+}
+"""
