@@ -5,6 +5,19 @@ Misc. utilities for the server python code
 """
 import math, traceback
 import numpy as np
+import pandas as pd
+
+#The following functions are for shared by modules and used to read in data
+def readXYs(fpath):
+    '''
+    reads the xy positions from file
+    :param fpath: file path  to tab seperated x-y position file, 1st col should
+                  be row names
+    :return: a pandas data frame with index set to node Ids and the
+    '''
+
+    return pd.read_csv(fpath,sep='\t',index_col=0,comment='#',header=None)
+
 
 def sigDigs(x, sig=7,debug=False):
 

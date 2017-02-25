@@ -11,6 +11,8 @@ import numpy as np
 import scipy.spatial.distance as dist
 from utils import sigDigs
 from utils import truncateNP
+from utils import readXYs
+
 from process_categoricals import getAttributes
 import  math
 #input/output helpers
@@ -20,16 +22,6 @@ def readLayers(layerFile):
 def getLayerIndex(layerName,layers):
     filename = layers[1].loc[layerName]
     return filename[filename.index('_')+1:filename.index('.')]
-
-def readXYs(fpath):
-    '''
-    reads the xy positions from file
-    :param fpath: file path  to tab seperated x-y position file, 1st col should
-                  be row names
-    :return: a pandas data frame with index set to node Ids and the 
-    '''
-
-    return pd.read_csv(fpath,sep='\t',index_col=0,comment='#',header=None)
 
 def trimLayerFiles(layer_files):
     '''

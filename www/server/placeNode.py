@@ -21,7 +21,7 @@ When called from main:
 import compute_sparse_matrix
 import pandas as pd
 import sys
-import leesL
+import utils
 import argparse
 import numpy as np
 
@@ -182,7 +182,7 @@ def main():
         compute_sparse_matrix.numpyToPandas(*compute_sparse_matrix.read_tabular(newSamples))
 
     xyDF        = \
-        leesL.readXYs(xyDF)
+        utils.readXYs(xyDF)
 
     #do computation
     neighboorhoods, xys, urls = placeNew(newNodesDF,referenceDF,
