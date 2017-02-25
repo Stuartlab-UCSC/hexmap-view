@@ -39,7 +39,7 @@ from compute_layout import computeisomap
 from compute_layout import computeMDS
 from compute_layout import computeICA
 from compute_layout import computeSpectralEmbedding
-from process_categoricals import getAttributes
+from utils import getAttributes
 import leesL
 from sklearn import preprocessing
 import sklearn.metrics

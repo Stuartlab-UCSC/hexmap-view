@@ -18,6 +18,48 @@ def readXYs(fpath):
 
     return pd.read_csv(fpath,sep='\t',index_col=0,comment='#',header=None)
 
+def getAttributes(fileNameList,dir='',debug=False):
+    '''
+    creates a single attribute/metadata dataframe (pandas) from a list of filenames
+     expects rows to be similar (describing nodes in tumor map format) and
+     columns to describe each attribute or unit of metadata
+
+    NOte: adds a '/' to the end of dir if not there
+
+    :param fileNameList: this is a list of attribute matrices
+    :param dir: this is the name of the directory that attributes are in
+    :return: a pandas dataframe with all the attributes for a given map
+    '''
+    if debug:
+        print 'getAttributes() called with'
+        print fileNameList
+
+    # swat: the standard way to handle this is always use os.path.join() to
+    # join a dir with a file, or to join any sort of paths. That utility
+    # adds a '/' if needed.  It can take two or more paths to join.
+    if (len(dir) > 0 and dir[-1]!= '/'):
+        dir+='/'
+
+    dfs = [] #list to hold individual dfs
+    for filename in fileNameList:
+        filename = dir + filename
+        # swat: we should always pass in full pathnames to files because there
+        # are times when scripts get confused. Passing another parm of dir in
+        # is too restrictive because the user cannot pass in files from
+        # different dirs.
+        # in this case things will break if this script were run from a dir
+        # other than the dir containing the files.
+
+        #assume first column is row name and do below to get rid of duplicates
+        df = pd.read_csv(filename,sep='\t')#,index_col=0)
+
+        if debug:
+            print "column names for attr file: " + str(df.columns)
+
+        dfs.append(df.drop_duplicates(subset=df.columns[0], keep='last').set_index(df.columns[0]))
+
+    #stich all attributes together
+    return(pd.concat(dfs,axis=1))
 
 def sigDigs(x, sig=7,debug=False):
 

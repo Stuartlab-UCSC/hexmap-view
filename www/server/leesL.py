@@ -13,7 +13,7 @@ from utils import sigDigs
 from utils import truncateNP
 from utils import readXYs
 
-from process_categoricals import getAttributes
+from utils import getAttributes
 import  math
 #input/output helpers
 def readLayers(layerFile):
