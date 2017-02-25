@@ -1,4 +1,6 @@
 
+# config.py
+
 class Config(object):
     DEBUG = False
     TESTING = False

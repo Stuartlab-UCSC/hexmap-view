@@ -68,8 +68,6 @@ def queryRoute(operation):
 
     log('info', 'Success with query operation: ' + operation, current_app)
 
-    #raise SuccessResp(result)
-
 # Handle the route to test
 @app.route('/test', methods=['POST', 'GET'])
 def testRoute():

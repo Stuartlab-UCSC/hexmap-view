@@ -1,0 +1,17 @@
+
+Deployment options outside of docker
+
+To run under uWSGI and nginx:
+----------------------------
+$ uwsgi -s /tmp/hexhub.sock --virtualenv /path/to/virtual/environment /Users/swat/dev/hexagram/hub/venv --manage-script-name --mount /=hub:app
+#$ uwsgi -s /tmp/yourapplication.sock --manage-script-name --mount /yourapplication=myapp:app
+
+Additional python libraries over what we need for the python calc scripts:
+-------------------------------------------------------------------------
+- conda:
+    - flask
+- deploy with uWSGI and nginx: pip:
+    - uwsgi
+- deploy with fastcgi and nginx: pip:
+    - flask-socketio
+    - eventlet
