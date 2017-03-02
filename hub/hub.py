@@ -1,12 +1,19 @@
 
-import json
+# hub.py
+#
+import json, traceback
 from flask import Flask, request, jsonify, current_app
+from flask_cors import CORS, cross_origin
+
 import config
 import webUtil
 from webUtil import SuccessResp, ErrorResp, log
 import placeNode_web
 
 app = Flask(__name__)
+
+# Make cross-origin AJAX possible
+CORS(app)
 
 # TODO use env vars for this installation-specific config
 app.config.from_object('config.Development')
@@ -35,7 +42,7 @@ def validatePost():
 def successResponse(success):
     response = jsonify(success.to_dict())
     response.status_code = 200
-    log('info', 'response: ' + str(response), current_app)
+    #log('info', 'response: ' + str(response), current_app)
     return response
 
 # Register the error handler
@@ -43,8 +50,13 @@ def successResponse(success):
 def errorResponse(error):
     response = jsonify(error.to_dict())
     response.status_code = error.status_code
+    data = json.loads(response.data)
+    if 'error' in data:
+        msg = data['error']
+    else:
+        msg = 'unknown error'
     log('error', 'Request failed with: ' + str(response.status_code) + ': ' + \
-        str(response), current_app)
+        str(response) + " " + msg, current_app)
     return response
 
 """
@@ -67,6 +79,7 @@ def queryRoute(operation):
         raise ErrorResp('URL not found', 404)
 
     log('info', 'Success with query operation: ' + operation, current_app)
+    raise SuccessResp(result)
 
 # Handle the route to test
 @app.route('/test', methods=['POST', 'GET'])

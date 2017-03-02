@@ -1,5 +1,5 @@
 
-Deployment options outside of docker
+Deployment options with or without of docker
 
 To run under uWSGI and nginx:
 ----------------------------

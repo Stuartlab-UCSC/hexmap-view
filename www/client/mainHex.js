@@ -101,6 +101,11 @@ Hex = (function () { // jshint ignore: line
                 return 'none';
             }
         },
+        disabled: function () {
+            return Session.get('placeNodeAvailable') ?
+                '' :
+                'disabled';
+        },
         version: function () {
             if (DEV) {
                 return VERSION + ' DEV';

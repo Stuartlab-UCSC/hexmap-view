@@ -39,8 +39,9 @@ def log(level, message, app):
 
     # Don't clutter up the testing output
     # TODO but this only prints this routine's line #, rather than the caller's
-    # info, useless. Can we modify the logger to leave out the routine & line
-    # number and decorators?
+    # info, useless. Just use the std python logging library instead of this.
+    # Setting the level to none when app.config['TESTING'] is true
+    
     if app.config['TESTING']:
         return
     
@@ -72,65 +73,85 @@ def availableMapLayouts(operation):
                 'Mutations',
                 'PARADIGM (inferred)',
             ],
+            'unitTest/layoutBasicExp': [
+                'layout'
+            ]
         }
     else:
     
         # Not a supported operation
         return None
     
-def getMetaData(map, ctx):
+def getMetaData(mapId, ctx, app):
     
     # Retrieve the meta data for this map
     
     # TODO get real meta data from the view/<map>/meta.json file
-    meta =  {
-        "firstAttribute": "Tissue",
-        "layouts": {
-            "mRNA": {
-                "fullFeatureMatrix":
-                    "/hive/groups/hexmap/prod/data/featureSpace/Pancan12/2017_02_21/layout.mRNA.tsv",
-                "xyPositions":
-                    "/hive/groups/hexmap/prod/data/view/Pancan12/SampleMap/assignments0.tab",
-            },
-            "miRNA": {
-                "fullFeatureMatrix":
-                    "/hive/groups/hexmap/prod/data/featureSpace/Pancan12/2017_02_21/layout.miRNA.tsv",
-                "xyPositions":
-                    "/hive/groups/hexmap/prod/data/view/Pancan12/SampleMap/assignments1.tab",
-            },
-            "RPPA": {
-                "fullFeatureMatrix":
-                    "/hive/groups/hexmap/prod/data/featureSpace/Pancan12/2017_02_21/layout.RPPA.tsv",
-                "xyPositions":
-                    "/hive/groups/hexmap/prod/data/view/Pancan12/SampleMap/assignments2.tab",
-            },
-            "Methylation": {
-                "fullFeatureMatrix":
-                    "/hive/groups/hexmap/prod/data/featureSpace/Pancan12/2017_02_21/layout.methylation27.autosomal.tsv",
-                "xyPositions":
-                    "/hive/groups/hexmap/prod/data/view/Pancan12/SampleMap/assignments3.tab",
-            },
-            "SCNV": {
-                "fullFeatureMatrix":
-                    "/hive/groups/hexmap/prod/data/featureSpace/Pancan12/2017_02_21/layout.SCNV.tsv",
-                "xyPositions":
-                    "/hive/groups/hexmap/prod/data/view/Pancan12/SampleMap/assignments4.tab",
-            },
-            "Mutations": {
-                "fullFeatureMatrix":
-                    "/hive/groups/hexmap/prod/data/featureSpace/Pancan12/2017_02_21/layout.mutations.hc.tsv",
-                "xyPositions":
-                    "/hive/groups/hexmap/prod/data/view/Pancan12/SampleMap/assignments5.tab",
-            },
-            "PARADIGM (inferred)": {
-                "fullFeatureMatrix":
-                    "/hive/groups/hexmap/prod/data/featureSpace/Pancan12/2017_02_21/layout.paradigm.tsv",
-                "xyPositions":
-                    "/hive/groups/hexmap/prod/data/view/Pancan12/SampleMap/assignments6.tab",
+    if ctx['viewServerDefault'] == 'http://localhost:3333':
+        base = '/Users/swat/data/'
+    elif ctx['viewServerDefault'] == 'https://tumormap.ucsc.edu':
+        base = '/hive/groups/hexmap/prod/data/'
+    if mapId == 'unitTest/layoutBasicExp':
+        
+        meta = {
+            "firstAttribute": "Apoptosis",
+            "layouts": {
+                "layout": {
+                    "fullFeatureMatrix":
+                        base + "featureSpace/unitTest/layout/mcrchopra.data.tab",
+                    "xyPositions":
+                        base + "view/unitTest/layoutBasicExp/assignments0.tab",
+                }
             }
         }
-    }
-    
+    else:
+        meta =  {
+            "firstAttribute": "Tissue",
+            "layouts": {
+                "mRNA": {
+                    "fullFeatureMatrix":
+                        base + "featureSpace/Pancan12/2017_02_21/layout.mRNA.tsv",
+                    "xyPositions":
+                        base + "view/Pancan12/SampleMap/assignments0.tab",
+                },
+                "miRNA": {
+                    "fullFeatureMatrix":
+                        base + "featureSpace/Pancan12/2017_02_21/layout.miRNA.tsv",
+                    "xyPositions":
+                        base + "view/Pancan12/SampleMap/assignments1.tab",
+                },
+                "RPPA": {
+                    "fullFeatureMatrix":
+                        base + "featureSpace/Pancan12/2017_02_21/layout.RPPA.tsv",
+                    "xyPositions":
+                        base + "view/Pancan12/SampleMap/assignments2.tab",
+                },
+                "Methylation": {
+                    "fullFeatureMatrix":
+                        base + "featureSpace/Pancan12/2017_02_21/layout.methylation27.autosomal.tsv",
+                    "xyPositions":
+                        base + "view/Pancan12/SampleMap/assignments3.tab",
+                },
+                "SCNV": {
+                    "fullFeatureMatrix":
+                        base + "featureSpace/Pancan12/2017_02_21/layout.SCNV.tsv",
+                    "xyPositions":
+                        base + "view/Pancan12/SampleMap/assignments4.tab",
+                },
+                "Mutations": {
+                    "fullFeatureMatrix":
+                        base + "featureSpace/Pancan12/2017_02_21/layout.mutations.hc.tsv",
+                    "xyPositions":
+                        base + "view/Pancan12/SampleMap/assignments5.tab",
+                },
+                "PARADIGM (inferred)": {
+                    "fullFeatureMatrix":
+                        base + "featureSpace/Pancan12/2017_02_21/layout.paradigm.tsv",
+                    "xyPositions":
+                        base + "view/Pancan12/SampleMap/assignments6.tab",
+                }
+            }
+        }
     return meta
 
 def validateString(name, data, required=False):
@@ -146,8 +167,10 @@ def validateLayout(data, required):
     validateString('layout', data, required)
 
 def validateEmail(data):
-    if 'email' in data and not isinstance(data['email'], list):
-        raise ErrorResp('email parameter should be a list/array of strings')
+    if 'email' in data and not (isinstance(data['email'], types.StringTypes)
+        or (isinstance(data['email'], list))):
+        raise ErrorResp(
+            'email parameter should be a string or list/array of strings')
 
 def validateViewServer(data):
     if 'viewServer' not in data:

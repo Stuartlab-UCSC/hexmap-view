@@ -52,8 +52,7 @@ def nodesToPandas(pydict):
 
 def putDataIntoPythonStructs(featurePath,xyPath,nodesDict):
     '''
-    takes in the filenames and tab seperated array and puts in structures needed
-     for placement calc
+    takes in the filenames and nodes dictionary needed for placement calc
     @param featurePath:
     @param xyPath:
     @param tabSepArray:
@@ -78,13 +77,10 @@ def entryPointFromWebApi(opts):
                                   opts.xyPositions,
                                   opts.newNodes)
     #call the nOf1 function
-    try:
-        neighboorhood, xys, urls = placeNode.placeNew(newNodesDF,referenceDF,
-                                                      xyDF,opts.top,opts.mapId,
-                                                      num_jobs=1)
-        retDict = outputToDict(neighboorhood,xys,urls)
-        return retDict
-    except:
-        return { 'error': 'Some error when calling placeNode.placeNew' }
+    neighboorhood, xys, urls = placeNode.placeNew(newNodesDF,referenceDF,
+                                                  xyDF,opts.top,opts.mapId,
+                                                  num_jobs=1)
+    retDict = outputToDict(neighboorhood,xys,urls)
+    return retDict
 
 

@@ -1,8 +1,6 @@
-import os
-import hub
+import os, json, tempfile
 import unittest
-import tempfile
-import json
+import hub
 
 class Nof1TestCase(unittest.TestCase):
 
@@ -180,9 +178,11 @@ class Nof1TestCase(unittest.TestCase):
             data = json.loads(rv.data)
         except:
             s.assertTrue('', 'no json data in response')
+        #print 'rv.status_code:', rv.status_code
+        #print 'data:', data
         s.assertTrue(rv.status_code == 400)
         s.assertTrue(data['error'] ==
-            'email parameter should be a list/array of strings')
+            'email parameter should be a string or list/array of strings')
 
     def test_viewServer_not_string(s):
         rv = s.app.post('/query/overlayNodes',

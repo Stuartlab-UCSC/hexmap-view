@@ -8,6 +8,30 @@ if (Meteor.isClient) {
     colormaps = {};
 }
 
+Meteor.startup( () => {
+    if (Meteor.isServer) {
+    
+        // Allow content from the hub and google
+        // TODO make hub variable
+        var hub = 'http://localhost:5000';
+        var google = '*.google.com';
+        var googleStatic = '*.gstatic.com';
+        var googleAnalytics = '*.google-analytics.com';
+        var googleApi = '*.googleapis.com';
+        BrowserPolicy.content.allowOriginForAll(hub);
+        BrowserPolicy.content.allowOriginForAll(google);
+        BrowserPolicy.content.allowOriginForAll(googleStatic);
+        BrowserPolicy.content.allowOriginForAll(googleAnalytics);
+        BrowserPolicy.content.allowOriginForAll(googleApi);
+            
+        // Allow content sniffing by google analytics
+        //BrowserPolicy.content.allowContentTypeSniffing();
+        
+        // Allow use of eval in javascript
+        BrowserPolicy.content.allowEval();
+    }
+});
+
 if (Meteor.isServer) {
 
     SERVER_DIR = Meteor.settings.server.SERVER_DIR;
@@ -63,9 +87,6 @@ if (Meteor.settings.public.DEV === 'yes') {//no booleans with strict JSON
 } else {
     DEV = false;
 }
-
-// TODO test logic should not be in production code
-TEST_DATA_DIR = '/Users/swat/dev/hexagram/tests/pyUnittest/testData/';
 
 /*
 // Deny all client-side updates to user documents

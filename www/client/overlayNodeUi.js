@@ -7,7 +7,7 @@ var app = app || {};
 (function (hex) {
     //'use strict';
 
-    var title = 'New Nodes vs. Background',
+    var title = 'Place New Nodes',
         dialogHex,
         $dialog;
 
@@ -27,7 +27,8 @@ var app = app || {};
     }
  
     function showNewNodes (result) {
-        bookmarkReload(result.bookmarks[0]);
+        nodeNames = Object.keys(result.nodes);
+        Hex.bookmarkReload(result.nodes[nodeNames[0]].url);
     }
  
     function doIt (tsv) {
@@ -73,15 +74,30 @@ var app = app || {};
             opts.email = Meteor.user().username;
         }
 
-        Meteor.call('overlayNode', opts,
-            function (error, result) {
-                if (error) {
-                    banner('error', error);
+        $.ajax({
+            type: 'POST',
+            url: 'http://localhost:5000/test',
+            url: 'http://localhost:5000/query/overlayNodes',
+            contentType: "application/json",
+            dataType: 'json', // expects json returned
+            data: JSON.stringify(opts),
+            success:  function (result) {
+                console.log('http test success result:', result);
+                banner('info', 'Your nodes are about to drop onto the map');
+                showNewNodes(result);
+            },
+            error: function (error) {
+                console.log('http error.responseText:', error.responseText);
+                console.log('http error.responseJSON:', error.responseJSON);
+                if (error.responseJSON && error.responseJSON.error) {
+                    banner('error', error.responseJSON.error);
                 } else {
-                    showNewNodes(result);
+                    banner('error', 'Unknown server error');
                 }
             }
-        );
+        });
+
+        // Hide this dialog
         hide();
 	}
  
@@ -131,6 +147,37 @@ var app = app || {};
  
         // Don't know why this function is not picked up below.
         dialogHex.show();
+    }
+ 
+    // TODO a duplicate of the same in python
+    // TODO move to util.js
+    inAvailableMapLayouts = function (layout, map, operation) {
+
+        // Find the maps and layouts for a specific operation
+
+        if (operation == 'placeNode') {
+        
+            // TODO: really go get these
+            // by scraping the data directories for meta.json files containing file
+            // paths for a full feature matrix, xyPositions and firstAttribute.
+            var avail = {
+                'Pancan12/SampleMap': [
+                    'mRNA',
+                    'miRNA',
+                    'RPPA',
+                    'Methylation',
+                    'SCNV',
+                    'Mutations',
+                    'PARADIGM (inferred)',
+                ],
+            };
+            return (map in avail && layout in avail[map])
+ 
+        } else {
+        
+            // Not a supported operation
+            return false;
+        }
     }
 
     initOverlayNodeUi = function () {

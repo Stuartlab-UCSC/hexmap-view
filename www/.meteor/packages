@@ -31,3 +31,5 @@ standard-minifier-js@1.2.0_1
 shell-server
 http
 vsivsi:job-collection
+browser-policy-content
+modules

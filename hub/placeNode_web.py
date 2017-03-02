@@ -1,9 +1,15 @@
 
-import os.path, json, types, requests
+# placeNode_web.py
+# For the placeNode calculation this handles:
+#   - validation of received input
+#   - mapping between mapID and layout to data file locations
+#   - http response and code
+
+import os.path, json, types, requests, traceback
 from argparse import Namespace
 from flask import Response
-from webUtil import SuccessResp, ErrorResp, getMetaData, availableMapLayouts
-from webUtil import validateMap, validateLayout, validateEmail, \
+from webUtil import SuccessResp, ErrorResp, getMetaData, log, \
+    availableMapLayouts, validateMap, validateLayout, validateEmail, \
     validateViewServer
 import placeNode_calc
 
@@ -52,12 +58,14 @@ def createBookmark(state, viewServer):
     else:
         ErrorResp(bData)
 
-def calcComplete(result, ctx):
+def calcComplete(result, ctx, app):
 
     # The calculation has completed, so create bookmarks and send email
     
     dataIn = ctx['dataIn']
 
+    #log('debug', 'calcComplete: result: ' + str(result), app)
+    
     if 'error' in result:
         raise ErrorResp(result['error'])
 
@@ -115,7 +123,7 @@ def calcComplete(result, ctx):
 
     # TODO: Send completion Email
     """
-    # old javascript routine:
+    # a javascript routine:
     // Send email to interested parties
     var subject = 'tumor map results: ',
         msg = 'Tumor Map results are ready to view at:\n\n';
@@ -134,8 +142,7 @@ def calcComplete(result, ctx):
     sendMail(ADMIN_EMAIL, subject, msg);
     """
 
-    raise SuccessResp(result)
-
+    return result
 
 def calcTestStub(opts):
 
@@ -183,21 +190,20 @@ def calc(dataIn, ctx, app):
     # The entry point from the hub URL routing
 
     validateParameters(dataIn)
-    
+
     # Find the Nof1 data files for this map and layout
-    meta = getMetaData(map, ctx)
+    meta = getMetaData(dataIn['map'], ctx, app)
+    
     files = meta['layouts'][dataIn['layout']]
     
     # Check to see if the data files exist
     # TODO: test both of these checks
-    """
     if not os.path.exists(files['fullFeatureMatrix']):
         raise ErrorResp('full feature matrix file not found: ' +
-            files['fullFeatureMatrix'])
+            files['fullFeatureMatrix'], 500)
     if not os.path.exists(files['xyPositions']):
         raise ErrorResp('xy positions file not found: ' +
-            files['xyPositions'])
-    """
+            files['xyPositions'], 500)
     
     # Put the options to be passed to the calc script in a Namespace object,
     # the same object returned by argparse.parse_args().
@@ -211,15 +217,18 @@ def calc(dataIn, ctx, app):
     # Set any optional parms, letting the calc script set defaults.
     if 'neighborCount' in dataIn:
         opts.top = dataIn['neighborCount']
-    
+
     if 'testStub' in dataIn:
         result = calcTestStub(opts)
         
     else:
+
         # Call the calc script.
-        # TODO spawn a process
-        result = placeNode_calc.entryPointFromWebApi(opts)
+        try:
+            result = placeNode_calc.entryPointFromWebApi(opts)
+        except:
+            raise ErrorResp(traceback.format_exc(), 500)
 
     ctx['dataIn'] = dataIn
     ctx['meta'] = meta
-    calcComplete(result, ctx)
+    return calcComplete(result, ctx, app)
