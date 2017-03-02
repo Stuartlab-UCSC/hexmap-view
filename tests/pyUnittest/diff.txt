@@ -1,8 +1,0 @@
-2c2
-< Continuous	Apoptosis	Random	DNA_signature	continuousInteger
----
-> Continuous	Subtype	Apoptosis	Random	DNA_signature	continuousInteger
-4c4
-< Categorical	Subtype
----
-> Categorical
