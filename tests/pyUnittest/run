@@ -14,16 +14,12 @@ ALL=( \
     test_similarity \
     test_layoutBasic \
     test_stats \
-    placeNode_calc_tests \
 )
 PARALLEL_CHALLENGED=( \
     test_dynLayoutAware \
     test_sim6Layout \
 )
-HUB=( \
-    hub_web_tests \
-    placeNode_web_tests \
-)
+
 
 # these need fixing up:
     #test_createMapUi \
