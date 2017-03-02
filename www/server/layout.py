@@ -39,13 +39,14 @@ from compute_layout import computeisomap
 from compute_layout import computeMDS
 from compute_layout import computeICA
 from compute_layout import computeSpectralEmbedding
-from process_categoricals import getAttributes
+from utils import getAttributes
 import leesL
 from sklearn import preprocessing
 import sklearn.metrics
 import sklearn.metrics.pairwise as sklp
 import numpy as np
 from process_categoricals import create_colormaps_file
+import utils
 
 def parse_args(args):
     """
@@ -1000,7 +1001,7 @@ def hexIt(options, cmd_line_list, all_dict):
         for i, coords_filename in enumerate(options.coordinates):
             nodes = read_nodes(coords_filename)
             nodes_multiple.append(nodes)
-            dt = leesL.readXYs(coords_filename)
+            dt = utils.readXYs(coords_filename)
             eucl = scipy.spatial.distance.squareform(scipy.spatial.distance.pdist(dt, metric='euclidean', p=2, w=None, V=None, VI=None))
             #append the sparse matrix representation so the neighbors_x file can be created.
             ctx.sparse.append(sparsePandasToString(extract_similarities(dt=eucl, sample_labels=dt.index, top=options.truncation_edges, log=None)))
@@ -1317,7 +1318,8 @@ def hexIt(options, cmd_line_list, all_dict):
 
         for index in range(len(nodes_multiple)):
             print 'calculating density for layer ' + str(index)
-            xys = leesL.readXYs(options.directory + '/xyPreSquiggle_' + str(index)+'.tab')
+            xys = utils.readXYs(options.directory + '/xyPreSquiggle_' + str(
+                index)+'.tab')
             densityArray.append(leesL.densityOpt(attrDF,datatypeDict,xys,debug=True))
 
         leesL.writeLayersTab(attrDF,layers,layer_files,densityArray,datatypeDict,options)
@@ -1420,7 +1422,8 @@ def hexIt(options, cmd_line_list, all_dict):
         layers = leesL.readLayers(options.directory + '/layers.tab')
 
         for index in range(len(nodes_multiple)):
-            xys = leesL.readXYs(options.directory + '/xyPreSquiggle_' + str(index)+'.tab')
+            xys = utils.readXYs(options.directory + '/xyPreSquiggle_' + str(
+                index)+'.tab')
 
             #filter and preprocess the binary attributes on the map
             attrOnMap = leesL.attrPreProcessing4Lee(binAttrDF,xys)

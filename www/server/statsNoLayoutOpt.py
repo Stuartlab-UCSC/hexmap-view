@@ -34,7 +34,7 @@ import pandas as pd
 import numpy as np
 import sklearn.metrics.pairwise as sklp
 from scipy import stats
-from process_categoricals import getAttributes
+from utils import getAttributes
 from leesL import getLayerIndex
 from leesL import readLayers
 import statsmodels.sandbox.stats.multicomp as multicomp

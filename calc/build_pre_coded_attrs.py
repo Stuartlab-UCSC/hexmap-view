@@ -6,6 +6,7 @@
 '''
 
 from process_categoricals import *
+from utils import getAttributes
 
 def parse_args(args):
 

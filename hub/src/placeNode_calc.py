@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 import placeNode
 import compute_sparse_matrix
-import leesL
+import utils
 
 def outputToDict(neighboorhood, xys, urls):
     '''
@@ -61,7 +61,7 @@ def putDataIntoPythonStructs(featurePath,xyPath,nodesDict):
     return (compute_sparse_matrix.numpyToPandas(
             *compute_sparse_matrix.read_tabular(featurePath)
                                                 ),
-            leesL.readXYs(xyPath),
+            utils.readXYs(xyPath),
             nodesToPandas(nodesDict)
             )
 
