@@ -219,6 +219,9 @@ def extract_similarities(dt, sample_labels, top, log=None,sample_labels2=[],perc
     @return: a dataframe of the matrix 'dt' sparsified by taking the 'top' neighbors - edgefile format
     '''
 
+    #boolean flag letting us know if it was calculated from two matrices or
+    # an all by all
+    allbyall = not bool(len(sample_labels2))
     if not(log == None):
         print >> log, "Condensing full similarity matrix to edgefile..."
 
@@ -245,7 +248,10 @@ def extract_similarities(dt, sample_labels, top, log=None,sample_labels2=[],perc
     else:
         for i in range(len(dt)):
             sample_dict = dict(zip(sample_labels, dt[i]))
-            del sample_dict[sample_labels[i]]	#remove self comparison
+
+            if allbyall: #remove self comparison
+                del sample_dict[sample_labels[i]]
+
             for n_i in range(top):
                 v=list(sample_dict.values())
                 k=list(sample_dict.keys())
