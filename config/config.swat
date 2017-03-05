@@ -1,0 +1,14 @@
+#!/bin/bash
+
+DRLPATH=/Users/swat/drl/drl-graph-layout/bin
+PORT=3333
+HTTPS_PORT=$PORT
+
+DB_NAME=live
+DB_PORT=27017
+HEXMAP=/Users/swat/dev/hexagram
+METEOR=/Users/swat/.meteor
+METEOR_BASE=$METEOR/packages/meteor-tool/1.4.1_2/mt-os.osx.x86_64/dev_bundle
+
+export PATH=:$DRLPATH:$PATH
+export ROOT_URL=http://localhost:$HTTPS_PORT

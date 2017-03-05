@@ -32,7 +32,14 @@ HUB=( \
     #test_queryOverlayNodes \
     #test_remoteCalc \
 
-export PYTHONPATH=$(pwd)/../../www/server:$(pwd)/../../hub:./
+# set some env vars expected
+export VIEWER_URL=http://localhost:3333
+export HUB_PATH=$(pwd)/../../hub
+export PYTHONPATH=$(pwd)/../../www/server:$HUB_PATH:./
+export HUB_SOCKET=localhost
+export HUB_TESTING=false
+export HUB_DEBUG=true
+
 TO_RUN=($1)
 if [ $1 == 'all' ]
     then TO_RUN="${ALL[@]}"

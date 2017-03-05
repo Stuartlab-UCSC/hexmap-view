@@ -101,11 +101,6 @@ Hex = (function () { // jshint ignore: line
                 return 'none';
             }
         },
-        disabled: function () {
-            return Session.get('placeNodeAvailable') ?
-                '' :
-                'disabled';
-        },
         version: function () {
             if (DEV) {
                 return VERSION + ' DEV';
@@ -165,7 +160,7 @@ Hex = (function () { // jshint ignore: line
 
                 // Initialize the background functions.
                 initOverlayNodes();
-                if (DEV) { initOverlayNodeUi(); }
+                initOverlayNodeUi();
                 initLegend();
                 Shortlist.init();
                 initCoords();

@@ -19,15 +19,10 @@ python v2.7
  | scipy=0.17.1
  | statsmodels=0.6.1
 
-Miniconda was used to install these versions. If you want to use this to install
-the python libraries, it is at:
+Shortcut::
 
-http://conda.pydata.org/docs/install/quick.html
-
-Use this form of the conda command to install the specific versions of packages
-listed above::
-
- conda install numpy=1.10.4
+ pip install colormath numpy==1.10.4 pandas==0.17.1 scikit-learn==0.17.1 \
+    scipy==0.17.1 statsmodels==0.6.1
 
 **DrL graph layout [1]**
 

@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Source: Client &#8212; Tumor Map Developer Documentation</title>
+    <title>Calc Server Requirements &#8212; Tumor Map Developer Documentation</title>
     
     <link rel="stylesheet" href="_static/agogo.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -27,8 +27,8 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Source: Server" href="serverSource.html" />
-    <link rel="prev" title="Source Code" href="source.html" /> 
+    <link rel="next" title="This Document" href="docs.html" />
+    <link rel="prev" title="Requirements &amp; Installation" href="requirements.html" /> 
   </head>
   <body role="document">
     <div class="header-wrapper" role="banner">
@@ -36,9 +36,9 @@
         <div class="headertitle"><a
           href="index.html">Tumor Map Developer Documentation</a></div>
         <div class="rel" role="navigation" aria-label="related navigation">
-          <a href="source.html" title="Source Code"
+          <a href="requirements.html" title="Requirements &amp; Installation"
              accesskey="P">previous</a> |
-          <a href="serverSource.html" title="Source: Server"
+          <a href="docs.html" title="This Document"
              accesskey="N">next</a> |
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a>
@@ -54,43 +54,31 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="source-client">
-<h1>Source: Client<a class="headerlink" href="#source-client" title="Permalink to this headline">¶</a></h1>
-<p>The client code is in javascript, css and html making use of Meteor in the
-newer code, especially
-its templates and session variables for maintaining state.</p>
-<p>The original UI code was in the files, hexagram.js, hexagram.html and ahexagram.css.
-As development continues, functionality should be pulled out of
-these files and make use of Meteor to be more reactive and modular.</p>
-<p>The new files are mostly named for their objects in the UI having
-the same base name for
-the javascript, html and css. Such as: navBar.js, navBar.html and navBar.css.</p>
-<p>Throughout the code, the things called attributes on the UI are called &#8216;layers&#8217;.</p>
-<div class="section" id="javascript">
-<h2>Javascript<a class="headerlink" href="#javascript" title="Permalink to this headline">¶</a></h2>
-<p>Below are special javascript files:</p>
-<p><strong>mainHex.js</strong> : first javascript file to execute under Meteor</p>
-<p><strong>hexagram.js</strong> : original code-base</p>
-<p><strong>utils.js</strong> : utilities used globally</p>
+  <div class="section" id="calc-server-requirements">
+<h1>Calc Server Requirements<a class="headerlink" href="#calc-server-requirements" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="install-python-and-libraries">
+<h2>Install python and libraries<a class="headerlink" href="#install-python-and-libraries" title="Permalink to this headline">¶</a></h2>
+<p><strong>Python</strong></p>
+<p>python v2.7</p>
+<p><strong>Python modules</strong></p>
+<blockquote>
+<div><div class="line-block">
+<div class="line">colormath=2.1.1</div>
+<div class="line">Flask</div>
+<div class="line">Flask-Cors</div>
+<div class="line">numpy=1.10.4</div>
+<div class="line">pandas=0.17.1</div>
+<div class="line">scikit-learn=0.17.1</div>
+<div class="line">scipy=0.17.1</div>
+<div class="line">statsmodels=0.6.1</div>
+<div class="line">uwsgi</div>
 </div>
-<div class="section" id="html-css">
-<h2>HTML &amp; CSS<a class="headerlink" href="#html-css" title="Permalink to this headline">¶</a></h2>
-<p>Below are special html and css files:</p>
-<p><strong>main.html</strong> : top of the html tree</p>
-<p><strong>hexagram.html</strong> : map page</p>
-<p><strong>home.html</strong> : home page</p>
-<p><strong>grid.html</strong> : methods page</p>
-<p><strong>ahexagram.css</strong> : named to make Meteor load it before other css files</p>
-<p><strong>colorsFont.css</strong> : global colors and fonts to make them easy to find and change</p>
+</div></blockquote>
+<p>Shortcut:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">colormath</span> <span class="n">numpy</span><span class="o">==</span><span class="mf">1.10</span><span class="o">.</span><span class="mi">4</span> <span class="n">pandas</span><span class="o">==</span><span class="mf">0.17</span><span class="o">.</span><span class="mi">1</span> <span class="n">scikit</span><span class="o">-</span><span class="n">learn</span><span class="o">==</span><span class="mf">0.17</span><span class="o">.</span><span class="mi">1</span> \
+   <span class="n">scipy</span><span class="o">==</span><span class="mf">0.17</span><span class="o">.</span><span class="mi">1</span> <span class="n">statsmodels</span><span class="o">==</span><span class="mf">0.6</span><span class="o">.</span><span class="mi">1</span> <span class="n">Flask</span> <span class="n">Flask</span><span class="o">-</span><span class="n">Cors</span> <span class="n">uwsgi</span>
+</pre></div>
 </div>
-<div class="section" id="libraries">
-<h2>Libraries<a class="headerlink" href="#libraries" title="Permalink to this headline">¶</a></h2>
-<p>Existing open-source libraries are leveraged as follows:</p>
-<p><strong>color</strong> : color library to handle gradients and conversion of color formats</p>
-<p><strong>hexGlobals</strong> : our meteor client code put here so it loads first</p>
-<p><strong>jquery-ui</strong> : UI utilities</p>
-<p><strong>jstat</strong> : stats library at one time used with web-workers, but not anymore</p>
-<p><strong>select2</strong> : jquery-ui plugin for the searchable drop-down selects</p>
 </div>
 </div>
 
@@ -105,12 +93,12 @@ the javascript, html and css. Such as: navBar.js, navBar.html and navBar.css.</p
 <li class="toctree-l1"><a class="reference internal" href="internalApi.html">Internal Calc API Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Nof1.html">Calc API: N-of-1 Analysis</a></li>
 <li class="toctree-l1"><a class="reference internal" href="internalWebApi.html">Internal Web API Overview</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="source.html">Source Code</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Source: Client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="source.html">Source Code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="clientSource.html">Source: Client</a></li>
 <li class="toctree-l1"><a class="reference internal" href="serverSource.html">Source: Server</a></li>
 <li class="toctree-l1"><a class="reference internal" href="repository.html">Code Repository</a></li>
 <li class="toctree-l1"><a class="reference internal" href="requirements.html">Requirements &amp; Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="hub.html">Calc Server Requirements</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Calc Server Requirements</a></li>
 <li class="toctree-l1"><a class="reference internal" href="docs.html">This Document</a></li>
 <li class="toctree-l1"><a class="reference internal" href="licenses.html">Licenses</a></li>
 </ul>
@@ -133,16 +121,16 @@ the javascript, html and css. Such as: navBar.js, navBar.html and navBar.css.</p
       <div class="footer">
         <div class="left">
           <div role="navigation" aria-label="related navigaton">
-            <a href="source.html" title="Source Code"
+            <a href="requirements.html" title="Requirements &amp; Installation"
               >previous</a> |
-            <a href="serverSource.html" title="Source: Server"
+            <a href="docs.html" title="This Document"
               >next</a> |
             <a href="genindex.html" title="General Index"
               >index</a>
           </div>
           <div role="note" aria-label="source link">
               <br/>
-              <a href="_sources/clientSource.rst.txt"
+              <a href="_sources/hub.rst.txt"
                 rel="nofollow">Show Source</a>
           </div>
         </div>

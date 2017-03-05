@@ -1,0 +1,11 @@
+#!/bin/bash
+
+HEXMAP=/cluster/home/swat/dev
+DRLPATH=/cluster/home/swat/packages/drl-graph-layout/bin
+export PATH=$DRLPATH:$PATH
+export HUB_PATH=/cluster/home/swat/packages-kolossus:/cluster/home/swat/devHub
+export HUB_SOCKET=kolossus.sdsc.edu:8442
+export VIEWER_URL=https://hexDev.sdsc.edu:8222
+export DATA_ROOT=/hive/groups/hexmap/dev/data
+export HUB_TESTING=false
+export HUB_DEBUG=true

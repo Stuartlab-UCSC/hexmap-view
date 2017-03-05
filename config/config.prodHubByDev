@@ -1,0 +1,13 @@
+#!/bin/bash
+
+# Production hub running as a dev hub as hexdev:8332
+DRLPATH=/cluster/home/swat/packages/drl-graph-layout/bin
+export HUB_PATH=/hive/groups/hexmap/prod/hub
+
+export DATA_ROOT=/hive/groups/hexmap/prod/data
+export HUB_DEBUG=false
+export HUB_SOCKET=hexdev.sdsc.edu:8332
+export HUB_TESTING=false
+export PATH=$DRLPATH:$PATH
+export PYTHONPATH=$HUB_PATH:/cluster/home/swat/dev/www/server
+export VIEWER_URL=https://hexdev.sdsc.edu:8222

@@ -1,8 +1,8 @@
 #!/bin/bash
 
 uwsgi \
-    --http-socket 127.0.0.1:5000 \
-    --wsgi-file hub.py \
+    --http-socket $HUB_SOCKET \
+    --wsgi-file $HUB_PATH/hub.py \
     --callable app \
-    --processes 4 \
-    --threads 2
+    --processes 1 \
+    --threads 1

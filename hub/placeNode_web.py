@@ -48,15 +48,20 @@ def validateParameters(data):
 def createBookmark(state, viewServer):
 
     # Ask the view server to create a bookmark of this client state
-    bResult = requests.post(viewServer + '/query/createBookmark',
-        headers = { 'Content-type': 'application/json' },
-        data = json.dumps(state)
-    )
+    try:
+        bResult = requests.post(viewServer + '/query/createBookmark',
+            headers = { 'Content-type': 'application/json' },
+            data = json.dumps(state)
+        )
+    except:
+        raise ErrorResp('Unknown error connecting to view server: ' +
+            viewServer)
+
     bData = json.loads(bResult.text)
     if bResult.status_code == 200:
         return bData
     else:
-        ErrorResp(bData)
+        raise ErrorResp(bData)
 
 def calcComplete(result, ctx, app):
 
@@ -71,17 +76,33 @@ def calcComplete(result, ctx, app):
 
     # Be sure we have a view server
     if not 'viewServer' in dataIn:
-        dataIn['viewServer'] = ctx['viewServerDefault']
+        dataIn['viewServer'] = ctx['viewerUrl']
 
-    # Format the result as client state in preparation to create a bookmark
+    # TODO find the firstAttribute in Layer_Data_Types.tab
     if 'firstAttribute' in ctx['meta']:
         firstAttr = ctx['meta']['firstAttribute']
     else:
         firstAttr = None
+
+    # TODO find the layoutIndex from layouts.tab
+    layoutIndex = 0
+    if dataIn['map'] == 'Pancan12/SampleMap':
+        layouts = [
+            'mRNA',
+            'miRNA',
+            'RPPA',
+            'Methylation',
+            'SCNV',
+            'Mutations',
+            'PARADIGM (inferred)',
+        ]
+        layoutIndex = layouts.index(dataIn['layout'])
+
+    # Format the result as client state in preparation to create a bookmark
     state = {
         'page': 'mapPage',
         'project': dataIn['map'] + '/',
-        'layout': dataIn['layout'],
+        'layoutIndex': layoutIndex,
         'shortlist': [firstAttr],
         'first_layer': [firstAttr],
         'overlayNodes': {},
@@ -196,14 +217,16 @@ def calc(dataIn, ctx, app):
     
     files = meta['layouts'][dataIn['layout']]
     
-    # Check to see if the data files exist
-    # TODO: test both of these checks
-    if not os.path.exists(files['fullFeatureMatrix']):
-        raise ErrorResp('full feature matrix file not found: ' +
-            files['fullFeatureMatrix'], 500)
-    if not os.path.exists(files['xyPositions']):
-        raise ErrorResp('xy positions file not found: ' +
-            files['xyPositions'], 500)
+    if not 'testStub' in dataIn:
+    
+        # Check to see if the data files exist
+        # TODO: test both of these checks
+        if not os.path.exists(files['fullFeatureMatrix']):
+            raise ErrorResp('full feature matrix file not found: ' +
+                files['fullFeatureMatrix'], 500)
+        if not os.path.exists(files['xyPositions']):
+            raise ErrorResp('xy positions file not found: ' +
+                files['xyPositions'], 500)
     
     # Put the options to be passed to the calc script in a Namespace object,
     # the same object returned by argparse.parse_args().
@@ -217,6 +240,8 @@ def calc(dataIn, ctx, app):
     # Set any optional parms, letting the calc script set defaults.
     if 'neighborCount' in dataIn:
         opts.top = dataIn['neighborCount']
+
+    #log('debug', 'opts: ' + str(opts), app);
 
     if 'testStub' in dataIn:
         result = calcTestStub(opts)

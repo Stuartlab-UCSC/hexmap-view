@@ -1,23 +1,18 @@
-import os, json, tempfile
+import os, json, tempfile, requests
 import unittest
 import hub
 
 class Nof1TestCase(unittest.TestCase):
 
-    # This server must be running for these tests.
-    viewServer = 'http://localhost:3333'
+    # This view server must be running for these tests.
+    viewServer = os.environ['VIEWER_URL']
 
     def setUp(self):
-        #self.db_fd, hub.app.config['DATABASE'] = tempfile.mkstemp()
         hub.app.config['TESTING'] = True
         self.app = hub.app.test_client()
-        #with hub.app.app_context():
-        #    hub.init_db()
 
     def tearDown(self):
         pass
-        #os.close(self.db_fd)
-        #os.unlink(hub.app.config['DATABASE'])
 
     def test_get_not_allowed(s):
         rv = s.app.get('/query/overlayNodes')
@@ -284,8 +279,9 @@ class Nof1TestCase(unittest.TestCase):
             data = json.loads(rv.data)
         except:
             s.assertTrue('', 'no json data in response')
-        s.assertTrue(rv.status_code == 400)
+        #print "rv.status_code", rv.status_code
         #print "data['error']", data['error']
+        s.assertTrue(rv.status_code == 400)
         s.assertTrue(data['error'] == 'Some error message or stack trace')
 
     def test_single_node_no_individual_urls(s):
@@ -411,9 +407,9 @@ class Nof1TestCase(unittest.TestCase):
         try:
             data = json.loads(rv.data)
         except:
-            s.assertTrue('', 'no json data in response')
-        s.assertTrue(rv.status_code == 200)
+            s.assertTrue('' == 'no json data in response')
         #print "data", data
+        s.assertTrue(rv.status_code == 200)
         s.assertTrue('newNode1' in data['nodes'])
         s.assertTrue('newNode2' in data['nodes'])
         s.assertTrue('x' in data['nodes']['newNode1'])
@@ -514,5 +510,14 @@ class Nof1TestCase(unittest.TestCase):
         s.assertTrue(data['nodes']['newNode1']['url'] != \
             data['nodes']['newNode2']['url'])
     
+    def test_view_server_connection(s):
+        try:
+            bResult = requests.post(s.viewServer + '/test',
+                headers = { 'Content-type': 'application/json' },
+            )
+        except:
+            s.assertEqual('', 'Unable to connect to view server: ' +
+                s.viewServer + '. Is it up?')
+
 if __name__ == '__main__':
     unittest.main()
