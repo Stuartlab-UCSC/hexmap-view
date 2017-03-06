@@ -18,6 +18,37 @@ testDir = rootDir + 'tests/pyUnittest/'
 PYTHONPATH = rootDir + 'www/server'
 os.environ["PYTHONPATH"] = PYTHONPATH
 
+def findCurlStatusCode(verbose):
+    i = verbose.find('< HTTP/1.1')
+    return verbose[i+11:i+14]
+    
+def cleanCurlData(dataOut):
+    data = dataOut
+
+    # if this is an error message ...
+    if dataOut[0] != '{':
+        data = dataOut.replace('\n', '')
+        
+    return data
+    
+def doCurl(opts, url):
+    o, outfile = tempfile.mkstemp()
+    e, errfile = tempfile.mkstemp()
+    with open(outfile, 'w') as o:
+        e = open(errfile, 'w')
+        curl = ['curl', '-s', '-k'] + opts + [url]
+        #print 'curl:\n', curl, '\n\n'
+        subprocess.check_call(curl, stdout=o, stderr=e);
+        e.close()
+    with open(outfile, 'r') as o:
+        e = open(errfile, 'r')
+        data = cleanCurlData(o.read());
+        code = findCurlStatusCode(e.read());
+        e.close()
+    os.remove(outfile)
+    os.remove(errfile)
+    return {'data': data, 'code': code}
+
 def removeOldOutFiles(outDir):
     try:
         shutil.rmtree(outDir)

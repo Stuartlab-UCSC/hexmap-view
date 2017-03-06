@@ -1,6 +1,7 @@
 {
     "public": {
-        "URL_BASE": "http://kolossus.sdsc.edu:8333",
+        "URL_BASE": "https://tumormap.ucsc.edu",
+        "HUB_URL": "http://kolossus.sdsc.edu:8332",
         "FEATURE_SPACE_DIR": "/hive/groups/hexmap/prod/data/featureSpace/",
         "LAYOUT_INPUT_DIR": "/hive/groups/hexmap/prod/data/layoutInput/",
         "VIEW_DIR": "/hive/groups/hexmap/prod/data/view/",
@@ -9,8 +10,8 @@
     },
     "server": {
         "jobs": {
-            "IS_CALC_SERVER": true,
-            "MAIN_MONGO_URL": "mongodb://hexmap.sdsc.edu:27017/8443"
+            "IS_MAIN_SERVER": true,
+            "IS_CALC_SERVER": true
         },
-        "SERVER_DIR": "/hive/groups/hexmap/prod/calcServer/www/server/",
+        "SERVER_DIR": "/data/www/server/",
         "TEMP_DIR": "/cluster/home/swat/tmp/",

@@ -163,7 +163,8 @@ function receiveQuery (operation, req, res) {
     
     // Process the data in this request
     req.on('end', function () {
-    
+        console.log('received query:', operation);
+
         if (operation === 'createBookmark') {
             data = JSON.parse(json_data);
            

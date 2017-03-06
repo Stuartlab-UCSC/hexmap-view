@@ -2,7 +2,7 @@
 
 SERVER_TYPE=$1 # Type of server to start, one of: / db / http / https / www /
 INSTALL=$2     # The ID of the server: prod / prodCalc / dev / devCalc / ....
-HEXMAP=$3
+BIN=$3         # Location of the bin directory for this server
 
 if [ -z ${SERVER_TYPE} ]; then
     echo Supply one of: db, http, https, www
@@ -20,6 +20,27 @@ else
     echo Using install: $INSTALL
 fi
 
+if [ -z ${BIN} ]; then
+    echo You need to set the value of BIN in the run script.
+    echo Exiting
+    exit
+else
+    echo Using bin: $BIN
+fi
+
+# Handle any tar actions first
+if [ $SERVER_TYPE == 'maketar' ] \
+    || [ $SERVER_TYPE == 'maketarHub' ] \
+    || [ $SERVER_TYPE == 'maketarBin' ] \
+    || [ $SERVER_TYPE == 'maketarDocs' ] \
+    || [ $SERVER_TYPE == 'maketarTests' ] \
+    || [ $SERVER_TYPE == 'xtar' ]
+    then
+    $BIN/tarAction $SERVER_TYPE $INSTALL
+    exit
+fi
+
+# Run some development servers in the foreground
 if [ $INSTALL == swat ] || \
     [ $INSTALL == swatMain ] || \
     [ $INSTALL == swatCalc ]
@@ -27,120 +48,10 @@ if [ $INSTALL == swat ] || \
     FOREGROUND=yes
 fi
 
-if [ $SERVER_TYPE == 'maketar' ] \
-    || [ $SERVER_TYPE == 'maketarDocs' ] \
-    || [ $SERVER_TYPE == 'maketarTests' ] \
-    || [ $SERVER_TYPE == 'xtar' ]
-    then
-    $HEXMAP/bin/tarAction $SERVER_TYPE $INSTALL
-    exit
-fi
+# Configure the server
+source $BIN/../config/config.$INSTALL
 
-#############  CONFIGURE THE SERVERS  ##########################################
-
-if [ $INSTALL == 'prod' ]; then
-    PORT=8443       # Port on which the server listens
-    HTTPS_PORT=443  # Https proxy port if using https, otherwise the same as PORT
-    DB_PORT=27017   # Port on which the database listens
-    DB_NAME=$PORT   # Name of the mongo database
-    METEOR_BASE=/cluster/home/hexmap/.meteor/packages/meteor-tool/1.4.1_2/mt-os.linux.x86_64/dev_bundle
-    METEOR=/cluster/home/hexmap/.meteor  # the meteor installation
-    PYTHONBIN=/cluster/home/hexmap/miniconda2/bin
-    DRLPATH=/cluster/home/hexmap/adam_novak-drl-graph-layout-c41341de8058/bin
-    export ROOT_URL=https://tumormap.ucsc.edu:$HTTPS_PORT # User's view of the URL
-    export PATH=$PYTHONBIN:$DRLPATH:$PATH
-
-elif [ $INSTALL == 'prodCalc' ]; then
-    PORT=8333
-    HTTPS_PORT=8333
-    DB_PORT=28333
-    DB_NAME=$PORT
-    METEOR_BASE=/cluster/home/hexmap/.meteor/packages/meteor-tool/1.4.1_2/mt-os.linux.x86_64/dev_bundle
-    METEOR=/cluster/home/hexmap/.meteor
-    export ROOT_URL=http://kolossus.sdsc.edu:$HTTPS_PORT
-    export PATH=/cluster/home/hexmap/adam_novak-drl-graph-layout-c41341de8058/bin:$PATH
-
-elif [ $INSTALL == 'dev' ]; then
-    PORT=8223
-    HTTPS_PORT=8222
-    DB_PORT=28223
-    DB_NAME=$INSTALL
-    METEOR=/cluster/home/swat/.meteor
-    METEOR_BASE=$METEOR/packages/meteor-tool/1.4.1_2/mt-os.linux.x86_64/dev_bundle
-    PYTHONBIN=/cluster/home/swat/packages/miniconda2/bin
-    DRLPATH=/cluster/home/swat/packages/drl-graph-layout/bin
-    export ROOT_URL=https://hexdev.sdsc.edu:$HTTPS_PORT
-    export PATH=$PYTHONBIN:$DRLPATH:$PATH
-
-elif [ $INSTALL == 'devCalc' ]; then
-    PORT=8333
-    HTTPS_PORT=$PORT
-    DB_PORT=28333
-    DB_NAME=$INSTALL
-    METEOR=/cluster/home/swat/.meteor-kolossus
-    METEOR_BASE=$METEOR/packages/meteor-tool/1.4.1_2/mt-os.linux.x86_64/dev_bundle
-    PYTHONBIN=/cluster/home/swat/packages/miniconda2/bin
-    DRLPATH=/cluster/home/swat/packages/drl-graph-layout/bin
-    export ROOT_URL=http://kolossus.sdsc.edu:$HTTPS_PORT
-    export PATH=$PYTHONBIN:$DRLPATH:$PATH
-
-elif [ $INSTALL == 'devOld' ]; then
-    PORT=8113
-    HTTPS_PORT=8112
-    DB_PORT=28113
-    DB_NAME=8111
-    METEOR=/cluster/home/swat/.meteor-hexmap
-    METEOR_BASE=$METEOR/packages/meteor-tool/1.4.1_2/mt-os.linux.x86_64/dev_bundle
-    export ROOT_URL=https://tumormap.ucsc.edu:$HTTPS_PORT
-    export PATH=/cluster/home/swat/packages/drl-graph-layout/bin:$PATH
-
-elif [ $INSTALL == 'devCalcOld' ]; then
-    PORT=8223
-    HTTPS_PORT=8223
-    DB_PORT=28223
-    DB_NAME=$PORT
-    METEOR_BASE=/cluster/home/swat/.meteor/packages/meteor-tool/1.4.1_2/mt-os.linux.x86_64/dev_bundle
-    METEOR=/cluster/home/swat/.meteor
-    export ROOT_URL=http://kolossus.sdsc.edu:$HTTPS_PORT
-    export PATH=/cluster/home/swat/packages/drl-graph-layout/bin:$PATH
-
-elif [ $INSTALL == 'swat' ]; then
-    PORT=3333
-    HTTPS_PORT=$PORT
-    DB_PORT=27017
-    DB_NAME=live
-    METEOR_BASE=/Users/swat/.meteor/packages/meteor-tool/1.4.1_2/mt-os.osx.x86_64/dev_bundle
-    METEOR=/Users/swat/.meteor
-    export ROOT_URL=http://localhost:$HTTPS_PORT
-    export PATH=/Users/swat/drl/drl-graph-layout/bin:$PATH
-
-elif [ $INSTALL == 'swatCalc' ]; then
-    PORT=4444
-    HTTPS_PORT=$PORT
-    DB_PORT=24444
-    DB_NAME=$PORT
-    METEOR_BASE=/Users/swat/.meteor/packages/meteor-tool/1.4.1_2/mt-os.osx.x86_64/dev_bundle
-    METEOR=/Users/swat/.meteor
-    export ROOT_URL=http://localhost:$HTTPS_PORT
-    export PATH=/Users/swat/drl/drl-graph-layout/bin:$PATH
-
-elif [ $INSTALL == 'swatMain' ]; then
-    PORT=5555
-    HTTPS_PORT=$PORT
-    DB_PORT=25555
-    DB_NAME=$PORT
-    METEOR_BASE=/Users/swat/.meteor/packages/meteor-tool/1.4.1_2/mt-os.osx.x86_64/dev_bundle
-    METEOR=/Users/swat/.meteor
-    export ROOT_URL=http://localhost:$HTTPS_PORT
-    export PATH=/Users/swat/drl/drl-graph-layout/bin:$PATH
-
-else
-    echo Invalid INSTALL: $INSTALL
-    echo Exiting
-    exit
-fi
-
-#####  RUN THE SERVER BY TYPE USING ONE OF THE ABOVE CONFIGS  ##################
+# Run the server by type using one of the above configs
 
 if [ $SERVER_TYPE == 'http' ]; then
     touch $HEXMAP/http.log
@@ -161,18 +72,21 @@ elif [ $SERVER_TYPE == 'db' ]; then
             --dbpath $HEXMAP/db \
             &> $HEXMAP/db.log &)
 
+elif [ $SERVER_TYPE == 'hub' ]; then
+    $HUB_PATH/uwsgi.sh
+
 elif [ $SERVER_TYPE == 'www' ]; then
     export MONGO_URL=mongodb://localhost:$DB_PORT/$DB_NAME
     export PYTHONPATH=$HEXMAP/www/server
     cd $HEXMAP/www
     touch $HEXMAP/www.log
     mv $HEXMAP/www.log $HEXMAP/www.prev.log
-    cat $HEXMAP/bin/settingsA/settingsA.$INSTALL.json $HEXMAP/bin/settingsB.json > $HEXMAP/bin/settings.json
+    cat $BIN/../config/settingsA.$INSTALL.json $BIN/../config/settingsB.json > $BIN/../config/settings.json
     if [ -z ${FOREGROUND} ]; then
         export MAIL_URL="smtp://localhost"
-        (nohup $METEOR/meteor --port $PORT --settings $HEXMAP/bin/settings.json &> $HEXMAP/www.log &)
+        (nohup $METEOR/meteor --port $PORT --settings $BIN/../config/settings.json &> $HEXMAP/www.log &)
     else
-        $METEOR/meteor --port $PORT --settings $HEXMAP/bin/settings.json
+        $METEOR/meteor --port $PORT --settings $HEXMAP/config/settings.json
     fi
 else
     echo Invalid SERVER_TYPE: $SERVER_TYPE

@@ -45,18 +45,29 @@ def validateParameters(data):
         raise ErrorResp('Layout does not have background data: ' +
             data['layout'])
 
-def createBookmark(state, viewServer):
+def createBookmark(state, viewServer, ctx, app):
+
+    # Create a bookmark
 
     # Ask the view server to create a bookmark of this client state
-    bResult = requests.post(viewServer + '/query/createBookmark',
-        headers = { 'Content-type': 'application/json' },
-        data = json.dumps(state)
-    )
+    # TODO fix the request to the view server
+    try:
+        bResult = requests.post(
+            viewServer + '/query/createBookmark',
+            #cert=(ctx['sslCert'], ctx['sslKey']),
+            verify=False,
+            headers = { 'Content-type': 'application/json' },
+            data = json.dumps(state)
+        )
+    except:
+        raise ErrorResp('Unknown error connecting to view server: ' +
+            viewServer)
+
     bData = json.loads(bResult.text)
     if bResult.status_code == 200:
         return bData
     else:
-        ErrorResp(bData)
+        raise ErrorResp(bData)
 
 def calcComplete(result, ctx, app):
 
@@ -71,17 +82,33 @@ def calcComplete(result, ctx, app):
 
     # Be sure we have a view server
     if not 'viewServer' in dataIn:
-        dataIn['viewServer'] = ctx['viewServerDefault']
+        dataIn['viewServer'] = ctx['viewerUrl']
 
-    # Format the result as client state in preparation to create a bookmark
+    # TODO find the firstAttribute in Layer_Data_Types.tab
     if 'firstAttribute' in ctx['meta']:
         firstAttr = ctx['meta']['firstAttribute']
     else:
         firstAttr = None
+
+    # TODO find the layoutIndex from layouts.tab
+    layoutIndex = 0
+    if dataIn['map'] == 'Pancan12/SampleMap':
+        layouts = [
+            'mRNA',
+            'miRNA',
+            'RPPA',
+            'Methylation',
+            'SCNV',
+            'Mutations',
+            'PARADIGM (inferred)',
+        ]
+        layoutIndex = layouts.index(dataIn['layout'])
+
+    # Format the result as client state in preparation to create a bookmark
     state = {
         'page': 'mapPage',
         'project': dataIn['map'] + '/',
-        'layout': dataIn['layout'],
+        'layoutIndex': layoutIndex,
         'shortlist': [firstAttr],
         'first_layer': [firstAttr],
         'overlayNodes': {},
@@ -92,22 +119,35 @@ def calcComplete(result, ctx, app):
     for node in result['nodes']:
         nData = result['nodes'][node]
         state['overlayNodes'][node] = { 'x': nData['x'], 'y': nData['y'] }
+        
+        # Build the neighbor places layer
         attr = node + ': ' + dataIn['layout'] + ': neighbors'
         state['shortlist'].append(attr)
         state['dynamic_attrs'][attr] = {
             'dynamic': True,
+            'datatype': 'binary',
+            'data': {},
+        }
+        
+        # Build the neighbor values layer
+        attrV = node + ': ' + dataIn['layout'] + ': neighbor values'
+        state['shortlist'].append(attrV)
+        state['dynamic_attrs'][attrV] = {
+            'dynamic': True,
             'datatype': 'continuous',
             'data': {},
         }
+        
+        # Add the values to the new layers
         for neighbor in nData['neighbors']:
-            state['dynamic_attrs'][attr]['data'][neighbor] = \
-                nData['neighbors'][neighbor]
+            state['dynamic_attrs'][attr]['data'][neighbor] = 1;
+            state['dynamic_attrs'][attrV]['data'][neighbor] = \
+                nData['neighbors'][neighbor];
 
         # If individual Urls were requested, create a bookmark for this node
         if 'individualUrls' in dataIn and dataIn['individualUrls']:
-            bData = createBookmark(state, dataIn['viewServer'])
-            result['nodes'][node]['url'] = \
-                dataIn['viewServer'] + '/?bookmark=' + bData['bookmark']
+            bData = createBookmark(state, dataIn['viewServer'], ctx, app)
+            result['nodes'][node]['url'] = bData['bookmark']
 
             # Clear the node data to get ready for the next node
             state['overlayNodes'] = {}
@@ -116,10 +156,9 @@ def calcComplete(result, ctx, app):
     # If individual urls were not requested, create one bookmark containing all
     # nodes and return that url for each node
     if not 'individualUrls' in dataIn or not dataIn['individualUrls']:
-        bData = createBookmark(state, dataIn['viewServer'])
+        bData = createBookmark(state, dataIn['viewServer'], ctx, app)
         for node in result['nodes']:
-            result['nodes'][node]['url'] = \
-                dataIn['viewServer'] + '/?bookmark=' + bData['bookmark']
+            result['nodes'][node]['url'] = bData['bookmark']
 
     # TODO: Send completion Email
     """
@@ -196,14 +235,16 @@ def calc(dataIn, ctx, app):
     
     files = meta['layouts'][dataIn['layout']]
     
-    # Check to see if the data files exist
-    # TODO: test both of these checks
-    if not os.path.exists(files['fullFeatureMatrix']):
-        raise ErrorResp('full feature matrix file not found: ' +
-            files['fullFeatureMatrix'], 500)
-    if not os.path.exists(files['xyPositions']):
-        raise ErrorResp('xy positions file not found: ' +
-            files['xyPositions'], 500)
+    if not 'testStub' in dataIn:
+    
+        # Check to see if the data files exist
+        # TODO: test both of these checks
+        if not os.path.exists(files['fullFeatureMatrix']):
+            raise ErrorResp('full feature matrix file not found: ' +
+                files['fullFeatureMatrix'], 500)
+        if not os.path.exists(files['xyPositions']):
+            raise ErrorResp('xy positions file not found: ' +
+                files['xyPositions'], 500)
     
     # Put the options to be passed to the calc script in a Namespace object,
     # the same object returned by argparse.parse_args().
@@ -217,6 +258,8 @@ def calc(dataIn, ctx, app):
     # Set any optional parms, letting the calc script set defaults.
     if 'neighborCount' in dataIn:
         opts.top = dataIn['neighborCount']
+
+    #log('debug', 'opts: ' + str(opts), app);
 
     if 'testStub' in dataIn:
         result = calcTestStub(opts)

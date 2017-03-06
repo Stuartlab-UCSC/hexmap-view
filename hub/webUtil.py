@@ -61,9 +61,15 @@ def availableMapLayouts(operation):
     if operation == 'Nof1':
     
         # TODO: really go get these
-        # by scraping the data directories for meta.json files containing file
+        # by scraping the view directories for meta.json files containing file
         # paths for a full feature matrix, xyPositions and firstAttribute.
         return {
+            'CKCC/v2': [
+                'mRNA',
+            ],
+            'CKCC/v3': [
+                'mRNA',
+            ],
             'Pancan12/SampleMap': [
                 'mRNA',
                 'miRNA',
@@ -87,10 +93,6 @@ def getMetaData(mapId, ctx, app):
     # Retrieve the meta data for this map
     
     # TODO get real meta data from the view/<map>/meta.json file
-    if ctx['viewServerDefault'] == 'http://localhost:3333':
-        base = '/Users/swat/data/'
-    elif ctx['viewServerDefault'] == 'https://tumormap.ucsc.edu':
-        base = '/hive/groups/hexmap/prod/data/'
     if mapId == 'unitTest/layoutBasicExp':
         
         meta = {
@@ -98,60 +100,85 @@ def getMetaData(mapId, ctx, app):
             "layouts": {
                 "layout": {
                     "fullFeatureMatrix":
-                        base + "featureSpace/unitTest/layout/mcrchopra.data.tab",
+                        ctx['dataRoot'] + "featureSpace/unitTest/layoutBasicExp/mcrchopra.data.tab",
                     "xyPositions":
-                        base + "view/unitTest/layoutBasicExp/assignments0.tab",
+                        ctx['dataRoot'] + "view/unitTest/layoutBasicExp/assignments0.tab",
                 }
             }
         }
-    else:
+    elif mapId == 'CKCC/v2':
+        meta =  {
+            "firstAttribute": "Disease",
+            "layouts": {
+                "mRNA": {
+                    "fullFeatureMatrix":
+                        ctx['dataRoot'] + "featureSpace/CKCC/v2/expression.2016-10-24.tsv",
+                    "xyPositions":
+                        ctx['dataRoot'] + "view/CKCC/v2/assignments0.tab",
+                },
+            }
+        }
+    elif mapId == 'CKCC/v3':
+        meta =  {
+            "firstAttribute": "Disease",
+            "layouts": {
+                "mRNA": {
+                    "fullFeatureMatrix":
+                        ctx['dataRoot'] + "featureSpace/CKCC/v3/expression.2016.12.21.tab",
+                    "xyPositions":
+                        ctx['dataRoot'] + "view/CKCC/v3/assignments0.tab",
+                },
+            }
+        }
+    elif mapId == 'Pancan12/SampleMap':
         meta =  {
             "firstAttribute": "Tissue",
             "layouts": {
                 "mRNA": {
                     "fullFeatureMatrix":
-                        base + "featureSpace/Pancan12/2017_02_21/layout.mRNA.tsv",
+                        ctx['dataRoot'] + "featureSpace/Pancan12/2017_02_21/layout.mRNA.tsv",
                     "xyPositions":
-                        base + "view/Pancan12/SampleMap/assignments0.tab",
+                        ctx['dataRoot'] + "view/Pancan12/SampleMap/assignments0.tab",
                 },
                 "miRNA": {
                     "fullFeatureMatrix":
-                        base + "featureSpace/Pancan12/2017_02_21/layout.miRNA.tsv",
+                        ctx['dataRoot'] + "featureSpace/Pancan12/2017_02_21/layout.miRNA.tsv",
                     "xyPositions":
-                        base + "view/Pancan12/SampleMap/assignments1.tab",
+                        ctx['dataRoot'] + "view/Pancan12/SampleMap/assignments1.tab",
                 },
                 "RPPA": {
                     "fullFeatureMatrix":
-                        base + "featureSpace/Pancan12/2017_02_21/layout.RPPA.tsv",
+                        ctx['dataRoot'] + "featureSpace/Pancan12/2017_02_21/layout.RPPA.tsv",
                     "xyPositions":
-                        base + "view/Pancan12/SampleMap/assignments2.tab",
+                        ctx['dataRoot'] + "view/Pancan12/SampleMap/assignments2.tab",
                 },
                 "Methylation": {
                     "fullFeatureMatrix":
-                        base + "featureSpace/Pancan12/2017_02_21/layout.methylation27.autosomal.tsv",
+                        ctx['dataRoot'] + "featureSpace/Pancan12/2017_02_21/layout.methylation27.autosomal.tsv",
                     "xyPositions":
-                        base + "view/Pancan12/SampleMap/assignments3.tab",
+                        ctx['dataRoot'] + "view/Pancan12/SampleMap/assignments3.tab",
                 },
                 "SCNV": {
                     "fullFeatureMatrix":
-                        base + "featureSpace/Pancan12/2017_02_21/layout.SCNV.tsv",
+                        ctx['dataRoot'] + "featureSpace/Pancan12/2017_02_21/layout.SCNV.tsv",
                     "xyPositions":
-                        base + "view/Pancan12/SampleMap/assignments4.tab",
+                        ctx['dataRoot'] + "view/Pancan12/SampleMap/assignments4.tab",
                 },
                 "Mutations": {
                     "fullFeatureMatrix":
-                        base + "featureSpace/Pancan12/2017_02_21/layout.mutations.hc.tsv",
+                        ctx['dataRoot'] + "featureSpace/Pancan12/2017_02_21/layout.mutations.hc.tsv",
                     "xyPositions":
-                        base + "view/Pancan12/SampleMap/assignments5.tab",
+                        ctx['dataRoot'] + "view/Pancan12/SampleMap/assignments5.tab",
                 },
                 "PARADIGM (inferred)": {
                     "fullFeatureMatrix":
-                        base + "featureSpace/Pancan12/2017_02_21/layout.paradigm.tsv",
+                        ctx['dataRoot'] + "featureSpace/Pancan12/2017_02_21/layout.paradigm.tsv",
                     "xyPositions":
-                        base + "view/Pancan12/SampleMap/assignments6.tab",
+                        ctx['dataRoot'] + "view/Pancan12/SampleMap/assignments6.tab",
                 }
             }
         }
+
     return meta
 
 def validateString(name, data, required=False):

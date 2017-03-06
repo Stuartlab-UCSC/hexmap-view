@@ -194,9 +194,6 @@ Tool = (function () { // jshint ignore: line
             if (Session.equals('page', 'homePage')) {
                 $('body').find('.mapShow, .gridShow').hide();
                 $('body').find('.homeShow').show();
-                if (!DEV) {
-                    $('#navBar .fileMenu').hide();
-                }
                 Session.set('loadingMap', false);
                 $('body').css('overflow-y', 'auto');
      
@@ -229,6 +226,7 @@ Tool = (function () { // jshint ignore: line
                 activity(false);
             });
         
+            var $placeNodeMenuOpt = $('#navBar .overlayNode');
             var $overlayNodes = $(
                 '#navBar .overlayNode, ' +
                 '#navBar .queryDocs'
@@ -241,9 +239,12 @@ Tool = (function () { // jshint ignore: line
                 '#homePage .createMapHome'
             );
         
-            var $job = $('#navBar .jobs');
+            var $job = $('#navBar .jobs, ' +
+                '#navBar .fileMenu'
+            );
         
             // Hide, show or disable tools depending on user's authorizations
+            // and sometimes other criteria
             Meteor.autorun( function () {
                 var user = Meteor.user(); // jshint ignore: line
 
@@ -253,7 +254,25 @@ Tool = (function () { // jshint ignore: line
                         if (!error && results) {
                             $job.show();
                             $createMap.show();
-                            $overlayNodes.show();
+                
+                            // Enable/disable the place nodes menu option
+                            // depending on availabiity of data required.
+                            // TODO should we stop this autorun
+                            // if the user is not logged in?
+                            Meteor.autorun( function () {
+                                var layoutName = Session.get('layouts')[
+                                    Session.get('layoutIndex')];
+
+                                if (Util.inAvailableMapLayouts(
+                                        layoutName,
+                                        Util.getHumanProject(ctx.project),
+                                        'placeNode')) {
+                                    $placeNodeMenuOpt.removeClass('disabled');
+                                } else {
+                                    $placeNodeMenuOpt.addClass('disabled');
+                                }
+                            })
+
                        } else {
                             $job.hide();
                             $createMap.hide();
@@ -261,19 +280,6 @@ Tool = (function () { // jshint ignore: line
                         }
                     }
                 );
-                /*
-                // Check authorizations for query API
-                Meteor.call('is_user_in_role', ['queryAPI', 'dev'],
-                    function (error, results) {
-                        if (!error && results) {
-                            $overlayNodes.show();
-                       } else {
-                            $overlayNodes.hide();
-                        }
-                    }
-                );
-                */
-                
             });
         },
     };

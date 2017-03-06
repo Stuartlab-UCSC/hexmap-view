@@ -246,6 +246,55 @@ Util = (function () { // jshint ignore: line
         setHeightSelect2($el);
     }
     
+    function timestamp () {
+
+        // This returns a timestamp of the form: Jan 26 2017 11:20:48:295
+        var now = new Date();
+        return now.toString().slice(4, -15) + ':' + now.getMilliseconds()
+    }
+    
+    function inAvailableMapLayouts (layout, map, operation) {
+
+        // Find the maps and layouts that meet the critiera
+        // for a specific operation
+
+        if (operation == 'placeNode') {
+        
+            // TODO: really go get these
+            // by scraping the data directories for meta.json files containing file
+            // paths for a full feature matrix, xyPositions and firstAttribute.
+            var avail = {
+                'CKCC/v2': [
+                    'mRNA',
+                ],
+                'CKCC/v3': [
+                    'mRNA',
+                ],
+                'Pancan12/SampleMap': [
+                    'mRNA',
+                    'miRNA',
+                    'RPPA',
+                    'Methylation',
+                    'SCNV',
+                    'Mutations',
+                    'PARADIGM (inferred)',
+                ],
+                'unitTest/layoutBasicExp': [
+                    'layout',
+                ],
+            };
+            if (avail.hasOwnProperty(map)) {
+                return (avail[map].indexOf(layout) > -1);
+            } else {
+                return false;
+            }
+        } else {
+        
+            // Not a supported operation
+            return false;
+        }
+    }
+    
     return { // Public methods
         get_username: get_username,
         clean_file_name: clean_file_name,
@@ -262,13 +311,8 @@ Util = (function () { // jshint ignore: line
         addToDataTypeList: addToDataTypeList,
         setHeightSelect2: setHeightSelect2,
         createOurSelect2: createOurSelect2,
-        
-        timestamp: function () {
-
-            // This returns a timestamp of the form: Jan 26 2017 11:20:48:295
-            var now = new Date();
-            return now.toString().slice(4, -15) + ':' + now.getMilliseconds()
-        },
+        timestamp: timestamp,
+        inAvailableMapLayouts: inAvailableMapLayouts,
     };
 }());
 

@@ -1,0 +1,13 @@
+#!/bin/bash
+
+#HEXMAP=/Users/swat/dev/hexagram
+DRLPATH=/Users/swat/drl/drl-graph-layout/bin
+export HUB_PATH=/Users/swat/dev/hexagram/hub
+
+export DATA_ROOT=/Users/swat/data/
+export HUB_DEBUG=true
+export HUB_SOCKET=127.0.0.1:5000
+export HUB_TESTING=false
+export PATH=$DRLPATH:$PATH
+export PYTHONPATH=$HUB_PATH:/Users/swat/dev/hexagram/www/server
+export VIEWER_URL=http://localhost:3333

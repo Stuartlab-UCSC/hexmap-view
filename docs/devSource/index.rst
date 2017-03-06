@@ -14,5 +14,6 @@ Developer Docs
    serverSource
    repository
    requirements
+   hub
    docs
    licenses

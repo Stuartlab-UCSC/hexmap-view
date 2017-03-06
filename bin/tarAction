@@ -9,11 +9,6 @@ INSTALL=$2
 if [ $ACTION == 'maketar' ]; then
     echo transferring everything except docs and tests/pyUnittest
     TAR_FILES=" \
-        bin/http* \
-        bin/run_server \
-        bin/settingsA \
-        bin/settingsB.json \
-        bin/tarAction \
         calc/*py \
         www/client \
         www/lib \
@@ -27,6 +22,19 @@ if [ $ACTION == 'maketar' ]; then
         www/server/*js \
         www/server/*py \
         www/package.json \
+        "
+elif [ $ACTION == 'maketarHub' ]; then
+    echo transferring the hub files
+    TAR_FILES=" \
+        *py \
+        *sh \
+        "
+elif [ $ACTION == 'maketarBin' ]; then
+    echo transferring the bin/config files
+    TAR_FILES=" \
+        bin/run_server \
+        bin/tarAction \
+        config/* \
         "
 elif [ $ACTION == 'maketarDocs' ]; then
     echo transferring only the docs in www/public
@@ -48,18 +56,20 @@ elif [ $ACTION == 'maketarTests' ]; then
 fi
 
 if [ $ACTION == 'maketar' ] \
+    || [ $ACTION == 'maketarBin' ] \
+    || [ $ACTION == 'maketarHub' ] \
     || [ $ACTION == 'maketarDocs' ] \
     || [ $ACTION == 'maketarTests' ]
     then
-    echo 'tarring to t.tar'
+    echo 'tarring to' t.tar
     rm t.tar
     tar -cf t.tar $TAR_FILES
     ls -l t.tar
     scp t.tar juggernaut:dev
 
 elif [ $ACTION == 'xtar' ]; then
-    echo 'cleaning directories'
-    rm -rf $TAR_FILES
+    #echo 'cleaning directories'
+    #rm -rf t.tarS
     echo 'untarring'
     tar -xf /cluster/home/swat/dev/t.tar
     echo 'xtar done'

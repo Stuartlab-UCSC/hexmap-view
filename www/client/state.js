@@ -62,13 +62,12 @@ var app = app || {};  // jshint ignore: line
                     ' to error: ' + error);
                 bookmarkColor.set('red');
             } else {
-                var msg = URL_BASE + '/?bookmark=' + result;
-                bookmarkMessage.set(msg);
+                bookmarkMessage.set(result);
                 
                 // Wait for the message to be applied to the input element
                 // before selecting the entire string
                 Meteor.setTimeout(function () {
-                    $bookmarkMessage[0].setSelectionRange(0, msg.length)
+                    $bookmarkMessage[0].setSelectionRange(0, result.length)
                 },0);
             }
         });
@@ -335,9 +334,6 @@ var app = app || {};  // jshint ignore: line
         if (store) {
             s.load(store);
         }
-        
-        // TODO a hack until bookmarks are going
-        //Session.set('overlayNodes', undefined);  // overlay nodes to include
     };
 
     State.prototype.loadFromBookmark = function (bookmark) {
@@ -370,6 +366,7 @@ var app = app || {};  // jshint ignore: line
                     return;
                 }
                 
+                console.log('loadFromBookmark result:', result);
                 s.load(result);
                 s.projectNotFoundNotified = false;
             }
@@ -424,17 +421,39 @@ var app = app || {};  // jshint ignore: line
             state.page = 'mapPage';
  
             // Find any layout specified
-            if (s.uParm.l) {
-                Session.set('layoutIndex', s.uParm.l);
+            if (s.uParm.li) {
+                Session.set('layoutIndex', s.uParm.li);
             }
  
-            // Find any overlay node in the URL
+            // Find any overlay nodes in the URL
             if (s.uParm.x && s.uParm.y) {
+ 
+                // Split the comma-separated values into arrays
+                var xs = s.uParm.x.split(","),
+                    ys = s.uParm.y.split(","),
+                    nodes = (!s.uParm.node) ? [] : s.uParm.node.split(",");
+ 
+                state.overlayNodes = {};
+                _.each(xs, function (x, i) {
+                
+                    // If there is a y-value for this x-value...
+                    if (ys.length > i) {
+                    
+                        // If there is no node name, use the index as the name.
+                        if (nodes.length <= i) {
+                            nodes[i] = i.toString();
+                        }
+                        state.overlayNodes[nodes[i]] = {x: xs[i], y: ys[i]};
+                    }
+                });
+ 
+                /* This is the old single overlay node in the url
                 if (!s.uParm.node) {
                     s.uParm.node = 'x';
                 }
                 state.overlayNodes = {};
                 state.overlayNodes[s.uParm.node] = {x: s.uParm.x, y: s.uParm.y};
+                */
  
             } else if (s.uParm.nodes) {
  

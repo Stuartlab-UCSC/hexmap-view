@@ -1,30 +1,31 @@
 
 # hub.py
 #
-import json, traceback
+import os, json, traceback
 from flask import Flask, request, jsonify, current_app
 from flask_cors import CORS, cross_origin
 
-import config
 import webUtil
 from webUtil import SuccessResp, ErrorResp, log
 import placeNode_web
+
+class Config(object):
+    DEBUG = os.environ['HUB_DEBUG']
+    TESTING = os.environ['HUB_TESTING']
 
 app = Flask(__name__)
 
 # Make cross-origin AJAX possible
 CORS(app)
 
-# TODO use env vars for this installation-specific config
-app.config.from_object('config.Development')
-#app.config.from_object('config.Production')
-
 # TODO: can ctx be stashed in flask's app.config object?
 # If not, clean up config.py to just dev & prod.
-# Or should ctx be stashed in the request object?
+# Or should ctx be stashed in the request object?]
 ctx = {
-    'viewServerDefault': 'http://localhost:3333'
-    #'viewServerDefault': 'https://tumormap.ucsc.edu'
+    # default the view server URL to that of development
+    'viewerUrl': os.environ.get('VIEWER_URL', 'http://hexdev.sdsc.edu'),
+    'dataRoot': os.environ.get('DATA_ROOT', ''),
+    #'app': app,
 }
 
 # Validate a post
@@ -88,5 +89,3 @@ def testRoute():
     app.logger.debug('testRoute current_app: ' + str(current_app))
 
     raise SuccessResp('just testing')
-
-

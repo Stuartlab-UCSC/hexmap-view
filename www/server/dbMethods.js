@@ -39,23 +39,33 @@ function findBookmark (id, future) {
     }
 }
 
+function createBookmarkInner (state, username) {
+    var hash = crypto.createHash('sha256');
+    hash.update(state);
+    var id = hash.digest('hex');
+
+    // TODO don't create a duplicate bookmark by another user
+    
+    // Insert the new bookmark ID into the bookmark collection
+    var upsertReturn = Bookmarks.upsert({ _id: id },
+        {$set: {
+            jsonState: state,
+            username: username,
+            lastAccess: humanToday(),
+        }},
+    );
+    var url = URL_BASE + '/?bookmark=' + id;
+    console.log('info: new bookmark created: url, state:', url, state);
+    return url
+}
+
 function createBookmark (state, future) {
 
-    // Save state in a bookmark, returning the hash ID in the future return
+    // Save state in a bookmark, returning the URL in the future return
     try {
-        var hash = crypto.createHash('sha256');
-        hash.update(state);
-        var id = hash.digest('hex'),
-            user = Meteor.user();
-
-        var upsertReturn = Bookmarks.upsert({ _id: id },
-            {$set: {
-                jsonState: state,
-                username: user ? user.username : undefined,
-                lastAccess: humanToday(),
-            }},
-        );
-        future.return(id);
+        var user = Meteor.user();
+        var url = createBookmarkInner(state, user ? user.username : undefined);
+        future.return(url);
         
     } catch (e) {
         console.log('saveBookmark() failed with:', e.toString());
@@ -65,22 +75,11 @@ function createBookmark (state, future) {
 
 exports.createBookmarkFiber = function (state, res) {
     
+    // Save state in a bookmark, returning the URL in the future return
     new Fiber(function () {
-        
-        // Save state in a bookmark, returning the hash ID in the future return
         try {
-            var hash = crypto.createHash('sha256');
-            hash.update(state);
-            var id = hash.digest('hex');
-
-            var upsertReturn = Bookmarks.upsert({ _id: id },
-                {$set: {
-                    jsonState: state,
-                    username: 'query/createBookmark',
-                    lastAccess: humanToday(),
-                }},
-            );
-            Http.respond(200, res, { bookmark: id });
+            var url = createBookmarkInner(state, 'query/createBookmark');
+            Http.respond(200, res, { bookmark: url });
             
         } catch (e) {
             console.log('saveBookmark() failed with:', e.toString());

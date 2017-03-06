@@ -13,12 +13,17 @@ Meteor.startup( () => {
     
         // Allow content from the hub and google
         // TODO make hub variable
-        var hub = 'http://localhost:5000';
+        var kolossus = '*.kolossus.sdsc.edu:*';
         var google = '*.google.com';
         var googleStatic = '*.gstatic.com';
         var googleAnalytics = '*.google-analytics.com';
         var googleApi = '*.googleapis.com';
-        BrowserPolicy.content.allowOriginForAll(hub);
+        
+        BrowserPolicy.content.allowSameOriginForAll(kolossus);
+        BrowserPolicy.content.allowDataUrlForAll(kolossus);
+        BrowserPolicy.content.allowOriginForAll(kolossus);
+        BrowserPolicy.content.allowConnectOrigin(kolossus);
+        
         BrowserPolicy.content.allowOriginForAll(google);
         BrowserPolicy.content.allowOriginForAll(googleStatic);
         BrowserPolicy.content.allowOriginForAll(googleAnalytics);
@@ -81,8 +86,9 @@ VIEW_DIR = Meteor.settings.public.VIEW_DIR;
 LAYOUT_INPUT_DIR = Meteor.settings.public.LAYOUT_INPUT_DIR;
 FEATURE_SPACE_DIR = Meteor.settings.public.FEATURE_SPACE_DIR;
 GOOGLE_API_KEY = Meteor.settings.public.GOOGLE_API_KEY;
+HUB_URL = Meteor.settings.public.HUB_URL;
 
-if (Meteor.settings.public.DEV === 'yes') {//no booleans with strict JSON
+if (Meteor.settings.public.DEV) {//no booleans with strict JSON
     DEV = true; //development functionality will be included
 } else {
     DEV = false;
