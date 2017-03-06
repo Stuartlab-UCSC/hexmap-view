@@ -166,16 +166,23 @@ def pandasToNumpy(df):
 
     return mat, col_list, row_list
 
-def common_rows(p1, p2):
+def common_rows(p1, p2,fractionReq=.5):
     '''
     takes two pandas data frames and reduces them to have the same rows in the same order
     @param p1: a pandas dataframe
     @param p2: a pandas dataframe
+    @param fractionReq: a ValueError will be thrown if this fraction of rows
+                        is not kept
     @return: tuple of pandas dataframes reduced to have the same rows in same order
     '''
     p1rows = set(p1.index)
     p2rows = set(p2.index)
     rowsInCommon = p1rows.intersection(p2rows)
+
+    if len(rowsInCommon) < (fractionReq * max(len(p1rows),len(p2rows))):
+        raise ValueError, "Less than " + str(fractionReq * 100) + " %" \
+                          " of features shared in row reduction operation."
+
     p1 = p1.loc[rowsInCommon]
     p2 = p2.loc[rowsInCommon]
     return p1,p2
@@ -229,40 +236,48 @@ def extract_similarities(dt, sample_labels, top, log=None,sample_labels2=[],perc
     #container for edge format
     output = pd.DataFrame()
 
-    #'percentile cut' is a different sparsity operation.
-    # instead of taking the top X for all nodes, we will take similiarities meeting a
-    # threshold. The threshold is determined by keeping the same amount of edges as if
-    # you have performed top 6. e.g. if you have 100 samples and did top 6 you would have
-    # 600 edges, if you did percentile_cut with --top 6, you would also have 600 edges, but
-    # the number of edges per node would be variable.
-    if percentile_cut:
-        #has to be a little awkward because we aren't using dataframes.
-        #essentially these cases out how we will convert numpy struct to pandas depending on
-        # if the rows and column names are the same.
-        if len(sample_labels2):
-            output = percentile_sparsify(numpyToPandas(dt,sample_labels,sample_labels2),top)
+    try:
+        #'percentile cut' is a different sparsity operation.
+        # instead of taking the top X for all nodes, we will take similiarities meeting a
+        # threshold. The threshold is determined by keeping the same amount of edges as if
+        # you have performed top 6. e.g. if you have 100 samples and did top 6 you would have
+        # 600 edges, if you did percentile_cut with --top 6, you would also have 600 edges, but
+        # the number of edges per node would be variable.
+        if percentile_cut:
+            #has to be a little awkward because we aren't using dataframes.
+            #essentially these cases out how we will convert numpy struct to pandas depending on
+            # if the rows and column names are the same.
+            if len(sample_labels2):
+                output = percentile_sparsify(numpyToPandas(dt,sample_labels,sample_labels2),top)
+            else:
+                output = percentile_sparsify(numpyToPandas(dt,sample_labels,sample_labels),top)
+
+        #this is the normal top X sparsify operation
         else:
-            output = percentile_sparsify(numpyToPandas(dt,sample_labels,sample_labels),top)
+            for i in range(len(dt)):
+                sample_dict = dict(zip(sample_labels, dt[i]))
 
-    #this is the normal top X sparsify operation
-    else:
-        for i in range(len(dt)):
-            sample_dict = dict(zip(sample_labels, dt[i]))
+                if allbyall: #remove self comparison
+                    del sample_dict[sample_labels[i]]
 
-            if allbyall: #remove self comparison
-                del sample_dict[sample_labels[i]]
+                for n_i in range(top):
+                    v=list(sample_dict.values())
+                    k=list(sample_dict.keys())
+                    m=v.index(max(v))
+                    #interatively build a dataframe with the neighbors
+                    if len(sample_labels2):
+                        output = output.append(pd.Series([sample_labels2[i],k[m],v[m]]),ignore_index=True)
+                    else:
+                        output = output.append(pd.Series([sample_labels[i],k[m],v[m]]),ignore_index=True)
+                    del sample_dict[k[m]]
 
-            for n_i in range(top):
-                v=list(sample_dict.values())
-                k=list(sample_dict.keys())
-                m=v.index(max(v))
-                #interatively build a dataframe with the neighbors
-                if len(sample_labels2):
-                    output = output.append(pd.Series([sample_labels2[i],k[m],v[m]]),ignore_index=True)
-                else:
-                    output = output.append(pd.Series([sample_labels[i],k[m],v[m]]),ignore_index=True)
-                del sample_dict[k[m]]
-
+    except ValueError as e:
+        #if the exception was thrown because of faulty use of max()
+        if str(e) == "max() arg is an empty sequence":
+            raise ValueError, "top argument larger than amount of " \
+                              "comparisons"
+        else: #pass the exception along as is...
+            raise
 
     return output
 
