@@ -3,6 +3,7 @@ import unittest
 import tempfile
 import json
 import pandas as pd
+import compute_sparse_matrix
 from rootDir import getRootDir
 import placeNode
 from placeNode_calc import *
@@ -151,6 +152,61 @@ class Nof1CalcTestCase(unittest.TestCase):
             retDict2['nodes']['test2']['x'],
                      'doing one test not independent of both'
         )
+
+    def test_commonrow_except(s):
+
+        passed = False
+        try:
+           #percentage requirement is larger than available rows
+           compute_sparse_matrix.common_rows(pd.DataFrame([1,2,3]),
+                                             pd.DataFrame([1,2,3,4,5,6]),
+                                             1.1)
+           #percentage requirement is 50% when only 30% is available
+           compute_sparse_matrix.common_rows(pd.DataFrame([1,2]),
+                                             pd.DataFrame([1,2,3,4,5,6]),
+                                             )
+        except ValueError:
+           passed = True
+
+        s.assertTrue(passed,'Exception from compute_sparse_.common_rows not'
+                             ' properly thrown')
+
+    def test_commonrow(s):
+
+        #flag to run multiple tests for incorrect row reduction
+        passed = False
+        try:
+            d1,d2 =compute_sparse_matrix.common_rows(pd.DataFrame([1,2,3]),
+                                                     pd.DataFrame([1,2,3,4,5,
+                                                                   6]),
+                                                    )
+            passed = d2.shape == (3,1) and d1.shape == (3,1)
+
+            d1,d2 =compute_sparse_matrix.common_rows(pd.DataFrame(index =
+                                                                  ['1','2',
+                                                                   '0']),
+                                          pd.DataFrame(index = ['1','2','3',
+                                                                '4','5','6']),
+                                          .1)
+            passed = d2.shape == (2,0) and d1.shape == (2,0)  and passed
+
+            d1,d2 =compute_sparse_matrix.common_rows(pd.DataFrame(index =
+                                                                  ['1','2',
+                                                                   '0']),
+                                                     pd.DataFrame(index = ['2',
+                                                                 '4','5','6']),
+                                                     .001)
+
+            passed = d2.shape == (1,0) and d1.shape == (1,0)  and passed
+            if not passed:
+                print 'third' + str(d2.shape)
+
+        except Exception as e:
+            s.assertTrue(False,'exception thrown from common_rows' + str(e))
+
+
+        s.assertTrue(passed,'compute_sparse_.common_rows has '
+                             'imporper row reduction ')
 
 if __name__ == '__main__':
     unittest.main()
