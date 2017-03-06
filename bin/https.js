@@ -1,6 +1,5 @@
 
 var DEV = false;
-var DEV_OLD = false;
 ///////////////
 
 if (DEV) {
@@ -10,15 +9,6 @@ if (DEV) {
         SECDIR = '/data/certs/',
         KEY = SECDIR + 'hexdev.key',
         CERT = SECDIR + 'hexdev.crt';
-    
-    if (DEV_OLD) {
-        var PROXY_PORT = 8112,
-            TARGET_PORT = 8113,
-            SECDIR = '/cluster/home/swat/sec/',
-            TARGET = "http://tumormap.ucsc.edu:" + TARGET_PORT,
-            KEY = SECDIR + 'tumormap.key',
-            CERT = SECDIR + 'tumormap.crt';
-        }
     
 } else {
     var PROXY_PORT = 443,

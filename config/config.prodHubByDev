@@ -4,8 +4,8 @@
 DRLPATH=/cluster/home/swat/packages/drl-graph-layout/bin
 export HUB_PATH=/hive/groups/hexmap/prod/hub
 
-export DATA_ROOT=/hive/groups/hexmap/prod/data
-export HUB_DEBUG=false
+export DATA_ROOT=/hive/groups/hexmap/prod/data/
+export HUB_DEBUG=true
 export HUB_SOCKET=hexdev.sdsc.edu:8332
 export HUB_TESTING=false
 export PATH=$DRLPATH:$PATH

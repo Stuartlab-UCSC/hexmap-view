@@ -9,6 +9,24 @@ if [ $# -eq 0 ]; then
     echo "   one test: run test_stats.TestStats.test_stats"
     exit 1
 fi
+
+# Set env vars common to all installations
+export HUB_PATH=$(pwd)/../../hub
+export PYTHONPATH=$(pwd)/../../www/server:$HUB_PATH:./
+export HUB_TESTING=false
+export HUB_DEBUG=true
+
+# Set env vars specific to the installation
+if [ $HUB_PATH == '/hive/groups/hexmap/prod/tests/pyUnittest/../../hub' ]; then
+    # Development servers on hexdev
+    export HUB_SOCKET=hexdev.sdsc.edu:8332
+    export VIEWER_URL=https://hexdev.sdsc.edu:8222
+elif [ $HUB_PATH == '/Users/swat/dev/hexagram/tests/pyUnittest/../../hub' ]; then
+    # Development servers on swat's local
+    export HUB_SOCKET=localhost
+    export VIEWER_URL=http://localhost:3333
+fi
+
 # Note: the below are currently order-dependent due to issues with parallel code
 ALL=( \
     test_similarity \
@@ -31,14 +49,6 @@ HUB=( \
     #test_noincludesingletons \
     #test_queryOverlayNodes \
     #test_remoteCalc \
-
-# set some env vars expected
-export VIEWER_URL=http://localhost:3333
-export HUB_PATH=$(pwd)/../../hub
-export PYTHONPATH=$(pwd)/../../www/server:$HUB_PATH:./
-export HUB_SOCKET=localhost
-export HUB_TESTING=false
-export HUB_DEBUG=true
 
 TO_RUN=($1)
 if [ $1 == 'all' ]

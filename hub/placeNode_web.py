@@ -45,9 +45,12 @@ def validateParameters(data):
         raise ErrorResp('Layout does not have background data: ' +
             data['layout'])
 
-def createBookmark(state, viewServer):
+def createBookmark(state, viewServer, app):
+
+    # Create a bookmark
 
     # Ask the view server to create a bookmark of this client state
+    # TODO fix the request to the view server
     try:
         bResult = requests.post(viewServer + '/query/createBookmark',
             headers = { 'Content-type': 'application/json' },
@@ -126,7 +129,7 @@ def calcComplete(result, ctx, app):
 
         # If individual Urls were requested, create a bookmark for this node
         if 'individualUrls' in dataIn and dataIn['individualUrls']:
-            bData = createBookmark(state, dataIn['viewServer'])
+            bData = createBookmark(state, dataIn['viewServer'], app)
             result['nodes'][node]['url'] = \
                 dataIn['viewServer'] + '/?bookmark=' + bData['bookmark']
 
@@ -137,7 +140,7 @@ def calcComplete(result, ctx, app):
     # If individual urls were not requested, create one bookmark containing all
     # nodes and return that url for each node
     if not 'individualUrls' in dataIn or not dataIn['individualUrls']:
-        bData = createBookmark(state, dataIn['viewServer'])
+        bData = createBookmark(state, dataIn['viewServer'], app)
         for node in result['nodes']:
             result['nodes'][node]['url'] = \
                 dataIn['viewServer'] + '/?bookmark=' + bData['bookmark']

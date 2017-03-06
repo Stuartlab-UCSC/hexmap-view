@@ -1,8 +1,9 @@
-import os, json, tempfile, requests
+import os, json, tempfile, subprocess, requests
 import unittest
+import testUtil
 import hub
 
-class Nof1TestCase(unittest.TestCase):
+class PlaceNodeWebTestCase(unittest.TestCase):
 
     # This view server must be running for these tests.
     viewServer = os.environ['VIEWER_URL']
@@ -284,6 +285,24 @@ class Nof1TestCase(unittest.TestCase):
         s.assertTrue(rv.status_code == 400)
         s.assertTrue(data['error'] == 'Some error message or stack trace')
 
+    def test_create_bookmark(s):
+        #resData = '{"TESTpythonCallStub":"success"}\n';
+        opts = [
+            '-d', json.dumps(dict(
+                page = 'mapPage',
+                project = 'unitTest/layoutBasicExp/',
+                layoutIndex = 0,
+            )),
+            '-H', 'Content-Type:application/json',
+            '-X',
+            'POST',
+            '-v'
+        ]
+        rc = testUtil.doCurl(opts, s.viewServer + '/query/createBookmark')
+        #print "rc['code']:", rc['code']
+        #print "rc['data']:", rc['data']
+        s.assertTrue(rc['code'] == '200')
+    
     def test_single_node_no_individual_urls(s):
         rv = s.app.post('/query/overlayNodes',
             content_type='application/json',
