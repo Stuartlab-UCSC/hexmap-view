@@ -17,214 +17,176 @@ outDir = testDir + 'out/similarity/' # The actual output data
 expDir = testDir + 'exp/similarity/'
 
 import compute_sparse_matrix
+import testUtil as tu
+import numpy as np
 
 class Test_similarity(unittest.TestCase):
-    '''
-    # the file TGCT_IlluminaHiSeq_RNASeqV2 was removed from the github repo
-    # and so all of these tests failed.
-    def test_similarityTop20Spear(s):
 
-        # Test for sparse matrix with 20 top neighbors and spearman correlation
-        baseName = 'TGCT_IlluminaHiSeq_RNASeqV2'
-        outName = baseName + '.top20.spearman.tab'
-        opts = [
-            '--in_file', inDir + baseName + '.tab',
-            '--top', '20',
-            '--metric', 'spearman',
-            '--output_type', 'sparse',
-            '--out_file', outDir + outName,
-            '--log', outDir + 'log',
-            '--num_jobs', '2'
-        ]
+    def test_npToPd(s):
+        #make some random data for testing
+        ncols=50
+        nrows=40
+        dataDF = tu.getdf('','random',nrows=nrows,ncols=ncols)
+        #switch over to numpy
+        dt, cn, rn = compute_sparse_matrix.pandasToNumpy(dataDF)
 
-        util.removeOldOutFiles(outDir)
-        rc = compute_sparse_matrix.main(opts)
-        s.assertTrue(rc == 0)
-        util.compareActualVsExpectedFile(s, outName, outDir, expDir)
+        #make sure the returned dimensions and values are correct
+        passed  = len(rn) == nrows and \
+                  len(cn) == ncols and \
+                  np.all(dataDF.values == dt)
 
-    def test_similarityTop20Pcorr(s):
+        s.assertTrue(passed,'numpy to pandas conversion failed')
 
-        # Test for sparse matrix with 20 top neighbors and pearson correlation
-        baseName = 'TGCT_IlluminaHiSeq_RNASeqV2'
-        outName = baseName + '.top20.correlation.tab'
-        opts = [
-            '--in_file', inDir + baseName + '.tab',
-            '--top', '20',
-            '--metric', 'correlation',
-            '--output_type', 'sparse',
-            '--out_file', outDir + outName,
-            '--log', outDir + 'log',
-            '--num_jobs', '2'
-        ]
+    def test_pdToNp(s):
+        #make some random data for testing
+        ncols=40
+        nrows=50
+        dataDF = tu.getdf('','random',ncols=ncols,nrows=nrows)
 
-        util.removeOldOutFiles(outDir)
-        rc = compute_sparse_matrix.main(opts)
-        s.assertTrue(rc == 0)
-        util.compareActualVsExpectedFile(s, outName, outDir, expDir)
+        #use pandas native conversion to numpy
+        dataNP = dataDF.as_matrix()
 
-    def test_similarityTop6Spear(s):
-    
-        # Test for sparse matrix with 6 top neighbors and spearman correlation
-        baseName = 'TGCT_IlluminaHiSeq_RNASeqV2'
-        outName = baseName + '.top6.spearman.tab'
-        opts = [
-            '--in_file', inDir + baseName + '.tab',
-            '--top', '6',
-            '--metric', 'spearman',
-            '--output_type', 'sparse',
-            '--out_file', outDir + outName,
-            '--log', outDir + 'log',
-            '--num_jobs', '2'
-        ]
+        #make the expected row and column names (because of how getdf() works)
+        cn = range(ncols)
+        rn = range(nrows)
 
-        util.removeOldOutFiles(outDir)
-        rc = compute_sparse_matrix.main(opts)
-        s.assertTrue(rc == 0)
-        util.compareActualVsExpectedFile(s, outName, outDir, expDir)
+        #use our conversion to numpy
+        data = compute_sparse_matrix.numpyToPandas(dataNP,cn,rn)
 
-    def test_similarityTop6Pcorr(s):
+        #makes sure the row names and column names are as expected and then
+        # makes sure all the values are equal
+        passed = \
+              not len(set(data.index).symmetric_difference(set(dataDF.index))) \
+            and \
+              not len(set(data.columns).symmetric_difference(set(
+               dataDF.columns))) \
+            and \
+              dataDF.equals(data)
 
-        # Test for sparse matrix with 6 top neighbors and pearson correlation
-        baseName = 'TGCT_IlluminaHiSeq_RNASeqV2'
-        outName = baseName + '.top6.correlation.tab'
-        opts = [
-            '--in_file', inDir + baseName + '.tab',
-            '--top', '6',
-            '--metric', 'correlation',
-            '--output_type', 'sparse',
-            '--out_file', outDir + outName,
-            '--log', outDir + 'log',
-            '--num_jobs', '2'
-        ]
+        s.assertTrue(passed,'pandas to numpys conversion failed')
 
-        util.removeOldOutFiles(outDir)
-        rc = compute_sparse_matrix.main(opts)
-        s.assertTrue(rc == 0)
-        util.compareActualVsExpectedFile(s, outName, outDir, expDir)
+    def test_Top20(s):
 
-    def test_similarityTop3Spear(s):
+        #make some random data for testing
+        nrows=50
+        ncols=50
+        top=20
+        dataDF = tu.getdf('','random',nrows=nrows,ncols=ncols)
 
-        # Test for sparse matrix with 3 top neighbors and spearman correlation
-        baseName = 'TGCT_IlluminaHiSeq_RNASeqV2'
-        outName = baseName + '.top3.spearman.tab'
-        opts = [
-            '--in_file', inDir + baseName + '.tab',
-            '--top', '3',
-            '--metric', 'spearman',
-            '--output_type', 'sparse',
-            '--out_file', outDir + outName,
-            '--log', outDir + 'log',
-            '--num_jobs', '2'
-        ]
+        neiDF = compute_sparse_matrix.extract_similarities(dataDF.values,
+                                                           dataDF.columns,
+                                                           top)
+        gb = neiDF.groupby(neiDF.columns[0]).count()
 
-        util.removeOldOutFiles(outDir)
-        rc = compute_sparse_matrix.main(opts)
-        s.assertTrue(rc == 0)
-        util.compareActualVsExpectedFile(s, outName, outDir, expDir)
+        passed = gb.shape[0] == nrows and \
+                (gb[gb.columns[1]] == top).sum() == nrows
 
-    def test_similarityTop3Pcorr(s):
+        s.assertTrue(passed,'top ' + str(top) + ' reduction failed')
 
-        # Test for sparse matrix with 3 top neighbors and pearson correlation
-        baseName = 'TGCT_IlluminaHiSeq_RNASeqV2'
-        outName = baseName + '.top3.correlation.tab'
-        opts = [
-            '--in_file', inDir + baseName + '.tab',
-            '--top', '3',
-            '--metric', 'correlation',
-            '--output_type', 'sparse',
-            '--out_file', outDir + outName,
-            '--log', outDir + 'log',
-            '--num_jobs', '2'
-        ]
+    def test_Top10(s):
 
-        util.removeOldOutFiles(outDir)
-        rc = compute_sparse_matrix.main(opts)
-        s.assertTrue(rc == 0)
-        util.compareActualVsExpectedFile(s, outName, outDir, expDir)
+            #make some random data for testing
+            nrows=25
+            ncols=25
+            top=10
+            dataDF = tu.getdf('','random',nrows=nrows,ncols=ncols)
 
-    def test_similarityFullPcorr(s):
+            neiDF = compute_sparse_matrix.extract_similarities(dataDF.values,
+                                                               dataDF.columns,
+                                                               top)
+            gb = neiDF.groupby(neiDF.columns[0]).count()
 
-        # Test for full matrix with pearson correlation
-        baseName = 'TGCT_IlluminaHiSeq_RNASeqV2'
-        outName = baseName + '.full.correlation.tab'
-        opts = [
-            '--in_file', inDir + baseName + '.tab',
-            '--metric', 'correlation',
-            '--output_type', 'full',
-            '--out_file', outDir + outName,
-            '--log', outDir + 'log',
-            '--num_jobs', '2'
-        ]
+            passed = gb.shape[0] == nrows and \
+                (gb[gb.columns[1]] == top).sum() == nrows
 
-        util.removeOldOutFiles(outDir)
-        rc = compute_sparse_matrix.main(opts)
-        s.assertTrue(rc == 0)
-        util.compareActualVsExpectedFile(s, outName, outDir, expDir)
+            s.assertTrue(passed,'top ' + str(top) + ' reduction failed')
 
-    def test_similarityFullSpear(s):
+    def test_Top3(s):
 
-        # Test for full matrix with spearman correlation
-        baseName = 'TGCT_IlluminaHiSeq_RNASeqV2'
-        outName = baseName + '.full.spearman.tab'
-        opts = [
-            '--in_file', inDir + baseName + '.tab',
-            '--metric', 'spearman',
-            '--output_type', 'full',
-            '--out_file', outDir + outName,
-            '--log', outDir + 'log',
-            '--num_jobs', '2'
-        ]
+            #make some random data for testing
+            nrows=20
+            ncols=20
+            top=3
+            dataDF = tu.getdf('','random',nrows=nrows,ncols=ncols)
 
-        util.removeOldOutFiles(outDir)
-        rc = compute_sparse_matrix.main(opts)
-        s.assertTrue(rc == 0)
-        util.compareActualVsExpectedFile(s, outName, outDir, expDir)
+            neiDF = compute_sparse_matrix.extract_similarities(dataDF.values,
+                                                               dataDF.columns,
+                                                               top)
+            gb = neiDF.groupby(neiDF.columns[0]).count()
 
-    def test_similarity_with_in_file2(s):
-        #this tests if the --in_file2 arg has anticipated behavior.
-        # if we feed in the same file for --in_file2 as --in_file
-        # the output should be equivelent to only using --in_file
+            passed = gb.shape[0] == nrows and \
+                (gb[gb.columns[1]] == top).sum() == nrows
 
-        baseName = 'TGCT_IlluminaHiSeq_RNASeqV2'
-        outName = baseName + '.top6.spearman.tab'
-        opts = [
-            '--in_file', inDir + baseName + '.tab',
-            '--in_file2', inDir + baseName + '.tab',
-            '--metric', 'spearman',
-            '--top', "6",
-            '--output_type', 'sparse',
-            '--out_file', outDir + outName,
-            '--log', outDir + 'log',
-            '--num_jobs', '2'
-        ]
+            s.assertTrue(passed,'top ' + str(top) + ' reduction failed')
+    def test_Top30(s):
 
-        util.removeOldOutFiles(outDir)
-        rc = compute_sparse_matrix.main(opts)
-        s.assertTrue(rc == 0)
-        util.compareActualVsExpectedFile(s, outName, outDir, expDir)
-    '''
-    def test_n_of_1_like(s):
-        #this tests if the --in_file2 arg has anticipated behavior.
-        # if we feed in the same file for --in_file2 as --in_file
-        # the output should be equivelent to only using --in_file
+            #make some random data for testing
+            nrows=100
+            ncols=100
+            top=30
+            dataDF = tu.getdf('','random',nrows=nrows,ncols=ncols)
 
-        baseName = 'nOf1'
-        outName = baseName + '.top6.spearman.tab'
-        opts = [
-            '--in_file', inDir + baseName + 'Mat.tab',
-            '--in_file2', inDir + baseName + 'Vector.tab',
-            '--metric', 'spearman',
-            '--top', "6",
-            '--output_type', 'sparse',
-            '--out_file', outDir + outName,
-            '--log', outDir + 'log',
-            '--num_jobs', '2'
-        ]
+            neiDF = compute_sparse_matrix.extract_similarities(dataDF.values,
+                                                               dataDF.columns,
+                                                               top)
+            gb = neiDF.groupby(neiDF.columns[0]).count()
 
-        util.removeOldOutFiles(outDir)
-        rc = compute_sparse_matrix.main(opts)
-        s.assertTrue(rc == 0)
-        util.compareActualVsExpectedFile(s, outName, outDir, expDir)
+            passed = gb.shape[0] == nrows and \
+                (gb[gb.columns[1]] == top).sum() == nrows
+
+            s.assertTrue(passed,'top ' + str(top) + ' reduction failed')
+
+    def test_Top1(s):
+
+            #make some random data for testing
+            nrows=10
+            ncols=10
+            top=1
+            dataDF = tu.getdf('','random',nrows=nrows,ncols=ncols)
+
+            neiDF = compute_sparse_matrix.extract_similarities(dataDF.values,
+                                                               dataDF.columns,
+                                                               top)
+            gb = neiDF.groupby(neiDF.columns[0]).count()
+
+            passed = gb.shape[0] == nrows and \
+                (gb[gb.columns[1]] == top).sum() == nrows
+
+            s.assertTrue(passed,'top ' + str(top) + ' reduction failed')
+    def test_TopOver(s):
+
+            #make some random data for testing
+            nrows=10
+            ncols=10
+            top=11
+            dataDF = tu.getdf('','random',nrows=nrows,ncols=ncols)
+            try:
+                neiDF = compute_sparse_matrix.extract_similarities(dataDF.values,
+                                                               dataDF.columns,
+                                                           top)
+                s.assertTrue(False,'No exception was thrown with invalid top '
+                                   'argument')
+
+            except ValueError as e:
+                #checks the exception says something about the 'top' argument
+                passed = 'top' in str(e)
+                s.assertTrue(passed,'Exception thrown did not complain about '
+                                    'top argument')
+
+    def test_Top0(s):
+
+            #make some random data for testing
+            nrows=5
+            ncols=5
+            top=0
+            dataDF = tu.getdf('','random',nrows=nrows,ncols=ncols)
+
+            neiDF = compute_sparse_matrix.extract_similarities(dataDF.values,
+                                                               dataDF.columns,
+                                                               top)
+            passed = neiDF.shape == (0,0)
+
+            s.assertTrue(passed,'top 0 did not have empty dimensions')
 
 if __name__ == '__main__':
     unittest.main()
