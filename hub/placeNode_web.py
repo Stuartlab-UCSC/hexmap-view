@@ -45,14 +45,17 @@ def validateParameters(data):
         raise ErrorResp('Layout does not have background data: ' +
             data['layout'])
 
-def createBookmark(state, viewServer, app):
+def createBookmark(state, viewServer, ctx, app):
 
     # Create a bookmark
 
     # Ask the view server to create a bookmark of this client state
     # TODO fix the request to the view server
     try:
-        bResult = requests.post(viewServer + '/query/createBookmark',
+        bResult = requests.post(
+            viewServer + '/query/createBookmark',
+            #cert=(ctx['sslCert'], ctx['sslKey']),
+            verify=False,
             headers = { 'Content-type': 'application/json' },
             data = json.dumps(state)
         )
@@ -116,22 +119,35 @@ def calcComplete(result, ctx, app):
     for node in result['nodes']:
         nData = result['nodes'][node]
         state['overlayNodes'][node] = { 'x': nData['x'], 'y': nData['y'] }
+        
+        # Build the neighbor places layer
         attr = node + ': ' + dataIn['layout'] + ': neighbors'
         state['shortlist'].append(attr)
         state['dynamic_attrs'][attr] = {
             'dynamic': True,
+            'datatype': 'binary',
+            'data': {},
+        }
+        
+        # Build the neighbor values layer
+        attrV = node + ': ' + dataIn['layout'] + ': neighbor values'
+        state['shortlist'].append(attrV)
+        state['dynamic_attrs'][attrV] = {
+            'dynamic': True,
             'datatype': 'continuous',
             'data': {},
         }
+        
+        # Add the values to the new layers
         for neighbor in nData['neighbors']:
-            state['dynamic_attrs'][attr]['data'][neighbor] = \
-                nData['neighbors'][neighbor]
+            state['dynamic_attrs'][attr]['data'][neighbor] = 1;
+            state['dynamic_attrs'][attrV]['data'][neighbor] = \
+                nData['neighbors'][neighbor];
 
         # If individual Urls were requested, create a bookmark for this node
         if 'individualUrls' in dataIn and dataIn['individualUrls']:
-            bData = createBookmark(state, dataIn['viewServer'], app)
-            result['nodes'][node]['url'] = \
-                dataIn['viewServer'] + '/?bookmark=' + bData['bookmark']
+            bData = createBookmark(state, dataIn['viewServer'], ctx, app)
+            result['nodes'][node]['url'] = bData['bookmark']
 
             # Clear the node data to get ready for the next node
             state['overlayNodes'] = {}
@@ -140,10 +156,9 @@ def calcComplete(result, ctx, app):
     # If individual urls were not requested, create one bookmark containing all
     # nodes and return that url for each node
     if not 'individualUrls' in dataIn or not dataIn['individualUrls']:
-        bData = createBookmark(state, dataIn['viewServer'], app)
+        bData = createBookmark(state, dataIn['viewServer'], ctx, app)
         for node in result['nodes']:
-            result['nodes'][node]['url'] = \
-                dataIn['viewServer'] + '/?bookmark=' + bData['bookmark']
+            result['nodes'][node]['url'] = bData['bookmark']
 
     # TODO: Send completion Email
     """

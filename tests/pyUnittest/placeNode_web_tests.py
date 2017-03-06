@@ -531,7 +531,10 @@ class PlaceNodeWebTestCase(unittest.TestCase):
     
     def test_view_server_connection(s):
         try:
-            bResult = requests.post(s.viewServer + '/test',
+            bResult = requests.post(
+                s.viewServer + '/test',
+                #cert=(ctx['sslCert'], ctx['sslKey']),
+                verify=False,
                 headers = { 'Content-type': 'application/json' },
             )
         except:

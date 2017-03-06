@@ -1,8 +1,8 @@
 
-var DEV = false;
-///////////////
+// https.js: server proxy to handle ssl.
 
-if (DEV) {
+var HEXMAP = process.env.HEXMAP
+if (!HEXMAP || HEXMAP === '/cluster/home/swat/dev') {
     var PROXY_PORT = 8222,
         TARGET_PORT = 8223,
         TARGET = "http://hexdev.sdsc.edu:" + TARGET_PORT,
@@ -30,7 +30,7 @@ var options = {
         ca : fs.readFileSync(PATH_TO_CHAIN, 'utf8')
     },
     target : TARGET,
-    secure: true, // Depends on your needs, could be false.
+    secure: false, // Depends on your needs, could be false.
     ws: true, // proxy websocket requests
     xfwd: true
 };
@@ -46,7 +46,7 @@ try {
     var proxy = httpProxy.createProxyServer(options).listen(PROXY_PORT);
     
 } catch (error) {
-    console.log(timestamp(), 'https proxy could not start because hex server is not running:', TARGET_PORT);
+    console.log(timestamp(), 'https proxy could not start because view server is not running:', TARGET_PORT);
     return;
 }
 console.log(timestamp(), 'https proxy starting on', PROXY_PORT, 'targetting', TARGET_PORT);
@@ -55,19 +55,19 @@ console.log(timestamp(), 'https proxy starting on', PROXY_PORT, 'targetting', TA
 // Listen for the `error` event on `proxy`. 
 try {
     proxy.on('error', function (err, req, res) {
-        console.log(timestamp(), 'https.js err', err);
         try {
+            console.log(timestamp(), 'error: https.js err', err);
             res.writeHead(500, {
                 'Content-Type': 'text/plain'
             });         
             res.end('Something went wrong with httpS:', err);
         } catch (error) {
-            console.log(timestamp(), 'https proxy failed on processing error event because hex server is not running:', TARGET_PORT);
+            console.log(timestamp(), 'error: on processing error event because view server is not running:', TARGET_PORT);
         }
     });
 
 } catch (error) {
-    console.log(timestamp(), 'https proxy failed on "error" event because hex server is not running:', TARGET_PORT);
+    console.log(timestamp(), 'https proxy failed on "error" event because view server is not running:', TARGET_PORT);
 }
 
 
@@ -75,14 +75,14 @@ try {
 try {
     proxy.on('proxyRes', function (proxyRes, req, res) {
         try {
-            //console.log(timestamp(), 'RAW Response from target: connection:', proxyRes.headers.connection);
+            //console.log(timestamp(), 'info: RAW Response from target: connection:', proxyRes.headers.connection);
         } catch (error) {
-            console.log(timestamp(), 'https proxy failed on processing proxyRes event because hex server is not running:', TARGET_PORT);
+            console.log(timestamp(), 'error: on processing proxyRes event because view server is not running:', TARGET_PORT);
         }
     });
 
 } catch (error) {
-    console.log(timestamp(), 'https proxy failed on "proxyRes" event because hex server is not running:', TARGET_PORT);
+    console.log(timestamp(), 'error: on "proxyRes" event because view server is not running:', TARGET_PORT);
 }
 
 
@@ -92,16 +92,16 @@ try {
         try {
             // listen for messages coming FROM the target here
             proxySocket.on('data', function (data) {
-                //console.log(timestamp(), 'proxy on open');
+                //console.log(timestamp(), 'info: proxy on open');
             });
             
         } catch (error) {
-            console.log(timestamp(), 'https proxy failed on processing open event because hex server is not running:', TARGET_PORT);
+            console.log(timestamp(), 'error: on processing open event because view server is not running:', TARGET_PORT);
         }
     });
     
 } catch (error) {
-    console.log(timestamp(), 'https proxy failed on "open" event because hex server is not running:', TARGET_PORT);
+    console.log(timestamp(), 'error: on "open" event because view server is not running:', TARGET_PORT);
 }
 
 
@@ -110,14 +110,14 @@ try {
     proxy.on('close', function (res, socket, head) {
         try {
             // view disconnected websocket connections
-            //console.log(timestamp(), 'proxy on close (client disconnected)');
+            //console.log(timestamp(), 'info: proxy close event (client disconnected)');
             
         } catch (error) {
-            console.log(timestamp(), 'https proxy failed on processing close event because hex server is not running:', TARGET_PORT);
+            console.log(timestamp(), 'error: on processing close event because view server is not running:', TARGET_PORT);
         }
         
     });
     
 } catch (error) {
-    console.log(timestamp(), 'https proxy failed on "close" event because hex server is not running:', TARGET_PORT);
+    console.log(timestamp(), 'error: on "close" event because view server is not running:', TARGET_PORT);
 }

@@ -194,9 +194,6 @@ Tool = (function () { // jshint ignore: line
             if (Session.equals('page', 'homePage')) {
                 $('body').find('.mapShow, .gridShow').hide();
                 $('body').find('.homeShow').show();
-                if (!DEV) {
-                    $('#navBar .fileMenu').hide();
-                }
                 Session.set('loadingMap', false);
                 $('body').css('overflow-y', 'auto');
      
@@ -242,7 +239,9 @@ Tool = (function () { // jshint ignore: line
                 '#homePage .createMapHome'
             );
         
-            var $job = $('#navBar .jobs');
+            var $job = $('#navBar .jobs, ' +
+                '#navBar .fileMenu'
+            );
         
             // Hide, show or disable tools depending on user's authorizations
             // and sometimes other criteria
