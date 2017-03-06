@@ -7,8 +7,10 @@ import sys, os, glob, filecmp, subprocess, json, tempfile, pprint, shutil
 from os import path
 import string
 import unittest
+from scipy import stats
 
 from rootDir import getRootDir
+import pandas as pd
 
 rootDir = getRootDir()
 testDir = rootDir + 'tests/pyUnittest/'
@@ -75,3 +77,36 @@ def compareActualVsExpectedFile(s, fname, outDir, expDir):
     s.assertTrue(filecmp.cmp(path.join(outDir,fname),path.join(expDir,fname)),
                  msg='file did not match: ' + fname)
     
+
+def gen_dat(nrows=50,ncols=40,mu=0,std=1):
+    '''
+    :param nrows: number of rows in the 2d array
+    :param ncols: number of cols in the 2d array
+    :param mu:    mean for random generation
+    :param std:   standard deviation for random generation
+    :return: returns a random 2d numpy array, generated with normal distribution
+    '''
+
+    '''
+    :return: generates random data
+    '''
+    return stats.norm.rvs(loc=mu, scale=std, size=(nrows,ncols))
+
+def getdf(fin='',type_='tab',rownamecol=0,nrows=50,ncols=40):
+    '''
+    :param fin: name of the tab delimited file to read in
+    :param type_: either 'tab','practice', 'random', practice reads in only 3000 rows
+    :param rownamecol: the columns of the row identifiers
+    :return: pandas dataframe
+    '''
+    if type_ == 'tab':
+        return pd.read_csv(fin,sep='\t',index_col=rownamecol)
+
+    if type_ == 'practice':
+        print('warning: func read_dat is of type: ' +type_)
+        return pd.read_csv(fin,sep='\t',index_col=rownamecol,nrows=3000)
+    if type_ == 'random':
+        return pd.DataFrame(gen_dat(nrows,ncols),index=range(0,nrows),
+                            columns=range(0,ncols))
+    else:
+        return "SOME WENT WRONG"
