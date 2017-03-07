@@ -16,8 +16,13 @@ if [ $HEXMAP == '/cluster/home/swat/dev' ]; then
     export HUB_SOCKET=hexdev.sdsc.edu:8332
     export VIEWER_URL=https://hexdev.sdsc.edu:8222
     export HUB_PATH=/hive/groups/hexmap/prod/hub
-
 elif [ $HEXMAP == '/Users/swat/dev/hexagram' ]; then
+    # Development servers on swat's local
+    export HUB_SOCKET=localhost
+    export VIEWER_URL=http://localhost:3333
+    export HUB_PATH=$(pwd)/../../hub
+
+elif [ $HEXMAP == '/home/duncan/Desktop/TumorMap/TMdev/hexagram' ]; then
     # Development servers on swat's local
     export HUB_SOCKET=localhost
     export VIEWER_URL=http://localhost:3333
@@ -34,6 +39,7 @@ ALL=( \
     test_layoutBasic \
     test_stats \
     placeNode_calc_tests \
+    test_similarity \
 )
 PARALLEL_CHALLENGED=( \
     test_dynLayoutAware \
@@ -50,7 +56,6 @@ HUB=( \
     #test_noincludesingletons \
     #test_queryOverlayNodes \
     #test_remoteCalc \
-    #test_similarity \
 
 TO_RUN=($1)
 if [ $1 == 'all' ]
