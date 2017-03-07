@@ -70,17 +70,21 @@ def entryPointFromWebApi(opts):
     if not hasattr(opts, 'top'):
         opts.top = 6
 
-    # the files are good because the web handler has already checked that they
-    # exist. lets get the python structs
-    referenceDF, xyDF, newNodesDF =\
-         putDataIntoPythonStructs(opts.fullFeatureMatrix,
-                                  opts.xyPositions,
-                                  opts.newNodes)
-    #call the nOf1 function
-    neighboorhood, xys, urls = placeNode.placeNew(newNodesDF,referenceDF,
-                                                  xyDF,opts.top,opts.mapId,
-                                                  num_jobs=1)
-    retDict = outputToDict(neighboorhood,xys,urls)
+    try:
+        # the files are good because the web handler has already checked that they
+        # exist. lets get the python structs
+        referenceDF, xyDF, newNodesDF =\
+             putDataIntoPythonStructs(opts.fullFeatureMatrix,
+                                      opts.xyPositions,
+                                      opts.newNodes)
+        #call the nOf1 function
+        neighboorhood, xys, urls = placeNode.placeNew(newNodesDF,referenceDF,
+                                                      xyDF,opts.top,opts.mapId,
+                                                      num_jobs=1)
+        retDict = outputToDict(neighboorhood,xys,urls)
+    except Exception as e:
+        retDict = {"error":str(type(e).__name__) + ": " + str(e)}
+
     return retDict
 
 
