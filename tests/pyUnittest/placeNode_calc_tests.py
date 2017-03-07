@@ -132,23 +132,23 @@ class Nof1CalcTestCase(unittest.TestCase):
         #make sure that the x and y coord  are the same
         # whether doing the test individually or 2 nodes at the same time
         s.assertTrue(
-            retDictBoth['nodes']['test1']['x'] == \
+            retDictBoth['nodes']['test1']['x'] ==
             retDict1['nodes']['test1']['x'],
                      'doing one test not independent of both'
         )
         s.assertTrue(
-            retDictBoth['nodes']['test1']['y'] == \
+            retDictBoth['nodes']['test1']['y'] ==
             retDict1['nodes']['test1']['y'],
                      'doing one test not independent of both'
         )
 
         s.assertTrue(
-            retDictBoth['nodes']['test2']['y'] == \
+            retDictBoth['nodes']['test2']['y'] ==
             retDict2['nodes']['test2']['y'],
                      'doing one test not independent of both'
         )
         s.assertTrue(
-            retDictBoth['nodes']['test2']['x'] == \
+            retDictBoth['nodes']['test2']['x'] ==
             retDict2['nodes']['test2']['x'],
                      'doing one test not independent of both'
         )
@@ -157,14 +157,17 @@ class Nof1CalcTestCase(unittest.TestCase):
 
         passed = False
         try:
-           #percentage requirement is larger than available rows
-           compute_sparse_matrix.common_rows(pd.DataFrame([1,2,3]),
-                                             pd.DataFrame([1,2,3,4,5,6]),
-                                             1.1)
-           #percentage requirement is 50% when only 30% is available
-           compute_sparse_matrix.common_rows(pd.DataFrame([1,2]),
-                                             pd.DataFrame([1,2,3,4,5,6]),
-                                             )
+            try:
+               #percentage requirement is larger than available rows
+               compute_sparse_matrix.common_rows(pd.DataFrame([1,2,3]),
+                                                 pd.DataFrame([1,2,3,4,5,6]),
+                                                 1.1)
+            except ValueError:
+
+               #percentage requirement is 50% when only 30% is available
+               compute_sparse_matrix.common_rows(pd.DataFrame([1,2]),
+                                                 pd.DataFrame([1,2,3,4,5,6]),
+                                                 )
         except ValueError:
            passed = True
 
