@@ -482,7 +482,9 @@ class PlaceNodeWebTestCase(unittest.TestCase):
         bookmarkParm = '/?bookmark='
         sLen = len(s.viewServer) + len(bookmarkParm)
         s.assertTrue(data['nodes']['newNode1']['url'][:sLen] == \
-            s.viewServer + bookmarkParm)
+            s.viewServer + bookmarkParm, data['nodes']['newNode1']['url'][
+                                         :sLen] +
+                     ' |didnt match| ' + s.viewServer + bookmarkParm)
         # urls for all nodes should be the same
         s.assertTrue(data['nodes']['newNode1']['url'] == \
             data['nodes']['newNode2']['url'])
