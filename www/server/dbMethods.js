@@ -55,7 +55,7 @@ function createBookmarkInner (state, username) {
         }},
     );
     var url = URL_BASE + '/?bookmark=' + id;
-    console.log('info: new bookmark created: url, state:', url, state);
+    console.log('info: new bookmark created: url:', url);
     return url
 }
 

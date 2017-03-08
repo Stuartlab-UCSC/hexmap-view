@@ -3,11 +3,17 @@
 # or untar the contents of a tar ball
 
 ACTION=$1
-INSTALL=$2
+TARGET=$2
 
+#echo ACTION, TARGET: $ACTION, $TARGET
 
-if [ $ACTION == 'maketar' ]; then
+if [ -z ${TARGET} ]; then
+    TARGET=www
+fi
+
+if [ $TARGET == 'www' ]; then
     echo transferring everything except docs and tests/pyUnittest
+    TARRED=www.tar
     TAR_FILES=" \
         calc/*py \
         www/client \
@@ -23,28 +29,33 @@ if [ $ACTION == 'maketar' ]; then
         www/server/*py \
         www/package.json \
         "
-elif [ $ACTION == 'maketarHub' ]; then
+elif [ $TARGET == 'hub' ]; then
     echo transferring the hub files
+    cd hub
+    TARRED=hub.tar
     TAR_FILES=" \
         *py \
         *sh \
         "
-elif [ $ACTION == 'maketarBin' ]; then
+elif [ $TARGET == 'bin' ]; then
     echo transferring the bin/config files
+    TARRED=bin.tar
     TAR_FILES=" \
         bin/run_server \
         bin/tarAction \
         config/* \
         "
-elif [ $ACTION == 'maketarDocs' ]; then
+elif [ $TARGET == 'docs' ]; then
     echo transferring only the docs in www/public
+    TARRED=docs.tar
     TAR_FILES=" \
         www/public/createMap \
         www/public/query \
         www/public/useCases \
         "
-elif [ $ACTION == 'maketarTests' ]; then
+elif [ $TARGET == 'tests' ]; then
     echo transferring only tests/pyUnittest
+    TARRED=tests.tar
     TAR_FILES=" \
         tests/pyUnittest/README \
         tests/pyUnittest/exp \
@@ -55,23 +66,19 @@ elif [ $ACTION == 'maketarTests' ]; then
         "
 fi
 
-if [ $ACTION == 'maketar' ] \
-    || [ $ACTION == 'maketarBin' ] \
-    || [ $ACTION == 'maketarHub' ] \
-    || [ $ACTION == 'maketarDocs' ] \
-    || [ $ACTION == 'maketarTests' ]
+if [ $ACTION == 'maketar' ]
     then
-    echo 'tarring to' t.tar
-    rm t.tar
-    tar -cf t.tar $TAR_FILES
-    ls -l t.tar
-    scp t.tar juggernaut:dev
+    echo 'tarring to' $TARRED
+    rm $TARRED
+    tar -cf $TARRED $TAR_FILES
+    ls -l $TARRED
+    scp $TARRED juggernaut:dev
 
 elif [ $ACTION == 'xtar' ]; then
-    #echo 'cleaning directories'
-    #rm -rf t.tarS
+    echo 'cleaning directories'
+    rm -rf $TAR_FILES
     echo 'untarring'
-    tar -xf /cluster/home/swat/dev/t.tar
+    tar -xf /cluster/home/swat/dev/$TARRED
     echo 'xtar done'
 
 else

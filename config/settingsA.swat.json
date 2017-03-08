@@ -1,7 +1,7 @@
 {
     "public": {
         "ADMIN_EMAIL": "hexmap@ucsc.edu",
-        "DEV": "yes",
+        "DEV": true,
         "FEATURE_SPACE_DIR": "/Users/swat/data/featureSpace/",
         "GOOGLE_API_KEY": "AIzaSyBb8AJUB4x-xxdUCnjzb-Xbcg0-T1mPw3I",
         "HUB_URL": "http://localhost:5000",

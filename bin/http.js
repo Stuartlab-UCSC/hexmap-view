@@ -1,18 +1,11 @@
 
-var DEV = false;
-var DEV_OLD = false;
-///////////////
+// http.js: server proxy to forward http requests to https.
 
-if (DEV) {
+var HEXMAP = process.env.HEXMAP
+if (!HEXMAP || HEXMAP === '/cluster/home/swat/dev') {
     var LISTEN_PORT = 8221,
         HTTPS_PORT = 8222,
         TARGET = 'https://hexdev.sdsc.edu:' + HTTPS_PORT;
-    
-    if (DEV_OLD) {
-        var LISTEN_PORT = 8111,
-            HTTPS_PORT = 8112,
-            TARGET = 'https://tumormap.ucsc.edu:' + HTTPS_PORT;
-    }
 } else {
     var LISTEN_PORT = 80,
         HTTPS_PORT = 443,
