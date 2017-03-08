@@ -1,12 +1,12 @@
 {
     "public": {
-        "URL_BASE": "https://tumormap.ucsc.edu",
-        "HUB_URL": "http://kolossus.sdsc.edu:8332",
+        "ADMIN_EMAIL": "hexmap@ucsc.edu",
         "FEATURE_SPACE_DIR": "/hive/groups/hexmap/prod/data/featureSpace/",
-        "LAYOUT_INPUT_DIR": "/hive/groups/hexmap/prod/data/layoutInput/",
-        "VIEW_DIR": "/hive/groups/hexmap/prod/data/view/",
         "GOOGLE_API_KEY": "AIzaSyBb8AJUB4x-xxdUCnjzb-Xbcg0-T1mPw3I",
-        "ADMIN_EMAIL": "hexmap@ucsc.edu"
+        "HUB_URL": "https://tumormap.ucsc.edu:8332",
+        "LAYOUT_INPUT_DIR": "/hive/groups/hexmap/prod/data/layoutInput/",
+        "URL_BASE": "https://tumormap.ucsc.edu",
+        "VIEW_DIR": "/hive/groups/hexmap/prod/data/view/"
     },
     "server": {
         "jobs": {

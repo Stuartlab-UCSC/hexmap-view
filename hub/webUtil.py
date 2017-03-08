@@ -64,6 +64,9 @@ def availableMapLayouts(operation):
         # by scraping the view directories for meta.json files containing file
         # paths for a full feature matrix, xyPositions and firstAttribute.
         return {
+            'lmsh_ucsc.edu/combat_allmonje_quartnorm_DatasetasCellLine': [
+                'layout',
+            ],
             'CKCC/v2': [
                 'mRNA',
             ],
@@ -104,6 +107,18 @@ def getMetaData(mapId, ctx, app):
                     "xyPositions":
                         ctx['dataRoot'] + "view/unitTest/layoutBasicExp/assignments0.tab",
                 }
+            }
+        }
+    elif mapId == 'lmsh_ucsc.edu/combat_allmonje_quartnorm_DatasetasCellLine':
+        meta =  {
+            "firstAttribute": "Batch",
+            "layouts": {
+                "layout": {
+                    "fullFeatureMatrix":
+                        ctx['dataRoot'] + "featureSpace/lmsh_ucsc.edu/combat_allmonje_quartnorm_DatasetasCellLine",
+                    "xyPositions":
+                        ctx['dataRoot'] + "view/lmsh_ucsc.edu/combat_allmonje_quartnorm_DatasetasCellLine/assignments0.tab",
+                },
             }
         }
     elif mapId == 'CKCC/v2':

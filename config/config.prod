@@ -1,15 +1,13 @@
 #!/bin/bash
 
-HEXMAP=/data
 PORT=8443       # Port on which the server listens
 HTTPS_PORT=443  # Https proxy port if using https, otherwise the same as PORT
 DB_PORT=27017   # Port on which the database listens
 DB_NAME=$PORT   # Name of the mongo database
-METEOR_BASE=/cluster/home/hexmap/.meteor/packages/meteor-tool/1.4.1_2/mt-os.linux.x86_64/dev_bundle
 METEOR=/cluster/home/hexmap/.meteor  # the meteor installation
+METEOR_BASE=$METEOR/packages/meteor-tool/1.4.1_2/mt-os.linux.x86_64/dev_bundle
 PYTHONBIN=/cluster/home/hexmap/miniconda2/bin
 DRLPATH=/cluster/home/hexmap/adam_novak-drl-graph-layout-c41341de8058/bin
 export ROOT_URL=https://tumormap.ucsc.edu:$HTTPS_PORT # User's view of the URL
 export PATH=$PYTHONBIN:$DRLPATH:$PATH
 
-#PORT=8333 #for prodHub

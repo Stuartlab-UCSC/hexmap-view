@@ -3,6 +3,7 @@
 SERVER_TYPE=$1 # Type of server to start, one of: / db / http / https / www /
 INSTALL=$2     # The ID of the server: prod / prodCalc / dev / devCalc / ....
 BIN=$3         # Location of the bin directory for this server
+TARGET=$4      # tar target, one of / www / hub / tests / docs / bin /
 
 if [ -z ${SERVER_TYPE} ]; then
     echo Supply one of: db, http, https, www
@@ -29,21 +30,15 @@ else
 fi
 
 # Handle any tar actions first
-if [ $SERVER_TYPE == 'maketar' ] \
-    || [ $SERVER_TYPE == 'maketarHub' ] \
-    || [ $SERVER_TYPE == 'maketarBin' ] \
-    || [ $SERVER_TYPE == 'maketarDocs' ] \
-    || [ $SERVER_TYPE == 'maketarTests' ] \
-    || [ $SERVER_TYPE == 'xtar' ]
+if [ $SERVER_TYPE == 'maketar' ] || [ $SERVER_TYPE == 'xtar' ]
     then
-    $BIN/tarAction $SERVER_TYPE $INSTALL
+    ACTION=$SERVER_TYPE
+    $BIN/tarAction $ACTION $TARGET
     exit
 fi
 
 # Run some development servers in the foreground
-if [ $INSTALL == swat ] || \
-    [ $INSTALL == swatMain ] || \
-    [ $INSTALL == swatCalc ]
+if [ $INSTALL == swat ]
     then
     FOREGROUND=yes
 fi

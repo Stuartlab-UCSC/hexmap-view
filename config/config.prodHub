@@ -1,15 +1,15 @@
 #!/bin/bash
 
 DRLPATH=/cluster/home/hexmap/adam_novak-drl-graph-layout-c41341de8058/bin
-ONLY_FOR_PYTHONPATH=/cluster/home/swat/dev
-export PYTHONPATH=$HUB_PATH:/cluster/home/swat/dev/www/server
-
-HEXMAP=$ONLY_FOR_PYTHONPATH
-
-export DATA_ROOT=/hive/groups/hexmap/prod/data
-export HUB_DEBUG=false
 export HUB_PATH=/hive/groups/hexmap/prod/hub
+
+export DATA_ROOT=/hive/groups/hexmap/prod/data/
+export HUB_DEBUG=true
 export HUB_SOCKET=tumormap.ucsc.edu:8332
 export HUB_TESTING=false
+export LD_LIBRARY_PATH=/hive/groups/hexmap/prod/hub/libPatch:$LD_LIBRARY_PATH
 export PATH=$DRLPATH:$PATH
+export PYTHONPATH=$HUB_PATH:/cluster/home/swat/dev/www/server
+export SSL_CERT=/data/certs/tumormap.crt
+export SSL_KEY=/data/certs/tumormap.key
 export VIEWER_URL=https://tumormap.ucsc.edu
