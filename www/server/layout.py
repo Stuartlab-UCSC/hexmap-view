@@ -935,9 +935,14 @@ def hexIt(options, cmd_line_list, all_dict):
         # file into the major directory.
         i = string.rfind(options.directory[:-1], '/')
         majorDir = options.directory[:i]
-        with open(os.path.join(majorDir, 'meta.json'), 'w') as fout:
-            meta = '{ "role": "' + options.role + '" }\n';
-            fout.write(meta)
+        
+        # If a meta.json file already exists, do not overwrite it because it
+        # may have been changed to allow others to have access.
+        metaPath = os.path.join(majorDir, 'meta.json')
+        if not os.path.isfile(metaPath):
+            with open(metaPath, 'w') as fout:
+                meta = '{ "role": "' + options.role + '" }\n';
+                fout.write(meta)
 
     #javascript expects at least one attribute so put something fake there
     # if none exist
