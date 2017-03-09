@@ -7,6 +7,7 @@ import pandas as pd
 import placeNode
 import compute_sparse_matrix
 import utils
+import StringIO
 
 def outputToDict(neighboorhood, xys, urls):
     '''
@@ -41,14 +42,6 @@ def outputToDict(neighboorhood, xys, urls):
 
     return retDict
 
-def nodesToPandas(pydict):
-    '''
-    input the json['nodes'] structure and outputs pandas df
-    @param pydict: the dataIn['nodes'] structure,
-                   currently a dict of dicts {columns -> {rows -> values}}
-    @return: a pandas dataframe
-    '''
-    return pd.DataFrame(pydict)
 
 def putDataIntoPythonStructs(featurePath,xyPath,nodesDict):
     '''
@@ -63,28 +56,43 @@ def putDataIntoPythonStructs(featurePath,xyPath,nodesDict):
                                                 ),
             utils.readXYs(xyPath),
             nodesToPandas(nodesDict)
-            )
+          )
+
+def nodesToPandas(pydict):
+    '''
+    input the json['nodes'] structure and outputs pandas df
+    This looks crazy because we needed to read in the new node data
+    in the same way as the original feature matrix.
+    @param pydict: the dataIn['nodes'] structure,
+                   currently a dict of dicts {columns -> {rows -> values}}
+    @return: a pandas dataframe
+    '''
+    df = pd.DataFrame(pydict)
+    s_buf = StringIO.StringIO()
+    #dump pandas data frame into buffer
+    df.to_csv(s_buf,sep='\t')
+    s_buf.seek(0) 
+    return compute_sparse_matrix.numpyToPandas(
+            *compute_sparse_matrix.read_tabular(s_buf)
+                                                )
+
 
 def entryPointFromWebApi(opts):
 
     if not hasattr(opts, 'top'):
         opts.top = 6
 
-    try:
-        # the files are good because the web handler has already checked that they
-        # exist. lets get the python structs
-        referenceDF, xyDF, newNodesDF =\
-             putDataIntoPythonStructs(opts.fullFeatureMatrix,
-                                      opts.xyPositions,
-                                      opts.newNodes)
-        #call the nOf1 function
-        neighboorhood, xys, urls = placeNode.placeNew(newNodesDF,referenceDF,
-                                                      xyDF,opts.top,opts.mapId,
-                                                      num_jobs=1)
-        retDict = outputToDict(neighboorhood,xys,urls)
-    except Exception as e:
-        retDict = {"error":str(type(e).__name__) + ": " + str(e)}
-
+    # the files are good because the web handler has already checked that they
+    # exist. lets get the python structs
+    referenceDF, xyDF, newNodesDF =\
+         putDataIntoPythonStructs(opts.fullFeatureMatrix,
+                                  opts.xyPositions,
+                                  opts.newNodes)
+    #call the nOf1 function
+    neighboorhood, xys, urls = placeNode.placeNew(newNodesDF,referenceDF,
+                                                  xyDF,opts.top,opts.mapId,
+                                                  num_jobs=1)
+    retDict = outputToDict(neighboorhood,xys,urls)
     return retDict
 
 
