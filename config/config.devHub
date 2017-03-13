@@ -2,9 +2,9 @@
 
 DRLPATH=/cluster/home/swat/packages/drl-graph-layout/bin
 export HUB_PATH=/hive/groups/hexmap/dev/hub
-#export HUB_PATH=/cluster/home/swat/packages-kolossus:/cluster/home/swat/devHub
 
-export DATA_ROOT=/hive/groups/hexmap/dev/data
+export DATA_ROOT=/hive/groups/hexmap/dev/data/
+export FLASK_DEBUG=1
 export HUB_DEBUG=true
 export HUB_SOCKET=hexdev.sdsc.edu:8332
 export HUB_TESTING=false

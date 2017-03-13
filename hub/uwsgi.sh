@@ -8,6 +8,7 @@
 
 if [ $HUB_SOCKET == 127.0.0.1:5000 ]; then
     echo 'Starting the local calc server'
+    
     uwsgi \
         --master \
         --http-socket $HUB_SOCKET \
@@ -23,6 +24,7 @@ elif [ $HUB_SOCKET == tumormap.ucsc.edu:8332 ]; then
     KEY=$SEC_PATH/tumormap.key # change to use env vars SSL_CERT & SSL_KEY
     CERT=$SEC_PATH/tumormap.crt
     CA=$SEC_PATH/chain.crt
+    PID_PATH=/hive/groups/hexmap/prod/hub.pid
     SECURE=$HUB_SOCKET,$CERT,$KEY,HIGH,$CA
 
 elif [ $HUB_SOCKET == hexdev.sdsc.edu:8332 ]; then
@@ -31,6 +33,7 @@ elif [ $HUB_SOCKET == hexdev.sdsc.edu:8332 ]; then
     KEY=$SEC_PATH/hexdev.key # change to use env vars SSL_CERT & SSL_KEY
     CERT=$SEC_PATH/hexdev.crt
     CA=$SEC_PATH/chain.crt
+    PID_PATH=/hive/groups/hexmap/dev/hub.pid
     SECURE=$HUB_SOCKET,$CERT,$KEY,HIGH,$CA
 fi
 
@@ -39,5 +42,6 @@ uwsgi \
     --https-socket $SECURE \
     --wsgi-file $HUB_PATH/hub.py \
     --callable app \
+    --pidfile $PID_PATH \
     --processes 1 \
     --threads 1

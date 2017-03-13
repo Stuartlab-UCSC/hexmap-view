@@ -67,6 +67,9 @@ def availableMapLayouts(operation):
             'lmsh_ucsc.edu/combat_allmonje_quartnorm_DatasetasCellLine': [
                 'layout',
             ],
+            'lmsh_ucsc.edu/swatTest': [
+                'layout',
+            ],
             'CKCC/v2': [
                 'mRNA',
             ],
@@ -115,9 +118,21 @@ def getMetaData(mapId, ctx, app):
             "layouts": {
                 "layout": {
                     "fullFeatureMatrix":
-                        ctx['dataRoot'] + "featureSpace/lmsh_ucsc.edu/combat_allmonje_quartnorm_DatasetasCellLine",
+                        ctx['dataRoot'] + "featureSpace/lmsh_ucsc.edu/combat_allmonje_quartnorm_DatasetasCellLine/features.tab",
                     "xyPositions":
                         ctx['dataRoot'] + "view/lmsh_ucsc.edu/combat_allmonje_quartnorm_DatasetasCellLine/assignments0.tab",
+                },
+            }
+        }
+    elif mapId == 'lmsh_ucsc.edu/swatTest':
+        meta =  {
+            "firstAttribute": "Batch",
+            "layouts": {
+                "layout": {
+                    "fullFeatureMatrix":
+                        ctx['dataRoot'] + "featureSpace/lmsh_ucsc.edu/swatTest/features.tab",
+                    "xyPositions":
+                        ctx['dataRoot'] + "view/lmsh_ucsc.edu/swatTest/assignments0.tab",
                 },
             }
         }

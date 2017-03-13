@@ -27,6 +27,9 @@ def validateParameters(data):
     if len(data['nodes'].keys()) < 1:
         raise ErrorResp('there are no nodes in the nodes dictionary')
     
+    # Check for non-printable chars in names
+    # TODO
+    
     # Basic checks on optional parameters
     validateEmail(data)
     validateViewServer(data)
@@ -183,46 +186,47 @@ def calcComplete(result, ctx, app):
 
     return result
 
-def calcTestStub(opts):
+if __debug__:
+    def calcTestStub(opts):
 
-    #print 'opts.newNodes', opts.newNodes
-    
-    if 'testError' in opts.newNodes:
-        return {
-            'error': 'Some error message or stack trace'
-        }
-    elif len(opts.newNodes) == 1:
-        return {'nodes': {
-            'newNode1': {
-                'x': 73,
-                'y': 91,
-                'neighbors': {
-                    'TCGA-BP-4790': 0.352,
-                    'TCGA-AK-3458': 0.742,
-                }
-            },
-        }}
-    elif len(opts.newNodes) > 1:
-        return {'nodes': {
-            'newNode1': {
-                'x': 73,
-                'y': 91,
-                'neighbors': {
-                    'TCGA-BP-4790': 0.352,
-                    'TCGA-AK-3458': 0.742,
-                }
-            },
-            'newNode2': {
-                'x': 53,
-                'y': 47,
-                'neighbors': {
-                    'neighbor1': 0.567,
-                    'neighbor2': 0.853,
-                }
-            },
-        }}
-    else:
-        return { 'error': 'unknown test' }
+        #print 'opts.newNodes', opts.newNodes
+        
+        if 'testError' in opts.newNodes:
+            return {
+                'error': 'Some error message or stack trace'
+            }
+        elif len(opts.newNodes) == 1:
+            return {'nodes': {
+                'newNode1': {
+                    'x': 73,
+                    'y': 91,
+                    'neighbors': {
+                        'TCGA-BP-4790': 0.352,
+                        'TCGA-AK-3458': 0.742,
+                    }
+                },
+            }}
+        elif len(opts.newNodes) > 1:
+            return {'nodes': {
+                'newNode1': {
+                    'x': 73,
+                    'y': 91,
+                    'neighbors': {
+                        'TCGA-BP-4790': 0.352,
+                        'TCGA-AK-3458': 0.742,
+                    }
+                },
+                'newNode2': {
+                    'x': 53,
+                    'y': 47,
+                    'neighbors': {
+                        'neighbor1': 0.567,
+                        'neighbor2': 0.853,
+                    }
+                },
+            }}
+        else:
+            return { 'error': 'unknown test' }
 
 def calc(dataIn, ctx, app):
 
@@ -267,11 +271,8 @@ def calc(dataIn, ctx, app):
     else:
 
         # Call the calc script.
-        try:
-            result = placeNode_calc.entryPointFromWebApi(opts)
-        except:
-            raise ErrorResp(traceback.format_exc(), 500)
-
+        result = placeNode_calc.entryPointFromWebApi(opts)
+        
     ctx['dataIn'] = dataIn
     ctx['meta'] = meta
     return calcComplete(result, ctx, app)

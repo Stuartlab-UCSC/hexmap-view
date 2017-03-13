@@ -9,11 +9,9 @@ import webUtil
 from webUtil import SuccessResp, ErrorResp, log
 import placeNode_web
 
-class Config(object):
-    DEBUG = os.environ['HUB_DEBUG']
-    TESTING = os.environ['HUB_TESTING']
-
 app = Flask(__name__)
+app.config['TESTING'] = os.environ['HUB_TESTING']
+app.config['DEBUG'] = os.environ['HUB_DEBUG']
 
 # Make cross-origin AJAX possible
 CORS(app)
@@ -57,7 +55,7 @@ def errorResponse(error):
     else:
         msg = 'unknown error'
     log('error', 'Request failed with: ' + str(response.status_code) + ': ' + \
-        str(response) + " " + msg, current_app)
+        msg, current_app)
     return response
 
 """
@@ -72,12 +70,16 @@ def queryRoute(operation):
 
     log('info', 'Received query operation: ' + operation, current_app)
     dataIn = validatePost()
-
-    if operation == 'overlayNodes':
-        result = placeNode_web.calc(dataIn, ctx, current_app)
-        
-    else:
-        raise ErrorResp('URL not found', 404)
+    try:
+        if operation == 'overlayNodes':
+            result = placeNode_web.calc(dataIn, ctx, current_app)
+            
+        else:
+            raise ErrorResp('URL not found', 404)
+    except ErrorResp:
+        raise
+    except:
+        raise ErrorResp(traceback.format_exc(), 500)
 
     log('info', 'Success with query operation: ' + operation, current_app)
     raise SuccessResp(result)
