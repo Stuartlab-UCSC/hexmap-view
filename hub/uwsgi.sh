@@ -24,7 +24,7 @@ elif [ $HUB_SOCKET == tumormap.ucsc.edu:8332 ]; then
     KEY=$SEC_PATH/tumormap.key # change to use env vars SSL_CERT & SSL_KEY
     CERT=$SEC_PATH/tumormap.crt
     CA=$SEC_PATH/chain.crt
-    PID_PATH=/hive/groups/hexmap/prod/hub.pid
+    PID_PATH=/hive/groups/hexmap/prod/hub/hub.pid
     SECURE=$HUB_SOCKET,$CERT,$KEY,HIGH,$CA
 
 elif [ $HUB_SOCKET == hexdev.sdsc.edu:8332 ]; then
@@ -33,7 +33,7 @@ elif [ $HUB_SOCKET == hexdev.sdsc.edu:8332 ]; then
     KEY=$SEC_PATH/hexdev.key # change to use env vars SSL_CERT & SSL_KEY
     CERT=$SEC_PATH/hexdev.crt
     CA=$SEC_PATH/chain.crt
-    PID_PATH=/hive/groups/hexmap/dev/hub.pid
+    PID_PATH=/hive/groups/hexmap/dev/hub/hub.pid
     SECURE=$HUB_SOCKET,$CERT,$KEY,HIGH,$CA
 fi
 
