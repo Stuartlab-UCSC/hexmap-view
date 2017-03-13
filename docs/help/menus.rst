@@ -23,7 +23,7 @@ Other available downloads are:
 
 * PDF image of map and/or legend
 * SVG image of map
-* XY coordinates of the nodes prior to force-fitting them into the hexagonal grid. They are force-fitted to the grid so that nodes will not be overlapping one another, obscuring colors of nodes underneath.
+* XY coordinates of the nodes prior to *flattening* them on to the hexagonal grid. The nodes are flattened on to the grid so they will not be overlapping one another, obscuring colors of nodes underneath.
 
 
 Editing the Map
@@ -67,7 +67,7 @@ Views of the Map
 There are two views of the map available under the *View* menu:
 
 * *Map Layout* is the primary view and allows display attribute values
-* *Node Density* shows the positions of the nodes before they are force-fitted into the hexagonal grid. They are force-fitted to the grid so that nodes will not be overlapping one another, obscuring colors of nodes underneath.
+* *Node Density* shows the positions of the nodes before they are *flattened* into the hexagonal grid. Nodes are flattened to the grid so that they will not be overlapping one another, obscuring colors of nodes underneath.
 
 Once in *Node Density* view, there is an additional option in the *View* menu:
 

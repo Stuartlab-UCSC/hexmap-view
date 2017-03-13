@@ -34,7 +34,7 @@ def getAttributes(fileNameList,dir='',debug=False):
         print 'getAttributes() called with'
         print fileNameList
 
-    # swat: the standard way to handle this is always use os.path.join() to
+    # TODO: the standard way to handle this is always use os.path.join() to
     # join a dir with a file, or to join any sort of paths. That utility
     # adds a '/' if needed.  It can take two or more paths to join.
     if (len(dir) > 0 and dir[-1]!= '/'):
@@ -43,12 +43,6 @@ def getAttributes(fileNameList,dir='',debug=False):
     dfs = [] #list to hold individual dfs
     for filename in fileNameList:
         filename = dir + filename
-        # swat: we should always pass in full pathnames to files because there
-        # are times when scripts get confused. Passing another parm of dir in
-        # is too restrictive because the user cannot pass in files from
-        # different dirs.
-        # in this case things will break if this script were run from a dir
-        # other than the dir containing the files.
 
         #assume first column is row name and do below to get rid of duplicates
         df = pd.read_csv(filename,sep='\t')#,index_col=0)

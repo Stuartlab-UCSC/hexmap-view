@@ -1,7 +1,7 @@
 Future: Create a map
 ====================
 
-https://<hub>/query/**createMap**
+https://<calc_server>/query/**createMap**
 
 POST with content-type: application/json
 
@@ -14,47 +14,76 @@ Content Example
 ::
 
  {
-    "map": "CKCC/v1",
-    "layout": "mRNA",
+    "map": "CKCC/v3",
     "authGroup": "CKCC",
     "email": [
         "mok66@gmail.com",
         ...
     ],
-    "layoutFileFormat": "featureMatrix",
-    "layoutAttributeFiles": {
-        "mRNA": "/a/b/c/mRNA_expression.tab",
-        "CNV": "/a/b/c/CNV.tab",
-        ...
-    },
-    "colorAttributeFiles": [
-        "clinical.tab",
-        "phenontype",
-        ...
-    ],
-    "colormapFile": "/a/b/c/colormap.tab",
-    "outDirectory": "/a/b/view/CKCC/v1",
+    "outDirectory": "/myMapViewData/view/CKCC/v3",
     "neighborCount": 8,
-    "firstColorAttribute": "Tissue",
+    "firstColorAttribute": "Disease",
     "layoutAwareStats": true,
     "layoutIndependentStats": true
+    "colormap": [
+        ["# Attribute", "Index", "label", "Color", "Index", "label", "Color ..."],
+        ["Disease", "0", "BRCA", "#0000FF", "1", "LUAD", "#00FF00"],
+        ["Tumor Stage", "0", "Stage I", "#0000FF", "1", "Stage II", "#00FF00"],
+        ...
+        (TBD is this format easiest for calc code?)
+    ],
+    "colorAttributes": [
+        "Node1": {
+            "Disease": "BRCA",
+            "Tumor Stage": "Stage I",
+            ...
+        },
+        "Node2": {
+            "Disease": "LUAD",
+            "Tumor Stage": "Stage II",
+            ...
+        },
+        ...
+    ],
+    "layoutFeatures": {
+        "name": "mRNA",
+        "format": "featureMatrix",
+
+        "features": {
+            "Node1": {
+                "ALK": "0.897645",
+                "TP53": "0.904140",
+                ...
+            },
+            "Node2": {
+                "ALK": "0.897645",
+                "TP53": "0.904140",
+                ...
+            },
+            ...
+        },
+        ...
+    },
  }
 
 Where:
 
 * **map** : a unique ID in the form: <group>/<map> or simply: <map>
-* **authGroup** : optional, the authorization group to which a user must belong to view this map, defaults to publicly viewable
+* **authGroup** : optional, defaults to viewable by the public, the authorization group to which a user must belong to view this map
 * **email** : optional, one or more email addresses to receive the response
-* **layoutFileFormat** : Note 1
-* **layoutAttributeFiles** : one or more, the full path to the attribute data file containing the values to use for the layout: the keys are the layout names. Note 1
-* **colorAttributeFiles** : optional, one or more, the full path to the attribute data file containing the values to use for coloring the nodes. Note 1
-* **colormapFile** : optional, the full path to the existing colormap to which new categorical color attributes will be added and existing attributes with new categories will be added. If a colormap is not provided one will be automatically generated
 * **outDirectory** : full directory path for the output files
-* **neighborCount** : optional, the number of neighbors of each node to consider in laying out the map; defaults to 6 **Duncan** is this the truncation_edges parm to layout.py?
-* **firstColorAttribute** : optional, the attribute to be used to color the map on initial display. If not supplied and densityStats are requested then the attribute with the highest density will be displayed first. Otherwise the first attribute alphabetically will be used.
+* **neighborCount** : optional, defaults to 6, the number of neighbors of each node to consider in laying out the map
+* **firstColorAttribute** : optional, defaults to the attribute with the highest density, attribute to be used to color the map on initial display
 * **layout*Stats** : optional, true indicates this class of stats should be calculated, defaults to false. Note that these are compute-intensive so you may want to run them only when you are satisfied with your layout and coloring attributes.
+* **colormap** : optional, defaults to a colormap generated during computations, a colormap already defined for the color attributes which maps each category value to a color
+* **colorAttributes** : optional, the values to use for coloring the nodes. Note 1
+* **layoutFeatures** : one or more required, the features used to layout the map
 
-Note 1: For file formats go to the viewer -> Help menu -> User guide -> Create a Map.
+ * **name** : string used to name this layout
+ * **format** : a format identifier. Note 1
+ * **features** : the values to use for this layout. Note 1
+
+Note 1: For acceptable formats see https://tumormap.ucsc.edu/help/createMap.html
 
 Response success
 ----------------
@@ -62,7 +91,7 @@ Response success
 This is returned as HTTP 200 with the content as a JSON string containing a URL
 pointing to the new map in the form::
 
- { "bookmark": "https://tumormap.ucsc.edu/?p=CKCC/V1" }
+ { "bookmark": "https://tumormap.ucsc.edu/?p=CKCC/V3" }
 
 Response error
 --------------

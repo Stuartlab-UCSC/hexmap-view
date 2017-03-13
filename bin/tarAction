@@ -12,7 +12,7 @@ if [ -z ${TARGET} ]; then
 fi
 
 if [ $TARGET == 'www' ]; then
-    echo transferring everything except docs and tests/pyUnittest
+    echo everything except docs and tests/pyUnittest
     TARRED=www.tar
     TAR_FILES=" \
         calc/*py \
@@ -30,7 +30,7 @@ if [ $TARGET == 'www' ]; then
         www/package.json \
         "
 elif [ $TARGET == 'hub' ]; then
-    echo transferring the hub files
+    echo the hub files
     cd hub
     TARRED=hub.tar
     TAR_FILES=" \
@@ -38,7 +38,7 @@ elif [ $TARGET == 'hub' ]; then
         *sh \
         "
 elif [ $TARGET == 'bin' ]; then
-    echo transferring the bin/config files
+    echo the bin/config files
     TARRED=bin.tar
     TAR_FILES=" \
         bin/run_server \
@@ -46,7 +46,7 @@ elif [ $TARGET == 'bin' ]; then
         config/* \
         "
 elif [ $TARGET == 'docs' ]; then
-    echo transferring only the docs in www/public
+    echo the docs in www/public
     TARRED=docs.tar
     TAR_FILES=" \
         www/public/createMap \
@@ -54,7 +54,7 @@ elif [ $TARGET == 'docs' ]; then
         www/public/useCases \
         "
 elif [ $TARGET == 'tests' ]; then
-    echo transferring only tests/pyUnittest
+    echo the tests in tests/pyUnittest
     TARRED=tests.tar
     TAR_FILES=" \
         tests/pyUnittest/README \

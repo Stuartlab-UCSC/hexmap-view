@@ -1,4 +1,6 @@
 
+.. _createMap:
+
 Create a Map
 ============
 
@@ -7,6 +9,8 @@ menu, then supplying at least a layout feature file and specifying its format.
 
 Note that this is only available to certain users due to the
 computationally intensive operations.
+
+.. _feature-formats:
 
 Features to Lay Out the Map
 ---------------------------
@@ -54,6 +58,8 @@ containing the x and y coordinates in two-dimensional space of each node, like::
  node3   x-val   y-val
  ...
 
+.. _attribute-format:
+
 Attributes to Color the Map
 ---------------------------
 
@@ -69,27 +75,28 @@ attributes IDs across the top and node IDs in the first column, like::
  node3   val     val     val
  ...
 
-Layout Methods
---------------
+..
+    Layout Methods
+    --------------
 
-The option to select a layout method other than DrL will be added to the UI soon.
+    The option to select a layout method other than DrL will be added to the UI soon.
 
-Layout methods are the algorithms used to arrange the nodes on the
-two-dimensional map with the following options available. The default is DrL.
+    Layout methods are the algorithms used to arrange the nodes on the
+    two-dimensional map with the following options available. The default is DrL.
 
-**DrL** : Distributed Recursive (Graph) Layout
+    **DrL** : Distributed Recursive (Graph) Layout
 
-**tSNE** : t-distributed Stochastic Neighbor Embedding
+    **tSNE** : t-distributed Stochastic Neighbor Embedding
 
-**MDS** : Multidimensional scaling
+    **MDS** : Multidimensional scaling
 
-**PCA** : Principal Component analysis
+    **PCA** : Principal Component analysis
 
-**ICA** : Independent Component Analysis
+    **ICA** : Independent Component Analysis
 
-**isomap** : Isomap Embedding
+    **isomap** : Isomap Embedding
 
-**spectral embedding** : Project the sample on the first eigenvectors of the graph Laplacian
+    **spectral embedding** : Project the sample on the first eigenvectors of the graph Laplacian
 
 
 ..

@@ -9,6 +9,7 @@ case, then progressing with more advanced uses.
    :maxdepth: 1
 
    case1pancan12
+   case1.5createMap
    case2colors
    case3share
 

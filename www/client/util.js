@@ -267,6 +267,9 @@ Util = (function () { // jshint ignore: line
                 'lmsh_ucsc.edu/combat_allmonje_quartnorm_DatasetasCellLine': [
                     'layout',
                 ],
+                'lmsh_ucsc.edu/swatTest': [
+                    'layout',
+                ],
                 'CKCC/v2': [
                     'mRNA',
                 ],

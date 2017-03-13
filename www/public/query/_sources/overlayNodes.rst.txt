@@ -1,7 +1,7 @@
-Future: Overlay new nodes on a map
-==================================
+Future: Place new nodes on a map
+================================
 
-https://<hub>/query/**overlayNodes**
+https://<server>/query/**overlayNodes**
 
 POST with content-type: application/json
 

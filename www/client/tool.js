@@ -239,8 +239,8 @@ Tool = (function () { // jshint ignore: line
                 '#homePage .createMapHome'
             );
         
-            var $job = $('#navBar .jobs, ' +
-                '#navBar .fileMenu'
+            var $job = $(
+                '#navBar .jobs'
             );
         
             // Hide, show or disable tools depending on user's authorizations
