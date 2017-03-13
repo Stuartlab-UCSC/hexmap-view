@@ -1,5 +1,5 @@
-Subtype	0	Subtype 1	#0000ff	1	Subtype 2	#ffffff	2	Subtype 3	#7f0000
-TP63_mutated	0	No mutation	#0000ff	1	Has mutation	#ffffff
-TP53_mutated	0	No mutation	#0000ff	1	Has mutation	#ffffff
-DNA_Repair	0	Ok	#0000ff	1	Broken	#ffffff
-RB1 level	0	Medium	#0000ff	1	Low	#ffffff	2	High	#7f0000
+Subtype	0	Subtype 1	#0000ff	1	Subtype 2	#ff7f00	2	Subtype 3	#007f7f
+TP63_mutated	0	No mutation	#0000ff	1	Has mutation	#ff7f00
+TP53_mutated	0	No mutation	#0000ff	1	Has mutation	#ff7f00
+DNA_Repair	0	Ok	#0000ff	1	Broken	#ff7f00
+RB1 level	0	Medium	#0000ff	1	Low	#ff7f00	2	High	#007f7f

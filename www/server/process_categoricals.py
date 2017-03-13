@@ -166,7 +166,7 @@ def defaultColors():
     colors = [
               '#0000FF','#00FF00','#00FFFF',
               '#FF0000','#FF00FF','#FFFF00',
-              '#FFFFFF','#00007F','#00FF7F',
+              '#00007F','#00FF7F',
               '#007F00','#007FFF','#007F7F',
               '#FF007F','#FFFF7F','#FF7F00',
               '#FF7FFF','#FF7F7F','#7F0000',
