@@ -1,4 +1,4 @@
-
+#!/usr/bin/env python2.7
 '''
 This script computes all-by-all similarities for a given tab seperated matrix file.
 
