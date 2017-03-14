@@ -1,0 +1,7 @@
+colormath==2.1.1
+conda==4.3.13
+networkx==1.11
+numpy==1.10.4
+scikit-learn==0.17.1
+scipy==0.17.1
+pandas==0.17.1
