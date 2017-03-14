@@ -1,0 +1,7 @@
+These are the Common Workflow Language (CWL) files which kick off a variety
+ of functionality.
+
+The *.yml files are how the arguments are supplied in CWL. 
+
+Run with:
+ cwl-runner nOf1.cwl nOf1.yml
