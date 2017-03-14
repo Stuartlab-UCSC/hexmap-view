@@ -35,9 +35,6 @@
      bit when generating a random color. This can be changed my searhing from "minIntense";
      0 will allow all colors
 '''
-# Example:
-#./create_colormaps.py --in_attributes attr.tab --out_file colormaps.tab
-#python2.7 create_colormaps.py --in_attributes attr.tab --out_file colormaps.tab
 
 import sys, argparse
 import numpy as np
@@ -56,7 +53,7 @@ def parse_args(args):
     parser = argparse.ArgumentParser(description=__doc__,
         formatter_class=argparse.RawDescriptionHelpFormatter)
 
-    # swat: We should be able to add 'required=True' to some args so the parser
+    # TODO: We should be able to add 'required=True' to some args so the parser
     # will tell the user when they are left out. --directory should be required
     # since scripts get confused with relative paths sometimes.
     fins = []
@@ -74,7 +71,6 @@ def parse_args(args):
     parser.add_argument('-p',"--pickle",type=str,
         help="optional output: name of the transformed metadata in a pickle file, .pi file extension",
                         default ="")
-    # swat: just curious, what would we use this pickle file for?
 
     parser.add_argument('-a',"--attributes",type=str,
         help="optional output: name of the transformed metadata in a tsv file, .tab file extension",
@@ -164,14 +160,15 @@ def defaultColors():
     ]
     '''
     colors = [
-              '#0000FF','#00FF00','#00FFFF',
-              '#FF0000','#FF00FF','#FFFF00',
-              '#00007F','#00FF7F',
-              '#007F00','#007FFF','#007F7F',
-              '#FF007F','#FFFF7F','#FF7F00',
-              '#FF7FFF','#FF7F7F','#7F0000',
-              '#7F00FF','#7F007F'
-              ]
+        '#0000FF','#00FF00','#00FFFF',
+        '#FF0000','#FF00FF','#FFFF00',
+        '#00007F','#00FF7F',
+        '#007F00','#007FFF','#007F7F',
+        '#FF007F','#FFFF7F','#FF7F00',
+        '#FF7FFF','#FF7F7F','#7F0000',
+        '#7F00FF','#7F007F'
+    ]
+    
     #change them to color objects
     colors = map(convertHexToLab,colors)
     return colors
@@ -492,14 +489,14 @@ def create_colormaps_file(in_attributes,out_file, pickle='', colormaps='', attrs
         chatter('previously generated colormaps file given')
         #chatter( str(len(cmaps)) + " categorical attributes in given colormaps")
 
-        #categories from the given cmap are first string in the array...
+        #att names from the given cmap are first string in the array...
         catsFromMap = map(lambda x: x[0],cmaps)
 
         dups = duplicatesCheck(catAtts)
         if dups[0]: #dups are present
             raise ValueError, 'there are repeated attribute names in colormaps file: ' + str(dups[1])
 
-        #store all categoriccal attribute names that we have DATA AND A COLORMAP mapping for
+        #store all cat att names that we have DATA AND A COLORMAP mapping for
         catsInMetaAndCMs = set(catsFromMap).intersection(catAtts)
 
         chatter(str(len(catsInMetaAndCMs)) + " attributes from colormap match metadata")
@@ -510,7 +507,7 @@ def create_colormaps_file(in_attributes,out_file, pickle='', colormaps='', attrs
         #make a dictionary that can point you to the correct index in the array given the attribute name.
         cmapIndexLookup= cmaps_index_dict(cmaps)
 
-        #this loop works on individual categorical descriptors within each of the categorical attributes
+        #this loop works on individual categories within each of the attributes
         #find out which colormaps entries do not have the proper categories and process...
         for categoricalAttr in list(catsInMetaAndCMs):
             if debug:
@@ -533,16 +530,11 @@ def create_colormaps_file(in_attributes,out_file, pickle='', colormaps='', attrs
             #  things continue to special case out, otherwise we say 'yay'
             disagreeance,inCmapNotMeta,inMetaNotCmap = metaVsCmaps(catsInMetaData,catsInCmaps,categoricalAttr)
 
-
-            #two cases:
-            # if there is a categorical descriptor in the colormap, which is not in the metadata:
-            #   then remove that from the meta data
-            # if there is a categorical descriptor in the metadata, which is not in the colomapping
-            #   then add this descriptor the the colormap mapping.
+            # if there is a categorical descriptor in the metadata, which is not
+            # in the colomapping then add this descriptor the the colormap
+            # mapping.
+            # Keep all old categories so the legend doesn't have any holes in it
             if disagreeance:
-                # take out any categories in the attribute that we don't have data for:
-                # swat: maybe make this a command-line option?
-                #cmapEntry = remove_cats_from_cmap_entry(cmapEntry,inCmapNotMeta)
 
                 #now for any new category in the meta data, make a new color considering all the old colors
                 # and append the new categoy to the end of the colormap entry
@@ -572,12 +564,12 @@ def create_colormaps_file(in_attributes,out_file, pickle='', colormaps='', attrs
     catAttsInMetaNotInCMs = set(catAtts).difference(set(get_attrs_from_cmaps(cmaps)))
 
     if debug:
-        print 'cats in metadata not in CMs: ' + str(catAttsInMetaNotInCMs)
+        print 'atts in metadata not in CMs: ' + str(catAttsInMetaNotInCMs)
         print 'XXXcolormaps list of list: ' + str(cmaps)
     #make a new colormap entry for everthing not in the given (or not given) colormaps
     for catAtt in list(catAttsInMetaNotInCMs):
         if debug:
-                print 'found category in metadata with no colormapping: ' + catAtt
+            print 'found category in metadata with no colormapping: ' + catAtt
 
         #start of a new entry
         cmapEntry = [catAtt]
@@ -655,7 +647,7 @@ def main(args):
             directory += '/'
         if len(out_file):    
             out_file = directory + out_file
-        # swat: the standard way to handle this is always use os.path.join() to
+        # TODO: the standard way to handle this is always use os.path.join() to
         # join a dir with a file, or to join any sort of paths. That utility
         # adds a '/' if needed.  It can take two or more paths to join.
         if len(pickleout):        

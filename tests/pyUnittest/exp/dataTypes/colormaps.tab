@@ -1,0 +1,4 @@
+ok-broken	0	Ok	#0000ff	1	Broken	#ff7f00
+3-categories	0	cat 1	#0000ff	1	cat 2	#ff7f00	2	cat 3	#007f7f
+yes-no	0	no	#0000ff	1	yes	#ff7f00
+on-off	0	ON	#0000ff	1	off	#ff7f00	2	Off	#007f7f	3	oFf	#ff007f	4	ofF	#7f0000

@@ -1,0 +1,11 @@
+nodes	3-categories	yes-no	true-false	1-0	on-off	continuous-integer	continuous-float	ok-broken
+S1	cat 1	no	true	1	ON	45.0	10.30489359	Ok
+S2	cat 1	no	false	1	ON	45.0	0.201684759	Ok
+S3	cat 1	no	true	1	off	45.0	3.88095222	Ok
+S4	cat 2	no	false	1	off	45.0	12.45620876	Ok
+S5	cat 3	yes	false	1	ON	1.00	3.552618635	Ok
+S6	cat 1	no	false	0	Off	12.0	18.16372367	Broken
+S7	cat 1	no	false	1	ON	45.0	8.479725191	Ok
+S8	cat 1	no	true	1	oFf	45.0	9.504161552	Broken
+S9	cat 1	yes	true	1	ON	45.0	15.92264664	Ok
+S10	cat 1	no	true	0	ofF	45.0	16.04009743	Ok
