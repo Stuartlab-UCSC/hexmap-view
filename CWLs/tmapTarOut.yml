@@ -1,0 +1,9 @@
+ClusterData:
+   class: File
+   path: /home/duncan/Desktop/TumorMap/TMdev/hexagram/tests/pyUnittest/in/layout/mcrchopra.data.tab
+Colormap:
+   class: File
+   path: /home/duncan/Desktop/TumorMap/TMdev/hexagram/tests/pyUnittest/in/layout/mcrchopra.colormaps.tab
+MetaData:
+   class: File
+   path: /home/duncan/Desktop/TumorMap/TMdev/hexagram/tests/pyUnittest/in/layout/mcrchopra.atts.with_strs.tab
