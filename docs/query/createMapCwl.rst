@@ -1,5 +1,5 @@
-Future: Create a map
-====================
+Future: CWL: Create a map
+=========================
 
 https://<calc_server>/query/**createMap**
 

@@ -1,5 +1,5 @@
-Future: Place new nodes on a map
-================================
+Future: Web: Place new nodes
+===========================
 
 https://<server>/query/**overlayNodes**
 
