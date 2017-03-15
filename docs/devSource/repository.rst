@@ -37,10 +37,11 @@ of it. If things awry, you may need some other commands.
 you want to put the source code, then::
 
  git clone -b dev https://github.com/ucscHexmap/hexagram
+ cd hexagram
  git fetch
  cd hexagram
 
-The fetch allows other branches in githup to be seen by your local git.
+The fetch allows other branches in github to be seen by your local git.
 
 **#2**. Get status to verify things went well and verify the branch::
 
