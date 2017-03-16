@@ -67,9 +67,6 @@ elif [ $SERVER_TYPE == 'db' ]; then
             --dbpath $HEXMAP/db \
             &> $HEXMAP/db.log &)
 
-elif [ $SERVER_TYPE == 'hub' ]; then
-    $HUB_PATH/uwsgi.sh
-
 elif [ $SERVER_TYPE == 'www' ]; then
     export MONGO_URL=mongodb://localhost:$DB_PORT/$DB_NAME
     export PYTHONPATH=$HEXMAP/www/server

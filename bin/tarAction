@@ -29,14 +29,6 @@ if [ $TARGET == 'www' ]; then
         www/server/*py \
         www/package.json \
         "
-elif [ $TARGET == 'hub' ]; then
-    echo the hub files
-    cd hub
-    TARRED=hub.tar
-    TAR_FILES=" \
-        *py \
-        *sh \
-        "
 elif [ $TARGET == 'bin' ]; then
     echo the bin/config files
     TARRED=bin.tar

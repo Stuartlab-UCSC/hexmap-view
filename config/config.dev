@@ -10,5 +10,6 @@ METEOR=/cluster/home/swat/.meteor
 METEOR_BASE=$METEOR/packages/meteor-tool/1.4.1_2/mt-os.linux.x86_64/dev_bundle
 PYTHONBIN=/cluster/home/swat/packages/miniconda2/bin
 
+export HEXMAP=/cluster/home/swat/dev
 export PATH=$PYTHONBIN:$DRLPATH:$PATH
 export ROOT_URL=https://hexdev.sdsc.edu:$HTTPS_PORT

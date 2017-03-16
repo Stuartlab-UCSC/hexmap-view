@@ -9,5 +9,6 @@ DB_PORT=27017
 METEOR=/Users/swat/.meteor
 METEOR_BASE=$METEOR/packages/meteor-tool/1.4.1_2/mt-os.osx.x86_64/dev_bundle
 
+export HEXMAP=/Users/swat/dev/hexagram
 export PATH=:$DRLPATH:$PATH
 export ROOT_URL=http://localhost:$HTTPS_PORT
