@@ -12,4 +12,5 @@ PYTHONBIN=/cluster/home/swat/packages/miniconda2/bin
 
 export HEXMAP=/cluster/home/swat/dev
 export PATH=$PYTHONBIN:$DRLPATH:$PATH
+export PYTHONPATH=/hive/groups/hexmap/dev/compute/calc
 export ROOT_URL=https://hexdev.sdsc.edu:$HTTPS_PORT

@@ -12,5 +12,6 @@ PYTHONBIN=/cluster/home/hexmap/miniconda2/bin
 
 export HEXMAP=/data
 export PATH=$PYTHONBIN:$DRLPATH:$PATH
+export PYTHONPATH=/hive/groups/hexmap/prod/compute/calc
 export ROOT_URL=https://tumormap.ucsc.edu:$HTTPS_PORT # User's view of the URL
 
