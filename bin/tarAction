@@ -47,6 +47,7 @@ elif [ $TARGET == 'docs' ]; then
         "
 elif [ $TARGET == 'tests' ]; then
     echo the tests in tests/pyUnittest
+    rm -rf tests/pyUnittest/out/*
     TARRED=tests.tar
     TAR_FILES=" \
         tests/pyUnittest/README \

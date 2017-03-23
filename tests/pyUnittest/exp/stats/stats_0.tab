@@ -1,9 +1,0 @@
-categoricalBinary	9.357623e-14	1.871525e-13	7.486098e-13
-TP63_ mutated	9.357623e-14	1.871525e-13	7.486098e-13
-TP53_expression altered	nan	nan	nan
-TP63_expression altered	9.357623e-14	1.871525e-13	7.486098e-13
-DNA_Repair Broken	9.357623e-14	1.871525e-13	7.486098e-13
-Apoptosis	2.547911e-12	3.397215e-12	2.038329e-11
-Random	0.7857257	0.7857257	1.0
-DNA_signature	4.964307e-13	7.942891e-13	3.971446e-12
-continuousInteger	0.2136686	0.2441927	1.0
