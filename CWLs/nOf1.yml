@@ -10,6 +10,8 @@ NewNodesData:
    class: File
    path: /home/duncan/Desktop/TumorMap/TMdev/hexagram/hub/tests/data/newNodesRPPA.tab
 TopNeighbors: 6
+
+numJobs: 4
    
 MapId: "CKCC/V3"
 
