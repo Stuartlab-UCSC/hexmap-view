@@ -47,6 +47,13 @@ inputs:
         position: 4
         prefix: "--mapID"
     doc: the map identifier used to generate primitive URLs
+   
+   - id: numJobs
+    type: int
+    inputBinding:
+      position: 5
+      prefix: "--num_jobs"
+    doc: number of processors to use during similairity calc
 
 outputs:
   - id: XyOutput
