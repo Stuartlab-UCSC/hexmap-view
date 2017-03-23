@@ -8,14 +8,18 @@ TARGET=$2
 #echo ACTION, TARGET: $ACTION, $TARGET
 
 if [ -z ${TARGET} ]; then
-    TARGET=www
+    TARGET=most
 fi
 
-if [ $TARGET == 'www' ]; then
+if [ $TARGET == 'most' ]; then
     echo everything except docs and tests/pyUnittest
     TARRED=www.tar
     TAR_FILES=" \
-        calc/*py \
+        bin \
+        calc \
+        config \
+        http \
+        https \
         www/client \
         www/lib \
         www/public/*svg \
@@ -29,14 +33,6 @@ if [ $TARGET == 'www' ]; then
         www/server/*py \
         www/package.json \
         "
-elif [ $TARGET == 'bin' ]; then
-    echo the bin/config files
-    TARRED=bin.tar
-    TAR_FILES=" \
-        bin/run_server \
-        bin/tarAction \
-        config/* \
-        "
 elif [ $TARGET == 'docs' ]; then
     echo the docs in www/public
     TARRED=docs.tar
@@ -44,18 +40,6 @@ elif [ $TARGET == 'docs' ]; then
         www/public/createMap \
         www/public/query \
         www/public/useCases \
-        "
-elif [ $TARGET == 'tests' ]; then
-    echo the tests in tests/pyUnittest
-    rm -rf tests/pyUnittest/out/*
-    TARRED=tests.tar
-    TAR_FILES=" \
-        tests/pyUnittest/README \
-        tests/pyUnittest/exp \
-        tests/pyUnittest/in \
-        tests/pyUnittest/run* \
-        tests/pyUnittest/sort_files \
-        tests/pyUnittest/*py \
         "
 fi
 
