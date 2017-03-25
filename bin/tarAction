@@ -17,7 +17,9 @@ if [ $TARGET == 'most' ]; then
     TAR_FILES=" \
         bin \
         calc \
-        config \
+        config/config* \
+        config/settingsA* \
+        config/settingsB* \
         http \
         https \
         www/client \
