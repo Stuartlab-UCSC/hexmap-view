@@ -562,10 +562,16 @@ var app = app || {};  // jshint ignore: line
             // Load from the local store if there is anything in there
             s.loadFromLocalStore();
         }
+ 
+        console.log('storageSupported:', storageSupported);
+
         if (storageSupported) {
-        
+ 
             // Create a listener to know when to save state
             window.onbeforeunload = function() {
+ 
+                console.log('window onbeforeunload event');
+
                 s.save();
             };
         }

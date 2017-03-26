@@ -33,11 +33,12 @@ var app = app || {};
             for (i = 0; i < counts.length; i += 1) {
                 filled[i] = (counts[i]) ? counts[i] : 0;
             }
-            // Find the bar colors
-            if (is_binary(layer_name)) {
+            
+            // Find the colors from the colormap or the default binary colors
+            var colormap = colormaps[layer_name];
+            if (Object.keys(colormap).length === 0) {
                 colors = ['#555555', Colors.binary_on()];
             } else {
-                var colormap = colormaps[layer_name];
                 colors = _.map(colormap, function (cat) {
                     return cat.color.hexString();
                 });

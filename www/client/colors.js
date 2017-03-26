@@ -6,7 +6,7 @@ Colors = (function () { // jshint ignore: line
 
     // Some color constants
     var DISABLED_COLOR = '#aaaaaa',
-        COLOR_BINARY_OFF = '#333',          // binary attr off
+        COLOR_BINARY_OFF = '#303030',       // binary attr off
         COLOR_BINARY_ON = '#FFFF00',        // binary attr on
         COLOR_BINARY_BOTH_ON = '#00FF00',   // binary both attrs on
         COLOR_BINARY_SECOND_ON = '#0000FF'; // binary second attr on

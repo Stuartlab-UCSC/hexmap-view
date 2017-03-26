@@ -480,8 +480,6 @@ Shortlist = (function () { // jshint ignore: line
             }
 
         } else {
-            newGchart(layer_name, root.find('.chart'), 'barChart');
- 
             if (_.isUndefined(
                 Util.session('filter_value', 'get', layer_name))) {
             
@@ -494,6 +492,12 @@ Shortlist = (function () { // jshint ignore: line
                     
                 Util.session('filter_value', 'set', layer_name, val);
             }
+            
+            // Build the barChart after the filter values are sure to be defined
+            setTimeout(function () {
+                newGchart(layer_name, root.find('.chart'), 'barChart');
+            }, 10);
+
         }
     }
  
