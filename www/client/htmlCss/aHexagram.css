@@ -27,7 +27,6 @@ body {
 /* These are all supposed to stack against the left end of a row. */
 .stacker {
     float: left;
-    margin-left: 0.5em;
     line-height: 1.8em;
     vertical-align: middle;
 }

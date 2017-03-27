@@ -1,14 +1,14 @@
 <template name='headerT'>
     <div class="header mapShow" id="header">
         <div id="layout-row" class='row'>
-            <div class='stacker'>Map:</div>
+            <div class='map_label stacker'>Map:</div>
             <input id="project" class='stacker' type="hidden"/>
-            <a  class='stacker' style='margin-left:0' href='/help/existingMaps.html' target='_blank'>
+            <a  class='stacker' href='/help/existingMaps.html' target='_blank'>
                 <img class='context-help' src='/icons/question.png'>
             </a>
-            <div class='stacker'>Layout:</div>
+            <div class='layout_label stacker'>Layout:</div>
             <input id="layout-search" class='stacker' type="hidden"/>
-            <div class='stacker'>{{ nodeCount }} Nodes</div>
+            <div class='node_count stacker'>{{ nodeCount }} Nodes</div>
             {{> coords }}
         </div>
 

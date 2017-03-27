@@ -29,7 +29,15 @@
 #project,
 #layout-search,
 #search {
-    width: 29em;
+    width: 50em;
+}
+
+.select2-choice {
+    width: 20em;
+}
+
+.select2-container {
+    width: 20em;
 }
 
 #s2id_project .select2-choice span.noProject {
@@ -47,15 +55,13 @@
     word-wrap: break-word;
 }
 
-.layer-metadata {
-    font-size: 0.65em;
-}
-
 .headerButton {
     height: 24px;
     width: 24px;
     padding: 3px;
-    margin: 0.3em;
+    margin-top: 0.3em;
+    margin-bottom: 0.3em;
+    margin-right: 0.3em;
     border: 1px solid #aaaaaa;
 }
 #diffAnalysisButton {
@@ -68,7 +74,6 @@
     height: 20px;
     width: 20px;
     padding: 5px;
-    margin-left: 0;
     display: none;
 }
 .headerButton.filter.active,
@@ -76,8 +81,35 @@
     display: block;
 }
 
+/* layer row left margin adjustments to accommodate select2 list */
+
+#s2id_search.select2-container {
+    margin-left: 0.5em;
+}
+
+.layer-row .headerButton.filter,
+.layer-row .headerButton.filter-hot {
+    margin-left: -12.5em;
+}
+
+.layer-row .passFilters {
+    margin-left: -11.5em;
+}
+
+.layer-row .sort_attributes {
+    margin-left: -7em;
+}
+
+.layer-row #sortText {
+    margin-left: -5.5em;
+}
+
+
+.layer-metadata {
+    font-size: 0.65em;
+}
+
 .passFilters.stacker {
-    margin-left: 0;
     min-width: 7em;
 }
 
@@ -87,12 +119,6 @@
 }
 
 /* ***************** LAYOUT header row **************** */
-
-/*
-#layout-row {
-    margin-top: -0.3em;
-}
-*/
 
 .layout-entry {
     padding-right: 20px;
@@ -106,6 +132,30 @@ layout-name {
 #layout-row {
     position: relative;
 }
+
+/* layout row left margin adjustments to accommodate select2 list */
+
+#layout-row .map_label,
+#s2id_project.select2-container {
+    margin-left: 0.5em;
+}
+
+#layout-row .context-help {
+    margin-left: -13.5em;
+}
+
+#layout-row .layout_label {
+    margin-left: -11.5em;
+}
+
+#s2id_layout-search {
+    margin-left: -7.4em;
+}
+
+#layout-row .node_count {
+    margin-left: -13em;
+}
+
 
 #coords {
     position: fixed;
