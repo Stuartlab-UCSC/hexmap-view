@@ -195,8 +195,12 @@ Colors = (function () { // jshint ignore: line
         Object.keys(colormaps).forEach(function (layer) {
             tsv += layer;
             _.each(colormaps[layer], function (cat, catIndex) {
-                tsv += '\t' + catIndex + '\t' + cat.name + '\t' +
-                    cat.color.hexString();
+            
+                // If the colormap entry is not empty...
+                if (Object.keys(colormaps[layer]).length > 0) {
+                    tsv += '\t' + catIndex + '\t' + cat.name + '\t' +
+                        cat.color.hexString();
+                }
             });
             tsv += '\n';
         });
@@ -288,8 +292,14 @@ Colors = (function () { // jshint ignore: line
 
         colormapsToColorArray: function() {
 
-            // Convert the colormaps into a form the template can use
-            return _.map(colormaps, Colors.colormapToColorArray);
+            // Convert the colormaps into a form the template can use,
+            // filtering out any entries with no categories.
+            return _.filter(
+                _.map(colormaps, Colors.colormapToColorArray),
+                function (entry) {
+                    return (entry.cats.length > 0);
+                }
+            );
         },
 
         init: function () {
