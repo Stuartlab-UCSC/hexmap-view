@@ -164,11 +164,13 @@ Shortlist = (function () { // jshint ignore: line
             return (is_filter_active(this) ? icon.filter_hot : icon.filter);
         },
         filter_icon_display: function () {
-            return (is_hovered(this) || is_filter_showing(this)) ?
-                        'initial' : 'none';
+            return ((is_hovered(this) || is_filter_showing(this)) &&
+                is_layer_active(this)) ?
+                    'initial' : 'none';
         },
         filter_display: function () {
-            return (is_filter_showing(this)) ? 'initial' : 'none';
+            return (is_filter_showing(this) && is_layer_active(this)) ?
+                'initial' : 'none';
         },
         filter_value_display: function () {
             return (Util.is_continuous(this)) ? 'none' : 'initial';

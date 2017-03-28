@@ -3,7 +3,7 @@
         <div id="layout-row" class='row'>
             <div class='map_label stacker'>Map:</div>
             <input id="project" class='stacker' type="hidden"/>
-            <a  class='stacker' href='/help/existingMaps.html' target='_blank'>
+            <a  class='help_container stacker' href='/help/existingMaps.html' target='_blank'>
                 <img class='context-help' src='/icons/question.png'>
             </a>
             <div class='layout_label stacker'>Layout:</div>
@@ -23,10 +23,8 @@
             </div>
             <img class="sort_attributes headerButton stacker" src='/icons/sort-attributes.svg' id="sort-attributes-button" title="Sort attributes by association with a focus attribute"/>
             <div id="sortText" class='stacker' title='{{sortText}}'>Sorted by: <span style='color:{{sort.color}};background:{{sort.background}}'>{{sort.text}}</span></div>
-
-            <div class='shortlistSpacer stacker right'></div>
             <img style='display:none' class="yin-yang headerButton stacker right" src='/icons/yin-yang.svg' id="diffAnalysisButton" title="Run differential analysis"/>
-            <img class="set headerButton stacker right" src='/icons/set.svg' id="set-operation" title="Calculate set operation"/>
+            <img class="set headerButton stacker" src='/icons/set.svg' id="set-operation" title="Calculate set operation"/>
         </div>
 
         {{> reflectT}}

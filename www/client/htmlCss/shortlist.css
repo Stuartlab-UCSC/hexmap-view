@@ -1,10 +1,5 @@
 /* Code for fancy expandy side panels in the shortlist */
 
-.shortlistSpacer {
-    width: 19.5em;
-    height: 1px;
-}
-
 .shortlist {
     right: 0;
     width: 21em;

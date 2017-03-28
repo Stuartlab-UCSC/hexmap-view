@@ -11,6 +11,12 @@
     position: relative;
 }
 
+.stacker {
+    line-height: 1.8em;
+    vertical-align: middle;
+    display: inline-block;
+}
+
 #layout-row .stacker {
     padding-top: 0.4em;
 }
@@ -46,6 +52,11 @@
 
 /* ***************** LAYER header row **************** */
 
+#s2id_search.select2-container {
+    margin-bottom: 0.6em;
+    margin-left: 0.5em;
+}
+
 .layer-entry {
     padding-right: 20px;
 }
@@ -64,13 +75,16 @@
     margin-right: 0.3em;
     border: 1px solid #aaaaaa;
 }
+
 #diffAnalysisButton {
     height: 28px;
     width: 28px;
     padding: 1px;
 }
+
 .headerButton.filter,
 .headerButton.filter-hot {
+    margin-left: -13em;
     height: 20px;
     width: 20px;
     padding: 5px;
@@ -78,39 +92,26 @@
 }
 .headerButton.filter.active,
 .headerButton.filter-hot.active {
-    display: block;
-}
-
-/* layer row left margin adjustments to accommodate select2 list */
-
-#s2id_search.select2-container {
-    margin-left: 0.5em;
-}
-
-.layer-row .headerButton.filter,
-.layer-row .headerButton.filter-hot {
-    margin-left: -12.5em;
-}
-
-.layer-row .passFilters {
-    margin-left: -11.5em;
+    display: inline;
 }
 
 .layer-row .sort_attributes {
-    margin-left: -7em;
+    display: inline;
+    margin-left: 0.3em;
+    margin-right: 0;
 }
 
-.layer-row #sortText {
-    margin-left: -5.5em;
+.layer-row .set {
+    display: inline;
+    margin-left: 0.5em;
 }
-
 
 .layer-metadata {
     font-size: 0.65em;
 }
 
 .passFilters.stacker {
-    min-width: 7em;
+    min-width: 5em;
 }
 
 #sortText {
@@ -120,42 +121,27 @@
 
 /* ***************** LAYOUT header row **************** */
 
-.layout-entry {
-    padding-right: 20px;
-}
-
-layout-name {
-    /* Force silly underscore names into shape */
-    word-wrap: break-word;
-}
-
 #layout-row {
     position: relative;
 }
 
-/* layout row left margin adjustments to accommodate select2 list */
-
-#layout-row .map_label,
-#s2id_project.select2-container {
+#layout-row .map_label  {
     margin-left: 0.5em;
 }
 
-#layout-row .context-help {
-    margin-left: -13.5em;
+#layout-row .help_container {
+    margin-left: -14em;
+    text-decoration: none;
+    display: inline;
 }
 
 #layout-row .layout_label {
-    margin-left: -11.5em;
-}
-
-#s2id_layout-search {
-    margin-left: -7.4em;
+    margin-left: 0.3em;
 }
 
 #layout-row .node_count {
-    margin-left: -13em;
+    margin-left: -13.5em;
 }
-
 
 #coords {
     position: fixed;
