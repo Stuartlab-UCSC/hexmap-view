@@ -27,7 +27,6 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Future: CWL: Place new nodes" href="placeNodeCwl.html" />
     <link rel="prev" title="Future: Web: Place new nodes" href="placeNodeWeb.html" /> 
   </head>
   <body role="document">
@@ -38,8 +37,6 @@
         <div class="rel" role="navigation" aria-label="related navigation">
           <a href="placeNodeWeb.html" title="Future: Web: Place new nodes"
              accesskey="P">previous</a> |
-          <a href="placeNodeCwl.html" title="Future: CWL: Place new nodes"
-             accesskey="N">next</a> |
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a>
         </div>
@@ -62,70 +59,72 @@
 <p>This API builds a new map from data you supply.</p>
 <div class="section" id="content-example">
 <h2>Content Example<a class="headerlink" href="#content-example" title="Permalink to this headline">¶</a></h2>
-<div class="highlight-default"><div class="highlight"><pre><span></span>{
-   &quot;map&quot;: &quot;CKCC/v3&quot;,
-   &quot;authGroup&quot;: &quot;CKCC&quot;,
-   &quot;email&quot;: [
-       &quot;mok66@gmail.com&quot;,
-       ...
-   ],
-   &quot;outDirectory&quot;: &quot;/myMapViewData/view/CKCC/v3&quot;,
-   &quot;neighborCount&quot;: 8,
-   &quot;firstColorAttribute&quot;: &quot;Disease&quot;,
-   &quot;layoutAwareStats&quot;: true,
-   &quot;layoutIndependentStats&quot;: true
-   &quot;colormap&quot;: [
-       [&quot;# Attribute&quot;, &quot;Index&quot;, &quot;label&quot;, &quot;Color&quot;, &quot;Index&quot;, &quot;label&quot;, &quot;Color ...&quot;],
-       [&quot;Disease&quot;, &quot;0&quot;, &quot;BRCA&quot;, &quot;#0000FF&quot;, &quot;1&quot;, &quot;LUAD&quot;, &quot;#00FF00&quot;],
-       [&quot;Tumor Stage&quot;, &quot;0&quot;, &quot;Stage I&quot;, &quot;#0000FF&quot;, &quot;1&quot;, &quot;Stage II&quot;, &quot;#00FF00&quot;],
-       ...
-       (TBD is this format easiest for calc code?)
-   ],
-   &quot;colorAttributes&quot;: [
-       &quot;Node1&quot;: {
-           &quot;Disease&quot;: &quot;BRCA&quot;,
-           &quot;Tumor Stage&quot;: &quot;Stage I&quot;,
-           ...
-       },
-       &quot;Node2&quot;: {
-           &quot;Disease&quot;: &quot;LUAD&quot;,
-           &quot;Tumor Stage&quot;: &quot;Stage II&quot;,
-           ...
-       },
-       ...
-   ],
-   &quot;layoutFeatures&quot;: {
-       &quot;name&quot;: &quot;mRNA&quot;,
-       &quot;format&quot;: &quot;featureMatrix&quot;,
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span>
+   <span class="s2">&quot;map&quot;</span><span class="p">:</span> <span class="s2">&quot;CKCC/v3&quot;</span><span class="p">,</span>
+   <span class="s2">&quot;authGroup&quot;</span><span class="p">:</span> <span class="s2">&quot;CKCC&quot;</span><span class="p">,</span>
+   <span class="s2">&quot;email&quot;</span><span class="p">:</span> <span class="p">[</span>
+       <span class="s2">&quot;mok66@gmail.com&quot;</span><span class="p">,</span>
+       <span class="o">...</span>
+   <span class="p">],</span>
+   <span class="s2">&quot;neighborCount&quot;</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>
+   <span class="s2">&quot;firstColorAttribute&quot;</span><span class="p">:</span> <span class="s2">&quot;Disease&quot;</span><span class="p">,</span>
+   <span class="s2">&quot;layoutAwareStats&quot;</span><span class="p">:</span> <span class="n">true</span><span class="p">,</span>
+   <span class="s2">&quot;layoutIndependentStats&quot;</span><span class="p">:</span> <span class="n">true</span>
+   <span class="s2">&quot;colormap&quot;</span><span class="p">:</span> <span class="p">{</span>
+       <span class="s2">&quot;Disease&quot;</span><span class="p">:</span> <span class="p">{</span>
+           <span class="s2">&quot;BRCA&quot;</span><span class="p">:</span> <span class="s2">&quot;#0000FF&quot;</span><span class="p">,</span>
+           <span class="s2">&quot;LUAD&quot;</span><span class="p">:</span> <span class="s2">&quot;#00FF00&quot;</span>
+       <span class="p">},</span>
+       <span class="s2">&quot;Tumor Stage&quot;</span><span class="p">:</span> <span class="p">{</span>
+           <span class="s2">&quot;Stage I&quot;</span><span class="p">:</span> <span class="s2">&quot;#0000FF&quot;</span><span class="p">,</span>
+           <span class="s2">&quot;Stage II&quot;</span><span class="p">:</span> <span class="s2">&quot;#00FF00&quot;</span>
+       <span class="p">},</span>
+       <span class="o">...</span>
+   <span class="p">},</span>
+   <span class="s2">&quot;colorAttributes&quot;</span><span class="p">:</span> <span class="p">[</span>
+       <span class="s2">&quot;Node1&quot;</span><span class="p">:</span> <span class="p">{</span>
+           <span class="s2">&quot;Disease&quot;</span><span class="p">:</span> <span class="s2">&quot;BRCA&quot;</span><span class="p">,</span>
+           <span class="s2">&quot;Tumor Stage&quot;</span><span class="p">:</span> <span class="s2">&quot;Stage I&quot;</span><span class="p">,</span>
+           <span class="o">...</span>
+       <span class="p">},</span>
+       <span class="s2">&quot;Node2&quot;</span><span class="p">:</span> <span class="p">{</span>
+           <span class="s2">&quot;Disease&quot;</span><span class="p">:</span> <span class="s2">&quot;LUAD&quot;</span><span class="p">,</span>
+           <span class="s2">&quot;Tumor Stage&quot;</span><span class="p">:</span> <span class="s2">&quot;Stage II&quot;</span><span class="p">,</span>
+           <span class="o">...</span>
+       <span class="p">},</span>
+       <span class="o">...</span>
+   <span class="p">],</span>
+   <span class="s2">&quot;layoutFeatures&quot;</span><span class="p">:</span> <span class="p">{</span>
+       <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;mRNA&quot;</span><span class="p">,</span>
+       <span class="s2">&quot;format&quot;</span><span class="p">:</span> <span class="s2">&quot;featureMatrix&quot;</span><span class="p">,</span>
 
-       &quot;features&quot;: {
-           &quot;Node1&quot;: {
-               &quot;ALK&quot;: &quot;0.897645&quot;,
-               &quot;TP53&quot;: &quot;0.904140&quot;,
-               ...
-           },
-           &quot;Node2&quot;: {
-               &quot;ALK&quot;: &quot;0.897645&quot;,
-               &quot;TP53&quot;: &quot;0.904140&quot;,
-               ...
-           },
-           ...
-       },
-       ...
-   },
-}
+       <span class="s2">&quot;features&quot;</span><span class="p">:</span> <span class="p">{</span>
+           <span class="s2">&quot;Node1&quot;</span><span class="p">:</span> <span class="p">{</span>
+               <span class="s2">&quot;ALK&quot;</span><span class="p">:</span> <span class="s2">&quot;0.897645&quot;</span><span class="p">,</span>
+               <span class="s2">&quot;TP53&quot;</span><span class="p">:</span> <span class="s2">&quot;0.904140&quot;</span><span class="p">,</span>
+               <span class="o">...</span>
+           <span class="p">},</span>
+           <span class="s2">&quot;Node2&quot;</span><span class="p">:</span> <span class="p">{</span>
+               <span class="s2">&quot;ALK&quot;</span><span class="p">:</span> <span class="s2">&quot;0.897645&quot;</span><span class="p">,</span>
+               <span class="s2">&quot;TP53&quot;</span><span class="p">:</span> <span class="s2">&quot;0.904140&quot;</span><span class="p">,</span>
+               <span class="o">...</span>
+           <span class="p">},</span>
+           <span class="o">...</span>
+       <span class="p">},</span>
+       <span class="o">...</span>
+   <span class="p">},</span>
+<span class="p">}</span>
 </pre></div>
 </div>
 <p>Where:</p>
 <ul class="simple">
 <li><strong>map</strong> : a unique ID in the form: &lt;group&gt;/&lt;map&gt; or simply: &lt;map&gt;</li>
-<li><strong>authGroup</strong> : optional, defaults to viewable by the public, the authorization group to which a user must belong to view this map</li>
+<li><strong>authGroup</strong> : optional, defaults to viewable by the user who creates the map, the authorization group to which a user must belong to view this map</li>
 <li><strong>email</strong> : optional, one or more email addresses to receive the response</li>
-<li><strong>outDirectory</strong> : full directory path for the output files</li>
 <li><strong>neighborCount</strong> : optional, defaults to 6, the number of neighbors of each node to consider in laying out the map</li>
 <li><strong>firstColorAttribute</strong> : optional, defaults to the attribute with the highest density, attribute to be used to color the map on initial display</li>
 <li><strong>layout*Stats</strong> : optional, true indicates this class of stats should be calculated, defaults to false. Note that these are compute-intensive so you may want to run them only when you are satisfied with your layout and coloring attributes.</li>
-<li><strong>colormap</strong> : optional, defaults to a colormap generated during computations, a colormap already defined for the color attributes which maps each category value to a color</li>
+<li><strong>colormap</strong> : optional, defaults to a colormap generated during computations, a colormap already defined for the color attributes which maps each category value to a color. New attributes and categories will be added to this map.</li>
 <li><strong>colorAttributes</strong> : optional, the values to use for coloring the nodes. Note 1</li>
 <li><strong>layoutFeatures</strong> : one or more required, the features used to layout the map</li>
 </ul>
@@ -140,8 +139,13 @@
 </div>
 <div class="section" id="response-success">
 <h2>Response success<a class="headerlink" href="#response-success" title="Permalink to this headline">¶</a></h2>
-<p>This is returned as HTTP 200 with the content as a JSON string containing a URL
-pointing to the new map in the form:</p>
+<p>This is returned as HTTP 200 with the content as a JSON string containing:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;Request received.&quot;</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>If the web API was called via the viewer, when the map build is complete,
+this will be returned as a JSON string and the user will be given the
+opportunity to load the map:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span> <span class="s2">&quot;bookmark&quot;</span><span class="p">:</span> <span class="s2">&quot;https://tumormap.ucsc.edu/?p=CKCC/V3&quot;</span> <span class="p">}</span>
 </pre></div>
 </div>
@@ -169,10 +173,6 @@ pointing to the new map in the form:</p>
 <li class="toctree-l1"><a class="reference internal" href="placeNodeWeb.html">Future: Web: Place new nodes</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Future: Web: Create a map</a></li>
 </ul>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="placeNodeCwl.html">Future: CWL: Place new nodes</a></li>
-<li class="toctree-l1"><a class="reference internal" href="createMapCwl.html">Future: CWL: Create a map</a></li>
-</ul>
 
           <div role="search">
             <h3 style="margin-top: 1.5em;">Search</h3>
@@ -194,8 +194,6 @@ pointing to the new map in the form:</p>
           <div role="navigation" aria-label="related navigaton">
             <a href="placeNodeWeb.html" title="Future: Web: Place new nodes"
               >previous</a> |
-            <a href="placeNodeCwl.html" title="Future: CWL: Place new nodes"
-              >next</a> |
             <a href="genindex.html" title="General Index"
               >index</a>
           </div>
@@ -210,7 +208,7 @@ pointing to the new map in the form:</p>
           
     <div class="footer" role="contentinfo">
         &#169; Copyright 2016, UCSC Tumor Map development team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
     </div>
         </div>
         <div class="clearer"></div>
