@@ -20,10 +20,11 @@ Content Example
         "mok66@gmail.com",
         ...
     ],
+    "layoutInputFormat": "clusterData",
     "neighborCount": 8,
     "firstColorAttribute": "Disease",
-    "layoutAwareStats": true,
-    "layoutIndependentStats": true
+    "layoutAwareStats": false,
+    "layoutIndependentStats": false
     "colormap": {
         "Disease": {
             "BRCA": "#0000FF",
@@ -48,7 +49,7 @@ Content Example
         },
         ...
     ],
-    "layoutFeatures": {
+    "clusterData": {
         "name": "mRNA",
         "format": "featureMatrix",
 
@@ -74,9 +75,11 @@ Where:
 * **map** : a unique ID in the form: <group>/<map> or simply: <map>
 * **authGroup** : optional, defaults to viewable by the user who creates the map, the authorization group to which a user must belong to view this map
 * **email** : optional, one or more email addresses to receive the response
+* **layoutInputFormat** : the format of the layout file, one of [clusterData, fullSimilarity, sparseSimilarity, xyPositions] see Note 1
 * **neighborCount** : optional, defaults to 6, the number of neighbors of each node to consider in laying out the map
-* **firstColorAttribute** : optional, defaults to the attribute with the highest density, attribute to be used to color the map on initial display
-* **layout*Stats** : optional, true indicates this class of stats should be calculated, defaults to false. Note that these are compute-intensive so you may want to run them only when you are satisfied with your layout and coloring attributes.
+* **firstColorAttribute** : optional, the attribute to be used to color the map on initial display
+* **layoutAwareStats** : optional, true indicates this class of stats should be calculated, defaults to false. Note that these are compute-intensive so you may want to run them only when you are satisfied with your layout and coloring attributes.
+* **layoutIndependentStats** : optional, true indicates this class of stats should be calculated, defaults to false. Note that these are compute-intensive so you may want to run them only when you are satisfied with your layout and coloring attributes.
 * **colormap** : optional, defaults to a colormap generated during computations, a colormap already defined for the color attributes which maps each category value to a color. New attributes and categories will be added to this map.
 * **colorAttributes** : optional, the values to use for coloring the nodes. Note 1
 * **layoutFeatures** : one or more required, the features used to layout the map
@@ -85,7 +88,7 @@ Where:
  * **format** : a format identifier. Note 1
  * **features** : the values to use for this layout. Note 1
 
-Note 1: For acceptable formats see https://tumormap.ucsc.edu/help/createMap.html
+Note 1: For format descriptions see https://tumormap.ucsc.edu/help/createMap.html
 
 Response success
 ----------------
