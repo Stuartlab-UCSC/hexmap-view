@@ -264,13 +264,16 @@ Util = (function () { // jshint ignore: line
             // by scraping the data directories for meta.json files containing file
             // paths for a full feature matrix, xyPositions and firstAttribute.
             var avail = {
+                'lmsh_ucsc.edu/allmonje_quartnorm_UCSF500v2': [
+                    'layout',
+                ],
+                'lmsh_ucsc.edu/allmonje_combat_UCSF500v2': [
+                    'layout',
+                ],
                 'lmsh_ucsc.edu/AllAttr_combat_quartnorm': [
                     'layout',
                 ],
                 'lmsh_ucsc.edu/combat_allmonje_quartnorm_DatasetasCellLine': [
-                    'layout',
-                ],
-                'lmsh_ucsc.edu/swatTest': [
                     'layout',
                 ],
                 'CKCC/v2': [
