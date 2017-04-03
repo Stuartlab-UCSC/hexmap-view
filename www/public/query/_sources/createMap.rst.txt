@@ -1,5 +1,5 @@
-Future: Web: Create a map
-=========================
+Future: Create a map
+====================
 
 https://<compute_server>/query/**createMap**
 

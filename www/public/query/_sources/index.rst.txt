@@ -1,11 +1,11 @@
-.. UCSC Tumor Map API master file
+.. UCSC Tumor Map Web API master file
 
-Hex Map Web API
-===============
+Web API
+=======
 
 .. toctree::
    :maxdepth: 1
 
-   placeNodeWeb
-   createMapWeb
+   placeNode
+   createMap
 
