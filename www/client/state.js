@@ -200,11 +200,15 @@ var app = app || {};  // jshint ignore: line
  
         var s = this,
             store = {};
-        // Gather any dynamic attributes
-        var dynamic_attrs =
-            Shortlist.get_dynamic_entries_for_persistent_state();
-        if (dynamic_attrs) {
-            Session.set('dynamic_attrs', dynamic_attrs);
+ 
+        if (Session.equals('mapPage', 'mapPage')) {
+ 
+            // Gather any dynamic attributes
+            var dynamic_attrs =
+                Shortlist.get_dynamic_entries_for_persistent_state();
+            if (dynamic_attrs) {
+                Session.set('dynamic_attrs', dynamic_attrs);
+            }
         }
  
         // Walk though our list of unique keys and save those
