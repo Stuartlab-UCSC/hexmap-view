@@ -56,12 +56,21 @@
             
   <div class="section" id="menus">
 <h1>Menus<a class="headerlink" href="#menus" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="downloading">
-<h2>Downloading<a class="headerlink" href="#downloading" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="file-operations">
+<h2>File Operations<a class="headerlink" href="#file-operations" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="save-bookmark">
+<h3>Save/Bookmark<a class="headerlink" href="#save-bookmark" title="Permalink to this headline">¶</a></h3>
+<p>Use this to save your current view as a bookmark to retrieve in the future or
+share with others.</p>
+</div>
+<div class="section" id="create-map">
+<h3>Create Map<a class="headerlink" href="#create-map" title="Permalink to this headline">¶</a></h3>
+<p>Create a map using your data. For details see <a class="reference internal" href="createMap.html#createmap"><span class="std std-ref">Create a Map</span></a></p>
+</div>
 <div class="section" id="download-node-ids">
 <h3>Download Node IDs<a class="headerlink" href="#download-node-ids" title="Permalink to this headline">¶</a></h3>
 <p>To download node IDs, a group of nodes must already be selected and saved to
-the <em>Short List</em> as described in the section, <em>Select Node Groups</em>.</p>
+the <em>Short List</em> as described below in, <a class="reference internal" href="#selectingnodes"><span class="std std-ref">Selecting Nodes</span></a>.</p>
 <p>To download node IDs of a custom subgroup, go to the <em>File</em> menu
 then <em>Download</em>, then click on <em>Node IDs</em>.
 A window will appear for you to select the group of interest.</p>
@@ -82,11 +91,27 @@ A window will appear for you to select the group of interest.</p>
 <ul class="simple">
 <li>change the background to white or black</li>
 <li>change the default colormap for any attributes</li>
-<li>attach your own label to anywhere on the map</li>
+<li>place your own nodes to a map</li>
 </ul>
+<div class="section" id="place-new-nodes">
+<h3>Place new Nodes<a class="headerlink" href="#place-new-nodes" title="Permalink to this headline">¶</a></h3>
+<p>Select this option to add your own nodes to the map. If this option is greyed
+out then this map does not have all of the required data to place new nodes.
+A window will appear for you to upload a file that contains your new nodes with
+features that match the ones in the map.</p>
+<p>After the upload is complete and the data are used to compute the placement,
+the nodes will appear on your map. Also an email will be sent indicating the
+computations are complete with the URL to view the map with the new nodes.
+This is helpful if the computations take a long time.</p>
+<p>Two new attributes will be returned for each node. One will contain the list of
+nearest neighbors and the other will contain the similarity values of those
+neighbors.</p>
+<p>Note that at least 50% of the features provided must match those in the map or
+an error will be returned.</p>
+</div>
 </div>
 <div class="section" id="selecting-nodes">
-<h2>Selecting Nodes<a class="headerlink" href="#selecting-nodes" title="Permalink to this headline">¶</a></h2>
+<span id="selectingnodes"></span><h2>Selecting Nodes<a class="headerlink" href="#selecting-nodes" title="Permalink to this headline">¶</a></h2>
 <p>Sometimes you may want to select a group of nodes to do additional analysis in
 or outside of the map. Selecting a group of nodes also creates a new attribute
 that will be treated just like the attributes permanently associated with
@@ -115,8 +140,8 @@ in <em>Creating Attributes</em>.</p>
 <li><em>Show Edges</em> shows the directed graph of node edges so you can see the relationships used in positioning the nodes</li>
 </ul>
 </div>
-<div class="section" id="data-operations">
-<h2>Data Operations<a class="headerlink" href="#data-operations" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="tools-data-operations">
+<h2>Tools: Data Operations<a class="headerlink" href="#tools-data-operations" title="Permalink to this headline">¶</a></h2>
 <p>All of the operations on data are explained in <a class="reference internal" href="advancedControls.html"><span class="doc">Advanced Controls</span></a></p>
 </div>
 </div>
@@ -133,11 +158,11 @@ in <em>Creating Attributes</em>.</p>
 <li class="toctree-l1"><a class="reference internal" href="getStarted.html">Get Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="basicControls.html">Basic Controls</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Menus</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#downloading">Downloading</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#file-operations">File Operations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#editing-the-map">Editing the Map</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#selecting-nodes">Selecting Nodes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#views-of-the-map">Views of the Map</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#data-operations">Data Operations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#tools-data-operations">Tools: Data Operations</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="advancedControls.html">Advanced Controls</a></li>

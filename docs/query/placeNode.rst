@@ -85,9 +85,11 @@ This is returned as HTTP 200 with the content as a JSON string in the form::
 Where:
 
 * **neighbors** : contains the scores of the most similar neighbors.
-* **url**: view the new nodes overlaying the map with:
-    * the requested nodes in red with a pin/marker
-    * a newly-generated attribute of '<requested-node>: neighbors' for each requested node
+* **url**: view the new nodes overlaying the map with this for each node:
+    * a marker pointing out the node
+    * a new attribute of '<requested-node>: neighbors' that shows the nearest neighbors in yellow
+    * a new attribute of '<requested-node>: neighbor values' that shows the similarity score for each neighbor
+
 
 Note that if the optional input parameter of 'individualViewUrls' is true, only
 one node will be at each URL. Otherwise the URLs returned for each node will be

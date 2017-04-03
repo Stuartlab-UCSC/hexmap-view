@@ -3,14 +3,25 @@ Menus
 =====
 
 
-Downloading
------------
+File Operations
+---------------
+
+Save/Bookmark
+^^^^^^^^^^^^^
+
+Use this to save your current view as a bookmark to retrieve in the future or
+share with others.
+
+Create Map
+^^^^^^^^^^
+
+Create a map using your data. For details see :ref:`createMap`
 
 Download Node IDs
 ^^^^^^^^^^^^^^^^^
 
 To download node IDs, a group of nodes must already be selected and saved to
-the *Short List* as described in the section, *Select Node Groups*.
+the *Short List* as described below in, :ref:`selectingNodes`.
 
 To download node IDs of a custom subgroup, go to the *File* menu
 then *Download*, then click on *Node IDs*.
@@ -33,10 +44,31 @@ You may edit the map by selecting one of the options on the *Edit* menu to:
 
 * change the background to white or black
 * change the default colormap for any attributes
-* attach your own label to anywhere on the map
+* place your own nodes to a map
 
-.. * adding your own nodes to the map TBD
+.. * attach your own label to anywhere on the map
 
+Place new Nodes
+^^^^^^^^^^^^^^^
+
+Select this option to add your own nodes to the map. If this option is greyed
+out then this map does not have all of the required data to place new nodes.
+A window will appear for you to upload a file that contains your new nodes with
+features that match the ones in the map.
+
+After the upload is complete and the data are used to compute the placement,
+the nodes will appear on your map. Also an email will be sent indicating the
+computations are complete with the URL to view the map with the new nodes.
+This is helpful if the computations take a long time.
+
+Two new attributes will be returned for each node. One will contain the list of
+nearest neighbors and the other will contain the similarity values of those
+neighbors.
+
+Note that at least 50% of the features provided must match those in the map or
+an error will be returned.
+
+.. _selectingNodes:
 
 Selecting Nodes
 ---------------
@@ -74,7 +106,7 @@ Once in *Node Density* view, there is an additional option in the *View* menu:
 * *Show Edges* shows the directed graph of node edges so you can see the relationships used in positioning the nodes
 
 
-Data Operations
----------------
+Tools: Data Operations
+----------------------
 
 All of the operations on data are explained in :doc:`advancedControls`

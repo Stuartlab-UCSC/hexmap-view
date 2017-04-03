@@ -74,19 +74,6 @@ var app = app || {};
             opts.email = Meteor.user().username;
         }
 
-/*        $.ajax({
-            type: 'get',
-            url: HUB_URL + '/test',
-            contentType: "application/json", // sending json
-            dataType: 'json', // expects json returned
-            success:  function (result) {
-                console.log('result', result.toString());
-            },
-            error: function (error) {
-                console.log('error', error.toString());
-            }
-        });
-*/
         $.ajax({
             type: 'POST',
             url: HUB_URL + '/query/overlayNodes',
