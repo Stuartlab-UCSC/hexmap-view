@@ -1,7 +1,7 @@
 Future: Web: Create a map
 =========================
 
-https://<calc_server>/query/**createMap**
+https://<compute_server>/query/**createMap**
 
 POST with content-type: application/json
 
@@ -24,7 +24,8 @@ Content Example
     "neighborCount": 8,
     "firstColorAttribute": "Disease",
     "layoutAwareStats": false,
-    "layoutIndependentStats": false
+    "layoutIndependentStats": false,
+    "reflectionMapType": "geneMap",
     "colormap": {
         "Disease": {
             "BRCA": "#0000FF",
@@ -51,8 +52,6 @@ Content Example
     ],
     "clusterData": {
         "name": "mRNA",
-        "format": "featureMatrix",
-
         "features": {
             "Node1": {
                 "ALK": "0.897645",
@@ -80,12 +79,12 @@ Where:
 * **firstColorAttribute** : optional, the attribute to be used to color the map on initial display
 * **layoutAwareStats** : optional, true indicates this class of stats should be calculated, defaults to false. Note that these are compute-intensive so you may want to run them only when you are satisfied with your layout and coloring attributes.
 * **layoutIndependentStats** : optional, true indicates this class of stats should be calculated, defaults to false. Note that these are compute-intensive so you may want to run them only when you are satisfied with your layout and coloring attributes.
+* **reflectionMapType** : optional, generate another map with 90-degree rotated clustering data so that clustering features are used as the nodes in the layout. Color attributes are provided and determined by the map type. One of: [geneMap]
 * **colormap** : optional, defaults to a colormap generated during computations, a colormap already defined for the color attributes which maps each category value to a color. New attributes and categories will be added to this map.
 * **colorAttributes** : optional, the values to use for coloring the nodes. Note 1
 * **layoutFeatures** : one or more required, the features used to layout the map
 
  * **name** : string used to name this layout
- * **format** : a format identifier. Note 1
  * **features** : the values to use for this layout. Note 1
 
 Note 1: For format descriptions see https://tumormap.ucsc.edu/help/createMap.html

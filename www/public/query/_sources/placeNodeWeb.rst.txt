@@ -1,7 +1,7 @@
 Future: Web: Place new nodes
 ============================
 
-https://<server>/query/**overlayNodes**
+https://<compute_server>/query/**overlayNodes**
 
 POST with content-type: application/json
 
