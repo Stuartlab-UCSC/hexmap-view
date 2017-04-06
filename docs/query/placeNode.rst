@@ -7,8 +7,8 @@ POST with content-type: application/json
 
 data-type: json
 
-This API takes data for one or more of your nodes and performs an N-of-1 analysis
-on each against the background nodes of an existing map.
+This API takes data for one or more of your nodes and places them over the
+background nodes of an existing map.
 
 Content Example
 ---------------
@@ -49,10 +49,13 @@ Content Example
     
 Where:
 
+* **map** : a unique identifier. If the map belongs to a map group, that is included before the specific map separated by a slash as in the example.
+* **layout** : name of a particular layout of nodes within a map
 * **email** : optional; one or more email addresses to receive the response
 * **viewServer** : optional; defaults to https://tumormap.ucsc.edu; the URL to view the results
 * **individualViewUrls** : optional; defaults to False; True means a view URL for each node will be returned; False means all node positions will be returned in one view URL
 * **neighborCount** : optional; defaults to 6; number of nearest neighbors to consider in placing each node
+* **nodes** : an object containing your node names and their values
 
 Response success
 ----------------
@@ -98,12 +101,5 @@ identical and contain all nodes.
 Response error
 --------------
 
-Response errors are returned as HTTP 400 with the text below. Message text may
-not be exact.
-
-* Error: malformed JSON
-* Error: map not found: pancan44
-* Error: layout of map "pancan12" not found: sRNA
-* Error: name has unprintable characters (not ASCII 32-126), unprintable chars replaced with ‘_’ in <name>
-* Error: parameter missing or malformed: <parameter>
-
+Response errors are returned with some code other than HTTP 200 with the content
+containing a more specific message as a JSON string.

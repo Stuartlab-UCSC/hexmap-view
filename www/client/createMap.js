@@ -20,7 +20,7 @@ CreateMap = (function () { // jshint ignore: line
             ['feature_space', 'Clustering data'],
             ['similarity_full', 'Full similarity matrix'],
             ['similarity', 'Sparse similarity matrix'],
-            ['coordinates', 'XY coordinates'],
+            ['coordinates', 'XY positions'],
         ],
         default_feature_format = 'feature_space',
         methods = [

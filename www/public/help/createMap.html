@@ -62,9 +62,9 @@ menu, then supplying at least a layout feature file and specifying its format.</
 computationally intensive operations.</p>
 <div class="section" id="features-to-lay-out-the-map">
 <span id="feature-formats"></span><h2>Features to Lay Out the Map<a class="headerlink" href="#features-to-lay-out-the-map" title="Permalink to this headline">¶</a></h2>
-<p>A features are properties of nodes used to lay out the map. The feature file must
+<p>Features are properties of nodes used to lay out the map. The feature file must
 be in TSV (tab-separated values) format in one of the following forms.</p>
-<p><strong>Feature matrix</strong> : This is the most basic of the feature file formats where
+<p><strong>Clustering data</strong> : This is the most basic of the layout input formats where
 similarities and XY locations will be calculated for you.
 This contains a full matrix with node IDs across the top and feature IDs in the
 first column, like:</p>
@@ -75,8 +75,8 @@ first column, like:</p>
 <span class="o">...</span>
 </pre></div>
 </div>
-<p><strong>Full similarity matrix</strong> : This contains similarity scores between node pairs
-as a full matrix where xy locations will be calculated for you.
+<p><strong>Full similarity</strong> : This contains similarity scores between all node pairs
+as a full matrix which will be used to calculate xy positions.
 This has node IDs across the top and in the first column with
 similarity scores as the values, like:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">nodes</span>   <span class="n">node1</span>   <span class="n">node2</span>   <span class="n">node3</span>   <span class="o">...</span>
@@ -86,8 +86,8 @@ similarity scores as the values, like:</p>
 <span class="o">...</span>
 </pre></div>
 </div>
-<p><strong>Sparse similarity matrix</strong> :This contains similarity scores between node pairs
-as a sparse matrix where xy locations will be calculated for you.
+<p><strong>Sparse similarity</strong> :This contains similarity scores between the top neighbor
+nodes of each node as a sparse matrix which will be used to calculate xy positions.
 This has node IDs in the first two columns with the the
 similarity scores in the third column, like:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">node1</span>   <span class="n">node2</span>   <span class="n">val</span>
@@ -96,7 +96,7 @@ similarity scores in the third column, like:</p>
 <span class="o">...</span>
 </pre></div>
 </div>
-<p><strong>XY positions</strong> : This is the most processed of the feature file formats,
+<p><strong>XY positions</strong> : This is the most processed of the layout input formats,
 containing the x and y coordinates in two-dimensional space of each node, like:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">node1</span>   <span class="n">x</span><span class="o">-</span><span class="n">val</span>   <span class="n">y</span><span class="o">-</span><span class="n">val</span>
 <span class="n">node2</span>   <span class="n">x</span><span class="o">-</span><span class="n">val</span>   <span class="n">y</span><span class="o">-</span><span class="n">val</span>

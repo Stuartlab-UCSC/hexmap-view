@@ -665,13 +665,16 @@ Shortlist = (function () { // jshint ignore: line
                 return;
             }
  
-        } else {
+        } else if (ev) {
  
             // We are responding to a filter button press
             root = get_root_from_child ($(ev.target));
             layer_name = get_layer_name_from_root(root);
             Util.session('filter_show', 'set', layer_name,
                         !is_filter_showing(layer_name));
+        } else {
+            console.log('Error: for some reason there is a blank layer_name_in',
+                'and no event in filter_control_changed().')
         }
  
         // If the filter is showing...
