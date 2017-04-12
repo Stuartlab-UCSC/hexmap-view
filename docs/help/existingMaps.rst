@@ -2,6 +2,9 @@
 Public Maps
 ===========
 
+.. _pancan12/samplemap:
+.. _pancan12/genemap:
+
 Pancan12
 --------
 
@@ -13,15 +16,25 @@ DNA sequence (Illumina HiSeq and GAII), DNA copy number variation (Affymetrix
 genome-wide mRNA levels (Illumina mRNA-seq), microRNA levels (Illumina
 microRNA-seq), and protein levels for 131 proteins and/or phosphorylated
 proteins (Reverse Phase Protein Arrays; RPPA).
-              
+
+The Sample Map layouts are composed of tumor samples collected in the study.
+Attributes that can be explored on the Sample Map are described at
+:ref:`pancan12/samplemapattributes`.
+
+The Gene Map layouts are composed of genes mapping to a probe from the data
+collection platforms. E.g. MYC on the mRNA Gene Map, corresponds to the probe
+mapping to MYC on the micro array platform. Attributes that can be explored on
+the Gene Map are described at
+:ref:`pancan12/genemapattributes`.
+
 Hoadley,K.A., Yau,C., Wolf,D.M., Cherniack,A.D., Tamborero,D., Ng,S.,
 Leiserson,M.D.M., Niu,B., McLellan,M.D., Uzunangelov,V., et al. (2014)
 `Multiplatform analysis of 12 cancer types reveals molecular classification
 within and across tissues of origin
-<https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4152462/>`_.,
+<https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4152462/>`_.
 Cell, 158, 929–44.
 
-
+.. _gliomas:
 
 Gliomas
 -------
@@ -42,6 +55,7 @@ Progression in Diffuse Glioma
 <http://www.ncbi.nlm.nih.gov/pubmed/26824661>`_.
 Cell, 164, 550–63.
 
+.. _quakebrain:
 
 QuakeBrain
 ----------
@@ -62,6 +76,7 @@ Gephart,M.G., Barres,B.A. and Quake,S.R. (2015)
 <http://www.pnas.org/content/112/23/7285.abstract>`_.
 Proc. Natl. Acad. Sci. U. S. A., 112, 7285–90.
 
+.. _pchips:
 
 pCHIPS
 ------
@@ -76,3 +91,90 @@ Stoyanova,T., Faltermeier,C.M., Uzunangelov,V., Carlin,D.E., et al. (2016)
 Cancer
 <http://www.sciencedirect.com/science/article/pii/S0092867416309138>`_.
 Cell, 166, 1041–1054.
+
+.. _pcawgjuncbase:
+
+mgmarin_public/PCAWG_JuncBASE
+-----------------------------
+
+TBD
+
+Attribute Descriptions
+----------------------
+
+.. _pancan12/samplemapattributes:
+
+Pancan12/SampleMap Attributes
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+| Tissue
+| BRCA Subtype
+| COADREAD Subtype
+| GBM Subtype
+| OV subtype
+| UCEC Subtype
+| gender
+| number_of_lymphnodes_positive
+| colon_polyps_present
+| microsatellite_instability
+| metastasis_pathological_spread
+| height
+| weight
+| age_at_initial_pathologic_diagnosis
+| icd_10
+| lymphovascular_invasion_present
+| karnofsky_performance_score
+| neoplasm_histologic_grade
+| icd_o_3_site
+| primary_tumor_t_stage
+| lymphnode_pathologic_spread
+| acute_myeloid_leukemia_calgb_cytogenetics_risk_category
+| tumor_stage_and_substage
+| neoplasm_disease_lymph_node_stage
+| primary_tumor_pathologic_spread
+| history_of_colon_polyps
+| tumor_stage
+| pancan subtype integrated
+| pancan subtype methylation
+| pancan subtype RPPA
+| pancan subtype mRNA
+| pancan subtype miRNA
+| pancan subtype mutations
+| Met vs Primary
+| *_MUTATION (313 mutation flags for high-confidence mutations, where * is a gene symbol in HUGO space)
+| *_AMPLIFICATION (999 gene-level or chromosomal amplification events)
+| *_DELETION (1987 gene-level or chromosomal deletion events)
+| TF_IPL_* (774 transcription factors with their activities summarized in the PARADIGM IPL space per each sample; * is a gene symbol in HUGO space)
+| * program (42 drug programs inferred from the gene expression data, where * is a molecular process or function name)
+| Mutation Signature 1
+| Mutation Signature 2
+| Mutation Signature 3
+| Mutation Signature 4
+| Mutation Signature 5
+| Mutation Signature 6
+| Mutation Signature 7
+| Mutation Signature 8
+| Mutation Signature 10
+| Mutation Signature 13
+| Mutation Signature 14
+| Mutation Signature 17
+| Mutation Signature 20
+| Mutation Signature 26
+| Mutation Signature 27
+
+.. _pancan12/genemapattributes:
+
+Pancan12/GeneMap Attributes
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+===========================  ==============  =============
+Database name                Number of sets  Variable type
+===========================  ==============  =============
+MSigDB Positional Gene Sets  326             Binary
+MSigDB Hallmark gene sets    50              Binary
+MSigDB Canonical gene sets   1330            Binary
+GO:Biological Process        825             Binary
+GO:Cellular Component        233             Binary
+GO:Molecular Function        396             Binary
+===========================  ==============  =============
+
