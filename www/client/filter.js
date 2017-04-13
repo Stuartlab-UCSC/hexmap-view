@@ -100,9 +100,6 @@ var app = app || {};
         tagList: function () {
             return tagList.get();
         },
-        savechecked: function () {
-            return chk.get('save');
-        },
     });
 
     function passFilter(layer) {
@@ -345,7 +342,6 @@ var app = app || {};
             chk.set(type, true);
             count.set(type, 0);
         });
-        chk.set('save', false); // To retain the filters on sort
         label.bin = BIN_LABEL;
         label.cat = CAT_LABEL;
         label.cont = CONT_LABEL;
