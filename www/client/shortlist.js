@@ -71,8 +71,9 @@ Shortlist = (function () { // jshint ignore: line
 
     function is_filter_showing (layer_name) {
         if (!layer_name) { return false; }
-        return (
-            Util.session('filter_show', 'equals', layer_name.toString(), true));
+        show = Util.session('filter_show', 'get', layer_name.toString());
+        if (_.isUndefined(show)) { return false; }
+        return show;
     }
  
     function is_filter_active (layer_name) {
@@ -319,6 +320,11 @@ Shortlist = (function () { // jshint ignore: line
  
         // If the select list is already filled in there is nothing to do
         if (filter_value.children().length > 0) { return; }
+        
+        // Set the filter show flag if it wasn't pulled from state
+        if (_.isUndefined(Util.session('filter_show', 'get', layer_name))) {
+            Util.session('filter_show', 'set', layer_name, false);
+        }
 
         // Find the option codes and text
         var first = 0,
@@ -1033,6 +1039,7 @@ Shortlist = (function () { // jshint ignore: line
             sorted_layers = Session.get('sortedLayers');
 
         if (sorted_layers.length < 1) { return; }
+        if (_.isUndefined(first)) { return; }
         
         // We only need to run this once to initialize the shortlist UI
         comp.stop();

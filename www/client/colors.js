@@ -12,8 +12,8 @@ Colors = (function () { // jshint ignore: line
         COLOR_BINARY_SECOND_ON = '#0000FF'; // binary second attr on
 
     // The color to use as hexagon fill, depending on the background color
-    var NO_DATA_LIGHT_BG = '#ccc',
-        NO_DATA_DARK_BG = '#555',
+    var NO_DATA_LIGHT_BG = '#c0c0c0',
+        NO_DATA_DARK_BG = '#505050',
         badValue = false, // The current category input has a bad value
         $link;
 

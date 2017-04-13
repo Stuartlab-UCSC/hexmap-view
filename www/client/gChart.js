@@ -36,8 +36,8 @@ var app = app || {};
             
             // Find the colors from the colormap or the default binary colors
             var colormap = colormaps[layer_name];
-            if (Object.keys(colormap).length === 0) {
-                colors = ['#555555', Colors.binary_on()];
+            if (!colormap || Object.keys(colormap).length === 0) {
+                colors = [Colors.binary_off(), Colors.binary_on()];
             } else {
                 colors = _.map(colormap, function (cat) {
                     return cat.color.hexString();
