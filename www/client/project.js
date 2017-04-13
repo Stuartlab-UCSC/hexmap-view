@@ -61,6 +61,7 @@ Project = (function () { // jshint ignore: line
             .select2({
                 data: data,
                 placeholder: PLACEHOLDER_TEXT,
+                dropdownAutoWidth: true,
             })
             // Handle result selecting
             .on("select2-selecting", function(event) {

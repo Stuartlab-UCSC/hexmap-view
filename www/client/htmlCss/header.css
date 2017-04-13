@@ -32,18 +32,11 @@
     margin-right: 0.5em;
     width: 15em;
 }
+
 #project,
 #layout-search,
 #search {
-    width: 50em;
-}
-
-.header .select2-choice {
-    width: 20em;
-}
-
-.select2-container {
-    width: 20em;
+    width: 29em;
 }
 
 #s2id_project .select2-choice span.noProject {
@@ -84,7 +77,6 @@
 
 .headerButton.filter,
 .headerButton.filter-hot {
-    margin-left: -13em;
     height: 20px;
     width: 20px;
     padding: 5px;
@@ -130,17 +122,12 @@
 }
 
 #layout-row .help_container {
-    margin-left: -14em;
     text-decoration: none;
     display: inline;
 }
 
 #layout-row .layout_label {
     margin-left: 0.3em;
-}
-
-#layout-row .node_count {
-    margin-left: -13.5em;
 }
 
 #coords {
