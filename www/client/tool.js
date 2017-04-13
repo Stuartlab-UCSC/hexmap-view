@@ -248,6 +248,13 @@ Tool = (function () { // jshint ignore: line
             Meteor.autorun( function () {
                 var user = Meteor.user(); // jshint ignore: line
 
+                // If there is no username and on the home page, hide file menu
+                if (!user && Session.equals('page', 'homePage')) {
+                    $('#navBar li.fileMenu').hide();
+                } else {
+                    $('#navBar li.fileMenu').show();
+                }
+                
                 // Check authorization for running jobs.
                 Meteor.call('is_user_in_role', ['jobs', 'dev'],
                     function (error, results) {
