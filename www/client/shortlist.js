@@ -272,11 +272,6 @@ Shortlist = (function () { // jshint ignore: line
         // available layers.
         // Used for selections... more broadly can be used for dynamic layers.
         // Attributes is an object of attributes to copy into the layer.
-        // May also be used to replace layers.
-        // This holds a boolean for if we're replacing an existing layer.
-        // Note: layers is a global, for layers on the presented map
-
-        var replacing = (layers[layer_name] !== undefined);
         
         // Store the layer. Just put in the data. with_layer knows what to do if
         // the magnitude isn't filled in.
@@ -290,21 +285,6 @@ Shortlist = (function () { // jshint ignore: line
             // Copy over each specified attribute
             layers[layer_name][name] = attributes[name];
         }
-
-        if (replacing) {
-
-            // We want to remove it from the appropriate data type list
-            // TODO: Don't think this code ever gets hit.
-            Util.removeFromDataTypeList(layer_name);
-            Session.set('sort', ctx.defaultSort());
-        } else {
-        
-            // Add it to the sorted layer list, since it's not there yet.
-            var sorted = Session.get('sortedLayers').slice();
-            sorted.push(layer_name);
-            Session.set('sortedLayers', sorted);
-        }
-
         // Add this layer to the appropriate data type list
         Util.addToDataTypeList(layer_name, data);
 
