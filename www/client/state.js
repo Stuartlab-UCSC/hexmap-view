@@ -572,12 +572,14 @@ var app = app || {};  // jshint ignore: line
         if (storageSupported) {
  
             // Create a listener to know when to save state
-            window.onbeforeunload = function() {
- 
-                console.log('window onbeforeunload event');
-
+            // This event happens with:
+            //  - reload
+            //  - new url
+            //  - forward & back
+            //	- change project via project list or via URL
+            window.addEventListener('beforeunload', function () {
                 s.save();
-            };
+            });
         }
  
         return s;
