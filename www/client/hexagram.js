@@ -59,7 +59,10 @@ with_layer = function (layer_name_in, callback, try_count) {
 
         if (layer === undefined) {
             console.log('TODO layer is undefined for', layer_name,
-                '. You may need to clear your cache.');
+                '. You may need to reset to defaults.');
+            console.log('the below trace is for info only');
+            console.trace();
+            console.log('the above trace is for info only');
             return;
         }
 		var data_val = layer.data;

@@ -303,6 +303,7 @@ Hex = (function () { // jshint ignore: line
 return { // Public methods
 
     loadProject: loadProject,
+    pageReload: pageReload,
  
     bookmarkReload: function (bookmark) {
         if (bookmark.slice(0,9) === 'localhost') {

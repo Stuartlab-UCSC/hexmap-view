@@ -155,17 +155,6 @@ var app = app || {};  // jshint ignore: line
  
         s.localStorage.unique_keys = s.localStorage.all.concat(
             s.localStorage.project);
-        s.alreadySaved = false;
-
-        // Reactive variables maintained in global state & not project-specific
-        Session.setDefault('page', DEFAULT_PAGE);
-        Session.setDefault('sort', DEFAULT_SORT); // Default sort message & type
-        Session.setDefault('background', 'black');  // Main map background color
-        Session.setDefault('viewEdges', false); // Display of directed graph
-        Session.setDefault('viewWindows', false); // Display of stats windows
- 
-        // Non-reactive vars maintained in global state and not project-specific
-        s.project = DEFAULT_PROJECT;  // The project data to load
     };
 
     State.prototype.defaultProject = function () {
@@ -194,9 +183,36 @@ var app = app || {};  // jshint ignore: line
         s.zoom = 3;  // Map zoom level where 3 means zoomed in by 3 levels
     };
 
+    State.prototype.setAllDefaults = function () {
+        var s = this;
+        s.alreadySaved = false;
+ 
+        s.setProjectDefaults();
+ 
+                   
+        console.log("Session.get('background')1", Session.get('background'));
+            
+
+
+        // Reactive variables maintained in global state & not project-specific
+        Session.set('page', DEFAULT_PAGE);
+        Session.set('sort', DEFAULT_SORT); // Default sort message & type
+        Session.set('background', 'black');  // Main map background color
+        Session.set('viewEdges', false); // Display of directed graph
+        Session.set('viewWindows', false); // Display of stats windows
+ 
+        // Non-reactive vars maintained in global state and not project-specific
+        s.project = DEFAULT_PROJECT;  // The project data to load
+                   
+        console.log("Session.get('background')2", Session.get('background'));
+            
+    };
+
     State.prototype.jsonify = function () {
  
         // Convert the current state to json.
+ 
+        console.log('State.prototype.jsonify');
  
         var s = this,
             store = {};
@@ -204,6 +220,9 @@ var app = app || {};  // jshint ignore: line
         if (Session.equals('page', 'mapPage')) {
  
             // Gather any dynamic attributes
+ 
+            console.log('about to Shortlist.get_dynamic_entries_for_persistent_state');
+ 
             var dynamic_attrs =
                 Shortlist.get_dynamic_entries_for_persistent_state();
             if (dynamic_attrs) {
@@ -544,7 +563,7 @@ var app = app || {};  // jshint ignore: line
     initState = function () {
         storageSupported = checkLocalStore();
         var s = new State();
-        s.setProjectDefaults();
+        s.setAllDefaults();
 
         // Initialize some flags
         s.alreadySaved = false;
@@ -567,7 +586,14 @@ var app = app || {};  // jshint ignore: line
             s.loadFromLocalStore();
         }
  
-        console.log('storageSupported:', storageSupported);
+        // Reset the state to factory defaults when requested.
+        $('body').on('click', '.resetDefaults', function () {
+            if (Session.equals('page', 'homePage')) { return; }
+            var project = s.project;
+            s.setAllDefaults();
+            s.project = project;
+            Hex.pageReload('mapPage');
+        })
 
         if (storageSupported) {
  
