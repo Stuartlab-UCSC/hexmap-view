@@ -1044,13 +1044,17 @@ Shortlist = (function () { // jshint ignore: line
                 var data = attr.data,
                     properties = attr;
                    
-                // Remove the data from the attr properties.
-                delete properties.data;
-                   
-                add_layer_data(name, data, properties);
-                if (properties.colormap) {
-                    colormaps[name] = properties.colormap;
+                if (attr.colormap) {
+                    colormaps[name] = attr.colormap;
                 }
+                // Remove the data & colormap from the attr properties
+                // because the next call does not expect them.
+                delete attr.data;
+                delete attr.colormap
+                                  
+                console.log('loading: attr:', name, attr);
+            
+                add_layer_data(name, data, attr);
             });
         }
 
@@ -1262,13 +1266,15 @@ return {
         _.each(Shortlist.get_entries(), function (value, attr) {
         
             if (value.dynamic || value.selection) {
-                entries[attr] = value;
-            }
+                entries[attr] = layers[attr];
+               
+                console.log('saving: attr:', attr, value);
             
-            // Convert the colormap colors from an object to an array.
-            if (colormaps[attr]) {
-                var obj = Colors.colormapToColorArray(colormaps[attr], attr);
-                value.colormap = obj.cats;
+                // Convert the colormap colors from an object to an array.
+                if (colormaps[attr]) {
+                    var obj = Colors.colormapToColorArray(colormaps[attr], attr);
+                    entries[attr].colormap = obj.cats;
+                }
             }
         });
 

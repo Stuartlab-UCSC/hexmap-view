@@ -201,7 +201,7 @@ var app = app || {};  // jshint ignore: line
         var s = this,
             store = {};
  
-        if (Session.equals('mapPage', 'mapPage')) {
+        if (Session.equals('page', 'mapPage')) {
  
             // Gather any dynamic attributes
             var dynamic_attrs =
