@@ -120,7 +120,7 @@ Hex = (function () { // jshint ignore: line
                 { id: 'QuakeBrain', png: 'QuakeBrain.png' },
                 { id: 'pCHIPS', png: 'pCHIPS.png' },
                 { id: 'mgmarin_public/PCAWG_JuncBASE_CassetteExonPSIs',
-                    label: 'PCAWG_JuncBASE_CassetteExonPSIs',
+                    label: 'PCAWG JuncBASE CassetteExonPSIs',
                     linkAnchor: 'PCAWGJuncBASE',
                     png: 'PCAWG_JuncBASE.png' },
             ];

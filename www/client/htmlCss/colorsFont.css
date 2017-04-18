@@ -29,6 +29,10 @@ body {
 
 body,
 #navBar .cyber-slug {
+    background-color: #cccccc;
+}
+body #mapPage,
+#mapPage #navBar .cyber-slug {
     background-color: #f5f4eb;
 }
 
@@ -60,6 +64,10 @@ body,
 #homePage h3,
 #homePage a {
     color: #2B5E91;
+}
+
+#homePage .allProjects a div {
+    color: #dddddd;
 }
 
 #homePage a {
