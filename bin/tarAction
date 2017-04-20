@@ -51,7 +51,7 @@ if [ $ACTION == 'maketar' ]
     rm $TARRED
     tar -cf $TARRED $TAR_FILES
     ls -l $TARRED
-    scp $TARRED juggernaut:dev
+    scp $TARRED kolossus.sdsc.edu:dev
 
 elif [ $ACTION == 'xtar' ]; then
     echo 'cleaning directories'

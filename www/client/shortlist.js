@@ -1051,9 +1051,6 @@ Shortlist = (function () { // jshint ignore: line
                 // because the next call does not expect them.
                 delete attr.data;
                 delete attr.colormap
-                                  
-                console.log('loading: attr:', name, attr);
-            
                 add_layer_data(name, data, attr);
             });
         }

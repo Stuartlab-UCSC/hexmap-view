@@ -188,11 +188,6 @@ var app = app || {};  // jshint ignore: line
         s.alreadySaved = false;
  
         s.setProjectDefaults();
- 
-                   
-        console.log("Session.get('background')1", Session.get('background'));
-            
-
 
         // Reactive variables maintained in global state & not project-specific
         Session.set('page', DEFAULT_PAGE);
@@ -203,9 +198,6 @@ var app = app || {};  // jshint ignore: line
  
         // Non-reactive vars maintained in global state and not project-specific
         s.project = DEFAULT_PROJECT;  // The project data to load
-                   
-        console.log("Session.get('background')2", Session.get('background'));
-            
     };
 
     State.prototype.jsonify = function () {
@@ -381,15 +373,12 @@ var app = app || {};  // jshint ignore: line
                     Util.banner('error', error);
                     ctx.ignoreUrlQuery = true;
                     return;
-                }
-                
+                }                
                 if (result === 'Bookmark not found') {
                     Util.banner('error', result);
                     ctx.ignoreUrlQuery = true;
                     return;
                 }
-                
-                console.log('loadFromBookmark result:', result);
                 s.load(result);
                 s.projectNotFoundNotified = false;
             }
