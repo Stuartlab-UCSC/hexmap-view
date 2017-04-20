@@ -252,61 +252,7 @@ Util = (function () { // jshint ignore: line
         var now = new Date();
         return now.toString().slice(4, -15) + ':' + now.getMilliseconds()
     }
-    
-    function inAvailableMapLayouts (layout, map, operation) {
-
-        // Find the maps and layouts that meet the critiera
-        // for a specific operation
-
-        if (operation == 'placeNode') {
         
-            // TODO: really go get these
-            // by scraping the data directories for meta.json files containing file
-            // paths for a full feature matrix, xyPositions and firstAttribute.
-            var avail = {
-                'lmsh_ucsc.edu/allmonje_quartnorm_UCSF500v2': [
-                    'layout',
-                ],
-                'lmsh_ucsc.edu/allmonje_combat_UCSF500v2': [
-                    'layout',
-                ],
-                'lmsh_ucsc.edu/AllAttr_combat_quartnorm': [
-                    'layout',
-                ],
-                'lmsh_ucsc.edu/combat_allmonje_quartnorm_DatasetasCellLine': [
-                    'layout',
-                ],
-                'CKCC/v2': [
-                    'mRNA',
-                ],
-                'CKCC/v3': [
-                    'mRNA',
-                ],
-                'Pancan12/SampleMap': [
-                    'mRNA',
-                    'miRNA',
-                    'RPPA',
-                    'Methylation',
-                    'SCNV',
-                    'Mutations',
-                    'PARADIGM (inferred)',
-                ],
-                'unitTest/layoutBasicExp': [
-                    'layout',
-                ],
-            };
-            if (avail.hasOwnProperty(map)) {
-                return (avail[map].indexOf(layout) > -1);
-            } else {
-                return false;
-            }
-        } else {
-        
-            // Not a supported operation
-            return false;
-        }
-    }
-    
     return { // Public methods
         get_username: get_username,
         clean_file_name: clean_file_name,
@@ -324,7 +270,6 @@ Util = (function () { // jshint ignore: line
         setHeightSelect2: setHeightSelect2,
         createOurSelect2: createOurSelect2,
         timestamp: timestamp,
-        inAvailableMapLayouts: inAvailableMapLayouts,
     };
 }());
 

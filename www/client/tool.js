@@ -261,23 +261,30 @@ Tool = (function () { // jshint ignore: line
                         if (!error && results) {
                             $job.show();
                             $createMap.show();
+                            $overlayNodes.show();
                 
                             // Enable/disable the place nodes menu option
                             // depending on availabiity of data required.
-                            // TODO should we stop this autorun
-                            // if the user is not logged in?
                             Meteor.autorun( function () {
-                                var layoutName = Session.get('layouts')[
+                                var layout = Session.get('layouts')[
                                     Session.get('layoutIndex')];
-
-                                if (Util.inAvailableMapLayouts(
-                                        layoutName,
-                                        Util.getHumanProject(ctx.project),
-                                        'placeNode')) {
-                                    $placeNodeMenuOpt.removeClass('disabled');
-                                } else {
-                                    $placeNodeMenuOpt.addClass('disabled');
-                                }
+                                    
+                                Meteor.call(
+                                    'getJsonFile', 'mapMeta.json', ctx.project,
+                                    function (error, meta) {
+                                        if (!error &&
+                                            meta &&
+                                            meta.layouts &&
+                                            meta.layouts[layout] &&
+                                            meta.layouts[layout].clusterData) {
+                                            $placeNodeMenuOpt
+                                                .removeClass('disabled');
+                                        } else {
+                                            $placeNodeMenuOpt
+                                                .addClass('disabled');
+                                        }
+                                    }
+                                )
                             })
 
                        } else {

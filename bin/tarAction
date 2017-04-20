@@ -39,7 +39,7 @@ elif [ $TARGET == 'docs' ]; then
     echo the docs in www/public
     TARRED=docs.tar
     TAR_FILES=" \
-        www/public/createMap \
+        www/public/help \
         www/public/query \
         www/public/useCases \
         "
