@@ -71,8 +71,9 @@ Shortlist = (function () { // jshint ignore: line
 
     function is_filter_showing (layer_name) {
         if (!layer_name) { return false; }
-        return (
-            Util.session('filter_show', 'equals', layer_name.toString(), true));
+        show = Util.session('filter_show', 'get', layer_name.toString());
+        if (_.isUndefined(show)) { return false; }
+        return show;
     }
  
     function is_filter_active (layer_name) {
@@ -164,11 +165,13 @@ Shortlist = (function () { // jshint ignore: line
             return (is_filter_active(this) ? icon.filter_hot : icon.filter);
         },
         filter_icon_display: function () {
-            return (is_hovered(this) || is_filter_showing(this)) ?
-                        'initial' : 'none';
+            return ((is_hovered(this) || is_filter_showing(this)) &&
+                is_layer_active(this)) ?
+                    'initial' : 'none';
         },
         filter_display: function () {
-            return (is_filter_showing(this)) ? 'initial' : 'none';
+            return (is_filter_showing(this) && is_layer_active(this)) ?
+                'initial' : 'none';
         },
         filter_value_display: function () {
             return (Util.is_continuous(this)) ? 'none' : 'initial';
@@ -269,11 +272,6 @@ Shortlist = (function () { // jshint ignore: line
         // available layers.
         // Used for selections... more broadly can be used for dynamic layers.
         // Attributes is an object of attributes to copy into the layer.
-        // May also be used to replace layers.
-        // This holds a boolean for if we're replacing an existing layer.
-        // Note: layers is a global, for layers on the presented map
-
-        var replacing = (layers[layer_name] !== undefined);
         
         // Store the layer. Just put in the data. with_layer knows what to do if
         // the magnitude isn't filled in.
@@ -287,21 +285,6 @@ Shortlist = (function () { // jshint ignore: line
             // Copy over each specified attribute
             layers[layer_name][name] = attributes[name];
         }
-
-        if (replacing) {
-
-            // We want to remove it from the appropriate data type list
-            // TODO: Don't think this code ever gets hit.
-            Util.removeFromDataTypeList(layer_name);
-            Session.set('sort', ctx.defaultSort());
-        } else {
-        
-            // Add it to the sorted layer list, since it's not there yet.
-            var sorted = Session.get('sortedLayers').slice();
-            sorted.push(layer_name);
-            Session.set('sortedLayers', sorted);
-        }
-
         // Add this layer to the appropriate data type list
         Util.addToDataTypeList(layer_name, data);
 
@@ -317,6 +300,11 @@ Shortlist = (function () { // jshint ignore: line
  
         // If the select list is already filled in there is nothing to do
         if (filter_value.children().length > 0) { return; }
+        
+        // Set the filter show flag if it wasn't pulled from state
+        if (_.isUndefined(Util.session('filter_show', 'get', layer_name))) {
+            Util.session('filter_show', 'set', layer_name, false);
+        }
 
         // Find the option codes and text
         var first = 0,
@@ -480,8 +468,6 @@ Shortlist = (function () { // jshint ignore: line
             }
 
         } else {
-            newGchart(layer_name, root.find('.chart'), 'barChart');
- 
             if (_.isUndefined(
                 Util.session('filter_value', 'get', layer_name))) {
             
@@ -494,6 +480,12 @@ Shortlist = (function () { // jshint ignore: line
                     
                 Util.session('filter_value', 'set', layer_name, val);
             }
+            
+            // Build the barChart after the filter values are sure to be defined
+            setTimeout(function () {
+                newGchart(layer_name, root.find('.chart'), 'barChart');
+            }, 10);
+
         }
     }
  
@@ -659,13 +651,16 @@ Shortlist = (function () { // jshint ignore: line
                 return;
             }
  
-        } else {
+        } else if (ev) {
  
             // We are responding to a filter button press
             root = get_root_from_child ($(ev.target));
             layer_name = get_layer_name_from_root(root);
             Util.session('filter_show', 'set', layer_name,
                         !is_filter_showing(layer_name));
+        } else {
+            console.log('Error: for some reason there is a blank layer_name_in',
+                'and no event in filter_control_changed().')
         }
  
         // If the filter is showing...
@@ -1024,6 +1019,7 @@ Shortlist = (function () { // jshint ignore: line
             sorted_layers = Session.get('sortedLayers');
 
         if (sorted_layers.length < 1) { return; }
+        if (_.isUndefined(first)) { return; }
         
         // We only need to run this once to initialize the shortlist UI
         comp.stop();
@@ -1048,13 +1044,14 @@ Shortlist = (function () { // jshint ignore: line
                 var data = attr.data,
                     properties = attr;
                    
-                // Remove the data from the attr properties.
-                delete properties.data;
-                   
-                add_layer_data(name, data, properties);
-                if (properties.colormap) {
-                    colormaps[name] = properties.colormap;
+                if (attr.colormap) {
+                    colormaps[name] = attr.colormap;
                 }
+                // Remove the data & colormap from the attr properties
+                // because the next call does not expect them.
+                delete attr.data;
+                delete attr.colormap
+                add_layer_data(name, data, attr);
             });
         }
 
@@ -1086,21 +1083,15 @@ Shortlist = (function () { // jshint ignore: line
         }
     }
 
-return {
-    create_dynamic_binary_layer: create_dynamic_binary_layer,
-    get_active_layers: get_active_layers,
-    update_shortlist: update_shortlist,
-    update_shortlist_metadata: update_shortlist_metadata,
-
-    get_entries: function () {
+    function get_entries () {
     
-        // Return the entries in the shortlist.
-        // Until we have the attributes in the database,
-        // pull the info out of the layers array.
+        // Return the entries in the shortlist
         var attrs = Session.get('shortlist'),
             entries = {};
             
-        if (attrs.length === 0) { return undefined; }
+        if (attrs.length === 0) { return {}; }
+        
+        console.log('shortlist:get_entries(): attrs', attrs);
         
         _.each(attrs, function (attr) {
             
@@ -1124,7 +1115,14 @@ return {
         });
 
         return entries;
-    },
+    }
+
+return {
+    create_dynamic_binary_layer: create_dynamic_binary_layer,
+    get_active_layers: get_active_layers,
+    update_shortlist: update_shortlist,
+    update_shortlist_metadata: update_shortlist_metadata,
+
 
     create_dynamic_category_layer: function (layer_name, data, attributes,
         colormap) {
@@ -1263,16 +1261,16 @@ return {
         // color objects in the colormaps to saveable objects.
         var entries = {};
 
-        _.each(Shortlist.get_entries(), function (value, attr) {
+        _.each(get_entries(), function (value, attr) {
         
             if (value.dynamic || value.selection) {
-                entries[attr] = value;
-            }
+                entries[attr] = layers[attr];
             
-            // Convert the colormap colors from an object to an array.
-            if (colormaps[attr]) {
-                var obj = Colors.colormapToColorArray(colormaps[attr], attr);
-                value.colormap = obj.cats;
+                // Convert the colormap colors from an object to an array.
+                if (colormaps[attr]) {
+                    var obj = Colors.colormapToColorArray(colormaps[attr], attr);
+                    entries[attr].colormap = obj.cats;
+                }
             }
         });
 

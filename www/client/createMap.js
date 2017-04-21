@@ -17,7 +17,7 @@ CreateMap = (function () { // jshint ignore: line
         show_advanced = 'Advanced options...',
         hide_advanced = 'Hide advanced options',
         formats = [
-            ['feature_space', 'Feature matrix'],
+            ['feature_space', 'Clustering data'],
             ['similarity_full', 'Full similarity matrix'],
             ['similarity', 'Sparse similarity matrix'],
             ['coordinates', 'XY positions'],
@@ -121,9 +121,7 @@ CreateMap = (function () { // jshint ignore: line
         var opts = [
             '--names', 'layout',
             '--directory', view_dir(),
-            '--role', ui.get('major_project'),
             '--include-singletons',
-            '--no_density_stats',
             '--no_layout_independent_stats',
             '--no_layout_aware_stats',
         ];
@@ -303,14 +301,6 @@ CreateMap = (function () { // jshint ignore: line
             Tool.add("createMap", function() {
                 dialogHex.show();
             }, 'Create a new map');
-     
-            // Also open the dialog if the link on the home page is clicked
-            $('.createMapHome .createMap')
-                .button()
-                .on('click', function () {
-                $button.click();
-            });
-     
         },
     };
 }());

@@ -235,9 +235,9 @@ Reflect = (function () { // jshint ignore: line
             Meteor.subscribe('OpenedWindow',user.username,ctx.project);
 
             // Just before the page is closed, update the DB
-            window.onbeforeunload = function() {
+            window.addEventListener('beforeunload', function () {
                 Meteor.subscribe('ClosedWindow',user.username,mapId);
-            };
+            });
         }
         // Save the map ID for cleaning up when it changes
         mapId = ctx.project;

@@ -1,9 +1,0 @@
-categoricalBinary	3.542652e-05	6.376774e-05	0.0003188387
-TP63_ mutated	3.542652e-05	6.376774e-05	0.0003188387
-TP53_expression altered	1.0	1.0	1.0
-TP63_expression altered	2.385585e-16	2.147026e-15	2.147026e-15
-Subtype	9.357623e-14	4.21093e-13	8.421861e-13
-Apoptosis	0.7538059	1.0	1.0
-Random	0.9250396	1.0	1.0
-DNA_signature	3.552954e-10	1.065886e-09	3.197659e-09
-continuousInteger	0.8018914	1.0	1.0

@@ -1,0 +1,215 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Future: Place new nodes &#8212; Hex Map API</title>
+    
+    <link rel="stylesheet" href="_static/agogo.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Future: Create a map" href="createMap.html" /> 
+  </head>
+  <body role="document">
+    <div class="header-wrapper" role="banner">
+      <div class="header">
+        <div class="headertitle"><a
+          href="index.html">Hex Map API</a></div>
+        <div class="rel" role="navigation" aria-label="related navigation">
+          <a href="createMap.html" title="Future: Create a map"
+             accesskey="P">previous</a> |
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a>
+        </div>
+       </div>
+    </div>
+
+    <div class="content-wrapper">
+      <div class="content">
+        <div class="document">
+            
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="future-place-new-nodes">
+<h1>Future: Place new nodes<a class="headerlink" href="#future-place-new-nodes" title="Permalink to this headline">¶</a></h1>
+<p><a class="reference external" href="https:/">https:/</a>/&lt;compute_server&gt;/query/<strong>overlayNodes</strong></p>
+<p>POST with content-type: application/json</p>
+<p>data-type: json</p>
+<p>This API takes data for one or more of your nodes and places them over the
+background nodes of an existing map.</p>
+<div class="section" id="content-example">
+<h2>Content Example<a class="headerlink" href="#content-example" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span>
+   <span class="s2">&quot;map&quot;</span><span class="p">:</span> <span class="s2">&quot;CKCC/v1&quot;</span><span class="p">,</span>
+   <span class="s2">&quot;layout&quot;</span><span class="p">:</span> <span class="s2">&quot;mRNA&quot;</span><span class="p">,</span>
+   <span class="s2">&quot;email&quot;</span><span class="p">:</span> <span class="p">[</span>
+       <span class="s2">&quot;mok66@gmail.com&quot;</span><span class="p">,</span>
+       <span class="o">...</span>
+   <span class="p">],</span>
+   <span class="s2">&quot;viewServer&quot;</span><span class="p">:</span> <span class="s1">&#39;https://tumormap.ucsc.edu&#39;</span><span class="p">,</span>
+   <span class="s2">&quot;individualViewUrls&quot;</span><span class="p">:</span> <span class="n">true</span><span class="p">,</span>
+   <span class="s2">&quot;neighborCount&quot;</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>
+   <span class="s2">&quot;nodes&quot;</span><span class="p">:</span> <span class="p">{</span>
+       <span class="s2">&quot;MySample1&quot;</span><span class="p">:</span> <span class="p">{</span>
+           <span class="s2">&quot;ALK&quot;</span><span class="p">:</span> <span class="s2">&quot;0.897645&quot;</span><span class="p">,</span>
+           <span class="s2">&quot;TP53&quot;</span><span class="p">:</span> <span class="s2">&quot;0.904140&quot;</span><span class="p">,</span>
+           <span class="s2">&quot;POGZ&quot;</span><span class="p">:</span> <span class="s2">&quot;0.792754&quot;</span><span class="p">,</span>
+           <span class="o">...</span>
+       <span class="p">},</span>
+       <span class="s2">&quot;MySample2&quot;</span><span class="p">:</span> <span class="p">{</span>
+           <span class="s2">&quot;ALK&quot;</span><span class="p">:</span> <span class="s2">&quot;0.897645&quot;</span><span class="p">,</span>
+           <span class="s2">&quot;TP53&quot;</span><span class="p">:</span> <span class="s2">&quot;0.904140&quot;</span><span class="p">,</span>
+           <span class="s2">&quot;POGZ&quot;</span><span class="p">:</span> <span class="s2">&quot;0.792754&quot;</span><span class="p">,</span>
+           <span class="o">...</span>
+       <span class="p">},</span>
+       <span class="s2">&quot;MySample3&quot;</span><span class="p">:</span> <span class="p">{</span>
+           <span class="s2">&quot;ALK&quot;</span><span class="p">:</span> <span class="s2">&quot;0.897645&quot;</span><span class="p">,</span>
+           <span class="s2">&quot;TP53&quot;</span><span class="p">:</span> <span class="s2">&quot;0.904140&quot;</span><span class="p">,</span>
+           <span class="s2">&quot;POGZ&quot;</span><span class="p">:</span> <span class="s2">&quot;0.792754&quot;</span><span class="p">,</span>
+           <span class="o">...</span>
+       <span class="p">},</span>
+       <span class="o">...</span>
+   <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Where:</p>
+<ul class="simple">
+<li><strong>map</strong> : a unique identifier. If the map belongs to a map group, that is included before the specific map separated by a slash as in the example.</li>
+<li><strong>layout</strong> : name of a particular layout of nodes within a map</li>
+<li><strong>email</strong> : optional; one or more email addresses to receive the response</li>
+<li><strong>viewServer</strong> : optional; defaults to <a class="reference external" href="https://tumormap.ucsc.edu">https://tumormap.ucsc.edu</a>; the URL to view the results</li>
+<li><strong>individualViewUrls</strong> : optional; defaults to False; True means a view URL for each node will be returned; False means all node positions will be returned in one view URL</li>
+<li><strong>neighborCount</strong> : optional; defaults to 6; number of nearest neighbors to consider in placing each node</li>
+<li><strong>nodes</strong> : an object containing your node names and their values</li>
+</ul>
+</div>
+<div class="section" id="response-success">
+<h2>Response success<a class="headerlink" href="#response-success" title="Permalink to this headline">¶</a></h2>
+<p>This is returned as HTTP 200 with the content as a JSON string in the form:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span>
+   <span class="s2">&quot;nodes&quot;</span><span class="p">:</span> <span class="p">{</span>
+       <span class="s2">&quot;MySample1&quot;</span><span class="p">:</span> <span class="p">{</span>
+           <span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://tumormap.ucsc.edu/?bookmark=5563fdf09484a241d066022bf91a9e96d6ae1976c4d7502d384cc2a87001067a&quot;</span><span class="p">,</span>
+           <span class="s2">&quot;neighbors&quot;</span><span class="p">:</span> <span class="p">{</span>
+                   <span class="s2">&quot;node1&quot;</span><span class="p">:</span> <span class="mf">0.352</span><span class="p">,</span>
+                   <span class="s2">&quot;node2&quot;</span><span class="p">:</span> <span class="mf">0.742</span><span class="p">,</span>
+                   <span class="o">...</span>
+               <span class="p">}</span>
+           <span class="p">}</span>
+       <span class="p">},</span>
+       <span class="s2">&quot;MySample2&quot;</span><span class="p">:</span> <span class="p">{</span>
+           <span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://tumormap.ucsc.edu/?bookmark=6734q4968942764875074tnu08934iobdm5edfgb44d7502d384cc2a87001067a&quot;</span><span class="p">,</span>
+           <span class="s2">&quot;neighbors&quot;</span><span class="p">:</span> <span class="p">{</span>
+               <span class="s2">&quot;node1&quot;</span><span class="p">:</span> <span class="mf">0.275</span><span class="p">,</span>
+               <span class="s2">&quot;node2&quot;</span><span class="p">:</span> <span class="mf">0.965</span><span class="p">,</span>
+               <span class="o">...</span>
+           <span class="p">}</span>
+       <span class="p">},</span>
+       <span class="o">...</span>
+   <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Where:</p>
+<ul class="simple">
+<li><strong>neighbors</strong> : contains the scores of the most similar neighbors.</li>
+<li><dl class="first docutils">
+<dt><strong>url</strong>: view the new nodes overlaying the map with this for each node:</dt>
+<dd><ul class="first last">
+<li>a marker pointing out the node</li>
+<li>a new attribute of &#8216;&lt;requested-node&gt;: neighbors&#8217; that shows the nearest neighbors in yellow</li>
+<li>a new attribute of &#8216;&lt;requested-node&gt;: neighbor values&#8217; that shows the similarity score for each neighbor</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+<p>Note that if the optional input parameter of &#8216;individualViewUrls&#8217; is true, only
+one node will be at each URL. Otherwise the URLs returned for each node will be
+identical and contain all nodes.</p>
+</div>
+<div class="section" id="response-error">
+<h2>Response error<a class="headerlink" href="#response-error" title="Permalink to this headline">¶</a></h2>
+<p>Response errors are returned with some code other than HTTP 200 with the content
+containing a more specific message as a JSON string.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+        </div>
+        <div class="sidebar">
+          <h3>Table Of Contents</h3>
+          <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="addAttribute.html">Future: Add new coloring attributes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="createMap.html">Future: Create a map</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Future: Place new nodes</a></li>
+</ul>
+
+          <div role="search">
+            <h3 style="margin-top: 1.5em;">Search</h3>
+            <form class="search" action="search.html" method="get">
+                <input type="text" name="q" />
+                <input type="submit" value="Go" />
+                <input type="hidden" name="check_keywords" value="yes" />
+                <input type="hidden" name="area" value="default" />
+            </form>
+          </div>
+        </div>
+        <div class="clearer"></div>
+      </div>
+    </div>
+
+    <div class="footer-wrapper">
+      <div class="footer">
+        <div class="left">
+          <div role="navigation" aria-label="related navigaton">
+            <a href="createMap.html" title="Future: Create a map"
+              >previous</a> |
+            <a href="genindex.html" title="General Index"
+              >index</a>
+          </div>
+          <div role="note" aria-label="source link">
+              <br/>
+              <a href="_sources/placeNode.rst.txt"
+                rel="nofollow">Show Source</a>
+          </div>
+        </div>
+
+        <div class="right">
+          
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2016, UCSC Tumor Map development team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+    </div>
+        </div>
+        <div class="clearer"></div>
+      </div>
+    </div>
+
+  </body>
+</html>

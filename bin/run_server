@@ -1,7 +1,7 @@
 #!/bin/bash
 
 SERVER_TYPE=$1 # Type of server to start, one of: / db / http / https / www /
-INSTALL=$2     # The ID of the server: prod / prodCalc / dev / devCalc / ....
+INSTALL=$2     # The ID of the server: prod / dev / ....
 BIN=$3         # Location of the bin directory for this server
 TARGET=$4      # tar target, one of / www / hub / tests / docs / bin /
 
@@ -67,12 +67,8 @@ elif [ $SERVER_TYPE == 'db' ]; then
             --dbpath $HEXMAP/db \
             &> $HEXMAP/db.log &)
 
-elif [ $SERVER_TYPE == 'hub' ]; then
-    $HUB_PATH/uwsgi.sh
-
 elif [ $SERVER_TYPE == 'www' ]; then
     export MONGO_URL=mongodb://localhost:$DB_PORT/$DB_NAME
-    export PYTHONPATH=$HEXMAP/www/server
     cd $HEXMAP/www
     touch $HEXMAP/www.log
     mv $HEXMAP/www.log $HEXMAP/www.prev.log

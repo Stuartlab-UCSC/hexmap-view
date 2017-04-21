@@ -59,7 +59,10 @@ with_layer = function (layer_name_in, callback, try_count) {
 
         if (layer === undefined) {
             console.log('TODO layer is undefined for', layer_name,
-                '. You may need to clear your cache.');
+                '. You may need to reset to defaults.');
+            console.log('the below trace is for info only');
+            console.trace();
+            console.log('the above trace is for info only');
             return;
         }
 		var data_val = layer.data;
@@ -99,15 +102,14 @@ with_layer = function (layer_name_in, callback, try_count) {
 		        // Save the layer data locally
 		        layers[layer_name].data = layer_data;
 	 
-		        // Now the layer has been properly downloaded, but it may not have
-		        // metadata. Recurse with the same callback to get metadata.
+		        // Now the layer has been properly downloaded, but it may not
+		        // have metadata. Recurse with the same callback to get metadata.
 		        with_layer(layer_name, callback);
 		    });
 		} else if(layer.magnitude == undefined || layer.minimum == undefined || 
 		    layer.maximum == undefined) {
-		    // We've downloaded it already, or generated it locally, but we don't
-		    // know the min/max statistics. Compute them, and also check if the
-		    // layer is a colormap (i.e. discrete nonnegative integers).
+		    // We've downloaded it already, or generated it locally, but we
+		    // don't know the min/max statistics. Compute them.
 		   
 		    // Grab the data, which we know is defined.
 		    var layer_data = layers[layer_name].data;
@@ -118,35 +120,17 @@ with_layer = function (layer_name_in, callback, try_count) {
 		    // And the minimum value
 		    var minimum = Infinity;
 		    
-		    // We also want to know if all layer entries are non-negative 
-		    // integers (and it is thus valid as a colormap).
-		    // If so, we want to display it as a colormap, so we will add an 
-		    // empty entry to the colormaps object (meaning we should 
-		    // auto-generate the colors on demand).
-		    // This stores whether the layer is all integrs
-		    all_nonnegative_integers = true;
-		    
 		    for(var signature_name in layer_data) {
 		        // Look at every value in the layer
 		        
 		        if(layer_data[signature_name] > maximum) {
-		            // Take the value as new max if it's bigger than the current one
+		            // Take the value as new max if it's bigger than current one
 		            maximum = layer_data[signature_name]
 		        }
 		        
 		        if(layer_data[signature_name] < minimum) {
 		            // Similarly for new minimums
 		            minimum = layer_data[signature_name]
-		        }
-		        
-		        if(layer_data[signature_name] % 1 !== 0 || 
-		            layer_data[signature_name] < 0 ) {
-		            
-		            // If we have an illegal value for a colormap, record that
-		            // fact
-		            // See http://stackoverflow.com/a/3886106
-		            
-		            all_nonnegative_integers = false;
 		        }
 		    }
 		    
@@ -155,18 +139,11 @@ with_layer = function (layer_name_in, callback, try_count) {
 		    layer.minimum = minimum;
 		    // Keep track of the unsigned magnitude which gets used a lot.
 		    layer.magnitude = Math.max(Math.abs(minimum), maximum);
-		    
-		    if(!have_colormap(layer_name) && all_nonnegative_integers) {
+ 
+		    if (!have_colormap(layer_name) && Util.is_binary(layer_name)) {
 		        // Add an empty colormap for this layer, so that 
 		        // auto-generated discrete colors will be used.
-		        // TODO: Provide some way to override this if you really do want
-		        // to see integers as a heatmap?
-		        // The only overlap with the -1 to 1 restricted actual layers
-		        // is if you have a data set with only 0s and 1s. Is it a
-		        // heatmap layer or a colormap layer?
 		        colormaps[layer_name] = {};
-		        print("Inferring that " + layer_name + 
-		            " is really a colormap");
 		    }
 		    
 		    // Now layer metadata has been filled in. Call the callback.

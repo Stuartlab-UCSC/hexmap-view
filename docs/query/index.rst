@@ -6,5 +6,7 @@ Web API
 .. toctree::
    :maxdepth: 1
 
-   overlayNodes
+   addAttribute
    createMap
+   placeNode
+

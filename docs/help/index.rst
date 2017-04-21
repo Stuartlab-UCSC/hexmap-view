@@ -9,7 +9,6 @@ Contents:
    basicControls
    menus
    advancedControls
-   createMap
    existingMaps
 
 Indices and tables

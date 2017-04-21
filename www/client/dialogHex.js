@@ -170,7 +170,7 @@ var app = app || {};
 
         var instance = new DialogHex(parms, $el, opts, showFx, hideFx,
             helpAnchor);
-        if (parms && parms.button) {
+        if (parms && parms.$button) {
             instance.initButton(parms.$button);
         } else if ($button) {
             instance.initButton($button);

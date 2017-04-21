@@ -1,5 +1,0 @@
-make clean
-d='../../www/public/createMap/'
-rm -rf $d/*
-make html
-mv _build/html/* $d

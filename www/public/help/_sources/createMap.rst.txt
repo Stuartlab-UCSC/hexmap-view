@@ -15,10 +15,10 @@ computationally intensive operations.
 Features to Lay Out the Map
 ---------------------------
 
-A features are properties of nodes used to lay out the map. The feature file must
+Features are properties of nodes used to lay out the map. The feature file must
 be in TSV (tab-separated values) format in one of the following forms.
 
-**Feature matrix** : This is the most basic of the feature file formats where
+**Clustering data** : This is the most basic of the layout input formats where
 similarities and XY locations will be calculated for you.
 This contains a full matrix with node IDs across the top and feature IDs in the
 first column, like::
@@ -29,8 +29,8 @@ first column, like::
  feature2  val     val     val
  ...
 
-**Full similarity matrix** : This contains similarity scores between node pairs
-as a full matrix where xy locations will be calculated for you.
+**Full similarity** : This contains similarity scores between all node pairs
+as a full matrix which will be used to calculate xy positions.
 This has node IDs across the top and in the first column with
 similarity scores as the values, like::
 
@@ -40,8 +40,8 @@ similarity scores as the values, like::
  node3   val     val     val
  ...
 
-**Sparse similarity matrix** :This contains similarity scores between node pairs
-as a sparse matrix where xy locations will be calculated for you.
+**Sparse similarity** :This contains similarity scores between the top neighbor
+nodes of each node as a sparse matrix which will be used to calculate xy positions.
 This has node IDs in the first two columns with the the
 similarity scores in the third column, like::
 
@@ -50,7 +50,7 @@ similarity scores in the third column, like::
  node1   node5   val
  ...
 
-**XY positions** : This is the most processed of the feature file formats,
+**XY positions** : This is the most processed of the layout input formats,
 containing the x and y coordinates in two-dimensional space of each node, like::
 
  node1   x-val   y-val

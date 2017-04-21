@@ -136,7 +136,7 @@ var app = app || {};
 
         /*
         The compare order of sorts:
-        - sort options are optional and one of:
+        - optional:
             - ignore layout: by p-value in ascending order: lesser value first
             - layout-aware positive: by positive correlation sign first, then p-value
             - layout-aware negative: by negative correlation sign first, then p-value
@@ -158,7 +158,8 @@ var app = app || {};
         // If the user did not define a 'first layer', define it now.
         if (Session.equals('first_layer', undefined)) {
  
-            // Use the first layer of the default sort as our 'first layer'
+            // Use the first layer of the default density sort as our
+            // 'first layer' which effects the default short list display
             layer_array.sort(finalCompare);
             Session.set('first_layer', layer_array[0]);
  
@@ -187,11 +188,6 @@ var app = app || {};
         } else {
             // The default sort, by density/clumpiness
             layer_array.sort(finalCompare);
-
-            // Move the 'First' attribute to the top of the sorted layers
-            var first = Session.get('first_layer');
-            layer_array.splice(layer_array.indexOf(first), 1);
-            layer_array.unshift(first);
         }
         Session.set('sortedLayers', layer_array);
     }

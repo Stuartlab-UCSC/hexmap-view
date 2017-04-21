@@ -246,11 +246,11 @@ var app = app || {};
             buttons: [{ text: 'Sort', click: sortIt }],
         };
 
-        // Create an instance of DialogHex
+        // Create an instance of DialogHex with a link from the navbar menu item
         dialogHex = createDialogHex(undefined, $('#sort-attributes-button'), $dialog, opts,
             show, hide);
  
-        // Create a link from the navBar
+        // Create a link from the header button
         add_tool("statsSort", function(ev) {
             $('#sort-attributes-button').click();
             tool_activity(false);

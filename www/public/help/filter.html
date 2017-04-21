@@ -27,8 +27,8 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Create a Map" href="createMap.html" />
-    <link rel="prev" title="Map Reflection" href="reflect.html" /> 
+    <link rel="next" title="Map Reflection" href="reflect.html" />
+    <link rel="prev" title="Set Operations" href="setOper.html" /> 
   </head>
   <body role="document">
     <div class="header-wrapper" role="banner">
@@ -36,9 +36,9 @@
         <div class="headertitle"><a
           href="index.html">Tumor Map Help</a></div>
         <div class="rel" role="navigation" aria-label="related navigation">
-          <a href="reflect.html" title="Map Reflection"
+          <a href="setOper.html" title="Set Operations"
              accesskey="P">previous</a> |
-          <a href="createMap.html" title="Create a Map"
+          <a href="reflect.html" title="Map Reflection"
              accesskey="N">next</a> |
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a>
@@ -56,7 +56,18 @@
             
   <div class="section" id="filter-attributes">
 <h1>Filter Attributes<a class="headerlink" href="#filter-attributes" title="Permalink to this headline">¶</a></h1>
-<p>TBD</p>
+<p>Filtering attributes limits the attributes displayed in the long list on the
+left, allowing you to more easily find attributes of interest.</p>
+<p><strong>Passing</strong> indicates the number of attributes passing the filters out of the
+total number attributes.</p>
+<p><strong>Values</strong> allow you to limit the list to those attributes with values of the
+data types checked. More information may be found at <a class="reference internal" href="dataTypes.html#datatypes"><span class="std std-ref">Attribute Data Types</span></a></p>
+<p><strong>Tags</strong> allow you to limit the list to those attributes with the tags checked.
+Not all maps have tags. Note that tags are not mutually exclusive; if an
+attribute has more than one tag and any of its tags are checked, that attribute
+will appear in the list.</p>
+<p>The filter icon will be orange if any filters are affecting the attributes
+displayed in the long list on the left.</p>
 </div>
 
 
@@ -75,12 +86,14 @@
 <li class="toctree-l2"><a class="reference internal" href="shortlist.html">Short List</a></li>
 <li class="toctree-l2"><a class="reference internal" href="statsNsort.html">Statistics and Sorting</a></li>
 <li class="toctree-l2"><a class="reference internal" href="setOper.html">Set Operations</a></li>
-<li class="toctree-l2"><a class="reference internal" href="reflect.html">Map Reflection</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Filter Attributes</a></li>
-<li class="toctree-l2"><a class="reference internal" href="advancedControls.html#creating-an-attribute">Creating an Attribute</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reflect.html">Map Reflection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="createAttribute.html">Create an Attribute</a></li>
+<li class="toctree-l2"><a class="reference internal" href="placeNode.html">Place New Nodes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="createMap.html">Create a Map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dataTypes.html">Attribute Data Types</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="createMap.html">Create a Map</a></li>
 <li class="toctree-l1"><a class="reference internal" href="existingMaps.html">Public Maps</a></li>
 </ul>
 
@@ -102,9 +115,9 @@
       <div class="footer">
         <div class="left">
           <div role="navigation" aria-label="related navigaton">
-            <a href="reflect.html" title="Map Reflection"
+            <a href="setOper.html" title="Set Operations"
               >previous</a> |
-            <a href="createMap.html" title="Create a Map"
+            <a href="reflect.html" title="Map Reflection"
               >next</a> |
             <a href="genindex.html" title="General Index"
               >index</a>
@@ -120,7 +133,7 @@
           
     <div class="footer" role="contentinfo">
         &#169; Copyright 2016, UCSC Tumor Map development team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
     </div>
         </div>
         <div class="clearer"></div>

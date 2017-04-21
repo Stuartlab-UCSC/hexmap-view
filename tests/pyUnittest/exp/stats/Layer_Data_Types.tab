@@ -1,4 +1,0 @@
-FirstAttribute	Subtype
-Continuous	Apoptosis	Random	DNA_signature	continuousInteger
-Binary	categoricalBinary	TP63_ mutated	TP53_expression altered	TP63_expression altered	DNA_Repair Broken
-Categorical	Subtype

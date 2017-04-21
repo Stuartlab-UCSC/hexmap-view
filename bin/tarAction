@@ -8,14 +8,20 @@ TARGET=$2
 #echo ACTION, TARGET: $ACTION, $TARGET
 
 if [ -z ${TARGET} ]; then
-    TARGET=www
+    TARGET=most
 fi
 
-if [ $TARGET == 'www' ]; then
+if [ $TARGET == 'most' ]; then
     echo everything except docs and tests/pyUnittest
     TARRED=www.tar
     TAR_FILES=" \
-        calc/*py \
+        bin \
+        calc \
+        config/config* \
+        config/settingsA* \
+        config/settingsB* \
+        http \
+        https \
         www/client \
         www/lib \
         www/public/*svg \
@@ -29,40 +35,13 @@ if [ $TARGET == 'www' ]; then
         www/server/*py \
         www/package.json \
         "
-elif [ $TARGET == 'hub' ]; then
-    echo the hub files
-    cd hub
-    TARRED=hub.tar
-    TAR_FILES=" \
-        *py \
-        *sh \
-        "
-elif [ $TARGET == 'bin' ]; then
-    echo the bin/config files
-    TARRED=bin.tar
-    TAR_FILES=" \
-        bin/run_server \
-        bin/tarAction \
-        config/* \
-        "
 elif [ $TARGET == 'docs' ]; then
     echo the docs in www/public
     TARRED=docs.tar
     TAR_FILES=" \
-        www/public/createMap \
+        www/public/help \
         www/public/query \
         www/public/useCases \
-        "
-elif [ $TARGET == 'tests' ]; then
-    echo the tests in tests/pyUnittest
-    TARRED=tests.tar
-    TAR_FILES=" \
-        tests/pyUnittest/README \
-        tests/pyUnittest/exp \
-        tests/pyUnittest/in \
-        tests/pyUnittest/run* \
-        tests/pyUnittest/sort_files \
-        tests/pyUnittest/*py \
         "
 fi
 
@@ -72,7 +51,7 @@ if [ $ACTION == 'maketar' ]
     rm $TARRED
     tar -cf $TARRED $TAR_FILES
     ls -l $TARRED
-    scp $TARRED juggernaut:dev
+    scp $TARRED kolossus.sdsc.edu:dev
 
 elif [ $ACTION == 'xtar' ]; then
     echo 'cleaning directories'

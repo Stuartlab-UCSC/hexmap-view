@@ -27,16 +27,16 @@ Steps
 .. image:: _images/caseCreateMap-2.png
    :width: 275 px
 
-4. Click on **Features for layout** to download the example file for the layout.
+4. Click on **Layout input** to download the example file for the layout.
 
-5. Click on **Attributes for colors** to download the example file for the colors.
+5. Click on **Color attributes** to download the example file for the colors.
 
 6. Click on **Create map** to display the window below.
 
 .. image:: _images/caseCreateMap-3.png
    :width: 450 px
 
-7. Click on **Layout features: Choose File** to select the feature file just downloaded.
+7. Click on **Layout input: Choose File** to select the layout input file just downloaded.
 
 8. Click on **Color attributes: Choose File** to select the attribute file just downloaded.
 

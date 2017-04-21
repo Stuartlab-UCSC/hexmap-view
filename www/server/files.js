@@ -64,9 +64,28 @@ readFromJsonFileSync = function (filename) {
     return JSON.parse(fs.readFileSync(filename, 'utf8'));
 };
 
-readFromJsonBaseFile = function (baseFilename) {
+readFromJsonBaseFile = function (filePath) {
 
-    return readFromJsonFileSync(VIEW_DIR + baseFilename);
+    return readFromJsonFileSync(VIEW_DIR + filePath);
+};
+
+getJsonFile = function (filename, project, future) {
+
+    // This reads an entire json file into memory, then converts it to a
+    // javascript object.
+    var path = Path.join(VIEW_DIR, project, filename);
+    
+    if (fs.existsSync(path)) {
+        fs.readFile(path, 'utf8', function (error, results) {
+            if (error) {
+                future.throw(error);
+            }
+            future.return(readFromJsonFileSync(path));
+        });
+    } else {
+        future.return('Error: file not found on server: ' + path);
+    }
+    return future.wait();
 };
 
 getTsvFile = function (filename, project, unparsed, alt_dir, future) {
@@ -79,12 +98,12 @@ getTsvFile = function (filename, project, unparsed, alt_dir, future) {
     if (alt_dir === 'featureSpace') {
     
         // Special case when the file is requested from feature space
-        path = Path.join(FEATURE_SPACE_DIR, project + filename);
+        path = Path.join(FEATURE_SPACE_DIR, project, filename);
     } else if (filename.indexOf('layer_') > -1 ||
         filename.indexOf('stats') > -1) {
     
         // layer_* & stats_* already contain the project name
-        path = VIEW_DIR + filename;
+        path = Path.join(VIEW_DIR, filename);
 
     } else {
         path = VIEW_DIR + project + filename;
@@ -147,5 +166,14 @@ Meteor.methods({
         var future = new Future();
         
         return getTsvFile(filename, project, unparsed, alt_dir, future);
+    },
+
+    getJsonFile: function (filename, project) {
+
+        // Retrieve data from a json-formatted file
+        this.unblock();
+        var future = new Future();
+        
+        return getJsonFile(filename, project, future);
     },
 });

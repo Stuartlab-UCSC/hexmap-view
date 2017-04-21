@@ -27,7 +27,6 @@ Other Documentation
 Other documentation built under Sphinx in the same manner:
 
 * Web APIs: query
-* Create a map: createMap
 * User Guide: help
 
 Using these locations:

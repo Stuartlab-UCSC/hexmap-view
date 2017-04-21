@@ -24,21 +24,6 @@ body {
     vertical-align: middle;
 }
 
-/* These are all supposed to stack against the left end of a row. */
-.stacker {
-    float: left;
-    margin-left: 0.5em;
-    line-height: 1.8em;
-    vertical-align: middle;
-}
-
-/* Except these which stack against the right end of a row. */
-.stacker.right {
-    float: right;
-    margin-left: 0;
-    margin-right: 0.5em;
-}
-
 /*
 The visualization element needs to take up all available space.
 */
@@ -55,13 +40,6 @@ The visualization element needs to take up all available space.
 .select2-results {
     font-size: 0.9em;
 }
-/*
-.select2-results .select2-highlighted {
-    background-image: url("right.svg");
-    background-repeat: no-repeat;
-    background-position: right center;
-}
-*/
 
 /*
 Read as "The content row", distinct from whatever else that element might be.

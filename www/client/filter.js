@@ -100,9 +100,6 @@ var app = app || {};
         tagList: function () {
             return tagList.get();
         },
-        savechecked: function () {
-            return chk.get('save');
-        },
     });
 
     function passFilter(layer) {
@@ -215,6 +212,16 @@ var app = app || {};
             } else {
                 // Save the fact there is tag information for this project
                 hasTagInfo = true;
+                
+                // Save the counts. Dynamic layer don't get reflected here.
+                if (ctx.bin_layers) count.set('bin', ctx.bin_layers.length);
+                if (ctx.cat_layers) count.set('cat', ctx.cat_layers.length);
+                if (ctx.cont_layers) count.set('cont', ctx.cont_layers.length);
+
+                // Update the untagged count
+                if (taggedCount) {
+                    count.set('untagged', sorted.length - taggedCount);
+                }
 
                 tagData = data;
                 processTags();
@@ -251,9 +258,10 @@ var app = app || {};
         filterAttributes();
     }
 
-    function whenDisplayLayersChange () {
-        var display = Session.get('displayLayers');
-        if (!display) return;
+    function whenDisplayOrSortedLayersChange () {
+        var display = Session.get('displayLayers'),
+            sorted = Session.get('sortedLayers');
+        if (!display || !sorted) { return; }
 
         if (display.length < 1 && Session.equals('loadingMap', false)) {
             banner('warn', 'No attributes to display, relax some filters');
@@ -261,42 +269,19 @@ var app = app || {};
         } else {
             $passFilters.removeClass('red');
         }
-    }
-
-    function whenSortedLayersChange () {
-        var sorted = Session.get('sortedLayers');
-        if (!sorted || sorted.length === 0) return;
-
-        var display = Session.get('displayLayers');
-        if (!display) return;
-
-        // Update the data type counts. ctx.*_layers only change on project
-        // load and possibly on sortedLayer change so this is not a bad
-        // place to update their counts. For filtering purposes they do not
-        // need to be reactive vars.
-        if (ctx.bin_layers) count.set('bin', ctx.bin_layers.length);
-        if (ctx.cat_layers) count.set('cat', ctx.cat_layers.length);
-        if (ctx.cont_layers) count.set('cont', ctx.cont_layers.length);
-
-        // Update the untagged count
-        if (taggedCount) {
-            count.set('untagged', sorted.length - taggedCount);
-        }
-
-        // Apply the filters
-        filterAttributes();
-
+ 
         // Set the button icon color depending on whether the display layers
         // length is the same as that of sorted layers.
-        if (Session.get('displayLayers').length === sorted.length) {
+        if (display.length === sorted.length) {
             $('.header .layer-row .filter').addClass('active');
             $('.header .layer-row .filter-hot').removeClass('active');
         } else {
             $('.header .layer-row .filter-hot').addClass('active');
             $('.header .layer-row .filter').removeClass('active');
         }
+
     }
- 
+
     function hide() {
         _.each(autorun, function (run) {
             run.stop();
@@ -307,10 +292,9 @@ var app = app || {};
     function show() {
  
         // Define functions to run when dialog reactive vars change
-        autorun[0] = Tracker.autorun(whenDisplayLayersChange);
-        autorun[1] = Tracker.autorun(whenSortedLayersChange);
-        autorun[2] = Tracker.autorun(whenAllChanges);
-        autorun[3] = Tracker.autorun(whenCheckboxesChange);
+        autorun[0] = Tracker.autorun(whenDisplayOrSortedLayersChange);
+        autorun[1] = Tracker.autorun(whenAllChanges);
+        autorun[2] = Tracker.autorun(whenCheckboxesChange);
     }
 
     clearAllFilters = function () {
@@ -345,7 +329,6 @@ var app = app || {};
             chk.set(type, true);
             count.set(type, 0);
         });
-        chk.set('save', false); // To retain the filters on sort
         label.bin = BIN_LABEL;
         label.cat = CAT_LABEL;
         label.cont = CONT_LABEL;
@@ -370,8 +353,14 @@ var app = app || {};
         tagsAutorun = Tracker.autorun(processTags);
 
         // Create an instance of DialogHex
-        dialogHex = createDialogHex(undefined, $button, $dialog, {title: TITLE},
-            show, hide);
+        dialogHex = createDialogHex({
+            $button: $button,
+            $el: $dialog,
+            opts: {title: TITLE},
+            showFx: show,
+            hideFx: hide,
+            helpAnchor: '/help/filter.html',
+        });
  
         // Create a link from the navBar
         add_tool("filterAttributes", function(ev) {

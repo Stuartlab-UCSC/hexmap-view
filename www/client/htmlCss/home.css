@@ -36,7 +36,8 @@
 #homePage .thumbnail_like {
     display: inline-block;
     text-align: center;
-    background-color: white;
+    color: white;
+    background-color: black;
     vertical-align: top;
 }
 

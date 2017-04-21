@@ -37,8 +37,8 @@
                             </li>
                             <li class='mapShow gridShow' >
                                 <a class='xyPreSquiggle' download='hexmapXy.tab'
-                                    title = 'Download xy coordinates of nodes before flattening into hexagons'>
-                                    XY Positions
+                                    title = 'Download xy positions of nodes before flattening into hexagons'>
+                                    XY Coordinates
                                 </a>
                             </li>
                             <!--
@@ -63,6 +63,9 @@
                             -->
                         </ul>
                     </li>
+                    <li class='resetDefaults mapShow gridShow'>
+                        Reset to Defaults
+                    </li>
                 </ul>
             </li>
             
@@ -76,9 +79,11 @@
                     <li class='colormap'>
                         Colormap...
                     </li>
+                    <!--
                     <li class='addText'>
                         Attach Label...
                     </li>
+                    -->
                     <li class='overlayNode mapShow'>
                         Place New Nodes...
                     </li>
@@ -162,10 +167,7 @@
                         <hr>
                     </li>
                     <li class='queryDocs'>
-                        <a href='/query/index.html' target='_blank'>Query APIs</a>
-                    </li>
-                    <li class='createMapDocs'>
-                        <a href='/createMap/index.html' target='_blank'>Map Creation</a>
+                        <a href='/query/index.html' target='_blank'>Web APIs</a>
                     </li>
                     <li class='version'>
                         {{ version }}
