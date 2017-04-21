@@ -121,7 +121,6 @@ CreateMap = (function () { // jshint ignore: line
         var opts = [
             '--names', 'layout',
             '--directory', view_dir(),
-            '--role', ui.get('major_project'),
             '--include-singletons',
             '--no_layout_independent_stats',
             '--no_layout_aware_stats',

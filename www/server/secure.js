@@ -12,13 +12,14 @@
 //removeRoles(['Pancan12']);
 //removeUsersFromRoles(['jstuart@ucsc.edu'], ['dev', 'Pancan12']);
 //showUsernames();
-//addUsersToRoles (['vjuanpor@ucsc.edu'] , ['CKCC']);
-//removeUser('reviewer@');
-//var users = [
-//    {email: 'vjuanpor@ucsc.edu', roles: ['ckcc']},
-//];
-//createUsers(users);
-//createUsers(users, true); // create user and a personal role
+//addUsersToRoles (['swat@soe.ucsc.edu'] , ['dev']);
+//removeUser('swat@ucsc.edu');
+/*
+var users = [
+    {email: 'swat@soe.ucsc.edu', roles: ['jobs']},
+];
+createUsers(users);
+*/
 
 function usernamesToUsers (usernamesIn) {
     var usernames = usernamesIn;
@@ -124,7 +125,7 @@ function showRolesWithUsersAndProject () {
         if (!role) {
         
             // Make a fake role so we print those projects with no role
-            role = 'none, only dev and viewAll may view';
+            role = 'none, only dev, viewAll and personal map owners may view';
             if (roles.indexOf(role) < 0) {
                 roles.push(role);
             }
