@@ -117,7 +117,7 @@ function getMajors () {
         var role = getProjectRole(major);
            
         // Authorize depending on user's role.
-        if (is_user_authorized_to_view(role)) {
+        if (is_user_authorized_to_view(role, major)) {
             majors.push(major);
         }
     });

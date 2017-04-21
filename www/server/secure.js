@@ -59,9 +59,7 @@ function sendEnrollmentEmail(username) {
     sendMail(username, subject, msg);
 }
 
-function createUsers(users, createUserRole) {
-    // createUserRole: if true, create the user's personal role
-    // using a clean file name derived from the username.
+function createUsers(users) {
     _.each(users, function (user) {
         try {
             var id = Accounts.createUser({
@@ -69,13 +67,8 @@ function createUsers(users, createUserRole) {
                 password: "changeMe",
                 username: user.email,
             });
-           
-            // Add the roles to the user's object, including a role for
-            // user-created maps protection
-            if (createUserRole) {
-                var file_safe_name = clean_file_name(user.email);
-                user.roles = user.roles.concat(file_safe_name);
-            }
+
+            // Create the user and add the roles to the user's object
             if (user.roles.length > 0) {
                 Roles.addUsersToRoles(id, user.roles);
             }
@@ -232,7 +225,7 @@ Accounts.onCreateUser(function (options, user) {
     return user;
 });
 
-is_user_authorized_to_view = function (role) {
+is_user_authorized_to_view = function (role, major) {
 
     // Determine if a user is authorized based on this role.
     // user and role are single strings, no arrays.
@@ -246,6 +239,10 @@ is_user_authorized_to_view = function (role) {
     
     // When not logged in, only public projects may be seen.
     if (!user) { return false; }
+    
+    // A user can view her personal maps
+    var user_major = clean_file_name(user.username);
+    if (user_major === major) { return true; }
     
     // Authorize anything if the user is in the dev role.
     if (Roles.userIsInRole(user, ALL_ACCESS)) { return true; }

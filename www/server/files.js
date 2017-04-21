@@ -64,9 +64,9 @@ readFromJsonFileSync = function (filename) {
     return JSON.parse(fs.readFileSync(filename, 'utf8'));
 };
 
-readFromJsonBaseFile = function (baseFilename) {
+readFromJsonBaseFile = function (filePath) {
 
-    return readFromJsonFileSync(VIEW_DIR + baseFilename);
+    return readFromJsonFileSync(VIEW_DIR + filePath);
 };
 
 getJsonFile = function (filename, project, future) {

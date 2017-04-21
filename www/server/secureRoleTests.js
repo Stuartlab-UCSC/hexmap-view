@@ -1,7 +1,8 @@
 
-// secureTets.js
+// secureRoleTests.js
 
-// Meteor server code to test security
+// Meteor server code to test role package security
+// Note this only tests the Roles package and not our functions in secure.js
 
 // Unit tests are here since mocha is broken
 function runUnitTests () {
