@@ -1083,21 +1083,15 @@ Shortlist = (function () { // jshint ignore: line
         }
     }
 
-return {
-    create_dynamic_binary_layer: create_dynamic_binary_layer,
-    get_active_layers: get_active_layers,
-    update_shortlist: update_shortlist,
-    update_shortlist_metadata: update_shortlist_metadata,
-
-    get_entries: function () {
+    function get_entries () {
     
-        // Return the entries in the shortlist.
-        // Until we have the attributes in the database,
-        // pull the info out of the layers array.
+        // Return the entries in the shortlist
         var attrs = Session.get('shortlist'),
             entries = {};
             
-        if (attrs.length === 0) { return undefined; }
+        if (attrs.length === 0) { return {}; }
+        
+        console.log('shortlist:get_entries(): attrs', attrs);
         
         _.each(attrs, function (attr) {
             
@@ -1121,7 +1115,14 @@ return {
         });
 
         return entries;
-    },
+    }
+
+return {
+    create_dynamic_binary_layer: create_dynamic_binary_layer,
+    get_active_layers: get_active_layers,
+    update_shortlist: update_shortlist,
+    update_shortlist_metadata: update_shortlist_metadata,
+
 
     create_dynamic_category_layer: function (layer_name, data, attributes,
         colormap) {
@@ -1260,12 +1261,10 @@ return {
         // color objects in the colormaps to saveable objects.
         var entries = {};
 
-        _.each(Shortlist.get_entries(), function (value, attr) {
+        _.each(get_entries(), function (value, attr) {
         
             if (value.dynamic || value.selection) {
                 entries[attr] = layers[attr];
-               
-                console.log('saving: attr:', attr, value);
             
                 // Convert the colormap colors from an object to an array.
                 if (colormaps[attr]) {

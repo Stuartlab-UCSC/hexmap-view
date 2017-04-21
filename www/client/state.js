@@ -203,18 +203,12 @@ var app = app || {};  // jshint ignore: line
     State.prototype.jsonify = function () {
  
         // Convert the current state to json.
- 
-        console.log('State.prototype.jsonify');
- 
         var s = this,
             store = {};
  
         if (Session.equals('page', 'mapPage')) {
  
             // Gather any dynamic attributes
- 
-            console.log('about to Shortlist.get_dynamic_entries_for_persistent_state');
- 
             var dynamic_attrs =
                 Shortlist.get_dynamic_entries_for_persistent_state();
             if (dynamic_attrs) {
