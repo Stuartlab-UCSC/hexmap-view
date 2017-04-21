@@ -94,10 +94,8 @@ Tool = (function () { // jshint ignore: line
         // navigation bar option, and a callback for when the user selects
         // that menu option.
  
-        // No need to add a tool twice
-        if (callbacks[tool_name]) { return; }
-
         // Save the callback
+        // The last tool registered with this name wins
         callbacks[tool_name] = callback;
 
         // Add hover text & class to the menu option belonging to this tool

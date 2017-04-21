@@ -301,14 +301,6 @@ CreateMap = (function () { // jshint ignore: line
             Tool.add("createMap", function() {
                 dialogHex.show();
             }, 'Create a new map');
-     
-            // Also open the dialog if the link on the home page is clicked
-            $('.createMapHome .createMap')
-                .button()
-                .on('click', function () {
-                $button.click();
-            });
-     
         },
     };
 }());

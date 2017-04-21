@@ -31,10 +31,6 @@ body,
 #navBar .cyber-slug {
     background-color: #cccccc;
 }
-body #mapPage,
-#mapPage #navBar .cyber-slug {
-    background-color: #f5f4eb;
-}
 
 #navBar {
     background-color: #2B5E91;
