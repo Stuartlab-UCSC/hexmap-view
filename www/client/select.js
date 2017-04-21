@@ -23,7 +23,6 @@ Select = (function () { // jshint ignore: line
     function setCursor (cursor) {
         googlemap.setOptions({ draggableCursor: cursor });
         if (cursor === SELECTING_CURSOR) {
- 
             // During selection, we also want to set the cursor on the shape
             // to the seleting cursor.
             shape.setOptions({
@@ -130,7 +129,7 @@ Select = (function () { // jshint ignore: line
  
         // Restore the saved cursor
         if (savedCursor) { setCursor(savedCursor); }
- 
+        googlemap.setOptions({ draggableCursor: undefined });
         // Remove the bounding polygons and reset the hover curser for hexagons
         if (shape) { shape.setMap(null); }
         shape = null;
