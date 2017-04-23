@@ -200,7 +200,7 @@ var app = app || {};  // jshint ignore: line
         s.project = DEFAULT_PROJECT;  // The project data to load
     };
 
-    State.prototype.jsonify = function () {
+    State.prototype.jsonify = function (newPage) {
  
         // Convert the current state to json.
         var s = this,
@@ -215,6 +215,9 @@ var app = app || {};  // jshint ignore: line
                 Session.set('dynamic_attrs', dynamic_attrs);
             }
         }
+ 
+        // Now we set the newPage
+        if (newPage) { Session.set('page', newPage); }
  
         // Walk though our list of unique keys and save those
         _.each(s.localStorage.unique_keys, function (key) {
@@ -255,7 +258,7 @@ var app = app || {};  // jshint ignore: line
         return JSON.stringify(store);
     };
  
-    State.prototype.save = function () {
+    State.prototype.save = function (newPage) {
  
         // Save state by writing it to local browser store.
         if (!storageSupported) {
@@ -277,7 +280,7 @@ var app = app || {};  // jshint ignore: line
         }
         s.alreadySaved = true;
 
-        jsonState = s.jsonify();
+        jsonState = s.jsonify(newPage);
 
         // Overwrite the previous state in localStorage
         window.localStorage.removeItem(s.storeName);

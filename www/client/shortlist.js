@@ -1091,8 +1091,6 @@ Shortlist = (function () { // jshint ignore: line
             
         if (attrs.length === 0) { return {}; }
         
-        console.log('shortlist:get_entries(): attrs', attrs);
-        
         _.each(attrs, function (attr) {
             
             var layer = layers[attr],

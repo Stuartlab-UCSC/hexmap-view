@@ -35,8 +35,7 @@ Hex = (function () { // jshint ignore: line
     }
 
     function pageReload (page) {
-        Session.set('lastPage', Session.get('page'));
-        Session.set('page', page);
+        ctx.save(page);
         queryFreeReload();
     }
 
