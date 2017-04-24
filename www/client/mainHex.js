@@ -45,27 +45,6 @@ Hex = (function () { // jshint ignore: line
         queryFreeReload();
     }
  
-    Template.body.events({
-
-        // Reload so global variables get reset and release memory
-        // TODO we should not require a reload, however we don't yet have a
-        // method to clear the appropriate state and reload does this for us
-        "click .homePage": function () {
-            pageReload('homePage');
-        },
-        "click .mapPage": function() {
-            pageReload('mapPage');
-        },
-
-        "click .thumbnail": function (ev){
-            var project = $(ev.currentTarget).data('project') + '/';
-            loadProject(project);
-        },
-        "click .gridPage": function() {
-            pageReload('gridPage');
-        },
-    });
-
     Template.homePage.onRendered(function () {
         Tool.init();
         Download.init();

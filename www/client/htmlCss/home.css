@@ -21,12 +21,6 @@
     text-align: center;
 }
 
-/*
-#homePage .projectsCenter {
-    display: inline-block;
-    text-align: center;
-}
-*/
 #homePage .project {
     display: inline-block;
     margin: 1em;
@@ -36,7 +30,6 @@
 #homePage .thumbnail_like {
     display: inline-block;
     text-align: center;
-    color: white;
     background-color: black;
     vertical-align: top;
 }

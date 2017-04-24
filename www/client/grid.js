@@ -14,16 +14,11 @@ var app = app || {};
         viewEdges: function () {
             return Session.get('viewEdges') ? 'Hide ' : 'Show ';
         },
-
-        viewWindows: function () {
-            return Session.get('viewWindows') ? 'Hide ' : 'Show ';
-        }
     });
 
     var xyMapSize = 256,
         GRID_OFFSET = 256 / 4,
         HEX_COLOR = '#00F',
-        WINDOW_COLOR = '#888',
         HEX_LEN_SEED = 9,
         RADIUS_SEED = 100000,
         TINY_BIT = 0.000001,
@@ -38,11 +33,9 @@ var app = app || {};
         dims = null,
         initialized = false,
         hexes = {},
-        windowLines = [],
         edges,
         infoHex,
         edgesDrawn = new ReactiveVar(),
-        windowsDrawn = new ReactiveVar(),
         autorun,
         highlights = {};
 
@@ -61,111 +54,23 @@ var app = app || {};
     function initAutorun () {
         autorun = Tracker.autorun( function () {
         
-            // If a view is requested for windows or edges & it's drawn,
+            // If a view is requested for  edges & it's drawn,
             // kill the snake. If one of the views is not requested, that
             // object does not need to be drawn.
             // The timeout were estimated using a pancan12 map.
             var eDrawn = edgesDrawn.get();
-            var wDrawn = windowsDrawn.get();
             var eView = Session.get('viewEdges');
-            var wView = Session.get('viewWindows');
             
-            if (wDrawn && eDrawn) {
+            if (eDrawn) {
                 Meteor.setTimeout(function () {
                     Session.set('loadingMap', false);
                 }, 2000);
                 killAutorun();
-            } else if (wDrawn && !eView) {
+            } else if (!eView) {
                 Session.set('loadingMap', false);
                 killAutorun();
-            } else if (eDrawn && !wView) {
-                Meteor.setTimeout(function () {
-                    Session.set('loadingMap', false);
-                }, 2000);
-                killAutorun();
-            } else if (!wView && !eView) {
-                Meteor.setTimeout(function () {
-                    Session.set('loadingMap', false);
-                }, 1000);
-                killAutorun();
             }
         });
-    }
- 
-    function drawWindows() {
-        status('drawWindows()');
- 
-        // Draw the adaptive windows used for layout-aware stats
-        var file = 'grid_' + Session.get('layoutIndex') + '.tab';
-        Meteor.call('getTsvFile', file, ctx.project,
-            function (error, parsed) {
-            status('drawWindows() data received');
-
-            // This is an array of lines, with two points each:
-            //
-            //  x1  y1  x2  y2
-            //  x3  y3  x4  y4
-            //  ...
-
-            if (error) {
-                banner('error', 'Sorry, the file containing the windows was not found. (grid_*.tab)')
-                return;
-            }
-            if (typeof parsed === 'string'
-                && parsed.slice(0,5).toLowerCase() === 'error') {
-                banner('error', parsed);
-                return;
-            }
-            
-            var opts = {
-                strokeColor: WINDOW_COLOR,
-                strokeOpacity: 0.5,
-                strokeWeight: 1,
-                zIndex: 4,
-                map: gridMap,
-            };
-            _.each(parsed, function(row) {
-                var xyLine = [[parseFloat(row[0]), parseFloat(row[1])],
-                        [parseFloat(row[2]), parseFloat(row[3])]];
-                opts.path = _.map(xyLine, function (xyPoint) {
-                    var point = get_LatLng(xyPoint[0] * dims.scale / 2 + GRID_OFFSET,
-                                             xyPoint[1] * dims.scale / 2 + GRID_OFFSET);
-                    return point;
-                });
-                windowLines.push(new google.maps.Polyline(opts));
-            });
-            windowsDrawn.set(true);
-            status('drawWindows()');
-        });
-    }
-
-    function viewWindowsMenuClick () {
-        Session.set('loadingMap', true);
-        initAutorun();
-        Session.set('viewWindows', !Session.get('viewWindows'));
-
-        if (Session.equals('viewWindows', true)) {
- 
-            // We want to show the windows
-            if (windowsDrawn.get()) {
- 
-                // Set the map of the existing window lines so they show
-                _.each(windowLines, function (line) {
-                    line.setMap(gridMap);
-                });
-            } else {
- 
-                // Generate the windows
-                drawWindows();
-            }
-        } else if (windowsDrawn.get()) {
- 
-            // We want to hide the windows, so set their maps to null
-            _.each(windowLines, function (line) {
-                line.setMap(null);
-            });
-        }
-        tool_activity(false);
     }
 
     function xyPathsToMvc (node, neighbors, pathsIn) {
@@ -335,8 +240,14 @@ var app = app || {};
         // Loop through the infoHex's incoming neighbors
         var nodes = {in: [], out: [], inOut: []},
             firstIncoming = true;
+ 
+        console.log('hexes', hexes);
+ 
         _.each(hexes, function (hex, key) {
-            var i = hex.outNodes.indexOf(infoHex);
+            var i = -1;
+            if (hex.outNodes) {
+                i = hex.outNodes.indexOf(infoHex);
+            }
             if (i > -1) {
             
                 // Add this outgoing neighbor to the info card
@@ -449,11 +360,6 @@ var app = app || {};
         });
         status('drawPreSquiggleHexagons() done');
  
-        // Draw the grid if the user wants to
-        if (Session.equals('viewWindows', true)) {
-            drawWindows();
-        }
-        
         // Draw the directed graph if the user wants to
         if (Session.equals('viewEdges', true)) {
             drawEdges();
@@ -602,7 +508,6 @@ var app = app || {};
         initialized = true;
  
         // Hide the loading snake after things are drawn
-        windowsDrawn.set(false);
         edgesDrawn.set(false);
         initAutorun();
 
@@ -623,8 +528,5 @@ var app = app || {};
  
         // Register a callback for the view graph menu click
         add_tool("viewEdges", viewEdgesMenuClick, 'Directed graph of node relationships');
-
-        // Register a callback for the view windows menu click
-        add_tool("viewWindows", viewWindowsMenuClick, 'Adaptive windows for layout-aware stats');
     }
 })(app);

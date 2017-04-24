@@ -1,7 +1,6 @@
 #!/bin/bash
 
 DRLPATH=/cluster/home/hexmap/adam_novak-drl-graph-layout-c41341de8058/bin
-PORT=8443       # Port on which the server listens
 HTTPS_PORT=443  # Https proxy port if using https, otherwise the same as PORT
 
 DB_NAME=$PORT   # Name of the mongo database
@@ -12,6 +11,7 @@ PYTHONBIN=/cluster/home/hexmap/miniconda2/bin
 
 export HEXMAP=/data
 export PATH=$PYTHONBIN:$DRLPATH:$PATH
+export PORT=8443       # Port on which the server listens
 export PYTHONPATH=/hive/groups/hexmap/prod/compute/calc
 export ROOT_URL=https://tumormap.ucsc.edu:$HTTPS_PORT # User's view of the URL
 

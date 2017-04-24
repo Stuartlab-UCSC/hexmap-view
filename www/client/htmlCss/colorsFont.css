@@ -21,15 +21,13 @@ body {
 
 /* COLORS */
 /*
-#f5f4eb, rgb(245, 244, 235)  genomic institute pages tan
-#2B5E91  ucsc pages blue background
+#2B5E91  ucsc pages blue
 #E0E0FF  shortlist lavender
-#FFE0FF  shortlist pink
 */
 
 body,
 #navBar .cyber-slug {
-    background-color: #cccccc;
+    background-color: #dddddd;
 }
 
 #navBar {
@@ -48,12 +46,12 @@ body,
 }
 
 .shortlist_entry {
-    background: #eeeeee; /* #E0E0FF; */
+    background: #eeeeee;
 }
 
 .shortlist_entry.selection,
 .shortlist_entry.selection .float_controls {
-    background: #fff0ff; /* #FFE0FF; */
+    background: E0E0FF;
 }
 
 #homePage .mapTitle,
@@ -62,8 +60,10 @@ body,
     color: #2B5E91;
 }
 
-#homePage .allProjects a div {
-    color: #dddddd;
+#homePage .allProjects a div,
+#homePage .thumbnail,
+#homePage .thumbnail_like {
+    color: #eeeeee;
 }
 
 #homePage a {

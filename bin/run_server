@@ -67,6 +67,16 @@ elif [ $SERVER_TYPE == 'db' ]; then
             --dbpath $HEXMAP/db \
             &> $HEXMAP/db.log &)
 
+elif [ $SERVER_TYPE == 'built' ]; then
+    export MONGO_URL=mongodb://localhost:$DB_PORT/$DB_NAME
+    #cd $HEXMAP/www
+    touch $HEXMAP/www.log
+    mv $HEXMAP/www.log $HEXMAP/www.prev.log
+    cat $BIN/../config/settingsA.$INSTALL.json $BIN/../config/settingsB.json > $BIN/../config/settings.json
+    export MAIL_URL="smtp://localhost"
+    export METEOR_SETTINGS=$(cat $BIN/../config/settings.json)
+    (nohup node $HEXMAP/www/bundle/main.js &> $HEXMAP/www.log &)
+
 elif [ $SERVER_TYPE == 'www' ]; then
     export MONGO_URL=mongodb://localhost:$DB_PORT/$DB_NAME
     cd $HEXMAP/www

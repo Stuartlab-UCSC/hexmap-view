@@ -320,6 +320,7 @@ createMap = function  () {
     // Create the google map.
     var mapOptions = {
         center: ctx.center,
+        backgroundColor: Session.get('background'),
         zoom: ctx.zoom,
         mapTypeId: "blank",
         // Don't show a map type picker.

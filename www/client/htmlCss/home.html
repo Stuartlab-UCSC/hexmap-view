@@ -15,7 +15,7 @@
     {{ #each projects }}
         <div class='project'>
             <div class='thumbnail' data-project='{{ id }}'>
-                <a href=''>
+                <a href='/?p={{id}}'>
                     <div style='padding-top:0.5em;'>{{ label }}</div>
                     <img src='{{ png }}' height='250px' style='padding-top:1em'>
                 </a>
@@ -45,12 +45,14 @@
                 <div style='font-size:1.2em;padding-top:1em'>
                     <a  href='example_layout_features.tab'
                         download='example_layout_features.tab'
-                        title = 'Example layout feature file to create a map'>
+                        title = 'Example layout feature file to create a map'
+                        style='color:#8EB4E3'>
                         Layout input
                     </a><br><br>
                     <a  href='example_color_attributes.tab'
                         download='example_color_attributes.tab'
-                        title = 'Example color attributes file to create a map'>
+                        title = 'Example color attributes file to create a map'
+                        style='color:#8EB4E3'>
                         Color attributes
                     </a>
                 </div>

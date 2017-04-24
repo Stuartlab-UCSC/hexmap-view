@@ -2,7 +2,11 @@
     <div id='navBar'>
         <img src="/cyber-slug.svg" class="cyber-slug"/>
         <ul>
-            <li class='home mapShow gridShow homeShow'>Home</li>
+            <li class='home mapShow gridShow homeShow'>
+                <a href='/?pg=homePage' style='color:inherit'>
+                Home
+                </a>
+            </li>
             
             <li class='fileMenu'>
                 File
@@ -112,10 +116,14 @@
                 <img src='/icons/caret-down.png' style='height:8px'>
                 <ul class='view'>
                     <li class='mapLayout'>
+                        <a href='/?pg=mapPage' style='color:inherit'>
                         Map Layout
+                        </a>
                     </li>
                     <li class='gridPage mapShow gridShow'>
+                        <a href='/?pg=gridPage' style='color:inherit'>
                         Node Density
+                        </a>
                     </li>
                     <li class='disabled gridShow'>
                         <hr>
@@ -136,15 +144,17 @@
                     <li class='setOperations'>
                         Set Operations...
                     </li>
-                    <li class='reflectTrigger'>
-                        Map Reflection...
-                    </li>
                     <li class='filterAttributes'>
                         Filter Attributes...
                     </li>
+                    <li class='reflectTrigger'>
+                        Map Reflection...
+                    </li>
+                    <!--
                     <li class='jobs'>
                         Jobs
                     </li>
+                    -->
                 </ul>
             </li>
             

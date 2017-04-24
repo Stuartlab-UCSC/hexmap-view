@@ -127,7 +127,6 @@ var app = app || {};  // jshint ignore: line
                 'page',
                 'project',
                 'viewEdges',
-                'viewWindows',
             ],
 
             // Contains the project state we want to save with unique keys
@@ -194,7 +193,6 @@ var app = app || {};  // jshint ignore: line
         Session.set('sort', DEFAULT_SORT); // Default sort message & type
         Session.set('background', 'black');  // Main map background color
         Session.set('viewEdges', false); // Display of directed graph
-        Session.set('viewWindows', false); // Display of stats windows
  
         // Non-reactive vars maintained in global state and not project-specific
         s.project = DEFAULT_PROJECT;  // The project data to load
@@ -358,7 +356,7 @@ var app = app || {};  // jshint ignore: line
  
         if (store.ignoreUrlQuery) {
             s.uparms = null;
-            store.ignoreUrlQuery = false;
+            delete store.ignoreUrlQuery;
             s.load(store);
             return;
         }
@@ -469,28 +467,20 @@ var app = app || {};  // jshint ignore: line
                 // Load this group of nodes as overlay nodes
                 state.overlayNodes = getOverlayNodeGroup(s.uParm.nodes);
      
-            // TODO a special hack until we get bookmarks going: load
-            // the hard-coded overlay node data specific to this project.
-            // Use this method if we want the project only accessible from a URL
-            // If you want it on the project list, use the method in
-            // this.load().
- 
-            // For a single node in a URL
-            } else if (state.project.slice(0,13) === 'CKCC/v1-') {
-      
-                var node = state.project.slice(13,-1);
-                if (OVERLAY_NODES[node]) {
-                    state.overlayNodes = {};
-                    state.overlayNodes[node] = OVERLAY_NODES[node];
-                }
             } else {
  
                 // Fix up any old URLs we gave out
                 state.project = s.fixUpOldUrls(state.project);
             }
- 
-            s.load(state);
+        } else if (s.uParm.pg) {
+
+            // Load the page requested. First get any saved state.
+            state = s.loadFromLocalStore();
+            if (!state) { state = {}; }
+            state.page = s.uParm.pg
         }
+ 
+        s.load(state);
     };
 
     function checkLocalStore () {
@@ -574,7 +564,6 @@ var app = app || {};  // jshint ignore: line
  
         // Reset the state to factory defaults when requested.
         $('body').on('click', '.resetDefaults', function () {
-            if (Session.equals('page', 'homePage')) { return; }
             var project = s.project;
             s.setAllDefaults();
             s.project = project;
@@ -588,7 +577,8 @@ var app = app || {};  // jshint ignore: line
             //  - reload
             //  - new url
             //  - forward & back
-            //	- change project via project list or via URL
+            //  - change page within app
+            //	- change project
             window.addEventListener('beforeunload', function () {
                 s.save();
             });

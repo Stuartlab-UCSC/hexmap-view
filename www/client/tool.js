@@ -210,20 +210,6 @@ Tool = (function () { // jshint ignore: line
                 $('body').css('overflow-y', 'hidden');
             }
         
-            // Set up the link to the map page
-            add("mapLayout", function(ev) {
-                if (!$(ev.target).hasClass('disabled')) {
-                    $('.mapPage').click();
-                    activity(false);
-                }
-            }, 'Main map page');
-     
-            // Set up the link to the home page
-            add("home", function() {
-                $('.homePage').click();
-                activity(false);
-            });
-        
             var $placeNodeMenuOpt = $('#navBar .overlayNode');
             var $overlayNodes = $(
                 '#navBar .overlayNode, ' +
