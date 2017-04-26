@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Statistics and Sorting &#8212; Tumor Map Help</title>
+    <title>Statistics and Sorting Tool &#8212; Tumor Map Help</title>
     
     <link rel="stylesheet" href="_static/agogo.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -27,8 +27,8 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Set Operations" href="setOper.html" />
-    <link rel="prev" title="Short List" href="shortlist.html" /> 
+    <link rel="next" title="Set Operations Tool" href="setOper.html" />
+    <link rel="prev" title="Advanced Controls" href="advancedControls.html" /> 
   </head>
   <body role="document">
     <div class="header-wrapper" role="banner">
@@ -36,9 +36,9 @@
         <div class="headertitle"><a
           href="index.html">Tumor Map Help</a></div>
         <div class="rel" role="navigation" aria-label="related navigation">
-          <a href="shortlist.html" title="Short List"
+          <a href="advancedControls.html" title="Advanced Controls"
              accesskey="P">previous</a> |
-          <a href="setOper.html" title="Set Operations"
+          <a href="setOper.html" title="Set Operations Tool"
              accesskey="N">next</a> |
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a>
@@ -54,9 +54,214 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="statistics-and-sorting">
-<h1>Statistics and Sorting<a class="headerlink" href="#statistics-and-sorting" title="Permalink to this headline">¶</a></h1>
-<p>TBD</p>
+  <div class="section" id="statistics-and-sorting-tool">
+<h1>Statistics and Sorting Tool<a class="headerlink" href="#statistics-and-sorting-tool" title="Permalink to this headline">¶</a></h1>
+<p>Statistics and sorting of attributes may be performed by clicking on the
+<strong>Tools</strong> menu then clicking on <strong>Stats &amp; Sort</strong> or by clicking on this sort
+button in the main window header: <a class="reference internal" href="https://tumormap.ucsc.edu/icons/sort-attributes.svg"><img alt="sort" src="https://tumormap.ucsc.edu/icons/sort-attributes.svg" width="20px" /></a></p>
+<p>The resulting window,
+<strong>Sort Attributes by Associative Statistics</strong> is described below.</p>
+<div class="section" id="input-descriptions">
+<h2>Input Descriptions<a class="headerlink" href="#input-descriptions" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="sort-by">
+<h3>Sort By<a class="headerlink" href="#sort-by" title="Permalink to this headline">¶</a></h3>
+<p><strong>Focus Attribute</strong> :
+Selecting this option allows users to sort attibutes by their relation to a
+single (or <em>focus</em>) attribute. For instance, choosing a <em>focus attribute</em> of
+TP53 mutations will sort all attributes in the &#8220;Select Attributes&#8221; drop down
+relative to each attribute&#8217;s association with the TP53 mutations attribute. A
+use case displaying this functionality can be seen at
+<a class="reference external" href="https://tumormap.ucsc.edu/useCases/u5/UseCase5.html">What is the top differentiating attribute for squamous-like bladder cancer?</a>
+See the <a class="reference internal" href="#technical-overview">Technical Overview</a> below for details on ranking metrics.</p>
+<p><strong>Differential Attributes</strong> :
+Selecting this option allows users to sort attributes by how well they
+distinguish one group of samples from another. The two groups of samples must be
+disjoint and user generated. A use case displaying this functionality can be
+seen at
+<a class="reference external" href="https://tumormap.ucsc.edu/useCases/u6/UseCase6.html">Which genomic events distinguish one subtype of cancer from another?</a>
+See the <a class="reference internal" href="#technical-overview">Technical Overview</a> below for details on ranking metrics.</p>
+<p><strong>Density Of Attributes</strong> :
+Selecting this option allows sorts the attributes by their coherence with the
+map placement. Attributes with high density will appear more grouped together
+than attributes with lower density.
+See the <a class="reference internal" href="#technical-overview">Technical Overview</a> below for details on ranking metrics.</p>
+</div>
+<div class="section" id="layout">
+<h3>Layout<a class="headerlink" href="#layout" title="Permalink to this headline">¶</a></h3>
+<p><strong>Layout independent</strong> :
+This option is for Attibute level statistics, map placement is not considered.</p>
+<p><strong>Layout Aware</strong> :
+This option looks for correlation of attributes with map placement.</p>
+<p>Note that these options are only available when using <strong>Focus Attribute</strong>.</p>
+</div>
+<div class="section" id="correlation">
+<h3>Correlation<a class="headerlink" href="#correlation" title="Permalink to this headline">¶</a></h3>
+<p><strong>Positive</strong> :
+Direct correlation with map placement.</p>
+<p><strong>Negative</strong> :
+Inverse correlation with map placement.</p>
+<p>Note that these options are only available when using <strong>Focus Attribute</strong> and
+<strong>Layout Aware</strong>.</p>
+</div>
+<div class="section" id="attribute-a-and-attribute-b">
+<h3>Attribute A and Attribute B<a class="headerlink" href="#attribute-a-and-attribute-b" title="Permalink to this headline">¶</a></h3>
+<p>Select the attributes to sort on. These attributes must already be in the
+<strong>Short List</strong>.</p>
+</div>
+</div>
+<div class="section" id="technical-overview">
+<h2>Technical Overview<a class="headerlink" href="#technical-overview" title="Permalink to this headline">¶</a></h2>
+<ul>
+<li><p class="first">Layout Independent: Attribute Enrichment Analysis</p>
+<blockquote>
+<div><ul class="simple">
+<li>Focus Attribute (Bivariate Statistics)</li>
+<li>Differential Attributes (Two Population Tests)</li>
+</ul>
+</div></blockquote>
+</li>
+<li><p class="first">Layout Dependent: Spatial Correlation Analysis</p>
+<blockquote>
+<div><ul class="simple">
+<li>Focus Attribute (Bivariate Spatial Association)</li>
+<li>Density (Spatial Smoothing Scalar)</li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+<div class="section" id="layout-independent-attribute-enrichment-analysis">
+<h3>Layout Independent: Attribute Enrichment Analysis<a class="headerlink" href="#layout-independent-attribute-enrichment-analysis" title="Permalink to this headline">¶</a></h3>
+<p>Layout independent associations are provided by statistical tests.</p>
+<ul>
+<li><p class="first">Focus Attribute (Bivariate Statistics)</p>
+<blockquote>
+<div><p>Each attribute is compared to the focus attribute using an appropriate statistical test. If there are 300 attributes on the map, 1 is chosen as the focus attribute, and 299 statistical tests will provide the rankings. The appropriate test is chosen based upon the combination of data types between the focus attribute and other attribute (see table 1 below). The final ranking is provided by Benjamin-Hochberg False Discover Rates for the association of each attribute with the focus attribute.</p>
+</div></blockquote>
+</li>
+<li><p class="first">Differential Attributes (Two Population Statistics)</p>
+<blockquote>
+<div><p>The user must provide two sample groupings, each attriute is tested against the null hypothesis that the two groupings come from the same distribution (two-tailed). An appropriate test is chosen based upon the datatype of each attribute (see table 2 below). If there are 300 attributes on the map, 300 statistical tests will provide the rankings. The final ranking is provided by Benjamin-Hochberg False Discover Rates for the statistical tests.</p>
+</div></blockquote>
+</li>
+</ul>
+<p><strong>Table 1</strong></p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="28%" />
+<col width="22%" />
+<col width="23%" />
+<col width="28%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Attribute Type</th>
+<th class="head">Binary</th>
+<th class="head">Categorical</th>
+<th class="head">Continuous</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><strong>Binary</strong></td>
+<td>Fisher Exact</td>
+<td>Chi Square</td>
+<td>Welch&#8217;s t-test</td>
+</tr>
+<tr class="row-odd"><td><strong>Categorical</strong></td>
+<td><ul class="first last simple">
+<li></li>
+</ul>
+</td>
+<td>Chi Square</td>
+<td>Kruskal-Wallis</td>
+</tr>
+<tr class="row-even"><td><strong>Continuous</strong></td>
+<td><ul class="first last simple">
+<li></li>
+</ul>
+</td>
+<td><ul class="first last simple">
+<li></li>
+</ul>
+</td>
+<td>Pearson Rho</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 2</strong></p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="28%" />
+<col width="22%" />
+<col width="23%" />
+<col width="28%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Attribute Type</th>
+<th class="head">Binary</th>
+<th class="head">Categorical</th>
+<th class="head">Continuous</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><em>Statistical Test</em></td>
+<td>Fisher Exact</td>
+<td>Chi Square</td>
+<td>Welch&#8217;s t-test</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="layout-dependent-spatial-correlation-analysis">
+<h3>Layout Dependent: Spatial Correlation Analysis<a class="headerlink" href="#layout-dependent-spatial-correlation-analysis" title="Permalink to this headline">¶</a></h3>
+<p>Layout Dependent metrics measure the relationship between map placement and attribute values.</p>
+<p>Layout Dependent metrics are implementations of Sang-ll Lee&#8217;s work, exhausting detail can be found in this <a class="reference external" href="https://link.springer.com/article/10.1007/s101090100064">paper</a></p>
+<p>A similarity matrix representing proximity of samples on the map (i.e. a <em>spatial weight matrix</em>) needs to be constructed to calculate the metrics for density and bivariate spatial association. We have chosen the inverse eucledian distance of samples on the x-y plane for the spatial weight matrix.</p>
+</div>
+<div class="section" id="focus-attribute-bivariate-spatial-association">
+<h3>Focus Attribute (Bivariate Spatial Association)<a class="headerlink" href="#focus-attribute-bivariate-spatial-association" title="Permalink to this headline">¶</a></h3>
+<p>Lee&#8217;s L Bivariate Spatial Association metric is used to determine the strength of the relationship between two attributes considering placement on the map.</p>
+<p>Currently this operation is only permitted on binary attributes.</p>
+<dl class="docutils">
+<dt>Preprocessing includes:</dt>
+<dd><p class="first">Subsetting attributes down to ids in the spatial weight matrix</p>
+<p>Z-scoring binary attributes</p>
+<p class="last">Setting all missing values to 0</p>
+</dd>
+</dl>
+<p>The equation for Lee&#8217;s L:</p>
+<a class="reference internal image-reference" href="_images/leesL.png"><img alt="_images/leesL.png" src="_images/leesL.png" style="width: 200px;" /></a>
+<dl class="docutils">
+<dt>Where:</dt>
+<dd><p class="first"><em>a</em> is a z-scored attribute vector</p>
+<p><em>b</em> is another z-scored attribute vector</p>
+<p><em>V</em> is the spatial weight matrix</p>
+<p class="last"><em>e</em> is a vector filled with 1&#8217;s the same length as <strong>a</strong> and <strong>b</strong></p>
+</dd>
+</dl>
+</div>
+<div class="section" id="density-spatial-smoothing-scalar">
+<h3>Density (Spatial Smoothing Scalar)<a class="headerlink" href="#density-spatial-smoothing-scalar" title="Permalink to this headline">¶</a></h3>
+<p>The spatial smoothing scalar is used to describe the strength of the dependence between map placement and a single attribute.</p>
+<p>For each attributes calculation, missing values are excluded from the spatial weight matrix.</p>
+<p>For continuous and binary variables, Lee&#8217;s spatial smoothing scalar is used:</p>
+<a class="reference internal image-reference" href="_images/SSS.png"><img alt="_images/SSS.png" src="_images/SSS.png" style="width: 200px;" /></a>
+<dl class="docutils">
+<dt>Where:</dt>
+<dd><p class="first"><em>a</em> is a z-scored attribute vector</p>
+<p><em>V</em> is the spatial weight matrix</p>
+<p class="last"><em>e</em> is a vector filled with 1&#8217;s the same length as <strong>a</strong> and <strong>b</strong></p>
+</dd>
+</dl>
+<p>For categorical variables we modify the spatial smoothing scalar:</p>
+<a class="reference internal image-reference" href="_images/SSScat.png"><img alt="_images/SSScat.png" src="_images/SSScat.png" style="width: 600px;" /></a>
+<p>Where:</p>
+<blockquote>
+<div><p><em>k</em> is the number of categories</p>
+<p><em>V</em> is the spatial weight matrix</p>
+<p><em>C</em> is a z-scored binary expansion matrix of the categorical vector. Columns are categories, rows are ids on the map, and values are binary inclusion of the category after z-score.</p>
+<p><em>E</em> is a k-by-k matrix of all ones for the off-diagonal elements and zeroes for the diagonal elements</p>
+</div></blockquote>
+</div>
+</div>
 </div>
 
 
@@ -71,12 +276,12 @@
 <li class="toctree-l1"><a class="reference internal" href="getStarted.html">Get Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="basicControls.html">Basic Controls</a></li>
 <li class="toctree-l1"><a class="reference internal" href="menus.html">Menus</a></li>
+<li class="toctree-l1"><a class="reference internal" href="shortlist.html">Short List</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="advancedControls.html">Advanced Controls</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="shortlist.html">Short List</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Statistics and Sorting</a></li>
-<li class="toctree-l2"><a class="reference internal" href="setOper.html">Set Operations</a></li>
-<li class="toctree-l2"><a class="reference internal" href="filter.html">Filter Attributes</a></li>
-<li class="toctree-l2"><a class="reference internal" href="reflect.html">Map Reflection</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Statistics and Sorting Tool</a></li>
+<li class="toctree-l2"><a class="reference internal" href="setOper.html">Set Operations Tool</a></li>
+<li class="toctree-l2"><a class="reference internal" href="filter.html">Filter Attributes Tool</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reflect.html">Map Reflection Tool</a></li>
 <li class="toctree-l2"><a class="reference internal" href="createAttribute.html">Create an Attribute</a></li>
 <li class="toctree-l2"><a class="reference internal" href="placeNode.html">Place New Nodes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="createMap.html">Create a Map</a></li>
@@ -104,9 +309,9 @@
       <div class="footer">
         <div class="left">
           <div role="navigation" aria-label="related navigaton">
-            <a href="shortlist.html" title="Short List"
+            <a href="advancedControls.html" title="Advanced Controls"
               >previous</a> |
-            <a href="setOper.html" title="Set Operations"
+            <a href="setOper.html" title="Set Operations Tool"
               >next</a> |
             <a href="genindex.html" title="General Index"
               >index</a>

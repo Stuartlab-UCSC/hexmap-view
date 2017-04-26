@@ -1,14 +1,13 @@
 
-.. _createMap:
-
 Create a Map
 ============
 
 You can create a map with your own data by selecting *Create map* from the *File*
 menu, then supplying at least a layout feature file and specifying its format.
 
-Note that this is only available to certain users due to the
-computationally intensive operations.
+If this option does not exist in the Edit menu, then you do not have the proper
+authority to run this compute-intensive task. Ask hexmap at ucsc dot edu
+with justification for authorization.
 
 .. _feature-formats:
 
@@ -98,23 +97,5 @@ attributes IDs across the top and node IDs in the first column, like::
 
     **spectral embedding** : Project the sample on the first eigenvectors of the graph Laplacian
 
-
-..
-   TBD This section needs to be coded before showing it to the user.
-
     Advanced Options
     ----------------
-
-    Special color attributes
-    ^^^^^^^^^^^^^^^^^^^^^^^^
-
-    Handle as integer rather than categories
-    ........................................
-
-    TBD
-
-    Handle as 2 categories rather than binary
-    .........................................
-
-    TBD
-

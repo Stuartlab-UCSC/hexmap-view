@@ -121,11 +121,11 @@ html_theme_options = {
     'headerlinkcolor': '#05366B',
           'linkcolor': '#05366B',
           'textalign': 'left',
-           'headerbg': 'linear-gradient(#05366B, #f5f4eb)',
-           'footerbg': 'linear-gradient(#f5f4eb, #05366B)',
-            #'bgcolor': '#f5f4ebB', # broken
-       #'headercolor1': '#f5f4ebB', # broken
-       #'headercolor2': '#f5f4ebB', # broken
+           'headerbg': 'linear-gradient(#05366B, #dddddd)',
+           'footerbg': 'linear-gradient(#dddddd, #05366B)',
+            #'bgcolor': '#dddddd', # broken
+       #'headercolor1': '#dddddd', # broken
+       #'headercolor2': '#dddddd', # broken
 }
 
 # The name for this set of Sphinx documents.  If None, it defaults to

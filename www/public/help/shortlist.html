@@ -27,8 +27,8 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Statistics and Sorting" href="statsNsort.html" />
-    <link rel="prev" title="Advanced Controls" href="advancedControls.html" /> 
+    <link rel="next" title="Advanced Controls" href="advancedControls.html" />
+    <link rel="prev" title="Menus" href="menus.html" /> 
   </head>
   <body role="document">
     <div class="header-wrapper" role="banner">
@@ -36,9 +36,9 @@
         <div class="headertitle"><a
           href="index.html">Tumor Map Help</a></div>
         <div class="rel" role="navigation" aria-label="related navigation">
-          <a href="advancedControls.html" title="Advanced Controls"
+          <a href="menus.html" title="Menus"
              accesskey="P">previous</a> |
-          <a href="statsNsort.html" title="Statistics and Sorting"
+          <a href="advancedControls.html" title="Advanced Controls"
              accesskey="N">next</a> |
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a>
@@ -56,7 +56,79 @@
             
   <div class="section" id="short-list">
 <h1>Short List<a class="headerlink" href="#short-list" title="Permalink to this headline">¶</a></h1>
-<p>TBD</p>
+<p>The Short List is in the upper right of the main window and expands when
+hovering over it with your mouse.
+Attributes in the Short List are those that can be used for display and other
+operations.</p>
+<p>Selecting an attribute from the <strong>Select Attributes</strong> list will cause that attribute to
+be added at the top of the Short List and its values used to color the
+map. Also, if you <a class="reference internal" href="createAttribute.html"><span class="doc">Create an Attribute</span></a> it will be added to the Short List.</p>
+<div class="section" id="basic-anatomy">
+<h2>Basic Anatomy<a class="headerlink" href="#basic-anatomy" title="Permalink to this headline">¶</a></h2>
+<p>Below is a picture of the Short List containing each of the three attribute data
+types: continuous, categorical and binary.</p>
+<p>The first entry has an <strong>attribute name</strong> of <em>Tissue</em>
+with its <strong>statistics</strong>
+shown below its name. Below the statistics is a <strong>bar
+graph of a categorial attribute</strong> containing the count of values by category.
+To the left of the statistics is a
+<strong>move handle</strong> to rearrange entries within the Short List. Moving an attribute does
+nothing to the map display and is just a convenience for you to organize entries.</p>
+<p>The second entry is an attribute containing a <strong>histogram of a continuous
+attribute</strong> with the <strong>range extents</strong> of the values underneath.</p>
+<p>The last entry contains a <strong>bar graph of a binary
+attribute</strong> where yellow represents values of one.</p>
+<p><a class="reference internal" href="_images/shortlistBasic.png"><img alt="shortlistBasic" src="_images/shortlistBasic.png" style="width: 700px;" /></a></p>
+</div>
+<div class="section" id="select-for-display">
+<h2>Select for Display<a class="headerlink" href="#select-for-display" title="Permalink to this headline">¶</a></h2>
+<p>Below is a picture pointing out the controls to select an attribute for coloring
+the map.</p>
+<p>One or two attributes may be displayed at one time. The orange <strong>display
+indicators</strong> show which are currently selected for display.
+The black <strong>display selector</strong> buttons on the third entry allow you to select that
+attribute for display.
+These black controls only show up when hovering over the entry.</p>
+<p>The <strong>remove attibute</strong> control allows you to remove this entry from the Short
+List. This control only shows up when hovering over the entry.
+Any attributes that were placed in the short list by selection from the
+Select Attribute list will remain in that list after being removed
+from the Short List.
+Beware that if you remove an attribute that was generated during your interactive
+session it will be lost unless you&#8217;ve saved a bookmark.</p>
+<p><a class="reference internal" href="_images/shortlistSelect.png"><img alt="shortlistSelect" src="_images/shortlistSelect.png" style="width: 700px;" /></a></p>
+</div>
+<div class="section" id="filter-values">
+<h2>Filter Values<a class="headerlink" href="#filter-values" title="Permalink to this headline">¶</a></h2>
+<p>Below is a picture pointing out the controls to limit the values of attributes
+for coloring the map.</p>
+<p>The orange <strong>value filter active</strong> indicator shows that the filter for this
+attribute is active and limiting the values displayed.
+The <strong>filter value</strong> shows which values are currently being
+displayed. This is a drop-down menu that allows you to choose another value to
+display.
+You may create a new binary attribute containing the nodes with this value by
+clicking on the <strong>create attribute from filter</strong> button.
+This control only shows when hovering over the entry.</p>
+<p>The second attribute contains continuous values where the
+<strong>filtered out values</strong> are contained within the shaded boxes and indicate those values
+that will not be displayed. The low and high ends of the range may be manipulated
+by moving the <strong>range filter handles</strong>.</p>
+<p>When hovering over the second entry the <strong>create attribute from filter</strong> button
+will appear and you may click it to generate a new binary attribute
+containing the nodes with values in the range.</p>
+<p><a class="reference internal" href="_images/shortlistFilter.png"><img alt="shortlistFilter" src="_images/shortlistFilter.png" style="width: 700px;" /></a></p>
+</div>
+<div class="section" id="attributes-you-create">
+<h2>Attributes You Create<a class="headerlink" href="#attributes-you-create" title="Permalink to this headline">¶</a></h2>
+<p>When you <a class="reference internal" href="createAttribute.html"><span class="doc">Create an Attribute</span></a> it will be added to the Short List with a
+lavender background so you can distinguish it from attributes selected from the
+<strong>Select Attributes</strong> list. These <strong>dynamic</strong> attributes mostly have the same
+properties as the other attributes. One notable difference is that when a
+dynamic attribute is removed from the Short List without saving a bookmark,
+the attribute is irretrievable.</p>
+<p><a class="reference internal" href="_images/shortlistDynamic.png"><img alt="shortlistDynamic" src="_images/shortlistDynamic.png" style="width: 350px;" /></a></p>
+</div>
 </div>
 
 
@@ -71,18 +143,14 @@
 <li class="toctree-l1"><a class="reference internal" href="getStarted.html">Get Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="basicControls.html">Basic Controls</a></li>
 <li class="toctree-l1"><a class="reference internal" href="menus.html">Menus</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="advancedControls.html">Advanced Controls</a><ul class="current">
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Short List</a></li>
-<li class="toctree-l2"><a class="reference internal" href="statsNsort.html">Statistics and Sorting</a></li>
-<li class="toctree-l2"><a class="reference internal" href="setOper.html">Set Operations</a></li>
-<li class="toctree-l2"><a class="reference internal" href="filter.html">Filter Attributes</a></li>
-<li class="toctree-l2"><a class="reference internal" href="reflect.html">Map Reflection</a></li>
-<li class="toctree-l2"><a class="reference internal" href="createAttribute.html">Create an Attribute</a></li>
-<li class="toctree-l2"><a class="reference internal" href="placeNode.html">Place New Nodes</a></li>
-<li class="toctree-l2"><a class="reference internal" href="createMap.html">Create a Map</a></li>
-<li class="toctree-l2"><a class="reference internal" href="dataTypes.html">Attribute Data Types</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Short List</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#basic-anatomy">Basic Anatomy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#select-for-display">Select for Display</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#filter-values">Filter Values</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#attributes-you-create">Attributes You Create</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="advancedControls.html">Advanced Controls</a></li>
 <li class="toctree-l1"><a class="reference internal" href="existingMaps.html">Public Maps</a></li>
 </ul>
 
@@ -104,9 +172,9 @@
       <div class="footer">
         <div class="left">
           <div role="navigation" aria-label="related navigaton">
-            <a href="advancedControls.html" title="Advanced Controls"
+            <a href="menus.html" title="Menus"
               >previous</a> |
-            <a href="statsNsort.html" title="Statistics and Sorting"
+            <a href="advancedControls.html" title="Advanced Controls"
               >next</a> |
             <a href="genindex.html" title="General Index"
               >index</a>

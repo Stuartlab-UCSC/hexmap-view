@@ -31,7 +31,7 @@ div.header, div.content, div.footer {
 }
 
 div.header-wrapper {
-  background: linear-gradient(#05366B, #f5f4eb);
+  background: linear-gradient(#05366B, #dddddd);
   border-bottom: 3px solid #2e3436;
 }
 
@@ -341,7 +341,7 @@ div.sidebar input[type="submit"] {
 /* Footer */
 
 div.footer-wrapper {
-  background: linear-gradient(#f5f4eb, #05366B);
+  background: linear-gradient(#dddddd, #05366B);
   border-top: 4px solid #babdb6;
   padding-top: 10px;
   padding-bottom: 10px;

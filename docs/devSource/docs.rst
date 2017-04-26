@@ -21,6 +21,35 @@ build the html pages while in that directory with::
 This will deposit the html pages into hexagram/docs/dev and you can get to them
 via this URL: file://ROOT/hexagram/docs/dev/index.html
 
+Tips on making Links
+--------------------
+
+Link to a section on this page: `Tips on making Links`_ ::
+
+ `Tips on making Links`_
+
+Link to a page in this doc: :doc:`repository` ::
+
+ :doc:`repository`
+
+Link to anywhere in this doc, given that you place a tag such as ".. _youMayUse:" just above the desired location:
+:ref:`Link title <youMayUse>` :
+
+ :ref:`Link title <youMayUse>`
+
+Link to a section on any page in this doc, given that you place a tag such as ".. _aGitQuickStart:" just above the section header:
+:ref:`aGitQuickStart`:
+
+ :ref:`aGitQuickStart`
+
+Link to an external page: https://tumormap.ucsc.edu ::
+
+ https://tumormap.ucsc.edu
+
+Link to an external page displaying the given text: `tumormap <https://tumormap.ucsc.edu>`_ ::
+
+ `tumormap <https://tumormap.ucsc.edu>`_
+
 Other Documentation
 -------------------
 
@@ -31,8 +60,8 @@ Other documentation built under Sphinx in the same manner:
 
 Using these locations:
 
-* source files: hexagram/docs/KEY
-* html files: hexagram/public/KEY
-* URL: https://SERVER/KEY/index.html
+* source files: hexagram/docs/help, hexagram/docs/quert
+* html files: hexagram/public/help hexagram/public/query
+* URL: https://SERVER/help/index.html & https://SERVER/query/index.html
 
 Where KEY is replaced with one of the keys above. For example: hexagram/docs/help

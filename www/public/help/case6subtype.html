@@ -1,0 +1,203 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Which genomic events distinguish one subtype of cancer from another? &#8212; Tumor Map Help</title>
+    
+    <link rel="stylesheet" href="_static/agogo.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Which genes and pathways drive clustering of basal breast tumors?" href="case7drive.html" />
+    <link rel="prev" title="What is the top differentiating attribute for squamous-like bladder cancer?" href="case5topDiff.html" /> 
+  </head>
+  <body role="document">
+    <div class="header-wrapper" role="banner">
+      <div class="header">
+        <div class="headertitle"><a
+          href="index.html">Tumor Map Help</a></div>
+        <div class="rel" role="navigation" aria-label="related navigation">
+          <a href="case5topDiff.html" title="What is the top differentiating attribute for squamous-like bladder cancer?"
+             accesskey="P">previous</a> |
+          <a href="case7drive.html" title="Which genes and pathways drive clustering of basal breast tumors?"
+             accesskey="N">next</a> |
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a>
+        </div>
+       </div>
+    </div>
+
+    <div class="content-wrapper">
+      <div class="content">
+        <div class="document">
+            
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="which-genomic-events-distinguish-one-subtype-of-cancer-from-another">
+<h1>Which genomic events distinguish one subtype of cancer from another?<a class="headerlink" href="#which-genomic-events-distinguish-one-subtype-of-cancer-from-another" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="objective">
+<h2>Objective<a class="headerlink" href="#objective" title="Permalink to this headline">¶</a></h2>
+<p>Identify genomic events that distinguish one subtype of cancer (e.g. basal
+breast cancer) from another (e.g. luminal breast cancer).</p>
+</div>
+<div class="section" id="skills-covered">
+<h2>Skills Covered<a class="headerlink" href="#skills-covered" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Creating a new group from an existing categorical (multi-valued) attribute.</li>
+<li>Using set operations to combine existing groups.</li>
+<li>Running statistical test to order attributes based on their differential
+presence/absence in one group versus another.</li>
+</ul>
+</div>
+<div class="section" id="steps">
+<h2>Steps<a class="headerlink" href="#steps" title="Permalink to this headline">¶</a></h2>
+<ol class="arabic simple">
+<li>With the map, <strong>Pancan12/SampleMap</strong>, make sure the <strong>mRNA</strong> layout is
+selected and only <strong>Tissue</strong> is selected in the Short List. Observe that
+breast tumors are in blue on the bottom right of the map.</li>
+</ol>
+<a class="reference internal image-reference" href="_images/caseSubtype-1.png"><img alt="_images/caseSubtype-1.png" src="_images/caseSubtype-1.png" style="width: 750px;" /></a>
+<ol class="arabic simple" start="2">
+<li>In <strong>Select Attribute</strong> type in <strong>brca</strong> and click on <strong>BRCA Subtype</strong>.
+Observe that the breast tumors are colored by the molecular subtypes.</li>
+</ol>
+<a class="reference internal image-reference" href="_images/caseSubtype-2.png"><img alt="_images/caseSubtype-2.png" src="_images/caseSubtype-2.png" style="width: 750px;" /></a>
+<ol class="arabic simple" start="3">
+<li>In the Short List <strong>BRCA Subtype</strong> entry click on the filter button
+<a class="reference internal" href="https://tumormap.ucsc.edu/icons/filter.png"><img alt="shortlistFilterButton" src="https://tumormap.ucsc.edu/icons/filter.png" style="width: 20px;" /></a> and select <strong>Basal</strong> in the drop down menu. Then
+click the create attribute button <a class="reference internal" href="https://tumormap.ucsc.edu/icons/file-new.png"><img alt="shortlistCreateAttr" src="https://tumormap.ucsc.edu/icons/file-new.png" style="width: 20px;" /></a>. Name this attribute
+<strong>Basal_BRCA</strong>.</li>
+</ol>
+<a class="reference internal image-reference" href="_images/caseSubtype-3.png"><img alt="_images/caseSubtype-3.png" src="_images/caseSubtype-3.png" style="width: 300px;" /></a>
+<ol class="arabic simple" start="4">
+<li>Select <strong>BRCA Subtype</strong> for display in the Short List by clicking on the
+<strong>display selector</strong> <a class="reference internal" href="https://tumormap.ucsc.edu/icons/primary.png"><img alt="primaryButton" src="https://tumormap.ucsc.edu/icons/primary.png" style="width: 20px;" /></a>. Create another attribute like you did
+above except select <strong>LumA</strong> and save it as <strong>LumA_BRCA</strong>.</li>
+<li>Create one more attribute like above except select <strong>LumB</strong> and save it as
+<strong>LumB_BRCA</strong>.</li>
+<li>Click on the <strong>Set Operation</strong> button in the map header.</li>
+</ol>
+<a class="reference internal image-reference" href="_images/caseSubtype-4.png"><img alt="_images/caseSubtype-4.png" src="_images/caseSubtype-4.png" style="width: 700px;" /></a>
+<ol class="arabic simple" start="7">
+<li>In the window, <strong>Perform Set Operation</strong>, select the values as shown in the
+picture below to join the two luminal subtypes. Click on
+<strong>Compute Set Operation</strong> and name this <strong>Lum_BRCA</strong>.</li>
+</ol>
+<a class="reference internal image-reference" href="_images/caseSubtype-5.png"><img alt="_images/caseSubtype-5.png" src="_images/caseSubtype-5.png" style="width: 300px;" /></a>
+<ol class="arabic simple" start="8">
+<li>Click on the <strong>Sort Attributes</strong> button in the map header.</li>
+</ol>
+<a class="reference internal image-reference" href="_images/caseSubtype-6.png"><img alt="_images/caseSubtype-6.png" src="_images/caseSubtype-6.png" style="width: 700px;" /></a>
+<ol class="arabic simple" start="9">
+<li>In the window, <strong>Sort Attributes by Associative Statistics</strong>, select the
+values as shown below then click on the <strong>Sort</strong> button.</li>
+</ol>
+<a class="reference internal image-reference" href="_images/caseSubtype-7.png"><img alt="_images/caseSubtype-7.png" src="_images/caseSubtype-7.png" style="width: 350px;" /></a>
+<ol class="arabic simple" start="10">
+<li>The message to the right of the <strong>Sort</strong> button will appear as below.</li>
+</ol>
+<a class="reference internal image-reference" href="_images/caseTopDiff-10.png"><img alt="_images/caseTopDiff-10.png" src="_images/caseTopDiff-10.png" style="width: 350px;" /></a>
+<ol class="arabic simple" start="11">
+<li>After a few seconds to a few minutes when the computations complete, the
+sort message will change to the below. Observe that the top differentiating
+attributes in the <strong>Select Attribute</strong> list are <strong>GP7_Basal gene program</strong>
+and <strong>GP7_Estrogen gene program</strong>.</li>
+</ol>
+<a class="reference internal image-reference" href="_images/caseSubtype-8.png"><img alt="_images/caseSubtype-8.png" src="_images/caseSubtype-8.png" style="width: 700px;" /></a>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+        </div>
+        <div class="sidebar">
+          <h3>Table Of Contents</h3>
+          <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="getStarted.html">Get Started</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="case1pancan12.html">How do I view the Pancan12 Tumor Map?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="case1.5createMap.html">How do I create a map from my data?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="case8.saveAndShare.html">How do I save and share my work?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="case2colors.html">How are colors customized and an image downloaded?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="case3share.html">Which samples share a particular genomic alteration?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="case4annotation.html">How are custom annotations created?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="case5topDiff.html">What is the top differentiating attribute for squamous-like bladder cancer?</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Which genomic events distinguish one subtype of cancer from another?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="case7drive.html">Which genes and pathways drive clustering of basal breast tumors?</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="basicControls.html">Basic Controls</a></li>
+<li class="toctree-l1"><a class="reference internal" href="menus.html">Menus</a></li>
+<li class="toctree-l1"><a class="reference internal" href="shortlist.html">Short List</a></li>
+<li class="toctree-l1"><a class="reference internal" href="advancedControls.html">Advanced Controls</a></li>
+<li class="toctree-l1"><a class="reference internal" href="existingMaps.html">Public Maps</a></li>
+</ul>
+
+          <div role="search">
+            <h3 style="margin-top: 1.5em;">Search</h3>
+            <form class="search" action="search.html" method="get">
+                <input type="text" name="q" />
+                <input type="submit" value="Go" />
+                <input type="hidden" name="check_keywords" value="yes" />
+                <input type="hidden" name="area" value="default" />
+            </form>
+          </div>
+        </div>
+        <div class="clearer"></div>
+      </div>
+    </div>
+
+    <div class="footer-wrapper">
+      <div class="footer">
+        <div class="left">
+          <div role="navigation" aria-label="related navigaton">
+            <a href="case5topDiff.html" title="What is the top differentiating attribute for squamous-like bladder cancer?"
+              >previous</a> |
+            <a href="case7drive.html" title="Which genes and pathways drive clustering of basal breast tumors?"
+              >next</a> |
+            <a href="genindex.html" title="General Index"
+              >index</a>
+          </div>
+          <div role="note" aria-label="source link">
+              <br/>
+              <a href="_sources/case6subtype.rst.txt"
+                rel="nofollow">Show Source</a>
+          </div>
+        </div>
+
+        <div class="right">
+          
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2016, UCSC Tumor Map development team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+    </div>
+        </div>
+        <div class="clearer"></div>
+      </div>
+    </div>
+
+  </body>
+</html>

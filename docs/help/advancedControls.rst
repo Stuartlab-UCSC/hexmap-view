@@ -5,7 +5,6 @@ Advanced Controls
 .. toctree::
    :maxdepth: 1
 
-   shortlist
    statsNsort
    setOper
    filter

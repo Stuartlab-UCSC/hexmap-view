@@ -8,6 +8,7 @@ Contents:
    getStarted
    basicControls
    menus
+   shortlist
    advancedControls
    existingMaps
 

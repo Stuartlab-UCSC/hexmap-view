@@ -26,6 +26,11 @@ Terms used throughout the application and this document are:
 
 **attribute** : a property of nodes used to color the map
 
-You can now :doc:`getStarted` with our use cases to get you familiar with
-the Tumor map, check out the :doc:`basicControls`, or just dive in
-at https://tumormap.ucsc.edu.
+You can now
+:doc:`getStarted`
+with our use cases to get you familiar with the Tumor map, check out the
+:doc:`basicControls`
+, or just dive in at
+https://tumormap.ucsc.edu.
+
+

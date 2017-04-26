@@ -12,11 +12,15 @@ latest production version so should be kept clean. Nothing is ever comitted
 directly into the master branch. It gets updated by the repository meister when
 there is a new release by merging from the dev branch.
 
+.. _youMayUse:
+
 You may use
 personal or project branches off of dev however working directly on the dev
 branch is fine. Working directly on dev will allow the rest of us to use your
 changes as soon as you push them to the remote repository. Otherwise you will
 need to do a merge for others to easily use your work.
+
+.. _aGitQuickStart:
 
 A git quick start
 .................

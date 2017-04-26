@@ -73,19 +73,45 @@ build the html pages while in that directory with:</p>
 </div>
 <p>This will deposit the html pages into hexagram/docs/dev and you can get to them
 via this URL: <a class="reference external" href="file://ROOT/hexagram/docs/dev/index.html">file://ROOT/hexagram/docs/dev/index.html</a></p>
+<div class="section" id="tips-on-making-links">
+<h2>Tips on making Links<a class="headerlink" href="#tips-on-making-links" title="Permalink to this headline">¶</a></h2>
+<p>Link to a section on this page: <a class="reference internal" href="#tips-on-making-links">Tips on making Links</a></p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>`Tips on making Links`_
+</pre></div>
+</div>
+<p>Link to a page in this doc: <a class="reference internal" href="repository.html"><span class="doc">Code Repository</span></a></p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>:doc:`repository`
+</pre></div>
+</div>
+<p>Link to anywhere in this doc, given that you place a tag such as &#8221;.. _youMayUse:&#8221; just above the desired location:
+<a class="reference internal" href="repository.html#youmayuse"><span class="std std-ref">Link title</span></a> :</p>
+<blockquote>
+<div><a class="reference internal" href="repository.html#youmayuse"><span class="std std-ref">Link title</span></a></div></blockquote>
+<p>Link to a section on any page in this doc, given that you place a tag such as &#8221;.. _aGitQuickStart:&#8221; just above the section header:
+<a class="reference internal" href="repository.html#agitquickstart"><span class="std std-ref">A git quick start</span></a>:</p>
+<blockquote>
+<div><a class="reference internal" href="repository.html#agitquickstart"><span class="std std-ref">A git quick start</span></a></div></blockquote>
+<p>Link to an external page: <a class="reference external" href="https://tumormap.ucsc.edu">https://tumormap.ucsc.edu</a></p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">tumormap</span><span class="o">.</span><span class="n">ucsc</span><span class="o">.</span><span class="n">edu</span>
+</pre></div>
+</div>
+<p>Link to an external page displaying the given text: <a class="reference external" href="https://tumormap.ucsc.edu">tumormap</a></p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>`tumormap &lt;https://tumormap.ucsc.edu&gt;`_
+</pre></div>
+</div>
+</div>
 <div class="section" id="other-documentation">
 <h2>Other Documentation<a class="headerlink" href="#other-documentation" title="Permalink to this headline">¶</a></h2>
 <p>Other documentation built under Sphinx in the same manner:</p>
 <ul class="simple">
 <li>Web APIs: query</li>
-<li>Create a map: createMap</li>
 <li>User Guide: help</li>
 </ul>
 <p>Using these locations:</p>
 <ul class="simple">
-<li>source files: hexagram/docs/KEY</li>
-<li>html files: hexagram/public/KEY</li>
-<li>URL: <a class="reference external" href="https://SERVER/KEY/index.html">https://SERVER/KEY/index.html</a></li>
+<li>source files: hexagram/docs/help, hexagram/docs/quert</li>
+<li>html files: hexagram/public/help hexagram/public/query</li>
+<li>URL: <a class="reference external" href="https://SERVER/help/index.html">https://SERVER/help/index.html</a> &amp; <a class="reference external" href="https://SERVER/query/index.html">https://SERVER/query/index.html</a></li>
 </ul>
 <p>Where KEY is replaced with one of the keys above. For example: hexagram/docs/help</p>
 </div>

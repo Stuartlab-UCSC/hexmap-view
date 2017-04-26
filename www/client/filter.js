@@ -7,8 +7,8 @@ var app = app || {};
 
     var TITLE = 'Filter Attributes',
         BIN_LABEL = 'Binary',
-        CAT_LABEL = 'Category',
-        CONT_LABEL = 'Numeric',
+        CAT_LABEL = 'Categorical',
+        CONT_LABEL = 'Continuous',
         UNTAGGED_LABEL = 'Untagged attributes',
         dataTypeList = ['bin', 'cat', 'cont'],
         label = {

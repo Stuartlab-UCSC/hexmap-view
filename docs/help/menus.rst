@@ -6,6 +6,8 @@ Menus
 File Operations
 ---------------
 
+These operations are available on the **File** menu.
+
 Save/Bookmark
 ^^^^^^^^^^^^^
 
@@ -15,16 +17,16 @@ share with others.
 Create Map
 ^^^^^^^^^^
 
-Create a map using your data. For details see :ref:`createMap`
+Create a map using your data. For details see :doc:`createMap`
 
 Download Node IDs
 ^^^^^^^^^^^^^^^^^
 
 To download node IDs, a group of nodes must already be selected and saved to
-the *Short List* as described below in, :ref:`selectingNodes`.
+the **Short List** as described below in, :ref:`selectingNodes`.
 
-To download node IDs of a custom subgroup, go to the *File* menu
-then *Download*, then click on *Node IDs*.
+To download node IDs of a custom subgroup, go to the **File** menu
+then **Download**, then click on **Node IDs**.
 A window will appear for you to select the group of interest.
 
 Other Downloads
@@ -32,21 +34,22 @@ Other Downloads
 
 Other available downloads are:
 
-* PDF image of map and/or legend
-* SVG image of map
-* XY coordinates of the nodes prior to *flattening* them on to the hexagonal grid. The nodes are flattened on to the grid so they will not be overlapping one another, obscuring colors of nodes underneath.
+**PDF** : PDF image of map and/or legend
+
+**SVG** : SVG image of map
+
+**XY coordinates** : positions of the nodes in the preliminary projection on the
+X-Y plane, before they are snapped to a hexagonal grid
 
 
-Editing the Map
----------------
+Edit the Map
+------------
 
-You may edit the map by selecting one of the options on the *Edit* menu to:
+You may edit the map by selecting one of the options on the **Edit** menu:
 
-* change the background to white or black
-* change the default colormap for any attributes
-* place your own nodes to a map
+**Background** : change the background to white or black
 
-.. * attach your own label to anywhere on the map
+**Colormap** : change the default colormap for any attributes
 
 Place new Nodes
 ^^^^^^^^^^^^^^^
@@ -68,45 +71,61 @@ neighbors.
 Note that at least 50% of the features provided must match those in the map or
 an error will be returned.
 
+.. feature disabled:
+.. **Add Label** : attach your own label to anywhere on the map
+
 .. _selectingNodes:
 
-Selecting Nodes
----------------
+Select Nodes
+------------
+
+To select a group of nodes, click on one of the options in the **Select** menu.
 
 Sometimes you may want to select a group of nodes to do additional analysis in
-or outside of the map. Selecting a group of nodes also creates a new attribute
-that will be treated just like the attributes permanently associated with
-the map. This new attribute will have binary values with *one* indicating the node
-belongs to the new group and *zero* for nodes that don't belong.
+or outside of the map. Selecting a group of nodes creates a new attribute
+in the **Short List**. This new attribute will have binary values with *one*
+indicating the node belongs to the new group and *zero* for nodes that don't
+belong.
 
-The most simple way to select a group of nodes is from the *Select* menu by
+Note that this attribute will be irretreivalby removed if removed from the
+**Short List**.
+
+The most simple way to select a group of nodes is from the **Select** menu by
 clicking on the method you would like to use to select the nodes:
 
-* *by Rectangle* or *by Polygon* will allow you to select regions by clicking on the map
+**by Rectangle** or **by Polygon** : select regions by clicking on the map
 
-* *by Node IDs* will allow you to enter a list of node IDs to be selected
+**by Node IDs** : enter a list of node IDs to be selected
 
 A window will appear to allow you to name this group and make it appear in the
-*Short List*.
+**Short List**.
 
 More advanced methods for selecting nodes and creating attributes are described
-in *Creating Attributes*.
+in :doc:`createAttribute`.
 
 
 Views of the Map
 ----------------
 
-There are two views of the map available under the *View* menu:
+There are two views of the map available under the **View** menu:
 
-* *Map Layout* is the primary view and allows display attribute values
-* *Node Density* shows the positions of the nodes before they are *flattened* into the hexagonal grid. Nodes are flattened to the grid so that they will not be overlapping one another, obscuring colors of nodes underneath.
+**Map Layout** : the primary view which allows display of attribute values via colors
 
-Once in *Node Density* view, there is an additional option in the *View* menu:
+**Node Density** : shows positions of the nodes in the preliminary projection on
+the X-Y plane, before they are snapped to a hexagonal grid
 
-* *Show Edges* shows the directed graph of node edges so you can see the relationships used in positioning the nodes
+Once in **Node Density** view, there is an additional option in the **View**
+menu:
+
+**Show Edges** : shows the directed graph of node edges so you can see the
+relationships used in positioning the nodes. Clicking on a node will highlight
+the edges to neighbors used to lay out the map. Inputs are highlighted with red
+edges, while outputs are highlighted with green. Edges that go both ways are
+shown as thick grey lines.
 
 
 Tools: Data Operations
 ----------------------
 
-All of the operations on data are explained in :doc:`advancedControls`
+All of the available operations on data are in the **Tools** menu and explained
+in :doc:`advancedControls`

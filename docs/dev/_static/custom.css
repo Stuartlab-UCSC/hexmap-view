@@ -26,11 +26,11 @@ div.header .headertitle a,
 div.header div.rel a,
 body div.header div.rel,
 div.footer, div.footer a {
-    color: #f5f4eb, /* genomics institute pages tan; */
+    color: #dddddd, /* app background */
 }
 
 div.content-wrapper {
-  background-color: #f5f4eb;
+  background-color: #dddddd;
 }
 
 div.document div.highlight {

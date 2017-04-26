@@ -44,7 +44,7 @@ Steps
 
 10. When the computations are complete the new map will load.
 
-11. To use your own data, be sure it is in the format of the example files or other formats described at :ref:`createMap`.
+11. To use your own data, be sure it is in the format of the example files or other formats described at :doc:`createMap`.
 
 12. Shortcut: File menu -> Create a Map.
 

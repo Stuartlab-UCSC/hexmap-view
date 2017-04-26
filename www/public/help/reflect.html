@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Map Reflection &#8212; Tumor Map Help</title>
+    <title>Map Reflection Tool &#8212; Tumor Map Help</title>
     
     <link rel="stylesheet" href="_static/agogo.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -28,7 +28,7 @@
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Create an Attribute" href="createAttribute.html" />
-    <link rel="prev" title="Filter Attributes" href="filter.html" /> 
+    <link rel="prev" title="Filter Attributes Tool" href="filter.html" /> 
   </head>
   <body role="document">
     <div class="header-wrapper" role="banner">
@@ -36,7 +36,7 @@
         <div class="headertitle"><a
           href="index.html">Tumor Map Help</a></div>
         <div class="rel" role="navigation" aria-label="related navigation">
-          <a href="filter.html" title="Filter Attributes"
+          <a href="filter.html" title="Filter Attributes Tool"
              accesskey="P">previous</a> |
           <a href="createAttribute.html" title="Create an Attribute"
              accesskey="N">next</a> |
@@ -54,12 +54,36 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="map-reflection">
-<h1>Map Reflection<a class="headerlink" href="#map-reflection" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="map-reflection-tool">
+<h1>Map Reflection Tool<a class="headerlink" href="#map-reflection-tool" title="Permalink to this headline">¶</a></h1>
+<p>Reflecting a set of data from one map onto a companion map may be performed by
+clicking on the <strong>Tools</strong> menu then clicking on <strong>Map Reflection</strong>.</p>
+<p>The resulting window, <strong>Reflect on Another Map</strong> is described below.</p>
+<p>Not all maps have reflection maps. If this option is greyed out in the Tools
+menu, then this map has no reflection maps.</p>
+<p>If this option does not exist in the Tools menu, then you do not have the proper
+authority to run this compute-intensive task. Ask hexmap at ucsc dot edu
+with justification for authorization.</p>
 <p>Some maps have relationships with other maps so that the layout properties of
-a group of nodes may be reflected onto another map. The <em>target</em> map will be
+a group of nodes may be reflected onto another map. The target map will be
 based on the same dataset as the first map with its nodes being the node
 properties of the first map.</p>
+<div class="section" id="input-descriptions">
+<h2>Input Descriptions<a class="headerlink" href="#input-descriptions" title="Permalink to this headline">¶</a></h2>
+<p><strong>Selection</strong> : a <strong>binary</strong> attribute, possibly one you have created by
+selecting a group of nodes using an option from the <strong>Select</strong> menu. More
+information on selecting nodes is at <a class="reference internal" href="menus.html#selectingnodes"><span class="std std-ref">Select Nodes</span></a> . More information on
+binary attribute data types is at <a class="reference internal" href="dataTypes.html"><span class="doc">Attribute Data Types</span></a> .</p>
+<p><strong>Map ID</strong> : the map ID of the target map upon which the data will be reflected.
+This list only contains companion maps that have
+information to display related to the current map.</p>
+<p><strong>Layout</strong> : the layout of the map ID upon which the data will
+be reflected. This list only contains layouts of the target map ID that have
+information to display related to the current map.</p>
+<p>Click on the <strong>Reflect</strong> button to start up the reflection on the target map.
+After computations are complete a new browser tab will be opened with the target
+map displaying the reflected data.</p>
+</div>
 </div>
 
 
@@ -74,12 +98,12 @@ properties of the first map.</p>
 <li class="toctree-l1"><a class="reference internal" href="getStarted.html">Get Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="basicControls.html">Basic Controls</a></li>
 <li class="toctree-l1"><a class="reference internal" href="menus.html">Menus</a></li>
+<li class="toctree-l1"><a class="reference internal" href="shortlist.html">Short List</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="advancedControls.html">Advanced Controls</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="shortlist.html">Short List</a></li>
-<li class="toctree-l2"><a class="reference internal" href="statsNsort.html">Statistics and Sorting</a></li>
-<li class="toctree-l2"><a class="reference internal" href="setOper.html">Set Operations</a></li>
-<li class="toctree-l2"><a class="reference internal" href="filter.html">Filter Attributes</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Map Reflection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="statsNsort.html">Statistics and Sorting Tool</a></li>
+<li class="toctree-l2"><a class="reference internal" href="setOper.html">Set Operations Tool</a></li>
+<li class="toctree-l2"><a class="reference internal" href="filter.html">Filter Attributes Tool</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Map Reflection Tool</a></li>
 <li class="toctree-l2"><a class="reference internal" href="createAttribute.html">Create an Attribute</a></li>
 <li class="toctree-l2"><a class="reference internal" href="placeNode.html">Place New Nodes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="createMap.html">Create a Map</a></li>
@@ -107,7 +131,7 @@ properties of the first map.</p>
       <div class="footer">
         <div class="left">
           <div role="navigation" aria-label="related navigaton">
-            <a href="filter.html" title="Filter Attributes"
+            <a href="filter.html" title="Filter Attributes Tool"
               >previous</a> |
             <a href="createAttribute.html" title="Create an Attribute"
               >next</a> |

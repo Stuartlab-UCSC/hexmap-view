@@ -15,7 +15,7 @@ h3 {
 
 div.sidebar li.toctree-l1 a, input,
 textarea, keygen, select, button {
-    background-color: rgba(255, 255, 255, 1);
+    background-color: rgba(255, 255, 255, 0.7);
 }
 
 pre, xmp, plaintext, listing {
@@ -26,11 +26,11 @@ div.header .headertitle a,
 div.header div.rel a,
 body div.header div.rel,
 div.footer, div.footer a {
-    color: #f5f4eb, /* genomics institute pages tan; */
+    color: #dddddd, /* app background; */
 }
 
 div.content-wrapper {
-  background-color: #f5f4eb;
+  background-color: #dddddd;
 }
 
 div.document div.highlight {

@@ -60,6 +60,8 @@ Reflect = (function () { // jshint ignore: line
                                     $('#reflectDialog .layerNameListAnchor'),
                                     $('#reflectDialog .selectionListLabel'),
                                     selectionSelected);
+           
+        // Only include binary data types, which also includes node selections.
         selectionList.enable(true, {binary: true});
 
         // Create the data type selector
@@ -93,12 +95,18 @@ Reflect = (function () { // jshint ignore: line
 
         //console.log(available_nodes);
         //console.log(nodeIds);
-       var in_count=0;
-        _.each(nodeIds,function(node){
-            if (available_nodes.indexOf(node) !== -1 ){
-                 in_count+=1;
-            }
-        });
+        var in_count=0;
+        try {
+            _.each(nodeIds,function(node){
+                if (available_nodes.indexOf(node) !== -1 ){
+                     in_count+=1;
+                }
+            });
+        } catch (e) {
+        
+            // If there are no available nodes, that will be reported later.
+            jQuery.noop();
+        }
 
         return in_count;
     }

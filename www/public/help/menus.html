@@ -27,7 +27,7 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Advanced Controls" href="advancedControls.html" />
+    <link rel="next" title="Short List" href="shortlist.html" />
     <link rel="prev" title="Basic Controls" href="basicControls.html" /> 
   </head>
   <body role="document">
@@ -38,7 +38,7 @@
         <div class="rel" role="navigation" aria-label="related navigation">
           <a href="basicControls.html" title="Basic Controls"
              accesskey="P">previous</a> |
-          <a href="advancedControls.html" title="Advanced Controls"
+          <a href="shortlist.html" title="Short List"
              accesskey="N">next</a> |
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a>
@@ -58,6 +58,7 @@
 <h1>Menus<a class="headerlink" href="#menus" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="file-operations">
 <h2>File Operations<a class="headerlink" href="#file-operations" title="Permalink to this headline">¶</a></h2>
+<p>These operations are available on the <strong>File</strong> menu.</p>
 <div class="section" id="save-bookmark">
 <h3>Save/Bookmark<a class="headerlink" href="#save-bookmark" title="Permalink to this headline">¶</a></h3>
 <p>Use this to save your current view as a bookmark to retrieve in the future or
@@ -65,34 +66,30 @@ share with others.</p>
 </div>
 <div class="section" id="create-map">
 <h3>Create Map<a class="headerlink" href="#create-map" title="Permalink to this headline">¶</a></h3>
-<p>Create a map using your data. For details see <a class="reference internal" href="createMap.html#createmap"><span class="std std-ref">Create a Map</span></a></p>
+<p>Create a map using your data. For details see <a class="reference internal" href="createMap.html"><span class="doc">Create a Map</span></a></p>
 </div>
 <div class="section" id="download-node-ids">
 <h3>Download Node IDs<a class="headerlink" href="#download-node-ids" title="Permalink to this headline">¶</a></h3>
 <p>To download node IDs, a group of nodes must already be selected and saved to
-the <em>Short List</em> as described below in, <a class="reference internal" href="#selectingnodes"><span class="std std-ref">Selecting Nodes</span></a>.</p>
-<p>To download node IDs of a custom subgroup, go to the <em>File</em> menu
-then <em>Download</em>, then click on <em>Node IDs</em>.
+the <strong>Short List</strong> as described below in, <a class="reference internal" href="#selectingnodes"><span class="std std-ref">Select Nodes</span></a>.</p>
+<p>To download node IDs of a custom subgroup, go to the <strong>File</strong> menu
+then <strong>Download</strong>, then click on <strong>Node IDs</strong>.
 A window will appear for you to select the group of interest.</p>
 </div>
 <div class="section" id="other-downloads">
 <h3>Other Downloads<a class="headerlink" href="#other-downloads" title="Permalink to this headline">¶</a></h3>
 <p>Other available downloads are:</p>
-<ul class="simple">
-<li>PDF image of map and/or legend</li>
-<li>SVG image of map</li>
-<li>XY coordinates of the nodes prior to <em>flattening</em> them on to the hexagonal grid. The nodes are flattened on to the grid so they will not be overlapping one another, obscuring colors of nodes underneath.</li>
-</ul>
+<p><strong>PDF</strong> : PDF image of map and/or legend</p>
+<p><strong>SVG</strong> : SVG image of map</p>
+<p><strong>XY coordinates</strong> : positions of the nodes in the preliminary projection on the
+X-Y plane, before they are snapped to a hexagonal grid</p>
 </div>
 </div>
-<div class="section" id="editing-the-map">
-<h2>Editing the Map<a class="headerlink" href="#editing-the-map" title="Permalink to this headline">¶</a></h2>
-<p>You may edit the map by selecting one of the options on the <em>Edit</em> menu to:</p>
-<ul class="simple">
-<li>change the background to white or black</li>
-<li>change the default colormap for any attributes</li>
-<li>place your own nodes to a map</li>
-</ul>
+<div class="section" id="edit-the-map">
+<h2>Edit the Map<a class="headerlink" href="#edit-the-map" title="Permalink to this headline">¶</a></h2>
+<p>You may edit the map by selecting one of the options on the <strong>Edit</strong> menu:</p>
+<p><strong>Background</strong> : change the background to white or black</p>
+<p><strong>Colormap</strong> : change the default colormap for any attributes</p>
 <div class="section" id="place-new-nodes">
 <h3>Place new Nodes<a class="headerlink" href="#place-new-nodes" title="Permalink to this headline">¶</a></h3>
 <p>Select this option to add your own nodes to the map. If this option is greyed
@@ -110,39 +107,43 @@ neighbors.</p>
 an error will be returned.</p>
 </div>
 </div>
-<div class="section" id="selecting-nodes">
-<span id="selectingnodes"></span><h2>Selecting Nodes<a class="headerlink" href="#selecting-nodes" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="select-nodes">
+<span id="selectingnodes"></span><h2>Select Nodes<a class="headerlink" href="#select-nodes" title="Permalink to this headline">¶</a></h2>
+<p>To select a group of nodes, click on one of the options in the <strong>Select</strong> menu.</p>
 <p>Sometimes you may want to select a group of nodes to do additional analysis in
-or outside of the map. Selecting a group of nodes also creates a new attribute
-that will be treated just like the attributes permanently associated with
-the map. This new attribute will have binary values with <em>one</em> indicating the node
-belongs to the new group and <em>zero</em> for nodes that don&#8217;t belong.</p>
-<p>The most simple way to select a group of nodes is from the <em>Select</em> menu by
+or outside of the map. Selecting a group of nodes creates a new attribute
+in the <strong>Short List</strong>. This new attribute will have binary values with <em>one</em>
+indicating the node belongs to the new group and <em>zero</em> for nodes that don&#8217;t
+belong.</p>
+<p>Note that this attribute will be irretreivalby removed if removed from the
+<strong>Short List</strong>.</p>
+<p>The most simple way to select a group of nodes is from the <strong>Select</strong> menu by
 clicking on the method you would like to use to select the nodes:</p>
-<ul class="simple">
-<li><em>by Rectangle</em> or <em>by Polygon</em> will allow you to select regions by clicking on the map</li>
-<li><em>by Node IDs</em> will allow you to enter a list of node IDs to be selected</li>
-</ul>
+<p><strong>by Rectangle</strong> or <strong>by Polygon</strong> : select regions by clicking on the map</p>
+<p><strong>by Node IDs</strong> : enter a list of node IDs to be selected</p>
 <p>A window will appear to allow you to name this group and make it appear in the
-<em>Short List</em>.</p>
+<strong>Short List</strong>.</p>
 <p>More advanced methods for selecting nodes and creating attributes are described
-in <em>Creating Attributes</em>.</p>
+in <a class="reference internal" href="createAttribute.html"><span class="doc">Create an Attribute</span></a>.</p>
 </div>
 <div class="section" id="views-of-the-map">
 <h2>Views of the Map<a class="headerlink" href="#views-of-the-map" title="Permalink to this headline">¶</a></h2>
-<p>There are two views of the map available under the <em>View</em> menu:</p>
-<ul class="simple">
-<li><em>Map Layout</em> is the primary view and allows display attribute values</li>
-<li><em>Node Density</em> shows the positions of the nodes before they are <em>flattened</em> into the hexagonal grid. Nodes are flattened to the grid so that they will not be overlapping one another, obscuring colors of nodes underneath.</li>
-</ul>
-<p>Once in <em>Node Density</em> view, there is an additional option in the <em>View</em> menu:</p>
-<ul class="simple">
-<li><em>Show Edges</em> shows the directed graph of node edges so you can see the relationships used in positioning the nodes</li>
-</ul>
+<p>There are two views of the map available under the <strong>View</strong> menu:</p>
+<p><strong>Map Layout</strong> : the primary view which allows display of attribute values via colors</p>
+<p><strong>Node Density</strong> : shows positions of the nodes in the preliminary projection on
+the X-Y plane, before they are snapped to a hexagonal grid</p>
+<p>Once in <strong>Node Density</strong> view, there is an additional option in the <strong>View</strong>
+menu:</p>
+<p><strong>Show Edges</strong> : shows the directed graph of node edges so you can see the
+relationships used in positioning the nodes. Clicking on a node will highlight
+the edges to neighbors used to lay out the map. Inputs are highlighted with red
+edges, while outputs are highlighted with green. Edges that go both ways are
+shown as thick grey lines.</p>
 </div>
 <div class="section" id="tools-data-operations">
 <h2>Tools: Data Operations<a class="headerlink" href="#tools-data-operations" title="Permalink to this headline">¶</a></h2>
-<p>All of the operations on data are explained in <a class="reference internal" href="advancedControls.html"><span class="doc">Advanced Controls</span></a></p>
+<p>All of the available operations on data are in the <strong>Tools</strong> menu and explained
+in <a class="reference internal" href="advancedControls.html"><span class="doc">Advanced Controls</span></a></p>
 </div>
 </div>
 
@@ -159,12 +160,13 @@ in <em>Creating Attributes</em>.</p>
 <li class="toctree-l1"><a class="reference internal" href="basicControls.html">Basic Controls</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Menus</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#file-operations">File Operations</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#editing-the-map">Editing the Map</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#selecting-nodes">Selecting Nodes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#edit-the-map">Edit the Map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#select-nodes">Select Nodes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#views-of-the-map">Views of the Map</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#tools-data-operations">Tools: Data Operations</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="shortlist.html">Short List</a></li>
 <li class="toctree-l1"><a class="reference internal" href="advancedControls.html">Advanced Controls</a></li>
 <li class="toctree-l1"><a class="reference internal" href="existingMaps.html">Public Maps</a></li>
 </ul>
@@ -189,7 +191,7 @@ in <em>Creating Attributes</em>.</p>
           <div role="navigation" aria-label="related navigaton">
             <a href="basicControls.html" title="Basic Controls"
               >previous</a> |
-            <a href="advancedControls.html" title="Advanced Controls"
+            <a href="shortlist.html" title="Short List"
               >next</a> |
             <a href="genindex.html" title="General Index"
               >index</a>

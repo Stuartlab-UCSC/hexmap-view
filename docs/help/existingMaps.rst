@@ -141,9 +141,9 @@ Pancan12/SampleMap Attributes
 | pancan subtype miRNA
 | pancan subtype mutations
 | Met vs Primary
-| *_MUTATION (313 mutation flags for high-confidence mutations, where * is a gene symbol in HUGO space)
-| *_AMPLIFICATION (999 gene-level or chromosomal amplification events)
-| *_DELETION (1987 gene-level or chromosomal deletion events)
+| ..._MUTATION (313 mutation flags for high-confidence mutations, where * is a gene symbol in HUGO space)
+| ..._AMPLIFICATION (999 gene-level or chromosomal amplification events)
+| ..._DELETION (1987 gene-level or chromosomal deletion events)
 | TF_IPL_* (774 transcription factors with their activities summarized in the PARADIGM IPL space per each sample; * is a gene symbol in HUGO space)
 | * program (42 drug programs inferred from the gene expression data, where * is a molecular process or function name)
 | Mutation Signature 1

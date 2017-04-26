@@ -1,4 +1,6 @@
 
+.. _whichSampleShare:
+
 Which samples share a particular genomic alteration?
 ====================================================
 
