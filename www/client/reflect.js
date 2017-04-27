@@ -271,6 +271,7 @@ return { // Public methods
             opts: opts,
             showFx: show,
             hideFx: hide,
+            helpAnchor: '/help/reflect.html',
         });
  
         // Listen for the menu clicked

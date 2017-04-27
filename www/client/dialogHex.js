@@ -164,7 +164,8 @@ var app = app || {};
          * @param $el: jquery DOM element of the dialog anchor
          * @param opts: overrides of this class' jquery-ui dialog options
          * @param showFx: called after the show function of this class, optional
-         * @param hideFx: called to destroy the jqueryui dialog, optional
+         * @param hideFx: called to destroy the jqueryui dialog, optional. If 
+         *                provided, the default destroy method will be used
          * @param helpAnchor: the html anchor in the user help doc
          */
 

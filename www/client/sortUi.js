@@ -247,8 +247,14 @@ var app = app || {};
         };
 
         // Create an instance of DialogHex with a link from the navbar menu item
-        dialogHex = createDialogHex(undefined, $('#sort-attributes-button'), $dialog, opts,
-            show, hide);
+        dialogHex = createDialogHex({
+            $button: $('#sort-attributes-button'),
+            $el: $dialog,
+            opts: opts,
+            showFx: show,
+            hideFx: hide,
+            helpAnchor: '/help/statsNsort.html',
+        });
  
         // Create a link from the header button
         add_tool("statsSort", function(ev) {

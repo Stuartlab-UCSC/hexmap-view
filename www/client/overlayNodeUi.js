@@ -152,8 +152,15 @@ var app = app || {};
  
         // Create an instance of DialogHex
         var opts = { title: title };
-        dialogHex = createDialogHex(undefined, undefined, $dialog, opts,
-            show, hide);
+        dialogHex = createDialogHex({
+            $el: $dialog,
+            opts: opts,
+            showFx: show,
+            hideFx: hide,
+            helpAnchor: '/help/placeNode.html',
+        });
+        //dialogHex = createDialogHex(undefined, undefined, $dialog, opts,
+          //  show, hide);
  
         // Create a link from the menu
         add_tool('overlayNode', createWindow, title);

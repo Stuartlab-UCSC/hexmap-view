@@ -41,8 +41,11 @@
 .shortlist .panel_title {
     position: absolute;
     top: 0.2em;
-    text-align: left;
-    padding-left: 3em;
+    padding-left: 5em;
+}
+.shortlist_help_container {
+    position: absolute;
+    right: 2em;
 }
 
 .shortlist .on_top {

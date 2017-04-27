@@ -16,6 +16,9 @@ Colors = (function () { // jshint ignore: line
         NO_DATA_DARK_BG = '#505050',
         badValue = false, // The current category input has a bad value
         $link;
+        
+    var $form,
+        dialogHex;
 
     // Define the colormap template helper, at this scope for some reason
     Template.colormapT.helpers({
@@ -214,32 +217,9 @@ Colors = (function () { // jshint ignore: line
     }
 
     function render() {
-        var $form = $('#colorMapDiv');
-
+        Session.set('colorArray', Colors.colormapsToColorArray());
         $form
             .append($link)
-            .dialog({
-                dialogClass: 'dialog',
-                modal: true,
-                width: $(window).width() * 2 / 3,
-                height: $(window).height() * 2 / 3,
-                position: {my: 'left top', at: 'left top', of: window},
-                buttons: [
-                    {
-                        text: 'Download',
-                        click: function () {
-                            if (!badValue) {
-                                makeTsv($link);
-                                $(this).dialog('close');
-                            }
-                        }
-                    }
-                ],
-                close: function () {
-                    $form.dialog('destroy');
-                    Tool.activity(false);
-                }
-            })
             .on('click', 'tr', rowClick)
             .on('blur', 'input', inputBlur)
             .on('keyup', 'input', inputKeyup);
@@ -303,7 +283,8 @@ Colors = (function () { // jshint ignore: line
         },
 
         init: function () {
-        
+            var $button = $('#navBar .colormap');
+            $form = $('#colorMapDiv');
             $link = $('#colorMapDiv a');
 
             $('#background').on('click', function () {
@@ -320,14 +301,33 @@ Colors = (function () { // jshint ignore: line
                 showOverlayNodes();
             });
      
-            // Prepare a tool to change the colorMap
+            // Prepare to display a dialog
+            var opts = {
+                width: $(window).width() * 2 / 3,
+                height: $(window).height() * 2 / 3,
+                position: {my: 'left top', at: 'left top+50', of: window},
+                buttons: [
+                    {
+                        text: 'Download',
+                        click: function () {
+                            if (!badValue) {
+                                makeTsv($link);
+                                $form.dialog('destroy');
+                            }
+                        }
+                    }
+                ],
+            };
+            var dialogHex = createDialogHex({
+                $el: $form,
+                opts: opts,
+                showFx: render,
+                helpAnchor: '/help/menus.html#colormap'
+            });
 
+            // Create a link from the navBar
             Tool.add("colormap", function () {
-
-                Session.set('colorArray', Colors.colormapsToColorArray());
-                render();
-
-                // Deselect the tool.
+                dialogHex.show();
                 Tool.activity(false);
             }, 'Change colors of attributes', 'mapShow');
         },
