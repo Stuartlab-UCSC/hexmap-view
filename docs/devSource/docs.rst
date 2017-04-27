@@ -60,8 +60,6 @@ Other documentation built under Sphinx in the same manner:
 
 Using these locations:
 
-* source files: hexagram/docs/help, hexagram/docs/quert
-* html files: hexagram/public/help hexagram/public/query
-* URL: https://SERVER/help/index.html & https://SERVER/query/index.html
-
-Where KEY is replaced with one of the keys above. For example: hexagram/docs/help
+* source files: hexagram/docs/help & hexagram/docs/query
+* html files generated: hexagram/public/help & hexagram/public/query
+* URLs: https://SERVER/help/index.html & https://SERVER/query/index.html

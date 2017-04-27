@@ -70,6 +70,13 @@ Attribute A and Attribute B
 Select the attributes to sort on. These attributes must already be in the
 **Short List**.
 
+Results displayed with Attributes
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+The resulting value for each attribute will be contained with that attribute in
+the **Select Attributes** list and in the **Short List** if the attribute
+appears there. Further descriptions of the results displayed are at
+:doc:`attrInfo`.
+
 Technical Overview
 ------------------
 
@@ -85,6 +92,8 @@ Technical Overview
 
 	- Density (Spatial Smoothing Scalar)
 
+.. _layoutIndependentTech:
+
 Layout Independent: Attribute Enrichment Analysis
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -96,7 +105,7 @@ Layout independent associations are provided by statistical tests.
 
 - Differential Attributes (Two Population Statistics)
 
-	The user must provide two sample groupings, each attriute is tested against the null hypothesis that the two groupings come from the same distribution (two-tailed). An appropriate test is chosen based upon the datatype of each attribute (see table 2 below). If there are 300 attributes on the map, 300 statistical tests will provide the rankings. The final ranking is provided by Benjamin-Hochberg False Discover Rates for the statistical tests.
+	The user must provide two sample groupings, each attribute is tested against the null hypothesis that the two groupings come from the same distribution (two-tailed). An appropriate test is chosen based upon the datatype of each attribute (see table 2 below). If there are 300 attributes on the map, 300 statistical tests will provide the rankings. The final ranking is provided by Benjamin-Hochberg False Discover Rates for the statistical tests.
 
 **Table 1**
 
@@ -119,6 +128,8 @@ Layout independent associations are provided by statistical tests.
 |*Statistical Test*| Fisher Exact |   Chi Square  |  Welch's t-test  | 
 +------------------+--------------+---------------+------------------+
 
+
+.. _layoutDependentTech:
 
 Layout Dependent: Spatial Correlation Analysis
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -156,6 +167,9 @@ Where:
 	*V* is the spatial weight matrix
 
 	*e* is a vector filled with 1's the same length as **a** and **b** 
+
+
+.. _densityTech:
 
 Density (Spatial Smoothing Scalar)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

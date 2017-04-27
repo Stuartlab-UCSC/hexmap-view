@@ -13,3 +13,4 @@ Advanced Controls
    placeNode
    createMap
    dataTypes
+   attrInfo

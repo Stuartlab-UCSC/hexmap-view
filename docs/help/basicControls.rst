@@ -42,6 +42,9 @@ The **Select Attributes** drop down contains all the attributes
 available for the map, while the **Short List** contains only those attributes
 that have already been selected.
 
+The statistics display is explained at :doc:`attrInfo`, with a
+technical discussion at :doc:`statsNsort`.
+
 To Select attributes for display click on the |primary| or |secondary| in the
 **Short List** entry.
 No more than two attributes may be selected to color the nodes at a time.
@@ -68,6 +71,17 @@ Header Anatomy
 
 .. |header| image:: _images/header.png
    :width: 750 px
+
+**attribute filter button** and **count of filtered and total attributes**
+are explained at :doc:`filter`
+
+**statistics and sort button** and **current sort** are explained at
+:doc:`statsNsort`
+
+**set operations button** is explained at :doc:`setOper`
+
+**coloring attributes available** is explained in the section above,
+`Color the Map By Attribute`_
 
 View a Node's Details
 ---------------------

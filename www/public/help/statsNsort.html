@@ -108,6 +108,13 @@ Inverse correlation with map placement.</p>
 <p>Select the attributes to sort on. These attributes must already be in the
 <strong>Short List</strong>.</p>
 </div>
+<div class="section" id="results-displayed-with-attributes">
+<h3>Results displayed with Attributes<a class="headerlink" href="#results-displayed-with-attributes" title="Permalink to this headline">¶</a></h3>
+<p>The resulting value for each attribute will be contained with that attribute in
+the <strong>Select Attributes</strong> list and in the <strong>Short List</strong> if the attribute
+appears there. Further descriptions of the results displayed are at
+<a class="reference internal" href="attrInfo.html"><span class="doc">Attribute Information</span></a>.</p>
+</div>
 </div>
 <div class="section" id="technical-overview">
 <h2>Technical Overview<a class="headerlink" href="#technical-overview" title="Permalink to this headline">¶</a></h2>
@@ -130,7 +137,7 @@ Inverse correlation with map placement.</p>
 </li>
 </ul>
 <div class="section" id="layout-independent-attribute-enrichment-analysis">
-<h3>Layout Independent: Attribute Enrichment Analysis<a class="headerlink" href="#layout-independent-attribute-enrichment-analysis" title="Permalink to this headline">¶</a></h3>
+<span id="layoutindependenttech"></span><h3>Layout Independent: Attribute Enrichment Analysis<a class="headerlink" href="#layout-independent-attribute-enrichment-analysis" title="Permalink to this headline">¶</a></h3>
 <p>Layout independent associations are provided by statistical tests.</p>
 <ul>
 <li><p class="first">Focus Attribute (Bivariate Statistics)</p>
@@ -140,7 +147,7 @@ Inverse correlation with map placement.</p>
 </li>
 <li><p class="first">Differential Attributes (Two Population Statistics)</p>
 <blockquote>
-<div><p>The user must provide two sample groupings, each attriute is tested against the null hypothesis that the two groupings come from the same distribution (two-tailed). An appropriate test is chosen based upon the datatype of each attribute (see table 2 below). If there are 300 attributes on the map, 300 statistical tests will provide the rankings. The final ranking is provided by Benjamin-Hochberg False Discover Rates for the statistical tests.</p>
+<div><p>The user must provide two sample groupings, each attribute is tested against the null hypothesis that the two groupings come from the same distribution (two-tailed). An appropriate test is chosen based upon the datatype of each attribute (see table 2 below). If there are 300 attributes on the map, 300 statistical tests will provide the rankings. The final ranking is provided by Benjamin-Hochberg False Discover Rates for the statistical tests.</p>
 </div></blockquote>
 </li>
 </ul>
@@ -211,7 +218,7 @@ Inverse correlation with map placement.</p>
 </table>
 </div>
 <div class="section" id="layout-dependent-spatial-correlation-analysis">
-<h3>Layout Dependent: Spatial Correlation Analysis<a class="headerlink" href="#layout-dependent-spatial-correlation-analysis" title="Permalink to this headline">¶</a></h3>
+<span id="layoutdependenttech"></span><h3>Layout Dependent: Spatial Correlation Analysis<a class="headerlink" href="#layout-dependent-spatial-correlation-analysis" title="Permalink to this headline">¶</a></h3>
 <p>Layout Dependent metrics measure the relationship between map placement and attribute values.</p>
 <p>Layout Dependent metrics are implementations of Sang-ll Lee&#8217;s work, exhausting detail can be found in this <a class="reference external" href="https://link.springer.com/article/10.1007/s101090100064">paper</a></p>
 <p>A similarity matrix representing proximity of samples on the map (i.e. a <em>spatial weight matrix</em>) needs to be constructed to calculate the metrics for density and bivariate spatial association. We have chosen the inverse eucledian distance of samples on the x-y plane for the spatial weight matrix.</p>
@@ -239,7 +246,7 @@ Inverse correlation with map placement.</p>
 </dl>
 </div>
 <div class="section" id="density-spatial-smoothing-scalar">
-<h3>Density (Spatial Smoothing Scalar)<a class="headerlink" href="#density-spatial-smoothing-scalar" title="Permalink to this headline">¶</a></h3>
+<span id="densitytech"></span><h3>Density (Spatial Smoothing Scalar)<a class="headerlink" href="#density-spatial-smoothing-scalar" title="Permalink to this headline">¶</a></h3>
 <p>The spatial smoothing scalar is used to describe the strength of the dependence between map placement and a single attribute.</p>
 <p>For each attributes calculation, missing values are excluded from the spatial weight matrix.</p>
 <p>For continuous and binary variables, Lee&#8217;s spatial smoothing scalar is used:</p>
@@ -286,6 +293,7 @@ Inverse correlation with map placement.</p>
 <li class="toctree-l2"><a class="reference internal" href="placeNode.html">Place New Nodes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="createMap.html">Create a Map</a></li>
 <li class="toctree-l2"><a class="reference internal" href="dataTypes.html">Attribute Data Types</a></li>
+<li class="toctree-l2"><a class="reference internal" href="attrInfo.html">Attribute Information</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="existingMaps.html">Public Maps</a></li>

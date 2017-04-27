@@ -7,17 +7,17 @@ clicking on the **Tools** menu then clicking on **Map Reflection**.
 
 The resulting window, **Reflect on Another Map** is described below.
 
+Some maps have relationships with other maps so that the layout properties of
+a group of nodes may be reflected onto another map. The target map will be
+based on the same dataset as the first map with its nodes being the node
+properties of the first map.
+
 Not all maps have reflection maps. If this option is greyed out in the Tools
 menu, then this map has no reflection maps.
 
 If this option does not exist in the Tools menu, then you do not have the proper
 authority to run this compute-intensive task. Ask hexmap at ucsc dot edu
 with justification for authorization.
-
-Some maps have relationships with other maps so that the layout properties of
-a group of nodes may be reflected onto another map. The target map will be
-based on the same dataset as the first map with its nodes being the node
-properties of the first map.
 
 Input Descriptions
 ++++++++++++++++++

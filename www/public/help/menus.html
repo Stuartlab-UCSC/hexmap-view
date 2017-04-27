@@ -89,7 +89,16 @@ X-Y plane, before they are snapped to a hexagonal grid</p>
 <h2>Edit the Map<a class="headerlink" href="#edit-the-map" title="Permalink to this headline">¶</a></h2>
 <p>You may edit the map by selecting one of the options on the <strong>Edit</strong> menu:</p>
 <p><strong>Background</strong> : change the background to white or black</p>
-<p><strong>Colormap</strong> : change the default colormap for any attributes</p>
+<p><strong>Colormap</strong> : change the color of any categorical attribute.
+Once the colormap window is displayed you can change any colors for any
+categorical attribute.
+When you change a color for an attribute that is currently displayed,
+as soon as you exit the color box the new color will be reflected on the map.
+To restore a color value to it&#8217;s original color,
+clear its box of text and the original value will appear.
+Colormap changes made may be saved as a bookmark from the <strong>File</strong> menu:
+<strong>Save/Bookmark</strong>. These colors will be shown only when this bookmark is used
+and the colormap generated with the map will not be changed.</p>
 <div class="section" id="place-new-nodes">
 <h3>Place new Nodes<a class="headerlink" href="#place-new-nodes" title="Permalink to this headline">¶</a></h3>
 <p>Select this option to add your own nodes to the map. If this option is greyed
@@ -136,9 +145,9 @@ the X-Y plane, before they are snapped to a hexagonal grid</p>
 menu:</p>
 <p><strong>Show Edges</strong> : shows the directed graph of node edges so you can see the
 relationships used in positioning the nodes. Clicking on a node will highlight
-the edges to neighbors used to lay out the map. Inputs are highlighted with red
-edges, while outputs are highlighted with green. Edges that go both ways are
-shown as thick grey lines.</p>
+the edges to neighbors used to lay out the map. Incoming edges are highlighted
+with red, while outgoing edges are highlighted with green. Edges that go both
+ways are shown as thick grey lines.</p>
 </div>
 <div class="section" id="tools-data-operations">
 <h2>Tools: Data Operations<a class="headerlink" href="#tools-data-operations" title="Permalink to this headline">¶</a></h2>

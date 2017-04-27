@@ -49,7 +49,16 @@ You may edit the map by selecting one of the options on the **Edit** menu:
 
 **Background** : change the background to white or black
 
-**Colormap** : change the default colormap for any attributes
+**Colormap** : change the color of any categorical attribute.
+Once the colormap window is displayed you can change any colors for any
+categorical attribute.
+When you change a color for an attribute that is currently displayed,
+as soon as you exit the color box the new color will be reflected on the map.
+To restore a color value to it's original color,
+clear its box of text and the original value will appear.
+Colormap changes made may be saved as a bookmark from the **File** menu:
+**Save/Bookmark**. These colors will be shown only when this bookmark is used
+and the colormap generated with the map will not be changed.
 
 Place new Nodes
 ^^^^^^^^^^^^^^^
@@ -119,9 +128,9 @@ menu:
 
 **Show Edges** : shows the directed graph of node edges so you can see the
 relationships used in positioning the nodes. Clicking on a node will highlight
-the edges to neighbors used to lay out the map. Inputs are highlighted with red
-edges, while outputs are highlighted with green. Edges that go both ways are
-shown as thick grey lines.
+the edges to neighbors used to lay out the map. Incoming edges are highlighted
+with red, while outgoing edges are highlighted with green. Edges that go both
+ways are shown as thick grey lines.
 
 
 Tools: Data Operations

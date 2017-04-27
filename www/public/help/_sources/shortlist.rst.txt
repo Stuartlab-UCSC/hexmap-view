@@ -17,9 +17,12 @@ Basic Anatomy
 Below is a picture of the Short List containing each of the three attribute data
 types: continuous, categorical and binary.
 
-The first entry has an **attribute name** of *Tissue*
-with its **statistics**
-shown below its name. Below the statistics is a **bar
+The first entry has an **attribute name** of *Tissue* with its **statistics**
+shown below its name.
+The statistics display is explained at :doc:`attrInfo`, with a
+technical discussion at :doc:`statsNsort`.
+
+Below the statistics is a **bar
 graph of a categorial attribute** containing the count of values by category.
 To the left of the statistics is a
 **move handle** to rearrange entries within the Short List. Moving an attribute does
