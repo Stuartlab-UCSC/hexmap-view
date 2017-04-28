@@ -11,8 +11,8 @@ if [ -z ${TARGET} ]; then
     TARGET=most
 fi
 
-if [ $TARGET == 'most' ]; then
-    echo everything except docs and tests/pyUnittest
+if [ $TARGET == 'most' ] || [ $TARGET == 'all' ]; then
+    echo everything except docs
     TARRED=www.tar
     TAR_FILES=" \
         bin \
@@ -41,7 +41,13 @@ elif [ $TARGET == 'docs' ]; then
     TAR_FILES=" \
         www/public/help \
         www/public/query \
-        www/public/useCases \
+        "
+fi
+if [ $TARGET == 'all' ]; then
+    echo adding the docs in www/public
+    TAR_FILES+=" \
+        www/public/help \
+        www/public/query \
         "
 fi
 
