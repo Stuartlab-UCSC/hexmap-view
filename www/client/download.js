@@ -69,7 +69,7 @@ Download = (function () { // jshint ignore: line
                 
                 // Get the layer name.
                 var layer_name = select_box.val();
-                if(!have_layer(layer_name)) {
+                if(!Layer.has(layer_name)) {
                     // Not a real layer.
                     // Probably just an empty select or something
                     return;

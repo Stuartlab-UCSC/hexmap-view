@@ -16,7 +16,7 @@ var app = app || {};
 
     function drawBarChart (layer_name, container) {
 
-        with_layer(layer_name, function () {
+        Layer.with_layer(layer_name, function () {
                 
             // Find counts of each category
             var counts = [];
@@ -82,7 +82,7 @@ var app = app || {};
  
     function drawHistogram (layer_name, container) {
  
-        with_layer(layer_name, function () {
+        Layer.with_layer(layer_name, function () {
             var layer = layers[layer_name],
                 arrays = _.zip(_.keys(layer.data), _.values(layer.data)),
                 withHeaders = [['Node', '']].concat(arrays),

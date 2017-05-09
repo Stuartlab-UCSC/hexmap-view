@@ -220,7 +220,7 @@ var app = app || {};
         // Resize the legend along with the window
         $(window).resize(function () {
             current_layers = Shortlist.get_active_layers();
-            with_layers(current_layers, function(retrieved_layers) {
+            Layer.with_layers(current_layers, function(retrieved_layers) {
                 redraw_legend(retrieved_layers, current_layers);
             });
         });

@@ -218,7 +218,7 @@ Hex = (function () { // jshint ignore: line
         if (Session.get('initedLayerIndex')) {
             autorun.stop();
  
-            initLayersArray();
+            Layer.initArray();
         }
     }
     Meteor.autorun(isLayerIndexInitialized);
@@ -247,8 +247,8 @@ Hex = (function () { // jshint ignore: line
             initMapType();
             initLayout();
             initHex();
-            initLayerTypes();
-            initLayerIndex();
+            Layer.initDataTypes();
+            Layer.initIndex();
             initColormaps();
         }
     }

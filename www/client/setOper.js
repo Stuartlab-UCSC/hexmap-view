@@ -36,7 +36,7 @@ var app = app || {};
         // @param: set_type: the set operation to perform
         //
 
-        with_layers (layer_names, function (set_layers) {
+        Layer.with_layers (layer_names, function (set_layers) {
             //Array of signatures 
             var nodeIds = [];
         
@@ -436,7 +436,7 @@ var app = app || {};
 
         // First, figure out what kind of filter settings we take based on 
         // what kind of layer we are.
-        with_layer(layer_object, function(layer) {
+        Layer.with_layer(layer_object, function(layer) {
                         
                  // No options available. We have to add them.
                  for(var i = 0; i < layer.magnitude + 1; i++) {

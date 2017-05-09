@@ -222,7 +222,7 @@ Shortlist = (function () { // jshint ignore: line
         // layer should be a colormap.
             
         // We need to set its boundaries to the min and max of the data set
-        with_layer(layer_name, function(layer) {
+        Layer.with_layer(layer_name, function(layer) {
         
             var minBound = layer.minimum;
             var maxBound = layer.maximum;
@@ -273,7 +273,7 @@ Shortlist = (function () { // jshint ignore: line
         // Used for selections... more broadly can be used for dynamic layers.
         // Attributes is an object of attributes to copy into the layer.
         
-        // Store the layer. Just put in the data. with_layer knows what to do if
+        // Store the layer. Just put in the data. Layer.with_layer knows what to do if
         // the magnitude isn't filled in.
         layers[layer_name] = {
             url: undefined, //points to layer datafile
@@ -428,7 +428,7 @@ Shortlist = (function () { // jshint ignore: line
     function create_shortlist_entry_with_data (layer_name, root) {
  
         // Add all of the metadata
-        fill_layer_metadata(root.find('.metadata_holder'), layer_name);
+        Layer.fill_metadata(root.find('.metadata_holder'), layer_name);
  
         if (Util.is_continuous(layer_name)) {
 
@@ -668,7 +668,7 @@ Shortlist = (function () { // jshint ignore: line
  
             // Figure out what kind of filter settings we take based on
             // what kind of layer we are.
-            with_layer (layer_name, function (layer) {
+            Layer.with_layer (layer_name, function (layer) {
             
                 if (Util.is_continuous(layer_name)) {
                 
@@ -746,7 +746,7 @@ Shortlist = (function () { // jshint ignore: line
             root.addClass("selection");
             create_shortlist_entry_with_data(layer_name, root);
         } else {
-            with_layer(layer_name, function () {
+            Layer.with_layer(layer_name, function () {
                 create_shortlist_entry_with_data (layer_name, root);
             });
         }
@@ -838,7 +838,7 @@ Shortlist = (function () { // jshint ignore: line
         // TODO: make the metadata updates reactive
         _.each(Session.get('shortlist'), function(layer_name) {
             var root = get_root_from_layer_name(layer_name);
-                fill_layer_metadata(root.find(".metadata_holder"), layer_name);
+                Layer.fill_metadata(root.find(".metadata_holder"), layer_name);
         });
     }
 
@@ -1155,7 +1155,7 @@ return {
             layer_names.push(filters[i].layer_name);
         }
         
-        with_layers(layer_names, function(filter_layers) {
+        Layer.with_layers(layer_names, function(filter_layers) {
             // filter_layers is guaranteed to be in the same order as filters.
             
             // This is an array of signatures that pass all the filters.

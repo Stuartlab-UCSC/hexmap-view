@@ -24,7 +24,7 @@ var app = app || {};
         // Put in a layer metadata container div
         var metadata_container = $("<div/>").addClass("layer-metadata-container");
         
-        fill_layer_metadata(metadata_container, layer_name);
+        Layer.fill_metadata(metadata_container, layer_name);
         
         root.append(metadata_container);
         
