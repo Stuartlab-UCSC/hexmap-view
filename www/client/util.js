@@ -40,7 +40,7 @@ Util = (function () { // jshint ignore: line
             .show();
 
         if (type === 'warn' || type === 'info') {
-            $("#banner").delay(1250).fadeOut(1500);
+            $("#banner").delay(5000).fadeOut(1500);
         } else if (type === 'error') {
             $("#banner").delay(2500).fadeOut(1500);
         }
