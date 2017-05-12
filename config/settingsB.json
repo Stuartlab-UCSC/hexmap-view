@@ -3,6 +3,24 @@
             "ManagerAddressBook":
             [
                 {
+                    "mapId"     : "CKCC/v3/",
+                    "operation" : "reflection",
+                    "datatypes"  : ["mRNA"],
+                    "toMapIds"  :
+                    [
+                        "CKCC/v3_GeneMap/"
+                    ]
+                },
+                {
+                    "mapId"     : "CKCC/v3_GeneMap/",
+                    "operation" : "reflection",
+                    "datatypes"  : ["mRNA"],
+                    "toMapIds"  :
+                    [
+                        "CKCC/v3/"
+                    ]
+                },
+                {
                     "mapId"     : "CKCC/v1_nbl/",
                     "operation" : "reflection",
                     "datatypes"  : ["mRNA"],
@@ -59,6 +77,42 @@
             ],
             "ManagerFileCabinet":
             [
+                {
+                    "operation" : "reflection",
+                    "datatype"  : "mRNA",
+                    "mapId" : "CKCC/v3/",
+                    "toMapId" : "CKCC/v3_GeneMap/",
+                    "opts" : null,
+                    "args" :
+                    [
+                        "datapath",
+                        "featOrSamp",
+                        "node_ids",
+                        "datatype",
+                        "n"
+                    ],
+                    "datapath" : "reflection/v3/expression.2016-10-24.tsv",
+                    "featOrSamp" : "sample",
+                    "n" : 150
+                },
+                    {
+                    "operation" : "reflection",
+                    "datatype"  : "mRNA",
+                    "mapId" : "CKCC/v3_GeneMap/",
+                    "toMapId" : "CKCC/v3/",
+                    "opts" : null,
+                    "args" :
+                    [
+                        "datapath",
+                        "featOrSamp",
+                        "node_ids",
+                        "datatype",
+                        "n"
+                    ],
+                    "datapath" : "reflection/v3/expression.2016-10-24.tsv",
+                    "featOrSamp" : "feature",
+                    "n" : 150
+                },
                 {
                     "operation" : "reflection",
                     "datatype"  : "mRNA",
