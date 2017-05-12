@@ -192,6 +192,9 @@ function dropInLayerBox(layerData,user,toMapId){
 
         layerData.data = arrayLayer(layerData);
         var old_layer_names = [];
+
+        console.log("dropInLayerbox user and toMapId", user, toMapId)
+
         _.each(LayerPostOffice.findOne({user:user,toMapId:toMapId}).layers,
                function(layer){
                   old_layer_names.push(layer.layer_name);
@@ -367,21 +370,49 @@ Meteor.methods({
 Meteor.publish('userLayerBox', function(userId, currMapId) {
     if(!this.userId) { return this.ready(); }
 
-    //If layerbox is empty put something in there
-    if( ! LayerPostOffice.findOne({user: userId, toMapId: currMapId}) ) {
-        //console.log('mapManager: No layerbox found, making empty entry');
-        var emptyLayers=[];
-        LayerPostOffice.insert({user: userId,
-                                toMapId: currMapId,
-                                layers: emptyLayers,
-                                lastChange:"created"
-                                });
-    } 
+    // For each map id the user could reflect to, check and see if the
+    // user has a layer box for that map, if not then make one.
 
+    // Get the entry in the data base holding the array of map ids reflection
+    // is possible for.
+    var reflectionAddress =
+        ManagerAddressBook.findOne({mapId: currMapId, operation: 'reflection'});
+
+    // Empty layers for new entries in the database.
+    var emptyLayers=[];
+
+    // Grab the array of mapIds and if there is not a database entry for the
+    // user with a mapId, make one.
+    if (reflectionAddress) {
+        var toMapIds = reflectionAddress.toMapIds;
+        _.each(toMapIds, function (toMapId) {
+            //If layerbox is empty put something in there
+            if (!LayerPostOffice.findOne({user: userId, toMapId: toMapId})) {
+                LayerPostOffice.insert({
+                    user: userId,
+                    toMapId: toMapId,
+                    layers: emptyLayers,
+                    lastChange: "created"
+                });
+            }
+        })
+    }
+
+    // Make sure there is also an entry for the map the user is currently on.
+    if (!LayerPostOffice.findOne({user: userId, toMapId: currMapId})) {
+        LayerPostOffice.insert({
+            user: userId,
+            toMapId: currMapId,
+            layers: emptyLayers,
+            lastChange: "created"
+        });
+    }
+
+    // Publish the current maps's layer entry.
     var LayerBoxCursor = LayerPostOffice.find({user: userId,
                                                toMapId: currMapId
                                                });
-    //always return Cursor from publish
+    // Always return Cursor from publish
     return LayerBoxCursor;
 });
 
