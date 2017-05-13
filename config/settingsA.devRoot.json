@@ -1,0 +1,18 @@
+{
+    "public": {
+        "ADMIN_EMAIL": "hexmap@ucsc.edu",
+        "DEV": true,
+        "FEATURE_SPACE_DIR": "/hive/groups/hexmap/dev/data/featureSpace/",
+        "GOOGLE_API_KEY": "AIzaSyBb8AJUB4x-xxdUCnjzb-Xbcg0-T1mPw3I",
+        "HUB_URL": "https://hexdev.sdsc.edu:8332",
+        "LAYOUT_INPUT_DIR": "/hive/groups/hexmap/dev/data/layoutInput/",
+        "URL_BASE": "https://hexdev.sdsc.edu",
+        "VIEW_DIR": "/hive/groups/hexmap/dev/data/view/"
+    },
+    "server": {
+        "jobs": {
+            "IS_CALC_SERVER": true,
+            "IS_MAIN_SERVER": true
+        },
+        "SERVER_DIR": "/cluster/home/swat/dev/www/server/",
+        "TEMP_DIR": "/cluster/home/swat/tmp/",

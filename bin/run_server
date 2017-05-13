@@ -67,6 +67,16 @@ elif [ $SERVER_TYPE == 'db' ]; then
             --dbpath $HEXMAP/db \
             &> $HEXMAP/db.log &)
 
+elif [ $SERVER_TYPE == 'dbRepair' ]; then
+    touch $HEXMAP/db.log
+    mv $HEXMAP/db.log $HEXMAP/db.prev.log
+    (nohup $METEOR_BASE/mongodb/bin/mongod \
+            --bind_ip 127.0.0.1 \
+            --port $DB_PORT \
+            --dbpath $HEXMAP/db \
+            --repair \
+            &> $HEXMAP/db.log &)
+
 elif [ $SERVER_TYPE == 'built' ]; then
     export MONGO_URL=mongodb://localhost:$DB_PORT/$DB_NAME
     #cd $HEXMAP/www
