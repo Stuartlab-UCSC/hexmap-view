@@ -158,7 +158,7 @@ Hex = (function () { // jshint ignore: line
 
     function googleAnalytics() {
         window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
-        ga('create', 'UA-76132249-1', 'auto');
+        ga('create', 'UA-76132249-2', 'auto');
         ga('send', 'pageview');
         //<script async src='https://www.google-analytics.com/analytics.js'></script>
     }
