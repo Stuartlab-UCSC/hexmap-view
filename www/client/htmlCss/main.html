@@ -2,11 +2,10 @@
     <meta http-equiv="Content-Security-Policy" content="connect-src
         ws://localhost
         ws://localhost:3333
-        wss://tumormap.ucsc.edu
         wss://hexdev.sdsc.edu:8222
-        https://tumormap.ucsc.edu:8332
-        https://hexdev.sdsc.edu:8332
-        https://kolossus.sdsc.edu:8332
+        wss://hexdev.sdsc.edu
+        https://hexdev.sdsc.edu:8222
+        https://hexdev.sdsc.edu
         http://localhost:5000
         'self';"></meta>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"></meta>
@@ -15,14 +14,14 @@
     <title>UCSC Tumor Map</title>
     <link rel="icon" href="/favicon.ico?v=2" type="image/x-icon" />
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
-    <!-- Google Analytics -->
+    <!-- Google Analytics
         <script>
             window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
             ga('create', 'UA-76132249-1', 'auto');
             ga('send', 'pageview');
         </script>
+    End Google Analytics -->
         <script async src='https://www.google-analytics.com/analytics.js'></script>
-    <!-- End Google Analytics -->
 </head>
 <body>
     {{> Template.dynamic template=page }}

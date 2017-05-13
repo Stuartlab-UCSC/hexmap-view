@@ -154,6 +154,15 @@ Hex = (function () { // jshint ignore: line
         $('#gridContent').height(windowHt - navHt);
     }
 
+
+
+    function googleAnalytics() {
+        window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+        ga('create', 'UA-76132249-1', 'auto');
+        ga('send', 'pageview');
+        //<script async src='https://www.google-analytics.com/analytics.js'></script>
+    }
+
     // Phase 6 init: Autotracker to find when the basic UI is drawn
     Session.set('initedHexagons', false);
     Session.set('initialiedLayers', false);
@@ -190,6 +199,7 @@ Hex = (function () { // jshint ignore: line
                 initGchart();
                 initBookmark();
                 Jobs.init();
+                if (!DEV) { googleAnalytics(); }
                 //initDiffAnalysis();
             }, 0);
         }
