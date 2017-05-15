@@ -158,7 +158,7 @@ Util = (function () { // jshint ignore: line
         }
     }
 
-    function addToDataTypeList (name, data) {
+    function addDynamicToDataTypeList (name, data) {
         //
         // @param name: the name of the layer
         // @param data: an array of values for the layer
@@ -266,7 +266,7 @@ Util = (function () { // jshint ignore: line
         banner: banner,
         tsvParseRows: tsvParseRows,
         removeFromDataTypeList: removeFromDataTypeList,
-        addToDataTypeList: addToDataTypeList,
+        addDynamicToDataTypeList: addDynamicToDataTypeList,
         setHeightSelect2: setHeightSelect2,
         createOurSelect2: createOurSelect2,
         timestamp: timestamp,
@@ -284,7 +284,7 @@ projectNotFound = Util.projectNotFound;
 banner = Util.banner;
 tsvParseRows = Util.tsvParseRows;
 removeFromDataTypeList = Util.removeFromDataTypeList;
-addToDataTypeList = Util.addToDataTypeList;
+addDynamicToDataTypeList = Util.addDynamicToDataTypeList;
 setHeightSelect2 = Util.setHeightSelect2;
 createOurSelect2 = Util.createOurSelect2;
 

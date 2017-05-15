@@ -97,7 +97,7 @@ var app = app || {};
             }
         
             // Add this new layer to the shortlist
-            var layer_name = Shortlist.create_dynamic_binary_layer(
+            var layer_name = Layer.create_dynamic_selection(
                 nodeIds, new_layer_name);
         });
     }
@@ -458,7 +458,7 @@ var app = app || {};
                      var last_index = value.options.length - 1;
                      value.selectedIndex = last_index;   
                     }                
-                refreshColors();
+                //refreshColors();
          });
     }
 

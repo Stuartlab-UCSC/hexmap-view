@@ -49,8 +49,8 @@ body,
     background: #eeeeee;
 }
 
-.shortlist_entry.selection,
-.shortlist_entry.selection .float_controls {
+.shortlist_entry.dynamic,
+.shortlist_entry.dynamic .float_controls {
     background: #E0E0FF;
 }
 

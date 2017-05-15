@@ -5,104 +5,226 @@ var app = app || {};
 (function (hex) { // jshint ignore: line
 Layer = (function () { // jshint ignore: line
 
-    function add_layer_url(layer_name, layer_url, attributes) {
-        // Add a layer with the given name, to be downloaded from the given URL, to
-        // the list of available layers.
-        // Attributes is an object of attributes to copy into the layer.
+    var selection_prefix = 'Selection';
+
+    function add_dynamic_to_data_type_list (name, layer) {
+        if (!('dataType' in layer)) {
         
-        // Store the layer. Just keep the URL, since Layer.with_layer knows what to do
-        // with it.
-        layers[layer_name] = {
-            url: layer_url,
-            data: undefined,
-            magnitude: undefined,
-        };
+            // Determine the data type since it was not supplied.
+            layer.dataType = 'binary';
+            // TODO
         
-        for(var name in attributes) {
-            // Copy over each specified attribute
-            layers[layer_name][name] = attributes[name];
         }
-        
-        // Add it to the sorted layer list.
-        var sorted = Session.get('sortedLayers').slice();
-        sorted.push(layer_name);
-        Session.set('sortedLayers', sorted);
-
-        // Don't sort because our caller does that when they're done adding layers.
-
+        if (layer.dataType === 'binary') {
+            ctx.bin_layers.push(name);
+        } else if (layer.dataType === 'categorical') {
+            ctx.cat_layers.push(name);
+        } else {
+            ctx.cont_layers.push(name);
+        }
     }
+    
+    function metadata_counts_check (where, layer_name, n, positives) {
+        var hexCount = Object.keys(polygons).length;
+        if (n > hexCount && hexCount > 0) {
+            console.log('TODO: bad counts at', where, ': layer, n, hexCount:',
+                layer_name, layers[layer_name].n, hexCount);
+            if (!_.isUndefined(positives)) {
+                console.log('    positives:', positives);
+            }
+        }
+    }
+    
+    function make_layer_name_unique (layer_name) {
+ 
+        // We're done if the name is unique
+        if (layers[layer_name] === undefined) { return layer_name; }
+
+        var last_suffix,
+            name = layer_name,
+            seq = 1;
+ 
+        // Special case a default selection layer name
+        if (name.startsWith(selection_prefix)) {
+            name = selection_prefix;
+        }
+ 
+        // Keep looking for a name until it is unique
+        while (true) {
+ 
+            // We're done if the name is unique
+            if (layers[name] === undefined) { break; }
+
+            // Find any previously tried sequence suffix
+            if (seq > 1) {
+                last_suffix = ' ' + (seq - 1);
+                if (name.endsWith(last_suffix)) {
+ 
+                    // Remove the existing sequence suffix
+                    name = name.slice(0, name.length - last_suffix.length);
+                }
+            }
+            name += ' ' + seq;
+            seq += 1;
+        }
+        return name;
+    }
+ 
+    function ask_user_to_name_layer(layer_name, dup_name) {
+ 
+        // Give the user a chance to name the layer
+        var promptString = (dup_name) ?
+                            dup_name + ' is in use, how about this one?'
+                            : 'Please provide a label for this new layer',
+            text = prompt(promptString, layer_name);
+        if (text) {
+            return text.trim();
+        } else {
+            return undefined;
+        }
+    }
+ 
+    function let_user_name_layer(layer_name) {
+ 
+        var name = layer_name;
+ 
+        // if no layer name was supplied, assume this is a selection
+        if (!name) {
+            name = selection_prefix;
+        } else {
+            name = name.trim();
+        }
+ 
+        // Start with a unique name as a suggestion
+        name = make_layer_name_unique(name);
+ 
+        var unique_name,
+            dup_name;
+ 
+        // Keep asking the user for a name until it is unique or she cancels
+        while (true) {
+            name = ask_user_to_name_layer(name, dup_name);
+            
+            // We're done if she cancels
+            if (name === undefined) { break; }
+ 
+            // We're done if the name is unique
+            unique_name = make_layer_name_unique(name);
+            if (unique_name === name) { break; }
+
+            // Suggest another unique name
+            dup_name = name;
+            name = unique_name;
+        }
+        return name;
+    }
+ 
+    function load_dynamic_data (layer_name, callback, dynamicLayers) {
+
+        var layer = dynamicLayers[layer_name];
+        layer.dynamic = true;
+     
+        // Find and save the dataType.
+        add_dynamic_to_data_type_list(layer_name, layer)
+     
+        // TODO Create a colormap.
+        if (layer.colormap) {
+            colormaps[layer_name] = layer.colormap;
+            delete layer.colormap;
+        }
+     
+        // Save the layer data in the global layers object.
+        layers[layer_name] = layer;
+        
+        // Recurse with the same callback to get metadata.
+        Layer.with_layer(layer_name, callback);
+    }
+    
+    function load_static_data (layer_name, callback) {
+      
+        // Download a static layer, then load into global layers and colormaps.
+        // Go get it (as text!)
+        Meteor.call('getTsvFile', layers[layer_name].url, ctx.project,
+            function (error, layer_parsed) {
+
+            if (error) {
+                projectNotFound(layers[layer_name].url);
+                return;
+            }
+
+            // This is the layer we'll be passing out. Maps from
+            // signatures to floats on -1 to 1.
+            var data = {};
+
+            for(var j = 0; j < layer_parsed.length; j++) {
+                // This is the label of the hex
+                var label = layer_parsed[j][0];
+                
+                if(label == "") {
+                    // Skip blank lines
+                    continue;
+                }
+                
+                // Store the values in the layer
+                data[label] = parseFloat(layer_parsed[j][1]);
+            }
+    
+            // Save the layer data locally
+            layers[layer_name].data = data;
+ 
+            // Now the layer has been properly downloaded, but it may not
+            // have metadata. Recurse with the same callback to get metadata.
+            Layer.with_layer(layer_name, callback);
+        });
+    }
+
 return { // Public methods
 
-    with_layer: function (layer_name_in, callback, try_count) {
+    with_layer: function (layer_name, callback, dynamicLayers) {
         // This is how you get layers, and allows for layers to be downloaded
-        // dynamically. 
-        // Layer.has must return true for the given name.
-        // Run the callback, passing it the layer (object from hex label/signature
-        // to float) with the given name.
-
-        if (!try_count) {try_count = 1}
-     
-        var layer_name = layer_name_in.slice();
+        // dynamically.
+        // @param layer_name name of the layer of interest
+        // @param callback called with the layer object
+        // @param dynamicLayers dynamic layer info
+        //
+        // Note: if the layer is already in the shortlist there is no need
+        // to call with_layer, and we can reference the global layers array
+        // directly.
      
         // First get what we have stored for the layer
         var layer = layers[layer_name];
-
         if (layer === undefined) {
-            console.log('TODO layer is undefined for', layer_name,
-                '. You may need to reset to defaults.');
-            console.log('the below trace is for info only');
-            console.trace();
-            console.log('the above trace is for info only');
-            return;
+            if (dynamicLayers && layer_name in dynamicLayers) {
+
+                // Dynamic layers are added to the global list here.
+                layers[layer_name] = {};
+                layer = layers[layer_name];
+            } else {
+        
+                console.log('TODO layer "', layer_name,
+                    '"is not in the layers global.',
+                    'You may need to reset to defaults.');
+                console.log('### layers', Object.keys(layers));
+                return;
+            }
         }
-		var data_val = layer.data;
-		if(layer.data == undefined) {
-		    // We need to download the layer.
-		    print("Downloading \"" + layer.url + "\"");
-		    
-		    // Go get it (as text!)
-            Meteor.call('getTsvFile', layer.url, ctx.project,
-                function (error, layer_parsed) {
+		if (layer.data === undefined) {
 
-                if (error) {
-                    projectNotFound(layer.url);
-                    return;
-                }
+            // This layer's data has not yet been loaded so load it.
+            if (dynamicLayers && layer_name in dynamicLayers) {
+                load_dynamic_data(layer_name, callback, dynamicLayers);
+            } else {
+                load_static_data(layer_name, callback);
+            }
 
-		        // This is the layer we'll be passing out. Maps from
-		        // signatures to floats on -1 to 1.
-		        var layer_data = {};
-
-		        for(var j = 0; j < layer_parsed.length; j++) {
-		            // This is the label of the hex
-		            var label = layer_parsed[j][0];
-		            
-		            if(label == "") {
-		                // Skip blank lines
-		                continue;
-		            }
-		            
-		            // This is the heat level (-1 to 1)
-		            var heat = parseFloat(layer_parsed[j][1]);
-		            
-		            // Store in the layer
-		            layer_data[label] = heat;
-		        }
-		
-		        // Save the layer data locally
-		        layers[layer_name].data = layer_data;
-	 
-		        // Now the layer has been properly downloaded, but it may not
-		        // have metadata. Recurse with the same callback to get metadata.
-		        Layer.with_layer(layer_name, callback);
-		    });
-		} else if(layer.magnitude == undefined || layer.minimum == undefined || 
-		    layer.maximum == undefined) {
+		} else if (layer.magnitude === undefined) {
+         
 		    // We've downloaded it already, or generated it locally, but we
-		    // don't know the min/max statistics. Compute them.
+		    // don't know the magnitude and it needs to be added to the
+            // Shortlist. Compute magnitude and add to the shortlist.
 		   
 		    // Grab the data, which we know is defined.
-		    var layer_data = layers[layer_name].data;
+		    var data = layers[layer_name].data;
 		   
 		    // Store the maximum value
 		    var maximum = -Infinity;
@@ -110,24 +232,26 @@ return { // Public methods
 		    // And the minimum value
 		    var minimum = Infinity;
 		    
-		    for(var signature_name in layer_data) {
+		    for(var signature_name in data) {
 		        // Look at every value in the layer
 		        
-		        if(layer_data[signature_name] > maximum) {
+		        if(data[signature_name] > maximum) {
 		            // Take the value as new max if it's bigger than current one
-		            maximum = layer_data[signature_name]
+		            maximum = data[signature_name]
 		        }
 		        
-		        if(layer_data[signature_name] < minimum) {
+		        if(data[signature_name] < minimum) {
 		            // Similarly for new minimums
-		            minimum = layer_data[signature_name]
+		            minimum = data[signature_name]
 		        }
 		    }
 		    
-		    // Save the layer bounds for later.
-		    layer.maximum = maximum;
-		    layer.minimum = minimum;
-		    // Keep track of the unsigned magnitude which gets used a lot.
+		    // Save the layer bounds for later for continuous layers.
+            if (Util.is_continuous(layer_name)) {
+                layer.maximum = maximum;
+                layer.minimum = minimum;
+            }
+		    // Keep track of the unsigned magnitude.
 		    layer.magnitude = Math.max(Math.abs(minimum), maximum);
  
 		    if (!have_colormap(layer_name) && Util.is_binary(layer_name)) {
@@ -135,6 +259,9 @@ return { // Public methods
 		        // auto-generated discrete colors will be used.
 		        colormaps[layer_name] = {};
 		    }
+         
+            // Add this layer to the shortlist.
+            Shortlist.ui_and_list_add(layer_name);
 		    
 		    // Now layer metadata has been filled in. Call the callback.
 		    callback(layer);
@@ -145,29 +272,35 @@ return { // Public methods
 		}
     },
 
-    with_layers: function (layer_list, callback) {
-        // Given an array of layer names, call the callback with an array of the 
+    with_layers: function (layer_list, callback, dynamicLayers) {
+    
+        // Given an array of layer names, call the callback with an array of the
         // corresponding layer objects (objects from signatures to floats).
-        // Conceptually it's like calling Layer.with_layer several times in a loop, only
-        // because the whole thing is continuation-based we have to phrase it in
-        // terms of recursion.
-        
-        // See http://marijnhaverbeke.nl/cps/
-        // "So, we've created code that does exactly the same as the earlier 
-        // version, but is twice as confusing."
-        
+        // Conceptually it's like calling Layer.with_layer several times in a
+        // loop, only because the whole thing is continuation-based we have to
+        // phrase it in terms of recursion.
+        //
+        // @param layer_list an array of layer names to be added.
+        // @param callback optional; call upon completion passing the array of
+        //                 layer objects added
+        // @param dynamicLayers an object of layer objects for dynamic layers
+        //
+        // TODO: If the layers are already in the shortlist there is no need
+        // to call with_layers because they are loaded before being added to the
+        // shortlist. In this case we can reference the global layers array
+        // directly.
+
         if(layer_list.length == 0) {
             // Base case: run the callback with an empty list
             callback([]);
         } else {
             // Recursive case: handle the last thing in the list
-            Layer.with_layers(layer_list.slice(0, layer_list.length - 1), 
+            Layer.with_layers(layer_list.slice(0, layer_list.length - 1),
                 function(rest) {
                 
                 // We've recursively gotten all but the last layer
                 // Go get the last one, and pass the complete array to our callback.
-                
-                Layer.with_layer(layer_list[layer_list.length - 1], 
+                Layer.with_layer(layer_list[layer_list.length - 1],
                     function(last) {
                 
                     // Mutate the array. Shouldn't matter because it won't matter 
@@ -177,16 +310,68 @@ return { // Public methods
                     // Send the complete array to the callback.
                     callback(rest);
                 
-                });
-                
-            });
-           
+                }, dynamicLayers);
+            }, dynamicLayers);
         }
     },
 
     has: function (layer_name) {
         // Returns true if a layer exists with the given name, false otherwise.
         return layers.hasOwnProperty(layer_name);
+    },
+
+    create_dynamic_selection: function (nodeIds, new_layer_name) {
+ 
+        // Given an array of node IDs, add a new binary layer containing ones
+        // for those nodes and zeroes for the rest. So every node will have a
+        // value in this new layer.
+        //
+        // new_layer_name is an optional parameter. If no name is passed,
+        // "selection + #" will be suggested as the layer name.
+
+        if (nodeIds.length < 1) {
+            Util.banner('warn', "No nodes were selected.");
+            return;
+        }
+
+        // Build the data for this layer with ones for those nodeIDs in the
+        // given node list and zeros in the rest
+        var data = {};
+        _.each(polygons, function (val, nodeID) {
+            if (nodeIds.indexOf(nodeID) > -1) {
+                data[nodeID] = 1;
+            } else {
+                data[nodeID] = 0;
+            }
+        });
+ 
+        var positives = _.filter(data, function (nodeValue) {
+            return nodeValue > 0;
+        });
+
+        var name = let_user_name_layer(new_layer_name);
+ 
+        if (name) {
+ 
+            // Create most of the layer.
+            var layer = {
+                data: data,
+                dataType: 'binary',
+                dynamic: true,
+                selection: true,
+                positives: positives.length,
+                
+                // And how many have a value, which is all in this case
+                n: _.keys(data).length
+            }
+         
+            var dynLayers = {};
+            dynLayers[name] = layer;
+            
+            Layer.with_layer(name, function(){}, dynLayers);
+        }
+ 
+        return (name);
     },
 
     fill_metadata: function (container, layer_name) {
@@ -196,7 +381,6 @@ return { // Public methods
         // Empty the container.
         container.html("");
 
-        var binaryCountsProcessed = false;
         for(attribute in layers[layer_name]) {
             // Go through everything we know about this layer
             if(attribute === "data" || attribute === "url" ||
@@ -204,7 +388,7 @@ return { // Public methods
                 attribute === "maximum" || attribute === "selection" ||
                 attribute === "clumpiness_array" || attribute === "tags" ||
                 attribute === "removeFx" || attribute === 'rank' ||
-                attribute === "dynamic" || attribute === 'datatype') {
+                attribute === "dynamic" || attribute === 'dataType') {
                 
                 // Skip things we don't want to display
                 // TODO: Ought to maybe have all metadata in its own object?
@@ -212,35 +396,39 @@ return { // Public methods
             }
      
             var text;
-            if ((attribute === 'positives' || attribute === 'n')
-                && ctx.bin_layers.indexOf(layer_name) > -1) {
+            if (attribute === 'positives') {
             
-                // Special case these two attributes
-                if (binaryCountsProcessed) continue;
-     
-                binaryCountsProcessed = true;
-     
+                // Special case positive count for binary layers
+                if (layers[layer_name].selection) {
+                
+                    // For selections...
+                    text = 'Selected = ' + layers[layer_name].positives;
+                } else {
+                
+                    // Non-selections are processed under the 'n' attribute.
+                    continue;
+                }
+         
+            } else if (attribute === 'n' &&
+                ctx.bin_layers.indexOf(layer_name) > -1) {
+            
+                // Special-case the counts for binary layers.
                 var n = Number(layers[layer_name].n),
                     p = Number(layers[layer_name].positives),
                     hexCount = Object.keys(polygons).length;
-     
                 if (_.isNaN(n)) n = 0;
                 if (_.isNaN(p)) p = 0;
-     
                 text = p + '/' + n + ' (' + (hexCount - n) + ' missing)';
-     
-                if (n > hexCount) {
-                    console.log('bad metadata: layer, n, hexCount:',
-                        layer_name, layers[layer_name].n, hexCount);
-                }
+                metadata_counts_check('Layer.fillMetadata()', layer_name, n, p);
 
             } else {  // process the usual attributes
      
                 // This holds the metadata value we're displaying
                 var value = layers[layer_name][attribute];
                 
-                if(typeof value == "number" && isNaN(value)) {
-                    // If it's a numerical NaN (but not a string), just leave it out.
+                if(typeof value === "number" && isNaN(value)) {
+                    // If it's a numerical NaN (but not a string), just leave
+                    // it out.
                     continue;
                 }
                 
@@ -252,8 +440,8 @@ return { // Public methods
                 // If we're still here, this is real metadata.
                 // Format it for display.
                 var value_formatted;
-                if (typeof value == "number") {
-                    if(value % 1 == 0) {
+                if (typeof value === "number") {
+                    if(value % 1 === 0) {
                         // It's an int!
                         // Display the default way
                         value_formatted = value;
@@ -267,19 +455,16 @@ return { // Public methods
                     value_formatted = value;
                 }
      
-                // Do a sanity check
-                if (attribute === 'n'
-                    && value_formatted > Object.keys(polygons).length) {
-                    console.log('bad metadata: layer, n, hexCount:',
-                        layer_name, layers[layer_name].n, Object.keys(polygons).length);
+                // Do a sanity check on non-binary layers.
+                if (attribute === 'n') {
+                    metadata_counts_check(
+                        'Layer.fillMetadata()', layer_name, n);
                 }
      
-                // Do some transformations to make the displayed labels make more sense
+                // Do some transformations to make the displayed labels make
+                // more sense.
                 lookup = {
                     n: "Non-empty values",
-                    positives: "Number of ones",
-                    inside_yes: "Ones in A",
-                    outside_yes: "Ones in background",
                     clumpiness: "Density score",
                     p_value: "Single test p-value",
                     correlation: "Correlation",
@@ -291,7 +476,6 @@ return { // Public methods
                 
                 if (lookup[attribute]) {
      
-                    if (lookup[attribute] === 'Number of ones') console.log(layer_name, value_formatted);
                     // Replace a boring short name with a useful long name
                     attribute = lookup[attribute];
                 }
@@ -310,7 +494,7 @@ return { // Public methods
             function (error, parsed) {
 
             // Create a list of layer names ordered by their indices
-            ctx.layer_names_by_index = new Array (Session.get('sortedLayers').length);
+            ctx.static_layer_names = new Array (Session.get('sortedLayers').length);
 
             if (error) {
                 projectNotFound("layers.tab");
@@ -331,7 +515,7 @@ return { // Public methods
                 // index will be where number ends
                 var period_index =file_name.lastIndexOf(".");
                 var index_value = file_name.substring(underscore_index+1, period_index);
-                ctx.layer_names_by_index [index_value] = parsed[i][0];
+                ctx.static_layer_names [index_value] = parsed[i][0];
              }
              Session.set('initedLayersArray', true);
         });
@@ -386,52 +570,63 @@ return { // Public methods
                 return;
             }
 
-            for(var i = 0; i < parsed.length; i++) {
+            // Initialize the layer list for sortable layers.
+            var sorted = [];
+            
+            // Process each line of the file, one per layer.
+            for (var i = 0; i < parsed.length; i++) {
                 // Pull out the parts of the TSV entry
                 // This is the name of the layer.
                 var layer_name = parsed[i][0];
                 
-                if(layer_name == "") {
+                if (layer_name == "") {
                     // Skip any blank lines
                     continue;
                 }
                 
-                // This is the URL from which to download the TSV for the actual 
-                // layer.
-                var layer_url = ctx.project + parsed[i][1];
-
-                // This is the number of hexes that the layer has any values for.
-                // We need to get it from the server so we don't have to download 
-                // the layer to have it.
-                var layer_count = parseFloat(parsed[i][2]);
-                
-                // This is the number of 1s in a binary layer, or NaN in other
-                // layers
-                var layer_positives = parseFloat(parsed[i][3]);
-                
                 // This array holds the layer's clumpiness scores under each layout,
                 // by index. A greater clumpiness score indicates more clumpiness.
                 var layer_clumpiness = [];
-                
                 for(var j = 4; j < parsed[i].length; j++) {
+                
                     // Each remaining column is the clumpiness score for a layout,
                     // in layout order.
                     // This is the layer's clumpiness score
                     layer_clumpiness.push(parseFloat(parsed[i][j]));
-                }    
-                       
-                // Add this layer to our index of layers
-                add_layer_url(layer_name, layer_url, {
+                }
+                
+                // Number of hexes for which the layer has values
+                var n = parseFloat(parsed[i][2]);
+                
+                // Add this to the global layers object.
+                layers[layer_name] = {
+                
+                    // The url from which to download this layers primary data.
+                    url: ctx.project + parsed[i][1],
+                    
+                    n: n,
                     clumpiness_array: layer_clumpiness,
-                    clumpiness: undefined, // This one gets filled in with the 
-                                           // appropriate value out of the array, so
-                                           // we can sort without having a current 
-                                           // layout index.
-                    positives: layer_positives, //if binary
-                    n: layer_count,
-                });
+                    
+                    // Clumpiness gets filled in with the appropriate value out
+                    // of the array, so out having a current layout index.
+                }
+                
+                // Save the number of 1s, in a binary layer only
+                var positives = parseFloat(parsed[i][3]);
+                if (!(isNaN(positives))) {
+                    layers[layer_name].positives = positives;
+                }
+                
+                // Add it to the sorted layer list.
+                sorted.push(layer_name);
+                
+                metadata_counts_check(
+                    'Layer.initIndex()', layer_name, n, positives);
 
             }
+            
+            // Save sortable (not dynamic) layer names.
+            Session.set('sortedLayers', sorted);
             Session.set('initedLayerIndex', true);
         });
     },

@@ -6,7 +6,8 @@ var app = app || {};
 (function (hex) { // jshint ignore: line
 Shortlist = (function () { // jshint ignore: line
 
-    var initialized = false;
+    var initialization_started = false;
+    var initialization_is_done = false;
 
     var range_extents = new ReactiveDict(); // to show the min & max values
     var zeroShow = new ReactiveDict(); // To show or hide the zero tick mark
@@ -212,51 +213,6 @@ Shortlist = (function () { // jshint ignore: line
             return is_hovered(this) ? 'initial' : 'none';
         },
     });
-/*
-    // Unused. We may want this to set the bounds of the range slider if we 
-    // want something other than the layer's min and max.
-    function reset_slider(layer_name, shortlist_entry) {
-        // Given a layer name and a shortlist UI entry jQuery element, reset the
-        // slider in the entry to its default values, after downloading the 
-        // layer. The default value may be invisible because we decided the 
-        // layer should be a colormap.
-            
-        // We need to set its boundaries to the min and max of the data set
-        Layer.with_layer(layer_name, function(layer) {
-        
-            var minBound = layer.minimum;
-            var maxBound = layer.maximum;
-            // TODO What sort of bounds do we want?
-            
-            // We want to do some fancy layer bounds guessing. In general, the
-            // bounds should be at +/- the largest-magnitude value.
-            var minBound = -layer.magnitude;
-            var maxBound = layer.magnitude;
-            
-            if(layer.maximum <= 1) {
-                if(layer.minimum >= 0) {
-                    // If it's a 0 to 1 layer, set bounds at 0 and 1
-                    minBound = 0;
-                    maxBound = 1;
-                } else if(layer.minimum >= -1) {
-                    // If it's a -1 to 1 layer, set bounds at -1 and 1
-                    minBound = -1;
-                    maxBound = 1;
-                }
-            }
-            
-            // Else, leave bounds at +/- magnitude.
-            // Set the min, max and current value.
-            shortlist_entry.find(".range_slider")
-                .slider("option", "min", minBound)
-                .slider("option", "max",  maxBound)
-                .slider("values", [minBound, maxBound]);
-                
-            // Initialize the values stored
-            refreshColors();
-        });
-    }
-*/
 
     function copy_shortlist_state () {
         // TODO: I think a 'get' makes a copy anyway
@@ -265,30 +221,6 @@ Shortlist = (function () { // jshint ignore: line
 
     function copy_actives_state () {
         return Session.get('active_layers').slice();
-    }
-
-    function add_layer_data (layer_name, data, attributes) {
-        // Add a layer with the given name, with the given data to the list of 
-        // available layers.
-        // Used for selections... more broadly can be used for dynamic layers.
-        // Attributes is an object of attributes to copy into the layer.
-        
-        // Store the layer. Just put in the data. Layer.with_layer knows what to do if
-        // the magnitude isn't filled in.
-        layers[layer_name] = {
-            url: undefined, //points to layer datafile
-            data: data,     //actual values
-            magnitude: undefined  //not used for binary
-        };
-        
-        for(var name in attributes) {
-            // Copy over each specified attribute
-            layers[layer_name][name] = attributes[name];
-        }
-        // Add this layer to the appropriate data type list
-        Util.addToDataTypeList(layer_name, data);
-
-        // Don't sort because caller does that when they're done adding layers.
     }
 
     function create_filter_select_options (layer_name, layer, filter_value) {
@@ -329,11 +261,8 @@ Shortlist = (function () { // jshint ignore: line
                     {text: 0, code: 0},
                 ];
             }
-        } else { // No colormap categorical
-
-            for (var i = 0; i < layer.magnitude + 1; i++) {
-                data.push({text: i, code: i});
-            }
+        } else { // No colormap categorical. This shouldn't happen.
+            console.log('error: no colormap for categorical attr:', layer_name);
         }
 
         // Create the option elements
@@ -349,7 +278,7 @@ Shortlist = (function () { // jshint ignore: line
         if (_.isNull(value)) {
  
             // There is no value saved, so leave menu set to the first option,
-            // and initialized the saved value to the first one.
+            // and initialize the saved value to the first one.
             Util.session('filter_value', 'set', layer_name, parseInt(first));
  
         } else {
@@ -425,7 +354,7 @@ Shortlist = (function () { // jshint ignore: line
         update_display({target: slider[0]}, {values: vals});
     }
 
-    function create_shortlist_entry_with_data (layer_name, root) {
+    function create_shortlist_ui_entry_with_data (layer_name, root) {
  
         // Add all of the metadata
         Layer.fill_metadata(root.find('.metadata_holder'), layer_name);
@@ -489,149 +418,13 @@ Shortlist = (function () { // jshint ignore: line
         }
     }
  
-    function make_layer_name_unique (layer_name) {
- 
-        // We're done if the name is unique
-        if (layers[layer_name] === undefined) { return layer_name; }
-
-        var last_suffix,
-            name = layer_name,
-            seq = 1;
- 
-        // Special case a default selection layer name
-        if (name.startsWith(selection_prefix)) {
-            name = selection_prefix;
-        }
- 
-        // Keep looking for a name until it is unique
-        while (true) {
- 
-            // We're done if the name is unique
-            if (layers[name] === undefined) { break; }
-
-            // Find any previously tried sequence suffix
-            if (seq > 1) {
-                last_suffix = ' ' + (seq - 1);
-                if (name.endsWith(last_suffix)) {
- 
-                    // Remove the existing sequence suffix
-                    name = name.slice(0, name.length - last_suffix.length);
-                }
-            }
-            name += ' ' + seq;
-            seq += 1;
-        }
-        return name;
-    }
- 
-    function ask_user_to_name_layer(layer_name, dup_name) {
- 
-        // Give the user a chance to name the layer
-        var promptString = (dup_name) ?
-                            dup_name + ' is in use, how about this one?'
-                            : 'Please provide a label for this new layer',
-            text = prompt(promptString, layer_name);
-        if (text) {
-            return text.trim();
-        } else {
-            return undefined;
-        }
-    }
- 
-    function let_user_name_layer(layer_name) {
- 
-        var name = layer_name;
- 
-        // if no layer name was supplied, assume this is a selection
-        if (!name) {
-            name = selection_prefix;
-        } else {
-            name = name.trim();
-        }
- 
-        // Start with a unique name as a suggestion
-        name = make_layer_name_unique(name);
- 
-        var unique_name,
-            dup_name;
- 
-        // Keep asking the user for a name until it is unique or she cancels
-        while (true) {
-            name = ask_user_to_name_layer(name, dup_name);
-            
-            // We're done if she cancels
-            if (name === undefined) { break; }
- 
-            // We're done if the name is unique
-            unique_name = make_layer_name_unique(name);
-            if (unique_name === name) { break; }
-
-            // Suggest another unique name
-            dup_name = name;
-            name = unique_name;
-        }
-        return name;
-    }
- 
-    function get_active_layers () {
-        // Returns an array of the string names of the layers that are currently
-        // displaying their colors.
+    function get_active_coloring_layers () {
+        // Returns an array of the string names of the layers that are
+        // actively displaying their colors.
         return Session.get('active_layers');
     }
 
-    function create_dynamic_binary_layer (nodeIds, new_layer_name) {
- 
-        // Given an array of node IDs, add a new binary layer containing ones
-        // for those nodes and zeroes for the rest. So every node will have a
-        // value in this new layer.
-        //
-        // new_layer_name is an optional parameter. If no name is passed,
-        // "selection + #" will be suggested as the layer name.
-
-        if (nodeIds.length < 1) {
-            Util.banner('warn', "No hexagons were selected.");
-            return;
-        }
-
-        // Build the data for this layer with ones for those nodeIDs in the
-        // given node list and zeros in the rest
-        var data = {};
-        _.each(polygons, function (val, nodeID) {
-            if (nodeIds.indexOf(nodeID) > -1) {
-                data[nodeID] = 1;
-            } else {
-                data[nodeID] = 0;
-            }
-        });
- 
-        var positives = _.filter(data, function (nodeValue) {
-                return nodeValue > 0;
-            });
-
-        var name = let_user_name_layer(new_layer_name);
- 
-        if (name) {
- 
-            // Add the layer
-            add_layer_data(name, data, {
-                selection: true,
-                selected: positives.length, // Display how many hexes are in
-                
-                // TODO someday simplify selection, selected & positives
-                positives: positives.length,
-                
-                // And how many have a value, which is all in this case
-                n: _.keys(data).length
-            });
-            
-            // Update the browse UI with the new layer.
-            update_shortlist(name);
-        }
- 
-        return (name);
-    }
-
-    function filter_control_changed (ev, layer_name_in) {
+    function filter_control_changed (ev, layer_name_in, initializing) {
 
         // Functionality for turning filtering on and off
         var root,
@@ -647,7 +440,7 @@ Shortlist = (function () { // jshint ignore: line
                 // If the layer's DOM element does not exist yet,
                 // there is nothing to do.
                 console.log(
-                    'cannot find the root DOM element of layer:', layer_name);
+                    'error: cannot find the root DOM element of layer:', layer_name);
                 return;
             }
  
@@ -716,16 +509,16 @@ Shortlist = (function () { // jshint ignore: line
                     var name = layer_name + ': ' + value.toString();
                     
                     // Create the dynamic layer
-                    create_dynamic_binary_layer (nodeIds, name);
+                    Layer.create_dynamic_selection(nodeIds, name);
                 });
             });
         }
 
         // Update the colors with the new filtering or lack thereof
-        refreshColors();
+        if (!initializing) { refreshColors(); }
     }
 
-    function create_shortlist_entry (layer_name) {
+    function create_shortlist_ui_entry (layer_name) {
  
         // Makes a shortlist DOM entry for one layer.
 
@@ -742,12 +535,12 @@ Shortlist = (function () { // jshint ignore: line
         var root = get_root_from_layer_name(layer_name);
 
         // Is this is a selection ?
-        if (layers[layer_name].selection) {
-            root.addClass("selection");
-            create_shortlist_entry_with_data(layer_name, root);
+        if (layers[layer_name].dynamic) {
+            root.addClass("dynamic");
+            create_shortlist_ui_entry_with_data(layer_name, root);
         } else {
             Layer.with_layer(layer_name, function () {
-                create_shortlist_entry_with_data (layer_name, root);
+                create_shortlist_ui_entry_with_data (layer_name, root);
             });
         }
  
@@ -770,10 +563,65 @@ Shortlist = (function () { // jshint ignore: line
  
         return root;
     }
+    
+    function init_ui_entry_order() {
+        
+        // Reorder the ui entries to match the shortlist order.
+        var shortlist = Session.get('shortlist').reverse();
+        _.each(shortlist, function (layer_name) {
+            $shortlist.prepend(create_shortlist_ui_entry(layer_name));
+        });
+    }
 
-    function update_shortlist (layer_name, remove) { // jshint ignore: line
+    function ui_and_list_add (layer_name) {
+        // This updates the shortlist variable and UI for add to shortlist.
+        // Moves via the jqueryUI sortable are handled in the sortable's update
+        // function.
+        if (!initialization_is_done) {
+            
+            // We'll add the shortlist UI entries as part of initialization
+            // and not here.
+            return;
+        }
  
-        // This updates the shortlist variable and UI for adds & removes.
+        var shortlist = copy_shortlist_state(),
+            active = copy_actives_state(),
+            root = get_root_from_layer_name(layer_name),
+            index = shortlist.indexOf(layer_name);
+        
+        if (index > -1) {
+
+            // The layer is already in the shortlist, so remove it from
+            // its current position in the shortlist state variable
+            shortlist.splice(index, 1);
+
+            // Move the entry  to the top from it's current position
+            $shortlist.prepend(root);
+
+        } else {
+
+            // The layer is not yet in the shortlist
+            $shortlist.prepend(create_shortlist_ui_entry(layer_name));
+        }
+
+        // Add the layer to the top of the shortlist start variable
+        shortlist.splice(0, 0, layer_name);
+
+        // If there is a secondary active or this layer is not already the
+        // primary active...
+        if (active.length > 1 || active[0] !== layer_name) {
+
+            // Replace the primary active with this new entry,
+            // dropping any secondary
+         
+            Session.set('active_layers', [layer_name]);
+        }
+        Session.set('shortlist', shortlist);
+    }
+ 
+    function ui_and_list_delete (layer_name) {
+
+        // This updates the shortlist variable and UI for remove from shortlist.
         // Moves via the jqueryUI sortable are handled in the sortable's update
         // function.
         var shortlist = copy_shortlist_state(),
@@ -781,58 +629,24 @@ Shortlist = (function () { // jshint ignore: line
             root = get_root_from_layer_name(layer_name),
             index;
  
-        if (remove) {
-            if(shortlist.indexOf(layer_name)< 0) { return; }
+        if (shortlist.indexOf(layer_name)< 0) { return; }
 
-            shortlist.splice(shortlist.indexOf(layer_name), 1);
-            root.remove();
-
-            // Remove this layer from active_layers if it was in there
-            index = active.indexOf(layer_name);
-            if (index > -1) {
-
-                // Update the active layers by removing this layer
-                active.splice(index, 1); // Remove this from the active
-
-                // Update our state variable
-                Session.set('active_layers', active);
-            }
-
-        } else { // Handle this layer add
- 
-            index = shortlist.indexOf(layer_name);
-            if (index > -1) {
- 
-                // The layer is already in the shortlist, so remove it from
-                // its current position in the shortlist state variable
-                shortlist.splice(index, 1);
- 
-                // Move the entry  to the top from it's current position
-                $shortlist.prepend(root);
- 
-            } else {
- 
-                // The layer is not yet in the shortlist
-                $shortlist.prepend(create_shortlist_entry(layer_name));
-            }
-
-            // Add the layer to the top of the shortlist start variable
-            shortlist.splice(0, 0, layer_name);
- 
-            // If there is a secondary active or this layer is not already the
-            // primary active...
-            if (active.length > 1 || active[0] !== layer_name) {
- 
-                // Replace the primary active with this new entry,
-                // dropping any secondary
-                Session.set('active_layers', [layer_name]);
-            }
-        }
+        // Remove from the shortlist list
+        shortlist.splice(shortlist.indexOf(layer_name), 1);
         Session.set('shortlist', shortlist);
- 
+        
+        // Remove from the shortlist UI.
+        root.remove();
+
+        // Remove this layer from active_layers if it was in there
+        index = active.indexOf(layer_name);
+        if (index > -1) {
+            active.splice(index, 1); // Remove this from the active
+            Session.set('active_layers', active);
+        }
     }
 
-    function update_shortlist_metadata () {
+    function update_ui_metadata () {
  
         // Update the metadata for each layer in the shortlist
         // TODO: make the metadata updates reactive
@@ -842,7 +656,9 @@ Shortlist = (function () { // jshint ignore: line
         });
     }
 
-    function make_sortable () {
+    function make_sortable_ui_and_list () {
+    
+        // This updates the shortlist UI and list when the user moves an entry.
          $shortlist.sortable({
             update: function () {
             
@@ -862,7 +678,7 @@ Shortlist = (function () { // jshint ignore: line
         });
     }
 
-    function when_active_layers_change () {
+    function when_active_color_layers_change () {
  
         // When the active layers change update the primary and secondary
         // indicators on the UI and refresh the map colors.
@@ -984,7 +800,7 @@ Shortlist = (function () { // jshint ignore: line
             }
 
             // Handle dynamic layers
-            if (layers[layer_name].selection) {
+            if (layers[layer_name].dynamic) {
                 delete layers[layer_name];
                 Util.removeFromDataTypeList(layer_name);
             }
@@ -1004,142 +820,83 @@ Shortlist = (function () { // jshint ignore: line
             delete Session.keys['shortlist_filter_value_' + layer_name];
             
             // Update the shortlist state variable and UI.
-            update_shortlist(layer_name, true);
+            ui_and_list_delete(layer_name);
             
             // Remove this layer's shortlist entry template
             delete template[layer_name];
         });
     }
- 
-    function complete_initialization (comp) {
-    
-        // Autorun to execute when the first layer is set
-        // and after the initial sort
-        var first = Session.get('first_layer'),
-            sorted_layers = Session.get('sortedLayers');
 
-        if (sorted_layers.length < 1) { return; }
-        if (_.isUndefined(first)) { return; }
-        
-        // We only need to run this once to initialize the shortlist UI
-        comp.stop();
-         
-        // Set up the flag to always put the active layers at the top of list
-        Session.set('shortlist_on_top', '');
-        $('.shortlist .on_top').on('click', function () {
-            Session.set('shortlist_on_top', '$(ev.target.checked)');
-        });
-        
+    function entries_initialized (layers_added) {
+    
+        // The ui entries are now loaded.
         var shortlist = copy_shortlist_state();
 
-        // Add any dynamic attrs stored in state to the shortlist
-        var dynamic_attrs = Session.get('dynamic_attrs');
-        if (dynamic_attrs) {
-            _.each(dynamic_attrs, function(attr, name) {
-                
-                // The attr should already be in the shortlist names,
-                // however if it is not, don't add it's data
-                if (shortlist.indexOf(name) < 0) { return; }
-                
-                var data = attr.data,
-                    properties = attr;
-                   
-                if (attr.colormap) {
-                    colormaps[name] = attr.colormap;
-                }
-                // Remove the data & colormap from the attr properties
-                // because the next call does not expect them.
-                delete attr.data;
-                delete attr.colormap
-                add_layer_data(name, data, attr);
-            });
-        }
-
-        // Add the 'first layer' to the shortlist if it is empty
-        if (shortlist.length < 1) {
-            shortlist = [first];
-            Session.set('shortlist', shortlist);
-        }
-
-        // Add each layer in the shortlist to the UI
+        // Order the UI according to the shortlist list order.
+        init_ui_entry_order();
+        
+        // Initialize filters
         _.each(shortlist, function (layer_name) {
-            var root = create_shortlist_entry(layer_name);
-            $shortlist.append(root);
-            
-            // Update filters
-            filter_control_changed(null, layer_name);
+            filter_control_changed(null, layer_name, true);
         });
         
         // Set the shortlist metadata resulting from the initial sort
-        update_shortlist_metadata();
+        update_ui_metadata();
         
         // Make the shortlist entries re-orderable
-        make_sortable();
+        make_sortable_ui_and_list();
 
         // If there are no active layers, make the first entry active
         var active = Session.get('active_layers');
         if (active.length < 1 && shortlist.length > 0) {
             Session.set('active_layers', [shortlist[0]]);
         }
+        
+        initialization_is_done = true;
+        
+        // Run this whenever the active list changes to update the hot primary
+        // and secondary icons and change the map colors.
+        Meteor.autorun(when_active_color_layers_change);
     }
 
-    function get_entries () {
-    
-        // Return the entries in the shortlist
-        var attrs = Session.get('shortlist'),
-            entries = {};
-            
-        if (attrs.length === 0) { return {}; }
-        
-        _.each(attrs, function (attr) {
-            
-            var layer = layers[attr],
-                e = { data: layer.data };
-            if (layer.selection) {
-                e.dynamic = true;
-            }
-            if (Util.is_binary(attr)) {
-                e.datatype = 'binary';
-            } else {
-                e.min = layer.minimum;
-                e.max = layer.maximum;
-                if (Util.is_continuous(attr)) {
-                    e.datatype = 'continuous';
-                } else {
-                    e.datatype = 'categorical';
-                }
-            }
-            entries[attr] = e;
-        });
+    function complete_initialization (comp) {
 
-        return entries;
+        // Autorun to execute when the first layer is set
+        // and after the initial sort
+        var first = Session.get('first_layer'),
+            sorted_layers = Session.get('sortedLayers');
+        
+        if (sorted_layers.length < 1 || _.isUndefined(first)) {
+            // We can't add to the shortlist until these are populated.
+            return;
+        }
+        
+        /* unused
+        // Set up the flag to always put the active layers at the top of list
+        Session.set('shortlist_on_top', '');
+        $('.shortlist .on_top').on('click', function () {
+            Session.set('shortlist_on_top', '$(ev.target.checked)');
+        });
+        */
+        
+        var shortlist = copy_shortlist_state();
+
+        // Add the 'first layer' to the shortlist if it is empty
+        if (shortlist.length < 1) {
+            shortlist = [first];
+            Session.set('shortlist', shortlist);
+        }
+        // Add the layers to the global layers object.
+        Layer.with_layers(
+            shortlist, entries_initialized, Session.get('dynamic_attrs'));
     }
 
 return {
-    create_dynamic_binary_layer: create_dynamic_binary_layer,
-    get_active_layers: get_active_layers,
-    update_shortlist: update_shortlist,
-    update_shortlist_metadata: update_shortlist_metadata,
+    get_active_coloring_layers: get_active_coloring_layers,
+    ui_and_list_add: ui_and_list_add,
+    ui_and_list_delete: ui_and_list_delete,
+    update_ui_metadata: update_ui_metadata,
 
-
-    create_dynamic_category_layer: function (layer_name, data, attributes,
-        colormap) {
- 
-        // @param: layer_name: layer name for the global layers object
-        // @param: data: data for the global layers
-        // @param: attributes: attributes for the global layers. At least these
-        //                     should be included for now:
-        //                         selection
-        //                         n
-        //                         magnitude
-        // @param: colormap: the colormap for this layer, required for now
- 
-        attributes.minimum = 0;
-        add_layer_data(layer_name, data, attributes);
-        update_shortlist(layer_name);
-        colormaps[layer_name] = colormap;
-    },
- 
     with_filtered_signatures: function (filters, callback) {
         // Takes an array of filters, as produced by get_current_filters.
         // Computes an array of all signatures passing all filters, and passes
@@ -1243,6 +1000,7 @@ return {
     },
 
     get_slider_range: function (layer_name) {
+    
         // Given the name of a layer, get the slider range from its shortlist UI
         // entry. Assumes the layer has a shortlist UI entry.
         var range = Util.session('filter_value', 'get', layer_name);
@@ -1259,16 +1017,20 @@ return {
         // color objects in the colormaps to saveable objects.
         var entries = {};
 
-        _.each(get_entries(), function (value, attr) {
-        
-            if (value.dynamic || value.selection) {
-                entries[attr] = layers[attr];
-            
+        _.each(layers, function (layer, name) {
+            if (layer.dynamic) {
+               
+                // Remove magnitude since its absence indicates that this layer
+                // is to be added to the UI shortlist on load.
+                delete layer.magnitude;
+
                 // Convert the colormap colors from an object to an array.
-                if (colormaps[attr]) {
-                    var obj = Colors.colormapToColorArray(colormaps[attr], attr);
-                    entries[attr].colormap = obj.cats;
+                if (colormaps[name]) {
+                    var obj = Colors.colormapToColorArray(
+                        colormaps[name], name);
+                    layer.colormap = obj.cats;
                 }
+                entries[name] = layer;
             }
         });
 
@@ -1280,22 +1042,21 @@ return {
     },
 
     init: function () {
-        if (initialized) { return; }
- 
-        initialized = true;
+    
+        if (initialization_started) { return; }
+        
+        initialization_started = true;
  
         // Initialize some handy variables
         $shortlist = $('#shortlist');
         $dynamic_controls = $shortlist.find('.dynamic_controls');
         $float_controls = $shortlist.find('.float');
-
-        // Autorun to finish initializiation when the first layer is set
-        // and after the initial sort
-        Meteor.autorun(complete_initialization);
- 
-        // Run this whenever the active list changes to update the hot primary
-        // and secondary icons and change the map colors.
-        Meteor.autorun(when_active_layers_change);
+        
+        if (Session.get('domLoaded')) {
+            complete_initialization();
+        } else
+            // Wait for the dom to load before updating the ui
+            window.addEventListener("load", complete_initialization);
  
         // Create the controls that move from entry to entry
         create_float_controls();

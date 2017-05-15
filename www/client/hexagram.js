@@ -105,21 +105,7 @@ function get_range_position(score, low, high) {
     return score;
 }
 
-var refreshColorsHandle;
-
-refreshColors = function (delay) {
-
-    // Schedule the view to be redrawn after the current event finishes.
-    
-    // Get rid of the previous redraw request, if there was one. We only want 
-    // one.
-    Meteor.clearTimeout(refreshColorsHandle);
-    
-    // Make a new one to happen as soon as this event finishes
-    refreshColorsHandle = Meteor.setTimeout(refreshColorsInner, delay ? delay : 0);
-}
-
-function refreshColorsInner() {
+refreshColors = function () {
 
     // Make the view display the correct hexagons in the colors of the current
     // layer(s), as read from the values of the layer pickers in the global
@@ -130,7 +116,7 @@ function refreshColorsInner() {
     
     // This holds a list of the string names of the currently selected layers,
     // in order.
-    var current_layers = Shortlist.get_active_layers();
+    var current_layers = Shortlist.get_active_coloring_layers();
     
     // This holds all the current filters
     var filters = Shortlist.get_current_filters();
@@ -505,7 +491,6 @@ initLayout = function () {
             Session.set('sort', ctx.defaultSort());
             updateLonglist();
             
-            Meteor.setTimeout(refreshColors, 100);
         });
         Session.set('initedLayout', true);
     });

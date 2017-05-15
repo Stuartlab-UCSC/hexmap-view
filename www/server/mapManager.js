@@ -128,9 +128,7 @@ function layerMaker(layer_name){
     var newLayer={};
     newLayer.timestamp = Math.floor(Date.now()/1000); //UTC timestamp in seconds
     newLayer.layer_name = layer_name;
-    newLayer.selection  = true;
     newLayer.n          = 300;
-    newLayer.magnitude = 3;//TODO: should this be 2?
     return newLayer;
 }
 

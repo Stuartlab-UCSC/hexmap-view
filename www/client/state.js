@@ -140,7 +140,7 @@ var app = app || {};  // jshint ignore: line
                 'layoutIndex',
                 'overlayNodes',
                 'shortlist',
-                'shortlist_on_top',
+                //'shortlist_on_top',
                 'zoom',
             ],
  
@@ -169,6 +169,8 @@ var app = app || {};  // jshint ignore: line
 
         // Project variables maintained in this state object, with defaults.
         Session.set('active_layers', []); // Layer names displaying their colors
+ 
+        // Project variables maintained in this state object, with defaults.
         s.center = null; // main google map center
         Session.set('dynamic_attrs', undefined); // Dynamic layers dict
         Session.set('first_layer', undefined); // first in shortlist
