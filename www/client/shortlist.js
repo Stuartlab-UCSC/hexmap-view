@@ -7,7 +7,6 @@ var app = app || {};
 Shortlist = (function () { // jshint ignore: line
 
     var initialization_started = false;
-    var initialization_is_done = false;
 
     var range_extents = new ReactiveDict(); // to show the min & max values
     var zeroShow = new ReactiveDict(); // To show or hide the zero tick mark
@@ -578,7 +577,7 @@ Shortlist = (function () { // jshint ignore: line
         // This updates the shortlist variable and UI for add to shortlist.
         // Moves via the jqueryUI sortable are handled in the sortable's update
         // function.
-        if (!initialization_is_done) {
+        if (!Session.equals('shortlistInitDone', true)) {
             
             // We'll add the shortlist UI entries as part of initialization
             // and not here.
@@ -853,7 +852,7 @@ Shortlist = (function () { // jshint ignore: line
             Session.set('active_layers', [shortlist[0]]);
         }
         
-        initialization_is_done = true;
+        Session.set('shortlistInitDone', true);
         
         // Run this whenever the active list changes to update the hot primary
         // and secondary icons and change the map colors.
@@ -1047,6 +1046,7 @@ return {
         if (initialization_started) { return; }
         
         initialization_started = true;
+        Session.set('shortlistInitDone', false);
  
         // Initialize some handy variables
         $shortlist = $('#shortlist');

@@ -13,6 +13,7 @@ Meteor.startup( () => {
     
         // Allow content from the hub and google
         // TODO make hub variable
+        var xenahubs = '*.xenahubs.net';
         var kolossus = '*.kolossus.sdsc.edu:*';
         var google = '*.google.com';
         var googleStatic = '*.gstatic.com';

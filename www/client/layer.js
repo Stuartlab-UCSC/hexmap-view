@@ -287,7 +287,24 @@ return { // Public methods
 		    }
          
             // Add this layer to the shortlist.
-            Shortlist.ui_and_list_add(layer_name);
+         
+            console.log('layer_name', layer_name);
+         
+            Meteor.autorun(function (run) {
+                var inited = Session.get('shortlistInitDone');
+            
+                console.log('autorun: layer_name', layer_name);
+                console.log('inited', inited);
+            
+                if (inited === true) {
+                    
+                    run.stop();
+                    Shortlist.ui_and_list_add(layer_name);
+                    Shortlist.ui_and_list_add('B_cell_PCA_16704732');
+                }
+            })
+         
+            //Shortlist.ui_and_list_add(layer_name);
 		    
 		    // Now layer metadata has been filled in. Call the callback.
 		    callback(layer);

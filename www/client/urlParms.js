@@ -82,6 +82,11 @@ UrlParms = (function () { // jshint ignore: line
         banner('info', 'Your attribute is about to color the map');
 
         // Reformat the attribute data.
+        var data = {}
+        _.each(dataIn.sampleID, function (id, i) {
+            data[id] = dataIn[attrName][i];
+        });
+        /*
         var data = _.map(dataIn.sampleID, function (id, i) {
             if (i < dataIn[attrName].length) {
             
@@ -90,6 +95,7 @@ UrlParms = (function () { // jshint ignore: line
                 return line;
             }
         });
+        */
         
         // Build the layer and load it.
         var layer = {
