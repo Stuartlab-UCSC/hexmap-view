@@ -11,30 +11,14 @@ if (Meteor.isClient) {
 Meteor.startup( () => {
     if (Meteor.isServer) {
     
-        // Allow content from the hub and google
-        // TODO make hub variable
-        var xenahubs = '*.xenahubs.net';
-        var kolossus = '*.kolossus.sdsc.edu:*';
-        var google = '*.google.com';
-        var googleStatic = '*.gstatic.com';
-        var googleAnalytics = '*.google-analytics.com';
-        var googleApi = '*.googleapis.com';
-        
-        BrowserPolicy.content.allowSameOriginForAll(kolossus);
-        BrowserPolicy.content.allowDataUrlForAll(kolossus);
-        BrowserPolicy.content.allowOriginForAll(kolossus);
-        BrowserPolicy.content.allowConnectOrigin(kolossus);
-        
-        BrowserPolicy.content.allowOriginForAll(google);
-        BrowserPolicy.content.allowOriginForAll(googleStatic);
-        BrowserPolicy.content.allowOriginForAll(googleAnalytics);
-        BrowserPolicy.content.allowOriginForAll(googleApi);
+        // Allow content from anywhere
+        var all = '*:*';
+        //var kolossus = '*.kolossus.sdsc.edu:*';
+
+        BrowserPolicy.content.allowOriginForAll(all);
             
         // Allow content sniffing by google analytics
         //BrowserPolicy.content.allowContentTypeSniffing();
-        
-        // Allow use of eval in javascript
-        BrowserPolicy.content.allowEval();
     }
 });
 
