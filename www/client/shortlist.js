@@ -566,7 +566,8 @@ Shortlist = (function () { // jshint ignore: line
     
     function init_ui_entry_order() {
         
-        // Reorder the ui entries to match the shortlist order.
+        // Initialize the shortlist entries to match the order in which
+        // they were stored..
         var shortlist = Session.get('shortlist').reverse();
         _.each(shortlist, function (layer_name) {
             $shortlist.prepend(create_shortlist_ui_entry(layer_name));

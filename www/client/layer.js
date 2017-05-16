@@ -6,23 +6,6 @@ var app = app || {};
 Layer = (function () { // jshint ignore: line
 
     var selection_prefix = 'Selection';
-
-    function add_dynamic_to_data_type_list (name, layer) {
-        if (!('dataType' in layer)) {
-        
-            // Determine the data type since it was not supplied.
-            layer.dataType = 'binary';
-            // TODO
-        
-        }
-        if (layer.dataType === 'binary') {
-            ctx.bin_layers.push(name);
-        } else if (layer.dataType === 'categorical') {
-            ctx.cat_layers.push(name);
-        } else {
-            ctx.cont_layers.push(name);
-        }
-    }
     
     function metadata_counts_check (where, layer_name, n, positives) {
         var hexCount = Object.keys(polygons).length;
@@ -119,20 +102,63 @@ Layer = (function () { // jshint ignore: line
         return name;
     }
  
+    function make_colormap (name, layer) {
+        console.log('TODO: make_colormap()');
+    }
+
+    function determine_dynamic_data_type (name, layer) {
+
+        // Skip any layers with no values.
+        var data = layer.data;
+        if (data.length < 1) { return; }
+
+        if (!('dataType' in layer)) {
+        
+            // Determine the data type since it was not supplied.
+         
+            // If they are any strings, this gets a colormap
+            // and call it categorical for now.
+            var strings = _.find(data, function (value) {
+                    return _.isNaN(parseFloat(value));
+                });
+            if (strings && strings.length > 0) {
+                layer.dataType = 'categorical';
+                make_colormap(name, layer);
+            }
+         
+            // If there are only two values, this is binary.
+            var uniqueVals = _.countBy(data, function (value) {
+                return value;
+            });
+            //console.log('uniqueVals', uniqueVals);
+            if (Object.keys(uniqueVals).length < 3) {
+                layer.dataType = 'binary';
+            } else if (layer.dataType !== 'categorical') {
+                layer.dataType = 'continuous';
+            }
+            //console.log('type', type)
+        }
+        
+        // Add the layer name to the appropriate list
+        if (layer.dataType === 'binary') {
+            ctx.bin_layers.push(name);
+        } else if (layer.dataType === 'categorical') {
+            ctx.cat_layers.push(name);
+        } else {
+            ctx.cont_layers.push(name);
+        }
+    }
+    
     function load_dynamic_data (layer_name, callback, dynamicLayers) {
+    
+        console.log('load_dynamic_data(): layer_name', layer_name);
 
         var layer = dynamicLayers[layer_name];
         layer.dynamic = true;
      
         // Find and save the dataType.
-        add_dynamic_to_data_type_list(layer_name, layer)
-     
-        // TODO Create a colormap.
-        if (layer.colormap) {
-            colormaps[layer_name] = layer.colormap;
-            delete layer.colormap;
-        }
-     
+        determine_dynamic_data_type(layer_name, layer);
+
         // Save the layer data in the global layers object.
         layers[layer_name] = layer;
         
@@ -398,7 +424,7 @@ return { // Public methods
             var text;
             if (attribute === 'positives') {
             
-                // Special case positive count for binary layers
+                // Special case positive count for binary selection layers
                 if (layers[layer_name].selection) {
                 
                     // For selections...

@@ -158,56 +158,6 @@ Util = (function () { // jshint ignore: line
         }
     }
 
-    function addDynamicToDataTypeList (name, data) {
-        //
-        // @param name: the name of the layer
-        // @param data: an array of values for the layer
-
-        // Skip any layers with no values.
-        if (data.length < 1) { return; }
-
-        // Initialize our process-of-elimination vars
-        var can_be_binary = true,
-            can_be_categorical = true;
-
-        // Loop through the data until we have determined the data type
-        _.find(data, function (value) {
-            if (value % 1 !== 0) {
-
-                // It is continuous (fractional)
-                can_be_binary = false;
-                can_be_categorical = false;
-                return true;
-
-            } else if (value > 1 || value < 0) {
-
-                // It's not binary, but it could still be either continuous
-                // or categorical.
-                can_be_binary = false;
-                return true;
-            } else {
-                return false;
-            }
-        });
-        
-        if (can_be_binary) {
-
-            // We're done, and nothing rules out it being binary
-            // TODO this is capturing layers with NaN?
-            ctx.bin_layers.push(name);
-
-        } else if (can_be_categorical) {
-
-            // It's not binary and we didn't hit a continuous float value
-            // TODO we could have continous values which happen to be integers.
-            // For now those types will be misplaced as categorical
-            ctx.cat_layers.push(name);
-        } else {
-            // It is not binary or categorical, so it is continuous
-            ctx.cont_layers.push(name);
-        }
-    }
-
     function setHeightSelect2 ($el) {
  
         // Make the bottom of the list no longer than the main window
@@ -266,7 +216,6 @@ Util = (function () { // jshint ignore: line
         banner: banner,
         tsvParseRows: tsvParseRows,
         removeFromDataTypeList: removeFromDataTypeList,
-        addDynamicToDataTypeList: addDynamicToDataTypeList,
         setHeightSelect2: setHeightSelect2,
         createOurSelect2: createOurSelect2,
         timestamp: timestamp,
@@ -284,7 +233,6 @@ projectNotFound = Util.projectNotFound;
 banner = Util.banner;
 tsvParseRows = Util.tsvParseRows;
 removeFromDataTypeList = Util.removeFromDataTypeList;
-addDynamicToDataTypeList = Util.addDynamicToDataTypeList;
 setHeightSelect2 = Util.setHeightSelect2;
 createOurSelect2 = Util.createOurSelect2;
 
