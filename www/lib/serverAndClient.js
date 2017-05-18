@@ -16,6 +16,9 @@ Meteor.startup( () => {
         //var kolossus = '*.kolossus.sdsc.edu:*';
 
         BrowserPolicy.content.allowOriginForAll(all);
+        
+        // We must allow use of evil eval in javascript for google charts.
+        BrowserPolicy.content.allowEval();
             
         // Allow content sniffing by google analytics
         //BrowserPolicy.content.allowContentTypeSniffing();

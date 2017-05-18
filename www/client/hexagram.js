@@ -472,16 +472,22 @@ initLayout = function () {
         });
 
         // Create our selection list
-        if (Session.equals('layoutIndex', null)) {
-            Session.set('layoutIndex', 0);
+        
+        // Determine the layout index whose map will be displayed.
+        // Layout index takes precedent over layout name.
+        if (Session.equals('layoutIndex', undefined)) {
+            Session.set('layoutIndex',
+                (Session.equals('layoutName', undefined) ? 0 :
+                    layouts.indexOf(Session.get('layoutName')))
+            );
         }
+        
         createOurSelect2($("#layout-search"),
             {data: data}, Session.get('layoutIndex').toString());
 
         // Define the event handler for the selecting in the list
         $("#layout-search").on('change', function (ev) {
             Session.set('layoutIndex', ev.target.value);
-            console.log('layout', layouts[Session.get('layoutIndex')]);
             createMap();
             initHexagons(true);
             

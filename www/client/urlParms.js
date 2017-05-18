@@ -27,7 +27,7 @@ UrlParms = (function () { // jshint ignore: line
         return project + '/';
     };
     
-    function loadOverlayNodes (P) {
+    function loadOverlayNodes (P, store) {
     
         // Find any overlay nodes in the URL
         if (P.x && P.y) {
@@ -79,40 +79,27 @@ UrlParms = (function () { // jshint ignore: line
         //               "sampleID":["sampleID1", "sampleID2",...]}
         // @param attrName name of the attribute received
 
-        banner('info', 'Your attribute is about to color the map');
-
         // Reformat the attribute data.
         var data = {}
         _.each(dataIn.sampleID, function (id, i) {
             data[id] = dataIn[attrName][i];
         });
-        /*
-        var data = _.map(dataIn.sampleID, function (id, i) {
-            if (i < dataIn[attrName].length) {
-            
-                var line = {};
-                line[id] = dataIn[attrName][i];
-                return line;
-            }
-        });
-        */
         
         // Build the layer and load it.
         var layer = {
                 data: data,
                 n: Object.keys(data).length,
                 dynamic: true,
+                imported: true,
             },
             dynLayer = {};
         dynLayer[attrName] = layer;
         
         Meteor.autorun(function (runner) {
-            var inited = Session.get('initedLayerTypes');
+            var initedLayerTypes = Session.get('initedLayerTypes'),
+                shortlistInitDone = Session.get('shortlistInitDone');
             
-            console.log('attrName', attrName);
-            console.log('inited', inited);
-            
-            if ((!_.isUndefined(inited)) && inited === true) {
+            if (initedLayerTypes && shortlistInitDone) {
                 runner.stop();
                 Layer.with_layer(attrName, function() {}, dynLayer);
             }
@@ -121,25 +108,25 @@ UrlParms = (function () { // jshint ignore: line
     
     function queryXena(P) {
 
-        // Find any xena requests. For example:
-        //
-        // https://tumormap.ucsc.edu/?
-        // xena=addAttr& p=CKCC/v1& layout=mRNA&
-        // hub=https://toil.xenahubs.net/data/& dataset=GTEX_phenotype& attr=_age&
-        // all together now:
-        // working examples:
-        // http:localhost:3333/?xena=addAttr&p=Pancan12&layout=mRNA&hub=https://toil.xenahubs.net/data/&dataset=GTEX_phenotype&attr=_age
-        // https://hexdev.sdsc.edu:8222/?xena=addAttr&p=unitTest/layoutBasicExp&layout=layout&hub=https://toil.xenahubs.net/data/&dataset=GTEX_phenotype&attr=_age
-        // http:localhost:3333/?xena=addAttr&p=unitTest/layoutBasicExp&layout=layout&hub=https://toil.xenahubs.net/data/&dataset=GTEX_phenotype&attr=_age
-        // https://hexdev.sdsc.edu:8222/?xena=addAttr&p=Pancan12/SampleMap&layout=layout&hub=https://toil.xenahubs.net/data/&dataset=GTEX_phenotype&attr=_age
-        // Working example:
-        // http://localhost:3333/?xena=addAttr&p=unitTest/layoutBasicExp&layout=layout&hub=https://pancanatlas.xenahubs.net/data/&dataset=TCGA_pancancer_10852whitelistsamples_68ImmuneSigs.xena&attr=B_cell_PCA_16704732
-        // http://localhost:3333/?xena=addAttr&p=PancanAtlas_dev/XenaPancanAtlas&layout=layout&hub=https://pancanatlas.xenahubs.net/data/&dataset=TCGA_pancancer_10852whitelistsamples_68ImmuneSigs.xena&attr=B_cell_PCA_16704732
-        // http://localhost:3333/?xena=addAttr&p=PancanAtlas_dev/XenaPancanAtlas&layout=mRNA&hub=https://tcgaatlas.xenahubs.net&dataset=TCGA_pancancer_10852whitelistsamples_68ImmuneSigs.xena&attr=B_cell_PCA_16704732
+        // Find any xena requests.
         // @param P the url parameters
+        // For example:
+        // http://localhost:3333/?
+        //      xena=addAttr&
+        //      p=PancanAtlas_dev/XenaPancanAtlas&
+        //      layout=RPPA&
+        //      hub=https://pancanatlas.xenahubs.net/data/&
+        //      dataset=TCGA_pancancer_10852whitelistsamples_68ImmuneSigs.xena&
+        //      attr=B_cell_PCA_16704732
+        // all together now:
+        // http://localhost:3333/?xena=addAttr&p=PancanAtlas_dev/XenaPancanAtlas&layout=RPPA&hub=https://pancanatlas.xenahubs.net/data/&dataset=TCGA_pancancer_10852whitelistsamples_68ImmuneSigs.xena&attr=B_cell_PCA_16704732
+        // A wget example:
+        // wget -O foo -v --header='content-type:text/plain'
+        //      --post-data='(xena-query {:select
+        //      ["sampleID" "B_cell_PCA_16704732"] :from
+        //      ["TCGA_pancancer_10852whitelistsamples_68ImmuneSigs.xena"]})'
+        //      https://pancanatlas.xenahubs.net/data/
 
-        //console.log('P', P);
-        
         if (P.xena === 'addAttr') {
         
             // Convert any single values to an array
@@ -158,25 +145,7 @@ UrlParms = (function () { // jshint ignore: line
             _.each(P.hub, function (hub, i) {
                 if (i < P.dataset.length && i < P.attr.length) {
                 
-                    // Build the xena query string of the form:
-                    /*
-                    http://localhost:3333/?xena=addAttr&p=unitTest/layoutBasicExp&layout=layout&hub=https://pancanatlas.xenahubs.net&dataset=TCGA_pancancer_10852whitelistsamples_68ImmuneSigs.xena&attr=B_cell_PCA_16704732
-                    // Jings broken example:
-                    // wget
-                    //  -O foo
-                    //  -v
-                    //  --header='content-type:text/plain'
-                    //  --post-data='(xena-query {:select ["sampleID" "B_cell_PCA_16704732"] :from ["TCGA_pancancer_10852whitelistsamples_68ImmuneSigs.xena"]})'
-                    // https://pancanatlas.xenahubs.net/
-                    // wget  -O foo -v --header='content-type:text/plain' --post-data='(xena-query {:select ["sampleID" "B_cell_PCA_16704732"] :from ["TCGA_pancancer_10852whitelistsamples_68ImmuneSigs.xena"]})' https://pancanatlas.xenahubs.net/
-                    // Working example
-                    // wget
-                    //  -O foo
-                    //  -v
-                    //  --header='content-type:text/plain'
-                    //  --post-data='(xena-query {:select ["sampleID" "_gender"] :from ["GTEX_phenotype"]})'
-                    // https://toil.xenahubs.net/data/
-                    */
+                    // Build the xena query string.
                     var opts = '(xena-query {:select ["sampleID" "' +
                             P.attr[i] +
                             '"] :from ["' +
@@ -249,19 +218,27 @@ UrlParms = (function () { // jshint ignore: line
                 return null;
             }
         },
- 
+  
         load: function (P) {
      
             // Load state from parameters in the url when a project is included.
-            store.project = fixUpProjectNames(P.p);
-            store.page = 'mapPage';
+            var store = {
+                project: fixUpProjectNames(P.p),
+                page: 'mapPage',
+            }
 
- 
-            // Find any layout specified
-            if (P.li) { store.layoutIndex = P.li;  }
+            // Find any layout specified by index.
+            if (P.li) {
+                store.layoutIndex = P.li;
+            
+            // Find any layout name specified. Save it for later to set
+            // the layoutIndex state variable.
+            } else if (P.layout) {
+                Session.set('layoutName', P.layout);
+            }
             
             // Find any overlay nodes in the URL
-            if ((P.x && P.y) || P.nodes) { loadOverlayNodes(P); }
+            if ((P.x && P.y) || P.nodes) { loadOverlayNodes(P, store); }
 
             // Find any xena requests
             if (P.xena) {

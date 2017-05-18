@@ -19,7 +19,7 @@ var app = app || {};
         scale = new ReactiveVar(),
         $markerInfoWindow,
         initialized = false,
-        infoWindow;
+        infoWindow; // The info window for the marker, not a node.
  
     Template.markerInfoWindow.helpers({
         node_id: function () {

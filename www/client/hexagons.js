@@ -30,6 +30,8 @@ var app = app || {};
  
         var coords = getHexLatLngCoords(xy, sideLen);
 
+        // TODO can we process many polygons in one call?
+        // Can we leave out the fill color until we have one?
         // Construct the Polygon
         var hexagon = new google.maps.Polygon({
             paths: coords,
@@ -41,7 +43,6 @@ var app = app || {};
         setHexagonStroke(hexagon);
         
         // Attach the hexagon to the global map
-        // if (overlayNode) // OVERLAY TODO
         hexagon.setMap(googlemap);
  
         // Save the honeycomb coordinates with the hexagon
@@ -50,7 +51,6 @@ var app = app || {};
 
         // Set up the click listener to move the global info window to this hexagon
         // and display the hexagon's information
-        // TODO use a session var
         google.maps.event.addListener(hexagon, "click", function (event) {
             showInfoWindow(event, hexagon, xy.x, xy.y);
         });
