@@ -22,24 +22,6 @@ var app = app || {};  // jshint ignore: line
         bookmarkColor = new ReactiveVar('black'),
         bookmarkDialogHex;
  
-    function getUrlParms() {
-        var parms = location.search.substr(1);
-        var result = {};
-        var found = false;
-        parms.split("&").forEach(function(part) {
-            if (part !== "") {
-                var item = part.split("=");
-                result[item[0]] = decodeURIComponent(item[1]);
-                found = true;
-            }
-        });
-        if (found) {
-            return result;
-        } else {
-            return null;
-        }
-    }
-
     Template.bookmarkT.helpers ({
         message: function () {
             return bookmarkMessage.get();
@@ -117,7 +99,7 @@ var app = app || {};  // jshint ignore: line
         s.storeName = location.host + '-hexMapState';
  
         // Pull out any parameters in the URL
-        s.uParm = getUrlParms();
+        s.uParm = UrlParms.getParms();
 
         s.localStorage = {
             // Contains the non-project state we want to save with unique keys
@@ -140,7 +122,7 @@ var app = app || {};  // jshint ignore: line
                 'layoutIndex',
                 'overlayNodes',
                 'shortlist',
-                'shortlist_on_top',
+                //'shortlist_on_top',
                 'zoom',
             ],
  
@@ -169,6 +151,8 @@ var app = app || {};  // jshint ignore: line
 
         // Project variables maintained in this state object, with defaults.
         Session.set('active_layers', []); // Layer names displaying their colors
+ 
+        // Project variables maintained in this state object, with defaults.
         s.center = null; // main google map center
         Session.set('dynamic_attrs', undefined); // Dynamic layers dict
         Session.set('first_layer', undefined); // first in shortlist
@@ -350,11 +334,13 @@ var app = app || {};  // jshint ignore: line
  
         // Load state from the given bookmark
  
-        // First we need to see if we should ignore the url query
+        // First we need to see if we should ignore the url query which
+        // was previously included and we want to leave it in the url so the
+        // user can fix what's there
         var s = this,
             store = JSON.parse(window.localStorage.getItem(s.storeName));
  
-        if (store.ignoreUrlQuery) {
+        if (store && store.ignoreUrlQuery) {
             s.uparms = null;
             delete store.ignoreUrlQuery;
             s.load(store);
@@ -378,109 +364,6 @@ var app = app || {};  // jshint ignore: line
                 s.projectNotFoundNotified = false;
             }
         );
-    };
- 
-    State.prototype.fixUpOldUrls = function (project) {
- 
-        var xlate = {
-            'evanPaull/pCHIPS/': 'pCHIPS/',
-            'ynewton/gliomas-paper/': 'Gliomas/',
-        };
- 
-        // Fix up some project names that we've aleady given out to people
-        // before reorganizing projects and implementing logins
-        if (xlate[project]) {
-            project = xlate[project];
-        }
-        return project;
-    };
- 
-    State.prototype.loadFromUrl = function () {
- 
-        // Load state from parameters in the url
-        var s = this;
-        var state = {};
- 
-        // Find the project if one was included in the URL.
-        if (s.uParm.p) {
- 
-            // Allow the old dot delimiter in case the paper reviewers are
-            // using it. And this may be needed by reflections.
-            if (s.uParm.p === 'Pancan12.GeneMap') {
-                s.uParm.p = 'Pancan12/GeneMap';
-
-            } else if (s.uParm.p === 'Pancan12.SampleMap') {
-                s.uParm.p = 'Pancan12/SampleMap';
-
-            } else if (s.uParm.p.substr(0, 4) === 'CKCC') {
- 
-                // Replace the last '.' with '/' so old CKCC URLs still work.
-                var i = s.uParm.p.lastIndexOf('.');
-                if (i > -1) {
-                    s.uParm.p = s.uParm.p.substr(0, i) + '/' + s.uParm.p.substr(i+1);
-                }
-            }
- 
-            // Append a slash to make the standard project form.
-            state.project = s.uParm.p + '/';
- 
-            // A project in a url means someone wants to see a particular map
-            state.page = 'mapPage';
- 
-            // Find any layout specified
-            if (s.uParm.li) {
-                Session.set('layoutIndex', s.uParm.li);
-            }
- 
-            // Find any overlay nodes in the URL
-            if (s.uParm.x && s.uParm.y) {
- 
-                // Split the comma-separated values into arrays
-                var xs = s.uParm.x.split(","),
-                    ys = s.uParm.y.split(","),
-                    nodes = (!s.uParm.node) ? [] : s.uParm.node.split(",");
- 
-                state.overlayNodes = {};
-                _.each(xs, function (x, i) {
-                
-                    // If there is a y-value for this x-value...
-                    if (ys.length > i) {
-                    
-                        // If there is no node name, use the index as the name.
-                        if (nodes.length <= i) {
-                            nodes[i] = i.toString();
-                        }
-                        state.overlayNodes[nodes[i]] = {x: xs[i], y: ys[i]};
-                    }
-                });
- 
-                /* This is the old single overlay node in the url
-                if (!s.uParm.node) {
-                    s.uParm.node = 'x';
-                }
-                state.overlayNodes = {};
-                state.overlayNodes[s.uParm.node] = {x: s.uParm.x, y: s.uParm.y};
-                */
- 
-            } else if (s.uParm.nodes) {
- 
-                // Load this group of nodes as overlay nodes
-                state.overlayNodes = getOverlayNodeGroup(s.uParm.nodes);
-     
-            } else {
- 
-                // Fix up any old URLs we gave out
-                state.project = s.fixUpOldUrls(state.project);
-            }
-        } else if (s.uParm.pg) {
-
-            // Load the page requested. First get any saved state.
-            state = s.loadFromLocalStore();
-            if (!state) { state = {}; }
-            state.page = s.uParm.pg
-        }
- 
-        s.load(state);
     };
 
     function checkLocalStore () {
@@ -545,17 +428,35 @@ var app = app || {};  // jshint ignore: line
         s.alreadySaved = false;
         s.projectNotFoundNotified = false;
 
-        // Load state
+        // Load state from URL parms.
         if (s.uParm !== null) {
-            if (s.uParm.bookmark) {
  
-                // Load from the bookmark ID in the URL
+            // Handle a bookmark ID parm in the URL.
+            if (s.uParm.bookmark) {
                 s.loadFromBookmark(s.uParm.bookmark);
+ 
+            // Handle other parms in the URL.
             } else {
  
-                // Load from the parms in the URL
-                s.loadFromUrl();
+                // Handle a map ID / project in the URL query.
+                if (s.uParm.p) {
+                    var store = UrlParms.load(s.uParm);
+                    if (store) {
+                        s.load(store);
+                    }
+ 
+                // Handle a page in the URL query.
+                } else if (s.uParm.pg) {
+
+                    // First get any saved state.
+                    var state = s.loadFromLocalStore();
+                    if (!state) { state = {}; }
+                    state.page = s.uParm.pg
+                    s.load(state);
+                }
             }
+ 
+        // If session storage is supported ...
         } else if (storageSupported) {
  
             // Load from the local store if there is anything in there
@@ -587,4 +488,3 @@ var app = app || {};  // jshint ignore: line
         return s;
     };
 })(app);
-

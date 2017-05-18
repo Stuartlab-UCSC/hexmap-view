@@ -51,6 +51,21 @@ function sendEnrollmentEmail(username) {
     // Before emailing, update user object with new token
     Meteor._ensure(user, 'services', 'password').reset = tokenRecord;
     var enrollAccountUrl = Accounts.urls.enrollAccount(token);
+
+    /*
+    // Corrupted passwords message:
+    var subject = 'Please reset your password at ' +
+        URL_BASE.toString();
+    var msg = 'Your password has been corrupted ' +
+              'so please reset it at the link below. ' +
+              'Note that no one obtained your password, ' +
+              'so you may use the same one you had previously.\n\n' +
+              enrollAccountUrl + '\n\n' +
+              'Please let us know if you do not have access to '+
+              'maps that you could previously see. \n\n' +
+              'Thank you and sorry for any inconvenience.'
+    */
+    
     var subject = 'An account has been created for you on ' +
         URL_BASE.toString();
     var msg = subject + '\n' +
@@ -58,6 +73,15 @@ function sendEnrollmentEmail(username) {
               enrollAccountUrl;
  
     sendMail(username, subject, msg);
+    
+    // And tell the admin
+    msg = "'New user by admin: " +
+        username +
+        ' at ' +
+        URL_BASE.toString() +
+        ' with roles: ' +
+        user.roles;
+    sendMail(ADMIN_EMAIL, msg, msg);
 }
 
 function createUsers(users) {
@@ -76,8 +100,7 @@ function createUsers(users) {
             sendEnrollmentEmail(user.email);
            
         } catch (error) {
-            console.log('error on createUsers:', error);
-            console.trace();
+            console.log('error on createUsers:' , user.email, error);
         }
     });
 }

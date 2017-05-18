@@ -297,7 +297,6 @@ Colors = (function () { // jshint ignore: line
                 // background.
                 createMap();
                 createHexagons();
-                refreshColors();
                 showOverlayNodes();
             });
      

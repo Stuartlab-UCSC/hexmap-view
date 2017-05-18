@@ -243,7 +243,7 @@ var app = app || {};
         }
         clearAllFilters();
         updateLonglist();
-        Shortlist.update_shortlist_metadata();
+        Shortlist.update_ui_metadata();
  
         // Skip the banner on the first sort
         if (firstSort) {
@@ -559,7 +559,7 @@ var app = app || {};
 
         // Set up common parameters between layout-aware and -ignore
         opts.layerA = focus_attr;
-        opts.layerIndex = ctx.layer_names_by_index.indexOf(focus_attr);
+        opts.layerIndex = ctx.static_layer_names.indexOf(focus_attr);
         opts.directory = VIEW_DIR + ctx.project;
         opts.tempFile = 'yes';
         opts.tsv = true;
@@ -637,7 +637,7 @@ var app = app || {};
 
         } else {
             // This is a primary attribute, so check for pre-computed stats
-            var layer_index = ctx.layer_names_by_index.indexOf(focus_attr),
+            var layer_index = ctx.static_layer_names.indexOf(focus_attr),
                 filename = ctx.project + "stats_" + layer_index + ".tab";
 
             getPreComputedStats(filename, focus_attr, opts);
@@ -738,7 +738,7 @@ var app = app || {};
 
         } else {
             // This is a primary attribute, so check for pre-computed stats
-            var layer_index = ctx.layer_names_by_index.indexOf(focus_attr),
+            var layer_index = ctx.static_layer_names.indexOf(focus_attr),
                 filename = ctx.project + "statsL_"+ layer_index + "_" +
                     layout_index + ".tab";
 

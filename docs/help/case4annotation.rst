@@ -42,7 +42,7 @@ Steps
 
 7. Specify the name of the group (e.g. PancancerGroup) in the popup window.
 
-8. Notice that this group is now selected and the new annotation/attribute shows up in the Short List with a lavendar background indicating it is a generated attribute.
+8. Notice that this group is now selected and the new annotation/attribute shows up in the Short List with a lavender background indicating it is a generated attribute.
 
 .. image:: _images/caseAnnotation-5.png
    :width: 500 px

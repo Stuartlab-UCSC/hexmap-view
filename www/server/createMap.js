@@ -25,12 +25,8 @@ exports.post_calc = function (result, context) {
     var success = _.find(log_array, function(line) {
         return line.indexOf(success_msg) > -1;
     });
-    if (success) {
-
-        // Return the layout log file name
-        PythonCall.report_calc_result(result, context);
-    } else {
-       
+    if (_.isUndefined(success)) {
+    
         // Send the log to the admin & throw an error.
         var subject = 'Error when creating a map';
         var msg = 'log file: ' + result.data;
@@ -40,6 +36,10 @@ exports.post_calc = function (result, context) {
             statusCode: 500,
             data: 'Calc script had an unknown error',
             }, context);
+    } else {
+
+        // Return the layout log file name
+        PythonCall.report_calc_result(result, context);
     }
 };
 

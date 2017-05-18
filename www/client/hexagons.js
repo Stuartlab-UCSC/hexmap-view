@@ -79,13 +79,16 @@ var app = app || {};
         });
     }
 
-    createHexagons = function () {
- 
+    createHexagons = function (draw) {
+
         // Create the hexagons from the assignments.
         polygons = {};
         _.each(assignments, function (hex, id) {
             addHexagon (hex.x, hex.y, id);
         });
+        if (draw) {
+            refreshColors();
+        }
     }
 
     addHexagon = function (x, y, label, overlayNode) {
@@ -156,7 +159,7 @@ var app = app || {};
             findDimensions(max_x, max_y);
             Session.set('initedHexagons', true);
             if (draw) {
-                createHexagons();
+                createHexagons(draw);
             }
         });
     }

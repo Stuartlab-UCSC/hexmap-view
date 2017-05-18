@@ -154,6 +154,15 @@ Hex = (function () { // jshint ignore: line
         $('#gridContent').height(windowHt - navHt);
     }
 
+
+
+    function googleAnalytics() {
+        window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+        ga('create', 'UA-76132249-2', 'auto');
+        ga('send', 'pageview');
+        //<script async src='https://www.google-analytics.com/analytics.js'></script>
+    }
+
     // Phase 6 init: Autotracker to find when the basic UI is drawn
     Session.set('initedHexagons', false);
     Session.set('initialiedLayers', false);
@@ -190,6 +199,7 @@ Hex = (function () { // jshint ignore: line
                 initGchart();
                 initBookmark();
                 Jobs.init();
+                if (!DEV) { googleAnalytics(); }
                 //initDiffAnalysis();
             }, 0);
         }
@@ -258,6 +268,10 @@ Hex = (function () { // jshint ignore: line
     // For a graphical view see:
     // https://docs.google.com/presentation/d/1BrHDwcyGkmxD2MeimZ9bU3OPN3KJ85-wPpZxFy0yhmg/edit#slide=id.g12d3244251_0_30
     function initMainMapContainer () { // jshint ignore: line
+        window.addEventListener("load", function(event) {
+            Session.set('domLoaded', true);
+        });
+
         setTimeout(function () { // The timeout allows the google libs to load
             resizeMap();
             $(window).resize(resizeMap);
