@@ -4,6 +4,7 @@ Create a Map
 
 You can create a map with your own data by selecting *Create map* from the *File*
 menu, then supplying at least a layout feature file and specifying its format.
+See technical details section below for pipeline/algorithm details.
 
 If this option does not exist in the Edit menu, then you do not have the proper
 authority to run this compute-intensive task. Ask hexmap at ucsc dot edu
@@ -75,27 +76,45 @@ attributes IDs across the top and node IDs in the first column, like::
  ...
 
 ..
-    Layout Methods
-    --------------
 
-    The option to select a layout method other than DrL will be added to the UI soon.
+Technical Details
+-----------------
 
-    Layout methods are the algorithms used to arrange the nodes on the
-    two-dimensional map with the following options available. The default is DrL.
+The "layout input formats" described in the "Features to Lay Out the Map"
+section above represent different stages of the pipeline used to create a map.
+**Clustering data** is the beginning of the pipeline, any nxm matrix can be
+used. Spearman correlations are calculated representing the similarity between all
+columns in the **Clustering data**. The resulting nxn matrix of spearman correlations
+is the **Full similarity** matrix. The **Full similarity** matrix is then sparsified
+by taking the 6 highest spearman correlations for each sample, this sparsification is
+the **Sparse similarity** input format. **XY positions** are then produced by
+applying the openOrd layout algorithm
+https://www.researchgate.net/publication/253087985_OpenOrd_An_Open-Source_Toolbox_for_Large_Graph_Layout
+to the **Sparse similarity** representation.
 
-    **DrL** : Distributed Recursive (Graph) Layout
+**XY positions** are further modified by the hexagonal binning process. The hexagonal
+binning process first lays a hexagonal tiling over the x-y plane, then assigns each point
+in the xy space to the nearest hexagon. If a point is assigned to a hexagon that is
+already occupied, then a breadth-first search on the hexagon tilling is used to find
+the nearest empty hexagon. If the OpenOrd clustering algorithm is used the size of the
+hexagons is set to 1. This has been shown to be reasonable with the scaling of the
+algorithm. If **XY positions** are input, a hexagon size is set such that hexagons cover
+5% of the open space in the plane. The open space is determined by
+(max x - min x) * (max y - min y), and the area of a hexagon is is sqrt(3)*3/2 *S^2,
+where S is the side length.
 
-    **tSNE** : t-distributed Stochastic Neighbor Embedding
+Missing values in **Clustering data**
++++++++++++++++++++++++++++++++++++++
 
-    **MDS** : Multidimensional scaling
+We strongly encourage users to choose and execute an
+appropriate method for dealing with missing values before using our pipeline.
+In general there is not a single method that is best for all types of data.
+If missing values are present in **Clustering data**, they are converted to
+0 before calculating spearman similarities. Depending on the distribution of
+the data our technique of filling with 0 may be problematic.
 
-    **PCA** : Principal Component analysis
 
-    **ICA** : Independent Component Analysis
 
-    **isomap** : Isomap Embedding
 
-    **spectral embedding** : Project the sample on the first eigenvectors of the graph Laplacian
 
-    Advanced Options
-    ----------------
+
