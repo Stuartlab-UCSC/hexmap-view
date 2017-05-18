@@ -151,16 +151,21 @@ var app = app || {};  // jshint ignore: line
 
         // Project variables maintained in this state object, with defaults.
         Session.set('active_layers', []); // Layer names displaying their colors
- 
-        // Project variables maintained in this state object, with defaults.
         s.center = null; // main google map center
         Session.set('dynamic_attrs', undefined); // Dynamic layers dict
+        delete Session.keys.dynamic_attrs;
         Session.set('first_layer', undefined); // first in shortlist
+        delete Session.keys.first_layer;
         s.gridCenter = null; // grid map center
         s.gridZoom = 3;  // Zoom level of the grid
-        Session.set('layouts', []);  // Map layouts maintained in order of entry
-        Session.set('layoutIndex', null);
+        Session.set('layouts', undefined); // List of layouts available
+        delete Session.keys.layouts;
+        Session.set('layoutIndex', undefined); // Index of active layout
+        delete Session.keys.layoutIndex;
+        Session.set('layoutName', undefined); // name of active layout
+        delete Session.keys.layoutName;
         Session.set('overlayNodes', undefined);  // overlay nodes to include
+        delete Session.keys.overlayNodes
         Session.set('shortlist', []); // Array of layer names in the shortlist
         Session.set('shortlist_on_top', false); // maintain actives at the top
         s.zoom = 3;  // Map zoom level where 3 means zoomed in by 3 levels

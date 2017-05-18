@@ -117,7 +117,7 @@ Layer = (function () { // jshint ignore: line
             // Determine the data type since it was not supplied.
          
             // If they are any strings, this gets a colormap
-            // and call it categorical for now.
+            // and call it categorical for now. It may be binary.
             var strings = _.find(data, function (value) {
                     return _.isNaN(parseFloat(value));
                 });
@@ -126,20 +126,23 @@ Layer = (function () { // jshint ignore: line
                 make_colormap(name, layer);
             }
          
-            // If there are only two values, this is binary.
+            // Find the count of each unique value.
             var uniqueVals = _.countBy(data, function (value) {
                 return value;
             });
-            //console.log('uniqueVals', uniqueVals);
+         
+            // If there are only two values, this is binary.
             if (Object.keys(uniqueVals).length < 3) {
                 layer.dataType = 'binary';
+         
+            // If the type has not been assigned categorical,
+            // then this must be continuous.
             } else if (layer.dataType !== 'categorical') {
                 layer.dataType = 'continuous';
             }
-            //console.log('type', type)
         }
         
-        // Add the layer name to the appropriate list
+        // Add the layer name to the appropriate data type list.
         if (layer.dataType === 'binary') {
             ctx.bin_layers.push(name);
         } else if (layer.dataType === 'categorical') {
@@ -150,9 +153,8 @@ Layer = (function () { // jshint ignore: line
     }
     
     function load_dynamic_data (layer_name, callback, dynamicLayers) {
-    
-        console.log('load_dynamic_data(): layer_name', layer_name);
 
+        // Load dynamic data in memory.
         var layer = dynamicLayers[layer_name];
         layer.dynamic = true;
      
@@ -230,7 +232,8 @@ return { // Public methods
                 console.log('TODO layer "', layer_name,
                     '"is not in the layers global.',
                     'You may need to reset to defaults.');
-                console.log('### layers', Object.keys(layers));
+                console.trace();
+                //console.log('### layers', Object.keys(layers));
                 return;
             }
         }
@@ -287,24 +290,7 @@ return { // Public methods
 		    }
          
             // Add this layer to the shortlist.
-         
-            console.log('layer_name', layer_name);
-         
-            Meteor.autorun(function (run) {
-                var inited = Session.get('shortlistInitDone');
-            
-                console.log('autorun: layer_name', layer_name);
-                console.log('inited', inited);
-            
-                if (inited === true) {
-                    
-                    run.stop();
-                    Shortlist.ui_and_list_add(layer_name);
-                    Shortlist.ui_and_list_add('B_cell_PCA_16704732');
-                }
-            })
-         
-            //Shortlist.ui_and_list_add(layer_name);
+            Shortlist.ui_and_list_add(layer_name);
 		    
 		    // Now layer metadata has been filled in. Call the callback.
 		    callback(layer);
@@ -522,7 +508,7 @@ return { // Public methods
                     // Replace a boring short name with a useful long name
                     attribute = lookup[attribute];
                 }
-                text = attribute + " = " + value_formatted;
+                text = attribute + ": " + value_formatted;
             }
             
             var metadata = $("<div\>").addClass("layer-metadata");

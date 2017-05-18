@@ -1046,12 +1046,13 @@ return {
         if (initialization_started) { return; }
         
         initialization_started = true;
-        Session.set('shortlistInitDone', false);
  
         // Initialize some handy variables
         $shortlist = $('#shortlist');
         $dynamic_controls = $shortlist.find('.dynamic_controls');
         $float_controls = $shortlist.find('.float');
+        
+        Session.set('shortlistInitDone', false);
         
         if (Session.get('domLoaded')) {
             complete_initialization();

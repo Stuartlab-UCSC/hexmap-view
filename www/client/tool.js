@@ -250,8 +250,13 @@ Tool = (function () { // jshint ignore: line
                             // Enable/disable the place nodes menu option
                             // depending on availabiity of data required.
                             Meteor.autorun( function () {
-                                var layout = Session.get('layouts')[
-                                    Session.get('layoutIndex')];
+                                var layouts = Session.get('layouts'),
+                                    layoutIndex = Session.get('layoutIndex');
+                                
+                                if (!layouts || !layoutIndex) {
+                                    return;
+                                }
+                                var layout = layouts[layoutIndex];
                                     
                                 Meteor.call(
                                     'getJsonFile', 'mapMeta.json', ctx.project,
