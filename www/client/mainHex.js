@@ -6,6 +6,10 @@ Hex = (function () { // jshint ignore: line
  
     var VERSION = 'Version 1.0';
  
+    window.addEventListener("load", function(event) {
+        Session.set('domLoaded', true);
+    });
+
     Template.localStoreT.created = function () {
         // This template is only used to initialize state
         if (_.isNull(ctx)) { ctx = initState(); }
@@ -268,10 +272,6 @@ Hex = (function () { // jshint ignore: line
     // For a graphical view see:
     // https://docs.google.com/presentation/d/1BrHDwcyGkmxD2MeimZ9bU3OPN3KJ85-wPpZxFy0yhmg/edit#slide=id.g12d3244251_0_30
     function initMainMapContainer () { // jshint ignore: line
-        window.addEventListener("load", function(event) {
-            Session.set('domLoaded', true);
-        });
-
         setTimeout(function () { // The timeout allows the google libs to load
             resizeMap();
             $(window).resize(resizeMap);

@@ -178,7 +178,6 @@ var app = app || {};  // jshint ignore: line
         s.setProjectDefaults();
 
         // Reactive variables maintained in global state & not project-specific
-        Session.set('page', DEFAULT_PAGE);
         Session.set('sort', DEFAULT_SORT); // Default sort message & type
         Session.set('background', 'black');  // Main map background color
         Session.set('viewEdges', false); // Display of directed graph
@@ -307,6 +306,11 @@ var app = app || {};  // jshint ignore: line
             }
         });
  
+  
+        if (Session.equals('page', undefined)) {
+            Session.set('page', DEFAULT_PAGE);
+        }
+
         s.lastProject = s.project;
  
         // TODO a special hack until we get bookmarks going: load
@@ -330,9 +334,7 @@ var app = app || {};  // jshint ignore: line
         // Load state from local store
         var s = this,
             store = JSON.parse(window.localStorage.getItem(s.storeName));
-        if (store) {
-            s.load(store);
-        }
+        s.load(store);
     };
 
     State.prototype.loadFromBookmark = function (bookmark) {
@@ -439,6 +441,7 @@ var app = app || {};  // jshint ignore: line
             // Handle a bookmark ID parm in the URL.
             if (s.uParm.bookmark) {
                 s.loadFromBookmark(s.uParm.bookmark);
+                // Other parms in the url are ignored
  
             // Handle other parms in the URL.
             } else {
@@ -446,9 +449,7 @@ var app = app || {};  // jshint ignore: line
                 // Handle a map ID / project in the URL query.
                 if (s.uParm.p) {
                     var store = UrlParms.load(s.uParm);
-                    if (store) {
-                        s.load(store);
-                    }
+                    s.load(store);
  
                 // Handle a page in the URL query.
                 } else if (s.uParm.pg) {

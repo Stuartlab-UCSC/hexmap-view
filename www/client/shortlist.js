@@ -859,15 +859,17 @@ Shortlist = (function () { // jshint ignore: line
         Meteor.autorun(when_active_color_layers_change);
     }
 
-    function complete_initialization (comp) {
+    function complete_initialization (autorun) {
 
         // Autorun to execute when the first layer is set
-        // and after the initial sort
-        var first = Session.get('first_layer'),
-            sorted_layers = Session.get('sortedLayers');
+        // and after the initial sort and the dom is loaded.
+        var first_layer = Session.get('first_layer'),
+            sortedLayers = Session.get('sortedLayers'),
+            domLoaded = Session.get('domLoaded');
         
-        if (sorted_layers.length < 1 || _.isUndefined(first)) {
-            // We can't add to the shortlist until these are populated.
+        if (sortedLayers.length < 1 || _.isUndefined(first_layer) ||
+            _.isUndefined(domLoaded)) {
+            // We can't add to the shortlist until these are so.
             return;
         }
         
@@ -878,12 +880,12 @@ Shortlist = (function () { // jshint ignore: line
             Session.set('shortlist_on_top', '$(ev.target.checked)');
         });
         */
-        
+        autorun.stop();
         var shortlist = copy_shortlist_state();
 
         // Add the 'first layer' to the shortlist if it is empty
         if (shortlist.length < 1) {
-            shortlist = [first];
+            shortlist = [first_layer];
             Session.set('shortlist', shortlist);
         }
         // Add the layers to the global layers object.
@@ -1054,11 +1056,7 @@ return {
         
         Session.set('shortlistInitDone', false);
         
-        if (Session.get('domLoaded')) {
-            complete_initialization();
-        } else
-            // Wait for the dom to load before updating the ui
-            window.addEventListener("load", complete_initialization);
+        Meteor.autorun(complete_initialization);
  
         // Create the controls that move from entry to entry
         create_float_controls();
