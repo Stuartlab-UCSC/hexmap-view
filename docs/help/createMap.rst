@@ -4,11 +4,13 @@ Create a Map
 
 You can create a map with your own data by selecting *Create map* from the *File*
 menu, then supplying at least a layout feature file and specifying its format.
-See technical details section below for pipeline/algorithm details.
 
 If this option does not exist in the Edit menu, then you do not have the proper
 authority to run this compute-intensive task. Ask hexmap at ucsc dot edu
 with justification for authorization.
+
+See `Technical Overview`_ section below for an explanation of the pipeline used to
+create a map.
 
 .. _feature-formats:
 
@@ -77,19 +79,18 @@ attributes IDs across the top and node IDs in the first column, like::
 
 ..
 
-Technical Details
------------------
+Technical Overview
+------------------
 
-The "layout input formats" described in the "Features to Lay Out the Map"
-section above represent different stages of the pipeline used to create a map.
+The "layout input formats" described in the `Features to Lay Out the Map`_
+section represent different stages of the pipeline used to create a map.
 **Clustering data** is the beginning of the pipeline, any nxm matrix can be
 used. Spearman correlations are calculated representing the similarity between all
-columns in the **Clustering data**. The resulting nxn matrix of spearman correlations
-is the **Full similarity** matrix. The **Full similarity** matrix is then sparsified
-by taking the 6 highest spearman correlations for each sample, this sparsification is
-the **Sparse similarity** input format. **XY positions** are then produced by
-applying the openOrd layout algorithm
-https://www.researchgate.net/publication/253087985_OpenOrd_An_Open-Source_Toolbox_for_Large_Graph_Layout
+columns in the **Clustering data** matrix. The resulting nxn matrix of spearman
+correlations is the **Full similarity** matrix. The **Full similarity** matrix is
+then sparsified by taking the 6 highest spearman correlations for each sample, this
+sparsification is the **Sparse similarity** input format. **XY positions** are then
+produced by applying the `openOrd layout algorithm <https://www.researchgate.net/publication/253087985_OpenOrd_An_Open-Source_Toolbox_for_Large_Graph_Layout>`_
 to the **Sparse similarity** representation.
 
 **XY positions** are further modified by the hexagonal binning process. The hexagonal
