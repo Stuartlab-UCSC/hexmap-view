@@ -42,15 +42,8 @@ CheckLayerBox = (function () { // jshint ignore: line
                 dataType: 'categorical',
                 removeFx: remove_layer,
                 reflection: true,
+                colormap: layerIn.colormap,
             }
-            
-            // Create the colormap
-            layer.colormap = layerIn.colormap
-            _.each(layer.colormap,function(mapentry){
-                //couldn't use the Color() func on the server side, so this:
-                mapentry.color = new Color(mapentry.color);
-                mapentry.fileColor = new Color(mapentry.fileColor);
-            });
             
             var dynLayers = {};
             dynLayers[layerIn.layer_name] = layer;

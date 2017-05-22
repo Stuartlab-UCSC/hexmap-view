@@ -117,10 +117,10 @@ function colorMapMaker(){
     var newColorMap = [
         //order needs to be preserved because index needs to be equal to the
         // category
-        {name:'low',color:'#32cd32',fileColor:'#32cd32'},
-        {name:'middle',color:'#737373',fileColor:'#737373'},
-        {name:'high',color:'#ce2029',fileColor:'#ce2029'}
-                  ];
+        ['low', '#32cd32'],
+        ['middle', '#737373'],
+        ['high', '#ce2029']
+    ];
     return newColorMap;
 }
 
