@@ -19,9 +19,8 @@ This page will be updated as common problems surface.
 Common problems
 ---------------
 
-	The file selected in "Layout input:" does not match the format specified in the
-	"Layout input format:" drop down.
+- The file selected in "Layout input:" does not match the format specified in the "Layout input format:" drop down.
 
-    String identifiers anywhere except first row and first column (unless using
-    Sparse Similarity format).
+- String identifiers anywhere except first row and first column (unless using Sparse Similarity format).
+
 
