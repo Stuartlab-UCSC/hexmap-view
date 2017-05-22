@@ -42,7 +42,7 @@ Util = (function () { // jshint ignore: line
         if (type === 'warn' || type === 'info') {
             $("#banner").delay(5000).fadeOut(1500);
         } else if (type === 'error') {
-            $("#banner").delay(2500).fadeOut(1500);
+            $("#banner").delay(5000).fadeOut(1500);
         }
 
         // Also inform the browser console of this issue.
