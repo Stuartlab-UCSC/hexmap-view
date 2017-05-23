@@ -33,4 +33,15 @@ with our use cases to get you familiar with the Tumor map, check out the
 , or just dive in at
 https://tumormap.ucsc.edu.
 
+Browsers Supported
+------------------
 
+Fully supported browsers include:
+
+* Chrome v58 and later
+
+* Firefox v53 and later
+
+Other browsers and versions may work at a sub-optimal level.
+
+Chrome is the preferred browser for performance.

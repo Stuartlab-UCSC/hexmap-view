@@ -77,7 +77,10 @@ attributes IDs across the top and node IDs in the first column, like::
  node3   val     val     val
  ...
 
-..
+Troubleshooting
+---------------
+
+Help in resolving issues is at :doc:`createMapTrouble`.
 
 Technical Overview
 ------------------
