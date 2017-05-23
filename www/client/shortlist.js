@@ -213,15 +213,6 @@ Shortlist = (function () { // jshint ignore: line
         },
     });
 
-    function copy_shortlist_state () {
-        // TODO: I think a 'get' makes a copy anyway
-        return Session.get('shortlist').slice();
-    }
-
-    function copy_actives_state () {
-        return Session.get('active_layers').slice();
-    }
-
     function create_filter_select_options (layer_name, layer, filter_value) {
 
         // Create the value filter dropdown for discrete values,
@@ -563,16 +554,6 @@ Shortlist = (function () { // jshint ignore: line
         return root;
     }
     
-    function init_ui_entry_order() {
-        
-        // Initialize the shortlist entries to match the order in which
-        // they were stored..
-        var shortlist = Session.get('shortlist').reverse();
-        _.each(shortlist, function (layer_name) {
-            $shortlist.prepend(create_shortlist_ui_entry(layer_name));
-        });
-    }
-
     function ui_and_list_add (layer_name) {
         // This updates the shortlist variable and UI for add to shortlist.
         // Moves via the jqueryUI sortable are handled in the sortable's update
@@ -584,8 +565,8 @@ Shortlist = (function () { // jshint ignore: line
             return;
         }
  
-        var shortlist = copy_shortlist_state(),
-            active = copy_actives_state(),
+        var shortlist = Session.get('shortlist'),
+            active = Session.get('active_layers'),
             root = get_root_from_layer_name(layer_name),
             index = shortlist.indexOf(layer_name);
         
@@ -624,8 +605,8 @@ Shortlist = (function () { // jshint ignore: line
         // This updates the shortlist variable and UI for remove from shortlist.
         // Moves via the jqueryUI sortable are handled in the sortable's update
         // function.
-        var shortlist = copy_shortlist_state(),
-            active = copy_actives_state(),
+        var shortlist = Session.get('shortlist'),
+            active = Session.get('active_layers'),
             root = get_root_from_layer_name(layer_name),
             index;
  
@@ -719,8 +700,7 @@ Shortlist = (function () { // jshint ignore: line
         // Handle the click of the primary button
         $shortlist.on ('click', '.primary', function (ev) {
             var layer_name = get_layer_name_from_child(ev.target),
-                active = copy_actives_state();
-                
+                active = Session.get('active_layers');
                 
             // If top flag is set,
             // move the layer from the current position to the first
@@ -747,7 +727,7 @@ Shortlist = (function () { // jshint ignore: line
  
         // Handle the click of the secondary button
         $shortlist.find('.secondary').on('click', function (ev) {
-            var active = copy_actives_state(),
+            var active = Session.get('active_layers'),
                 layer_name = get_layer_name_from_child(ev.target);
                 
             // If this layer is already secondary, remove it from secondary
@@ -830,10 +810,13 @@ Shortlist = (function () { // jshint ignore: line
     function entries_initialized (layers_added) {
     
         // The ui entries are now loaded.
-        var shortlist = copy_shortlist_state();
-
-        // Order the UI according to the shortlist list order.
-        init_ui_entry_order();
+        var shortlist = Session.get('shortlist');
+        
+        // If there are no active layers, make the first entry active
+        var active = Session.get('active_layers');
+        if (active.length < 1 && shortlist.length > 0) {
+            Session.set('active_layers', [shortlist[0]]);
+        }
         
         // Initialize filters
         _.each(shortlist, function (layer_name) {
@@ -846,17 +829,15 @@ Shortlist = (function () { // jshint ignore: line
         // Make the shortlist entries re-orderable
         make_sortable_ui_and_list();
 
-        // If there are no active layers, make the first entry active
-        var active = Session.get('active_layers');
-        if (active.length < 1 && shortlist.length > 0) {
-            Session.set('active_layers', [shortlist[0]]);
-        }
+        // Add entries to the UI in the shortlist list order.
+        var ordered = Session.get('shortlist').reverse();
         
+        _.each(ordered, function (layer_name) {
+        
+            $shortlist.prepend(create_shortlist_ui_entry(layer_name));
+        });
+
         Session.set('shortlistInitDone', true);
-        
-        // Run this whenever the active list changes to update the hot primary
-        // and secondary icons and change the map colors.
-        Meteor.autorun(when_active_color_layers_change);
     }
 
     function complete_initialization (autorun) {
@@ -880,8 +861,9 @@ Shortlist = (function () { // jshint ignore: line
             Session.set('shortlist_on_top', '$(ev.target.checked)');
         });
         */
+        
         autorun.stop();
-        var shortlist = copy_shortlist_state();
+        var shortlist = Session.get('shortlist');
 
         // Add the 'first layer' to the shortlist if it is empty
         if (shortlist.length < 1) {
@@ -1060,6 +1042,10 @@ return {
  
         // Create the controls that move from entry to entry
         create_float_controls();
+        
+        // Run this whenever the active list changes to update the hot primary
+        // and secondary icons and change the map colors.
+        Meteor.autorun(when_active_color_layers_change);
      },
 };
 }());

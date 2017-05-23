@@ -102,8 +102,36 @@ Layer = (function () { // jshint ignore: line
         return name;
     }
  
-    function make_colormap (name, layer) {
-        console.log('TODO: make_colormap()');
+    function load_colormap (name, layer) {
+
+        // Load the colormap included or make a new one for categorical
+        // and binary.
+        
+        if (layer.colormap) {
+        
+            // Load the supplied colormap
+            colormaps[name] = _.map(layer.colormap, function (vals, i) {
+                return {
+                    name: vals[0],
+                    color: new Color(vals[1]),
+                    fileColor: new Color(vals[1]),
+                }
+            });
+
+        } else if (layer.hasStringValues) {
+        
+            // TODO generate a colormap
+            colormaps[name] = [];
+         
+        } else {
+        
+            // The default binary colormap for non-string values
+            colormaps[name] = [];
+        }
+        
+        // Remove these that are no longer needed.
+        delete layer.hasStringValues;
+        delete layer.colormap;
     }
 
     function determine_dynamic_data_type (name, layer) {
@@ -123,7 +151,7 @@ Layer = (function () { // jshint ignore: line
                 });
             if (strings && strings.length > 0) {
                 layer.dataType = 'categorical';
-                make_colormap(name, layer);
+                layer.hasStringValues = true;
             }
          
             // Find the count of each unique value.
@@ -145,7 +173,9 @@ Layer = (function () { // jshint ignore: line
         // Add the layer name to the appropriate data type list.
         if (layer.dataType === 'binary') {
             ctx.bin_layers.push(name);
+            load_colormap(name, layer);
         } else if (layer.dataType === 'categorical') {
+            load_colormap(name, layer);
             ctx.cat_layers.push(name);
         } else {
             ctx.cont_layers.push(name);
