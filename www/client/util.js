@@ -29,20 +29,24 @@ Util = (function () { // jshint ignore: line
         return dirty.replace(/[^A-Za-z0-9_\-\.]/g, "_");
     }
     
+    function errorAlert (text) {
+        alert(text);
+    }
+    
     function banner (type, text) {
-        // The type should be one of: info, error, warn, stay
-
-        // Display a temporary message to the user on a banner.
-        $("#banner")
-            .removeClass('info warn error stay')
-            .addClass(type)
-            .text(text)
-            .show();
-
+    
+        // The type should be one of: info, warn, error
         if (type === 'warn' || type === 'info') {
+        
+            // Display a temporary message to the user on a banner.
+            $("#banner")
+                .removeClass('info warn error stay')
+                .addClass(type)
+                .text(text)
+                .show();
             $("#banner").delay(5000).fadeOut(1500);
         } else if (type === 'error') {
-            $("#banner").delay(2500).fadeOut(1500);
+            errorAlert(text);
         }
 
         // Also inform the browser console of this issue.
