@@ -15,7 +15,7 @@ If this option does not exist in the Edit menu, then you do not have the proper
 authority to run this compute-intensive task. Ask hexmap at ucsc dot edu
 with justification for authorization.
 
-**clustering data** : Select a local file to upload that contains the data for
+**feature data** : Select a local file to upload that contains the data for
 your nodes. The file needs to be in tab-separated-values format as described
 in the window.
 

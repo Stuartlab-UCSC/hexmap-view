@@ -67,8 +67,8 @@ create a map.</p>
 <span id="feature-formats"></span><h2>Features to Lay Out the Map<a class="headerlink" href="#features-to-lay-out-the-map" title="Permalink to this headline">¶</a></h2>
 <p>Features are properties of nodes used to lay out the map. The feature file must
 be in TSV (tab-separated values) format in one of the following forms.</p>
-<p><strong>Clustering data</strong> : This is the most basic of the layout input formats where
-similarities and XY locations will be calculated for you.
+<p><strong>Feature data</strong> : AKA <strong>clustering data</strong>. This is the most basic of the layout
+input formats where similarities and XY locations will be calculated for you.
 This contains a full matrix with node IDs across the top and feature IDs in the
 first column, like:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">feature</span>   <span class="n">node1</span>   <span class="n">node2</span>   <span class="n">node3</span>   <span class="o">...</span>
@@ -130,9 +130,9 @@ attributes IDs across the top and node IDs in the first column, like:</p>
 <h2>Technical Overview<a class="headerlink" href="#technical-overview" title="Permalink to this headline">¶</a></h2>
 <p>The &#8220;layout input formats&#8221; described in the <a class="reference internal" href="#features-to-lay-out-the-map">Features to Lay Out the Map</a>
 section represent different stages of the pipeline used to create a map.
-<strong>Clustering data</strong> is the beginning of the pipeline, any nxm matrix can be
+<strong>Feature data</strong> is the beginning of the pipeline, any nxm matrix can be
 used. Spearman correlations are calculated representing the similarity between all
-columns in the <strong>Clustering data</strong> matrix. The resulting nxn matrix of spearman
+columns in the <strong>Feature data</strong> matrix. The resulting nxn matrix of spearman
 correlations is the <strong>Full similarity</strong> matrix. The <strong>Full similarity</strong> matrix is
 then sparsified by taking the 6 highest spearman correlations for each sample, this
 sparsification is the <strong>Sparse similarity</strong> input format. <strong>XY positions</strong> are then
@@ -148,12 +148,12 @@ algorithm. If <strong>XY positions</strong> are input, a hexagon size is set suc
 5% of the open space in the plane. The open space is determined by
 (max x - min x) * (max y - min y), and the area of a hexagon is is sqrt(3)*3/2 <a href="#id1"><span class="problematic" id="id2">*</span></a>S^2,
 where S is the side length.</p>
-<div class="section" id="missing-values-in-clustering-data">
-<h3>Missing values in <strong>Clustering data</strong><a class="headerlink" href="#missing-values-in-clustering-data" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="missing-values-in-feature-data">
+<h3>Missing values in <strong>Feature data</strong><a class="headerlink" href="#missing-values-in-feature-data" title="Permalink to this headline">¶</a></h3>
 <p>We strongly encourage users to choose and execute an
 appropriate method for dealing with missing values before using our pipeline.
 In general there is not a single method that is best for all types of data.
-If missing values are present in <strong>Clustering data</strong>, they are converted to
+If missing values are present in <strong>Feature data</strong>, they are converted to
 0 before calculating spearman similarities. Depending on the distribution of
 the data our technique of filling with 0 may be problematic.</p>
 </div>
