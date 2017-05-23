@@ -74,12 +74,28 @@ CreateMap = (function () { // jshint ignore: line
     });
  
     function report_error (msg) {
-        Util.banner('error', msg);
+        // Send the error message to the console (mainly for developers).
+        console.log(msg);
+
+        // Make a message to display to the user in case they have pop-ups
+        // disabled.
+        var banner_msg = "Create Map was unable to finish due to"
+        + "internal error. Please visit the help documentation's create map "
+        + "trouble shooting page";
+
+        // Show the user the banner message.
+        Util.banner('error', banner_msg);
+
+        // Give the user a data/timestamp so the problem can be tracked down.
         var date = new Date().toString(),
             i = date.indexOf('GMT');
         date = date.slice(0, i);
-        feature_upload.log_it(msg + '\nPlease let hexmap@ucsc.edu know you ' +
+        // Display on create map log
+        feature_upload.log_it('\nPlease let hexmap@ucsc.edu know you ' +
             'had a map creation problem on ' + date);
+
+        // Pop open the trouble shooting help page.
+        window.open(URL_BASE + "/help/createMapTrouble.html");
     }
  
     function report_info (msg) {
