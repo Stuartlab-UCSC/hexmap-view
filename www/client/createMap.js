@@ -44,6 +44,9 @@ CreateMap = (function () { // jshint ignore: line
         minor_project: function () {
             return ui.get('minor_project');
         },
+        zeroReplace: function () {
+            return ui.get('zeroReplace');
+        },
         log: function () {
             var text = log.get();
             Meteor.setTimeout(function () {
@@ -79,9 +82,8 @@ CreateMap = (function () { // jshint ignore: line
 
         // Make a message to display to the user in case they have pop-ups
         // disabled.
-        var banner_msg = "Create Map was unable to finish due to"
-        + "internal error. Please visit the help documentation's create map "
-        + "trouble shooting page";
+        var banner_msg = "Unable to create map due to an internal error.\n" +
+            "A troubleshooting page will open in a new tab.";
 
         // Show the user the banner message.
         Util.banner('error', banner_msg);
@@ -90,8 +92,9 @@ CreateMap = (function () { // jshint ignore: line
         var date = new Date().toString(),
             i = date.indexOf('GMT');
         date = date.slice(0, i);
+        
         // Display on create map log
-        feature_upload.log_it('\nPlease let hexmap@ucsc.edu know you ' +
+        feature_upload.log_it('\nPlease let hexmap at ucsc dot edu know you ' +
             'had a map creation problem on ' + date);
 
         // Pop open the trouble shooting help page.
@@ -154,6 +157,10 @@ CreateMap = (function () { // jshint ignore: line
         if (attribute_upload.file) {
             opts.push('--scores');
             opts.push(attr_file_name());
+        }
+        
+        if (ui.get('zeroReplace')) {
+            opts.push('--zeroReplace');
         }
  
         Meteor.call('create_map', opts, function (error) {
@@ -247,6 +254,9 @@ CreateMap = (function () { // jshint ignore: line
         $format_anchor.on('change', function (ev) {
             ui.set('feature_format', ev.target.value);
         });
+        $('#create_map_dialog .zeroReplace').on('change', function (ev) {
+            ui.set('zeroReplace', ev.target.checked);
+        });
  
         /* TODO later
         // Create the method list
@@ -312,6 +322,7 @@ CreateMap = (function () { // jshint ignore: line
             // Initialize some UI variables
             ui.set('feature_format', default_feature_format);
             Session.set('create_map_show_advanced', false);
+            ui.set('zeroReplace', false);
 
             // Listen for the menu clicked
             Tool.add("createMap", function() {

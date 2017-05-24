@@ -122,6 +122,11 @@ attributes IDs across the top and node IDs in the first column, like:</p>
 </pre></div>
 </div>
 </div>
+<div class="section" id="missing-values-replace-with-zero">
+<h2>Missing values: Replace with zero<a class="headerlink" href="#missing-values-replace-with-zero" title="Permalink to this headline">¶</a></h2>
+<p>Check this checkbox to replace missing values with zero in <strong>feature data</strong>.
+More on this in the Technical Overview below.</p>
+</div>
 <div class="section" id="troubleshooting">
 <h2>Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permalink to this headline">¶</a></h2>
 <p>Help in resolving issues is at <a class="reference internal" href="createMapTrouble.html"><span class="doc">Create a Map: Troubleshooting</span></a>.</p>
@@ -153,9 +158,11 @@ where S is the side length.</p>
 <p>We strongly encourage users to choose and execute an
 appropriate method for dealing with missing values before using our pipeline.
 In general there is not a single method that is best for all types of data.
-If missing values are present in <strong>Feature data</strong>, they are converted to
-0 before calculating spearman similarities. Depending on the distribution of
-the data our technique of filling with 0 may be problematic.</p>
+There is an option on the <strong>Create Map</strong> window to replace any missing values
+with zeroes. This applies to <strong>feature data</strong> whose missing values are
+converted to zero before calculating spearman similarities.
+Depending on the distribution of the data our technique of filling with zeroes
+may be problematic.</p>
 </div>
 </div>
 </div>

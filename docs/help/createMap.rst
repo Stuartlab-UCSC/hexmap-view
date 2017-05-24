@@ -77,6 +77,11 @@ attributes IDs across the top and node IDs in the first column, like::
  node3   val     val     val
  ...
 
+Missing values: Replace with zero
+---------------------------------
+Check this checkbox to replace missing values with zero in **feature data**.
+More on this in the Technical Overview below.
+
 Troubleshooting
 ---------------
 
@@ -113,12 +118,9 @@ Missing values in **Feature data**
 We strongly encourage users to choose and execute an
 appropriate method for dealing with missing values before using our pipeline.
 In general there is not a single method that is best for all types of data.
-If missing values are present in **Feature data**, they are converted to
-0 before calculating spearman similarities. Depending on the distribution of
-the data our technique of filling with 0 may be problematic.
-
-
-
-
-
+There is an option on the **Create Map** window to replace any missing values
+with zeroes. This applies to **feature data** whose missing values are
+converted to zero before calculating spearman similarities.
+Depending on the distribution of the data our technique of filling with zeroes
+may be problematic.
 
