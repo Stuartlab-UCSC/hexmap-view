@@ -21,8 +21,15 @@ Reflect = (function () { // jshint ignore: line
         lastUser,
         subscribedToMaps = false,
         selectionSelected = ''; // option selected from the selection list
-        //early_received_layers = []; // layers received before we're ready
 
+    Template.reflectT.helpers({
+        tStats: function () {
+            return !Session.get('reflectRanked');
+        },
+        ranked: function () {
+            return Session.get('reflectRanked');
+        },
+    });
 
     function hide() {
         // Free some things, then hide the dialog
@@ -82,6 +89,20 @@ Reflect = (function () { // jshint ignore: line
             dataType = ev.target.value;
             console.log('data type selected:', dataType);
         });
+        
+        // Event handler for the Tstats vs. ranked.
+        $('#reflectDialog .ranked').on('change', function (ev) {
+        
+            console.log('ranked ev.target.checked', ev.target.checked);
+            
+            Session.set('reflectRanked', ev.target.checked);
+        });
+        $('#reflectDialog .tStats').on('change', function (ev) {
+        
+            console.log('tStats ev.target.checked', ev.target.checked);
+            
+            Session.set('reflectRanked', !ev.target.checked);
+        });
     }
 
     function get_reflection_count(operation,dataType,toMapId,nodeIds) {
@@ -117,6 +138,9 @@ Reflect = (function () { // jshint ignore: line
         //console.log("reflect MapMan nodeIds:",nodeIds,dataType);
         //only perform reflection if there if there is some intersect of
         // reflection nodes and selected nodes
+        
+        console.log('Session.get("reflectRanked")', Session.get("reflectRanked"));
+        
         if (get_reflection_count(operation,dataType,toMapId,nodeIds) !== 0) {
             Meteor.call("mapManager", operation,
                 dataType,
@@ -125,6 +149,7 @@ Reflect = (function () { // jshint ignore: line
                 toMapId,
                 nodeIds,
                 selectionSelected,
+                //Session.get('reflectRanked'),
                 function (error) {
                     if (error) {
                         console.log('Mapmanager: Operation ' +
@@ -257,9 +282,9 @@ return { // Public methods
         $button = $('.reflectTrigger');
         $dialog = $('#reflectDialog');
         Meteor.autorun(userChange);
-        //Meteor.autorun(layoutChange);
- 
-        //initReceiveReflectionLayers();
+        if (_.isUndefined(Session.get('reflectRanked'))) {
+            Session.set('reflectRanked', false);
+        }
 
         // Define the dialog options & create an instance of DialogHex
         var opts = {

@@ -33,8 +33,11 @@ with our use cases to get you familiar with the Tumor map, check out the
 , or just dive in at
 https://tumormap.ucsc.edu.
 
-Browsers Supported
-------------------
+Browser Support
+---------------
+
+You may need to disable pop-up blockers in your web browser because some of the
+functions open a new tab or open windows within your current tab.
 
 Fully supported browsers include:
 

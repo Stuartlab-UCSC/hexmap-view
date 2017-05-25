@@ -61,6 +61,7 @@ Hex = (function () { // jshint ignore: line
                 initMainMapContainer();
             }
         });
+        Message.init();
         Project.init();
         GoogleMaps.load({ key: GOOGLE_API_KEY });  // browser key
         Tool.init();
@@ -205,7 +206,6 @@ Hex = (function () { // jshint ignore: line
                 Jobs.init();
                 if (!DEV) { googleAnalytics(); }
                 //initDiffAnalysis();
-                Message.init();
             }, 0);
         }
     }
