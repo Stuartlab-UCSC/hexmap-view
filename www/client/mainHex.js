@@ -205,6 +205,7 @@ Hex = (function () { // jshint ignore: line
                 Jobs.init();
                 if (!DEV) { googleAnalytics(); }
                 //initDiffAnalysis();
+                Message.init();
             }, 0);
         }
     }

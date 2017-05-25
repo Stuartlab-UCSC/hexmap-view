@@ -41,7 +41,7 @@ var app = app || {};
             return;
         }
 
-        banner('info', 'Nodes will appear when location calculations are complete.');
+        //banner('info', 'Nodes will appear when location calculations are complete.');
  
         // Convert the node data into an object
  
@@ -74,6 +74,7 @@ var app = app || {};
             opts.email = Meteor.user().username;
         }
 
+        var preText = 'When adding a new node: ';
         $.ajax({
             type: 'POST',
             url: HUB_URL + '/query/overlayNodes',
@@ -86,9 +87,9 @@ var app = app || {};
             },
             error: function (error) {
                 if (error.responseJSON && error.responseJSON.error) {
-                    banner('error', error.responseJSON.error);
+                    banner('error', preText + error.responseJSON.error);
                 } else {
-                    banner('error', 'Unknown server error');
+                    banner('error', preText + 'Unknown server error');
                 }
             }
         });
@@ -159,8 +160,6 @@ var app = app || {};
             hideFx: hide,
             helpAnchor: '/help/placeNode.html',
         });
-        //dialogHex = createDialogHex(undefined, undefined, $dialog, opts,
-          //  show, hide);
  
         // Create a link from the menu
         add_tool('overlayNode', createWindow, title);
