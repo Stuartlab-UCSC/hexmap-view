@@ -79,7 +79,8 @@ attributes IDs across the top and node IDs in the first column, like::
 
 Missing values: Replace with zero
 ---------------------------------
-Check this checkbox to replace missing values with zero in **feature data**.
+Check this checkbox to replace missing values with zero in the
+**layout input file** of format **feature data** or **full similarity**.
 More on this in the Technical Overview below.
 
 Troubleshooting

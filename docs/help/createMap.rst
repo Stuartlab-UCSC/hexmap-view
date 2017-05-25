@@ -79,7 +79,8 @@ attributes IDs across the top and node IDs in the first column, like::
 
 Missing values: Replace with zero
 ---------------------------------
-Check this checkbox to replace missing values with zero in **feature data**.
+Check this checkbox to replace missing values with zero in the
+**layout input file** of format **feature data** or **full similarity**.
 More on this in the Technical Overview below.
 
 Troubleshooting
@@ -90,13 +91,13 @@ Help in resolving issues is at :doc:`createMapTrouble`.
 Technical Overview
 ------------------
 
-The "layout input formats" described in the `Features to Lay Out the Map`_
+The **layout input formats** described in the `Features to Lay Out the Map`_
 section represent different stages of the pipeline used to create a map.
 **Feature data** is the beginning of the pipeline, any nxm matrix can be
 used. Spearman correlations are calculated representing the similarity between all
-columns in the **Feature data** matrix. The resulting nxn matrix of spearman
+columns in the **Feature data** matrix. The resulting nxn matrix of Spearman
 correlations is the **Full similarity** matrix. The **Full similarity** matrix is
-then sparsified by taking the 6 highest spearman correlations for each sample, this
+then sparsified by taking the 6 highest Spearman correlations for each sample, this
 sparsification is the **Sparse similarity** input format. **XY positions** are then
 produced by applying the `openOrd layout algorithm <https://www.researchgate.net/publication/253087985_OpenOrd_An_Open-Source_Toolbox_for_Large_Graph_Layout>`_
 to the **Sparse similarity** representation.
@@ -120,7 +121,7 @@ appropriate method for dealing with missing values before using our pipeline.
 In general there is not a single method that is best for all types of data.
 There is an option on the **Create Map** window to replace any missing values
 with zeroes. This applies to **feature data** whose missing values are
-converted to zero before calculating spearman similarities.
+converted to zero before calculating Spearman similarities.
 Depending on the distribution of the data our technique of filling with zeroes
 may be problematic.
 
