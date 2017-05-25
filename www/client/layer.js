@@ -146,9 +146,9 @@ Layer = (function () { // jshint ignore: line
          
             // First we need to drop any values used to indicate no value.
             var drop = ['', '#N/A', '#N/A N/A', '#NA', '-1.#IND', '-1.#QNAN', 
-                '-NaN', '1.#IND', '1.#QNAN', 'N/A', 'NA', 'NULL', 'NaN'],
+                '-NAN', '1.#IND', '1.#QNAN', 'N/A', 'NA', 'NULL', 'NAN'],
                 data = _.filter(dataIn, function (val) {
-                    return (drop.indexOf(val) < 0);
+                    return (drop.indexOf(val.toUpperCase()) < 0);
                 });
          
             // If they are any strings, this gets a colormap

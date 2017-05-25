@@ -643,14 +643,15 @@ Shortlist = (function () { // jshint ignore: line
          $shortlist.sortable({
             update: function () {
             
+                // Find shortlist entries, ingnoring the dynamic controls.
+                var entries = _.filter($shortlist.children(), function (entry) {
+                    return (!_.isUndefined($(el).data("layer")));
+                });
+            
                 // Update the shortlist UI with the new order and refresh
-                var shortlist = _.map($shortlist.children(), function (el) {
+                var shortlist = _.map(entries, function (el) {
                     return $(el).data("layer");
                 });
-                
-                // Remove the null entry created by the dynamic controls widget
-                var i = shortlist.indexOf(undefined);
-                shortlist.splice(i, 1)
                 Session.set('shortlist', shortlist);
             },
             // Use the controls area as the handle to move entries.
