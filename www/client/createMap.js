@@ -159,7 +159,8 @@ CreateMap = (function () { // jshint ignore: line
             opts.push(attr_file_name());
         }
         
-        if (ui.get('zeroReplace')) {
+        if (ui.get('zeroReplace') && (ui.equals('layout_input', 'similarity') ||
+            ui.equals('layout_input', 'coordinates'))) {
             opts.push('--zeroReplace');
         }
  
@@ -193,6 +194,22 @@ CreateMap = (function () { // jshint ignore: line
         } else {
             create_map();
         }
+    }
+
+    function enable_zeroReplace() {
+        var disabled = false,
+            color = 'inherit';
+
+        if (ui.equals('feature_format', 'similarity') ||
+            ui.equals('feature_format', 'coordinates')) {
+
+            // Disable zero replace option for sparse similarity and coordinates
+            disabled = true;
+            color = Colors.disabled_color();
+        }
+        $dialog.find('.zero')
+            .attr('disabled', disabled)
+            .css('color', color);
     }
 
     function create_clicked () {
@@ -253,6 +270,7 @@ CreateMap = (function () { // jshint ignore: line
         });
         $format_anchor.on('change', function (ev) {
             ui.set('feature_format', ev.target.value);
+            enable_zeroReplace();
         });
         $('#create_map_dialog .zeroReplace').on('change', function (ev) {
             ui.set('zeroReplace', ev.target.checked);
