@@ -107,6 +107,8 @@ var app = app || {};  // jshint ignore: line
                 'background',
                 'ignoreUrlQuery',
                 'page',
+                'pdfLegend',
+                'pdfMap',
                 'project',
                 'viewEdges',
                 'reflectRanked',
@@ -184,6 +186,8 @@ var app = app || {};  // jshint ignore: line
         Session.set('sort', DEFAULT_SORT); // Default sort message & type
         Session.set('background', 'black');  // Main map background color
         Session.set('viewEdges', false); // Display of directed graph
+        Session.set('pdfMap', true); // Include map in pdf
+        Session.set('pdfLegend', false); // Include legend in pdf
  
         // Non-reactive vars maintained in global state and not project-specific
         s.project = DEFAULT_PROJECT;  // The project data to load

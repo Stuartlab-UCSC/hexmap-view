@@ -159,8 +159,6 @@ Hex = (function () { // jshint ignore: line
         $('#gridContent').height(windowHt - navHt);
     }
 
-
-
     function googleAnalytics() {
         window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
         ga('create', 'UA-76132249-2', 'auto');
@@ -295,6 +293,7 @@ Hex = (function () { // jshint ignore: line
 
 return { // Public methods
 
+    resizeMap: resizeMap,
     loadProject: loadProject,
     pageReload: pageReload,
  

@@ -76,7 +76,7 @@ Where:
 * **email** : optional, one or more email addresses to receive the response
 * **layoutInputFormat** : one of [clusterData, fullSimilarity, sparseSimilarity, xyPositions]. The format of the layout input, See the section, "Layout input formats" below.
 * **neighborCount** : optional, defaults to 6. The number of neighbors of each node to consider in laying out the map.
-* **firstColorAttribute** : optional, the attribute to be used to color the map on initial display
+* **firstColorAttribute** : optional, defaults to the attribute with the highest density; the attribute to be used to color the map on initial display
 * **layoutAwareStats** : optional, defaults to false. true indicates the statistics which consider the placement of nodes should be calculated. Note that these are compute-intensive so you may want to run them only when you are satisfied with your layout and coloring attributes.
 * **layoutIndependentStats** : optional, defaults to false. true indicates the statistics that are independent of the placement of nodes should be calculated. Note that these are compute-intensive so you may want to run them only when you are satisfied with your layout and coloring attributes.
 * **reflectionMapType** : optional, with a value of "geneMap". Generate another map with 90-degree rotated clustering data so that clustering features are used as the nodes in the layout. Color attributes are provided and determined by the map type. "genemap" will produce a map with the genes as nodes in the layout with a set of pre-defined signatures as color attributes.
