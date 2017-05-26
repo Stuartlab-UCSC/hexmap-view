@@ -11,8 +11,7 @@ var app = app || {};
 
     var xyMapSize = 5120,
         dims = null,
-        initiated = false,
-        svg;
+        initiated = false;
 
     function get_xySvgMap (latLng, dims) {
 
@@ -93,26 +92,21 @@ var app = app || {};
         return svg + "</svg>\n";
     }
 
-    function mousedown(event) {
-
-        // The handler for mousedown on the menu option
-        // to prepare the svg first.
-        svg = googleToSvg();
-    }
-
     function click(event) {
 
         // The handler for clicking the menu option
         // to actually download it.
-        $(event.target).attr("href",
-            "data:text/plain;base64," + window.btoa(svg));
+        var svg = googleToSvg();
+        setTimeout(function () {
+            $('#svgDownload').attr("href",
+                "data:text/plain;base64," + window.btoa(svg));
+        },0);
     }
 
     initSvg = function () {
         if (initiated) return;
         initiated = true;
         $('#svgDownload')
-            .on('mousedown', mousedown)
             .on('click', click);
     }
 })(app);
