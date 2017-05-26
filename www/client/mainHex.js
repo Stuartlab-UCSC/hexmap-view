@@ -157,6 +157,7 @@ Hex = (function () { // jshint ignore: line
             headerHt = $('#header').height();
         $('#mapContent').height(windowHt - navHt - headerHt - 1);
         $('#gridContent').height(windowHt - navHt);
+        $('#visualization').show();
     }
 
     function googleAnalytics() {

@@ -28,14 +28,15 @@ var app = app || {};
  
         // Remove some event listeners.
         $('#mapPage').off('click');
-        mediaQueryList.removeListener(afterPrint);
+        if (window.matchMedia) {
+            mediaQueryList.removeListener(afterPrint);
+        }
  
         // Show all of the app areas
         $head.show();
         $legend.show();
         $map.show();
         Hex.resizeMap();
-        $('#visualization').show();
     }
 
     function mapDisplay () {
