@@ -208,14 +208,15 @@
 }
 
 #loadingMap {
-    width: 16px;
-    height: 16px;
-    margin-top: -1px;
-    margin-bottom: -1px;
+    position: fixed;
+    top: 200px;
+    left: 41%;
+    width: 64px;
+    height: 64px;
     -webkit-animation: sweep 1s infinite linear;
     animation: sweep 1s infinite linear;
-    border-radius:16px;
-    border-bottom:3px solid white;
+    border-radius:64px;
+    border-bottom:12px solid white;
 }
 @-webkit-keyframes sweep { to { -webkit-transform: rotate(360deg); } }
 @keyframes sweep { to { transform: rotate(360deg); } }
