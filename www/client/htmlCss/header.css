@@ -107,6 +107,7 @@
 }
 
 #sortText {
+    position: relative;
     line-height: 2.6em;
     margin-left: 0;
 }

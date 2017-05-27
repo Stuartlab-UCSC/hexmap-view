@@ -192,21 +192,21 @@ Tool = (function () { // jshint ignore: line
             if (Session.equals('page', 'homePage')) {
                 $('body').find('.mapShow, .gridShow').hide();
                 $('body').find('.homeShow').show();
-                Session.set('loadingMap', false);
+                Session.set('mapSnake', false);
                 $('body').css('overflow-y', 'auto');
      
             } else if (Session.equals('page', 'mapPage')) {
                 $('body').find('.homeShow, .gridShow').hide();
                 $('body').find('.mapShow').show();
                 $('.mapLayout, .reflectTrigger').addClass('disabled');
-                Session.set('loadingMap', true);
+                Session.set('mapSnake', true);
                 $('body').css('overflow-y', 'hidden');
      
             } else if (Session.equals('page', 'gridPage')) {
                 $('body').find('.homeShow, .mapShow').hide();
                 $('body').find('.gridShow').show();
                 $('.gridPage').addClass('disabled');
-                Session.set('loadingMap', true);
+                Session.set('mapSnake', true);
                 $('body').css('overflow-y', 'hidden');
             }
         

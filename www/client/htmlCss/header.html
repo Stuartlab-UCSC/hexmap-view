@@ -21,8 +21,17 @@
                 {{>filterMessage}}
 
             </div>
-            <img class="sort_attributes headerButton stacker" src='/icons/sort-attributes.svg' id="sort-attributes-button" title="Sort attributes by association with a focus attribute"/>
-            <div id="sortText" class='stacker' title='{{sortText}}'>Sorted by: <span style='color:{{sort.color}};background:{{sort.background}}'>{{sort.text}}</span></div>
+            <img class="sort_attributes headerButton stacker"
+                 src='/icons/sort-attributes.svg'
+                 id="sort-attributes-button"
+                 title="Sort attributes by association with a focus attribute"/>
+            <div id="sortText" class='stacker' title='{{sortText}}'>
+                Sorted by:
+                <span style='color:{{sort.color}};background:{{sort.background}}'>
+                    {{sort.text}}
+                </span>
+                <div id="statsSnake" class='snake' style='display:{{statsSnakeDisplay}}'></div>
+            </div>
             <img style='display:none' class="yin-yang headerButton stacker right" src='/icons/yin-yang.svg' id="diffAnalysisButton" title="Run differential analysis"/>
             <img class="set headerButton stacker" src='/icons/set.svg' id="set-operation" title="Calculate set operation"/>
         </div>

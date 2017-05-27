@@ -212,6 +212,9 @@ var app = app || {};
 
     updateSortUi = function (type, text, focus_attr, opts) {
  
+        // Hide the snake.
+        Session.set('statsSnakeDisplay', 'none');
+ 
         // If we were computing dynamic stats,
         // include the elapsed time in the banner
         var elapsed = '';
@@ -612,6 +615,7 @@ var app = app || {};
         banner('info', computingText);
         Session.set('sort', {
             text: computingText, color: '#2E662C', background: '#D8EECE'});
+        Session.set('statsSnakeDisplay', 'block');
     }
 
     get_layout_ignore_stats = function (focus_attr) {

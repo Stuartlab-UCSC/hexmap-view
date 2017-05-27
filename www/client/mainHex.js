@@ -23,7 +23,7 @@ Hex = (function () { // jshint ignore: line
 
     function queryFreeReload () {
 
-        Session.set('loadingMap', true);
+        Session.set('mapSnake', true);
 
         // Strip everything after the query string question mark in the href
         // & reload
@@ -78,8 +78,8 @@ Hex = (function () { // jshint ignore: line
     });
 
     Template.navBarT.helpers({
-        loadingMap: function () {
-            if (Session.get('loadingMap')) {
+        mapSnake: function () {
+            if (Session.get('mapSnake')) {
                 return 'block';
             } else {
                 return 'none';
@@ -143,6 +143,9 @@ Hex = (function () { // jshint ignore: line
         sort: function () {
             return Session.get('sort');
         },
+        statsSnakeDisplay: function () {
+            return Session.get('statsSnakeDisplay');
+        },
         nodeCount: function () {
             return Session.get('nodeCount');
         },
@@ -182,7 +185,7 @@ Hex = (function () { // jshint ignore: line
      
                 // Turn off the loading progress wheel
                 setTimeout(function () {
-                    Session.set('loadingMap', false);
+                    Session.set('mapSnake', false);
                 }, 500);
 
                 // Initialize the background functions.

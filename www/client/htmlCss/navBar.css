@@ -207,19 +207,33 @@
     display: none;
 }
 
-#loadingMap {
+.snake {
+    -webkit-animation: sweep 1s infinite linear;
+    animation: sweep 1s infinite linear;
+    width: 24px;
+    height: 24px;
+    border-radius:24px;
+    border-bottom:7px solid green;
+}
+@-webkit-keyframes sweep { to { -webkit-transform: rotate(360deg); } }
+@keyframes sweep { to { transform: rotate(360deg); } }
+
+#mapSnake {
     position: fixed;
     top: 200px;
     left: 41%;
     width: 64px;
     height: 64px;
-    -webkit-animation: sweep 1s infinite linear;
-    animation: sweep 1s infinite linear;
     border-radius:64px;
     border-bottom:12px solid white;
 }
-@-webkit-keyframes sweep { to { -webkit-transform: rotate(360deg); } }
-@keyframes sweep { to { transform: rotate(360deg); } }
+
+#statsSnake {
+    position: absolute;
+    z-index: 1000;
+    top: 4px;
+    left: -34px;
+}
 
 #bookmarkDialog {
     display: none;
