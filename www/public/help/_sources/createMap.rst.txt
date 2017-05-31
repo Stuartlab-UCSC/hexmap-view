@@ -5,10 +5,6 @@ Create a Map
 You can create a map with your own data by selecting *Create map* from the *File*
 menu, then supplying at least a layout feature file and specifying its format.
 
-If this option does not exist in the Edit menu, then you do not have the proper
-authority to run this compute-intensive task. Ask hexmap at ucsc dot edu
-with justification for authorization.
-
 See `Technical Overview`_ section below for an explanation of the pipeline used to
 create a map.
 
@@ -91,13 +87,13 @@ Help in resolving issues is at :doc:`createMapTrouble`.
 Technical Overview
 ------------------
 
-The "layout input formats" described in the `Features to Lay Out the Map`_
+The **layout input formats** described in the `Features to Lay Out the Map`_
 section represent different stages of the pipeline used to create a map.
 **Feature data** is the beginning of the pipeline, any nxm matrix can be
 used. Spearman correlations are calculated representing the similarity between all
-columns in the **Feature data** matrix. The resulting nxn matrix of spearman
+columns in the **Feature data** matrix. The resulting nxn matrix of Spearman
 correlations is the **Full similarity** matrix. The **Full similarity** matrix is
-then sparsified by taking the 6 highest spearman correlations for each sample, this
+then sparsified by taking the 6 highest Spearman correlations for each sample, this
 sparsification is the **Sparse similarity** input format. **XY positions** are then
 produced by applying the `openOrd layout algorithm <https://www.researchgate.net/publication/253087985_OpenOrd_An_Open-Source_Toolbox_for_Large_Graph_Layout>`_
 to the **Sparse similarity** representation.
@@ -121,7 +117,7 @@ appropriate method for dealing with missing values before using our pipeline.
 In general there is not a single method that is best for all types of data.
 There is an option on the **Create Map** window to replace any missing values
 with zeroes. This applies to **feature data** whose missing values are
-converted to zero before calculating spearman similarities.
+converted to zero before calculating Spearman similarities.
 Depending on the distribution of the data our technique of filling with zeroes
 may be problematic.
 

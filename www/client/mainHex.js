@@ -51,6 +51,7 @@ Hex = (function () { // jshint ignore: line
  
     Template.homePage.onRendered(function () {
         Tool.init();
+        Message.init();
         Download.init();
         CreateMap.init();
     });

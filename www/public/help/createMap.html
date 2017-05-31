@@ -58,9 +58,6 @@
 <h1>Create a Map<a class="headerlink" href="#create-a-map" title="Permalink to this headline">¶</a></h1>
 <p>You can create a map with your own data by selecting <em>Create map</em> from the <em>File</em>
 menu, then supplying at least a layout feature file and specifying its format.</p>
-<p>If this option does not exist in the Edit menu, then you do not have the proper
-authority to run this compute-intensive task. Ask hexmap at ucsc dot edu
-with justification for authorization.</p>
 <p>See <a class="reference internal" href="#technical-overview">Technical Overview</a> section below for an explanation of the pipeline used to
 create a map.</p>
 <div class="section" id="features-to-lay-out-the-map">
@@ -134,13 +131,13 @@ More on this in the Technical Overview below.</p>
 </div>
 <div class="section" id="technical-overview">
 <h2>Technical Overview<a class="headerlink" href="#technical-overview" title="Permalink to this headline">¶</a></h2>
-<p>The &#8220;layout input formats&#8221; described in the <a class="reference internal" href="#features-to-lay-out-the-map">Features to Lay Out the Map</a>
+<p>The <strong>layout input formats</strong> described in the <a class="reference internal" href="#features-to-lay-out-the-map">Features to Lay Out the Map</a>
 section represent different stages of the pipeline used to create a map.
 <strong>Feature data</strong> is the beginning of the pipeline, any nxm matrix can be
 used. Spearman correlations are calculated representing the similarity between all
-columns in the <strong>Feature data</strong> matrix. The resulting nxn matrix of spearman
+columns in the <strong>Feature data</strong> matrix. The resulting nxn matrix of Spearman
 correlations is the <strong>Full similarity</strong> matrix. The <strong>Full similarity</strong> matrix is
-then sparsified by taking the 6 highest spearman correlations for each sample, this
+then sparsified by taking the 6 highest Spearman correlations for each sample, this
 sparsification is the <strong>Sparse similarity</strong> input format. <strong>XY positions</strong> are then
 produced by applying the <a class="reference external" href="https://www.researchgate.net/publication/253087985_OpenOrd_An_Open-Source_Toolbox_for_Large_Graph_Layout">openOrd layout algorithm</a>
 to the <strong>Sparse similarity</strong> representation.</p>
@@ -161,7 +158,7 @@ appropriate method for dealing with missing values before using our pipeline.
 In general there is not a single method that is best for all types of data.
 There is an option on the <strong>Create Map</strong> window to replace any missing values
 with zeroes. This applies to <strong>feature data</strong> whose missing values are
-converted to zero before calculating spearman similarities.
+converted to zero before calculating Spearman similarities.
 Depending on the distribution of the data our technique of filling with zeroes
 may be problematic.</p>
 </div>

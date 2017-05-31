@@ -133,6 +133,26 @@ var app = app || {};
         $dialog.find('.file').change(gotFilename);
     }
  
+    function criteriaCheck () {
+    
+        // Bail with a message if the required data needed is not present.
+        if (!(Session.get('placeNodeCriteria'))) {
+            dialogHex.hide();
+            Util.banner('Data not available', 'Sorry, the required data to ' +
+            'place new nodes is not available for this map.');
+            return false;
+        }
+        return true;
+    }
+
+    function preShow () {
+        var good = criteriaCheck();
+        if (good) {
+            good = Util.credentialCheck('to place new nodes');
+        }
+        return good;
+    }
+ 
     function hide() {
  
         // Hide the dialog after cleaning up
@@ -156,6 +176,7 @@ var app = app || {};
         dialogHex = createDialogHex({
             $el: $dialog,
             opts: opts,
+            preShowFx: preShow,
             showFx: show,
             hideFx: hide,
             helpAnchor: '/help/placeNode.html',

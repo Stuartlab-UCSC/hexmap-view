@@ -5,10 +5,6 @@ Create a Map
 You can create a map with your own data by selecting *Create map* from the *File*
 menu, then supplying at least a layout feature file and specifying its format.
 
-If this option does not exist in the Edit menu, then you do not have the proper
-authority to run this compute-intensive task. Ask hexmap at ucsc dot edu
-with justification for authorization.
-
 See `Technical Overview`_ section below for an explanation of the pipeline used to
 create a map.
 

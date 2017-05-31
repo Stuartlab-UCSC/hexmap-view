@@ -233,12 +233,9 @@ var app = app || {};
 
         } else if (type === 'noStats') {
             if (!text || text === '') {
-                text = 'No stats, due to an error';
+                text = 'Due to an error the sort is by the default: density';
             }
-            banner('error', text);
-            var shortText = 'None, due to an error';
-            Session.set('sort', {text: shortText, type: 'noStats',
-                focus_attr: focus_attr, color: '#993031', background: '#EDD4D5'});
+            Session.set('sort', ctx.defaultSort());
         } else {
 
             Session.set('sort', {text: text, type: type,
@@ -252,7 +249,13 @@ var app = app || {};
         if (firstSort) {
             firstSort = false;
         } else {
-            if (type !== 'noStats') {
+            if (type === 'noStats') {
+                 if (text.indexOf('credential') < 0) {
+                    banner('error', text);
+                } else {
+                    banner('warn', 'Now sorted by Density of attributes');
+                }
+            } else {
                 banner('info', 'Now sorted by ' + text + elapsed);
             }
         }
@@ -553,6 +556,14 @@ var app = app || {};
     }
 
     getDynamicStats = function (focus_attr, opts) {
+ 
+        var good = Util.credentialCheck('to compute dynamic statistics. ' +
+            'Only pre-computed statistics on static attributes are available ' +
+            'to you');
+        if (!good) {
+            updateSortUi('noStats', 'credential');
+            return;
+        }
  
         //updateSortUi('noStats', 'Sorry, the dynamic stats are disabled for now');
         //return;

@@ -21,19 +21,21 @@ Message = (function () { // jshint ignore: line
     
 return { // Public methods
     
-    show: function (text) {
-        message.set(text);
+    display: function (title, text) {
+            
         dialogHex.show();
-    }
-    ,
+        $dialog.dialog('option', 'title', title );
+        message.set(text);
+    },
+
     init: function () {
  
+        // Define the dialog options & create an instance of DialogHex.
         $dialog = $('#messageDialog');
-
-        // Define the dialog options & create an instance of DialogHex
         var opts = {
-            title: 'Error',
+            title: '(title)',
             modal: true,
+            width: '400px',
             buttons: [{ text: 'OK', click: hide }],
         };
         dialogHex = createDialogHex({

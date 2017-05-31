@@ -29,26 +29,48 @@ Util = (function () { // jshint ignore: line
         return dirty.replace(/[^A-Za-z0-9_\-\.]/g, "_");
     }
     
-    function banner (type, text) {
+    function banner (title, text) {
     
-        // The type should be one of: info, warn, error
-        if (type === 'warn' || type === 'info') {
+        // Display a message, either as a timed banner when 'title' is one of
+        // 'warn' or 'info', otherwise a dialog that requires the user to
+        // dismiss the message. For a dialog when 'title' is 'error', the dialog
+        // title will be 'Error'. Otherwise the given title will be used.
+        if (title === 'warn' || title === 'info') {
         
             // Display a temporary message to the user on a banner.
             $("#banner")
                 .removeClass('info warn error stay')
-                .addClass(type)
+                .addClass(title)
                 .text(text)
                 .show();
             $("#banner").delay(5000).fadeOut(1500);
-        } else if (type === 'error') {
-            Message.show(text);
+        } else if (title === 'error') {
+            Message.display('Error', text);
+        } else {
+            Message.display(title, text);
         }
 
         // Also inform the browser console of this issue.
-        console.log(type + ':', text);
+        console.log(title + ':', text);
     }
 
+    function credentialCheck (credential) {
+    
+        // Bail with a message if the user is not logged in or does not have
+        // the credentials.
+        if (!(Session.get('loggedIn'))) {
+            banner('Credentials Required',
+                'Please log in ' + credential + '.');
+            return false;
+        } else if (!(Session.get('jobCredential'))) {
+            banner('Credentials Required',
+                'Sorry, you do not have credentials ' + credential + '. Please ' +
+                'request access from hexmap at ucsc dot edu.')
+            return false;
+        }
+        return true;
+    }
+ 
     function session (prefix, operation, name, val) {
  
         // Perform a get, set, or equals on a session variable which represents
@@ -204,6 +226,7 @@ Util = (function () { // jshint ignore: line
     }
         
     return { // Public methods
+        credentialCheck: credentialCheck,
         get_username: get_username,
         clean_file_name: clean_file_name,
         session: session,

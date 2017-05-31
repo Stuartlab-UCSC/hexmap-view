@@ -8,7 +8,7 @@ Most of the time this is caused by a mistake in formatting.
 Specifics on the format for each layout input are at :doc:`createMap`.
 
 If none of the common problems below are helpful, please assist the developers by
-emailing hexmap@ucsc.edu with the date and time of your failed attempt.
+emailing hexmap at ucsc dot edu with the date and time of your failed attempt.
 
 This page will be updated as common problems surface.
 

@@ -82,7 +82,7 @@ CreateMap = (function () { // jshint ignore: line
 
         // Make a message to display to the user in case they have pop-ups
         // disabled.
-        var banner_msg = "Unable to create map due to an internal error.\n" +
+        var banner_msg = "Unable to create map due to an internal error. \n" +
             "A troubleshooting page will open in a new tab.";
 
         // Show the user the banner message.
@@ -305,11 +305,15 @@ CreateMap = (function () { // jshint ignore: line
     function show () {
  
         // Show the contents of the dialog, once per menu button click
-
+        
         // Find the username to build directories for her
         Util.get_username(username_received);
     }
 
+    function preShow () {
+        return Util.credentialCheck('to create a map');
+    }
+ 
     function hide() {
  
         // Clear the filename values.
@@ -332,6 +336,7 @@ CreateMap = (function () { // jshint ignore: line
             dialogHex = createDialogHex({
                 $el: $dialog,
                 opts: opts,
+                preShowFx: preShow,
                 showFx: show,
                 hideFx: hide,
                 helpAnchor: '/help/createMap.html'

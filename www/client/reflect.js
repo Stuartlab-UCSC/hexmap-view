@@ -59,7 +59,7 @@ Reflect = (function () { // jshint ignore: line
         // Define the event handler for selecting in the list
         $mapAnchor.on('change', function (ev) {
             toMapId = ev.target.value;
-            console.log('toMapId', toMapId);
+            //console.log('toMapId', toMapId);
         });
 
         // Create the layer name selector.
@@ -87,22 +87,42 @@ Reflect = (function () { // jshint ignore: line
         // Define the event handler for selecting in the list
         $dataTypeAnchor.on('change', function (ev) {
             dataType = ev.target.value;
-            console.log('data type selected:', dataType);
+            //console.log('data type selected:', dataType);
         });
         
         // Event handler for the Tstats vs. ranked.
         $('#reflectDialog .ranked').on('change', function (ev) {
         
-            console.log('ranked ev.target.checked', ev.target.checked);
+            //console.log('ranked ev.target.checked', ev.target.checked);
             
             Session.set('reflectRanked', ev.target.checked);
         });
         $('#reflectDialog .tStats').on('change', function (ev) {
         
-            console.log('tStats ev.target.checked', ev.target.checked);
+            //console.log('tStats ev.target.checked', ev.target.checked);
             
             Session.set('reflectRanked', !ev.target.checked);
         });
+    }
+
+    function criteriaCheck () {
+    
+        // Bail with a message if the required data needed is not present.
+        if (!(Session.get('reflectCriteria'))) {
+            dialogHex.hide();
+            Util.banner('Data not available', 'Sorry, the required data to ' +
+            'reflect onto another map is not available for this map.');
+            return false;
+        }
+        return true;
+    }
+
+    function preShow () {
+        var good = Util.credentialCheck('to reflect onto another map');
+        if (good) {
+            good = criteriaCheck();
+        }
+        return good;
     }
 
     function get_reflection_count(operation,dataType,toMapId,nodeIds) {
@@ -138,9 +158,6 @@ Reflect = (function () { // jshint ignore: line
         //console.log("reflect MapMan nodeIds:",nodeIds,dataType);
         //only perform reflection if there if there is some intersect of
         // reflection nodes and selected nodes
-        
-        console.log('Session.get("reflectRanked")', Session.get("reflectRanked"));
-        
         if (get_reflection_count(operation,dataType,toMapId,nodeIds) !== 0) {
             Meteor.call("mapManager", operation,
                 dataType,
@@ -152,8 +169,7 @@ Reflect = (function () { // jshint ignore: line
                 //Session.get('reflectRanked'),
                 function (error) {
                     if (error) {
-                        console.log('Mapmanager: Operation ' +
-                            operation + ' failed');
+                        Util.banner('error', 'Unknown server error.');
                         console.log(error);
                     } else {
                         console.log('Mapmanager: Operation ' +
@@ -223,7 +239,7 @@ Reflect = (function () { // jshint ignore: line
     function getReflectionInfo() {
         // grab array for possible maps to reflect to
         var addressEntry = ManagerAddressBook.findOne();
-        //console.log(addressEntry); 
+        //console.log(addressEntry);
         if (addressEntry) {
             toMapIds = addressEntry.toMapIds;
             dataTypes = addressEntry.datatypes;
@@ -234,9 +250,9 @@ Reflect = (function () { // jshint ignore: line
             // and enable the trigger to open the reflection dialog
             toMapId = toMapIds[0];
             dataType= dataTypes[0];
-            $button.removeClass('disabled');
+            Session.set('reflectCriteria', true);
         } else {
-            $button.addClass('disabled');
+            Session.set('reflectCriteria', false);
         }
     }
     
@@ -251,6 +267,9 @@ Reflect = (function () { // jshint ignore: line
         // Save the user for cleaning up when it changes
         lastUser = user;
 
+        // Initialize the reflection criteria found flag.
+        Session.set('reflectCriteria', false);
+        
         if (user) {
 
             //subscribes to fill in available datatypes and target map ids
@@ -294,6 +313,7 @@ return { // Public methods
         dialogHex = createDialogHex({
             $el: $dialog,
             opts: opts,
+            preShowFx: preShow,
             showFx: show,
             hideFx: hide,
             helpAnchor: '/help/reflect.html',
