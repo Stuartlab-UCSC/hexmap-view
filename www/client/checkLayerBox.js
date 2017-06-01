@@ -39,7 +39,7 @@ CheckLayerBox = (function () { // jshint ignore: line
             var layer = {
                 data: jsonLayer(layerIn),
                 n: layerIn.n,
-                dataType: 'categorical',
+                dataType: layerIn.dataType,
                 removeFx: remove_layer,
                 reflection: true,
                 colormap: layerIn.colormap,
