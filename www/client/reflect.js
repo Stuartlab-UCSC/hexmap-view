@@ -59,7 +59,6 @@ Reflect = (function () { // jshint ignore: line
         // Define the event handler for selecting in the list
         $mapAnchor.on('change', function (ev) {
             toMapId = ev.target.value;
-            //console.log('toMapId', toMapId);
         });
 
         // Create the layer name selector.
@@ -154,7 +153,7 @@ Reflect = (function () { // jshint ignore: line
     function mapManager (operation, nodeIds) {
         
         var userId=Meteor.user().username;
-
+        var rankCategories = Session.get('reflectRanked')
         //console.log("reflect MapMan nodeIds:",nodeIds,dataType);
         //only perform reflection if there if there is some intersect of
         // reflection nodes and selected nodes
@@ -165,6 +164,7 @@ Reflect = (function () { // jshint ignore: line
                 ctx.project,
                 toMapId,
                 nodeIds,
+                rankCategories,
                 selectionSelected,
                 //Session.get('reflectRanked'),
                 function (error) {
@@ -206,7 +206,7 @@ Reflect = (function () { // jshint ignore: line
                             request_count.toString() +
                             ' requested nodes have data to reflect.\n' +
                             'Reflection computed with only those nodes.';
-        if (have_data_count ===0){
+        if (have_data_count === 0){
             message += ' Therefore reflection was not computed.';
         }
         alert(message);
