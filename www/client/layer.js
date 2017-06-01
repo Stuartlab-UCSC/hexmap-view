@@ -137,12 +137,19 @@ Layer = (function () { // jshint ignore: line
     function determine_dynamic_data_type (name, layer) {
 
         // Skip any layers with no values.
-        var data = layer.data;
-        if (data.length < 1) { return; }
+        var dataIn = layer.data;
+        if (dataIn.length < 1) { return; }
 
         if (!('dataType' in layer)) {
         
             // Determine the data type since it was not supplied.
+         
+            // First we need to drop any values used to indicate no value.
+            var drop = ['', '#N/A', '#N/A N/A', '#NA', '-1.#IND', '-1.#QNAN', 
+                '-NAN', '1.#IND', '1.#QNAN', 'N/A', 'NA', 'NULL', 'NAN'],
+                data = _.filter(dataIn, function (val) {
+                    return (drop.indexOf(val.toUpperCase()) < 0);
+                });
          
             // If they are any strings, this gets a colormap
             // and call it categorical for now. It may be binary.

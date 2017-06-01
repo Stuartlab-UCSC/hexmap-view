@@ -292,21 +292,9 @@ var app = app || {};
     }
 
     function update_set_operation_selections () {
-        // This function is called when the shorlist is changed.
+        // This function is called when the shortlist is changed.
         // It appropriately updates the drop down containing the list of layers
         // to match the layers found in the shortlist.
-
-        // Get the list of all layers
-        var layers = [];
-        $("#shortlist").children().each(function(index, element) {
-            // Get the layer name
-            var layer_name = $(element).data("layer");
-            // If the attribute does not have continuous values add it to the drop
-            // downs. (There is no set theory for continuous attributes).
-            if (ctx.cont_layers.indexOf (layer_name) < 0) {
-                layers.push(layer_name);
-            }
-        });
 
         // Get a list of all drop downs that contain layer names
         var drop_downs = document.getElementsByClassName("set-operation-value");
@@ -339,11 +327,12 @@ var app = app || {};
         first_opening = false;
         
         // Add the layer names from the shortlist to the drop downs that store
-        // layer names.		
+        // layer names.
+        var shortlist = Session.get('shortlist');
         for (var i = 0; i < drop_downs.length; i++){
-            for (var j = 0; j < layers.length; j++) {
+            for (var j = 0; j < shortlist.length; j++) {
                 var option = document.createElement("option");
-                option.text = layers[j];
+                option.text = shortlist[j];
                 option.value = j+1;
                 drop_downs[i].add(option);
             }

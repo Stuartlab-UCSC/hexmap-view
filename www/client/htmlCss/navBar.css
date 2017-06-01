@@ -194,99 +194,33 @@
     line-height: 2.1em;
 }
 
-#banner {
-    position: fixed;
-    top: 0;
-    width: 100%;
-    vertical-align: middle;
-    height: 2.2em;
-    line-height: 2.5em;
-    font-weight: bold;
-    text-align: center;
-    z-index: 2001;
-    display: none;
-}
-
-#pdfDialog .element {
-    background-size: 100% 100%;
-    background-repeat: no-repeat;
-    margin: 5px;
-}
-
-#pdfClose {
-    display: none;
-    background-color: white;
-    background-image: url("/icons/close.svg");
-    background-size: 100% 100%;
-    background-repeat: no-repeat;
-    height: 24px;
-    width: 24px;
-    position: fixed;
-    top: 1em;
-    right: 1em;
-    z-index: 9999;
-}
-
-#pdfWhiteOutGoogle {
-    background-color: black;
-    height: 52px;
-    width: 132px;
-    position: fixed;
-    z-index: 1000000000;
-    bottom: -200px;
-}
-
-#pdfDialog .element.head {
-    background-image: url("pdfHeader.png");
-    width: 313px;
-    height: 40px;
-}
-
-#pdfDialog .element.map {
-    background-image: url("pdfMap.png");
-    width: 250px;
-    height: 150px;
-}
-
-#pdfDialog .element.legend {
-    background-image:url("pdfLegend.png");
-    width: 50px;
-    height: 150px;
-    background-position: 0 25%;
-}
-
-#pdfDialog .inputWrap {
-    background-color: #dddddd;
-    height: 30px;
-    width: 30px;
-    border: red solid 3px;
-    border-radius: 17px;
-    margin: auto;
-    position: relative;
-    top: 50%;
-    transform: translateY(-50%);
-}
-
-#pdfDialog input {
-    margin: auto;
-    position: relative;
-    top: 50%;
-    transform: translateY(-50%);
-    display: block;
-}
-
-#loadingMap {
-    width: 16px;
-    height: 16px;
-    margin-top: -1px;
-    margin-bottom: -1px;
+.snake {
     -webkit-animation: sweep 1s infinite linear;
     animation: sweep 1s infinite linear;
-    border-radius:16px;
-    border-bottom:3px solid white;
+    width: 24px;
+    height: 24px;
+    border-radius:24px;
+    border-bottom:7px solid green;
 }
 @-webkit-keyframes sweep { to { -webkit-transform: rotate(360deg); } }
 @keyframes sweep { to { transform: rotate(360deg); } }
+
+#mapSnake {
+    position: fixed;
+    top: 200px;
+    left: 41%;
+    width: 64px;
+    height: 64px;
+    border-radius:64px;
+    border-bottom:12px solid white;
+}
+
+#statsSnake {
+    position: absolute;
+    z-index: 1000;
+    top: 4px;
+    left: -34px;
+}
 
 #bookmarkDialog {
     display: none;

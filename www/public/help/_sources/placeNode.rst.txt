@@ -7,15 +7,11 @@ then clicking on **Place New Nodes**.
 
 The resulting window, **Place New Nodes** is described below.
 
-Not all maps have the information required to place new nodes.
-If this option is greyed out in the Edit menu, then this map does not have the
-required information.
+Not all maps have the information required to place new nodes. When you click
+on this menu option and the current map does not have the required data, a
+message will be displayed indicating the lack of data.
 
-If this option does not exist in the Edit menu, then you do not have the proper
-authority to run this compute-intensive task. Ask hexmap at ucsc dot edu
-with justification for authorization.
-
-**clustering data** : Select a local file to upload that contains the data for
+**feature data** : Select a local file to upload that contains the data for
 your nodes. The file needs to be in tab-separated-values format as described
 in the window.
 

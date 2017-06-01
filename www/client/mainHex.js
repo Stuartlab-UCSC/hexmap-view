@@ -23,7 +23,7 @@ Hex = (function () { // jshint ignore: line
 
     function queryFreeReload () {
 
-        Session.set('loadingMap', true);
+        Session.set('mapSnake', true);
 
         // Strip everything after the query string question mark in the href
         // & reload
@@ -51,6 +51,7 @@ Hex = (function () { // jshint ignore: line
  
     Template.homePage.onRendered(function () {
         Tool.init();
+        Message.init();
         Download.init();
         CreateMap.init();
     });
@@ -61,6 +62,7 @@ Hex = (function () { // jshint ignore: line
                 initMainMapContainer();
             }
         });
+        Message.init();
         Project.init();
         GoogleMaps.load({ key: GOOGLE_API_KEY });  // browser key
         Tool.init();
@@ -77,8 +79,8 @@ Hex = (function () { // jshint ignore: line
     });
 
     Template.navBarT.helpers({
-        loadingMap: function () {
-            if (Session.get('loadingMap')) {
+        mapSnake: function () {
+            if (Session.get('mapSnake')) {
                 return 'block';
             } else {
                 return 'none';
@@ -142,6 +144,9 @@ Hex = (function () { // jshint ignore: line
         sort: function () {
             return Session.get('sort');
         },
+        statsSnakeDisplay: function () {
+            return Session.get('statsSnakeDisplay');
+        },
         nodeCount: function () {
             return Session.get('nodeCount');
         },
@@ -156,9 +161,8 @@ Hex = (function () { // jshint ignore: line
             headerHt = $('#header').height();
         $('#mapContent').height(windowHt - navHt - headerHt - 1);
         $('#gridContent').height(windowHt - navHt);
+        $('#visualization').show();
     }
-
-
 
     function googleAnalytics() {
         window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
@@ -182,7 +186,7 @@ Hex = (function () { // jshint ignore: line
      
                 // Turn off the loading progress wheel
                 setTimeout(function () {
-                    Session.set('loadingMap', false);
+                    Session.set('mapSnake', false);
                 }, 500);
 
                 // Initialize the background functions.
@@ -294,6 +298,7 @@ Hex = (function () { // jshint ignore: line
 
 return { // Public methods
 
+    resizeMap: resizeMap,
     loadProject: loadProject,
     pageReload: pageReload,
  

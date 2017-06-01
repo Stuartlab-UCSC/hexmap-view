@@ -16,7 +16,7 @@ Shortlist = (function () { // jshint ignore: line
     var $float_controls; // The floating control DOM elements
     var selection_prefix = 'Selection';
     var hover_layer_name = new ReactiveVar(''); // Track the current layer
- 
+    var entriesInited = new ReactiveVar();
     var icon = {
         primary: '/icons/primary.png',
         primary_hot: '/icons/primary-hot.png',
@@ -643,14 +643,15 @@ Shortlist = (function () { // jshint ignore: line
          $shortlist.sortable({
             update: function () {
             
+                // Find shortlist entries, ingnoring the dynamic controls.
+                var entries = _.filter($shortlist.children(), function (entry) {
+                    return (!_.isUndefined($(el).data("layer")));
+                });
+            
                 // Update the shortlist UI with the new order and refresh
-                var shortlist = _.map($shortlist.children(), function (el) {
+                var shortlist = _.map(entries, function (el) {
                     return $(el).data("layer");
                 });
-                
-                // Remove the null entry created by the dynamic controls widget
-                var i = shortlist.indexOf(undefined);
-                shortlist.splice(i, 1)
                 Session.set('shortlist', shortlist);
             },
             // Use the controls area as the handle to move entries.
@@ -664,8 +665,11 @@ Shortlist = (function () { // jshint ignore: line
         // When the active layers change update the primary and secondary
         // indicators on the UI and refresh the map colors.
         var active = Session.get('active_layers'),
+            entriesReady = entriesInited.get(),
             length = active.length,
             $anchor;
+            
+            if (!entriesReady) { return; }
  
         // For each of primary index and secondary index...
         _.each([0, 1], function (index) {
@@ -695,7 +699,6 @@ Shortlist = (function () { // jshint ignore: line
 
         // This is the floating button control panel that appears when
         // a shortlist entry is hovered upon.
- 
  
         // Handle the click of the primary button
         $shortlist.on ('click', '.primary', function (ev) {
@@ -813,6 +816,7 @@ Shortlist = (function () { // jshint ignore: line
         var shortlist = Session.get('shortlist');
         
         // If there are no active layers, make the first entry active
+        entriesInited.set(true);
         var active = Session.get('active_layers');
         if (active.length < 1 && shortlist.length > 0) {
             Session.set('active_layers', [shortlist[0]]);
@@ -1037,6 +1041,7 @@ return {
         $float_controls = $shortlist.find('.float');
         
         Session.set('shortlistInitDone', false);
+        entriesInited.set(false);
         
         Meteor.autorun(complete_initialization);
  

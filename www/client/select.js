@@ -14,15 +14,17 @@ Select = (function () { // jshint ignore: line
         midHandle,
         stopHandle,
  
-        savedCursor, // Cursor to return reinstate after selection is complete
+        savedCursor, // Cursor to reinstate after selection is complete
         startLatLng, // Starting point of the selection area
         shape, // rectangular or polygonal selection boundary in latLng
         isRectangle, // Rectangle or polygon?
         color; // Color of the selection boundary and fill
 
     function setCursor (cursor) {
+        var hexCursor = cursor ? false : true;
         googlemap.setOptions({ draggableCursor: cursor });
         if (cursor === SELECTING_CURSOR) {
+        
             // During selection, we also want to set the cursor on the shape
             // to the seleting cursor.
             shape.setOptions({
@@ -30,28 +32,11 @@ Select = (function () { // jshint ignore: line
                 draggableCursor: cursor,
             });
         }
-    }
-
-    // TODO unused, but maybe it should be used for performance?
-    /*
-    function createRectangle () {
-
-        // Make a rectangle for the selection
-        var latLng = new google.maps.LatLng(0,0);
-        return new google.maps.Rectangle({
-            fillColor: color,
-            strokeColor: color,
-            strokeWeight: 1,
-            strokeOpacity: 1,
-            fillOpacity: 0.2,
-            clickable: false,
-            draggable: true,
-            map: googlemap,
-            bounds: new google.maps.LatLngBounds(latLng, latLng),
-            zIndex: 9,
+        // Set the cursor on or off when hovering over the hexagons
+        _.each(polygons, function(hex) {
+            hex.setOptions({clickable: hexCursor});
         });
     }
-    */
 
     function createPolygon (paths, preview) {
  
@@ -78,14 +63,6 @@ Select = (function () { // jshint ignore: line
             map: googlemap,
             paths: paths,
             zIndex: 9,
-        });
-    }
-
-    function hexagonCursor (on) {
-
-        // Set the cursor on or off when hovering over the hexagons
-        _.each(polygons, function(hex) {
-            hex.setOptions({clickable: on});
         });
     }
 
@@ -127,13 +104,12 @@ Select = (function () { // jshint ignore: line
         if (moveHandle) { moveHandle.remove(); }
         if (midHandle) { midHandle.remove(); }
  
-        // Restore the saved cursor
-        if (savedCursor) { setCursor(savedCursor); }
-        googlemap.setOptions({ draggableCursor: undefined });
+        // Restore the saved cursors
+        setCursor(undefined);
+        
         // Remove the bounding polygons and reset the hover curser for hexagons
         if (shape) { shape.setMap(null); }
         shape = null;
-        hexagonCursor(true);
     }
 
     function finishSelect (event) {
@@ -219,7 +195,6 @@ Select = (function () { // jshint ignore: line
         // Add mouse move listeners for interactivity
         // Works over the map, hexes, or the shape.
         moveHandle = googlemap.addListener('mousemove', preview);
-        shape.addListener('mousemove', preview);
 
         var stopEvent;
         if (isRectangle) {
@@ -231,13 +206,11 @@ Select = (function () { // jshint ignore: line
             shape.getPath().push(startLatLng);
 
             midHandle = googlemap.addListener('mouseup', midSelect);
-            shape.addListener('mouseup', midSelect);
             stopEvent = 'dblclick';
         }
 
         // Attach the stop listener.
         stopHandle = googlemap.addListener(stopEvent, finishSelect);
-        shape.addListener(stopEvent, finishSelect);
  
         Tool.activity(false);
     }
@@ -256,9 +229,6 @@ Select = (function () { // jshint ignore: line
  
         // Add a listener to start the selection where the user clicks
         startHandle = googlemap.addListener('mousedown', startSelect);
- 
-        // Turn off the cursor for hovering over hexagons
-        hexagonCursor(false);
  
         // Set the cursor to let user know mouse mode has changed
         setCursor(SELECTING_CURSOR);

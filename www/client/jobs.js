@@ -66,10 +66,6 @@ Jobs = (function () { // jshint ignore: line
         $dialog.off('click .changeButton');
     }
     
-    function dialogCancelClicked () {
-        hide();
-	}
-
     function show () {
  
         // Show the contents of the dialog, once per trigger click

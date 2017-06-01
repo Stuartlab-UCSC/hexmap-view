@@ -5,10 +5,6 @@ Create a Map
 You can create a map with your own data by selecting *Create map* from the *File*
 menu, then supplying at least a layout feature file and specifying its format.
 
-If this option does not exist in the Edit menu, then you do not have the proper
-authority to run this compute-intensive task. Ask hexmap at ucsc dot edu
-with justification for authorization.
-
 See `Technical Overview`_ section below for an explanation of the pipeline used to
 create a map.
 
@@ -20,8 +16,8 @@ Features to Lay Out the Map
 Features are properties of nodes used to lay out the map. The feature file must
 be in TSV (tab-separated values) format in one of the following forms.
 
-**Clustering data** : This is the most basic of the layout input formats where
-similarities and XY locations will be calculated for you.
+**Feature data** : AKA **clustering data**. This is the most basic of the layout
+input formats where similarities and XY locations will be calculated for you.
 This contains a full matrix with node IDs across the top and feature IDs in the
 first column, like::
 
@@ -77,18 +73,27 @@ attributes IDs across the top and node IDs in the first column, like::
  node3   val     val     val
  ...
 
-..
+Missing values: Replace with zero
+---------------------------------
+Check this checkbox to replace missing values with zero in the
+**layout input file** of format **feature data** or **full similarity**.
+More on this in the Technical Overview below.
+
+Troubleshooting
+---------------
+
+Help in resolving issues is at :doc:`createMapTrouble`.
 
 Technical Overview
 ------------------
 
-The "layout input formats" described in the `Features to Lay Out the Map`_
+The **layout input formats** described in the `Features to Lay Out the Map`_
 section represent different stages of the pipeline used to create a map.
-**Clustering data** is the beginning of the pipeline, any nxm matrix can be
+**Feature data** is the beginning of the pipeline, any nxm matrix can be
 used. Spearman correlations are calculated representing the similarity between all
-columns in the **Clustering data** matrix. The resulting nxn matrix of spearman
+columns in the **Feature data** matrix. The resulting nxn matrix of Spearman
 correlations is the **Full similarity** matrix. The **Full similarity** matrix is
-then sparsified by taking the 6 highest spearman correlations for each sample, this
+then sparsified by taking the 6 highest Spearman correlations for each sample, this
 sparsification is the **Sparse similarity** input format. **XY positions** are then
 produced by applying the `openOrd layout algorithm <https://www.researchgate.net/publication/253087985_OpenOrd_An_Open-Source_Toolbox_for_Large_Graph_Layout>`_
 to the **Sparse similarity** representation.
@@ -104,18 +109,15 @@ algorithm. If **XY positions** are input, a hexagon size is set such that hexago
 (max x - min x) * (max y - min y), and the area of a hexagon is is sqrt(3)*3/2 *S^2,
 where S is the side length.
 
-Missing values in **Clustering data**
-+++++++++++++++++++++++++++++++++++++
+Missing values in **Feature data**
+++++++++++++++++++++++++++++++++++
 
 We strongly encourage users to choose and execute an
 appropriate method for dealing with missing values before using our pipeline.
 In general there is not a single method that is best for all types of data.
-If missing values are present in **Clustering data**, they are converted to
-0 before calculating spearman similarities. Depending on the distribution of
-the data our technique of filling with 0 may be problematic.
-
-
-
-
-
+There is an option on the **Create Map** window to replace any missing values
+with zeroes. This applies to **feature data** whose missing values are
+converted to zero before calculating Spearman similarities.
+Depending on the distribution of the data our technique of filling with zeroes
+may be problematic.
 

@@ -5,9 +5,8 @@ Create a Map
 You can create a map with your own data by selecting *Create map* from the *File*
 menu, then supplying at least a layout feature file and specifying its format.
 
-If this option does not exist in the Edit menu, then you do not have the proper
-authority to run this compute-intensive task. Ask hexmap at ucsc dot edu
-with justification for authorization.
+See `Technical Overview`_ section below for an explanation of the pipeline used to
+create a map.
 
 .. _feature-formats:
 
@@ -17,8 +16,8 @@ Features to Lay Out the Map
 Features are properties of nodes used to lay out the map. The feature file must
 be in TSV (tab-separated values) format in one of the following forms.
 
-**Clustering data** : This is the most basic of the layout input formats where
-similarities and XY locations will be calculated for you.
+**Feature data** : AKA **clustering data**. This is the most basic of the layout
+input formats where similarities and XY locations will be calculated for you.
 This contains a full matrix with node IDs across the top and feature IDs in the
 first column, like::
 
@@ -74,28 +73,51 @@ attributes IDs across the top and node IDs in the first column, like::
  node3   val     val     val
  ...
 
-..
-    Layout Methods
-    --------------
+Missing values: Replace with zero
+---------------------------------
+Check this checkbox to replace missing values with zero in the
+**layout input file** of format **feature data** or **full similarity**.
+More on this in the Technical Overview below.
 
-    The option to select a layout method other than DrL will be added to the UI soon.
+Troubleshooting
+---------------
 
-    Layout methods are the algorithms used to arrange the nodes on the
-    two-dimensional map with the following options available. The default is DrL.
+Help in resolving issues is at :doc:`createMapTrouble`.
 
-    **DrL** : Distributed Recursive (Graph) Layout
+Technical Overview
+------------------
 
-    **tSNE** : t-distributed Stochastic Neighbor Embedding
+The **layout input formats** described in the `Features to Lay Out the Map`_
+section represent different stages of the pipeline used to create a map.
+**Feature data** is the beginning of the pipeline, any nxm matrix can be
+used. Spearman correlations are calculated representing the similarity between all
+columns in the **Feature data** matrix. The resulting nxn matrix of Spearman
+correlations is the **Full similarity** matrix. The **Full similarity** matrix is
+then sparsified by taking the 6 highest Spearman correlations for each sample, this
+sparsification is the **Sparse similarity** input format. **XY positions** are then
+produced by applying the `openOrd layout algorithm <https://www.researchgate.net/publication/253087985_OpenOrd_An_Open-Source_Toolbox_for_Large_Graph_Layout>`_
+to the **Sparse similarity** representation.
 
-    **MDS** : Multidimensional scaling
+**XY positions** are further modified by the hexagonal binning process. The hexagonal
+binning process first lays a hexagonal tiling over the x-y plane, then assigns each point
+in the xy space to the nearest hexagon. If a point is assigned to a hexagon that is
+already occupied, then a breadth-first search on the hexagon tilling is used to find
+the nearest empty hexagon. If the OpenOrd clustering algorithm is used the size of the
+hexagons is set to 1. This has been shown to be reasonable with the scaling of the
+algorithm. If **XY positions** are input, a hexagon size is set such that hexagons cover
+5% of the open space in the plane. The open space is determined by
+(max x - min x) * (max y - min y), and the area of a hexagon is is sqrt(3)*3/2 *S^2,
+where S is the side length.
 
-    **PCA** : Principal Component analysis
+Missing values in **Feature data**
+++++++++++++++++++++++++++++++++++
 
-    **ICA** : Independent Component Analysis
+We strongly encourage users to choose and execute an
+appropriate method for dealing with missing values before using our pipeline.
+In general there is not a single method that is best for all types of data.
+There is an option on the **Create Map** window to replace any missing values
+with zeroes. This applies to **feature data** whose missing values are
+converted to zero before calculating Spearman similarities.
+Depending on the distribution of the data our technique of filling with zeroes
+may be problematic.
 
-    **isomap** : Isomap Embedding
-
-    **spectral embedding** : Project the sample on the first eigenvectors of the graph Laplacian
-
-    Advanced Options
-    ----------------

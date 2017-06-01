@@ -10,104 +10,109 @@ var app = app || {};
     var title = 'PDF',
         dialogHex,
         $dialog,
-        chk = new ReactiveDict(),
-        $close,
         $head,
         $map,
         $legend,
-        autorun;
+        mediaQueryList;
 
     Template.pdf.helpers ({
-        head: function () {
-            return chk.get('head');
+        mapChecked: function () {
+            return Session.get('pdfMap');
         },
-        map: function () {
-            return chk.get('map');
-        },
-        legend: function () {
-            return chk.get('legend');
+        legendChecked: function () {
+            return Session.get('pdfLegend');
         },
     });
     
-    Template.body.events({
-        "click .legend": function () {
-            console.log('legend is:', chk.get('legend'));
-            chk.set('legend', !chk.get('legend'));
-            console.log('legend changed to:', chk.get('legend'));
-        },
-    });
+    function restoreView () {
  
-    function whenCheckboxChanges() {
- 
-        if (chk.get('head')) {
-            $head.show();
-        } else {
-            $head.hide();
+        // Remove some event listeners.
+        $('#mapPage').off('click');
+        if (window.matchMedia) {
+            mediaQueryList.removeListener(afterPrint);
         }
-        if (chk.get('map')) {
+ 
+        // Show all of the app areas
+        $head.show();
+        $legend.show();
+        $map.show();
+        Hex.resizeMap();
+    }
+
+    function mapDisplay () {
+        if (Session.get('pdfMap')) {
             $map.show();
         } else {
             $map.hide();
         }
-        if (chk.get('legend')) {
+    }
+
+    function legendDisplay () {
+        if (Session.get('pdfLegend')) {
             $legend.show();
         } else {
             $legend.hide();
         }
-        $close.show();
     }
 
-    function closeViewer () {
+    // Watch for the printer event
+    var afterPrint = function() {
+        setTimeout(restoreView, 100);
+    };
+
+    function watchPrint () {
  
-        console.log('closeViewer');
- 
-        $close.hide();
-        $head.show();
-        $map.show();
-        $legend.show();
+        if (window.matchMedia) {
+            mediaQueryList = window.matchMedia('print');
+            mediaQueryList.addListener(afterPrint);
+        }
+        window.onafterprint = afterPrint;
     }
 
     function show () {
  
-        $close = $('#pdfClose');
         $head = $('#navBar, .header');
-        $map = $('#visualization, #whiteOutGoogle');
+        $map = $('#visualization');
         $legend = $('.key');
+ 
+        // Set the initial value of the areas to be displayed
+        mapDisplay();
+        legendDisplay();
 
-        // Define functions to run when reactive vars change
-        autorun = Tracker.autorun(whenCheckboxChanges);
-
-        // Attach event listeners to checkboxes
-        $dialog.on('change', 'input', function (ev) {
-            var data = $(ev.target).data();
-            chk.set(data.tag, ev.target.checked);
+        // Always hide the header,
+        $head.hide();
+ 
+        // Event handlers for checkboxes
+        $('#pdfMap').on('change', function(ev) {
+            Session.set('pdfMap', ev.target.checked);
+            mapDisplay();
         });
- 
-        // Attach event handler to close button
-        $close.show()
-            .on('click', closeViewer);
-    }
- 
-    function hide () {
-        autorun.stop;
-        dialogHex.hide();
-        window.print(); // TODO why does this not display the browser's print window?
-    }
+        $('#pdfLegend').on('change', function(ev) {
+            Session.set('pdfLegend', ev.target.checked);
+            legendDisplay();
+        });
 
+        // Two add event handler on click to restore the usual view.
+        $('#mapPage').on('click', restoreView);
+        watchPrint();
+    }
+ 
     initPdf = function () {
 
         $dialog = $('#pdfDialog');
         var $button = $('#pdfDownload');
  
         // Initialize our reactive dict
-        chk.set('head', false);
-        chk.set('map', true);
-        chk.set('legend', true);
+        if (_.isUndefined(Session.get('pdfMap'))) {
+            Session.set('pdfMap', true);
+        }
+        if (_.isUndefined(Session.get('pdfLegend'))) {
+            Session.set('pdfLegend', false);
+        }
  
         // Define the dialog options & create an instance of DialogHex
         var opts = { title: title };
-        dialogHex = createDialogHex(undefined, undefined, $dialog, opts, show,
-            hide);
+        dialogHex = createDialogHex(undefined, undefined, $dialog, opts, show);
  
         // Listen for the menu clicked
         $button.on('click', function () {

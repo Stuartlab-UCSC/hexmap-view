@@ -1,35 +1,22 @@
 <template name='pdf'>
     <div id='pdfDialog' style='display:none'>
-        <div style='padding:0.3em'>1. Check the elements to include in the PDF.</div>
-        <table style='margin:auto'>
+        <table>
             <tr>
-                <td colspan='2'>
-                    <div class='head element'>
-                        <div class='inputWrap'>
-                            <input data-tag='head' type='checkbox' checked='{{head}}' />
-                        </div>
-                    </div>
+                <td class='dialog-label' style='vertical-align:top'>
+                    Include:
                 </td>
-            </tr>
-            <tr>
-                <td>
-                    <div class='map element'>
-                        <div class='inputWrap'>
-                            <input data-tag='map' type='checkbox' checked='{{map}}' />
-                        </div>
-                    </div>
-                </td>
-                <td>
-                    <div class='legend element'>
-                        <div class='inputWrap'>
-                            <input data-tag='legend' type='checkbox' checked='{{legend}}'/>
-                        </div>
-                    </div>
+                <td class='dialog-value'>
+                    <input type="checkbox" checked='{{mapChecked}}' id='pdfMap'/>
+                    <label for="pdfMap">Map</label>
+                    <br>
+                    <input type="checkbox" checked='{{legendChecked}}' id='pdfLegend'/>
+                    <label for="pdfLegend">Legend</label>
                 </td>
             </tr>
         </table>
-        <div style='padding:0.3em'>2. Close this window.</div>
-        <div style='padding:0.3em'>3. Use your web browser's "print to PDF".</div>
-        <div style='padding:0.3em'>4. Click 'X' to get back to the map.</div>
+        <div style='padding:0.3em'>Steps to save your image as PDF:</div>
+        <div style='padding:0.3em'>1. Close this window after reading the next steps.</div>
+        <div style='padding:0.3em'>2. Use your web browser print function: "save to PDF".</div>
+        <div style='padding:0.3em'>3. Click anywhere on the window to restore the usual display.</div>
     </div>
 </template>

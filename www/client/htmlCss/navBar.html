@@ -26,15 +26,13 @@
                                 Node IDs...
                             </li>
                             <li>
-                                <a id='pdfDownload' download='hexmap.pdf'
-                                    href='data:text/plain;base64'
+                                <a id='pdfDownload'
                                     title = 'Download the page in PDF format'>
                                     PDF...
                                 </a>
                             </li>
                             <li>
                                 <a id='svgDownload' download='hexmap.svg'
-                                    href='data:text/plain;base64'
                                     title = 'Download the map in SVG format'>
                                     SVG
                                 </a>
@@ -187,7 +185,7 @@
 
             <!-- loading snake -->
             <li>
-                <div id="loadingMap" style="display:{{loadingMap}}"></div>
+                <div id="mapSnake" class='snake' style="display:{{mapSnake}}"></div>
             </li>
 
             <!-- login -->
@@ -196,11 +194,11 @@
             </li>
         </ul>
     </div>
-    <div id="banner"></div>
     
     {{> jobT}}
     {{> bookmarkT}}
     {{> create_map_t}}
+    {{> messageT}}
     
 </template>
 

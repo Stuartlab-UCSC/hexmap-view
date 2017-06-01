@@ -63,11 +63,11 @@ var app = app || {};
             
             if (eDrawn) {
                 Meteor.setTimeout(function () {
-                    Session.set('loadingMap', false);
+                    Session.set('mapSnake', false);
                 }, 2000);
                 killAutorun();
             } else if (!eView) {
-                Session.set('loadingMap', false);
+                Session.set('mapSnake', false);
                 killAutorun();
             }
         });
@@ -148,7 +148,7 @@ var app = app || {};
     }
 
     function viewEdgesMenuClick () {
-        Session.set('loadingMap', true);
+        Session.set('mapSnake', true);
         initAutorun();
         Session.set('viewEdges', !Session.get('viewEdges'));
         Meteor.setTimeout(function () {  // Let the UI catch up

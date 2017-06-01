@@ -192,72 +192,49 @@ Tool = (function () { // jshint ignore: line
             if (Session.equals('page', 'homePage')) {
                 $('body').find('.mapShow, .gridShow').hide();
                 $('body').find('.homeShow').show();
-                Session.set('loadingMap', false);
+                Session.set('mapSnake', false);
                 $('body').css('overflow-y', 'auto');
      
             } else if (Session.equals('page', 'mapPage')) {
                 $('body').find('.homeShow, .gridShow').hide();
                 $('body').find('.mapShow').show();
-                $('.mapLayout, .reflectTrigger').addClass('disabled');
-                Session.set('loadingMap', true);
+                Session.set('mapSnake', true);
                 $('body').css('overflow-y', 'hidden');
      
             } else if (Session.equals('page', 'gridPage')) {
                 $('body').find('.homeShow, .mapShow').hide();
                 $('body').find('.gridShow').show();
                 $('.gridPage').addClass('disabled');
-                Session.set('loadingMap', true);
+                Session.set('mapSnake', true);
                 $('body').css('overflow-y', 'hidden');
             }
         
-            var $placeNodeMenuOpt = $('#navBar .overlayNode');
-            var $overlayNodes = $(
-                '#navBar .overlayNode, ' +
-                '#navBar .queryDocs'
-            );
-        
-            var $createMap = $(
-                '#navBar .createMap, ' +
-                '#navBar .createMapDocs, ' +
-                '#navBar .input_files, ' +
-                '#homePage .createMapHome'
-            );
-        
-            var $job = $(
-                '#navBar .jobs'
-            );
-        
-            // Hide, show or disable tools depending on user's authorizations
-            // and sometimes other criteria
+            // Find access to special functions depending on user's
+            // authorizations and sometimes other criteria.
             Meteor.autorun( function () {
+                Session.set('loggedIn', false);
+                Session.set('jobCredential', false);
+                Session.set('placeNodeCriteria', false);
                 var user = Meteor.user(); // jshint ignore: line
-
-                // If there is no username and on the home page, hide file menu
-                if (!user && Session.equals('page', 'homePage')) {
-                    $('#navBar li.fileMenu').hide();
-                } else {
-                    $('#navBar li.fileMenu').show();
+                if (user) {
+                    Session.set('loggedIn', true);
                 }
-                
-                // Check authorization for running jobs.
+
+                // Check authorization and criteria for running jobs.
                 Meteor.call('is_user_in_role', ['jobs', 'dev'],
                     function (error, results) {
                         if (!error && results) {
-                            $job.show();
-                            $createMap.show();
-                            $overlayNodes.show();
+                            Session.set('jobCredential', true);
                 
-                            // Enable/disable the place nodes menu option
-                            // depending on availabiity of data required.
+                            // Check availabiity of data required for placeNode.
                             Meteor.autorun( function () {
+                                Session.set('placeNodeCriteria', false);
                                 var layouts = Session.get('layouts'),
                                     layoutIndex = Session.get('layoutIndex');
-                                
-                                if (!layouts || !layoutIndex) {
+                                if (!layouts || _.isUndefined(layoutIndex)) {
                                     return;
                                 }
                                 var layout = layouts[layoutIndex];
-                                    
                                 Meteor.call(
                                     'getJsonFile', 'mapMeta.json', ctx.project,
                                     function (error, meta) {
@@ -266,20 +243,12 @@ Tool = (function () { // jshint ignore: line
                                             meta.layouts &&
                                             meta.layouts[layout] &&
                                             meta.layouts[layout].clusterData) {
-                                            $placeNodeMenuOpt
-                                                .removeClass('disabled');
-                                        } else {
-                                            $placeNodeMenuOpt
-                                                .addClass('disabled');
+                                            Session.set('placeNodeCriteria',
+                                                true);
                                         }
                                     }
                                 )
                             })
-
-                       } else {
-                            $job.hide();
-                            $createMap.hide();
-                            $overlayNodes.hide();
                         }
                     }
                 );

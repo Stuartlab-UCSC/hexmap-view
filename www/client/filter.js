@@ -263,7 +263,7 @@ var app = app || {};
             sorted = Session.get('sortedLayers');
         if (!display || !sorted) { return; }
 
-        if (display.length < 1 && Session.equals('loadingMap', false)) {
+        if (display.length < 1 && Session.equals('mapSnake', false)) {
             banner('warn', 'No attributes to display, relax some filters');
             $passFilters.addClass('red');
         } else {

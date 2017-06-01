@@ -107,8 +107,11 @@ var app = app || {};  // jshint ignore: line
                 'background',
                 'ignoreUrlQuery',
                 'page',
+                'pdfLegend',
+                'pdfMap',
                 'project',
                 'viewEdges',
+                'reflectRanked',
             ],
 
             // Contains the project state we want to save with unique keys
@@ -164,6 +167,8 @@ var app = app || {};  // jshint ignore: line
         delete Session.keys.layoutIndex;
         Session.set('layoutName', undefined); // name of active layout
         delete Session.keys.layoutName;
+        Session.set('reflectRanked', undefined);  // Generate ranked attribute
+        delete Session.keys.reflectRanked
         Session.set('overlayNodes', undefined);  // overlay nodes to include
         delete Session.keys.overlayNodes
         Session.set('shortlist', []); // Array of layer names in the shortlist
@@ -181,6 +186,8 @@ var app = app || {};  // jshint ignore: line
         Session.set('sort', DEFAULT_SORT); // Default sort message & type
         Session.set('background', 'black');  // Main map background color
         Session.set('viewEdges', false); // Display of directed graph
+        Session.set('pdfMap', true); // Include map in pdf
+        Session.set('pdfLegend', false); // Include legend in pdf
  
         // Non-reactive vars maintained in global state and not project-specific
         s.project = DEFAULT_PROJECT;  // The project data to load

@@ -41,7 +41,7 @@ var app = app || {};
             return;
         }
 
-        banner('info', 'Nodes will appear when location calculations are complete.');
+        //banner('info', 'Nodes will appear when location calculations are complete.');
  
         // Convert the node data into an object
  
@@ -74,6 +74,7 @@ var app = app || {};
             opts.email = Meteor.user().username;
         }
 
+        var preText = 'When adding a new node: ';
         $.ajax({
             type: 'POST',
             url: HUB_URL + '/query/overlayNodes',
@@ -86,9 +87,9 @@ var app = app || {};
             },
             error: function (error) {
                 if (error.responseJSON && error.responseJSON.error) {
-                    banner('error', error.responseJSON.error);
+                    banner('error', preText + error.responseJSON.error);
                 } else {
-                    banner('error', 'Unknown server error');
+                    banner('error', preText + 'Unknown server error');
                 }
             }
         });
@@ -132,6 +133,26 @@ var app = app || {};
         $dialog.find('.file').change(gotFilename);
     }
  
+    function criteriaCheck () {
+    
+        // Bail with a message if the required data needed is not present.
+        if (!(Session.get('placeNodeCriteria'))) {
+            dialogHex.hide();
+            Util.banner('Data not available', 'Sorry, the required data to ' +
+            'place new nodes is not available for this map.');
+            return false;
+        }
+        return true;
+    }
+
+    function preShow () {
+        var good = criteriaCheck();
+        if (good) {
+            good = Util.credentialCheck('to place new nodes');
+        }
+        return good;
+    }
+ 
     function hide() {
  
         // Hide the dialog after cleaning up
@@ -155,12 +176,11 @@ var app = app || {};
         dialogHex = createDialogHex({
             $el: $dialog,
             opts: opts,
+            preShowFx: preShow,
             showFx: show,
             hideFx: hide,
             helpAnchor: '/help/placeNode.html',
         });
-        //dialogHex = createDialogHex(undefined, undefined, $dialog, opts,
-          //  show, hide);
  
         // Create a link from the menu
         add_tool('overlayNode', createWindow, title);

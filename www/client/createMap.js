@@ -17,7 +17,7 @@ CreateMap = (function () { // jshint ignore: line
         show_advanced = 'Advanced options...',
         hide_advanced = 'Hide advanced options',
         formats = [
-            ['feature_space', 'Clustering data'],
+            ['feature_space', 'Feature data'],
             ['similarity_full', 'Full similarity matrix'],
             ['similarity', 'Sparse similarity matrix'],
             ['coordinates', 'XY positions'],
@@ -43,6 +43,9 @@ CreateMap = (function () { // jshint ignore: line
         },
         minor_project: function () {
             return ui.get('minor_project');
+        },
+        zeroReplace: function () {
+            return ui.get('zeroReplace');
         },
         log: function () {
             var text = log.get();
@@ -79,9 +82,8 @@ CreateMap = (function () { // jshint ignore: line
 
         // Make a message to display to the user in case they have pop-ups
         // disabled.
-        var banner_msg = "Create Map was unable to finish due to"
-        + "internal error. Please visit the help documentation's create map "
-        + "trouble shooting page";
+        var banner_msg = "Unable to create map due to an internal error. \n" +
+            "A troubleshooting page will open in a new tab.";
 
         // Show the user the banner message.
         Util.banner('error', banner_msg);
@@ -90,8 +92,9 @@ CreateMap = (function () { // jshint ignore: line
         var date = new Date().toString(),
             i = date.indexOf('GMT');
         date = date.slice(0, i);
+        
         // Display on create map log
-        feature_upload.log_it('\nPlease let hexmap@ucsc.edu know you ' +
+        feature_upload.log_it('\nPlease let hexmap at ucsc dot edu know you ' +
             'had a map creation problem on ' + date);
 
         // Pop open the trouble shooting help page.
@@ -155,6 +158,11 @@ CreateMap = (function () { // jshint ignore: line
             opts.push('--scores');
             opts.push(attr_file_name());
         }
+        
+        if (ui.get('zeroReplace') && (ui.equals('layout_input', 'similarity') ||
+            ui.equals('layout_input', 'coordinates'))) {
+            opts.push('--zeroReplace');
+        }
  
         Meteor.call('create_map', opts, function (error) {
             if (error) {
@@ -186,6 +194,22 @@ CreateMap = (function () { // jshint ignore: line
         } else {
             create_map();
         }
+    }
+
+    function enable_zeroReplace() {
+        var disabled = false,
+            color = 'inherit';
+
+        if (ui.equals('feature_format', 'similarity') ||
+            ui.equals('feature_format', 'coordinates')) {
+
+            // Disable zero replace option for sparse similarity and coordinates
+            disabled = true;
+            color = Colors.disabled_color();
+        }
+        $dialog.find('.zero')
+            .attr('disabled', disabled)
+            .css('color', color);
     }
 
     function create_clicked () {
@@ -246,6 +270,10 @@ CreateMap = (function () { // jshint ignore: line
         });
         $format_anchor.on('change', function (ev) {
             ui.set('feature_format', ev.target.value);
+            enable_zeroReplace();
+        });
+        $('#create_map_dialog .zeroReplace').on('change', function (ev) {
+            ui.set('zeroReplace', ev.target.checked);
         });
  
         /* TODO later
@@ -277,11 +305,15 @@ CreateMap = (function () { // jshint ignore: line
     function show () {
  
         // Show the contents of the dialog, once per menu button click
-
+        
         // Find the username to build directories for her
         Util.get_username(username_received);
     }
 
+    function preShow () {
+        return Util.credentialCheck('to create a map');
+    }
+ 
     function hide() {
  
         // Clear the filename values.
@@ -304,6 +336,7 @@ CreateMap = (function () { // jshint ignore: line
             dialogHex = createDialogHex({
                 $el: $dialog,
                 opts: opts,
+                preShowFx: preShow,
                 showFx: show,
                 hideFx: hide,
                 helpAnchor: '/help/createMap.html'
@@ -312,6 +345,7 @@ CreateMap = (function () { // jshint ignore: line
             // Initialize some UI variables
             ui.set('feature_format', default_feature_format);
             Session.set('create_map_show_advanced', false);
+            ui.set('zeroReplace', false);
 
             // Listen for the menu clicked
             Tool.add("createMap", function() {

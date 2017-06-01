@@ -25,6 +25,19 @@
     line-height: 2.7em;
 }
 
+#banner {
+    position: absolute;
+    bottom: -2.2em;
+    height: 2.2em;
+    line-height: 2.3em;
+    width: 100%;
+    vertical-align: middle;
+    font-weight: bold;
+    text-align: center;
+    z-index: 4;
+    display: none;
+}
+
 /* ***************** select2 widgets of: map, layer, layout **************** */
 
 #s2id_search {
@@ -107,6 +120,7 @@
 }
 
 #sortText {
+    position: relative;
     line-height: 2.6em;
     margin-left: 0;
 }

@@ -13,6 +13,7 @@ var app = app || {};
         if (parms) {
             this.$el = parms.$el ? parms.$el : undefined;
             this.opts = parms.opts ? parms.opts : undefined;
+            this.preShowFx = parms.preShowFx ? parms.preShowFx : undefined;
             this.showFx = parms.showFx ? parms.showFx : undefined;
             this.hideFx = parms.hideFx ? parms.hideFx : this.hide;
             this.helpAnchor = parms.helpAnchor ? parms.helpAnchor : undefined;
@@ -40,39 +41,9 @@ var app = app || {};
             }
         }
 
-        /* Unused:
-        DialogHex.prototype.fitToWindow = function () {
- 
-            console.log('fitToWindow');
- 
-            var self = this;
-            Meteor.setTimeout(function () {
- 
-                if ($el.height() > 0) {
-                    // Make the bottom of the dialog within the main window.
-                    var $dialog = self.$el.parents('.ui-dialog');
-                    var dHeight = $dialog.height();
-                    var dOffset = $dialog.offset();
-                    var dBottom = dOffset.top + dHeight;
-                    var wBottom = $(window).height();
-                    var diff = dBottom - wBottom;
-                    
-                    console.log('dHeight, dOffset, dBottom, wBottom, diff:',
-                        dHeight, dOffset, dBottom, wBottom, diff);
-     
-                    if (diff > 0) {
-                        self.$el.dialog('option', 'height', dBottom - diff);
-                    }
-                }
-                //var results = $('#select2-drop .select2-results');
-                //results.css(
-                //    'max-height', $(window).height() - results.offset().top - 15);
-            }, 2000);
-        }
-        */
-
         DialogHex.prototype.finishShow = function () {
 
+            // Complete the show after the dom elements are built.
             var self = this,
                 closeSvg = '/icons/close.svg';
 
@@ -94,14 +65,20 @@ var app = app || {};
                 this.showFx(); // Call the instance show function
             }
  
-            // Ununsed:
-            // Fit the dialog to the window whenever it changes size.
-            //this.$el.on('resize', self.fitToWindow);
-
             this.$el.dialog('open');
         }
 
         DialogHex.prototype.show = function () {
+ 
+            // Execute the instance pre-show function if there is one.
+            if (this.preShowFx) {
+                var good = this.preShowFx();
+ 
+                // Abort the dialog show if the instance says to.
+                if (!good) {
+                    return;
+                }
+            }
  
             // Initialize the dialog options to our favorite defaults
             var self = this,
@@ -163,9 +140,11 @@ var app = app || {};
          *          where null indicates the button is already initialized
          * @param $el: jquery DOM element of the dialog anchor
          * @param opts: overrides of this class' jquery-ui dialog options
+         * @param preShowFx: called before the show function of this class, 
+         *                   optional
          * @param showFx: called after the show function of this class, optional
-         * @param hideFx: called to destroy the jqueryui dialog, optional. If 
-         *                provided, the default destroy method will be used
+         * @param hideFx: called to destroy the jqueryui dialog, optional. If
+         *                not provided, the default destroy method will be used.
          * @param helpAnchor: the html anchor in the user help doc
          */
 

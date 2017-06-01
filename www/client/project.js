@@ -90,7 +90,7 @@ Project = (function () { // jshint ignore: line
                 .text(PLACEHOLDER_TEXT)
                 .addClass('noProject');
 
-            alert('Please sign in to see map "' +
+            Util.banner('error', 'Please sign in to see this map: "' +
                 Util.getHumanProject(ctx.project) +
                     '".\nOr select another map.');
  

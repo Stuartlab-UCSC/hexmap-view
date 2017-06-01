@@ -13,13 +13,9 @@ clicking on the **Tools** menu then clicking on **Map Reflection**.
 
 The resulting window, **Reflect on Another Map** is described below.
 
-Not all maps have reflection maps. If this option is greyed out in the Tools
-menu, then this map has no reflection maps.
-
-If this option does not exist in the Tools menu, then you do not have the proper
-authority to run this compute-intensive task. Ask hexmap at ucsc dot edu
-with justification for authorization.
-
+Not all maps have reflection maps. When you click
+on this menu option and the current map does not have the required data, a
+message will be displayed indicating the lack of data.
 
 Input Descriptions
 ++++++++++++++++++
