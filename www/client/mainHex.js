@@ -79,12 +79,6 @@ Hex = (function () { // jshint ignore: line
     });
 
     Template.navBarT.helpers({
-        mapSnake: function () {
-            if (Session.get('mapSnake')) {
-                return 'block';
-            } else {
-                return 'none';
-            }
         },
         version: function () {
             if (DEV) {
@@ -144,9 +138,6 @@ Hex = (function () { // jshint ignore: line
         sort: function () {
             return Session.get('sort');
         },
-        statsSnakeDisplay: function () {
-            return Session.get('statsSnakeDisplay');
-        },
         nodeCount: function () {
             return Session.get('nodeCount');
         },
@@ -187,7 +178,7 @@ Hex = (function () { // jshint ignore: line
                 // Turn off the loading progress wheel
                 setTimeout(function () {
                     Session.set('mapSnake', false);
-                }, 500);
+                }, 300);
 
                 // Initialize the background functions.
                 initOverlayNodes();

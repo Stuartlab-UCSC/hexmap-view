@@ -7,7 +7,7 @@ var app = app || {};
 (function (hex) { 
     //'use strict';
 
-    var computingText = 'Computing statistics now...',
+    var computingText = 'Computing statistics ...',
         firstSort = true;
 
     function finalCompare(a, b) {
@@ -213,7 +213,7 @@ var app = app || {};
     updateSortUi = function (type, text, focus_attr, opts) {
  
         // Hide the snake.
-        Session.set('statsSnakeDisplay', 'none');
+        Session.set('statsSnake', false);
  
         // If we were computing dynamic stats,
         // include the elapsed time in the banner
@@ -559,7 +559,8 @@ var app = app || {};
  
         var good = Util.credentialCheck('to compute dynamic statistics. ' +
             'Only pre-computed statistics on static attributes are available ' +
-            'to you');
+            'to you', 'statsSnake');
+        Session.set('statsSnake', good);
         if (!good) {
             updateSortUi('noStats', 'credential');
             return;
@@ -622,11 +623,9 @@ var app = app || {};
     }
 
     computingTextDisplay = function () {
-
-        banner('info', computingText);
         Session.set('sort', {
             text: computingText, color: '#2E662C', background: '#D8EECE'});
-        Session.set('statsSnakeDisplay', 'block');
+        Session.set('statsSnake', true);
     }
 
     get_layout_ignore_stats = function (focus_attr) {

@@ -195,29 +195,31 @@
 }
 
 .snake {
+    position: absolute;
+    z-index: 1000;
     -webkit-animation: sweep 1s infinite linear;
     animation: sweep 1s infinite linear;
     width: 24px;
     height: 24px;
     border-radius:24px;
-    border-bottom:7px solid green;
+    border-bottom-style: solid;
+    border-bottom-width: 7px;
+    border-bottom-color: #4CAF49; /* a lighter bootstrap message color */
 }
 @-webkit-keyframes sweep { to { -webkit-transform: rotate(360deg); } }
 @keyframes sweep { to { transform: rotate(360deg); } }
 
-#mapSnake {
+.mapSnake {
     position: fixed;
     top: 200px;
     left: 41%;
     width: 64px;
     height: 64px;
     border-radius:64px;
-    border-bottom:12px solid white;
+    border-bottom-width: 12px;
 }
 
-#statsSnake {
-    position: absolute;
-    z-index: 1000;
+.statsSnake {
     top: 4px;
     left: -34px;
 }

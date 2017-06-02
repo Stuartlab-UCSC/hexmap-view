@@ -263,6 +263,6 @@ var app = app || {};
         }, 'Sort attributes by associative statistics');
         
         // initialize the snake.
-        Session.set('statsSnakeDisplay', 'none');
+        Session.set('statsSnake', false);
     }
 })(app);
