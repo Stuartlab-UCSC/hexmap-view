@@ -79,7 +79,6 @@ Hex = (function () { // jshint ignore: line
     });
 
     Template.navBarT.helpers({
-        },
         version: function () {
             if (DEV) {
                 return VERSION + ' DEV';
