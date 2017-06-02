@@ -25,7 +25,8 @@ Download = (function () { // jshint ignore: line
             
             // Populate it with all existing selections
             for(var layer_name in layers) {
-                if(layers[layer_name].selection) {
+                if ((layers[layer_name].selection) ||
+                (layers[layer_name].data && Util.is_continuous(layer_name))) {
                     // This is a selection, so add it to the dropdown.
                     select_box
                         .append($("<option/>")
@@ -74,7 +75,9 @@ Download = (function () { // jshint ignore: line
                     // Probably just an empty select or something
                     return;
                 }
-                
+
+                var isContinuous = Util.is_continuous(layer_name);
+
                 // This holds our list. We build it in a string so we can escape
                 // it with one .text() call when adding it to the page.
                 var exported = "";
@@ -89,8 +92,13 @@ Download = (function () { // jshint ignore: line
                             // If there's already text, add a newline.
                             exported += "\n";
                         }
-                        
-                        exported += signature;
+                        if (isContinuous){
+                            //add the value
+                            exported += signature + '\t' + layer_data[signature]
+                        } else {
+                            exported += signature;
+                        }
+
                     }
                 }
                 
