@@ -7,6 +7,7 @@ Web API
    :maxdepth: 1
 
    addAttribute
+   addAttributeXena
    createMap
    placeNode
 
