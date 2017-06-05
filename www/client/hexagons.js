@@ -36,7 +36,7 @@ var app = app || {};
         var hexagon = new google.maps.Polygon({
             paths: coords,
             strokeOpacity: 1.0,
-            fillColor: "#FF0000",
+            fillColor: Colors.noDataColor(),
             fillOpacity: 1.0,
             zIndex: overlayNode ? 200 : 1, // overlays are on top
         });

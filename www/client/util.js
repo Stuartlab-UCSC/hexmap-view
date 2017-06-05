@@ -58,17 +58,18 @@ Util = (function () { // jshint ignore: line
     
         // Bail with a message if the user is not logged in or does not have
         // the credentials.
+        var returnVal = true;
         if (!(Session.get('loggedIn'))) {
             banner('Credentials Required',
                 'Please log in ' + credential + '.');
-            return false;
+            returnVal = false;
         } else if (!(Session.get('jobCredential'))) {
             banner('Credentials Required',
                 'Sorry, you do not have credentials ' + credential + '. Please ' +
                 'request access from hexmap at ucsc dot edu.')
-            return false;
-        }
-        return true;
+            returnVal = false;
+        }        
+        return returnVal;
     }
  
     function session (prefix, operation, name, val) {
@@ -242,6 +243,46 @@ Util = (function () { // jshint ignore: line
         setHeightSelect2: setHeightSelect2,
         createOurSelect2: createOurSelect2,
         timestamp: timestamp,
+        
+        initSnake: function (snakeName, before) {
+        
+            // Manage the visibility of a progress snake given
+            // relative-positioned parent anchor with a class of
+            // snakeName = 'Anchor'.
+            // @param snakeName snake ID with:
+            //                  - an associated Session variable of snakeName
+            //                  - an associated relative parent anchor with a
+            //                    class of snakeName + 'Anchor'
+            Meteor.autorun(function () {
+                var snake = Session.get(snakeName),
+                    $snake = $('.' + snakeName);
+                if (snake) {
+                    
+                    // Show a snake if it is not yet showing
+                    // and the anchor element exists.
+                    var $anchor = $('.' + snakeName + 'Anchor');
+                    if ($snake && $snake.length < 1 &&
+                        $anchor && $anchor.length) {
+                        
+                        // Add the snake to the anchor.
+                        $snake = $('<div/>')
+                              .addClass(snakeName)
+                              .addClass('snake');
+                        if (before) {
+                            $anchor.before($snake);
+                        } else {
+                            $anchor.append($snake);
+                        }
+                    }
+                } else {
+            
+                    // Hide snake if it is showing
+                    if ($snake && $snake.length) {
+                        $snake.remove();
+                    }
+                }
+            });
+        },
     };
 }());
 

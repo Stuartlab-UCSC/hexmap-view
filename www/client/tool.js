@@ -200,6 +200,10 @@ Tool = (function () { // jshint ignore: line
                 $('body').find('.mapShow').show();
                 Session.set('mapSnake', true);
                 $('body').css('overflow-y', 'hidden');
+        
+                // Initialze the busy snakes
+                Util.initSnake('mapSnake');
+                Util.initSnake('statsSnake');     
      
             } else if (Session.equals('page', 'gridPage')) {
                 $('body').find('.homeShow, .mapShow').hide();
