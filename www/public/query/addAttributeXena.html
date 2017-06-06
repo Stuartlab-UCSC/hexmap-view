@@ -56,25 +56,25 @@
             
   <div class="section" id="future-add-new-coloring-attributes-via-xena">
 <h1>Future: Add new coloring attributes via Xena<a class="headerlink" href="#future-add-new-coloring-attributes-via-xena" title="Permalink to this headline">¶</a></h1>
-<p><a class="reference external" href="https:/">https:/</a>/&lt;compute_server&gt;/query/<strong>addAttribute</strong></p>
+<p><a class="reference external" href="https:/">https:/</a>/&lt;compute_server&gt;/?...</p>
 <p>GET</p>
-<p>This API takes data for one or more of your Xena attributes and adds them as
+<p>This API takes data for one or more attributes on Xena and adds them as
 values to color an existing map.</p>
-<div class="section" id="content-example">
-<h2>Content Example<a class="headerlink" href="#content-example" title="Permalink to this headline">¶</a></h2>
-<p>(Adding line breaks and spaces for clarity.)</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span>http://localhost:3333/?
+<div class="section" id="example-url">
+<h2>Example URL<a class="headerlink" href="#example-url" title="Permalink to this headline">¶</a></h2>
+<p>(Line breaks and spaces added for clarity.)</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>http://tumormap.ucsc.edu/?
    xena=addAttr&amp;
    p=PancanAtlas_dev/XenaPancanAtlas&amp;
    layout=RPPA&amp;
    hub=https://pancanatlas.xenahubs.net/data/&amp;
    dataset=TCGA_pancancer_10852whitelistsamples_68ImmuneSigs.xena&amp;
-   attr=some-categorical-attribute
-   cat=low
-   color=#00ff00
-   cat=medium
-   color=#000000
-   cat=high
+   attr=some-categorical-attribute&amp;
+   cat=low&amp;
+   color=#00ff00&amp;
+   cat=medium&amp;
+   color=#000000&amp;
+   cat=high&amp;
    color=#ff000
 </pre></div>
 </div>

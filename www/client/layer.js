@@ -106,8 +106,8 @@ Layer = (function () { // jshint ignore: line
 
         // Load the colormap included or make a new one for categorical
         // and binary.
+        if ('colormap' in layer) {
         
-        if (layer.colormap) {
         
             // Load the supplied colormap
             colormaps[name] = _.map(layer.colormap, function (vals, i) {

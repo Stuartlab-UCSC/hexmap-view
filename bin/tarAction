@@ -54,6 +54,7 @@ fi
 if [ $ACTION == 'maketar' ]
     then
     echo 'tarring to' $TARRED
+    echo 'tarring files:' $TAR_FILES
     rm $TARRED
     tar -cf $TARRED $TAR_FILES
     ls -l $TARRED

@@ -252,10 +252,18 @@ Colors = (function () { // jshint ignore: line
                 NO_DATA_LIGHT_BG : NO_DATA_DARK_BG;
         },
         
+        colormapToState: function (colorVals) {
+        
+            // Convert one attr colormap colors into a form that state can save.
+            return _.map(colorVals, function(val) {
+                return [val.name, val.color.hexString()];
+            });
+        },
+
         colormapToColorArray: function (layerVal, layerKey) {
         
             // Convert one attr colormap colors into a form that templates
-            // or save state can use.
+            // can use.
             var cats = _.map(layerVal, function(val) {
                 var cat = {
                         name: val.name,

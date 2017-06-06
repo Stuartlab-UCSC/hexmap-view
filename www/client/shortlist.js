@@ -1013,10 +1013,8 @@ return {
                 delete layer.magnitude;
 
                 // Convert the colormap colors from an object to an array.
-                if (colormaps[name]) {
-                    var obj = Colors.colormapToColorArray(
-                        colormaps[name], name);
-                    layer.colormap = obj.cats;
+                if ('name' in colormaps) {
+                    layer.colormap = Colors.colormapToState(colormaps[name]);
                 }
                 entries[name] = layer;
             }
