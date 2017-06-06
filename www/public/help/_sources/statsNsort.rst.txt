@@ -24,7 +24,7 @@ single (or *focus*) attribute. For instance, choosing a *focus attribute* of
 TP53 mutations will sort all attributes in the "Select Attributes" drop down
 relative to each attribute's association with the TP53 mutations attribute. A
 use case displaying this functionality can be seen at
-`What is the top differentiating attribute for squamous-like bladder cancer? <https://tumormap.ucsc.edu/useCases/u5/UseCase5.html>`_
+:doc:`What is the top differentiating attribute for squamous-like bladder cancer? </case5topDiff>`
 See the `Technical Overview`_ below for details on ranking metrics.
 
 **Differential Attributes** :
@@ -32,7 +32,7 @@ Selecting this option allows users to sort attributes by how well they
 distinguish one group of samples from another. The two groups of samples must be
 disjoint and user generated. A use case displaying this functionality can be
 seen at
-`Which genomic events distinguish one subtype of cancer from another? <https://tumormap.ucsc.edu/useCases/u6/UseCase6.html>`_
+:doc:`Which genomic events distinguish one subtype of cancer from another? </case6subtype>`
 See the `Technical Overview`_ below for details on ranking metrics.
 
 **Density Of Attributes** :

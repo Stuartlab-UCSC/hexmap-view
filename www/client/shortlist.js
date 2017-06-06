@@ -610,7 +610,7 @@ Shortlist = (function () { // jshint ignore: line
             root = get_root_from_layer_name(layer_name),
             index;
  
-        if (shortlist.indexOf(layer_name)< 0) { return; }
+        if (shortlist.indexOf(layer_name) < 0) { return; }
 
         // Remove from the shortlist list
         shortlist.splice(shortlist.indexOf(layer_name), 1);
@@ -709,9 +709,9 @@ Shortlist = (function () { // jshint ignore: line
             // move the layer from the current position to the first
             //move_entry(layer_name, 1);
             
-             // If this layer is already primary, remove it as primary.
-             // This has a side effect of setting any secondary to primary,
-             // or leaving no active layers.
+            // If this layer is already primary, remove it as primary.
+            // This has a side effect of setting any secondary to primary,
+            // or leaving no active layers.
             if (is_primary(layer_name)) {
                 active.splice(0, 1);
 
@@ -785,6 +785,9 @@ Shortlist = (function () { // jshint ignore: line
             // Handle dynamic layers
             if (layers[layer_name].dynamic) {
                 delete layers[layer_name];
+                if (layer_name in colormaps) {
+                    delete colormaps[layer_name];
+                }
                 Util.removeFromDataTypeList(layer_name);
             }
             
@@ -1006,17 +1009,32 @@ return {
         var entries = {};
 
         _.each(layers, function (layer, name) {
+        
+            // Only consider dynamic layers that are not reflections.
+            // Reflections are restored by pulling from the reflection database.
             if (layer.dynamic) {
+                if (layer.reflection) {
                
-                // Remove magnitude since its absence indicates that this layer
-                // is to be added to the UI shortlist on load.
-                delete layer.magnitude;
+                    // Remove this from the shortlist, reflections will load
+                    // this layer on reload.
+                    var shortlist = Session.get('shortlist'),
+                        index = shortlist.indexOf(name);
+                    if (index > -1) {
+                        shortlist.splice(index, 1);
+                        Session.set('shortlist', shortlist);
+                    }
+                } else {
+               
+                    // Remove magnitude since its absence indicates that this layer
+                    // is to be added to the UI shortlist on load.
+                    delete layer.magnitude;
 
-                // Convert the colormap colors from an object to an array.
-                if ('name' in colormaps) {
-                    layer.colormap = Colors.colormapToState(colormaps[name]);
+                    // Convert the colormap colors from an object to an array.
+                    if ('name' in colormaps) {
+                        layer.colormap = Colors.colormapToState(colormaps[name]);
+                    }
+                    entries[name] = layer;
                 }
-                entries[name] = layer;
             }
         });
 

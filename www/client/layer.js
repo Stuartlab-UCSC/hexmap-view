@@ -266,9 +266,10 @@ return { // Public methods
                 layer = layers[layer_name];
             } else {
         
-                console.log('TODO layer "', layer_name,
-                    '"is not in the layers global.',
-                    'You may need to reset to defaults.');
+                console.log('TODO layer: "' + layer_name +
+                    '" is not in the layers global.',
+                    "If this is a reflection layer, that's OK. Otherwise,",
+                    'try resetting to defaults.');
                 console.trace();
                 //console.log('### layers', Object.keys(layers));
                 return;
