@@ -110,16 +110,26 @@ UrlParms = (function () { // jshint ignore: line
 
         // Find any xena requests.
         // @param P the url parameters
-        // For example:
+        //
+        // For example on PRODUCTION:
         // http://localhost:3333/?
         //      xena=addAttr&
-        //      p=PancanAtlas_dev/XenaPancanAtlas&
+        //      p=PancanAtlas/XenaPancanAtlas&
+        //      layout=RPPA&
+        //      hub=https://pancanatlas.xenahubs.net/data/&
+        //      dataset=TCGA_pancancer_10852whitelistsamples_68ImmuneSigs.xena&
+        //      attr=B_cell_PCA_16704732
+        //
+        // For example on DEV:
+        // http://localhost:3333/?
+        //      xena=addAttr&
+        //      p=PancanAtlas/XenaPancanAtlas&
         //      layout=RPPA&
         //      hub=https://pancanatlas.xenahubs.net/data/&
         //      dataset=TCGA_pancancer_10852whitelistsamples_68ImmuneSigs.xena&
         //      attr=B_cell_PCA_16704732
         // all together now:
-        // http://localhost:3333/?xena=addAttr&p=PancanAtlas_dev/XenaPancanAtlas&layout=mRNA&hub=https://pancanatlas.xenahubs.net/data/&dataset=TCGA_pancancer_10852whitelistsamples_68ImmuneSigs.xena&attr=B_cell_PCA_16704732
+        // http://localhost:3333/?xena=addAttr&p=PancanAtlas/XenaPancanAtlas&layout=mRNA&hub=https://pancanatlas.xenahubs.net/data/&dataset=TCGA_pancancer_10852whitelistsamples_68ImmuneSigs.xena&attr=B_cell_PCA_16704732
         // A wget example:
         // wget -O foo -v --header='content-type:text/plain'
         //      --post-data='(xena-query {:select

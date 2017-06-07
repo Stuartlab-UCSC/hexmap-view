@@ -16,7 +16,7 @@ Example URL
 ::
  http://tumormap.ucsc.edu/?
     xena=addAttr&
-    p=PancanAtlas_dev/XenaPancanAtlas&
+    p=PancanAtlas/XenaPancanAtlas&
     layout=RPPA&
     hub=https://pancanatlas.xenahubs.net/data/&
     dataset=TCGA_pancancer_10852whitelistsamples_68ImmuneSigs.xena&

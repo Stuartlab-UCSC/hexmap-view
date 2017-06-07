@@ -102,12 +102,10 @@ Layer = (function () { // jshint ignore: line
         return name;
     }
  
-    function load_colormap (name, layer) {
+    function load_dynamic_colormap (name, layer, cats) {
 
-        // Load the colormap included or make a new one for categorical
-        // and binary.
+        // Load the colormap for dynamic categorical or binary attributes.
         if ('colormap' in layer) {
-        
         
             // Load the supplied colormap
             colormaps[name] = _.map(layer.colormap, function (vals, i) {
@@ -118,11 +116,38 @@ Layer = (function () { // jshint ignore: line
                 }
             });
 
-        } else if (layer.hasStringValues) {
+        } else if (cats && cats.length) {
         
-            // TODO generate a colormap
-            colormaps[name] = [];
+            // Generate a colormap
+            var jpColormap = _.map(
+                jPalette.ColorMap.get('hexmap')(cats.length + 1).map,
+                function (val, key) {
+            
+                    // Ignore alpha, taking the default of one.
+                    return {r: val.r, g: val.g, b: val.b};
+                }
+            );
          
+            // Remove the repeating red at the end
+            jpColormap.splice(cats.length, 1);
+         
+            // Load this generated colormap
+            colormaps[name] = _.map(jpColormap, function(color, i) {
+                return {
+                    name: cats[i],
+                    color: Color(color), // operating color in map
+                    fileColor: Color(color), // color from orig file
+                };
+            });
+         
+            // Replace category string values with indices
+            layer.data = _.object(
+                _.keys(layer.data),
+                _.map(layer.data, function (strVal, key) {
+                    return cats.indexOf(strVal);
+                })
+            );
+
         } else {
         
             // The default binary colormap for non-string values
@@ -130,15 +155,19 @@ Layer = (function () { // jshint ignore: line
         }
         
         // Remove these that are no longer needed.
-        delete layer.hasStringValues;
         delete layer.colormap;
     }
 
-    function determine_dynamic_data_type (name, layer) {
+    function load_dynamic_data_type (name, layer) {
+    
+        // Load the data type for dynamic attributes.
 
         // Skip any layers with no values.
-        var dataIn = layer.data;
-        if (dataIn.length < 1) { return; }
+        var dataIn = layer.data,
+            aString,
+            uniqueVals;
+        
+        if (_.keys(dataIn).length < 1) { return; }
 
         if (!('dataType' in layer)) {
         
@@ -148,21 +177,20 @@ Layer = (function () { // jshint ignore: line
             var drop = ['', '#N/A', '#N/A N/A', '#NA', '-1.#IND', '-1.#QNAN', 
                 '-NAN', '1.#IND', '1.#QNAN', 'N/A', 'NA', 'NULL', 'NAN'],
                 data = _.filter(dataIn, function (val) {
-                    return (drop.indexOf(val.toUpperCase()) < 0);
+                    return (drop.indexOf(val.toString().toUpperCase()) < 0);
                 });
          
             // If they are any strings, this gets a colormap
             // and call it categorical for now. It may be binary.
-            var strings = _.find(data, function (value) {
+            aString = _.find(data, function (value) {
                     return _.isNaN(parseFloat(value));
                 });
-            if (strings && strings.length > 0) {
+            if (aString && aString.length > 0) {
                 layer.dataType = 'categorical';
-                layer.hasStringValues = true;
             }
          
             // Find the count of each unique value.
-            var uniqueVals = _.countBy(data, function (value) {
+            uniqueVals = _.countBy(data, function (value) {
                 return value;
             });
          
@@ -180,9 +208,9 @@ Layer = (function () { // jshint ignore: line
         // Add the layer name to the appropriate data type list.
         if (layer.dataType === 'binary') {
             ctx.bin_layers.push(name);
-            load_colormap(name, layer);
+            load_dynamic_colormap(name, layer, _.keys(uniqueVals));
         } else if (layer.dataType === 'categorical') {
-            load_colormap(name, layer);
+            load_dynamic_colormap(name, layer, _.keys(uniqueVals));
             ctx.cat_layers.push(name);
         } else {
             ctx.cont_layers.push(name);
@@ -196,7 +224,7 @@ Layer = (function () { // jshint ignore: line
         layer.dynamic = true;
      
         // Find and save the dataType.
-        determine_dynamic_data_type(layer_name, layer);
+        load_dynamic_data_type(layer_name, layer);
 
         // Save the layer data in the global layers object.
         layers[layer_name] = layer;
@@ -268,7 +296,7 @@ return { // Public methods
         
                 console.log('TODO layer: "' + layer_name +
                     '" is not in the layers global.',
-                    "If this is a reflection layer, that's OK. Otherwise,",
+                    "If this is a reflection layer, this is expected. Otherwise,",
                     'try resetting to defaults.');
                 console.trace();
                 //console.log('### layers', Object.keys(layers));
