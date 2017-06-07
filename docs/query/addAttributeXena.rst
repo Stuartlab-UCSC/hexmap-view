@@ -22,11 +22,11 @@ Example URL
     dataset=TCGA_pancancer_10852whitelistsamples_68ImmuneSigs.xena&
     attr=some-categorical-attribute&
     cat=low&
-    color=#00ff00&
+    color=00ff00&
     cat=medium&
-    color=#000000&
+    color=000000&
     cat=high&
-    color=#ff000
+    color=ff0000
 
 Where:
 
@@ -37,7 +37,7 @@ Where:
 * **attr** : attribute name within the dataset
 * **hub** : the URL of the Xena hub
 * **cat** : optional; a category name belonging to the attribute
-* **color** : optional; a color belonging to the above category in the form '#000000'
+* **color** : optional; a color belonging to the above category in the form 'ff00aa' or 'FF00AA'. Notice there is no '#'.
 
 
 Response success
