@@ -116,6 +116,15 @@ Layer = (function () { // jshint ignore: line
                 }
             });
 
+         
+            // Replace category string values with indices
+            // TODO combine with the next conditional block.
+            layer.data = _.object(
+                _.keys(layer.data),
+                _.map(layer.data, function (strVal, key) {
+                    return cats.indexOf(strVal);
+                })
+            );
         } else if (cats && cats.length) {
         
             // Generate a colormap
