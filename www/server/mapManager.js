@@ -211,8 +211,8 @@ function dropInLayerBox(layerData,user,toMapId){
 }
 
 function parmMaker(mapId,toMapId, operation,argsObj) {
-    //function that accesses the ManagerFileCabinet DB in order to produce
-    // the correcct parmameter Json object for the reflection python script.
+    // Access the ManagerFileCabinet DB and produce
+    // a Json parameter object for the reflection python script.
 
     var scriptDoc =
         ManagerFileCabinet.findOne({operation: operation,
@@ -220,33 +220,37 @@ function parmMaker(mapId,toMapId, operation,argsObj) {
                                     mapId: mapId,
                                     toMapId: toMapId
                                     });
-    //console.log("parmMaker being called for mapManager" +
-    //            "/reflection with these two maps:", mapId,toMapId);
 
     var parm = {};
-    //TODO: make cleaner by using precedence and writing over if necessary (?)
-    //go through the necessary arguments
+    // Place necessary arguments in the parameter JSON
     _.each(scriptDoc.args, function (arg) {
 
         if ( scriptDoc[arg] ) {
             parm[arg] = scriptDoc[arg];
-        } else if (argsObj[arg]) {
+        } else if (typeof(argsObj[arg]) != 'undefined') {
             parm[arg] = argsObj[arg];
         } else {
-            //complain like alot
+            console.log("WARNING: The argument, " + arg
+                        + " in the ManagerFileCabinet"
+                        + " does not have a match in this execution."
+            )
         }
     });
 
-    //go through optional arguments
+    // Place optional arguments in the parameter JSON
     _.each(scriptDoc.opts, function (opt) {
 
-        if (argsObj[opt]) {
+        if (typeof(argsObj[opt]) != 'undefined') {
             parm[opt] = argsObj[opt];
         } else {
-            //complain like a lot
+            // Silently ignore an optional argument that is not
+            // supplied to this function.
+
         }
     });
 
+    // Use globals in settings.json to modify the path to data used for
+    // reflection.
     if(parm.datapath){
         //TODO: this may cause a problem if you are reflecting outside
         // TODO: of the major directory, for example
@@ -297,14 +301,23 @@ Meteor.methods({
                           mapId,
                           toMapId,
                           nodeIds,
+                          rankCategories,
                           selectionSelected) {
         //console.log(Meteor.userId());
         this.unblock();
         var post_calc_parms = {
                 newLayer: layerMaker(selectionSelected+'_' +dataType+ '_Reflect'),
             };
-        post_calc_parms.newLayer.colormap = colorMapMaker();
-        
+
+        // Make a colormap if the reflection attribute is categorical.
+        if (rankCategories) {
+            post_calc_parms.newLayer.colormap = colorMapMaker();
+            post_calc_parms.newLayer.dataType = "categorical"
+        } else {
+            post_calc_parms.newLayer.colormap = {};
+            post_calc_parms.newLayer.dataType = "continuous"
+        }
+
         var ctx = {
             post_calc_parms,
             future: new Future(),
@@ -313,16 +326,18 @@ Meteor.methods({
         if ( operation === 'reflection' ) {
         
             //load parameters specific to reflection python script
-            var userArgs = {node_ids : nodeIds, datatype : dataType};
-            var parameters = parmMaker(mapId,toMapId, operation, userArgs);
+            var userArgs = {
+                node_ids : nodeIds,
+                datatype : dataType,
+                rankCategories : rankCategories
+                            };
+
+            var parameters = parmMaker(mapId, toMapId, operation, userArgs);
             
             // Save some values need in the post-calculation function
             ctx.post_calc = MapManager.reflection_post_calc;
             post_calc_parms.userId = userId;
             post_calc_parms.toMapId = toMapId;
-            
-            //console.log('pre-pythonCall: userId, toMapId:', userId, toMapId);
-            //console.log('- ctx:', ctx);
             
             PythonCall.call(operation, parameters, ctx);
             
@@ -333,33 +348,6 @@ Meteor.methods({
         return ctx.future.wait();
     }
 });
-
-/*
-        var newLayer = layerMaker(selectionSelected+'_' +dataType+ '_Reflect');
-        newLayer.colormap = colorMapMaker();
-        
-        if ( operation === 'reflection' ) {
-            //load parameters specific to reflection python script
-            var userArgs = {node_ids : nodeIds, datatype : dataType};
-            var parameters = parmMaker(mapId,toMapId, operation, userArgs);
-            //console.log("mapManager calling python with:",parameters);
-            
-            ctx. post_calc: MapManager.reflection_post_calc,
-               newLayer: newLayer,
-               userId: userId,
-               toMapId: toMapId,
-            }
-
-            // Success, so call the python function
-            PythonCall.call(operation, parameters, context);
-
-        } else  {
-            console.log('Incorrect toMapId input into mapManager');
-        }
-        return ctx.future.wait();
-    }
-});
-*/
 
 //subscribe is in checkLayerBox.js
 Meteor.publish('userLayerBox', function(userId, currMapId) {
