@@ -178,11 +178,13 @@ Layer = (function () { // jshint ignore: line
         
         if (_.keys(layer.data).length < 1) { return; }
 
-        // Drop any values used to indicate no value.
+        // Drop any nulls or values used to indicate no value.
         var drop = ['', '#N/A', '#N/A N/A', '#NA', '-1.#IND', '-1.#QNAN', 
             '-NAN', '1.#IND', '1.#QNAN', 'N/A', 'NA', 'NULL', 'NAN'];
         _.each(layer.data, function (val, key) {
-            if (drop.indexOf(val.toString().toUpperCase()) > -1) {
+            if (_.isNull(val) || _.isUndefined(val) || _.isNaN(val)) {
+                delete layer.data[key];
+            } else if (drop.indexOf(val.toString().toUpperCase()) > -1) {
                 delete layer.data[key];
             }
         });
