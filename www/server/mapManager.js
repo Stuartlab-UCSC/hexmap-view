@@ -113,22 +113,18 @@ function initManagerHelper() {
 
 //The following are helper functions specific to reflection functionality
 function colorMapMaker(){
-    //TODO: make a more flexible colorMapMaker (this one only for reflections)
-    var newColorMap = [
+    return {
         //order needs to be preserved because index needs to be equal to the
         // category
-        ['low', '#32cd32'],
-        ['middle', '#737373'],
-        ['high', '#ce2029']
-    ];
-    return newColorMap;
+        cats: ['low', 'medium', 'high'],
+        colors: ['#32cd32', '#737373', '#ce2029']
+    };
 }
 
 function layerMaker(layer_name){
     var newLayer={};
     newLayer.timestamp = Math.floor(Date.now()/1000); //UTC timestamp in seconds
     newLayer.layer_name = layer_name;
-    newLayer.n          = 300;
     return newLayer;
 }
 
@@ -285,6 +281,7 @@ exports.reflection_post_calc = function (result, context) {
         return;
     }
     newLayer.data = context.js_result;
+    newLayer.n = _.keys(newLayer.data).length;
     
     dropInLayerBox(newLayer, userId, toMapId);
     

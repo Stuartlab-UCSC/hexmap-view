@@ -96,7 +96,7 @@ in the **Short List**. This new attribute will have binary values with *one*
 indicating the node belongs to the new group and *zero* for nodes that don't
 belong.
 
-Note that this attribute will be irretreivalby removed if removed from the
+Note that this attribute will be irretrievably removed if removed from the
 **Short List**.
 
 The most simple way to select a group of nodes is from the **Select** menu by

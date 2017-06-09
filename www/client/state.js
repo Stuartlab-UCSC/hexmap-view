@@ -178,8 +178,6 @@ var app = app || {};  // jshint ignore: line
 
     State.prototype.setAllDefaults = function () {
         var s = this;
-        s.alreadySaved = false;
- 
         s.setProjectDefaults();
 
         // Reactive variables maintained in global state & not project-specific
@@ -198,16 +196,6 @@ var app = app || {};  // jshint ignore: line
         // Convert the current state to json.
         var s = this,
             store = {};
- 
-        if (Session.equals('page', 'mapPage')) {
- 
-            // Gather any dynamic attributes
-            var dynamic_attrs =
-                Shortlist.get_dynamic_entries_for_persistent_state();
-            if (dynamic_attrs) {
-                Session.set('dynamic_attrs', dynamic_attrs);
-            }
-        }
  
         // Now we set the newPage
         if (newPage) { Session.set('page', newPage); }
@@ -261,17 +249,21 @@ var app = app || {};  // jshint ignore: line
             jsonState;
 
         // If we have a new project, clear any state related to the old project
-        if (s.lastProject && s.project !== s.lastProject) {
+        if (!'lastProject' in s || s.project !== s.lastProject) {
             Session.set('page', 'mapPage');
             s.lastProject = s.project;
             s.setProjectDefaults();
+
+        } else if ('project' in s) {
  
-        } else if (s.alreadySaved) {
+            // Gather any dynamic attributes
+            var dynamic_attrs =
+                Shortlist.get_dynamic_entries_for_persistent_state();
  
-            // We may have already saved this because ?
-            return;
+            if (dynamic_attrs) {
+                Session.set('dynamic_attrs', dynamic_attrs);
+            }
         }
-        s.alreadySaved = true;
 
         jsonState = s.jsonify(newPage);
 
@@ -439,7 +431,6 @@ var app = app || {};  // jshint ignore: line
         s.setAllDefaults();
 
         // Initialize some flags
-        s.alreadySaved = false;
         s.projectNotFoundNotified = false;
 
         // Load state from URL parms.

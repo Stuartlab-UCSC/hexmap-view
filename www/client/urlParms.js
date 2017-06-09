@@ -71,16 +71,18 @@ UrlParms = (function () { // jshint ignore: line
     }
     
     
-    function receiveXenaAttr(dataIn, attrName) {
+    function receiveXenaAttr(dataIn, P, index) {
     
         // Receive the attributes requested from xena.
         // @param dataIn the data received in the form:
         //               {"_gender":[-0.567000,-0.525000,... ,
         //               "sampleID":["sampleID1", "sampleID2",...]}
-        // @param attrName name of the attribute received
+        // @param P url parameters
+        // @param index attribute index
 
         // Reformat the attribute data.
-        var data = {}
+        var attrName = P.attr[index],
+            data = {};
         _.each(dataIn.sampleID, function (id, i) {
             data[id] = dataIn[attrName][i];
         });
@@ -93,6 +95,21 @@ UrlParms = (function () { // jshint ignore: line
                 imported: true,
             },
             dynLayer = {};
+        
+        // save the category colors.
+        if ('cat' in P) {
+        
+            // TODO make this work with multiple attrs.
+            
+            // Find the colormap info.
+            layer.colormap = {
+                cats: P.cat,
+                colors: _.map(P.color, function (hexadec) {
+                    return ('#' + hexadec);
+                })
+            };
+        }
+        
         dynLayer[attrName] = layer;
         
         Meteor.autorun(function (runner) {
@@ -110,16 +127,31 @@ UrlParms = (function () { // jshint ignore: line
 
         // Find any xena requests.
         // @param P the url parameters
-        // For example:
+        //
+        // For example on PRODUCTION:
         // http://localhost:3333/?
         //      xena=addAttr&
-        //      p=PancanAtlas_dev/XenaPancanAtlas&
+        //      p=PancanAtlas/XenaPancanAtlas&
         //      layout=RPPA&
         //      hub=https://pancanatlas.xenahubs.net/data/&
         //      dataset=TCGA_pancancer_10852whitelistsamples_68ImmuneSigs.xena&
         //      attr=B_cell_PCA_16704732
-        // all together now:
-        // http://localhost:3333/?xena=addAttr&p=PancanAtlas_dev/XenaPancanAtlas&layout=mRNA&hub=https://pancanatlas.xenahubs.net/data/&dataset=TCGA_pancancer_10852whitelistsamples_68ImmuneSigs.xena&attr=B_cell_PCA_16704732
+        //
+        // For example on DEV:
+        // http://localhost:3333/?
+        //      xena=addAttr&
+        //      p=PancanAtlas/XenaPancanAtlas&
+        //      layout=RPPA&
+        //      hub=https://pancanatlas.xenahubs.net/data/&
+        //      dataset=TCGA_pancancer_10852whitelistsamples_68ImmuneSigs.xena&
+        //      attr=B_cell_PCA_16704732
+        //
+        // A continuous attribute:
+        // http://localhost:3333/?xena=addAttr&p=PancanAtlas/XenaPancanAtlas&layout=mRNA&hub=https://pancanatlas.xenahubs.net/data/&dataset=TCGA_pancancer_10852whitelistsamples_68ImmuneSigs.xena&attr=B_cell_PCA_16704732
+        //
+        // A categorical attribute:
+        //
+        //
         // A wget example:
         // wget -O foo -v --header='content-type:text/plain'
         //      --post-data='(xena-query {:select
@@ -130,6 +162,7 @@ UrlParms = (function () { // jshint ignore: line
         if (P.xena === 'addAttr') {
         
             // Convert any single values to an array
+            // TODO Validate parms.
             if (typeof(P.hub) !== 'object') {
                 P.hub = [P.hub];
             }
@@ -138,6 +171,15 @@ UrlParms = (function () { // jshint ignore: line
             }
             if (typeof(P.attr) !== 'object') {
                 P.attr = [P.attr];
+            }
+            if ('nCats' in P && typeof(P.nCats) !== 'object') {
+                P.nCats = [P.nCats];
+            }
+            if ('cat' in P && typeof(P.cat) !== 'object') {
+                P.cat = [P.cat];
+            }
+            if ('color' in P && typeof(P.color) !== 'object') {
+                P.color = [P.color];
             }
 
             // Iterate through the parm arrays grouping by array index.
@@ -164,7 +206,7 @@ UrlParms = (function () { // jshint ignore: line
                         //dataType: 'json', // expects json returned
                         data: opts,
                         success:  function (result) {
-                            receiveXenaAttr(result, P.attr[i]);
+                            receiveXenaAttr(result, P, i);
                         },
                         error: function (error) {
                             if (error) {
@@ -177,6 +219,27 @@ UrlParms = (function () { // jshint ignore: line
                 }
             });
         }
+    }
+    
+    function fillColorTestData (P) {
+        P.cat = [
+            'Additional Metastatic',
+            'Metastatic',
+            'Addtional - New pr...',
+            'Primary Blood Deriv...',
+            'Recurrent Tumor',
+            'Primary Tumor',
+            'Solid Tissue Normal',
+        ];
+        P.color = [
+            '#ff8888',
+            '#ffff88',
+            '#ffffff',
+            '#88ff88',
+            '#88ffff',
+            '#8888ff',
+            '#888888',
+        ];
     }
  
     return {
@@ -194,20 +257,22 @@ UrlParms = (function () { // jshint ignore: line
                         val = decodeURIComponent(item[1]);
                         
                     // Do we already have a value for this key?
-                    if (!(key in result)) {
+                    if (key in result) {
 
-                        // A brand new key, so a simple value
-                        result[key] = val;
-                    } else {
                         // There is a value for this key already.
      
-                        if (typeof(val) !== 'object') {
+                        if (typeof result[key] !== 'object') {
                         
-                            // This is a single value so turn it into an array.
-                            result[key] = [result[key]]
+                            // The previous value for this key is a single value
+                            // so turn the string into an array of one.
+                            result[key] = [result[key]];
                         }
                         // Add to the array.
                         result[key].push(val);
+
+                    } else {
+                        // A brand new key, so a simple value
+                        result[key] = val;
                     }
                     found = true;
                 }
@@ -242,6 +307,7 @@ UrlParms = (function () { // jshint ignore: line
 
             // Find any xena requests
             if (P.xena) {
+                //fillColorTestData(P);
                 queryXena(P);
                 return store;
             } else {

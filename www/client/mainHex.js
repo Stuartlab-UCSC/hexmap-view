@@ -29,7 +29,6 @@ Hex = (function () { // jshint ignore: line
         // & reload
         var href = window.location.href,
             quest = href.indexOf('?');
-        ctx.save();
         if (quest > -1) {
             href = href.slice(0, href.indexOf('?'));
             window.location.assign(href);
@@ -39,7 +38,6 @@ Hex = (function () { // jshint ignore: line
     }
 
     function pageReload (page) {
-        ctx.save(page);
         queryFreeReload();
     }
 
