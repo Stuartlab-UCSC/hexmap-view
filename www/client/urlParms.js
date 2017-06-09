@@ -101,13 +101,13 @@ UrlParms = (function () { // jshint ignore: line
         
             // TODO make this work with multiple attrs.
             
-            // Find the rgb values of the supplied hexadecimal value.
-            var rgbs = _.map(P.color, function (hexadec) {
-                return Color('#' + hexadec).rgb();
-            });
-            
-            layer.colormap = _.zip(P.cat, rgbs);
-            // TODO better kept as two arrays of cat and color
+            // Find the colormap info.
+            layer.colormap = {
+                cats: P.cat,
+                colors: _.map(P.color, function (hexadec) {
+                    return ('#' + hexadec);
+                })
+            };
         }
         
         dynLayer[attrName] = layer;
@@ -145,8 +145,13 @@ UrlParms = (function () { // jshint ignore: line
         //      hub=https://pancanatlas.xenahubs.net/data/&
         //      dataset=TCGA_pancancer_10852whitelistsamples_68ImmuneSigs.xena&
         //      attr=B_cell_PCA_16704732
-        // all together now:
+        //
+        // A continuous attribute:
         // http://localhost:3333/?xena=addAttr&p=PancanAtlas/XenaPancanAtlas&layout=mRNA&hub=https://pancanatlas.xenahubs.net/data/&dataset=TCGA_pancancer_10852whitelistsamples_68ImmuneSigs.xena&attr=B_cell_PCA_16704732
+        //
+        // A categorical attribute:
+        //
+        //
         // A wget example:
         // wget -O foo -v --header='content-type:text/plain'
         //      --post-data='(xena-query {:select

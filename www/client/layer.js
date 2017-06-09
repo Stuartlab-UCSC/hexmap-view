@@ -108,11 +108,11 @@ Layer = (function () { // jshint ignore: line
         if ('colormap' in layer) {
         
             // Load the supplied colormap
-            colormaps[name] = _.map(layer.colormap, function (vals, i) {
+            colormaps[name] = _.map(layer.colormap.cats, function (cat, i) {
                 return {
-                    name: vals[0],
-                    color: new Color(vals[1]),
-                    fileColor: new Color(vals[1]),
+                    name: cat,
+                    color: new Color(layer.colormap.colors[i]),
+                    fileColor: new Color(layer.colormap.colors[i]),
                 }
             });
 
@@ -219,7 +219,8 @@ Layer = (function () { // jshint ignore: line
             }
         }
         
-        // Add the layer name to the appropriate data type list.
+        // Add the layer name to the appropriate data type list,
+        // and load a colormap if needed.
         if (layer.dataType === 'continuous') {
             ctx.cont_layers.push(name);
         } else {
@@ -241,6 +242,8 @@ Layer = (function () { // jshint ignore: line
                     return value;
                 });
             }
+         
+            // If we have any (unique) values, load the colormap.
             if (uniqueVals) {
          
                 // Are any of the values strings?
