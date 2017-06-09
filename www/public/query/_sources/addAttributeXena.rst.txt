@@ -12,7 +12,7 @@ values to color an existing map.
 Example URL
 -----------
 
-(Line breaks and spaces added for clarity.)
+Line breaks and spaces added for clarity. The string should be URI-encoded.
 ::
  http://tumormap.ucsc.edu/?
     xena=addAttr&
