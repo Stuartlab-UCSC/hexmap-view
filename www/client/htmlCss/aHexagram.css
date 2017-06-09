@@ -73,6 +73,13 @@ Read as "The content row", distinct from whatever else that element might be.
 	padding: 0.3em;
 	white-space: nowrap;
 }
+.meta_label {
+    text-align: right;
+}
+
+.meta_value {
+    text-align: left;
+}
 
 .dialog-value,
 .dialog_value {

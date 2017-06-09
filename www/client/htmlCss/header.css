@@ -113,6 +113,8 @@
 
 .layer-metadata {
     font-size: 0.65em;
+    border-spacing: 0.3em 0;
+    line-height: 1em;
 }
 
 .passFilters.stacker {

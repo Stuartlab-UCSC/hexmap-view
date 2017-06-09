@@ -7,17 +7,6 @@ Layer = (function () { // jshint ignore: line
 
     var selection_prefix = 'Selection';
     
-    function metadata_counts_check (where, layer_name, n, positives) {
-        var hexCount = Object.keys(polygons).length;
-        if (n > hexCount && hexCount > 0) {
-            console.log('TODO: bad counts at', where, ': layer, n, hexCount:',
-                layer_name, layers[layer_name].n, hexCount);
-            if (!_.isUndefined(positives)) {
-                console.log('    positives:', positives);
-            }
-        }
-    }
-    
     function make_layer_name_unique (layer_name) {
  
         // We're done if the name is unique
@@ -58,7 +47,7 @@ Layer = (function () { // jshint ignore: line
         // Give the user a chance to name the layer
         var promptString = (dup_name) ?
                             dup_name + ' is in use, how about this one?'
-                            : 'Please provide a label for this new layer',
+                            : 'Please provide a label for this new attribute.',
             text = prompt(promptString, layer_name);
         if (text) {
             return text.trim();
@@ -520,6 +509,8 @@ return { // Public methods
         
         // Empty the container.
         container.html("");
+        var metadata = $('<table\>').addClass('layer-metadata');
+        container.append(metadata);
 
         for(attribute in layers[layer_name]) {
             // Go through everything we know about this layer
@@ -534,98 +525,67 @@ return { // Public methods
                 // TODO: Ought to maybe have all metadata in its own object?
                 continue;
             }
-     
-            var text;
-            if (attribute === 'positives') {
+            // This holds the metadata value we're displaying
+            var value = layers[layer_name][attribute];
             
-                // Special case positive count for binary selection layers
-                if (layers[layer_name].selection) {
-                
-                    // For selections...
-                    text = 'Selected = ' + layers[layer_name].positives;
-                } else {
-                
-                    // Non-selections are processed under the 'n' attribute.
-                    continue;
-                }
-         
-            } else if (attribute === 'n' &&
-                ctx.bin_layers.indexOf(layer_name) > -1) {
-            
-                // Special-case the counts for binary layers.
-                var n = Number(layers[layer_name].n),
-                    p = Number(layers[layer_name].positives),
-                    hexCount = Object.keys(polygons).length;
-                if (_.isNaN(n)) n = 0;
-                if (_.isNaN(p)) p = 0;
-                text = p + '/' + n + ' (' + (hexCount - n) + ' missing)';
-                metadata_counts_check('Layer.fillMetadata()', layer_name, n, p);
-
-            } else {  // process the usual attributes
-     
-                // This holds the metadata value we're displaying
-                var value = layers[layer_name][attribute];
-                
-                if(typeof value === "number" && isNaN(value)) {
-                    // If it's a numerical NaN (but not a string), just leave
-                    // it out.
-                    continue;
-                }
-                
-                if(value == undefined) {
-                    // Skip it if it's not actually defined for this layer
-                    continue;
-                }
-                
-                // If we're still here, this is real metadata.
-                // Format it for display.
-                var value_formatted;
-                if (typeof value === "number") {
-                    if(value % 1 === 0) {
-                        // It's an int!
-                        // Display the default way
-                        value_formatted = value;
-                    } else {
-                        // It's a float!
-                        // Format the number for easy viewing
-                        value_formatted = value.toExponential(1);
-                    }
-                } else {
-                    // Just put the thing in as a string
-                    value_formatted = value;
-                }
-     
-                // Do a sanity check on non-binary layers.
-                if (attribute === 'n') {
-                    metadata_counts_check(
-                        'Layer.fillMetadata()', layer_name, n);
-                }
-     
-                // Do some transformations to make the displayed labels make
-                // more sense.
-                lookup = {
-                    n: "Non-empty values",
-                    clumpiness: "Density score",
-                    p_value: "Single test p-value",
-                    correlation: "Correlation",
-                    adjusted_p_value: "BH FDR",
-                    leesL: "Lees L",
-                    rawLees: "Uncorrected Lees L",
-                    adjusted_p_value_b: "Bonferroni p-value",
-                }
-                
-                if (lookup[attribute]) {
-     
-                    // Replace a boring short name with a useful long name
-                    attribute = lookup[attribute];
-                }
-                text = attribute + ": " + value_formatted;
+            if(typeof value === "number" && isNaN(value)) {
+                // If it's a numerical NaN (but not a string), just leave
+                // it out.
+                continue;
             }
             
-            var metadata = $("<div\>").addClass("layer-metadata");
-            metadata.text(text);
+            if(value == undefined) {
+                // Skip it if it's not actually defined for this layer
+                continue;
+            }
             
-            container.append(metadata);
+            // If we're still here, this is real metadata.
+            // Format it for display.
+            var value_formatted;
+            if (typeof value === "number") {
+                if(value % 1 === 0) {
+                    // It's an int!
+                    // Display the default way
+                    value_formatted = value;
+                } else {
+                    // It's a float!
+                    // Format the number for easy viewing
+                    value_formatted = value.toExponential(1);
+                }
+            } else {
+                // Just put the thing in as a string
+                value_formatted = value;
+            }
+  
+            // Do some transformations to make the displayed labels make
+            // more sense.
+            lookup = {
+                n: "Values",
+                positives: "Positives",
+                clumpiness: "Density",
+                p_value: "Single test p-value",
+                correlation: "Correlation",
+                adjusted_p_value: "BH FDR",
+                leesL: "Lees L",
+                rawLees: "Uncorrected Lees L",
+                adjusted_p_value_b: "Bonferroni p-value",
+            }
+            
+            if (lookup[attribute]) {
+ 
+                // Replace a boring short name with a useful long name
+                attribute = lookup[attribute];
+            }
+            var tr = $('<tr\>').css('margin-bottom', '-1em');
+            var td = $('<td\>')
+                .css('text-align', 'right')
+                .text(attribute+':');
+            tr.append(td);
+            td = $('<td\>')
+                .css('text-align', 'left')
+                .text(value_formatted);
+            tr.append(td);
+            metadata.append(tr);
         }
     },
 
@@ -759,10 +719,6 @@ return { // Public methods
                 
                 // Add it to the sorted layer list.
                 sorted.push(layer_name);
-                
-                metadata_counts_check(
-                    'Layer.initIndex()', layer_name, n, positives);
-
             }
             
             // Save sortable (not dynamic) layer names.
