@@ -116,15 +116,16 @@ Layer = (function () { // jshint ignore: line
                 }
             });
 
+            if (cats) {
          
-            // Replace category string values with indices
-            // TODO combine with the next conditional block.
-            layer.data = _.object(
-                _.keys(layer.data),
-                _.map(layer.data, function (strVal, key) {
-                    return cats.indexOf(strVal);
-                })
-            );
+                // Replace category string values with indices
+                layer.data = _.object(
+                    _.keys(layer.data),
+                    _.map(layer.data, function (strVal, key) {
+                        return cats.indexOf(strVal);
+                    })
+                );
+            }
         } else if (cats && cats.length) {
         
             // Generate a colormap
@@ -170,36 +171,38 @@ Layer = (function () { // jshint ignore: line
     function load_dynamic_data_type (name, layer) {
     
         // Load the data type for dynamic attributes.
+        var uniqueVals,
+            hasStrings;
 
         // Skip any layers with no values.
-        var dataIn = layer.data,
-            aString,
-            uniqueVals;
         
-        if (_.keys(dataIn).length < 1) { return; }
+        if (_.keys(layer.data).length < 1) { return; }
 
+        // Drop any values used to indicate no value.
+        var drop = ['', '#N/A', '#N/A N/A', '#NA', '-1.#IND', '-1.#QNAN', 
+            '-NAN', '1.#IND', '1.#QNAN', 'N/A', 'NA', 'NULL', 'NAN'];
+        _.each(layer.data, function (val, key) {
+            if (drop.indexOf(val.toString().toUpperCase()) > -1) {
+                delete layer.data[key];
+            }
+        });
+ 
         if (!('dataType' in layer)) {
         
             // Determine the data type since it was not supplied.
          
-            // First we need to drop any values used to indicate no value.
-            var drop = ['', '#N/A', '#N/A N/A', '#NA', '-1.#IND', '-1.#QNAN', 
-                '-NAN', '1.#IND', '1.#QNAN', 'N/A', 'NA', 'NULL', 'NAN'],
-                data = _.filter(dataIn, function (val) {
-                    return (drop.indexOf(val.toString().toUpperCase()) < 0);
-                });
-         
             // If they are any strings, this gets a colormap
             // and call it categorical for now. It may be binary.
-            aString = _.find(data, function (value) {
+            var aString = _.find(layer.data, function (value) {
                     return _.isNaN(parseFloat(value));
                 });
             if (aString && aString.length > 0) {
                 layer.dataType = 'categorical';
+                hasStrings = true;
             }
          
             // Find the count of each unique value.
-            uniqueVals = _.countBy(data, function (value) {
+            uniqueVals = _.countBy(layer.data, function (value) {
                 return value;
             });
          
@@ -215,14 +218,42 @@ Layer = (function () { // jshint ignore: line
         }
         
         // Add the layer name to the appropriate data type list.
-        if (layer.dataType === 'binary') {
-            ctx.bin_layers.push(name);
-            load_dynamic_colormap(name, layer, _.keys(uniqueVals));
-        } else if (layer.dataType === 'categorical') {
-            load_dynamic_colormap(name, layer, _.keys(uniqueVals));
-            ctx.cat_layers.push(name);
-        } else {
+        if (layer.dataType === 'continuous') {
             ctx.cont_layers.push(name);
+        } else {
+        
+            if (layer.dataType === 'categorical') {
+                ctx.cat_layers.push(name);
+            } else {
+     
+                // This is a binary attribute.
+                ctx.bin_layers.push(name);
+            }
+            // Load the colormap for this attribute.
+         
+            // If the unique values have not been found yet, find them.
+            if (!uniqueVals) {
+         
+                // Find the count of each unique value.
+                uniqueVals = _.countBy(layer.data, function (value) {
+                    return value;
+                });
+            }
+            if (uniqueVals) {
+         
+                // Are any of the values strings?
+                var aString = _.find(layer.data, function (value) {
+                    return _.isNaN(parseFloat(value));
+                });
+                var cats;
+     
+                // If there are any strings we'll use
+                // these as categories in colormap generation.
+                if (aString && aString.length > 0) {
+                    cats = _.keys(uniqueVals);
+                }
+                load_dynamic_colormap(name, layer, cats);
+            }
         }
     }
     
