@@ -90,7 +90,6 @@ UrlParms = (function () { // jshint ignore: line
         // Build the layer and load it.
         var layer = {
                 data: data,
-                n: Object.keys(data).length,
                 dynamic: true,
                 imported: true,
             },

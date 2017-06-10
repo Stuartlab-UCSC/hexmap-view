@@ -105,16 +105,15 @@ Layer = (function () { // jshint ignore: line
                 }
             });
 
-            if (cats) {
-         
-                // Replace category string values with indices
-                layer.data = _.object(
-                    _.keys(layer.data),
-                    _.map(layer.data, function (strVal, key) {
-                        return cats.indexOf(strVal);
-                    })
-                );
-            }
+            // Replace category string values with indices
+            var codedData = _.object(
+                _.keys(layer.data),
+                _.map(layer.data, function (strVal, key) {
+                    return layer.colormap.cats.indexOf(strVal);
+                })
+            );
+            layer.data = codedData;
+            
         } else if (cats && cats.length) {
         
             // Generate a colormap
@@ -178,6 +177,9 @@ Layer = (function () { // jshint ignore: line
             }
         });
  
+        // Set the count of values.
+        layer.n = _.keys(layer.data).length;
+
         if (!('dataType' in layer)) {
         
             // Determine the data type since it was not supplied.
