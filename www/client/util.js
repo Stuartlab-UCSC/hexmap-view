@@ -244,6 +244,16 @@ Util = (function () { // jshint ignore: line
         createOurSelect2: createOurSelect2,
         timestamp: timestamp,
         
+        addToDataTypeList: function (layer_name, dataType) {
+            if (dataType === 'binary') {
+                ctx.bin_layers.push(layer_name);
+            } else if (dataType === 'categorical') {
+                ctx.cat_layers.push(layer_name);
+            } else {
+                ctx.cont_layers.push(layer_name);
+            }
+        },
+
         initSnake: function (snakeName, before) {
         
             // Manage the visibility of a progress snake given

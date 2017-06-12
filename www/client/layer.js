@@ -91,9 +91,12 @@ Layer = (function () { // jshint ignore: line
         return name;
     }
  
-    function load_dynamic_colormap (name, layer, cats) {
+    function load_dynamic_colormap (name, layer) {
 
         // Load the colormap for dynamic categorical or binary attributes.
+        var cats = layer.uniqueVals,
+            indexedCats;
+        
         if ('colormap' in layer) {
         
             // Load the supplied colormap
@@ -104,19 +107,19 @@ Layer = (function () { // jshint ignore: line
                     fileColor: new Color(layer.colormap.colors[i]),
                 }
             });
-
-            // Replace category string values with indices
-            var codedData = _.object(
-                _.keys(layer.data),
-                _.map(layer.data, function (strVal, key) {
-                    return layer.colormap.cats.indexOf(strVal);
-                })
-            );
-            layer.data = codedData;
-            
-        } else if (cats && cats.length) {
+    
+            // Save the category index assignment.
+            indexedCats = layer.colormap.cats
+         
+            // This is no longer needed.
+            delete layer.colormap;
         
-            // Generate a colormap
+        // If there are more that two categories or the categories are not ones
+        // or zeros, this gets a generated colormap.
+        } else if (cats.length > 2 ||
+            ((cats[0] === 0 || cats[0] === 1) && (!cats[1] || cats[1] === 1))) {
+         
+            // Generate a colormap.
             var jpColormap = _.map(
                 jPalette.ColorMap.get('hexmap')(cats.length + 1).map,
                 function (val, key) {
@@ -125,11 +128,11 @@ Layer = (function () { // jshint ignore: line
                     return {r: val.r, g: val.g, b: val.b};
                 }
             );
-         
-            // Remove the repeating red at the end
+     
+            // Remove the repeating red at the end.
             jpColormap.splice(cats.length, 1);
-         
-            // Load this generated colormap
+     
+            // Load this generated colormap.
             colormaps[name] = _.map(jpColormap, function(color, i) {
                 return {
                     name: cats[i],
@@ -138,129 +141,122 @@ Layer = (function () { // jshint ignore: line
                 };
             });
          
-            // Replace category string values with indices
-            layer.data = _.object(
-                _.keys(layer.data),
-                _.map(layer.data, function (strVal, key) {
-                    return cats.indexOf(strVal);
-                })
-            );
-
+            indexedCats = cats;
+         
         } else {
         
-            // The default binary colormap for non-string values
+            // Load the default binary colormap for binary non-string values
+            // those whose values are all ones or zeroes.
             colormaps[name] = [];
         }
         
-        // Remove these that are no longer needed.
-        delete layer.colormap;
+        if (indexedCats && !layer.reflection) {
+
+            // Replace category string values with codes.
+            // Note: reflections are already coded.
+            var codedData = _.object(
+                _.keys(layer.data),
+                _.map(layer.data, function (strVal, key) {
+                    return indexedCats.indexOf(strVal);
+                })
+            );
+            layer.data = codedData;
+        }
+
+        delete layer.uniqueVals;
     }
 
-    function load_dynamic_data_type (name, layer) {
-    
-        // Load the data type for dynamic attributes.
-        var uniqueVals,
-            hasStrings;
+    function find_dynamic_data_type (layer) {
 
-        // Skip any layers with no values.
+        // Find the data type for a dynamic attribute.
         
-        if (_.keys(layer.data).length < 1) { return; }
+     
+        // If there are 2 or fewer unique values, this is binary.
+        if (layer.uniqueVals.length < 3) {
+            layer.dataType = 'binary';
+     
+        // If there are any strings, this is categorical.
+        } else if (_.find(layer.uniqueVals, function (value) {
+                    return _.isNaN(parseFloat(value));
+                })
+            ) {
+            layer.dataType = 'categorical';
+     
+        // Otherwise, this is continuous.
+        } else {
+            layer.dataType = 'continuous';
+         
+            // Drop the uniqueVals because this is used to determine
+            // whether we need to load a colormap later.
+            delete layer.uniqueVals;
+        }
+        
+    }
+    
+    function find_dynamic_values (layer) {
+    
+        // Find the good dynamic values and their count.
 
-        // Drop any nulls or values used to indicate no value.
-        var drop = ['', '#N/A', '#N/A N/A', '#NA', '-1.#IND', '-1.#QNAN', 
-            '-NAN', '1.#IND', '1.#QNAN', 'N/A', 'NA', 'NULL', 'NAN'];
-        _.each(layer.data, function (val, key) {
-            if (_.isNull(val) || _.isUndefined(val) || _.isNaN(val)) {
-                delete layer.data[key];
-            } else if (drop.indexOf(val.toString().toUpperCase()) > -1) {
-                delete layer.data[key];
-            }
-        });
+        // Drop any 'no values'.
+        if (_.keys(layer.data).length > 0) {
+        
+            // Drop any nulls or values used to indicate no value.
+            var drop = ['', '#N/A', '#N/A N/A', '#NA', '-1.#IND', '-1.#QNAN', 
+                '-NAN', '1.#IND', '1.#QNAN', 'N/A', 'NA', 'NULL', 'NAN'];
+            _.each(layer.data, function (val, key) {
+                if ((_.isNull(val) || _.isUndefined(val) || _.isNaN(val)) ||
+                    (drop.indexOf(val.toString().toUpperCase()) > -1)) {
+                    delete layer.data[key];
+                }
+            });
+        }
  
         // Set the count of values.
         layer.n = _.keys(layer.data).length;
-
-        if (!('dataType' in layer)) {
-        
-            // Determine the data type since it was not supplied.
-         
-            // If they are any strings, this gets a colormap
-            // and call it categorical for now. It may be binary.
-            var aString = _.find(layer.data, function (value) {
-                    return _.isNaN(parseFloat(value));
-                });
-            if (aString && aString.length > 0) {
-                layer.dataType = 'categorical';
-                hasStrings = true;
-            }
-         
-            // Find the count of each unique value.
-            uniqueVals = _.countBy(layer.data, function (value) {
-                return value;
-            });
-         
-            // If there are only two values, this is binary.
-            if (Object.keys(uniqueVals).length < 3) {
-                layer.dataType = 'binary';
-         
-            // If the type has not been assigned categorical,
-            // then this must be continuous.
-            } else if (layer.dataType !== 'categorical') {
-                layer.dataType = 'continuous';
-            }
-        }
-        
-        // Add the layer name to the appropriate data type list,
-        // and load a colormap if needed.
-        if (layer.dataType === 'continuous') {
-            ctx.cont_layers.push(name);
-        } else {
-        
-            if (layer.dataType === 'categorical') {
-                ctx.cat_layers.push(name);
-            } else {
-     
-                // This is a binary attribute.
-                ctx.bin_layers.push(name);
-            }
-            // Load the colormap for this attribute.
-         
-            // If the unique values have not been found yet, find them.
-            if (!uniqueVals) {
-         
-                // Find the count of each unique value.
-                uniqueVals = _.countBy(layer.data, function (value) {
-                    return value;
-                });
-            }
-         
-            // If we have any (unique) values, load the colormap.
-            if (uniqueVals) {
-         
-                // Are any of the values strings?
-                var aString = _.find(layer.data, function (value) {
-                    return _.isNaN(parseFloat(value));
-                });
-                var cats;
-     
-                // If there are any strings we'll use
-                // these as categories in colormap generation.
-                if (aString && aString.length > 0) {
-                    cats = _.keys(uniqueVals);
-                }
-                load_dynamic_colormap(name, layer, cats);
-            }
-        }
     }
     
     function load_dynamic_data (layer_name, callback, dynamicLayers) {
 
-        // Load dynamic data in memory.
-        var layer = dynamicLayers[layer_name];
+        // Load dynamic data into the global layers object.
+        var layer = dynamicLayers[layer_name],
+            categories;
         layer.dynamic = true;
+        
+        // Find the good values and their count.
+        find_dynamic_values(layer);
      
-        // Find and save the dataType.
-        load_dynamic_data_type(layer_name, layer);
+        // if there is data, load the dataType.
+        if (layer.n > 0) {
+        
+            // if no dataType was suppied or not continuous...
+            if (!layer.dataType || layer.dataType !== 'continuous') {
+         
+                // Find the unique values in the data.
+                layer.uniqueVals = _.keys(
+                    _.countBy(layer.data, function (value) {
+                        return value;
+                    })
+                );
+            }
+            // If no dataType supplied, go find it.
+            if (!layer.dataType) {
+                find_dynamic_data_type(layer);
+            }
+        } else {
+        
+            // There are no values in the data after dropping 'no value's, so
+            // assign a dataType of continuous so a colormap will not be sought.
+            layer.dataType = 'continuous';
+        }
+        
+        // Add the layer to the appropriate dataType list.
+        Util.addToDataTypeList(layer_name, layer.dataType);
+        // Leave the dataType in the layer obj, we use it in saving state.
+        
+        // If there are categories, load a colormap.
+        if (layer.uniqueVals) {
+            load_dynamic_colormap(layer_name, layer);
+        }
 
         // Save the layer data in the global layers object.
         layers[layer_name] = layer;

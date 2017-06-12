@@ -314,7 +314,6 @@ Meteor.methods({
             post_calc_parms.newLayer.colormap = colorMapMaker();
             post_calc_parms.newLayer.dataType = "categorical"
         } else {
-            post_calc_parms.newLayer.colormap = {};
             post_calc_parms.newLayer.dataType = "continuous"
         }
 
