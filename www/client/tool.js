@@ -201,7 +201,7 @@ Tool = (function () { // jshint ignore: line
                 Session.set('mapSnake', true);
                 $('body').css('overflow-y', 'hidden');
         
-                // Initialze the busy snakes
+                // Initialize the busy snakes
                 Util.initSnake('mapSnake');
                 Util.initSnake('statsSnake');     
      
@@ -230,7 +230,7 @@ Tool = (function () { // jshint ignore: line
                         if (!error && results) {
                             Session.set('jobCredential', true);
                 
-                            // Check availabiity of data required for placeNode.
+                            // Check availability of data required for placeNode.
                             Meteor.autorun( function () {
                                 Session.set('placeNodeCriteria', false);
                                 var layouts = Session.get('layouts'),

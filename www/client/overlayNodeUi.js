@@ -11,6 +11,12 @@ var app = app || {};
         dialogHex,
         $dialog;
 
+    Template.navBarT.helpers({
+        overlayNodeRemove: function () {
+            return Session.get('overlayNodes') ? 'block' : 'none';
+        },
+    });
+
     function validateNodeData (data) {
  
         if (_.isUndefined(data) || _.isNull(data)) {
@@ -184,5 +190,8 @@ var app = app || {};
  
         // Create a link from the menu
         add_tool('overlayNode', createWindow, title);
+ 
+        // Add a handler for the remove menu option
+        $('#navBar .overlayNodeRemove').on('click', removeOverlayNodes);
     }
 })(app);

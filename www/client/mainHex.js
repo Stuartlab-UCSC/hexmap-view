@@ -22,26 +22,15 @@ Hex = (function () { // jshint ignore: line
     });
 
     function queryFreeReload () {
-
         Session.set('mapSnake', true);
-
-        // Strip everything after the query string question mark in the href
-        // & reload
-        var href = window.location.href,
-            quest = href.indexOf('?');
-        if (quest > -1) {
-            href = href.slice(0, href.indexOf('?'));
-            window.location.assign(href);
-        } else {
-            window.location.reload();
-        }
+        window.location.search = '';
     }
 
     function pageReload (page) {
         queryFreeReload();
     }
 
-     function loadProject (project) {
+    function loadProject (project) {
         ctx.project = project;
         Session.set('page', 'mapPage');
         queryFreeReload();

@@ -91,6 +91,12 @@ var app = app || {};
         }
     }
 
+    removeHexagon = function (label) {
+        google.maps.event.clearInstanceListeners(polygons[label]);
+        polygons[label].setMap(null);
+        delete polygons[label];
+    }
+
     addHexagon = function (x, y, label, overlayNode) {
 
         // Make a hexagon on the Google map and store that.
