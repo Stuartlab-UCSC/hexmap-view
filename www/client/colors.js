@@ -6,14 +6,14 @@ Colors = (function () { // jshint ignore: line
 
     // Some color constants
     var DISABLED_COLOR = '#aaaaaa',
-        COLOR_BINARY_OFF = '#303030',       // binary attr off
+        COLOR_BINARY_OFF = '#444444',       // binary attr off
         COLOR_BINARY_ON = '#FFFF00',        // binary attr on
         COLOR_BINARY_BOTH_ON = '#00FF00',   // binary both attrs on
         COLOR_BINARY_SECOND_ON = '#0000FF'; // binary second attr on
 
     // The color to use as hexagon fill, depending on the background color
     var NO_DATA_LIGHT_BG = '#c0c0c0',
-        NO_DATA_DARK_BG = '#505050',
+        NO_DATA_DARK_BG = '#333333',
         badValue = false, // The current category input has a bad value
         $link;
         

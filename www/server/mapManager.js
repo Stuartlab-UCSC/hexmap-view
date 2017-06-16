@@ -118,6 +118,7 @@ function colorMapMaker(){
         // category
         cats: ['low', 'medium', 'high'],
         colors: ['#32cd32', '#737373', '#ce2029']
+        //colors: ['#32cd32', '#666666', '#ce2029']
     };
 }
 
