@@ -557,6 +557,7 @@ var app = app || {};
 
     getDynamicStats = function (focus_attr, opts) {
  
+        computingTextDisplay();
         var good = Util.credentialCheck('to compute dynamic statistics. ' +
             'Only pre-computed statistics on static attributes are available ' +
             'to you', 'statsSnake');
@@ -601,25 +602,15 @@ var app = app || {};
         );
     }
 
-    function getPreComputedStats (filename, focus_attr, opts) {
+    function getPreComputedStats (dataId, focus_attr, opts) {
 
         // Retrieve the precomputed stats file from the server
 
         // Clear the stats in the layers before loading new ones
         clearStats();
+ 
+        // Attempt to retrieve the pre-computed stats data
 
-        print("Fetching " + filename);
-        Meteor.call('getTsvFile', filename, ctx.project,
-            function (error, parsed) {;
-
-            if (error || (typeof parsed === 'string' &&
-                parsed.slice(0,5).toLowerCase() === 'error')) {
-                computingTextDisplay();
-                getDynamicStats(focus_attr, opts);
-                return;
-            }
-            receive_data(parsed, focus_attr, opts);
-        });
     }
 
     computingTextDisplay = function () {
@@ -646,15 +637,14 @@ var app = app || {};
         if (layers[focus_attr].hasOwnProperty('selection')) {
 
             // This is a user-selection attribute
-            computingTextDisplay();
             getDynamicStats(focus_attr, opts);
 
         } else {
             // This is a primary attribute, so check for pre-computed stats
             var layer_index = ctx.static_layer_names.indexOf(focus_attr),
-                filename = ctx.project + "stats_" + layer_index + ".tab";
+                dataId = ctx.project + "stats_" + layer_index;
 
-            getPreComputedStats(filename, focus_attr, opts);
+            getPreComputedStats(dataId, focus_attr, opts);
         }
     }
 
@@ -715,7 +705,6 @@ var app = app || {};
         }
 
         // Treat this as a selection layer and run it as layout-ignore stats
-        computingTextDisplay();
         var diffLayer = focus_attr + ' & ' + focus_attr2;
         opts = {
             statsLayers: ctx.bin_layers.concat(ctx.cat_layers.concat(ctx.cont_layers.concat(diffLayer))),
@@ -747,16 +736,15 @@ var app = app || {};
         if (layers[focus_attr].hasOwnProperty('selection')) {
 
             // This is a user-selection attribute
-            computingTextDisplay();
             getDynamicStats(focus_attr, opts);
 
         } else {
             // This is a primary attribute, so check for pre-computed stats
             var layer_index = ctx.static_layer_names.indexOf(focus_attr),
-                filename = ctx.project + "statsL_"+ layer_index + "_" +
-                    layout_index + ".tab";
+                dataId = ctx.project + "statsL_"+ layer_index + "_" +
+                    layout_index;
 
-            getPreComputedStats(filename, focus_attr, opts);
+            getPreComputedStats(dataId, focus_attr, opts);
         }
     }
 })(app);

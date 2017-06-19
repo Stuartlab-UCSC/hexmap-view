@@ -105,6 +105,34 @@ Tool = (function () { // jshint ignore: line
             .attr('title', hover_text)
             .addClass(klass);
     }
+    
+    function getMapMetadata () {
+    
+        // Retrieve the map metadata.
+        Data.get({
+            id: 'mapMeta',
+            // treat 404 not found as a form of success
+            ok404: true,
+            success: function (meta) {
+            
+                // If the mapMeta data was found and
+                // there is cluster data, we've met the
+                // criteria to run placeNode.
+                var layout = Session.get('layouts')[Session.get('layoutIndex')];
+                if (meta &&
+                    meta !== '404' &&
+                    meta.layouts &&
+                    meta.layouts[layout] &&
+                    meta.layouts[layout].clusterData) {
+                    Session.set('placeNodeCriteria',
+                        true);
+                }
+            },
+            error: function (error) {
+                _.noop();
+            },
+        });
+    }
 
     return { // Public methods
     
@@ -238,20 +266,9 @@ Tool = (function () { // jshint ignore: line
                                 if (!layouts || _.isUndefined(layoutIndex)) {
                                     return;
                                 }
-                                var layout = layouts[layoutIndex];
-                                Meteor.call(
-                                    'getJsonFile', 'mapMeta.json', ctx.project,
-                                    function (error, meta) {
-                                        if (!error &&
-                                            meta &&
-                                            meta.layouts &&
-                                            meta.layouts[layout] &&
-                                            meta.layouts[layout].clusterData) {
-                                            Session.set('placeNodeCriteria',
-                                                true);
-                                        }
-                                    }
-                                )
+                                
+                                // Retrieve the meta data for this map.
+                                getMapMetadata();
                             })
                         }
                     }

@@ -132,24 +132,24 @@ Download = (function () { // jshint ignore: line
 
     function menu_mousedown(ev) {
         download_now = false;
+        var id = 'xyPreSquiggle_' + Session.get('layoutIndex')
  
         // Download the file now.
-        var filename = 'xyPreSquiggle_' + Session.get('layoutIndex') +'.tab';
- 
-        Meteor.call('getTsvFile', filename, ctx.project, true,
-            function (error, tsv) {
-            if (error || (typeof tsv === 'string' &&
-                    tsv.slice(0,5).toLowerCase() === 'error')) {
-                Util.banner(
-                    'error', 'Sorry, ' + filename + ' cannot be found.');
-            } else {
-                file_contents = tsv;
+        Data.get({
+            id: id,
+            parse: 'unparsed',
+            success: function(data) {
+                file_contents = data;
                 
                 // Now we allow the click handler to actually download,
                 // then click it.
                 download_now = true;
                 $(ev.target).click();
-            }
+            },
+            error: function(error) {
+                Util.banner('error', 'while downloading XY coordinates: ' +
+                    error );
+            },
         });
     }
 

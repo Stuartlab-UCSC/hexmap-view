@@ -268,38 +268,36 @@ Layer = (function () { // jshint ignore: line
     function load_static_data (layer_name, callback) {
       
         // Download a static layer, then load into global layers and colormaps.
-        // Go get it (as text!)
-        Meteor.call('getTsvFile', layers[layer_name].url, ctx.project,
-            function (error, layer_parsed) {
+        // Go get it.
+        Data.get({
+            id: layers[layer_name].dataId,
+            success: function (layer_parsed) {
+                var data = {};
 
-            if (error) {
-                projectNotFound(layers[layer_name].url);
-                return;
-            }
-
-            // This is the layer we'll be passing out. Maps from
-            // signatures to floats on -1 to 1.
-            var data = {};
-
-            for(var j = 0; j < layer_parsed.length; j++) {
-                // This is the label of the hex
-                var label = layer_parsed[j][0];
+                for (var j = 0; j < layer_parsed.length; j++) {
                 
-                if(label == "") {
-                    // Skip blank lines
-                    continue;
+                    // This is the label of the hexagon
+                    var label = layer_parsed[j][0];
+                    
+                    if (label === "") {
+                        // Skip blank lines
+                        continue;
+                    }
+                    
+                    // Store the values in the layer
+                    data[label] = parseFloat(layer_parsed[j][1]);
                 }
-                
-                // Store the values in the layer
-                data[label] = parseFloat(layer_parsed[j][1]);
-            }
-    
-            // Save the layer data locally
-            layers[layer_name].data = data;
- 
-            // Now the layer has been properly downloaded, but it may not
-            // have metadata. Recurse with the same callback to get metadata.
-            Layer.with_layer(layer_name, callback);
+        
+                // Save the layer data in the global layers object.
+                layers[layer_name].data = data;
+     
+                // Now the layer has been properly downloaded, but it may not
+                // have metadata. Recurse to get metadata.
+                Layer.with_layer(layer_name, callback);
+            },
+            error: function (error) {
+                projectNotFound(layers[layer_name].url);
+            },
         });
     }
 
@@ -502,8 +500,26 @@ return { // Public methods
     },
 
     fill_metadata: function (container, layer_name) {
+    
         // Empty the given jQuery container element, and fill it with layer metadata
         // for the layer with the given name.
+        
+        // Layer properties we don't want to display.
+        var noDisplay = [
+            'clumpiness_array',
+            'data',
+            'dataId',
+            'dataType',
+            'dynamic',
+            'magnitude',
+            'maximum',
+            'minimum',
+            'rank',
+            'removeFx',
+            'selection',
+            'tags',
+            'url',
+        ];
         
         // Empty the container.
         container.html("");
@@ -511,14 +527,8 @@ return { // Public methods
         container.append(metadata);
 
         for(attribute in layers[layer_name]) {
-            // Go through everything we know about this layer
-            if(attribute === "data" || attribute === "url" ||
-                attribute === "magnitude" || attribute === "minimum" ||
-                attribute === "maximum" || attribute === "selection" ||
-                attribute === "clumpiness_array" || attribute === "tags" ||
-                attribute === "removeFx" || attribute === 'rank' ||
-                attribute === "dynamic" || attribute === 'dataType') {
-                
+            if (noDisplay.indexOf(attribute) > -1) {
+         
                 // Skip things we don't want to display
                 // TODO: Ought to maybe have all metadata in its own object?
                 continue;
@@ -587,141 +597,133 @@ return { // Public methods
         }
     },
 
-    initArray: function  () {
-        Meteor.call('getTsvFile', "layers.tab", ctx.project,
-            function (error, parsed) {
-
-            // Create a list of layer names ordered by their indices
-            ctx.static_layer_names = new Array (Session.get('sortedLayers').length);
-
-            if (error) {
-                projectNotFound("layers.tab");
-                return;
-            }
-
-            for (var i = 0; i < parsed.length; i++) {
-                if(parsed[i].length < 2) {
-                    // Skip blank lines
-                    continue;
-                }
-            
-                var file_name = parsed [i][1];
-                // Locate the underscore index in the file name
-                // index + 1 will be where the number starts
-                var underscore_index = file_name.lastIndexOf("_");
-                // Locate the period index in the file name
-                // index will be where number ends
-                var period_index =file_name.lastIndexOf(".");
-                var index_value = file_name.substring(underscore_index+1, period_index);
-                ctx.static_layer_names [index_value] = parsed[i][0];
-             }
-             Session.set('initedLayersArray', true);
-        });
-    },
-
     initDataTypes: function () {
 
         // Download Information on what layers are continuous and which are binary
-        Meteor.call('getTsvFile', "Layer_Data_Types.tab", ctx.project,
-            function (error, parsed) {;
-
-            // This is an array of rows with the following content:
-            //
-            //	FirstAttribute		Layer6
-            //	Continuous		Layer1	Layer2	Layer3 ...
-            //	Binary	Layer4	Layer5	Layer6 ...
-            //	Categorical	Layer7	Layer8	Layer9 ...
-            //
-
-            if (error) {
-                projectNotFound("Layer_Data_Types.tab");
-                return;
-            }
-
-            _.each(parsed, function (line) {
-                if (line[0] === 'Binary') {
-                    ctx.bin_layers = line.slice(1);
-                } else if (line[0] === 'Continuous') {
-                    ctx.cont_layers = line.slice(1);
-                } else if (line[0] === 'Categorical') {
-                    ctx.cat_layers = line.slice(1);
-                } else if (line[0] === 'FirstAttribute') {
-                    Session.set('first_layer', line.slice(1).join());
-                } // skip any lines we don't know about
-            });
+        var id = 'Layer_Data_Types';
+       Data.get({
+            id: id,
+            error: function (error) {
+                projectNotFound(id);
+            },
+            success: function (parsed) {
             
-            Session.set('initedLayerTypes', true);
+                // This is an array of rows with the following content:
+                //
+                //	FirstAttribute		Layer6
+                //	Continuous		Layer1	Layer2	Layer3 ...
+                //	Binary	Layer4	Layer5	Layer6 ...
+                //	Categorical	Layer7	Layer8	Layer9 ...
+                _.each(parsed, function (line) {
+                    if (line[0] === 'Binary') {
+                        ctx.bin_layers = line.slice(1);
+                    } else if (line[0] === 'Continuous') {
+                        ctx.cont_layers = line.slice(1);
+                    } else if (line[0] === 'Categorical') {
+                        ctx.cat_layers = line.slice(1);
+                    } else if (line[0] === 'FirstAttribute') {
+                        Session.set('first_layer', line.slice(1).join());
+                    } // skip any lines we don't know about
+                });
+                
+                Session.set('initedLayerTypes', true);
+            },
         });
     },
 
     initIndex: function () {
 
         // Download the layer index
-        Meteor.call('getTsvFile', "layers.tab", ctx.project,
-            function (error, parsed) {;
+        var id = 'layers';
 
-            // Layer index is tab-separated like so:
-            // name  file  N-hex-value  binary-ones  layout0-clumpiness  layout1-clumpiness  ...
+        Data.get({
+            id: id,
+            error: function (error) {
+                projectNotFound(id);
+            },
+            success: function (parsed) {
 
-            if (error) {
-                projectNotFound("layers.tab");
-                return;
-            }
+                // Layer index is tab-separated like so:
+                // name  file  N-hex-value  binary-ones  layout0-clumpiness  layout1-clumpiness  ...
 
-            // Initialize the layer list for sortable layers.
-            var sorted = [];
-            
-            // Process each line of the file, one per layer.
-            for (var i = 0; i < parsed.length; i++) {
-                // Pull out the parts of the TSV entry
-                // This is the name of the layer.
-                var layer_name = parsed[i][0];
+                // Initialize the layer list for sortable layers.
+                var sorted = [];
                 
-                if (layer_name == "") {
+                // Initialize the static layer names-index lookup.
+                ctx.static_layer_names = [];
+                
+                // Process each line of the file, one per layer.
+                for (var i = 0; i < parsed.length; i++) {
+                
+                    // Pull out the parts of the TSV entry
+                    // This is the name of the layer.
+                    var layer_name = parsed[i][0];
+                 
                     // Skip any blank lines
-                    continue;
-                }
-                
-                // This array holds the layer's clumpiness scores under each layout,
-                // by index. A greater clumpiness score indicates more clumpiness.
-                var layer_clumpiness = [];
-                for(var j = 4; j < parsed[i].length; j++) {
-                
-                    // Each remaining column is the clumpiness score for a layout,
-                    // in layout order.
-                    // This is the layer's clumpiness score
-                    layer_clumpiness.push(parseFloat(parsed[i][j]));
-                }
-                
-                // Number of hexes for which the layer has values
-                var n = parseFloat(parsed[i][2]);
-                
-                // Add this to the global layers object.
-                layers[layer_name] = {
-                
-                    // The url from which to download this layers primary data.
-                    url: ctx.project + parsed[i][1],
+                    if (layer_name == "") { continue; }
+
+                    // Save this layer name in the static layer names-index
+                    // lookup. Extract the index, say '6', from a file name
+                    // like layer_6.tab.
+                    var file = parsed [i][1];
+                    ctx.static_layer_names[
+                            file.substring(
+                                file.lastIndexOf("_") + 1,
+                                file.lastIndexOf(".")
+                            )
+                        ] = parsed[i][0];
+                 
+                    // This array holds the layer's clumpiness scores under each layout,
+                    // by index. A greater clumpiness score indicates more clumpiness.
+                    var layer_clumpiness = [];
+                    for(var j = 4; j < parsed[i].length; j++) {
                     
-                    n: n,
-                    clumpiness_array: layer_clumpiness,
+                        // Each remaining column is the clumpiness score for a layout,
+                        // in layout order.
+                        // This is the layer's clumpiness score
+                        layer_clumpiness.push(parseFloat(parsed[i][j]));
+                    }
                     
-                    // Clumpiness gets filled in with the appropriate value out
-                    // of the array, so out having a current layout index.
+                    // Number of hexes for which the layer has values
+                    var n = parseFloat(parsed[i][2]);
+                    
+                    // Add this to the global layers object.
+                    layers[layer_name] = {
+                    
+                         // The url from which to download this layers primary data.
+                        url: ctx.project + parsed[i][1],
+                        
+                        n: n,
+                        clumpiness_array: layer_clumpiness,
+                        
+                        // Clumpiness gets filled in with the appropriate value out
+                        // of the array, so out having a current layout index.
+                    }
+                    
+                    // Add this layer's data ID.
+                    // Remove any '.tab' extension because the Data object
+                    // does not want that there.
+                    var idx = parsed[i][1].indexOf('.tab');
+                    if (idx > -1 && idx === parsed[i][1].length - 4) {
+                        layers[layer_name].dataId = parsed[i][1].slice(0, -4)
+                    } else {
+                        layers[layer_name].dataId = parsed[i][1]
+                    }
+                    
+                    // Save the number of 1s, in a binary layer only
+                    var positives = parseFloat(parsed[i][3]);
+                    if (!(isNaN(positives))) {
+                        layers[layer_name].positives = positives;
+                    }
+                    
+                    // Add it to the sorted layer list.
+                    sorted.push(layer_name);
                 }
                 
-                // Save the number of 1s, in a binary layer only
-                var positives = parseFloat(parsed[i][3]);
-                if (!(isNaN(positives))) {
-                    layers[layer_name].positives = positives;
-                }
-                
-                // Add it to the sorted layer list.
-                sorted.push(layer_name);
-            }
-            
-            // Save sortable (not dynamic) layer names.
-            Session.set('sortedLayers', sorted);
-            Session.set('initedLayerIndex', true);
+                // Save sortable static (not dynamic) layer names.
+                Session.set('sortedLayers', sorted);
+                Session.set('initedStaticLayersArray', true);
+            },
         });
     },
 };

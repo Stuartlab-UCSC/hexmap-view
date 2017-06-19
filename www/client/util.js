@@ -45,7 +45,7 @@ Util = (function () { // jshint ignore: line
                 .show();
             $("#banner").delay(5000).fadeOut(1500);
         } else if (title === 'error') {
-            Message.display('Error', text);
+            Message.display('Error', 'Sorry, ' + text);
         } else {
             Message.display(title, text);
 
@@ -132,14 +132,14 @@ Util = (function () { // jshint ignore: line
         return project.slice(0, -1);
 	}
 
-    function projectNotFound (filename) {
+    function projectNotFound (dataId) {
         if (!ctx.projectNotFoundNotified) {
 
             // make the project name look it would in the URL & alert the user
             var proj = ctx.project.slice(5, -1).replace('/', '.');
             alert('"' + proj +
                 '" does not seem to be a valid project.\nPlease select ' +
-                'another.\n(' + filename + ')');
+                'another.\n(' + dataId + ')');
             ctx.projectNotFoundNotified = true;
         }
     }

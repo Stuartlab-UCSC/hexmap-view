@@ -69,68 +69,6 @@ readFromJsonBaseFile = function (filePath) {
     return readFromJsonFileSync(VIEW_DIR + filePath);
 };
 
-getJsonFile = function (filename, project, future) {
-
-    // This reads an entire json file into memory, then converts it to a
-    // javascript object.
-    var path = Path.join(VIEW_DIR, project, filename);
-    
-    if (fs.existsSync(path)) {
-        fs.readFile(path, 'utf8', function (error, results) {
-            if (error) {
-                future.throw(error);
-            }
-            future.return(readFromJsonFileSync(path));
-        });
-    } else {
-        future.return('Error: file not found on server: ' + path);
-    }
-    return future.wait();
-};
-
-getTsvFile = function (filename, project, unparsed, alt_dir, future) {
-
-    // This reads an entire tsv file into memory, then parses the TSVs into
-    // and array of arrays with the outside array being the lines.
-    var path;
-    
-    // Find the full path
-    if (alt_dir === 'featureSpace') {
-    
-        // Special case when the file is requested from feature space
-        path = Path.join(FEATURE_SPACE_DIR, project, filename);
-    } else if (filename.indexOf('layer_') > -1 ||
-        filename.indexOf('stats') > -1) {
-    
-        // layer_* & stats_* already contain the project name
-        path = Path.join(VIEW_DIR, filename);
-
-    } else {
-        path = VIEW_DIR + project + filename;
-    }
-    
-    if (fs.existsSync(path)) {
-        fs.readFile(path, 'utf8', function (error, results) {
-            if (error) {
-                future.throw(error);
-            }
-            if (unparsed) {
-                future.return(results);
-            } else {
-                future.return(parseTsv(results));
-            }
-        });
-    } else if (filename === 'layouts.tab') {
-    
-        // Special handling for this file because we have a better name
-        // and have added the raw layout data filenames
-        getTsvFile('matrixnames.tab', project, unparsed, undefined, future);
-    } else {
-        future.return('Error: file not found on server: ' + path);
-    }
-    return future.wait();
-};
-
 Meteor.methods({
 
     upload_feature_space_file: function (
@@ -157,23 +95,5 @@ Meteor.methods({
         fd = fs.openSync(Path.join(dir, sub_dir, file_name), mode);
         fs.writeSync(fd, buf, 0, buf.length, start);
         fs.closeSync(fd);
-    },
-
-    getTsvFile: function (filename, project, unparsed, alt_dir) {
-
-        // Retrieve data from a tab-separated file
-        this.unblock();
-        var future = new Future();
-        
-        return getTsvFile(filename, project, unparsed, alt_dir, future);
-    },
-
-    getJsonFile: function (filename, project) {
-
-        // Retrieve data from a json-formatted file
-        this.unblock();
-        var future = new Future();
-        
-        return getJsonFile(filename, project, future);
     },
 });

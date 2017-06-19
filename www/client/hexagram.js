@@ -428,78 +428,63 @@ function mix2 (a, b, c, d, amount1, amount2) {
 
 initLayout = function () {
 
-    // Download the layout names and filenames and save to the layouts array
-    Meteor.call('getTsvFile', "layouts.tab", ctx.project,
-        function (error, parsed) {
+    // Download the layout names and save to the layouts array
+        var id = 'layouts';
+        Data.get({
+            id: id,
+            success: function (parsed) {
 
-        // This is an array of rows, with two elements in each row: name and
-        // filename. Unless it is the older format stored in matrixnames.tab, in
-        // which case only the name is provided.
-
-        if (error) {
-            projectNotFound("layouts.tab");
-            return;
-        }
-
-        var layouts = [];
-        for (var i = 0; i < parsed.length; i++) {
-            // Pull out the parts of the TSV entry
-            var row = parsed[i];
-
-            if (row.length === 0) {
-                // Skip any blank lines
-                continue;
-            }
-
-            layouts.push(row[0]);
-
-            if (row.length > 1) {
-                
-                // hack alert: don't know why there is a \r at the end of
-                // the filename but remove it here
-                if (row[1].charCodeAt(row[1].length - 1) === 13) {
-                    layouts[i].filename = row[1].slice(0,row[1].length - 1);
-                } else {
-                    layouts[i].filename = row[1];
+                // This is an array of rows, with one element in each row:
+                // layout name.
+                var layouts = [];
+                for (var i = 0; i < parsed.length; i++) {
+                    var row = parsed[i];
+                    if (row.length === 0) {
+                        // Skip any blank lines
+                        continue;
+                    }
+                    layouts.push(row[0]);
                 }
-            }
-        }
-        Session.set('layouts', layouts);
+                Session.set('layouts', layouts);
 
-        // Transform the layout list into the form wanted by select2
-        var data = _.map(layouts, function (layout, i) {
-            return { id: i, text: layout }
+                // Transform the layout list into the form wanted by select2
+                var data = _.map(layouts, function (layout, i) {
+                    return { id: i, text: layout }
+                });
+
+                // Create our selection list
+                
+                // Determine the layout index whose map will be displayed.
+                // Layout index takes precedent over layout name.
+                if (Session.equals('layoutIndex', undefined)) {
+                    Session.set('layoutIndex',
+                        (Session.equals('layoutName', undefined) ? 0 :
+                            layouts.indexOf(Session.get('layoutName')))
+                    );
+                }
+                
+                createOurSelect2($("#layout-search"),
+                    {data: data}, Session.get('layoutIndex').toString());
+
+                // Define the event handler for the selecting in the list
+                $("#layout-search").on('change', function (ev) {
+                    Session.set('layoutIndex', ev.target.value);
+                    createMap();
+                    initHexagons(true);
+                    
+                    // Update density stats to this layout and
+                    // resort the list to the default of density
+                    find_clumpiness_stats(Session.get('layoutIndex'));
+                    Session.set('sort', ctx.defaultSort());
+                    updateLonglist();
+                    
+                });
+                Session.set('initedLayout', true);
+            },
+            error: function (error) {
+                projectNotFound(id);
+            },
         });
-
-        // Create our selection list
-        
-        // Determine the layout index whose map will be displayed.
-        // Layout index takes precedent over layout name.
-        if (Session.equals('layoutIndex', undefined)) {
-            Session.set('layoutIndex',
-                (Session.equals('layoutName', undefined) ? 0 :
-                    layouts.indexOf(Session.get('layoutName')))
-            );
-        }
-        
-        createOurSelect2($("#layout-search"),
-            {data: data}, Session.get('layoutIndex').toString());
-
-        // Define the event handler for the selecting in the list
-        $("#layout-search").on('change', function (ev) {
-            Session.set('layoutIndex', ev.target.value);
-            createMap();
-            initHexagons(true);
-            
-            // Update density stats to this layout and
-            // resort the list to the default of density
-            find_clumpiness_stats(Session.get('layoutIndex'));
-            Session.set('sort', ctx.defaultSort());
-            updateLonglist();
-            
-        });
-        Session.set('initedLayout', true);
-    });
 }
 
 initHex = function () {
@@ -517,55 +502,52 @@ initHex = function () {
 
 initColormaps = function () {
     // Download color map information
-    Meteor.call('getTsvFile', "colormaps.tab", ctx.project,
-        function (error, parsed) {
-
-        // Colormap data is <layer name>\t<value>\t<category name>\t<color>
-        // \t<value>\t<category name>\t<color>...
-
-        if (error) {
-            projectNotFound("colormaps.tab");
-            return;
-        }
-
-        for(var i = 0; i < parsed.length; i++) {
-            // Get the name of the layer
-            var layer_name = parsed[i][0];
-            
-            // Skip blank lines
-            if(layer_name == "") {
-                continue;
+    var id = 'colormaps';
+    Data.get({
+        id: id,
+        success: function (parsed) {
+            for(var i = 0; i < parsed.length; i++) {
+                // Get the name of the layer
+                var layer_name = parsed[i][0];
+                
+                // Skip blank lines
+                if(layer_name == "") {
+                    continue;
+                }
+                
+                // This holds all the categories (name and color) by integer index
+                var colormap = [];
+                
+                print("Loading colormap for " + layer_name);
+                
+                for(j = 1; j < parsed[i].length; j += 3) {
+                    // Store each color assignment.
+                    // Doesn't run if there aren't any assignments, leaving an empty
+                    // colormap object that just forces automatic color selection.
+                    
+                    // This holds the index of the category
+                    var category_index = parseInt(parsed[i][j]);
+                    
+                    // The colormap gets an object with the name and color that the
+                    // index number refers to. Color is stored as a color object.
+                    colormap[category_index] = {
+                        name: parsed[i][j + 1],
+                        color: Color(parsed[i][j + 2]), // operating color in map
+                        fileColor: Color(parsed[i][j + 2]), // color from orig file
+                    };
+                    
+                    print( colormap[category_index].name + " -> " +  
+                        colormap[category_index].color.hexString());
+                }
+                
+                // Store the finished color map in the global object
+                colormaps[layer_name] = colormap;
             }
-            
-            // This holds all the categories (name and color) by integer index
-            var colormap = [];
-            
-            print("Loading colormap for " + layer_name);
-            
-            for(j = 1; j < parsed[i].length; j += 3) {
-                // Store each color assignment.
-                // Doesn't run if there aren't any assignments, leaving an empty
-                // colormap object that just forces automatic color selection.
-                
-                // This holds the index of the category
-                var category_index = parseInt(parsed[i][j]);
-                
-                // The colormap gets an object with the name and color that the
-                // index number refers to. Color is stored as a color object.
-                colormap[category_index] = {
-                    name: parsed[i][j + 1],
-                    color: Color(parsed[i][j + 2]), // operating color in map
-                    fileColor: Color(parsed[i][j + 2]), // color from orig file
-                };
-                
-                print( colormap[category_index].name + " -> " +  
-                    colormap[category_index].color.hexString());
-            }
-            
-            // Store the finished color map in the global object
-            colormaps[layer_name] = colormap;
-        }
-        Session.set('initedColormaps', true);
+            Session.set('initedColormaps', true);
+        },
+        error: function (error) {
+            projectNotFound(id);
+        },
     });
 }
 })(app);

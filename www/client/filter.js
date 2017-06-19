@@ -201,15 +201,18 @@ var app = app || {};
     function requestLayerTags () {
 
         // Retrieve the layer tags data from the server
-        Meteor.call('getTsvFile', 'attribute_tags.tab', ctx.project,
-                function (error, data) {
-            if (error) {
-                console.log('info', 'There are no filter attribute tags for this project. ' + error);
+                // Download the file now.
+        Data.get({
+            id: 'attribute_tags',
+            ok404: true,  // treat 404 not found as a form of success
+            success: function(data) {
+                if (data === '404') {
 
-                // We don't want look for tags data anymore
-                tagsAutorun.stop();
-
-            } else {
+                    // This means no tags were generated, which is just fine.
+                    // Don't look for tags data anymore
+                    tagsAutorun.stop();
+                }
+            
                 // Save the fact there is tag information for this project
                 hasTagInfo = true;
                 
@@ -225,7 +228,12 @@ var app = app || {};
 
                 tagData = data;
                 processTags();
-            }
+            },
+            error: function(error) {
+
+                // Don't look for tags data anymore
+                tagsAutorun.stop();
+            },
         });
     }
 
@@ -314,7 +322,6 @@ var app = app || {};
         _.each(filters, function (filter) {
             chk.set(filter, true);
         });
-
     }
 
     initFilter = function () {
