@@ -27,7 +27,7 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Future: Place new nodes" href="placeNode.html" />
+    <link rel="next" title="Future: Create a map: Status" href="createMapStatus.html" />
     <link rel="prev" title="Future: Add new coloring attributes via Xena" href="addAttributeXena.html" /> 
   </head>
   <body role="document">
@@ -38,7 +38,7 @@
         <div class="rel" role="navigation" aria-label="related navigation">
           <a href="addAttributeXena.html" title="Future: Add new coloring attributes via Xena"
              accesskey="P">previous</a> |
-          <a href="placeNode.html" title="Future: Place new nodes"
+          <a href="createMapStatus.html" title="Future: Create a map: Status"
              accesskey="N">next</a> |
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a>
@@ -59,18 +59,19 @@
 <p><a class="reference external" href="https:/">https:/</a>/&lt;compute_server&gt;/query/<strong>createMap</strong></p>
 <p>POST with content-type: application/json</p>
 <p>data-type: json</p>
-<p>This API builds a new map from data you supply.</p>
+<p>This API builds a new map from data you have supplied via an upload to the compute
+server, or data that is already on the compute server.</p>
 <div class="section" id="content-example">
 <h2>Content Example<a class="headerlink" href="#content-example" title="Permalink to this headline">¶</a></h2>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span>
    <span class="s2">&quot;map&quot;</span><span class="p">:</span> <span class="s2">&quot;CKCC/v3&quot;</span><span class="p">,</span>
    <span class="s2">&quot;authGroup&quot;</span><span class="p">:</span> <span class="s2">&quot;CKCC&quot;</span><span class="p">,</span>
-   <span class="s2">&quot;email&quot;</span><span class="p">:</span> <span class="p">[</span>
-       <span class="s2">&quot;mok66@gmail.com&quot;</span><span class="p">,</span>
-       <span class="o">...</span>
-   <span class="p">],</span>
+   <span class="s2">&quot;email&quot;</span><span class="p">:</span> <span class="s2">&quot;mok66@gmail.com&quot;</span><span class="p">,</span>
+   <span class="s2">&quot;layoutInputDataId&quot;</span><span class="p">:</span> <span class="s2">&quot;featureSpace/me_ucsc.edu/map/features.tab&quot;</span>
    <span class="s2">&quot;layoutInputFormat&quot;</span><span class="p">:</span> <span class="s2">&quot;clusterData&quot;</span><span class="p">,</span>
+   <span class="s2">&quot;layoutinputName&quot;</span><span class="p">:</span> <span class="s2">&quot;mRNA&quot;</span><span class="p">,</span>
    <span class="s2">&quot;neighborCount&quot;</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>
+   <span class="s2">&quot;colorAttributeDataId&quot;</span><span class="p">:</span> <span class="s2">&quot;featureSpace/me_ucsc.edu/map/attributes.tab&quot;</span><span class="p">,</span>
    <span class="s2">&quot;firstColorAttribute&quot;</span><span class="p">:</span> <span class="s2">&quot;Disease&quot;</span><span class="p">,</span>
    <span class="s2">&quot;layoutAwareStats&quot;</span><span class="p">:</span> <span class="n">false</span><span class="p">,</span>
    <span class="s2">&quot;layoutIndependentStats&quot;</span><span class="p">:</span> <span class="n">false</span><span class="p">,</span>
@@ -86,123 +87,79 @@
        <span class="p">},</span>
        <span class="o">...</span>
    <span class="p">},</span>
-   <span class="s2">&quot;colorAttributes&quot;</span><span class="p">:</span> <span class="p">[</span>
-       <span class="s2">&quot;Node1&quot;</span><span class="p">:</span> <span class="p">{</span>
-           <span class="s2">&quot;Disease&quot;</span><span class="p">:</span> <span class="s2">&quot;BRCA&quot;</span><span class="p">,</span>
-           <span class="s2">&quot;Tumor Stage&quot;</span><span class="p">:</span> <span class="s2">&quot;Stage I&quot;</span><span class="p">,</span>
-           <span class="o">...</span>
-       <span class="p">},</span>
-       <span class="s2">&quot;Node2&quot;</span><span class="p">:</span> <span class="p">{</span>
-           <span class="s2">&quot;Disease&quot;</span><span class="p">:</span> <span class="s2">&quot;LUAD&quot;</span><span class="p">,</span>
-           <span class="s2">&quot;Tumor Stage&quot;</span><span class="p">:</span> <span class="s2">&quot;Stage II&quot;</span><span class="p">,</span>
-           <span class="o">...</span>
-       <span class="p">},</span>
-       <span class="o">...</span>
-   <span class="p">],</span>
-   <span class="s2">&quot;layoutInput&quot;</span><span class="p">:</span> <span class="p">{</span>
-       <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;mRNA&quot;</span><span class="p">,</span>
-       <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="p">{</span>
-           <span class="s2">&quot;Node1&quot;</span><span class="p">:</span> <span class="p">{</span>
-               <span class="s2">&quot;ALK&quot;</span><span class="p">:</span> <span class="mf">0.897645</span><span class="p">,</span>
-               <span class="s2">&quot;TP53&quot;</span><span class="p">:</span> <span class="mf">0.904140</span><span class="p">,</span>
-               <span class="o">...</span>
-           <span class="p">},</span>
-           <span class="s2">&quot;Node2&quot;</span><span class="p">:</span> <span class="p">{</span>
-               <span class="s2">&quot;ALK&quot;</span><span class="p">:</span> <span class="mf">0.897645</span><span class="p">,</span>
-               <span class="s2">&quot;TP53&quot;</span><span class="p">:</span> <span class="mf">0.904140</span><span class="p">,</span>
-               <span class="o">...</span>
-           <span class="p">},</span>
-           <span class="o">...</span>
-       <span class="p">},</span>
-       <span class="o">...</span>
-   <span class="p">}</span>
 <span class="p">}</span>
 </pre></div>
 </div>
 <p>Where:</p>
 <ul class="simple">
-<li><strong>map</strong> : a unique identifier. If you want the map to belong to a map group, that is included before the specific map separated by a slash as in the example.</li>
-<li><strong>authGroup</strong> : optional, defaults to viewable by the user who creates the map. The authorization group to which a user must belong to view this map.</li>
-<li><strong>email</strong> : optional, one or more email addresses to receive the response</li>
-<li><strong>layoutInputFormat</strong> : one of [clusterData, fullSimilarity, sparseSimilarity, xyPositions]. The format of the layout input, See the section, &#8220;Layout input formats&#8221; below.</li>
-<li><strong>neighborCount</strong> : optional, defaults to 6. The number of neighbors of each node to consider in laying out the map.</li>
-<li><strong>firstColorAttribute</strong> : optional, defaults to the attribute with the highest density; the attribute to be used to color the map on initial display</li>
-<li><strong>layoutAwareStats</strong> : optional, defaults to false. true indicates the statistics which consider the placement of nodes should be calculated. Note that these are compute-intensive so you may want to run them only when you are satisfied with your layout and coloring attributes.</li>
-<li><strong>layoutIndependentStats</strong> : optional, defaults to false. true indicates the statistics that are independent of the placement of nodes should be calculated. Note that these are compute-intensive so you may want to run them only when you are satisfied with your layout and coloring attributes.</li>
-<li><strong>reflectionMapType</strong> : optional, with a value of &#8220;geneMap&#8221;. Generate another map with 90-degree rotated clustering data so that clustering features are used as the nodes in the layout. Color attributes are provided and determined by the map type. &#8220;genemap&#8221; will produce a map with the genes as nodes in the layout with a set of pre-defined signatures as color attributes.</li>
-<li><strong>colormap</strong> : optional, defaults to a colormap generated during computations. A colormap already defined for the color attributes which maps each category value to a color. New attributes and categories will be added to this colormap.</li>
-<li><strong>colorAttributes</strong> : optional, contains properties of nodes given in the layout input used to color the map. Your attribute names and values are ojects within each node.</li>
-<li><strong>layoutInput</strong> : contains your layout name and data to use in laying out the map.</li>
+<li><strong>map</strong> : a unique identifier. If you want the map to belong to a map group,
+that is included before the specific map separated by a slash as in the example.</li>
+<li><strong>authGroup</strong> : optional, defaults to viewable by the user who creates the map.
+The authorization group to which a user must belong to view this map.</li>
+<li><strong>email</strong> : optional, one or more email addresses to receive the response. A
+single string may be supplied or an array of strings.</li>
+<li><strong>layoutInputDataId</strong> : data ID on the compute server which contains your data
+to use in laying out the map. This may be a string, or an array of strings
+when there are multiple layout input data sources.</li>
+<li><strong>layoutInputFormat</strong> : one of:</li>
 </ul>
 <blockquote>
 <div><ul class="simple">
-<li><strong>name</strong> : string used to name this layout. This is included for each layoutInputFormat.</li>
-<li><strong>data</strong>: the data to be used to determine the layout. The format is specific to each layoutInputFormat as described below.</li>
+<li>clusterData</li>
+<li>fullSimilarity</li>
+<li>sparseSimilarity</li>
+<li>xyPositions</li>
 </ul>
+<blockquote>
+<div>The format of the layout input, This may be a string, or an
+array of strings when there are multiple layout input data sources. For format
+descriptions, see the layout input format section in the
+<a class="reference external" href="https://tumormap.ucsc.edu/help/createMap.html">User Guide</a>.</div></blockquote>
 </div></blockquote>
-<div class="section" id="layout-input-formats">
-<h3>Layout input formats<a class="headerlink" href="#layout-input-formats" title="Permalink to this headline">¶</a></h3>
-<p><strong>clusterData</strong>:
-The most basic of the layout input formats where similarities among nodes
-and xy positions will be calculated for you. The main example above shows an
-example of this format which contains your node names and values.</p>
-<p><strong>fullSimilarity</strong>
-This format contains similarity scores between all node pairs which will be used to
-calculate xy positions. An example which contains your node names and values:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="p">{</span>
-   <span class="s2">&quot;Node1&quot;</span><span class="p">:</span> <span class="p">{</span>
-       <span class="s2">&quot;Node1&quot;</span><span class="p">:</span> <span class="mf">0.897645</span><span class="p">,</span>
-       <span class="s2">&quot;Node2&quot;</span><span class="p">:</span> <span class="mf">0.904140</span><span class="s2">&quot;,</span>
-       <span class="o">...</span>
-   <span class="p">},</span>
-   <span class="s2">&quot;Node2&quot;</span><span class="p">:</span> <span class="p">{</span>
-       <span class="s2">&quot;Node1&quot;</span><span class="p">:</span> <span class="mf">0.897645</span><span class="p">,</span>
-       <span class="s2">&quot;Node2&quot;</span><span class="p">:</span> <span class="mf">0.904140</span><span class="p">,</span>
-       <span class="o">...</span>
-   <span class="p">},</span>
-   <span class="o">...</span>
-<span class="p">},</span>
-</pre></div>
-</div>
-<p><strong>sparseSimilarity</strong>
-This format contains similarity scores between each node and its <strong>neighborCount</strong>
-closest neighbor nodes which will be used to calculate xy positions. This format
-is identical to that of <strong>fullSimilarity</strong>. Rather than containing a similarity
-score for every node pair, only the nodes with the top scores
-for each node are included.</p>
-<p><strong>xyPositions</strong>
-This format is the most processed of the layout input formats,
-containing the x and y coordinates in two-dimensional space of each node. An
-example which contains [x,y] positions for each of your node names:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="p">{</span>
-   <span class="s2">&quot;Node1&quot;</span><span class="p">:</span> <span class="p">{</span>
-       <span class="p">[</span><span class="mf">4.897</span><span class="p">,</span> <span class="mf">8.226</span><span class="p">],</span>
-       <span class="p">[</span><span class="mf">55.693</span><span class="p">,</span> <span class="mf">95.5</span><span class="p">],</span>
-       <span class="o">...</span>
-   <span class="p">},</span>
-   <span class="s2">&quot;Node2&quot;</span><span class="p">:</span> <span class="p">{</span>
-       <span class="p">[</span><span class="mf">4.897</span><span class="p">,</span> <span class="mf">8.226</span><span class="p">],</span>
-       <span class="p">[</span><span class="mf">55.693</span><span class="p">,</span> <span class="mf">95.5</span><span class="p">],</span>
-       <span class="o">...</span>
-   <span class="p">},</span>
-   <span class="o">...</span>
-<span class="p">},</span>
-</pre></div>
-</div>
-</div>
+<ul class="simple">
+<li><strong>layoutinputName</strong> : string used to name this layout. This may be a string,
+or an array of strings when there are multiple layout input data sources.</li>
+<li><strong>neighborCount</strong> : optional, defaults to 6. The number of neighbors of each
+node to consider in laying out the map.</li>
+<li><strong>colorAttributeDataId</strong> : optional, data ID on the compute server which
+contains your color attribute data to use in coloring the map. This may be a
+string, or an array of strings when there are multiple color attribute data sources.
+For the format of the data, see the color attribute format section in the
+<a class="reference external" href="https://tumormap.ucsc.edu/help/createMap.html">User Guide</a>.</li>
+<li><strong>firstColorAttribute</strong> : optional, defaults to the attribute with the highest
+density; the attribute to be used to color the map on initial display</li>
+<li><strong>layoutAwareStats</strong> : optional, defaults to false. true indicates the
+statistics which consider the placement of nodes should be calculated. Note
+that these are compute-intensive so you may want to run them only when you are
+satisfied with your layout and coloring attributes.</li>
+<li><strong>layoutIndependentStats</strong> : optional, defaults to false. true indicates the
+statistics that are independent of the placement of nodes should be calculated.
+Note that these are compute-intensive so you may want to run them only when
+you are satisfied with your layout and coloring attributes.</li>
+<li><strong>reflectionMapType</strong> : optional, with a value of &#8220;geneMap&#8221;. Generate another
+map with 90-degree rotated clustering data so that clustering features are
+used as the nodes in the layout. Color attributes are provided and determined
+by the map type. &#8220;genemap&#8221; will produce a map with the genes as nodes in the
+layout with a set of pre-defined signatures as color attributes.</li>
+<li><strong>colormap</strong> : optional, defaults to a colormap generated during computations.
+A colormap already defined for the color attributes which maps each category
+value to a color. New attributes and categories will be added to this colormap.</li>
+</ul>
 </div>
 <div class="section" id="response-success">
 <h2>Response success<a class="headerlink" href="#response-success" title="Permalink to this headline">¶</a></h2>
 <p>This is returned as HTTP 200 with the content as a JSON string containing:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;Request received.&quot;</span><span class="p">}</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span>
+   <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;Request received.&quot;</span><span class="p">,</span>
+   <span class="s2">&quot;jobId&quot;</span><span class="p">:</span> <span class="s2">&quot;5563fdf09484a241d066022bf91a9e96d6ae1976c4d7502d384cc2a87001067a&quot;</span>
+<span class="p">}</span>
 </pre></div>
 </div>
-<p>If the web API was called via the viewer, when the map build is complete,
-this will be returned as a JSON string and the user will be given the
-opportunity to load the map:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span> <span class="s2">&quot;bookmark&quot;</span><span class="p">:</span> <span class="s2">&quot;https://tumormap.ucsc.edu/?p=CKCC/V3&quot;</span> <span class="p">}</span>
-</pre></div>
-</div>
+<p><strong>jobId</strong> is an identifer that may be used to query the status of the job via
+<a class="reference internal" href="createMapStatus.html"><span class="doc">Future: Create a map: Status</span></a>.</p>
+<p>When the map build is complete, if an email address was provided, a message will
+be sent with the URL of the new map in the case of success or a failure message
+will be sent.</p>
 </div>
 <div class="section" id="response-error">
 <h2>Response error<a class="headerlink" href="#response-error" title="Permalink to this headline">¶</a></h2>
@@ -222,6 +179,7 @@ containing a more specific message as a JSON string.</p>
 <li class="toctree-l1"><a class="reference internal" href="addAttribute.html">Future: Add new coloring attributes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="addAttributeXena.html">Future: Add new coloring attributes via Xena</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Future: Create a map</a></li>
+<li class="toctree-l1"><a class="reference internal" href="createMapStatus.html">Future: Create a map: Status</a></li>
 <li class="toctree-l1"><a class="reference internal" href="placeNode.html">Future: Place new nodes</a></li>
 </ul>
 
@@ -245,7 +203,7 @@ containing a more specific message as a JSON string.</p>
           <div role="navigation" aria-label="related navigaton">
             <a href="addAttributeXena.html" title="Future: Add new coloring attributes via Xena"
               >previous</a> |
-            <a href="placeNode.html" title="Future: Place new nodes"
+            <a href="createMapStatus.html" title="Future: Create a map: Status"
               >next</a> |
             <a href="genindex.html" title="General Index"
               >index</a>

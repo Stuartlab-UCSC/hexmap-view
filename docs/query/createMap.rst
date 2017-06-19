@@ -7,7 +7,8 @@ POST with content-type: application/json
 
 data-type: json
 
-This API builds a new map from data you supply.
+This API builds a new map from data you have supplied via an upload to the compute
+server, or data that is already on the compute server.
 
 Content Example
 ---------------
@@ -16,12 +17,12 @@ Content Example
  {
     "map": "CKCC/v3",
     "authGroup": "CKCC",
-    "email": [
-        "mok66@gmail.com",
-        ...
-    ],
+    "email": "mok66@gmail.com",
+    "layoutInputDataId": "featureSpace/me_ucsc.edu/map/features.tab"
     "layoutInputFormat": "clusterData",
+    "layoutinputName": "mRNA",
     "neighborCount": 8,
+    "colorAttributeDataId": "featureSpace/me_ucsc.edu/map/attributes.tab",
     "firstColorAttribute": "Disease",
     "layoutAwareStats": false,
     "layoutIndependentStats": false,
@@ -37,120 +38,74 @@ Content Example
         },
         ...
     },
-    "colorAttributes": [
-        "Node1": {
-            "Disease": "BRCA",
-            "Tumor Stage": "Stage I",
-            ...
-        },
-        "Node2": {
-            "Disease": "LUAD",
-            "Tumor Stage": "Stage II",
-            ...
-        },
-        ...
-    ],
-    "layoutInput": {
-        "name": "mRNA",
-        "data": {
-            "Node1": {
-                "ALK": 0.897645,
-                "TP53": 0.904140,
-                ...
-            },
-            "Node2": {
-                "ALK": 0.897645,
-                "TP53": 0.904140,
-                ...
-            },
-            ...
-        },
-        ...
-    }
  }
 
 Where:
 
-* **map** : a unique identifier. If you want the map to belong to a map group, that is included before the specific map separated by a slash as in the example.
-* **authGroup** : optional, defaults to viewable by the user who creates the map. The authorization group to which a user must belong to view this map.
-* **email** : optional, one or more email addresses to receive the response
-* **layoutInputFormat** : one of [clusterData, fullSimilarity, sparseSimilarity, xyPositions]. The format of the layout input, See the section, "Layout input formats" below.
-* **neighborCount** : optional, defaults to 6. The number of neighbors of each node to consider in laying out the map.
-* **firstColorAttribute** : optional, defaults to the attribute with the highest density; the attribute to be used to color the map on initial display
-* **layoutAwareStats** : optional, defaults to false. true indicates the statistics which consider the placement of nodes should be calculated. Note that these are compute-intensive so you may want to run them only when you are satisfied with your layout and coloring attributes.
-* **layoutIndependentStats** : optional, defaults to false. true indicates the statistics that are independent of the placement of nodes should be calculated. Note that these are compute-intensive so you may want to run them only when you are satisfied with your layout and coloring attributes.
-* **reflectionMapType** : optional, with a value of "geneMap". Generate another map with 90-degree rotated clustering data so that clustering features are used as the nodes in the layout. Color attributes are provided and determined by the map type. "genemap" will produce a map with the genes as nodes in the layout with a set of pre-defined signatures as color attributes.
-* **colormap** : optional, defaults to a colormap generated during computations. A colormap already defined for the color attributes which maps each category value to a color. New attributes and categories will be added to this colormap.
-* **colorAttributes** : optional, contains properties of nodes given in the layout input used to color the map. Your attribute names and values are ojects within each node.
-* **layoutInput** : contains your layout name and data to use in laying out the map.
+* **map** : a unique identifier. If you want the map to belong to a map group,
+  that is included before the specific map separated by a slash as in the example.
+* **authGroup** : optional, defaults to viewable by the user who creates the map.
+  The authorization group to which a user must belong to view this map.
+* **email** : optional, one or more email addresses to receive the response. A
+  single string may be supplied or an array of strings.
+* **layoutInputDataId** : data ID on the compute server which contains your data
+  to use in laying out the map. This may be a string, or an array of strings
+  when there are multiple layout input data sources.
+* **layoutInputFormat** : one of:
+ * clusterData
+ * fullSimilarity
+ * sparseSimilarity
+ * xyPositions
 
- * **name** : string used to name this layout. This is included for each layoutInputFormat.
- * **data**: the data to be used to determine the layout. The format is specific to each layoutInputFormat as described below.
+  The format of the layout input, This may be a string, or an
+  array of strings when there are multiple layout input data sources. For format
+  descriptions, see the layout input format section in the
+  `User Guide <https://tumormap.ucsc.edu/help/createMap.html>`_.
+* **layoutinputName** : string used to name this layout. This may be a string,
+  or an array of strings when there are multiple layout input data sources.
+* **neighborCount** : optional, defaults to 6. The number of neighbors of each
+  node to consider in laying out the map.
+* **colorAttributeDataId** : optional, data ID on the compute server which
+  contains your color attribute data to use in coloring the map. This may be a
+  string, or an array of strings when there are multiple color attribute data sources.
+  For the format of the data, see the color attribute format section in the
+  `User Guide <https://tumormap.ucsc.edu/help/createMap.html>`_.
+* **firstColorAttribute** : optional, defaults to the attribute with the highest
+  density; the attribute to be used to color the map on initial display
+* **layoutAwareStats** : optional, defaults to false. true indicates the
+  statistics which consider the placement of nodes should be calculated. Note
+  that these are compute-intensive so you may want to run them only when you are
+  satisfied with your layout and coloring attributes.
+* **layoutIndependentStats** : optional, defaults to false. true indicates the
+  statistics that are independent of the placement of nodes should be calculated.
+  Note that these are compute-intensive so you may want to run them only when
+  you are satisfied with your layout and coloring attributes.
+* **reflectionMapType** : optional, with a value of "geneMap". Generate another
+  map with 90-degree rotated clustering data so that clustering features are
+  used as the nodes in the layout. Color attributes are provided and determined
+  by the map type. "genemap" will produce a map with the genes as nodes in the
+  layout with a set of pre-defined signatures as color attributes.
+* **colormap** : optional, defaults to a colormap generated during computations.
+  A colormap already defined for the color attributes which maps each category
+  value to a color. New attributes and categories will be added to this colormap.
 
-Layout input formats
-^^^^^^^^^^^^^^^^^^^^
-
-**clusterData**:
-The most basic of the layout input formats where similarities among nodes
-and xy positions will be calculated for you. The main example above shows an
-example of this format which contains your node names and values.
-
-**fullSimilarity**
-This format contains similarity scores between all node pairs which will be used to
-calculate xy positions. An example which contains your node names and values::
-
- "data": {
-    "Node1": {
-        "Node1": 0.897645,
-        "Node2": 0.904140",
-        ...
-    },
-    "Node2": {
-        "Node1": 0.897645,
-        "Node2": 0.904140,
-        ...
-    },
-    ...
- },
-
-**sparseSimilarity**
-This format contains similarity scores between each node and its **neighborCount**
-closest neighbor nodes which will be used to calculate xy positions. This format
-is identical to that of **fullSimilarity**. Rather than containing a similarity
-score for every node pair, only the nodes with the top scores
-for each node are included.
-
-**xyPositions**
-This format is the most processed of the layout input formats,
-containing the x and y coordinates in two-dimensional space of each node. An
-example which contains [x,y] positions for each of your node names::
-
- "data": {
-    "Node1": {
-        [4.897, 8.226],
-        [55.693, 95.5],
-        ...
-    },
-    "Node2": {
-        [4.897, 8.226],
-        [55.693, 95.5],
-        ...
-    },
-    ...
- },
 
 Response success
 ----------------
 
 This is returned as HTTP 200 with the content as a JSON string containing::
 
- {"status": "Request received."}
+ {
+    "status": "Request received.",
+    "jobId": "5563fdf09484a241d066022bf91a9e96d6ae1976c4d7502d384cc2a87001067a"
+ }
 
-If the web API was called via the viewer, when the map build is complete,
-this will be returned as a JSON string and the user will be given the
-opportunity to load the map::
+**jobId** is an identifer that may be used to query the status of the job via
+:doc:`createMapStatus`.
 
- { "bookmark": "https://tumormap.ucsc.edu/?p=CKCC/V3" }
+When the map build is complete, if an email address was provided, a message will
+be sent with the URL of the new map in the case of success or a failure message
+will be sent.
 
 Response error
 --------------

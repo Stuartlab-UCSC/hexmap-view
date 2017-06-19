@@ -1,17 +1,17 @@
 
-How do I view the Pancan12 Tumor Map?
+How do I view the Pancan12 TumorMap?
 =====================================
 
 Objective
 ---------
 
-Access UCSC Tumor Map home page and open the Tumor Map tool for Pan-cancer12 dataset.
+Access UCSC TumorMap home page and open the TumorMap tool for Pan-cancer12 dataset.
 
 Skills Covered
 --------------
 
-* Access Tumor Map home page.
-* Access Tumor Map for Pancan12 map.
+* Access TumorMap home page.
+* Access TumorMap for Pancan12 map.
 
 Steps
 -----
@@ -25,7 +25,7 @@ Steps
 
 3. Click on the Pancan12 map.
 
-4. Observe and explore the map that opened up and controls available in the Tumor Map tool.
+4. Observe and explore the map that opened up and controls available in the TumorMap tool.
 
 .. image:: _images/casePancan12-3.png
    :width: 625 px

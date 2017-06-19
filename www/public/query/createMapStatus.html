@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Future: Add new coloring attributes via Xena &#8212; Hex Map API</title>
+    <title>Future: Create a map: Status &#8212; Hex Map API</title>
     
     <link rel="stylesheet" href="_static/agogo.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -27,8 +27,8 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Future: Create a map" href="createMap.html" />
-    <link rel="prev" title="Future: Add new coloring attributes" href="addAttribute.html" /> 
+    <link rel="next" title="Future: Place new nodes" href="placeNode.html" />
+    <link rel="prev" title="Future: Create a map" href="createMap.html" /> 
   </head>
   <body role="document">
     <div class="header-wrapper" role="banner">
@@ -36,9 +36,9 @@
         <div class="headertitle"><a
           href="index.html">Hex Map API</a></div>
         <div class="rel" role="navigation" aria-label="related navigation">
-          <a href="addAttribute.html" title="Future: Add new coloring attributes"
-             accesskey="P">previous</a> |
           <a href="createMap.html" title="Future: Create a map"
+             accesskey="P">previous</a> |
+          <a href="placeNode.html" title="Future: Place new nodes"
              accesskey="N">next</a> |
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a>
@@ -54,45 +54,52 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="future-add-new-coloring-attributes-via-xena">
-<h1>Future: Add new coloring attributes via Xena<a class="headerlink" href="#future-add-new-coloring-attributes-via-xena" title="Permalink to this headline">¶</a></h1>
-<p><a class="reference external" href="https:/">https:/</a>/&lt;compute_server&gt;/?...</p>
-<p>GET</p>
-<p>This API takes data for one or more attributes on Xena and adds them as
-values to color an existing map.</p>
-<div class="section" id="example-url">
-<h2>Example URL<a class="headerlink" href="#example-url" title="Permalink to this headline">¶</a></h2>
-<p>Line breaks and spaces added for clarity. The string should be URI-encoded.</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span>http://tumormap.ucsc.edu/?
-   xena=addAttr&amp;
-   p=PancanAtlas/XenaPancanAtlas&amp;
-   layout=RPPA&amp;
-   hub=https://pancanatlas.xenahubs.net/data/&amp;
-   dataset=TCGA_pancancer_10852whitelistsamples_68ImmuneSigs.xena&amp;
-   attr=some-categorical-attribute&amp;
-   cat=low&amp;
-   color=00ff00&amp;
-   cat=medium&amp;
-   color=000000&amp;
-   cat=high&amp;
-   color=ff0000
+  <div class="section" id="future-create-a-map-status">
+<h1>Future: Create a map: Status<a class="headerlink" href="#future-create-a-map-status" title="Permalink to this headline">¶</a></h1>
+<p><a class="reference external" href="https:/">https:/</a>/&lt;compute_server&gt;/query/<strong>createMapStatus</strong></p>
+<p>POST with content-type: application/json</p>
+<p>data-type: json</p>
+<p>This API checks the status of a job to create a map. This API may only be called
+after a create map job has been submitted to the compute server via the web API:
+<a class="reference internal" href="createMap.html"><span class="doc">Future: Create a map</span></a>.</p>
+<div class="section" id="content-example">
+<h2>Content Example<a class="headerlink" href="#content-example" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span>
+   <span class="s2">&quot;jobId&quot;</span><span class="p">:</span> <span class="s2">&quot;5563fdf09484a241d066022bf91a9e96d6ae1976c4d7502d384cc2a87001067a&quot;</span><span class="p">,</span>
+<span class="p">}</span>
 </pre></div>
 </div>
 <p>Where:</p>
 <ul class="simple">
-<li><strong>xena</strong> : the type of xena query, one of: [addAttr]</li>
-<li><strong>p</strong> : a unique map/project identifier</li>
-<li><strong>layout</strong> : name of a particular layout of nodes within a map</li>
-<li><strong>dataset</strong> : name of a dataset on the Xena hub</li>
-<li><strong>attr</strong> : attribute name within the dataset</li>
-<li><strong>hub</strong> : the URL of the Xena hub</li>
-<li><strong>cat</strong> : optional; a category name belonging to the attribute</li>
-<li><strong>color</strong> : optional; a color belonging to the above category in the form &#8216;ff00aa&#8217; or &#8216;FF00AA&#8217;. Notice there is no &#8216;#&#8217;.</li>
+<li><strong>jobId</strong> : the job ID returned from the call to <a class="reference internal" href="createMap.html"><span class="doc">Future: Create a map</span></a>.</li>
 </ul>
 </div>
 <div class="section" id="response-success">
 <h2>Response success<a class="headerlink" href="#response-success" title="Permalink to this headline">¶</a></h2>
-<p>This is returned as HTTP 200.</p>
+<p>This is returned as HTTP 200 with the content as a JSON string containing:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span>
+   <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;Request received&quot;</span><span class="p">,</span>
+   <span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://tumormap.ucsc.edu/?p=CKCC/V3&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Where:</p>
+<ul class="simple">
+<li><strong>status</strong> : one of:</li>
+</ul>
+<blockquote>
+<div><ul class="simple">
+<li>Request received</li>
+<li>Failure</li>
+<li>Success</li>
+</ul>
+</div></blockquote>
+<ul class="simple">
+<li><strong>url</strong> is only returned upon successful completion.</li>
+</ul>
+<p>When the map build is complete, if an email address was provided in the call
+to <a class="reference internal" href="createMap.html"><span class="doc">Future: Create a map</span></a>, a message will be sent with the URL in the case of success
+or a failure message will be sent.</p>
 </div>
 <div class="section" id="response-error">
 <h2>Response error<a class="headerlink" href="#response-error" title="Permalink to this headline">¶</a></h2>
@@ -110,9 +117,9 @@ containing a more specific message as a JSON string.</p>
           <h3>Table Of Contents</h3>
           <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="addAttribute.html">Future: Add new coloring attributes</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Future: Add new coloring attributes via Xena</a></li>
+<li class="toctree-l1"><a class="reference internal" href="addAttributeXena.html">Future: Add new coloring attributes via Xena</a></li>
 <li class="toctree-l1"><a class="reference internal" href="createMap.html">Future: Create a map</a></li>
-<li class="toctree-l1"><a class="reference internal" href="createMapStatus.html">Future: Create a map: Status</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Future: Create a map: Status</a></li>
 <li class="toctree-l1"><a class="reference internal" href="placeNode.html">Future: Place new nodes</a></li>
 </ul>
 
@@ -134,16 +141,16 @@ containing a more specific message as a JSON string.</p>
       <div class="footer">
         <div class="left">
           <div role="navigation" aria-label="related navigaton">
-            <a href="addAttribute.html" title="Future: Add new coloring attributes"
-              >previous</a> |
             <a href="createMap.html" title="Future: Create a map"
+              >previous</a> |
+            <a href="placeNode.html" title="Future: Place new nodes"
               >next</a> |
             <a href="genindex.html" title="General Index"
               >index</a>
           </div>
           <div role="note" aria-label="source link">
               <br/>
-              <a href="_sources/addAttributeXena.rst.txt"
+              <a href="_sources/createMapStatus.rst.txt"
                 rel="nofollow">Show Source</a>
           </div>
         </div>

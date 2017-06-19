@@ -5,7 +5,7 @@ Basic Controls
 The controls described here are available on the map layout page so if you are
 on the home page, get to the map page with a click on a map thumbnail.
 
-Basic Tumor Map controls include the ability to navigate the map,
+Basic TumorMap controls include the ability to navigate the map,
 color the map and view a node's details.
 
 .. _navigateTheMap:

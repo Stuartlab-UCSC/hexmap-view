@@ -5,7 +5,7 @@ How do I save and share my work?
 Objective
 ---------
 
-Save and share your work on Tumor Map.
+Save and share your work on TumorMap.
 
 Skills Covered
 --------------

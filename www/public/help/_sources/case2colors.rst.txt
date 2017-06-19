@@ -18,7 +18,7 @@ Skills Covered
 Steps
 -----
 
-1. Open Tumor Map
+1. Open TumorMap
 2. Go to the *Edit* menu and click on *White Background*
 
 .. image:: _images/caseColors-1.png
