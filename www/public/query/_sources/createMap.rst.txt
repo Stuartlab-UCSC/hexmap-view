@@ -52,6 +52,7 @@ Where:
   to use in laying out the map. This may be a string, or an array of strings
   when there are multiple layout input data sources.
 * **layoutInputFormat** : one of:
+
  * clusterData
  * fullSimilarity
  * sparseSimilarity
@@ -61,6 +62,7 @@ Where:
   array of strings when there are multiple layout input data sources. For format
   descriptions, see the layout input format section in the
   `User Guide <https://tumormap.ucsc.edu/help/createMap.html>`_.
+  
 * **layoutinputName** : string used to name this layout. This may be a string,
   or an array of strings when there are multiple layout input data sources.
 * **neighborCount** : optional, defaults to 6. The number of neighbors of each
