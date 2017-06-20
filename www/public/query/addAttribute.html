@@ -66,27 +66,45 @@ to color an existing map.</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span>
    <span class="s2">&quot;map&quot;</span><span class="p">:</span> <span class="s2">&quot;CKCC/v1&quot;</span><span class="p">,</span>
    <span class="s2">&quot;layout&quot;</span><span class="p">:</span> <span class="s2">&quot;mRNA&quot;</span><span class="p">,</span>
-   <span class="s2">&quot;attributes&quot;</span><span class="p">:</span> <span class="p">{</span>
-       <span class="s2">&quot;mySignature&quot;</span><span class="p">:</span> <span class="p">{</span>
-           <span class="s2">&quot;node1&quot;</span><span class="p">:</span> <span class="mf">0.897</span><span class="p">,</span>
-           <span class="s2">&quot;node2&quot;</span><span class="p">:</span> <span class="mf">0.904</span><span class="p">,</span>
-           <span class="o">...</span>
+   <span class="s2">&quot;attributes&quot;</span><span class="p">:</span> <span class="p">[</span>
+       <span class="p">{</span>
+           <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;mySignature&quot;</span><span class="p">,</span>
+           <span class="s2">&quot;nodeIds&quot;</span><span class="p">:</span> <span class="p">[</span>
+               <span class="s2">&quot;node1&quot;</span><span class="p">,</span>
+               <span class="s2">&quot;node2&quot;</span><span class="p">,</span>
+               <span class="o">...</span>
+           <span class="p">],</span>
+           <span class="s2">&quot;values&quot;</span><span class="p">:</span> <span class="p">[</span>
+               <span class="mf">0.897</span><span class="p">,</span>
+               <span class="mf">0.904</span><span class="p">,</span>
+               <span class="o">...</span>
+           <span class="p">]</span>
        <span class="p">},</span>
-       <span class="s2">&quot;mySubtype&quot;</span><span class="p">:</span> <span class="p">{</span>
-           <span class="s2">&quot;node1&quot;</span><span class="p">:</span> <span class="s2">&quot;basal-b&quot;</span><span class="p">,</span>
-           <span class="s2">&quot;node2&quot;</span><span class="p">:</span> <span class="s2">&quot;basal-a&quot;</span><span class="p">,</span>
-           <span class="o">...</span>
+       <span class="p">{</span>
+           <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;mySubtype&quot;</span><span class="p">,</span>
+           <span class="s2">&quot;nodeIds&quot;</span><span class="p">:</span> <span class="p">[</span>
+               <span class="s2">&quot;node1&quot;</span><span class="p">,</span>
+               <span class="s2">&quot;node2&quot;</span><span class="p">,</span>
+               <span class="o">...</span>
+           <span class="p">],</span>
+           <span class="s2">&quot;values&quot;</span><span class="p">:</span> <span class="p">[</span>
+               <span class="s2">&quot;basal-a&quot;</span><span class="p">,</span>
+               <span class="s2">&quot;basal-b&quot;</span><span class="p">,</span>
+               <span class="o">...</span>
+           <span class="p">]</span>
        <span class="p">},</span>
        <span class="o">...</span>
-   <span class="p">}</span>
+   <span class="p">]</span>
 <span class="p">}</span>
 </pre></div>
 </div>
 <p>Where:</p>
 <ul class="simple">
-<li><strong>map</strong> : a unique identifier. If the map belongs to a map group, that is included before the specific map separated by a slash as in the example.</li>
+<li><strong>map</strong> : a unique identifier. If the map belongs to a map group, that is
+included before the specific map separated by a slash as in the example.</li>
 <li><strong>layout</strong> : name of a particular layout of nodes within a map.</li>
-<li><strong>attributes</strong> : contains your attribute names, which contain your node names and their values.</li>
+<li><strong>attributes</strong> : an array of color attribute objects which contain the
+attribute name, node IDs and values for each attribute.</li>
 </ul>
 </div>
 <div class="section" id="response-success">
