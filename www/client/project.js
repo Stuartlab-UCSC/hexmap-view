@@ -89,10 +89,16 @@ Project = (function () { // jshint ignore: line
             $('#s2id_project .select2-choice span')
                 .text(PLACEHOLDER_TEXT)
                 .addClass('noProject');
+           
+            Session.set('mapSnake', false);
 
-            Util.banner('error', 'Please sign in to see this map: "' +
-                Util.getHumanProject(ctx.project) +
-                    '".\nOr select another map.');
+            var notFoundMsg = Util.getHumanProject(ctx.project) +
+                ' cannot be found. Either you are not authorized to view ' +
+                "it or it doesn't exist.\nPlease select another map.";
+            if (!Meteor.user()) {
+                notFoundMsg += ' Or sign in.';
+            }
+            Util.banner('error', notFoundMsg);
  
         } else {
 
@@ -161,14 +167,20 @@ Project = (function () { // jshint ignore: line
       
             $('.login').on('click', $('#login-sign-in-link'), signInClicked);
      
-            // Repopulate projects whenever the user changes, including log out
+            // Re-populate projects whenever the user changes, including log out
             Meteor.autorun(function() {
                 var user = Meteor.user(); // jshint ignore: line
                 
+                if (user && !Session.get('initedProject') &&
+                        window.location.search.length > 0) {
+                    Session.set('mapSnake', true);
+                }
+                
                 Meteor.call('getProjects', function (error, projects_returned) {
                     if (error) {
-                        Util.banner('warn',
-                            "Unable to retrieve project data.\n" + error);
+                        Util.banner('error',
+                            "Unable to retrieve project data from server." +
+                            error);
                         return;
                     }
                     projects = projects_returned;

@@ -58,7 +58,8 @@ Util = (function () { // jshint ignore: line
         // Bail with a message if the user is not logged in or does not have
         // the credentials.
         var returnVal = true;
-        if (!(Session.get('loggedIn'))) {
+        
+        if (!Meteor.user()) {
             banner('Credentials Required',
                 'Please log in ' + credential + '.');
             returnVal = false;
@@ -134,12 +135,14 @@ Util = (function () { // jshint ignore: line
     function projectNotFound (dataId) {
         if (!ctx.projectNotFoundNotified) {
 
-            // make the project name look it would in the URL & alert the user
-            var proj = ctx.project.slice(5, -1).replace('/', '.');
-            alert('"' + proj +
+            ctx.projectNotFoundNotified = true;
+        
+            Session.set('mapSnake', false);
+        
+            // Alert the user that essential data is missing for this project.
+             banner('error', '"' + getHumanProject(ctx.project) +
                 '" does not seem to be a valid project.\nPlease select ' +
                 'another.\n(' + dataId + ')');
-            ctx.projectNotFoundNotified = true;
         }
     }
 

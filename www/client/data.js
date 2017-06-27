@@ -47,22 +47,20 @@ Data = (function () { // jshint ignore: line
             },
             error: function (error) {
                 var msg,
-                    msg404 = 'GET HTTP 404 NOT FOUND error above is OK for this data.'
+                    msg404 = ' GET ' + url + ' 404 (NOT FOUND) is OK here.';
                
-                // Special handling where the caller has said a 404: not found
-                // is OK.
+                // Special handling where the caller has said a 404 is OK.
                 if (error.status === 404 && ok404) {
                     console.log(msg404);
                     successFx('404');
                
-                // Special handling for 'layouts', whose name is
+                // Special handling for 'layouts', whose dataId is
                 // 'matrixnames' in older maps.
                 } else if (error.status === 404 &&
-                    url.slice(url.lastIndexOf('/') + 1) === 'layouts') {
-               
+                    url.slice(url.lastIndexOf('/') + 1) === 'layouts.tab') {
                     console.log(msg404);
-                    url = url.slice(0, url.lastIndexOf('/') + 1) + 'matrixnames';
-                    getData(url, successFx, errorFx)
+                    url = url.slice(0, url.lastIndexOf('/') + 1) + 'matrixnames.tab';
+                    getData(url, successFx, errorFx, ok404, parse);
                
                 // Handle the usual case.
                 } else {
@@ -77,8 +75,10 @@ Data = (function () { // jshint ignore: line
                     } else {
                         msg = 'Unknown error retrieving ' + url;
                     }
+                    if (errorFx) {
                     errorFx(msg);
                 }
+            }
             }
         });
     }
@@ -98,7 +98,9 @@ Data = (function () { // jshint ignore: line
              * @param opts.raw  true: do not parse the data returned
              *                    false: parse the data returned,
              *                    optional, defaults to false
-             * @return raw or parsed data depending on the raw parameter
+             * @return success: the raw or parsed data via the success callback
+             *         error: the error message via the error callback,
+             *                if supplied
              */
             var mapPath = ctx.project;
         
