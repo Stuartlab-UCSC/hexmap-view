@@ -111,25 +111,14 @@ Tool = (function () { // jshint ignore: line
         // Retrieve the map metadata.
         Data.get({
             id: 'mapMeta',
-            // treat 404 not found as a form of success
+            // treat 404 not found as a form of success since not all maps
+            // have metadata
             ok404: true,
-            success: function (meta) {
-            
-                // If the mapMeta data was found and
-                // there is cluster data, we've met the
-                // criteria to run placeNode.
-                var layout = Session.get('layouts')[Session.get('layoutIndex')];
-                if (meta &&
-                    meta !== '404' &&
-                    meta.layouts &&
-                    meta.layouts[layout] &&
-                    meta.layouts[layout].clusterData) {
-                    Session.set('placeNodeCriteria',
-                        true);
-                }
+            success: function (mapMeta) {
+                Session.set('mapMeta', mapMeta);
             },
             error: function (error) {
-                _.noop();
+                Session.set('mapMeta', undefined);
             },
         });
     }
@@ -241,38 +230,28 @@ Tool = (function () { // jshint ignore: line
                 $('body').css('overflow-y', 'hidden');
             }
         
-            // Find access to special functions depending on user's
-            // authorizations and sometimes other criteria.
+            // Retrieve the meta data for this map.
+            getMapMetadata();
+        
+            // Whenever the user changes, including logout, check to see
+            // if the user has job credentials.
             Meteor.autorun( function () {
-                Session.set('loggedIn', false);
-                Session.set('jobCredential', false);
-                Session.set('placeNodeCriteria', false);
+            
                 var user = Meteor.user(); // jshint ignore: line
-                if (user) {
-                    Session.set('loggedIn', true);
-                }
-
-                // Check authorization and criteria for running jobs.
-                Meteor.call('is_user_in_role', ['jobs', 'dev'],
-                    function (error, results) {
-                        if (!error && results) {
-                            Session.set('jobCredential', true);
                 
-                            // Check availability of data required for placeNode.
-                            Meteor.autorun( function () {
-                                Session.set('placeNodeCriteria', false);
-                                var layouts = Session.get('layouts'),
-                                    layoutIndex = Session.get('layoutIndex');
-                                if (!layouts || _.isUndefined(layoutIndex)) {
-                                    return;
-                                }
-                                
-                                // Retrieve the meta data for this map.
-                                getMapMetadata();
-                            })
+                if (user) {
+                    Meteor.call('is_user_in_role', ['jobs', 'dev'],
+                        function (error, results) {
+                            if (results) {
+                                Session.set('jobCredential', true);
+                            } else {
+                                Session.set('jobCredential', false);
+                            }
                         }
-                    }
-                );
+                    );
+                } else {
+                    Session.set('jobCredential', false);
+                }
             });
         },
     };

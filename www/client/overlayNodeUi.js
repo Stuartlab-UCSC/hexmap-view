@@ -142,18 +142,39 @@ var app = app || {};
     function criteriaCheck () {
     
         // Bail with a message if the required data needed is not present.
-        if (!(Session.get('placeNodeCriteria'))) {
+        var placeNodeCriteria = false,
+            meta = Session.get('mapMeta');
+        if (meta) {
+
+            // If the mapMeta data was found and there is cluster data, we've
+            // met the data criteria to run placeNode.
+            var layout = Session.get('layouts')[Session.get('layoutIndex')];
+            if (meta &&
+                meta !== '404' &&
+                meta.layouts &&
+                meta.layouts[layout] &&
+                meta.layouts[layout].clusterData) {
+                placeNodeCriteria = true;
+            }
+        }
+
+        if (placeNodeCriteria) {
+            return true;
+        } else {
             dialogHex.hide();
             Util.banner('Data not available', 'Sorry, the required data to ' +
             'place new nodes is not available for this map.');
             return false;
         }
-        return true;
     }
 
     function preShow () {
+ 
+        // Does user have credentials to run this?
         var good = Util.credentialCheck('to place new nodes');
         if (good) {
+ 
+            // Does this map and layout have the data needed to place nodes?
             good = criteriaCheck();
         }
         return good;
