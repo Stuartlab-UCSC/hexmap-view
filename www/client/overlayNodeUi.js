@@ -152,9 +152,9 @@ var app = app || {};
     }
 
     function preShow () {
-        var good = criteriaCheck();
+        var good = Util.credentialCheck('to place new nodes');
         if (good) {
-            good = Util.credentialCheck('to place new nodes');
+            good = criteriaCheck();
         }
         return good;
     }

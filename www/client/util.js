@@ -48,10 +48,9 @@ Util = (function () { // jshint ignore: line
             Message.display('Error', 'Sorry, ' + text);
         } else {
             Message.display(title, text);
-
-            // Also inform the browser console of this issue.
-            console.log(title + ':', text);
         }
+        // Also inform the browser console of this issue.
+        console.log(title + ':', text);
     }
 
     function credentialCheck (credential) {

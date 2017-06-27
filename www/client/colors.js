@@ -304,7 +304,7 @@ Colors = (function () { // jshint ignore: line
                 // The background change requires a new map to show the
                 // background.
                 createMap();
-                createHexagons();
+                createHexagons(true);
                 showOverlayNodes();
             });
      

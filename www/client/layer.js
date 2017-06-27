@@ -455,7 +455,8 @@ return { // Public methods
         // "selection + #" will be suggested as the layer name.
 
         if (nodeIds.length < 1) {
-            Util.banner('warn', "No nodes were selected.");
+            Util.banner('error',
+                "No nodes were selected, so an attribute will not be created.");
             return;
         }
 
