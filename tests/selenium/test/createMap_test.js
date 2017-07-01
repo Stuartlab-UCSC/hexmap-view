@@ -1,9 +1,13 @@
 
 // Environment-dependent values.
 var startUrl = 'http://localhost:3333/?p=unitTest/layoutBasicExp',
+    majorMap = 'swat_soe.ucsc.edu',
+    minorMap = 'map',
+    uploadRoot = '/Users/swat/dev/compute/tests/in/layout/',
+    featureRoot = '/Users/swat/data/featureSpace/' + majorMap + '/' + minorMap + '/',
+    viewRoot = '/Users/swat/data/view/' + majorMap + '/' + minorMap + '/',
     endUrl = 'http://localhost:3333/?',
-    beginMapId = 'unitTest/layoutBasicExp',
-    mapId1 = 'swat_soe.ucsc.edu/map';
+    mapId1 = majorMap + '/' + minorMap ;
 
 var $ = require('jquery');
 var path = require('path');
@@ -11,95 +15,108 @@ var webdriver = require('selenium-webdriver'),
     By = webdriver.By,
     until = webdriver.until;
 
-var util = require('./testUtils');
+var U = require('./testUtils');
 
-var filename = path.basename(__filename),
-    menuClass = 'fileMenu',
-    menuOptionClass = 'createMap';
+var menuClass = 'fileMenu',
+    menuOptionClass = 'createMap',
+    preOptsText = 'Compute request options: ',
+    expOpts = {
+        basicTest: '--layoutInputFile,' + featureRoot + 'full_matrix.tab,--layoutInputFormat,clusterData,--layoutName,layout,--directory,' + viewRoot + ',--include-singletons,--noLayoutIndependentStats,--noLayoutAwareStats',
+    };
 
-function setup (featurePath) {
-
-    // Setup to run before each test.
-    var driver = new webdriver.Builder()
-        .forBrowser('chrome')
-        //.forBrowser('firefox')
-        .build();
-
-    util.setUpForMenu({
-        url: startUrl,
-        menuClass: menuClass,
-        menuOptionClass: menuOptionClass,
-        driver: driver,
-        username: 'swat@soe.ucsc.edu',
-        password: 'Mollium123',
-    });
-    
-    // Assuming this is the only ui-dialog
-    var dialog = driver.findElement(By.className('ui-dialog'));
-    
-    // Set the feature file path.
-    // TODO wait for upload-file element to be found
-    dialog.findElement(By.className('feature_upload_anchor'))
-        .findElement(By.className('upload-file'))
-        .sendKeys(featurePath);
-    
-    return {driver: driver, dialog: dialog};
+function failed (expected, actual, line) {
+    U.failed(expected, actual, line, path.basename(__filename));
 }
 
-function tearDown (driver) {
-    driver.quit();
+function verifyParametersProduced (testName) {
+    driver.findElement(By.css('#create_map_dialog .log')).getAttribute('value')
+        .then(function (text) {
+            var preOptsIndex = text.indexOf(preOptsText);
+            if (preOptsIndex > -1) {
+                var actual = text.substring(preOptsIndex + preOptsText.length);
+                if (actual !== expOpts[testName]) {
+                    failed(expOpts[testName], actual, __line);
+                }
+            }
+        });
 }
 
-function failed (msg, line, driver) {
-    util.failed(line, filename, 'mapId1:', mapId1, 'not found.');
-    teardown(driver);
+function setFeatureFile (featurePath, driver) {
+    driver.wait(until.elementIsVisible(driver.findElement(
+            By.id('create_map_dialog'))), 60000)
+        .then(_ => driver.wait(until.elementIsVisible(driver.findElement(
+            By.css('#create_map_dialog .upload-file'))), 6000)
+            .sendKeys(featurePath));
 }
 
-function clickCreateButton (driver) {
-
-    // Press on the Create button to create the map.
-    // No Selenium nor jquery calls used here because they only closed the
-    // dialog on click() and did not call the registered click handler.
-    driver.executeScript(
-        "var buttons = document.getElementsByTagName('button');" +
-        "var button = _.filter(buttons, function (button) {" +
-        "    if (button.innerText.indexOf('Create') === 0) { return true };" +
-        "});" +
-        "button[0].click();"
-    );
-}
-
-function reloadPage (driver) {
+var verifyNewMapLoads = function (mapId, driver) {
 
     // Wait for a reload, then for the map selector to be found.
-    driver.wait(until.urlIs(endUrl), 10000);
-    driver.wait(until.elementLocated(By.css('div#s2id_project span')), 6000);
+    driver.wait(until.urlIs(endUrl), 20000)
+        .then(_ => driver.sleep(500))
+        .then(_ => driver.wait(until.elementLocated(
+            By.id('s2id_project')), 6000))
+        .then(_ => driver.wait(until.elementIsVisible(driver.findElement(
+            By.id('s2id_project'))), 60000))
+        .then(_ => driver.wait(until.elementIsVisible(driver.findElement(
+            By.css('#s2id_project span')), 6000))
+            .getText().then(function (text) {
+                if (text.indexOf(mapId1) < 0) {
+                    failed(mapId1, text, __line);
+                }
+            }));
+}
+
+function doThroughSetFeatureFile (featurePath, driver) {
+
+    // Log in, click createMap menu option and set the feature file.
+    driver.wait(until.titleIs('UCSC Tumor Map'), 6000)
+        .then(_ => U.login(driver))
+        .then(_ => U.clickMenuOption(menuClass, menuOptionClass, driver))
+        .then(_ => setFeatureFile(featurePath, driver));
 }
 
 function basicTest () {
-
-    // Most basic create map.
-    var featurePath = '/Users/swat/dev/compute/tests/in/layout/full_matrix.tab',
-        s = setup(featurePath),
-        driver = s.driver,
-        dialog = s.dialog;
+    /*
+    layout parameters tested:
+        --layoutInputFile = feature data
+        --layoutInputFormat = feature data
+        --layoutName
+        --directory
+        --include-singletons
+        --noLayoutIndependentStats
+        --noLayoutAwareStats
+    */
+    var featurePath = uploadRoot + 'full_matrix.tab';
+        driver = U.setUp();
     
-    clickCreateButton(driver);
-    reloadPage(driver);
-
-    // Verify the proper map is loaded.
-    driver.findElement(By.css('div#s2id_project span'))
-        .getText().then(function(text) {
-            if (text.indexOf(mapId1) < 1) {
-                failed('mapId1: ' + mapId1 + ' not found.', __line, driver);
-            } else {
-                // TODO: check log before checking proper map loaded?
-                driver.quit();
-            }
-        }
-    );
+    driver.get(startUrl)
+        .then(_ => doThroughSetFeatureFile(featurePath, driver))
+        .then(_ => U.clickDialogButton(driver))
+        .then(_ => verifyParametersProduced (arguments.callee.name))
+        //.then(_ => verifyNewMapLoads(mapId1, driver))
+        //.then(_ => driver.sleep(3000))
+        .then(_ => driver.quit());
 }
 
 basicTest();
 
+/*
+Combinations:
+- full similarity
+- sparse similarity
+- coordinates
+- include-singletons ?
+- with attributes
+    - with first attribute
+- with precomputed stats (unhide temporarily)
+- with zero-replace
+    - sparse sim: with zero-replace
+    - coordinates: with zero-replace
+    - greyed out for full sim
+    - greyed out for feature data
+- future: create button:
+    - greyed out after pressed
+    - createMap snake visible
+*/
 
