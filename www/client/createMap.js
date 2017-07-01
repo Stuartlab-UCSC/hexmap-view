@@ -1,6 +1,10 @@
 // createMap.js
 // This creates a new map with user uploaded data.
 
+import React, { Component } from 'react';
+import { render } from 'react-dom';
+import UploadR from '../imports/UploadR.jsx';
+
 var app = app || {};
 
 (function (hex) { // jshint ignore: line
@@ -10,39 +14,44 @@ CreateMap = (function () { // jshint ignore: line
         initial_log = 'log messages',
         dialogHex, // instance of the class DialogHex
         $dialog, // our dialog DOM element
-        feature_upload, // the feature file selector
+        feature_upload, // the feature upload react component
+        feature_data_id, // the data ID to be passed to the computation code
         attribute_upload, // the feature file selector
+        attribute_data_id // // the data ID to be passed to the computation code
         ui = new ReactiveDict(),
         log = new ReactiveVar(),
-        show_advanced = 'Advanced options...',
-        hide_advanced = 'Hide advanced options',
+        show_advanced = 'Advanced ...',
+        hide_advanced = 'Hide advanced',
         formats = [
-            ['feature_space', 'Feature data'],
-            ['similarity_full', 'Full similarity matrix'],
-            ['similarity', 'Sparse similarity matrix'],
-            ['coordinates', 'XY positions'],
+            ['clusterData', 'Feature data'],
+            ['fullSimilarity', 'Full similarity matrix'],
+            ['sparseSimilarity', 'Sparse similarity matrix'],
+            ['xyPositions', 'XY positions'],
         ],
-        default_feature_format = 'feature_space',
-        methods = [
-            'DrL',
-            'tSNE',
-            'MDS',
-            'PCA',
-            'ICA',
-            'isomap',
-            'spectral embedding',
-        ],
-        default_method = 'DrL',
-        feature_file_base_name = 'features.tab',
-        attr_file_base_name = 'attributes.tab',
+        default_feature_format = 'clusterData',
         advanced_label = new ReactiveVar();
      
     Template.create_map_t.helpers({
         major_project: function () {
             return ui.get('major_project');
         },
+        default_attribute: function () {
+            return ui.get('default_attribute');
+        },
+        drl: function () {
+            return (!ui.get('tete_method'));
+        },
+        tete: function () {
+            return (ui.get('tete_method'));
+        },
         minor_project: function () {
             return ui.get('minor_project');
+        },
+        dynamic: function () {
+            return !(ui.get('precompute_stats'));
+        },
+        precompute: function () {
+            return ui.get('precompute_stats');
         },
         zeroReplace: function () {
             return ui.get('zeroReplace');
@@ -57,27 +66,59 @@ CreateMap = (function () { // jshint ignore: line
             }, 0); // Give some time for the log message to show up
             return text ? text : initial_log;
         },
-        dynamic: function () {
-            return !(Session.get('create_map_stats_precompute'));
-        },
-        precompute: function () {
-            return Session.get('create_map_stats_precompute');
-        },
         advanced_label: function () {
-            return Session.get('create_map_show_advanced') ?
+            return ui.get('show_advanced') ?
                 hide_advanced : show_advanced;
         },
         advanced_display: function () {
-            if (Session.get('create_map_show_advanced')) {
-                return 'table';
+            if (ui.get('show_advanced')) {
+                return 'table-row';
             } else {
                 return 'none';
             }
         },
     });
  
+    function log_it (msg_in, start, size, replace_last) {
+ 
+        var msg = msg_in,
+            msgs = log.get();
+
+        if (!msg) {
+        
+            console.log('must have a log message for now with no progress implemented')
+
+            /* TODO no progress for now.
+            // This must be an upload progress messsage
+            var endDate = new Date(),
+                elapsed =
+                    Math.ceil((endDate.getTime() -
+                    this.startDate.getTime()) / 100 / 60) / 10,
+                elapsed_str
+                    = elapsed.toString().replace(/\B(?=(\d{3})+\b)/g, ","),
+                size_str
+                    = size.toString().replace(/\B(?=(\d{3})+\b)/g, ","),
+                start_str
+                    = start.toString().replace(/\B(?=(\d{3})+\b)/g, ",");
+            msg = this.file.name +
+                ': uploaded ' + start_str +
+                ' of ' + size_str +
+                ' bytes in ' + elapsed_str + ' minutes.';
+            */
+        }
+        
+        if (replace_last) {
+
+            // We want to replace the last message logged so remove it.
+            msgs = msgs.slice(0, msgs.lastIndexOf('\n'));
+        }
+
+        log.set(msgs + '\n' + msg);
+    }
+
     function report_error (msg) {
-        // Send the error message to the console (mainly for developers).
+    
+        // Send the error message to the console.
         console.log(msg);
 
         // Make a message to display to the user in case they have pop-ups
@@ -94,69 +135,51 @@ CreateMap = (function () { // jshint ignore: line
         date = date.slice(0, i);
         
         // Display on create map log
-        feature_upload.log_it('\nPlease let hexmap at ucsc dot edu know you ' +
+        log_it('\nPlease let hexmap at ucsc dot edu know you ' +
             'had a map creation problem on ' + date);
 
         // Pop open the trouble shooting help page.
         window.open(URL_BASE + "/help/createMapTrouble.html");
     }
  
-    function report_info (msg) {
-        Util.banner('info', msg);
-        feature_upload.log_it(msg);
-    }
- 
-    function project () {
+    function getProjectName () {
         return ui.get('major_project') + '/' + ui.get('minor_project') + '/';
     }
  
-    function major_project_dir () {
-        return FEATURE_SPACE_DIR + '/' + ui.get('major_project');
-    }
-
-    function feature_space_dir () {
-        return FEATURE_SPACE_DIR + project();
-    }
-
     function view_dir () {
-        return VIEW_DIR + project();
-    }
-
-    function feature_file_name () {
-        return feature_space_dir() + feature_file_base_name;
-    }
-
-    function attr_file_name () {
-        return feature_space_dir() + attr_file_base_name;
+        return VIEW_DIR + getProjectName();
     }
 
     function create_map () {
  
-        var msg = 'Uploads complete. Generating layout...';
- 
-        Util.banner('info', msg);
-        feature_upload.log_it(msg);
-
+        // Send the create map request to the server.
+        log_it('Generating layout...');
+             
         var opts = [
-            '--names', 'layout',
-            '--directory', view_dir(),
-            '--include-singletons',
-            '--no_layout_independent_stats',
-            '--no_layout_aware_stats',
+            '--layoutInputFile', feature_data_id,
+            '--layoutInputFormat', ui.get('feature_format'),
+            '--layoutName', 'layout',
+            '--outputDirectory', view_dir(),
         ];
         
-        opts.push('--' + ui.get('feature_format'));
-        
-        opts.push(feature_file_name());
-        
-        if (ui.get('feature_format') === 'feature_space') {
-            opts.push('--metric');
-            opts.push('spearman');
+        if (attribute_data_id) {
+            opts.push('--colorAttributeFile');
+            opts.push(attribute_data_id);
         }
-
-        if (attribute_upload.file) {
-            opts.push('--scores');
-            opts.push(attr_file_name());
+        
+        if (ui.get('tete_method')) {
+            opts.push('--layoutMethod');
+            opts.push('t-ETE');
+        }
+        
+        if (ui.get('display_default').length > 0) {
+            opts.push('--firstAttribute');
+            opts.push(ui.get('display_default'));
+        }
+        
+        if (!ui.get('precompute_stats')) {
+            opts.push('--noLayoutIndependentStats');
+            opts.push('--noLayoutAwareStats');
         }
         
         if (ui.get('zeroReplace') && (ui.equals('layout_input', 'similarity') ||
@@ -164,38 +187,85 @@ CreateMap = (function () { // jshint ignore: line
             opts.push('--zeroReplace');
         }
  
+        if (DEV) {
+            log_it('Compute request options: ' + opts);
+        }
+
+        //return;
+        
         Meteor.call('create_map', opts, function (error) {
             if (error) {
                 report_error('Error: ' + error);
                 
             } else {
-                report_info('Map was successfully created and is loading now.');
+                log_it('Map was successfully created and is loading now.');
 
                 // Open the new map.
-                Hex.loadProject(project());
+                Hex.loadProject(getProjectName());
             }
         });
+    }
+
+    function get_data_id (id) {
+        return VIEW_DIR.slice(0, VIEW_DIR.length - 5) + id;
     }
 
     function upload_attributes () {
  
         // Upload the user's attribute file
-        if (attribute_upload.file) {
-            attribute_upload.upload_now(
-                major_project_dir(),
-                ui.get('minor_project'),
-                function () {
-                    var msg = attribute_upload.source_file_name +
-                        ' has been uploaded.';
-                    Util.banner('info', msg);
+        if (attribute_upload.refs.fileObj) {
+        
+            Data.upload({
+                mapId: ui.get('major_project') + '/' + ui.get('minor_project') + '/',
+                sourceFile: attribute_upload.refs.fileObj,
+                targetFile: attribute_upload.refs.fileObj.name,
+                success: function (results, dataId) {
+                    //attribute_data_id = dataId;
+
+                    // TODO temporary until we implement relative paths in the
+                    // createMap_www.js in the compute server.
+                    attribute_data_id = get_data_id(dataId);
+
+                    log_it('Color attributes upload complete.')
                     create_map();
-                }
-            );
+                },
+                error: function (msg) {
+                    log_it(msg)
+                },
+            });
         } else {
             create_map();
         }
     }
 
+    function create_clicked () {
+        
+        // Upload the feature file.
+        Data.upload({
+            mapId: ui.get('major_project') + '/' + ui.get('minor_project') + '/',
+            sourceFile: feature_upload.refs.fileObj,
+            targetFile: feature_upload.refs.fileObj.name,
+            success: function (results, dataId) {
+                feature_data_id = dataId;
+                
+                console.log('1feature_data_id:', feature_data_id);
+
+                // TODO temporary until we implement relative paths in the
+                // createMap_www.js in the compute server.
+                feature_data_id = get_data_id(dataId);
+                
+                console.log('2feature_data_id:', feature_data_id);
+
+
+                log_it('Layout input upload complete.')
+                upload_attributes();
+            },
+            error: function (msg) {
+                log_it(msg)
+            },
+        });
+	}
+ 
     function enable_zeroReplace() {
         var disabled = false,
             color = 'inherit';
@@ -212,47 +282,22 @@ CreateMap = (function () { // jshint ignore: line
             .css('color', color);
     }
 
-    function create_clicked () {
+    function build_dialog_content (username) {
  
-        // Upload the user's feature file
-        feature_upload.upload_now(
-            major_project_dir(),
-            ui.get('minor_project'),
-            function () {
-                var msg = feature_upload.source_file_name +
-                    ' has been uploaded.';
-                Util.banner('info', msg);
-                upload_attributes();
-            }
-        );
-	}
- 
-    function username_received (username) {
- 
-        // User name has been received, set up the widgets.
-        if (!username) {
-            Util.banner('error', 'username could not be found');
-            return;
-        }
-        
-        var meteor_method = 'upload_feature_space_file';
- 
-        // Define the file selector for features file
-        feature_upload = create_upload($dialog.find('.feature_upload_anchor'),
-            meteor_method, feature_file_base_name, log);
+         // Define the file selector for features file
+        feature_upload = render(
+            <UploadR />, $dialog.find('.feature_upload_anchor')[0]);
  
         // Define the file selector for attributes file
-        attribute_upload =
-            create_upload($dialog.find('.attribute_upload_anchor'),
-            meteor_method, attr_file_base_name, log);
-
+        attribute_upload = render(
+            <UploadR />, $dialog.find('.attribute_upload_anchor')[0]);
+ 
         // Find a name to use for this user's projects that will be
         // safe to use as a directory name. TODO this should be made unique for
         // the corner case of the safe name duplicates another user's safe name.
         ui.set('major_project', Util.clean_file_name(username));
  
         // Initialize some ui values
-        ui.set('minor_project', 'map');
         log.set(initial_log);
         
         // Create the feature format list
@@ -261,53 +306,62 @@ CreateMap = (function () { // jshint ignore: line
             data.push({id: format[0], text: format[1]});
         });
         var $format_anchor = $('#create_map_dialog .format_anchor');
-        createOurSelect2($format_anchor, {data: data}, default_feature_format);
+        Util.createOurSelect2($format_anchor, {data: data},
+            default_feature_format);
         $format_anchor.show();
-
+        
+        // Remove focus from question marks.
+        $('#create_map_dialog .blur').blur();
+        
         // Define some event handlers
         $('#create_map_dialog .minor_project').on('change', function (ev) {
-            ui.set('minor_project', ev.target.value);
-        });
+             ui.set('minor_project', ev.target.value);
+       });
         $format_anchor.on('change', function (ev) {
             ui.set('feature_format', ev.target.value);
             enable_zeroReplace();
         });
+        $('#drl').on('change', function (ev) {
+            ui.set('tete_method', ev.target.checked);
+        });
+        $('#tete').on('change', function (ev) {
+            ui.set('tete_method', !ev.target.checked);
+        });
+        $('#create_map_dialog .default_attribute').on('change', function (ev) {
+            ui.set('default_attribute', ev.target.value);
+        });
+        $('#dynamic').on('change', function (ev) {
+            ui.set('precompute_stats', !ev.target.checked);
+        });
+        $('#precompute').on('change', function (ev) {
+            ui.set('precompute_stats', ev.target.checked);
+        });
+ 
         $('#create_map_dialog .zeroReplace').on('change', function (ev) {
             ui.set('zeroReplace', ev.target.checked);
         });
  
-        /* TODO later
-        // Create the method list
-        var data = [];
-        methods.forEach(function (method){
-            data.push({id: method, text: method});
-        });
-        var $method_anchor = $('#create_map_dialog .method_anchor');
-        createOurSelect2($method_anchor, {data: data}, 
-            Session.get('create_map_method'));
-        $method_anchor.show();
-
-        // Define the event handler for the method list
-        $method_anchor.on('change', function (ev) {
-            Session.set('create_map_method', ev.target.value);
-        });
-        */
- 
-        /* TODO later
         // Define event handler for advanced link click
         $('#create_map_dialog .advanced_trigger').on('click', function () {
-            Session.set('create_map_show_advanced',
-                !Session.get('create_map_show_advanced'));
+            ui.set('show_advanced',
+                !ui.get('show_advanced'));
         });
-        */
     }
  
     function show () {
  
         // Show the contents of the dialog, once per menu button click
         
-        // Find the username to build directories for her
-        Util.get_username(username_received);
+        // First find the username.
+        Util.get_username(function (username) {
+        
+            // User name has been received, set up the widgets.
+            if (username) {
+                build_dialog_content(username);
+            } else {
+                Util.banner('error', 'username could not be found');
+            }
+        });
     }
 
     function preShow () {
@@ -331,6 +385,7 @@ CreateMap = (function () { // jshint ignore: line
             // Define the dialog options & create an instance of DialogHex
             var opts = {
                 title: title,
+                maxHeight: $(window).height() - 30,
                 buttons: [{ text: 'Create', click: create_clicked }],
             };
             dialogHex = createDialogHex({
@@ -344,8 +399,12 @@ CreateMap = (function () { // jshint ignore: line
      
             // Initialize some UI variables
             ui.set('feature_format', default_feature_format);
-            Session.set('create_map_show_advanced', false);
+            ui.set('tete_method', false);
+            ui.set('display_default', '');
+            ui.set('minor_project', 'map');
+            ui.set('precompute_stats', false);
             ui.set('zeroReplace', false);
+            ui.set('show_advanced', false);
 
             // Listen for the menu clicked
             Tool.add("createMap", function() {

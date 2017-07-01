@@ -1,5 +1,9 @@
 // mainHex.js
 
+import React from 'react';
+import { Meteor } from 'meteor/meteor';
+import { render } from 'react-dom';
+
 var app = app || {};
 (function (hex) { // jshint ignore: line
 Hex = (function () { // jshint ignore: line
@@ -23,7 +27,11 @@ Hex = (function () { // jshint ignore: line
 
     function queryFreeReload () {
         Session.set('mapSnake', true);
-        window.location.search = '';
+        if (window.location.search.length > 0) {
+            window.location.search = '';
+        } else {
+            window.location.reload();
+        }
     }
 
     function pageReload (page) {

@@ -1,121 +1,83 @@
 <template name='create_map_t'>
-    <div id="create_map_dialog" style='display:none'>
-        <table style='width:100%'>
-            <tr>
-                <td class='dialog_label'>
-                    Layout input:
-                </td>
-                <td class='dialog_value feature_upload_anchor'>
-                    {{>upload_t}}
-                </td>
-            </tr>
-            <tr>
-                <td class='dialog_label'>
-                    Layout input format:
-                </td>
-                <td class='dialog_value'>
-                    <span class='format_anchor' style='width:15em'></span>
-                    <a class='no_underline' href='/help/createMap.html#feature-formats' target='_blank'>
-                        <img class='context-help' src='/icons/question.png'>
-                    </a>
-                </td>
-            </tr>
-            <tr>
-                <td class='dialog_label' style='vertical-align:top'>
-                    Color attributes:
-                </td>
-                <td class='dialog_value attribute_upload_anchor'>
-                    {{>upload_t}}
-                    <br>
-                    <span style='font-size:0.8em'>(optional)</span>
-                    <a class='no_underline' href='/help/createMap.html#attribute-format' target='_blank'>
-                        <img class='context-help' src='/icons/question.png'>
-                    </a>
-                </td>
-            </tr>
-            <tr>
-                <td class='dialog_label'>
-                    Map name:
-                </td>
-                <td class='dialog_value'>
-                    <span>{{ major_project }}/</span>
-                    <input class='minor_project' type='text' value='{{ minor_project }}'>
-                </td>
-            </tr>
-            <tr>
-                <td class='dialog_label zero'>
-                    Missing values:
-                </td>
-                <td class='dialog_value'>
-                    <label class='zero'>
-                        <input class='zeroReplace zero' type='checkbox' checked='{{ zeroReplace }}'>
-                        Replace with zero
-                    </label>
-                </td>
-            </tr>
-            <tr>
-                <td class='dialog_value' colspan=2>
-                     <textarea class='log' rows=7, name='log' value='{{log}}' readonly></textarea>
-                </td>
-            </tr>
-            <tr style='display:none'>
-                <td class='dialog_value' style='font-size:0.8em'>
-                    <a class='advanced_trigger' href='#'>
-                        {{ advanced_label }}
-                    </a>
-                </td>
-            </tr>
-        </table>
-        
-        <!-- Advanced -->
-        <table class='advanced' style='display:{{ advanced_display }}'>
-            <tr>
-                <td class='dialog_label'>
-                    Layout method:
-                </td>
-                <td class='dialog_value'>
-                    <span class='method_anchor' style='width:14em'></span>
-                    <a href='/help/createMap.html#layout-methods' target='_blank'>
-                        <img class='context-help' src='/icons/question.png'>
-                    </a>
-                </td>
-            </tr>
-            <tr style='display:none'>
-                <td class='dialog_label' style='vertical-align:top'>
-                    Statistics:
-                </td>
-                <td class='dialog_value'>
-                    <input type="radio" class='stats'  name="stats" id="dynamic" value="dynamic" checked={{dynamic}} />
-                    <label for="dynamic">Dynamic</label>
-                    <br>
-                    <input type="radio" class='stats' name="stats" id="precompute" value="precompute" checked={{precompute}} />
-                    <label for="precompute">Precompute (longer run time)</label><br/>
-                </td>
-            </tr>
-            <tr>
-                <td class='dialog_label' style='vertical-align:top'>
-                    Special color attributes:
-                </td>
-            </tr>
-            <tr>
-                <td class='dialog_label' style='vertical-align:top'>
-                    Handle as integer<br>rather than categories:
-                </td>
-                <td class='dialog_value'>
-                    <textarea class='cont_int' rows='3'>
-                    </textarea>
-                </td>
-            </tr>
-            <tr>
-                <td class='dialog_label' style='vertical-align:top'>
-                    Handle as 2 categories<br>rather than binary:
-                </td>
-                <td class='dialog_value'>
-                    <textarea class='two_val_cat' rows='3'>
-                    </textarea>
-                </td>
-            </tr>
-        </table>
+    <div id="create_map_dialog" style='overflow-y:auto;padding-left:3em;display:none'>
+        <div>
+            <h3>Layout input
+                <a class='blur no_underline' href='/help/createMap.html#feature-formats' target='_blank'>
+                    <img class='context-help' src='/icons/question.png'>
+                </a>
+            </h3>
+            <div class='feature_upload_anchor'>
+            </div>
+            <div>
+                Format: <span class='format_anchor' style='width:15em'></span>
+            </div>
+        </div>
+        <div>
+            <h3>Color attributes
+                <span style='font-size:0.7em'>(optional)</span>
+                <a class='no_underline' href='/help/createMap.html#attribute-format' target='_blank'>
+                    <img class='context-help' src='/icons/question.png'>
+                </a>
+            </h3>
+            <div class='attribute_upload_anchor'>
+                {{>upload_t}}
+            </div>
+            <div style='display:none'>
+                Display default:
+                <input class='default_attribute' value='{{ default_attribute }}' style='width:12.5em'>
+            </div>
+            <div style='font-size:0.8em'>
+            </div>
+        </div>
+        <div>
+            <h3>Map name</h3>
+            <div>
+                <span>{{ major_project }}/</span>
+                <input class='minor_project' type='text' value='{{ minor_project }}' style='width:10.5em'>
+            </div>
+        </div>
+        <div>
+            <h3>Log</h3>
+            <div>
+                <textarea class='log' rows=7, name='log' value='{{log}}' readonly></textarea>
+            </div>
+        </div>
+        <div>
+            <h3 style='font-size:0.8em;margin-left:-2.5em;margin-top:1em; margin-bottom:0'>
+                <a class='advanced_trigger' href='#' style='color:blue;text-decoration:underline'>
+                    {{ advanced_label }}
+                </a>
+            </h3>
+        </div>
+        <div style='display:none'>
+            <h3>Layout method</h3>
+            <div>
+                <input type="radio" class='method' name="method" id="drl" checked={{drl}} />
+                <label for="DrL">DrL</label>
+                <br>
+                <input type="radio" class='method' name="method" id="tete" checked={{tete}} />
+                <label for="t-ETE">t-ETE</label><br/>
+            </div>
+        </div>
+        <div style='display:{{ advanced_display }}'>
+            <h3>Missing values</h3>
+            <div>
+                <label class='zero'>
+                    <input class='zeroReplace zero' type='checkbox' checked='{{ zeroReplace }}'>
+                    Replace with zero
+                </label>
+            </div>
+        </div>
+        <div style='display:none'>
+            <h3>Statistics</h3>
+            <div>
+                <input type="radio" class='stats'  name="stats" id="dynamic" value="dynamic" checked={{dynamic}} />
+                <label for="dynamic">Dynamic</label>
+                <br>
+                <input type="radio" class='stats' name="stats" id="precompute" value="precompute" checked={{precompute}} />
+                <label for="precompute">Precompute (longer run time)</label><br/>
+            </div>
+        </div>
     </div>
 </template>
 

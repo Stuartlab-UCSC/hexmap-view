@@ -27,10 +27,11 @@ Object.defineProperty(global, '__line', {
 exports.clickDialogButton = function (driver, buttonPosition) {
 
     // Click on a dialog control button at the bottom of the dialog.
-    // This assumes only one dialog is open.
+    // This assumes only one dialog is open and retrieves all
+    // ui-dialog-buttonset.
     var pos = buttonPosition || 1;
-    driver.wait(until.elementLocated(By.css(
-            '.ui-dialog-buttonset button:nth-child('+pos+')')), 6000).click();
+    driver.findElement(By.css('.ui-dialog-buttonset button:nth-child('+pos+')'))
+        .click();
 };
 
 exports.clickMenuOption = function (menuClass, menuOptionClass, driver) {
@@ -40,21 +41,14 @@ exports.clickMenuOption = function (menuClass, menuOptionClass, driver) {
     // primary menu options always displayed on the navigation bar
     driver.wait(until.elementLocated(By.css('#navBar .' + menuClass)), 6000)
             .click()
-        //.then(_ => driver.sleep(500))
+        .then(_ => driver.sleep(100)) // to avoid dialog not opening occasionally
         .then(_ => driver.wait(until.elementIsVisible(driver.findElement(
-            By.css('#navBar .' + menuOptionClass))), 12000).click());
+            By.css('#navBar .' + menuOptionClass))), 12000).click())
+        .then(_ => driver.sleep(100));  // to avoid dialog not opening occasionally
 };
 
 exports.login = function (driver) {
     driver.wait(until.elementLocated(By.id('login-sign-in-link')), 6000).click()
-/*
-        // only if we need more time
-        .then(_ => driver.sleep(100))
-        .then(_ => driver.wait(until.elementIsVisible(driver.findElement(By.id(
-            'login-email'))), 6000).sendKeys(username))
-        .then(_ => driver.wait(until.elementIsVisible(driver.findElement(By.id(
-            'login-password'))), 6000).sendKeys(password))
-*/
         .then(_ => driver.wait(until.elementLocated(By.id('login-email')), 6000)
             .sendKeys(username))
         .then(_ => driver.findElement(By.id('login-password'))

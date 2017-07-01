@@ -6,6 +6,8 @@ var app = app || {};
 (function (hex) { // jshint ignore: line
 Data = (function () { // jshint ignore: line
 
+    let UPLOAD_MAX_BYTES = 1024 * 1024 * 1024; // 1GB
+
     function parseTsv(data) {
     
         // Separate the data into an array of rows
@@ -76,13 +78,71 @@ Data = (function () { // jshint ignore: line
                         msg = 'Unknown error retrieving ' + url;
                     }
                     if (errorFx) {
-                    errorFx(msg);
+                        errorFx(msg);
+                    }
                 }
-            }
             }
         });
     }
     return {
+    
+        upload: function(opts) {
+            /* 
+             * Upload a file to the featureSpace directory for this map.
+             *
+             * @param opts.mapId      the future mapId of this data
+             * @param opts.sourceFile the file object of the file to upload
+             * @param opts.targetFile the base file name of the file to save
+             * @param opts.success    the function to call upon success
+             * @param opts.error      the function to call upon error
+             *
+             * @return success: the raw or parsed data via the success callback
+             *         error: the error message via the error callback,
+             *                if supplied
+             */
+            var fd = new FormData();
+            fd.append('file', opts.sourceFile);
+        
+            if (!opts.sourceFile || opts.sourceFile.name.length < 1) {
+                var msg =
+                    'Upload failed because no file was specified.';
+                Util.banner('error', msg);
+                if (opts.error) {
+                    opts.error(msg);
+                }
+            }
+        
+            if (opts.sourceFile.size > UPLOAD_MAX_BYTES) {
+                var msg =
+                    'Upload failed because file is larger than the 1GB limit.';
+                Util.banner('error', msg);
+                if (opts.error) {
+                    opts.error(msg);
+                }
+            }
+        
+            var dataId = 'featureSpace/' + opts.mapId + opts.targetFile;
+            var url = HUB_URL + '/upload/' + dataId;
+       
+            $.ajax({
+                url: url,
+                data: fd,
+                processData: false,
+                contentType: false,
+                type: 'POST',
+                success: function (result) {
+                    opts.success(result, dataId);
+                },
+                error: function (error) {
+                    var msg = 'Uploading ' + opts.sourceFile +
+                        ' to server failed with: ' + error;
+                    Util.banner('error', msg);
+                    if (opts.error) {
+                        opts.error(msg);
+                    }
+                },
+            });
+        },
  
         get: function(opts) {
             /*
