@@ -6,7 +6,8 @@ var app = app || {};
 (function (hex) { // jshint ignore: line
 Data = (function () { // jshint ignore: line
 
-    let UPLOAD_MAX_BYTES = 1024 * 1024 * 1024; // 1GB
+    var UPLOAD_MAX_GIGABYTES = 4,
+        UPLOAD_MAX_BYTES = 1024 * 1024 * 1024 * UPLOAD_MAX_GIGABYTES;
 
     function parseTsv(data) {
     
@@ -94,7 +95,10 @@ Data = (function () { // jshint ignore: line
              * @param opts.sourceFile the file object of the file to upload
              * @param opts.targetFile the base file name of the file to save
              * @param opts.success    the function to call upon success
-             * @param opts.error      the function to call upon error
+             * @param opts.error      the function to call upon error, optional
+             * @param opts.progress   the function to call upon progress update,
+             *                        called with bytes loaded and bytes total,
+             *                        optional
              *
              * @return success: the raw or parsed data via the success callback
              *         error: the error message via the error callback,
@@ -103,22 +107,15 @@ Data = (function () { // jshint ignore: line
             var fd = new FormData();
             fd.append('file', opts.sourceFile);
         
-            if (!opts.sourceFile || opts.sourceFile.name.length < 1) {
-                var msg =
-                    'Upload failed because no file was specified.';
-                Util.banner('error', msg);
-                if (opts.error) {
-                    opts.error(msg);
-                }
-            }
-        
             if (opts.sourceFile.size > UPLOAD_MAX_BYTES) {
-                var msg =
-                    'Upload failed because file is larger than the 1GB limit.';
+                Session.set('mapSnake', false);
+                var msg = 'upload failed because file is larger than the ' +
+                    UPLOAD_MAX_GIGABYTES + ' GB limit.';
                 Util.banner('error', msg);
                 if (opts.error) {
                     opts.error(msg);
                 }
+                return;
             }
         
             var dataId = 'featureSpace/' + opts.mapId + opts.targetFile;
@@ -131,6 +128,11 @@ Data = (function () { // jshint ignore: line
                 contentType: false,
                 type: 'POST',
                 success: function (result) {
+                
+                    if (dataId.indexOf('Layer_Data') > -1) {
+                        console.log('Layer_Data.. result:', result);
+                    }
+                    
                     opts.success(result, dataId);
                 },
                 error: function (error) {
@@ -140,6 +142,20 @@ Data = (function () { // jshint ignore: line
                     if (opts.error) {
                         opts.error(msg);
                     }
+                },
+
+                // Custom XMLHttpRequest
+                xhr: function() {
+                    var myXhr = $.ajaxSettings.xhr();
+                    if (myXhr.upload) {
+                        // For handling the progress of the upload
+                        myXhr.upload.addEventListener('progress', function(e) {
+                            if (e.lengthComputable) {
+                                opts.progress(e.loaded, e.total);
+                            }
+                        } , false);
+                    }
+                    return myXhr;
                 },
             });
         },

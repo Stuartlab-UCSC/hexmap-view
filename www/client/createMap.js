@@ -14,6 +14,7 @@ CreateMap = (function () { // jshint ignore: line
         initial_log = 'log messages',
         dialogHex, // instance of the class DialogHex
         $dialog, // our dialog DOM element
+        $dialogCreateButton,
         feature_upload, // the feature upload react component
         feature_data_id, // the data ID to be passed to the computation code
         attribute_upload, // the feature file selector
@@ -79,32 +80,27 @@ CreateMap = (function () { // jshint ignore: line
         },
     });
  
-    function log_it (msg_in, start, size, replace_last) {
+    function log_it (msg_in, startDate, loaded, total, replace_last) {
  
         var msg = msg_in,
             msgs = log.get();
 
         if (!msg) {
-        
-            console.log('must have a log message for now with no progress implemented')
 
-            /* TODO no progress for now.
             // This must be an upload progress messsage
             var endDate = new Date(),
                 elapsed =
                     Math.ceil((endDate.getTime() -
-                    this.startDate.getTime()) / 100 / 60) / 10,
+                    startDate.getTime()) / 100 / 60) / 10,
                 elapsed_str
                     = elapsed.toString().replace(/\B(?=(\d{3})+\b)/g, ","),
                 size_str
-                    = size.toString().replace(/\B(?=(\d{3})+\b)/g, ","),
+                    = total.toString().replace(/\B(?=(\d{3})+\b)/g, ","),
                 start_str
-                    = start.toString().replace(/\B(?=(\d{3})+\b)/g, ",");
-            msg = this.file.name +
-                ': uploaded ' + start_str +
+                    = loaded.toString().replace(/\B(?=(\d{3})+\b)/g, ",");
+            msg = 'Uploaded ' + start_str +
                 ' of ' + size_str +
-                ' bytes in ' + elapsed_str + ' minutes.';
-            */
+                ' bytes in ' + elapsed_str + ' minutes...';
         }
         
         if (replace_last) {
@@ -153,7 +149,7 @@ CreateMap = (function () { // jshint ignore: line
     function create_map () {
  
         // Send the create map request to the server.
-        log_it('Generating layout...');
+        log_it('Requesting map creation...');
              
         var opts = [
             '--layoutInputFile', feature_data_id,
@@ -188,7 +184,8 @@ CreateMap = (function () { // jshint ignore: line
         }
  
         if (DEV) {
-            log_it('Compute request options: ' + opts);
+            log_it('\nCompute request options: ' + opts);
+            console.log('\nCompute request options: ' + opts);
         }
 
         //return;
@@ -196,7 +193,9 @@ CreateMap = (function () { // jshint ignore: line
         Meteor.call('create_map', opts, function (error) {
             if (error) {
                 report_error('Error: ' + error);
-                
+                dialogCreateButton.removeClass('ui-state-disabled');
+                Session.set('mapSnake', false);
+
             } else {
                 log_it('Map was successfully created and is loading now.');
 
@@ -214,7 +213,8 @@ CreateMap = (function () { // jshint ignore: line
  
         // Upload the user's attribute file
         if (attribute_upload.refs.fileObj) {
-        
+            log_it('Uploading color attributes...\n')
+            var startDate = new Date();
             Data.upload({
                 mapId: ui.get('major_project') + '/' + ui.get('minor_project') + '/',
                 sourceFile: attribute_upload.refs.fileObj,
@@ -232,30 +232,42 @@ CreateMap = (function () { // jshint ignore: line
                 error: function (msg) {
                     log_it(msg)
                 },
+                progress: function (loaded, total) {
+                    log_it(null, startDate, loaded, total, true);
+                },
             });
         } else {
             create_map();
         }
     }
-
-    function create_clicked () {
+    
+    function create_clicked (event) {
         
         // Upload the feature file.
+        if ($dialogCreateButton.hasClass('ui-state-disabled')) { return; }
+        
+        if (!feature_upload.refs.fileObj) {
+            Util.banner('error',
+                'a layout input file must be selected to create a map.')
+            return;
+        }
+        
+        // Show the progress snake and disable the create button.
+        Session.set('mapSnake', true);
+        $dialogCreateButton.addClass('ui-state-disabled');
+        
+        log_it('Uploading layout input...\n')
+        var startDate = new Date();
         Data.upload({
             mapId: ui.get('major_project') + '/' + ui.get('minor_project') + '/',
             sourceFile: feature_upload.refs.fileObj,
             targetFile: feature_upload.refs.fileObj.name,
             success: function (results, dataId) {
                 feature_data_id = dataId;
-                
-                console.log('1feature_data_id:', feature_data_id);
 
                 // TODO temporary until we implement relative paths in the
                 // createMap_www.js in the compute server.
                 feature_data_id = get_data_id(dataId);
-                
-                console.log('2feature_data_id:', feature_data_id);
-
 
                 log_it('Layout input upload complete.')
                 upload_attributes();
@@ -263,25 +275,12 @@ CreateMap = (function () { // jshint ignore: line
             error: function (msg) {
                 log_it(msg)
             },
+            progress: function (loaded, total) {
+                log_it(null, startDate, loaded, total, true);
+            },
         });
 	}
  
-    function enable_zeroReplace() {
-        var disabled = false,
-            color = 'inherit';
-
-        if (ui.equals('feature_format', 'similarity') ||
-            ui.equals('feature_format', 'coordinates')) {
-
-            // Disable zero replace option for sparse similarity and coordinates
-            disabled = true;
-            color = Colors.disabled_color();
-        }
-        $dialog.find('.zero')
-            .attr('disabled', disabled)
-            .css('color', color);
-    }
-
     function build_dialog_content (username) {
  
          // Define the file selector for features file
@@ -319,7 +318,6 @@ CreateMap = (function () { // jshint ignore: line
        });
         $format_anchor.on('change', function (ev) {
             ui.set('feature_format', ev.target.value);
-            enable_zeroReplace();
         });
         $('#drl').on('change', function (ev) {
             ui.set('tete_method', ev.target.checked);
@@ -346,6 +344,8 @@ CreateMap = (function () { // jshint ignore: line
             ui.set('show_advanced',
                 !ui.get('show_advanced'));
         });
+        
+        $dialogCreateButton = $('.ui-dialog-buttonset span');
     }
  
     function show () {
