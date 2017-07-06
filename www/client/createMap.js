@@ -4,6 +4,7 @@
 import React, { Component } from 'react';
 import { render } from 'react-dom';
 import UploadR from '../imports/UploadR.jsx';
+import Ajax from './ajax.js';
 
 var app = app || {};
 
@@ -193,7 +194,7 @@ CreateMap = (function () { // jshint ignore: line
         Meteor.call('create_map', opts, function (error) {
             if (error) {
                 report_error('Error: ' + error);
-                dialogCreateButton.removeClass('ui-state-disabled');
+                $dialogCreateButton.removeClass('ui-state-disabled');
                 Session.set('mapSnake', false);
 
             } else {
@@ -215,7 +216,7 @@ CreateMap = (function () { // jshint ignore: line
         if (attribute_upload.refs.fileObj) {
             log_it('Uploading color attributes...\n')
             var startDate = new Date();
-            Data.upload({
+            Ajax.upload({
                 mapId: ui.get('major_project') + '/' + ui.get('minor_project') + '/',
                 sourceFile: attribute_upload.refs.fileObj,
                 targetFile: attribute_upload.refs.fileObj.name,
@@ -258,7 +259,7 @@ CreateMap = (function () { // jshint ignore: line
         
         log_it('Uploading layout input...\n')
         var startDate = new Date();
-        Data.upload({
+        Ajax.upload({
             mapId: ui.get('major_project') + '/' + ui.get('minor_project') + '/',
             sourceFile: feature_upload.refs.fileObj,
             targetFile: feature_upload.refs.fileObj.name,

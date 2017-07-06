@@ -1,5 +1,7 @@
 // download.js
 
+import Ajax from './ajax.js';
+
 var app = app || {};
 (function (hex) { // jshint ignore: line
 Download = (function () { // jshint ignore: line
@@ -135,7 +137,7 @@ Download = (function () { // jshint ignore: line
         var id = 'xyPreSquiggle_' + Session.get('layoutIndex')
  
         // Download the file now.
-        Data.get({
+        Ajax.get({
             id: id,
             parse: 'unparsed',
             success: function(data) {

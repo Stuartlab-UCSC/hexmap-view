@@ -1,6 +1,8 @@
 // hexagon.js
 // Handle things to do with hexagons.
 
+import Ajax from './ajax.js';
+
 var app = app || {}; 
 
 (function (hex) { 
@@ -134,7 +136,7 @@ var app = app || {};
         // Download the signature assignments to hexagons and fill in the global
         // hexagon assignment grid.
         var id = 'assignments' + Session.get('layoutIndex');
-        Data.get({
+        Ajax.get({
             id: id,
             success: function (parsed) {
 

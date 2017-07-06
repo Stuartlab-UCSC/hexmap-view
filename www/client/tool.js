@@ -11,6 +11,8 @@
 //   workflow completes, so that the infowindow can use click events again.
 //   (it got set to your tool's name by the code prepended to your callback).
 
+import Ajax from './ajax.js';
+
 var app = app || {};
 
 (function (hex) { // jshint ignore: line
@@ -109,7 +111,7 @@ Tool = (function () { // jshint ignore: line
     function getMapMetadata () {
     
         // Retrieve the map metadata.
-        Data.get({
+        Ajax.get({
             id: 'mapMeta',
             // treat 404 not found as a form of success since not all maps
             // have metadata

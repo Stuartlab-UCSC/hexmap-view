@@ -1,6 +1,8 @@
 // grid.js
 // This handles the node density visualizations.
 
+import Ajax from './ajax.js';
+
 var app = app || {}; 
 
 (function (hex) { 
@@ -99,7 +101,7 @@ var app = app || {};
         status('drawEdges()');
         var id = 'neighbors_' + Session.get('layoutIndex');
 
-        Data.get({
+        Ajax.get({
             id: id,
             success: function(data) {
                 status('drawEdges() data received');
@@ -366,7 +368,7 @@ var app = app || {};
 
         // Render the points before they were binned into the hexagonal grid.
         status('findNodePoints()');
-        Data.get({
+        Ajax.get({
             id: 'xyPreSquiggle_' + Session.get('layoutIndex'),
             success: function(data) {
                 status('findNodePoints() data received');

@@ -1,6 +1,8 @@
 // hexagram.js
 // Run the hexagram visualizer client.
 
+import Ajax from './ajax.js';
+
 var app = app || {}; 
 
 (function (hex) { 
@@ -430,7 +432,7 @@ initLayout = function () {
 
     // Download the layout names and save to the layouts array
         var id = 'layouts';
-        Data.get({
+        Ajax.get({
             id: id,
             success: function (parsed) {
 
@@ -503,7 +505,7 @@ initHex = function () {
 initColormaps = function () {
     // Download color map information
     var id = 'colormaps';
-    Data.get({
+    Ajax.get({
         id: id,
         success: function (parsed) {
             for(var i = 0; i < parsed.length; i++) {

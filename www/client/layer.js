@@ -1,6 +1,8 @@
 // layer.js
 // Most of the code to handle the layer data.
 
+import Ajax from './ajax.js';
+
 var app = app || {};
 (function (hex) { // jshint ignore: line
 Layer = (function () { // jshint ignore: line
@@ -269,7 +271,7 @@ Layer = (function () { // jshint ignore: line
       
         // Download a static layer, then load into global layers and colormaps.
         // Go get it.
-        Data.get({
+        Ajax.get({
             id: layers[layer_name].dataId,
             success: function (layer_parsed) {
                 var data = {};
@@ -602,7 +604,7 @@ return { // Public methods
 
         // Download Information on what layers are continuous and which are binary
         var id = 'Layer_Data_Types';
-       Data.get({
+       Ajax.get({
             id: id,
             error: function (error) {
                 projectNotFound(id);
@@ -637,7 +639,7 @@ return { // Public methods
         // Download the layer index
         var id = 'layers';
 
-        Data.get({
+        Ajax.get({
             id: id,
             error: function (error) {
                 projectNotFound(id);

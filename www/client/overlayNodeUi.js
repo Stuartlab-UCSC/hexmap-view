@@ -2,6 +2,8 @@
 
 // This allows the user to view new node(s) placement overlaid on an existing map.
 
+import Ajax from './ajax.js';
+
 var app = app || {};
 
 (function (hex) {
@@ -80,25 +82,17 @@ var app = app || {};
             opts.email = Meteor.user().username;
         }
 
-        var preText = 'When adding a new node: ';
-        $.ajax({
-            type: 'POST',
-            url: HUB_URL + '/query/overlayNodes',
-            contentType: "application/json", // sending json
-            dataType: 'json', // expects json returned
-            data: JSON.stringify(opts),
-            success:  function (result) {
+
+        Ajax.query('overlayNodes', opts,
+            function (result) {
                 banner('info', 'Your nodes are about to drop onto the map');
                 showNewNodes(result);
             },
-            error: function (error) {
-                if (error.responseJSON && error.responseJSON.error) {
-                    banner('error', preText + error.responseJSON.error);
-                } else {
-                    banner('error', preText + 'Unknown server error');
-                }
-            }
-        });
+            function (error) {
+                Session.set('mapSnake', false);
+                banner('error', 'when adding a new node: ' + error);
+            },
+        );
 
         // Hide this dialog
         hide();
@@ -107,6 +101,7 @@ var app = app || {};
     function gotFilename (event) {
  
         // When a file is selected, read it in
+        Session.set('mapSnake', true);
  
         // Make a FileReader to read the file
         var reader = new FileReader();
@@ -123,9 +118,17 @@ var app = app || {};
         reader.onabort = function(read_event) {
             banner('error', 'Aborted reading file: ' + file.filename);
         };
+ 
+        try {
         
-        // Read the file, and, when it comes in, stick it in the textbox.
-        reader.readAsText(event.target.files[0]);
+            // Read the file, and, when it comes in, stick it in the textbox.
+            reader.readAsText(event.target.files[0]);
+        } catch (error) {
+ 
+            // The user most likely didn't pick a file.
+            Session.set('mapSnake', false);
+            Util.banner('error', 'you need to select a file.');
+        }
     }
  
     function show () {
@@ -183,7 +186,6 @@ var app = app || {};
     function hide() {
  
         // Hide the dialog after cleaning up
-        $dialog.off('change', '.file');
         dialogHex.hide();
     }
  

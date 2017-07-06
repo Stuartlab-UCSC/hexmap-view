@@ -1,6 +1,8 @@
 // filter.js: Filter the attributes displayed in the longlist by data type and
 // tags.
 
+import Ajax from './ajax.js';
+
 var app = app || {}; 
 
 (function (hex) {
@@ -202,7 +204,7 @@ var app = app || {};
 
         // Retrieve the layer tags data from the server
                 // Download the file now.
-        Data.get({
+        Ajax.get({
             id: 'attribute_tags',
             ok404: true,  // treat 404 not found as a form of success
             success: function(data) {
