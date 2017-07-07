@@ -3,7 +3,7 @@ Future: Add new coloring attributes
 
 https://<compute_server>/query/**addAttribute**
 
-POST with content-type: application/json
+HTTP POST with content-type: application/json
 
 data-type: json
 
@@ -73,4 +73,9 @@ Response error
 --------------
 
 Response errors are returned with some code other than HTTP 200 with the content
-containing a more specific message as a JSON string.
+containing a more specific message as a JSON string in the form::
+
+ {
+    "error": "Some message."
+ }
+

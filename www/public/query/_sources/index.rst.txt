@@ -9,6 +9,6 @@ Web API
    addAttribute
    addAttributeXena
    createMap
-   createMapStatus
+   jobStatus
    placeNode
 
