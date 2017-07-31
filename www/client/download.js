@@ -147,7 +147,7 @@ Download = (function () { // jshint ignore: line
         // get the file.
         Ajax.get({
             id: id,
-            parse: 'unparsed',
+            raw: true,
             success: function(data) {
             
                 // Download the file to the user
