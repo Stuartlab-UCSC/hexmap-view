@@ -6,9 +6,6 @@ var app = app || {};
 (function (hex) { // jshint ignore: line
 Download = (function () { // jshint ignore: line
 
-    var download_now,
-        file_contents;
- 
     function initDownloadSelectTool () {
 
         // And a tool for exporting selections as lists of hexes
@@ -130,23 +127,31 @@ Download = (function () { // jshint ignore: line
         }, 'Export the selection as a list of hexagon IDs', 'mapShow');
     }
 
-    var timeout;
+    function save (filename, data) {
+        var blob = new Blob([data], {type: 'text/csv'});
+        if (window.navigator.msSaveOrOpenBlob) {
+            window.navigator.msSaveBlob(blob, filename);
+        } else {
+            var elem = window.document.createElement('a');
+            elem.href = window.URL.createObjectURL(blob);
+            elem.download = filename;        
+            document.body.appendChild(elem);
+            elem.click();        
+            document.body.removeChild(elem);
+        }
+    }
 
     function menu_mousedown(ev) {
-        download_now = false;
         var id = 'xyPreSquiggle_' + Session.get('layoutIndex')
  
-        // Download the file now.
+        // get the file.
         Ajax.get({
             id: id,
             parse: 'unparsed',
             success: function(data) {
-                file_contents = data;
-                
-                // Now we allow the click handler to actually download,
-                // then click it.
-                download_now = true;
-                $(ev.target).click();
+            
+                // Download the file to the user
+                save(id, data);
             },
             error: function(error) {
                 Util.banner('error', 'while downloading XY coordinates: ' +
@@ -156,22 +161,16 @@ Download = (function () { // jshint ignore: line
     }
 
 return {
+
+    save: save,
+    
     init: function () {
- 
         if (Session.equals('page', 'mapPage')) {
             initDownloadSelectTool();
             initPdf();
             initSvg();
         }
-
-        $('.fileMenu .xyPreSquiggle')
-            .on('mousedown', menu_mousedown)
-            .on('click', function (ev) {
-                if (download_now) {
-                    $(ev.target).attr({ 'href': 'data:text/plain;base64,' +
-                        window.btoa(file_contents) });
-                }
-            });
+        $('.fileMenu .xyPreSquiggle').on('click', menu_mousedown);
     },
 };
 }());

@@ -97,10 +97,7 @@ var app = app || {};
         // The handler for clicking the menu option
         // to actually download it.
         var svg = googleToSvg();
-        setTimeout(function () {
-            $('#svgDownload').attr("href",
-                "data:text/plain;base64," + window.btoa(svg));
-        },0);
+        Download.save('tumormap.svg', svg);
     }
 
     initSvg = function () {
