@@ -69,6 +69,7 @@ Hex = (function () { // jshint ignore: line
                 initGridMapContainer();
             }
         });
+        Message.init();
         GoogleMaps.load({ key: GOOGLE_API_KEY });  // browser key
         Tool.init();
     });

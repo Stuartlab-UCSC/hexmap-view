@@ -103,7 +103,12 @@ var app = app || {};
 
         Ajax.get({
             id: id,
+            ok404: true,
             success: function(data) {
+                if (data === '404') {
+                    banner('error', 'no similarity data for this layout.');
+                    return;
+                }
                 status('drawEdges() data received');
 
                 // This is an array of nodes and their neighbors with the primary
@@ -137,9 +142,7 @@ var app = app || {};
                 edgesDrawn.set(true);
             },
             error: function(error) {
-                banner('error',
-                    'the data containing the similarities was not found. ('
-                    + id + ')');
+                banner('error', 'could not retrieve the similarity data');
                 return;
            },
         });
