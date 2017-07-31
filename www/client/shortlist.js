@@ -289,7 +289,7 @@ Shortlist = (function () { // jshint ignore: line
             refreshColors();
         });
     }
- 
+    
     function create_range_slider (layer_name, root) {
  
          // Create a filter range slider for continuous variables.
@@ -465,7 +465,6 @@ Shortlist = (function () { // jshint ignore: line
                 }
 
                 root.find('.save_filter').click(function() {
-
                     // Clicking on the save button creates a dynamic layer
                     var value = Util.session('filter_value', 'get', layer_name),
                         layer = layers[layer_name],
@@ -497,7 +496,6 @@ Shortlist = (function () { // jshint ignore: line
                     
                     // Suggest a name for this new layer
                     var name = layer_name + ': ' + value.toString();
-                    
                     // Create the dynamic layer
                     Layer.create_dynamic_selection(nodeIds, name);
                 });
@@ -908,19 +906,24 @@ return {
             
             // This is an array of signatures that pass all the filters.
             var passing_signatures = [];
-        
+
             for(var signature in polygons) {
                 // For each signature
                 
                 // This holds whether we pass all the filters
                 var pass = true;
 
+                // For each filtering layer
                 for(var i = 0; i < filter_layers.length; i++) {
-
-                    // For each filtering layer
+                    // Continuous filters get a "clamping" effect, meaning
+                    // that values outside of the filter are set to the
+                    // highest or lowest value instead of getting the
+                    // noDataColor.
+                    if (Util.is_continuous(filters[i].layer_name)){
+                        continue;
+                    }
                     if(!filters[i].filter_function(
                         filter_layers[i].data[signature])) {
-                        
                         // If the signature fails the filter function for the
                         // layer, skip the signature.
                         pass = false;
@@ -966,11 +969,11 @@ return {
                 var desired = Util.session('filter_value', 'get', layer_name);
                 
                 if (Util.is_continuous(layer_name)) {
-                
                      // Use a range for continuous values.
                     filter_function = function(value) {
                          return (value >= desired[0] && value <= desired[1]);
                     };
+
                 } else {
 
                     // Use a discrete value match.
