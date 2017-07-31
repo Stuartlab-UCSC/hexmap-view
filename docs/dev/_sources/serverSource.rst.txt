@@ -24,7 +24,7 @@ Currently unused
 **http.js** : Receive and respond to incoming HTTP requests according to
 the query API.
 
-**layout.py** : generates the final input files for the tumor map
+**layout.py** : generates the final input files for the TumorMap
 
 **mapManager.js** : manage translations from one map to another, like reflection
 

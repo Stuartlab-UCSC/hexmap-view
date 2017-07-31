@@ -77,7 +77,7 @@ body,
 /* BANNER BOOTSTRAP COLORS */
 #banner.info,
 #banner.stay,
-#jobDialog .status.ui-widget-content.completed
+#jobDialog .status.ui-widget-content.completed {
     color: #2E662C;
     background: #D8EECE;
 }

@@ -23,6 +23,7 @@ if [ $TARGET == 'most' ] || [ $TARGET == 'all' ]; then
         http \
         https \
         www/client \
+        www/imports \
         www/lib \
         www/public/*svg \
         www/public/*ico \

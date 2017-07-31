@@ -105,7 +105,6 @@ var app = app || {};  // jshint ignore: line
             // Contains the non-project state we want to save with unique keys
             all: [
                 'background',
-                'ignoreUrlQuery',
                 'page',
                 'pdfLegend',
                 'pdfMap',
@@ -346,24 +345,15 @@ var app = app || {};  // jshint ignore: line
         var s = this,
             store = JSON.parse(window.localStorage.getItem(s.storeName));
  
-        if (store && store.ignoreUrlQuery) {
-            s.uparms = null;
-            delete store.ignoreUrlQuery;
-            s.load(store);
-            return;
-        }
- 
         // Load the bookmarked state.
         Meteor.call('findBookmark', bookmark,
             function (error, result) {
                 if (error) {
                     Util.banner('error', error);
-                    ctx.ignoreUrlQuery = true;
                     return;
                 }                
                 if (result === 'Bookmark not found') {
                     Util.banner('error', result);
-                    ctx.ignoreUrlQuery = true;
                     return;
                 }
                 s.load(result);

@@ -27,7 +27,7 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="prev" title="Future: Create a map" href="createMap.html" /> 
+    <link rel="prev" title="Future: Job Status" href="jobStatus.html" /> 
   </head>
   <body role="document">
     <div class="header-wrapper" role="banner">
@@ -35,7 +35,7 @@
         <div class="headertitle"><a
           href="index.html">Hex Map API</a></div>
         <div class="rel" role="navigation" aria-label="related navigation">
-          <a href="createMap.html" title="Future: Create a map"
+          <a href="jobStatus.html" title="Future: Job Status"
              accesskey="P">previous</a> |
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a>
@@ -54,7 +54,7 @@
   <div class="section" id="future-place-new-nodes">
 <h1>Future: Place new nodes<a class="headerlink" href="#future-place-new-nodes" title="Permalink to this headline">¶</a></h1>
 <p><a class="reference external" href="https:/">https:/</a>/&lt;compute_server&gt;/query/<strong>overlayNodes</strong></p>
-<p>POST with content-type: application/json</p>
+<p>HTTP POST with content-type: application/json</p>
 <p>data-type: json</p>
 <p>This API takes data for one or more of your nodes and places them over the
 background nodes of an existing map.</p>
@@ -70,23 +70,44 @@ background nodes of an existing map.</p>
    <span class="s2">&quot;viewServer&quot;</span><span class="p">:</span> <span class="s1">&#39;https://tumormap.ucsc.edu&#39;</span><span class="p">,</span>
    <span class="s2">&quot;individualViewUrls&quot;</span><span class="p">:</span> <span class="n">true</span><span class="p">,</span>
    <span class="s2">&quot;neighborCount&quot;</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>
-   <span class="s2">&quot;nodes&quot;</span><span class="p">:</span> <span class="p">{</span>
+   <span class="s2">&quot;nodes&quot;</span><span class="p">:</span> <span class="p">[</span>
+       <span class="p">{</span>
+           <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;MySample1&quot;</span><span class="p">,</span>
+           <span class="s2">&quot;features&quot;</span><span class="p">:</span> <span class="p">[</span>
+               <span class="s2">&quot;ALK&quot;</span><span class="p">,</span>
+               <span class="s2">&quot;TP53&quot;</span><span class="p">,</span>
+               <span class="o">...</span>
+           <span class="p">],</span>
+           <span class="s2">&quot;values&quot;</span><span class="p">:</span> <span class="p">[</span>
+               <span class="mf">0.897645</span><span class="p">,</span>
+               <span class="mf">0.904140</span><span class="p">,</span>
+               <span class="o">...</span>
+           <span class="p">]</span>
+       <span class="p">},</span>
+       <span class="p">{</span>
+           <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;MySample2&quot;</span><span class="p">,</span>
+           <span class="s2">&quot;features&quot;</span><span class="p">:</span> <span class="p">[</span>
+               <span class="s2">&quot;ALK&quot;</span><span class="p">,</span>
+               <span class="s2">&quot;TP53&quot;</span><span class="p">,</span>
+               <span class="o">...</span>
+           <span class="p">],</span>
+           <span class="s2">&quot;values&quot;</span><span class="p">:</span> <span class="p">[</span>
+               <span class="mf">0.897645</span><span class="p">,</span>
+               <span class="mf">0.904140</span><span class="p">,</span>
+               <span class="o">...</span>
+           <span class="p">]</span>
+       <span class="p">},</span>
+       <span class="o">...</span>
+   <span class="p">],</span>
+   <span class="s2">&quot;nodes&quot;</span><span class="p">:</span> <span class="p">{</span> <span class="o">//</span> <span class="n">deprecated</span> <span class="ow">in</span> <span class="n">favor</span> <span class="n">of</span> <span class="n">the</span> <span class="n">above</span> <span class="s2">&quot;nodes&quot;</span> <span class="n">form</span><span class="o">.</span>
        <span class="s2">&quot;MySample1&quot;</span><span class="p">:</span> <span class="p">{</span>
-           <span class="s2">&quot;ALK&quot;</span><span class="p">:</span> <span class="s2">&quot;0.897645&quot;</span><span class="p">,</span>
-           <span class="s2">&quot;TP53&quot;</span><span class="p">:</span> <span class="s2">&quot;0.904140&quot;</span><span class="p">,</span>
-           <span class="s2">&quot;POGZ&quot;</span><span class="p">:</span> <span class="s2">&quot;0.792754&quot;</span><span class="p">,</span>
+           <span class="s2">&quot;ALK&quot;</span><span class="p">:</span> <span class="mf">0.897645</span><span class="p">,</span>
+           <span class="s2">&quot;TP53&quot;</span><span class="p">:</span> <span class="mf">0.904140</span><span class="p">,</span>
            <span class="o">...</span>
        <span class="p">},</span>
        <span class="s2">&quot;MySample2&quot;</span><span class="p">:</span> <span class="p">{</span>
-           <span class="s2">&quot;ALK&quot;</span><span class="p">:</span> <span class="s2">&quot;0.897645&quot;</span><span class="p">,</span>
-           <span class="s2">&quot;TP53&quot;</span><span class="p">:</span> <span class="s2">&quot;0.904140&quot;</span><span class="p">,</span>
-           <span class="s2">&quot;POGZ&quot;</span><span class="p">:</span> <span class="s2">&quot;0.792754&quot;</span><span class="p">,</span>
-           <span class="o">...</span>
-       <span class="p">},</span>
-       <span class="s2">&quot;MySample3&quot;</span><span class="p">:</span> <span class="p">{</span>
-           <span class="s2">&quot;ALK&quot;</span><span class="p">:</span> <span class="s2">&quot;0.897645&quot;</span><span class="p">,</span>
-           <span class="s2">&quot;TP53&quot;</span><span class="p">:</span> <span class="s2">&quot;0.904140&quot;</span><span class="p">,</span>
-           <span class="s2">&quot;POGZ&quot;</span><span class="p">:</span> <span class="s2">&quot;0.792754&quot;</span><span class="p">,</span>
+           <span class="s2">&quot;ALK&quot;</span><span class="p">:</span> <span class="mf">0.897645</span><span class="p">,</span>
+           <span class="s2">&quot;TP53&quot;</span><span class="p">:</span> <span class="mf">0.904140</span><span class="p">,</span>
            <span class="o">...</span>
        <span class="p">},</span>
        <span class="o">...</span>
@@ -96,20 +117,58 @@ background nodes of an existing map.</p>
 </div>
 <p>Where:</p>
 <ul class="simple">
-<li><strong>map</strong> : a unique identifier. If the map belongs to a map group, that is included before the specific map separated by a slash as in the example.</li>
+<li><strong>map</strong> : a unique identifier. If the map belongs to a map group, that is
+included before the specific map separated by a slash as in the example.</li>
 <li><strong>layout</strong> : name of a particular layout of nodes within a map</li>
 <li><strong>email</strong> : optional; one or more email addresses to receive the response</li>
-<li><strong>viewServer</strong> : optional; defaults to <a class="reference external" href="https://tumormap.ucsc.edu">https://tumormap.ucsc.edu</a>; the URL to view the results</li>
-<li><strong>individualViewUrls</strong> : optional; defaults to False; True means a view URL for each node will be returned; False means all node positions will be returned in one view URL</li>
-<li><strong>neighborCount</strong> : optional; defaults to 6; number of nearest neighbors to consider in placing each node</li>
-<li><strong>nodes</strong> : an object containing your node names and their values</li>
+<li><strong>viewServer</strong> : optional; defaults to <a class="reference external" href="https://tumormap.ucsc.edu">https://tumormap.ucsc.edu</a>; the URL to
+view the results</li>
+<li><strong>individualViewUrls</strong> : optional; defaults to False; True means a view URL
+for each node will be returned; False means all node positions will be
+returned in one view URL</li>
+<li><strong>neighborCount</strong> : optional; defaults to 6; number of nearest neighbors to
+consider in placing each node</li>
+<li><strong>nodes</strong> : contains an array of node objects with the node ID, feature names
+and values as properties of each node; the second form of nodes shown in the
+example is deprecated because it uses data as keys.</li>
 </ul>
 </div>
 <div class="section" id="response-success">
 <h2>Response success<a class="headerlink" href="#response-success" title="Permalink to this headline">¶</a></h2>
 <p>This is returned as HTTP 200 with the content as a JSON string in the form:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span>
-   <span class="s2">&quot;nodes&quot;</span><span class="p">:</span> <span class="p">{</span>
+   <span class="s2">&quot;placedNodes&quot;</span><span class="p">:</span> <span class="p">[</span>
+       <span class="p">{</span>
+           <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;MySample1&quot;</span><span class="p">,</span>
+           <span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://tumormap.ucsc.edu/?bookmark=5563fdf09484a241d066022bf91a9e96d6ae1976c4d7502d384cc2a87001067a&quot;</span><span class="p">,</span>
+           <span class="s2">&quot;neighborIDs&quot;</span><span class="p">:</span> <span class="p">[</span>
+               <span class="s2">&quot;node1&quot;</span><span class="p">,</span>
+               <span class="s2">&quot;node2&quot;</span><span class="p">,</span>
+               <span class="o">...</span>
+           <span class="p">],</span>
+           <span class="s2">&quot;neighborScores&quot;</span><span class="p">:</span> <span class="p">[</span>
+               <span class="mf">0.352</span><span class="p">,</span>
+               <span class="mf">0.742</span><span class="p">,</span>
+               <span class="o">...</span>
+           <span class="p">]</span>
+       <span class="p">},</span>
+       <span class="p">{</span>
+           <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;MySample2&quot;</span><span class="p">,</span>
+           <span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://tumormap.ucsc.edu/?bookmark=5563fdf09484a241d066022bf91a9e96d6ae1976c4d7502d384cc2a87001067a&quot;</span><span class="p">,</span>
+           <span class="s2">&quot;neighborIDs&quot;</span><span class="p">:</span> <span class="p">[</span>
+               <span class="s2">&quot;node3&quot;</span><span class="p">,</span>
+               <span class="s2">&quot;node4&quot;</span><span class="p">,</span>
+               <span class="o">...</span>
+           <span class="p">],</span>
+           <span class="s2">&quot;neighborScores&quot;</span><span class="p">:</span> <span class="p">[</span>
+               <span class="mf">0.275</span><span class="p">,</span>
+               <span class="mf">0.965</span><span class="p">,</span>
+               <span class="o">...</span>
+           <span class="p">]</span>
+       <span class="p">},</span>
+       <span class="o">...</span>
+   <span class="p">],</span>
+   <span class="s2">&quot;nodes&quot;</span><span class="p">:</span> <span class="p">{</span> <span class="o">//</span> <span class="n">deprecated</span> <span class="ow">in</span> <span class="n">favor</span> <span class="n">of</span> <span class="n">the</span> <span class="n">above</span> <span class="s2">&quot;placedNodes&quot;</span> <span class="n">form</span><span class="o">.</span>
        <span class="s2">&quot;MySample1&quot;</span><span class="p">:</span> <span class="p">{</span>
            <span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://tumormap.ucsc.edu/?bookmark=5563fdf09484a241d066022bf91a9e96d6ae1976c4d7502d384cc2a87001067a&quot;</span><span class="p">,</span>
            <span class="s2">&quot;neighbors&quot;</span><span class="p">:</span> <span class="p">{</span>
@@ -134,7 +193,11 @@ background nodes of an existing map.</p>
 </div>
 <p>Where:</p>
 <ul class="simple">
-<li><strong>neighbors</strong> : contains the scores of the most similar neighbors.</li>
+<li><strong>placedNodes</strong> : contains the scores of the most similar neighbor nodes for
+each placed node.</li>
+<li><strong>nodes</strong> : this property as shown in the example is deprecated because it
+uses data as keys. It will be included in the response until all callers have
+moved to the new form.</li>
 <li><dl class="first docutils">
 <dt><strong>url</strong>: view the new nodes overlaying the map with this for each node:</dt>
 <dd><ul class="first last">
@@ -145,6 +208,7 @@ background nodes of an existing map.</p>
 </dd>
 </dl>
 </li>
+<li><strong>neighbors</strong> : contains the scores of the most similar neighbors.</li>
 </ul>
 <p>Note that if the optional input parameter of &#8216;individualViewUrls&#8217; is true, only
 one node will be at each URL. Otherwise the URLs returned for each node will be
@@ -153,7 +217,12 @@ identical and contain all nodes.</p>
 <div class="section" id="response-error">
 <h2>Response error<a class="headerlink" href="#response-error" title="Permalink to this headline">¶</a></h2>
 <p>Response errors are returned with some code other than HTTP 200 with the content
-containing a more specific message as a JSON string.</p>
+containing a more specific message as a JSON string in the form:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span>
+   <span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="s2">&quot;Some message.&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
 </div>
 </div>
 
@@ -168,6 +237,7 @@ containing a more specific message as a JSON string.</p>
 <li class="toctree-l1"><a class="reference internal" href="addAttribute.html">Future: Add new coloring attributes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="addAttributeXena.html">Future: Add new coloring attributes via Xena</a></li>
 <li class="toctree-l1"><a class="reference internal" href="createMap.html">Future: Create a map</a></li>
+<li class="toctree-l1"><a class="reference internal" href="jobStatus.html">Future: Job Status</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Future: Place new nodes</a></li>
 </ul>
 
@@ -189,7 +259,7 @@ containing a more specific message as a JSON string.</p>
       <div class="footer">
         <div class="left">
           <div role="navigation" aria-label="related navigaton">
-            <a href="createMap.html" title="Future: Create a map"
+            <a href="jobStatus.html" title="Future: Job Status"
               >previous</a> |
             <a href="genindex.html" title="General Index"
               >index</a>

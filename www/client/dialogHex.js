@@ -84,6 +84,7 @@ var app = app || {};
             var self = this,
                 opts = {
                     dialogClass: 'dialog',
+                    model: true,
                     minHeight: '10em',
  
                     // 'resolve' seems to be an undocumented value that

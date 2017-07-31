@@ -1,6 +1,8 @@
 // hexagon.js
 // Handle things to do with hexagons.
 
+import Ajax from './ajax.js';
+
 var app = app || {}; 
 
 (function (hex) { 
@@ -91,6 +93,12 @@ var app = app || {};
         }
     }
 
+    removeHexagon = function (label) {
+        google.maps.event.clearInstanceListeners(polygons[label]);
+        polygons[label].setMap(null);
+        delete polygons[label];
+    }
+
     addHexagon = function (x, y, label, overlayNode) {
 
         // Make a hexagon on the Google map and store that.
@@ -127,40 +135,40 @@ var app = app || {};
     
         // Download the signature assignments to hexagons and fill in the global
         // hexagon assignment grid.
-        var file = "assignments" + Session.get('layoutIndex') +".tab"
+        var id = 'assignments' + Session.get('layoutIndex');
+        Ajax.get({
+            id: id,
+            success: function (parsed) {
 
-        Meteor.call('getTsvFile', file,
-            ctx.project, function (error, parsed) {
+                // This is an array of rows, which are arrays of values:
+                // id, x, y
 
-            // This is an array of rows, which are arrays of values:
-            // id, x, y
+                // Show the number of nodes on the UI
+                Session.set('nodeCount', parsed.length);
 
-            if (error) {
-                projectNotFound(file);
+                // This holds the maximum observed x & y
+                var max_x = max_y = 0;
+
+                // Find the max x and y while storing the assignments
+                assignments = {};
+                for (var i = 0; i < parsed.length; i++) {
+                    var x = parseInt(parsed[i][1]),
+                        y = parseInt(parsed[i][2]);
+                    assignments[parsed[i][0]] = {x: x, y: y};
+                    max_x = Math.max(x, max_x);
+                    max_y = Math.max(y, max_y);
+                }
+
+                findDimensions(max_x, max_y);
+                Session.set('initedHexagons', true);
+                if (draw) {
+                    createHexagons(draw);
+                }
+            },
+            error: function (error) {
+                projectNotFound(id);
                 return;
-            }
-
-            // Show the number of nodes on the UI
-            Session.set('nodeCount', parsed.length);
-
-            // This holds the maximum observed x & y
-            var max_x = max_y = 0;
-
-            // Find the max x and y while storing the assignments
-            assignments = {};
-            for (var i = 0; i < parsed.length; i++) {
-                var x = parseInt(parsed[i][1]),
-                    y = parseInt(parsed[i][2]);
-                assignments[parsed[i][0]] = {x: x, y: y};
-                max_x = Math.max(x, max_x);
-                max_y = Math.max(y, max_y);
-            }
-
-            findDimensions(max_x, max_y);
-            Session.set('initedHexagons', true);
-            if (draw) {
-                createHexagons(draw);
-            }
+            },
         });
     }
 })(app);

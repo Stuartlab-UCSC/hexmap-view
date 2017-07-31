@@ -47,7 +47,7 @@ var app = app || {};
         });
     }
  
-    function closeInfoWindow (marker) {
+    function removeInfoWindow (marker) {
  
         // Detach our DOM contents to use later
         $markerInfoWindow = $markerInfoWindow.detach();
@@ -57,6 +57,11 @@ var app = app || {};
             infoWindow.close();
             infoWindow = null;
         }
+    }
+ 
+    function closeInfoWindow (marker) {
+ 
+        removeInfoWindow(marker);
  
         // Add back the click listener
         addMarkerClickListener(marker);
@@ -127,6 +132,27 @@ var app = app || {};
             closeInfoWindow(marker);
         });
 
+    }
+ 
+    removeOverlayNodes = function () {
+ 
+        // Remove any overlay nodes due to menu click.
+        var nodes = Session.get('overlayNodes');
+
+        _.each (Object.keys(nodes), function (n) {
+        
+            // Remove any info window, marker & hexagon.
+            removeInfoWindow(markers[n]);
+            google.maps.event.clearInstanceListeners(markers[n]);
+            markers[n].setMap(null);
+            removeHexagon(n);
+        });
+ 
+        markers = {};
+ 
+        // Remove the overlayNode data
+        Session.set('overlayNodes', undefined);
+        delete Session.overlayNodes;
     }
 
     showOverlayNodes = function () {

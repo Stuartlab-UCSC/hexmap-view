@@ -11,6 +11,8 @@
 //   workflow completes, so that the infowindow can use click events again.
 //   (it got set to your tool's name by the code prepended to your callback).
 
+import Ajax from './ajax.js';
+
 var app = app || {};
 
 (function (hex) { // jshint ignore: line
@@ -104,6 +106,23 @@ Tool = (function () { // jshint ignore: line
             .on('click', callbacks[tool_name])
             .attr('title', hover_text)
             .addClass(klass);
+    }
+    
+    function getMapMetadata () {
+    
+        // Retrieve the map metadata.
+        Ajax.get({
+            id: 'mapMeta',
+            // treat 404 not found as a form of success since not all maps
+            // have metadata
+            ok404: true,
+            success: function (mapMeta) {
+                Session.set('mapMeta', mapMeta);
+            },
+            error: function (error) {
+                Session.set('mapMeta', undefined);
+            },
+        });
     }
 
     return { // Public methods
@@ -201,7 +220,7 @@ Tool = (function () { // jshint ignore: line
                 Session.set('mapSnake', true);
                 $('body').css('overflow-y', 'hidden');
         
-                // Initialze the busy snakes
+                // Initialize the busy snakes
                 Util.initSnake('mapSnake');
                 Util.initSnake('statsSnake');     
      
@@ -213,49 +232,28 @@ Tool = (function () { // jshint ignore: line
                 $('body').css('overflow-y', 'hidden');
             }
         
-            // Find access to special functions depending on user's
-            // authorizations and sometimes other criteria.
+            // Retrieve the meta data for this map.
+            getMapMetadata();
+        
+            // Whenever the user changes, including logout, check to see
+            // if the user has job credentials.
             Meteor.autorun( function () {
-                Session.set('loggedIn', false);
-                Session.set('jobCredential', false);
-                Session.set('placeNodeCriteria', false);
+            
                 var user = Meteor.user(); // jshint ignore: line
-                if (user) {
-                    Session.set('loggedIn', true);
-                }
-
-                // Check authorization and criteria for running jobs.
-                Meteor.call('is_user_in_role', ['jobs', 'dev'],
-                    function (error, results) {
-                        if (!error && results) {
-                            Session.set('jobCredential', true);
                 
-                            // Check availabiity of data required for placeNode.
-                            Meteor.autorun( function () {
-                                Session.set('placeNodeCriteria', false);
-                                var layouts = Session.get('layouts'),
-                                    layoutIndex = Session.get('layoutIndex');
-                                if (!layouts || _.isUndefined(layoutIndex)) {
-                                    return;
-                                }
-                                var layout = layouts[layoutIndex];
-                                Meteor.call(
-                                    'getJsonFile', 'mapMeta.json', ctx.project,
-                                    function (error, meta) {
-                                        if (!error &&
-                                            meta &&
-                                            meta.layouts &&
-                                            meta.layouts[layout] &&
-                                            meta.layouts[layout].clusterData) {
-                                            Session.set('placeNodeCriteria',
-                                                true);
-                                        }
-                                    }
-                                )
-                            })
+                if (user) {
+                    Meteor.call('is_user_in_role', ['jobs', 'dev'],
+                        function (error, results) {
+                            if (results) {
+                                Session.set('jobCredential', true);
+                            } else {
+                                Session.set('jobCredential', false);
+                            }
                         }
-                    }
-                );
+                    );
+                } else {
+                    Session.set('jobCredential', false);
+                }
             });
         },
     };

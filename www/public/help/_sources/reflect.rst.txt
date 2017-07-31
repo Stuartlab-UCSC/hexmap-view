@@ -56,7 +56,7 @@ For SCNV, gistic-like thresholds are averaged and the top and bottom ranking
 averages are highlighted.
 
 Note:
-If a user has their own instance of Tumor Map and would like to implement a
+If a user has their own instance of TumorMap and would like to implement a
 reflection operation other than the ones listed above, please contact the
 developers. In general any python implementation whose input is column/row
 names and whose outputs is a ranking of row/column names could be used as a

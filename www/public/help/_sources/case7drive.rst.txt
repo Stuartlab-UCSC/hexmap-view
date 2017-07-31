@@ -11,7 +11,7 @@ clustering of basal breast tumors.
 Skills Covered
 --------------
 
-* Sign into the Tumor Map.
+* Sign into the TumorMap.
 * Creating a new group from an existing categorical (multi-valued) attribute.
 * Running statistical test to order attributes based on their differential
   presence/absence in one group versus another.

@@ -1,6 +1,8 @@
 // grid.js
 // This handles the node density visualizations.
 
+import Ajax from './ajax.js';
+
 var app = app || {}; 
 
 (function (hex) { 
@@ -97,53 +99,49 @@ var app = app || {};
  
         // Draw the directed graph
         status('drawEdges()');
-        var file = 'neighbors_' + Session.get('layoutIndex') + '.tab';
+        var id = 'neighbors_' + Session.get('layoutIndex');
 
-        Meteor.call('getTsvFile', file, ctx.project, function (error, parsed) {
-            status('drawEdges() data received');
+        Ajax.get({
+            id: id,
+            success: function(data) {
+                status('drawEdges() data received');
 
-            // This is an array of nodes and their neighbors with the primary
-            // node at the front of each row:
-            //
-            //  node1  nodeA  nodeB  nodeC ...
-            //  node2  nodeX  nodeY  nodeZ ...
-            //  ...
+                // This is an array of nodes and their neighbors with the primary
+                // node at the front of each row:
+                //
+                //  node1  nodeA  nodeB  nodeC ...
+                //  node2  nodeX  nodeY  nodeZ ...
+                //  ...
+                var opts = {
+                    strokeColor: SIMILAR_COLOR,
+                    strokeOpacity: SIMILAR_OPACITY,
+                    strokeWeight: 1,
+                    zIndex: 2,
+                    map: gridMap,
+                    paths: [],
+                };
 
-            if (error) {
+                // Find the outgoing edges for each node
+                _.each(data, function (row) {
+                    var node = row[0];
+                    hexes[node].outNodes = row.slice(1);
+
+                    // Save the paths for this node's outgoing edges
+                    opts.paths = (xyPathsToMvc(node, hexes[node].outNodes, opts.paths));
+                });
+                
+                // Draw all of the edges
+                edges = new google.maps.Polygon(opts);
+
+                status('drawEdges() done');
+                edgesDrawn.set(true);
+            },
+            error: function(error) {
                 banner('error',
-                    'Sorry, the file containing the similarities was not found. ('
-                    + file + ')');
+                    'the data containing the similarities was not found. ('
+                    + id + ')');
                 return;
-            }
-            if (typeof parsed === 'string'
-                && parsed.slice(0,5).toLowerCase() === 'error') {
-                banner('error', parsed);
-                return;
-            }
-            
-            var opts = {
-                strokeColor: SIMILAR_COLOR,
-                strokeOpacity: SIMILAR_OPACITY,
-                strokeWeight: 1,
-                zIndex: 2,
-                map: gridMap,
-                paths: [],
-            };
-
-            // Find the outgoing edges for each node
-            _.each(parsed, function (row) {
-                var node = row[0];
-                hexes[node].outNodes = row.slice(1);
-
-                // Save the paths for this node's outgoing edges
-                opts.paths = (xyPathsToMvc(node, hexes[node].outNodes, opts.paths));
-            });
-            
-            // Draw all of the edges
-            edges = new google.maps.Polygon(opts);
-
-            status('drawEdges() done');
-            edgesDrawn.set(true);
+           },
         });
     }
 
@@ -368,57 +366,57 @@ var app = app || {};
 
     function findNodePoints() {
 
-        // Render the points before they were assigned to hexagons
+        // Render the points before they were binned into the hexagonal grid.
         status('findNodePoints()');
-        var file = 'xyPreSquiggle_' + Session.get('layoutIndex') + '.tab';
-        Meteor.call('getTsvFile', file, ctx.project,
-            function (error, parsed) {;
-            status('findNodePoints() data received');
+        Ajax.get({
+            id: 'xyPreSquiggle_' + Session.get('layoutIndex'),
+            success: function(data) {
+                status('findNodePoints() data received');
 
-            // This is an array of point locations, in the form:
-            //  s1  x1  y1
-            //  s2  x2  y2
-            //  ...
+                // This is an array of point locations, in the form:
+                //  s1  x1  y1
+                //  s2  x2  y2
+                //  ...
 
-            // Parse the file
-            var xyPointsRaw,
-                pointNames,
-                xyPointsMap;
+                // Parse the file
+                var xyPointsRaw,
+                    pointNames,
+                    xyPointsMap;
 
-            if (error) {
-                alert('Sorry, the file of pre-squiggle hexagons was not found so '
+                // Strip out any comment lines or lines that are too short
+                var cleaned = _.filter(data, function (row) {
+                    return (row[0].indexOf('#') < 0 && (row.length === 3));
+                });
+
+                // Find the IDs of the points and the x,y positions
+                pointNames = _.map(cleaned, function (row) {
+                    return row[0];
+                });
+                xyPointsRaw = _.map(cleaned, function (row) {
+                    return [row[1], row[2]]
+                });
+
+                // Find the extents of the map so we and normalize it to our
+                // standard size.
+                dims = findGridExtents(xyMapSize-TINY_BIT, xyPointsRaw);
+                findDimensions(dims.xMaxIn, dims.yMaxIn);
+                initCoords();
+
+                // Scale to create object coords of (0, 0) -> (xyMapSize/2, xyMapSize/2)
+                // so the map will not wrap around the world east and west. And add
+                // an offset to put the map in the center of the full map space
+                xyPointsMap = _.map(xyPointsRaw, function(row) {
+                    return [(row[0] * dims.scale / 2) + (xyMapSize / 4),
+                            (row[1] * dims.scale / 2) + (xyMapSize / 4)];
+                });
+
+                drawPreSquiggleHexagons(xyPointsMap, pointNames);
+            },
+            error: function(error) {
+                alert('Sorry, the pre-binned hexagon data was not found so '
                     + 'there is nothing to display. (xyPreSquiggle_*.tab)')
                 return;
-            }
-
-            // Strip out any comment lines or lines that are too short
-            var cleaned = _.filter(parsed, function (row) {
-                return (row[0].indexOf('#') < 0 && (row.length === 3));
-            });
-
-            // Find the IDs of the points and the x,y positions
-            pointNames = _.map(cleaned, function (row) {
-                return row[0];
-            });
-            xyPointsRaw = _.map(cleaned, function (row) {
-                return [row[1], row[2]]
-            });
-
-            // Find the extents of the map so we and normalize it to our
-            // standard size.
-            dims = findGridExtents(xyMapSize-TINY_BIT, xyPointsRaw);
-            findDimensions(dims.xMaxIn, dims.yMaxIn);
-            initCoords();
-
-            // Scale to create object coords of (0, 0) -> (xyMapSize/2, xyMapSize/2)
-            // so the map will not wrap around the world east and west. And add
-            // an offset to put the map in the center of the full map space
-            xyPointsMap = _.map(xyPointsRaw, function(row) {
-                return [(row[0] * dims.scale / 2) + (xyMapSize / 4),
-                        (row[1] * dims.scale / 2) + (xyMapSize / 4)];
-            });
-
-            drawPreSquiggleHexagons(xyPointsMap, pointNames);
+            },
         });
     }
 

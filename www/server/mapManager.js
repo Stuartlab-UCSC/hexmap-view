@@ -117,7 +117,7 @@ function colorMapMaker(){
         //order needs to be preserved because index needs to be equal to the
         // category
         cats: ['low', 'medium', 'high'],
-        colors: ['#32cd32', '#737373', '#ce2029']
+        colors: ['#32cd32', '#444444', '#ce2029']
     };
 }
 
@@ -314,7 +314,6 @@ Meteor.methods({
             post_calc_parms.newLayer.colormap = colorMapMaker();
             post_calc_parms.newLayer.dataType = "categorical"
         } else {
-            post_calc_parms.newLayer.colormap = {};
             post_calc_parms.newLayer.dataType = "continuous"
         }
 

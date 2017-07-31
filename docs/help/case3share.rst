@@ -21,7 +21,7 @@ Skills Covered
 Steps
 -----
 
-1. Get started with selecting samples on a Tumor Map. The Tumor Map UI provides users with a *Select Attributes* drop down that contains full list of sample annotations and attributes (*long list*) from which to choose attributes of interest, and a *Short List* that allows users more fine-tuned control of map operations.
+1. Get started with selecting samples on a TumorMap. The TumorMap UI provides users with a *Select Attributes* drop down that contains full list of sample annotations and attributes (*long list*) from which to choose attributes of interest, and a *Short List* that allows users more fine-tuned control of map operations.
 2. In this tutorial we will go through how to select attributes of interest, and then perform an intersection set operation to create a new custom attribute. Let’s say we are interested in viewing breast cancer samples that also have TP53 mutations, and then downloading a list of their sample IDs.
 
 .. image:: _images/caseShare-1.png

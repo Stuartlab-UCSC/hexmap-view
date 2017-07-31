@@ -1,5 +1,9 @@
 // mainHex.js
 
+import React from 'react';
+import { Meteor } from 'meteor/meteor';
+import { render } from 'react-dom';
+
 var app = app || {};
 (function (hex) { // jshint ignore: line
 Hex = (function () { // jshint ignore: line
@@ -22,16 +26,9 @@ Hex = (function () { // jshint ignore: line
     });
 
     function queryFreeReload () {
-
         Session.set('mapSnake', true);
-
-        // Strip everything after the query string question mark in the href
-        // & reload
-        var href = window.location.href,
-            quest = href.indexOf('?');
-        if (quest > -1) {
-            href = href.slice(0, href.indexOf('?'));
-            window.location.assign(href);
+        if (window.location.search.length > 0) {
+            window.location.search = '';
         } else {
             window.location.reload();
         }
@@ -41,7 +38,7 @@ Hex = (function () { // jshint ignore: line
         queryFreeReload();
     }
 
-     function loadProject (project) {
+    function loadProject (project) {
         ctx.project = project;
         Session.set('page', 'mapPage');
         queryFreeReload();
@@ -159,7 +156,7 @@ Hex = (function () { // jshint ignore: line
         //<script async src='https://www.google-analytics.com/analytics.js'></script>
     }
 
-    // Phase 6 init: Autotracker to find when the basic UI is drawn
+    // Phase 5 init: Autotracker to find when the basic UI is drawn
     Session.set('initedHexagons', false);
     Session.set('initialiedLayers', false);
     Session.set('initedColormaps', false);
@@ -202,12 +199,12 @@ Hex = (function () { // jshint ignore: line
     }
     Meteor.autorun(isUiDrawn);
  
-    // Phase 5 init: Autotracker to find when the layers are initialized
+    // Phase 4 init: Autotracker to find when the layers are initialized
     Session.set('initedLayerTypes', false);
-    Session.set('initedLayersArray', false);
+    Session.set('initedStaticLayersArray', false);
     function areLayersInitialized (autorun) {
         if (Session.get('initedLayerTypes') &&
-            Session.get('initedLayersArray')) {
+            Session.get('initedStaticLayersArray')) {
             autorun.stop();
  
             initSortAttrs();
@@ -218,16 +215,6 @@ Hex = (function () { // jshint ignore: line
     }
     Meteor.autorun(areLayersInitialized);
 
-    // Phase 4 init: Autotracker to find when the layer index is initialized
-    Session.set('initedLayerIndex', false);
-    function isLayerIndexInitialized (autorun) {
-        if (Session.get('initedLayerIndex')) {
-            autorun.stop();
- 
-            Layer.initArray();
-        }
-    }
-    Meteor.autorun(isLayerIndexInitialized);
  
     // Phase 3 init: Autotracker to find when the layout is initialized
     Session.set('initedLayout', false);

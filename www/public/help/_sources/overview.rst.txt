@@ -2,17 +2,17 @@
 Overview
 ========
 
-Tumor Map is a tool that enables grouping samples based on their omic signatures
+TumorMap is a tool that enables grouping samples based on their omic signatures
 in a visually accessible way. Similar to dimensionality reduction methods, Tumor
 Map method takes a high-dimensional omics space and produces a two dimensional
-visualization. Unlike most dimensionality reduction methods, the Tumor Map
+visualization. Unlike most dimensionality reduction methods, the TumorMap
 method is able to combine multiple types of omics data (e.g. mRNA expression and
-methylation data types in a single map). Furthermore, Tumor Map is an
+methylation data types in a single map). Furthermore, TumorMap is an
 interactive tool that allows navigating through a tumor landscape that
 represents a heterogeneous multi-dimensional and multi-platform omic space of
 oncogenic signatures.
 
-In the Tumor Map, each node is a sample and clusters of samples indicate groups
+In the TumorMap, each node is a sample and clusters of samples indicate groups
 with similar oncogenic signatures and genomic alteration events. The samples in
 a map may be colored by various molecular, clinical, diagnostic, prognostic, and
 phenotypic annotations (e.g. tumor type, molecular subtype, etc.) to visualize
@@ -28,7 +28,7 @@ Terms used throughout the application and this document are:
 
 You can now
 :doc:`getStarted`
-with our use cases to get you familiar with the Tumor map, check out the
+with our use cases to get you familiar with the TumorMap, check out the
 :doc:`basicControls`
 , or just dive in at
 https://tumormap.ucsc.edu.

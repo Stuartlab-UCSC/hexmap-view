@@ -1,22 +1,13 @@
 // layer.js
 // Most of the code to handle the layer data.
 
+import Ajax from './ajax.js';
+
 var app = app || {};
 (function (hex) { // jshint ignore: line
 Layer = (function () { // jshint ignore: line
 
     var selection_prefix = 'Selection';
-    
-    function metadata_counts_check (where, layer_name, n, positives) {
-        var hexCount = Object.keys(polygons).length;
-        if (n > hexCount && hexCount > 0) {
-            console.log('TODO: bad counts at', where, ': layer, n, hexCount:',
-                layer_name, layers[layer_name].n, hexCount);
-            if (!_.isUndefined(positives)) {
-                console.log('    positives:', positives);
-            }
-        }
-    }
     
     function make_layer_name_unique (layer_name) {
  
@@ -58,7 +49,7 @@ Layer = (function () { // jshint ignore: line
         // Give the user a chance to name the layer
         var promptString = (dup_name) ?
                             dup_name + ' is in use, how about this one?'
-                            : 'Please provide a label for this new layer',
+                            : 'Please provide a label for this new attribute.',
             text = prompt(promptString, layer_name);
         if (text) {
             return text.trim();
@@ -102,9 +93,12 @@ Layer = (function () { // jshint ignore: line
         return name;
     }
  
-    function load_dynamic_colormap (name, layer, cats) {
+    function load_dynamic_colormap (name, layer) {
 
         // Load the colormap for dynamic categorical or binary attributes.
+        var cats = layer.uniqueVals,
+            indexedCats;
+        
         if ('colormap' in layer) {
         
             // Load the supplied colormap
@@ -115,20 +109,19 @@ Layer = (function () { // jshint ignore: line
                     fileColor: new Color(layer.colormap.colors[i]),
                 }
             });
-
-            if (cats) {
+    
+            // Save the category index assignment.
+            indexedCats = layer.colormap.cats
          
-                // Replace category string values with indices
-                layer.data = _.object(
-                    _.keys(layer.data),
-                    _.map(layer.data, function (strVal, key) {
-                        return cats.indexOf(strVal);
-                    })
-                );
-            }
-        } else if (cats && cats.length) {
+            // This is no longer needed.
+            delete layer.colormap;
         
-            // Generate a colormap
+        // If there are more that two categories or the categories are not ones
+        // or zeros, this gets a generated colormap.
+        } else if (cats.length > 2 ||
+            ((cats[0] === 0 || cats[0] === 1) && (!cats[1] || cats[1] === 1))) {
+         
+            // Generate a colormap.
             var jpColormap = _.map(
                 jPalette.ColorMap.get('hexmap')(cats.length + 1).map,
                 function (val, key) {
@@ -137,11 +130,11 @@ Layer = (function () { // jshint ignore: line
                     return {r: val.r, g: val.g, b: val.b};
                 }
             );
-         
-            // Remove the repeating red at the end
+     
+            // Remove the repeating red at the end.
             jpColormap.splice(cats.length, 1);
-         
-            // Load this generated colormap
+     
+            // Load this generated colormap.
             colormaps[name] = _.map(jpColormap, function(color, i) {
                 return {
                     name: cats[i],
@@ -150,126 +143,122 @@ Layer = (function () { // jshint ignore: line
                 };
             });
          
-            // Replace category string values with indices
-            layer.data = _.object(
-                _.keys(layer.data),
-                _.map(layer.data, function (strVal, key) {
-                    return cats.indexOf(strVal);
-                })
-            );
-
+            indexedCats = cats;
+         
         } else {
         
-            // The default binary colormap for non-string values
+            // Load the default binary colormap for binary non-string values
+            // those whose values are all ones or zeroes.
             colormaps[name] = [];
         }
         
-        // Remove these that are no longer needed.
-        delete layer.colormap;
+        if (indexedCats && !layer.reflection) {
+
+            // Replace category string values with codes.
+            // Note: reflections are already coded.
+            var codedData = _.object(
+                _.keys(layer.data),
+                _.map(layer.data, function (strVal, key) {
+                    return indexedCats.indexOf(strVal);
+                })
+            );
+            layer.data = codedData;
+        }
+
+        delete layer.uniqueVals;
     }
 
-    function load_dynamic_data_type (name, layer) {
-    
-        // Load the data type for dynamic attributes.
-        var uniqueVals,
-            hasStrings;
+    function find_dynamic_data_type (layer) {
 
-        // Skip any layers with no values.
+        // Find the data type for a dynamic attribute.
         
-        if (_.keys(layer.data).length < 1) { return; }
-
-        // Drop any nulls or values used to indicate no value.
-        var drop = ['', '#N/A', '#N/A N/A', '#NA', '-1.#IND', '-1.#QNAN', 
-            '-NAN', '1.#IND', '1.#QNAN', 'N/A', 'NA', 'NULL', 'NAN'];
-        _.each(layer.data, function (val, key) {
-            if (_.isNull(val) || _.isUndefined(val) || _.isNaN(val)) {
-                delete layer.data[key];
-            } else if (drop.indexOf(val.toString().toUpperCase()) > -1) {
-                delete layer.data[key];
-            }
-        });
- 
-        if (!('dataType' in layer)) {
-        
-            // Determine the data type since it was not supplied.
-         
-            // If they are any strings, this gets a colormap
-            // and call it categorical for now. It may be binary.
-            var aString = _.find(layer.data, function (value) {
+     
+        // If there are 2 or fewer unique values, this is binary.
+        if (layer.uniqueVals.length < 3) {
+            layer.dataType = 'binary';
+     
+        // If there are any strings, this is categorical.
+        } else if (_.find(layer.uniqueVals, function (value) {
                     return _.isNaN(parseFloat(value));
-                });
-            if (aString && aString.length > 0) {
-                layer.dataType = 'categorical';
-                hasStrings = true;
-            }
-         
-            // Find the count of each unique value.
-            uniqueVals = _.countBy(layer.data, function (value) {
-                return value;
-            });
-         
-            // If there are only two values, this is binary.
-            if (Object.keys(uniqueVals).length < 3) {
-                layer.dataType = 'binary';
-         
-            // If the type has not been assigned categorical,
-            // then this must be continuous.
-            } else if (layer.dataType !== 'categorical') {
-                layer.dataType = 'continuous';
-            }
-        }
-        
-        // Add the layer name to the appropriate data type list,
-        // and load a colormap if needed.
-        if (layer.dataType === 'continuous') {
-            ctx.cont_layers.push(name);
+                })
+            ) {
+            layer.dataType = 'categorical';
+     
+        // Otherwise, this is continuous.
         } else {
-        
-            if (layer.dataType === 'categorical') {
-                ctx.cat_layers.push(name);
-            } else {
-     
-                // This is a binary attribute.
-                ctx.bin_layers.push(name);
-            }
-            // Load the colormap for this attribute.
+            layer.dataType = 'continuous';
          
-            // If the unique values have not been found yet, find them.
-            if (!uniqueVals) {
-         
-                // Find the count of each unique value.
-                uniqueVals = _.countBy(layer.data, function (value) {
-                    return value;
-                });
-            }
-         
-            // If we have any (unique) values, load the colormap.
-            if (uniqueVals) {
-         
-                // Are any of the values strings?
-                var aString = _.find(layer.data, function (value) {
-                    return _.isNaN(parseFloat(value));
-                });
-                var cats;
-     
-                // If there are any strings we'll use
-                // these as categories in colormap generation.
-                if (aString && aString.length > 0) {
-                    cats = _.keys(uniqueVals);
-                }
-                load_dynamic_colormap(name, layer, cats);
-            }
+            // Drop the uniqueVals because this is used to determine
+            // whether we need to load a colormap later.
+            delete layer.uniqueVals;
         }
+        
+    }
+    
+    function find_dynamic_values (layer) {
+    
+        // Find the good dynamic values and their count.
+
+        // Drop any 'no values'.
+        if (_.keys(layer.data).length > 0) {
+        
+            // Drop any nulls or values used to indicate no value.
+            var drop = ['', '#N/A', '#N/A N/A', '#NA', '-1.#IND', '-1.#QNAN', 
+                '-NAN', '1.#IND', '1.#QNAN', 'N/A', 'NA', 'NULL', 'NAN'];
+            _.each(layer.data, function (val, key) {
+                if ((_.isNull(val) || _.isUndefined(val) || _.isNaN(val)) ||
+                    (drop.indexOf(val.toString().toUpperCase()) > -1)) {
+                    delete layer.data[key];
+                }
+            });
+        }
+ 
+        // Set the count of values.
+        layer.n = _.keys(layer.data).length;
     }
     
     function load_dynamic_data (layer_name, callback, dynamicLayers) {
 
-        // Load dynamic data in memory.
-        var layer = dynamicLayers[layer_name];
+        // Load dynamic data into the global layers object.
+        var layer = dynamicLayers[layer_name],
+            categories;
         layer.dynamic = true;
+        
+        // Find the good values and their count.
+        find_dynamic_values(layer);
      
-        // Find and save the dataType.
-        load_dynamic_data_type(layer_name, layer);
+        // if there is data, load the dataType.
+        if (layer.n > 0) {
+        
+            // if no dataType was suppied or not continuous...
+            if (!layer.dataType || layer.dataType !== 'continuous') {
+         
+                // Find the unique values in the data.
+                layer.uniqueVals = _.keys(
+                    _.countBy(layer.data, function (value) {
+                        return value;
+                    })
+                );
+            }
+            // If no dataType supplied, go find it.
+            if (!layer.dataType) {
+                find_dynamic_data_type(layer);
+            }
+        } else {
+        
+            // There are no values in the data after dropping 'no value's, so
+            // assign a dataType of continuous so a colormap will not be sought.
+            layer.dataType = 'continuous';
+        }
+        
+        // Add the layer to the appropriate dataType list.
+        Util.addToDataTypeList(layer_name, layer.dataType);
+        // Leave the dataType in the layer obj, we use it in saving state.
+        
+        // If there are categories, load a colormap.
+        if (layer.uniqueVals) {
+            load_dynamic_colormap(layer_name, layer);
+        }
 
         // Save the layer data in the global layers object.
         layers[layer_name] = layer;
@@ -281,38 +270,36 @@ Layer = (function () { // jshint ignore: line
     function load_static_data (layer_name, callback) {
       
         // Download a static layer, then load into global layers and colormaps.
-        // Go get it (as text!)
-        Meteor.call('getTsvFile', layers[layer_name].url, ctx.project,
-            function (error, layer_parsed) {
+        // Go get it.
+        Ajax.get({
+            id: layers[layer_name].dataId,
+            success: function (layer_parsed) {
+                var data = {};
 
-            if (error) {
-                projectNotFound(layers[layer_name].url);
-                return;
-            }
-
-            // This is the layer we'll be passing out. Maps from
-            // signatures to floats on -1 to 1.
-            var data = {};
-
-            for(var j = 0; j < layer_parsed.length; j++) {
-                // This is the label of the hex
-                var label = layer_parsed[j][0];
+                for (var j = 0; j < layer_parsed.length; j++) {
                 
-                if(label == "") {
-                    // Skip blank lines
-                    continue;
+                    // This is the label of the hexagon
+                    var label = layer_parsed[j][0];
+                    
+                    if (label === "") {
+                        // Skip blank lines
+                        continue;
+                    }
+                    
+                    // Store the values in the layer
+                    data[label] = parseFloat(layer_parsed[j][1]);
                 }
-                
-                // Store the values in the layer
-                data[label] = parseFloat(layer_parsed[j][1]);
-            }
-    
-            // Save the layer data locally
-            layers[layer_name].data = data;
- 
-            // Now the layer has been properly downloaded, but it may not
-            // have metadata. Recurse with the same callback to get metadata.
-            Layer.with_layer(layer_name, callback);
+        
+                // Save the layer data in the global layers object.
+                layers[layer_name].data = data;
+     
+                // Now the layer has been properly downloaded, but it may not
+                // have metadata. Recurse to get metadata.
+                Layer.with_layer(layer_name, callback);
+            },
+            error: function (error) {
+                projectNotFound(layers[layer_name].url);
+            },
         });
     }
 
@@ -470,7 +457,8 @@ return { // Public methods
         // "selection + #" will be suggested as the layer name.
 
         if (nodeIds.length < 1) {
-            Util.banner('warn', "No nodes were selected.");
+            Util.banner('error',
+                "No nodes were selected, so an attribute will not be created.");
             return;
         }
 
@@ -515,259 +503,230 @@ return { // Public methods
     },
 
     fill_metadata: function (container, layer_name) {
+    
         // Empty the given jQuery container element, and fill it with layer metadata
         // for the layer with the given name.
         
+        // Layer properties we don't want to display.
+        var noDisplay = [
+            'clumpiness_array',
+            'data',
+            'dataId',
+            'dataType',
+            'dynamic',
+            'magnitude',
+            'maximum',
+            'minimum',
+            'rank',
+            'removeFx',
+            'selection',
+            'tags',
+            'url',
+        ];
+        
         // Empty the container.
         container.html("");
+        var metadata = $('<table\>').addClass('layer-metadata');
+        container.append(metadata);
 
         for(attribute in layers[layer_name]) {
-            // Go through everything we know about this layer
-            if(attribute === "data" || attribute === "url" ||
-                attribute === "magnitude" || attribute === "minimum" ||
-                attribute === "maximum" || attribute === "selection" ||
-                attribute === "clumpiness_array" || attribute === "tags" ||
-                attribute === "removeFx" || attribute === 'rank' ||
-                attribute === "dynamic" || attribute === 'dataType') {
-                
+            if (noDisplay.indexOf(attribute) > -1) {
+         
                 // Skip things we don't want to display
                 // TODO: Ought to maybe have all metadata in its own object?
                 continue;
             }
-     
-            var text;
-            if (attribute === 'positives') {
+            // This holds the metadata value we're displaying
+            var value = layers[layer_name][attribute];
             
-                // Special case positive count for binary selection layers
-                if (layers[layer_name].selection) {
-                
-                    // For selections...
-                    text = 'Selected = ' + layers[layer_name].positives;
-                } else {
-                
-                    // Non-selections are processed under the 'n' attribute.
-                    continue;
-                }
-         
-            } else if (attribute === 'n' &&
-                ctx.bin_layers.indexOf(layer_name) > -1) {
+            if(typeof value === "number" && isNaN(value)) {
+                // If it's a numerical NaN (but not a string), just leave
+                // it out.
+                continue;
+            }
             
-                // Special-case the counts for binary layers.
-                var n = Number(layers[layer_name].n),
-                    p = Number(layers[layer_name].positives),
-                    hexCount = Object.keys(polygons).length;
-                if (_.isNaN(n)) n = 0;
-                if (_.isNaN(p)) p = 0;
-                text = p + '/' + n + ' (' + (hexCount - n) + ' missing)';
-                metadata_counts_check('Layer.fillMetadata()', layer_name, n, p);
-
-            } else {  // process the usual attributes
-     
-                // This holds the metadata value we're displaying
-                var value = layers[layer_name][attribute];
-                
-                if(typeof value === "number" && isNaN(value)) {
-                    // If it's a numerical NaN (but not a string), just leave
-                    // it out.
-                    continue;
-                }
-                
-                if(value == undefined) {
-                    // Skip it if it's not actually defined for this layer
-                    continue;
-                }
-                
-                // If we're still here, this is real metadata.
-                // Format it for display.
-                var value_formatted;
-                if (typeof value === "number") {
-                    if(value % 1 === 0) {
-                        // It's an int!
-                        // Display the default way
-                        value_formatted = value;
-                    } else {
-                        // It's a float!
-                        // Format the number for easy viewing
-                        value_formatted = value.toExponential(1);
-                    }
-                } else {
-                    // Just put the thing in as a string
+            if(value == undefined) {
+                // Skip it if it's not actually defined for this layer
+                continue;
+            }
+            
+            // If we're still here, this is real metadata.
+            // Format it for display.
+            var value_formatted;
+            if (typeof value === "number") {
+                if(value % 1 === 0) {
+                    // It's an int!
+                    // Display the default way
                     value_formatted = value;
+                } else {
+                    // It's a float!
+                    // Format the number for easy viewing
+                    value_formatted = value.toExponential(1);
                 }
-     
-                // Do a sanity check on non-binary layers.
-                if (attribute === 'n') {
-                    metadata_counts_check(
-                        'Layer.fillMetadata()', layer_name, n);
-                }
-     
-                // Do some transformations to make the displayed labels make
-                // more sense.
-                lookup = {
-                    n: "Non-empty values",
-                    clumpiness: "Density score",
-                    p_value: "Single test p-value",
-                    correlation: "Correlation",
-                    adjusted_p_value: "BH FDR",
-                    leesL: "Lees L",
-                    rawLees: "Uncorrected Lees L",
-                    adjusted_p_value_b: "Bonferroni p-value",
-                }
-                
-                if (lookup[attribute]) {
-     
-                    // Replace a boring short name with a useful long name
-                    attribute = lookup[attribute];
-                }
-                text = attribute + ": " + value_formatted;
+            } else {
+                // Just put the thing in as a string
+                value_formatted = value;
+            }
+  
+            // Do some transformations to make the displayed labels make
+            // more sense.
+            lookup = {
+                n: "Values",
+                positives: "Positives",
+                clumpiness: "Density",
+                p_value: "Single test p-value",
+                correlation: "Correlation",
+                adjusted_p_value: "BH FDR",
+                leesL: "Lees L",
+                rawLees: "Uncorrected Lees L",
+                adjusted_p_value_b: "Bonferroni p-value",
             }
             
-            var metadata = $("<div\>").addClass("layer-metadata");
-            metadata.text(text);
-            
-            container.append(metadata);
+            if (lookup[attribute]) {
+ 
+                // Replace a boring short name with a useful long name
+                attribute = lookup[attribute];
+            }
+            var tr = $('<tr\>').css('margin-bottom', '-1em');
+            var td = $('<td\>')
+                .css('text-align', 'right')
+                .text(attribute+':');
+            tr.append(td);
+            td = $('<td\>')
+                .css('text-align', 'left')
+                .text(value_formatted);
+            tr.append(td);
+            metadata.append(tr);
         }
-    },
-
-    initArray: function  () {
-        Meteor.call('getTsvFile', "layers.tab", ctx.project,
-            function (error, parsed) {
-
-            // Create a list of layer names ordered by their indices
-            ctx.static_layer_names = new Array (Session.get('sortedLayers').length);
-
-            if (error) {
-                projectNotFound("layers.tab");
-                return;
-            }
-
-            for (var i = 0; i < parsed.length; i++) {
-                if(parsed[i].length < 2) {
-                    // Skip blank lines
-                    continue;
-                }
-            
-                var file_name = parsed [i][1];
-                // Locate the underscore index in the file name
-                // index + 1 will be where the number starts
-                var underscore_index = file_name.lastIndexOf("_");
-                // Locate the period index in the file name
-                // index will be where number ends
-                var period_index =file_name.lastIndexOf(".");
-                var index_value = file_name.substring(underscore_index+1, period_index);
-                ctx.static_layer_names [index_value] = parsed[i][0];
-             }
-             Session.set('initedLayersArray', true);
-        });
     },
 
     initDataTypes: function () {
 
         // Download Information on what layers are continuous and which are binary
-        Meteor.call('getTsvFile', "Layer_Data_Types.tab", ctx.project,
-            function (error, parsed) {;
-
-            // This is an array of rows with the following content:
-            //
-            //	FirstAttribute		Layer6
-            //	Continuous		Layer1	Layer2	Layer3 ...
-            //	Binary	Layer4	Layer5	Layer6 ...
-            //	Categorical	Layer7	Layer8	Layer9 ...
-            //
-
-            if (error) {
-                projectNotFound("Layer_Data_Types.tab");
-                return;
-            }
-
-            _.each(parsed, function (line) {
-                if (line[0] === 'Binary') {
-                    ctx.bin_layers = line.slice(1);
-                } else if (line[0] === 'Continuous') {
-                    ctx.cont_layers = line.slice(1);
-                } else if (line[0] === 'Categorical') {
-                    ctx.cat_layers = line.slice(1);
-                } else if (line[0] === 'FirstAttribute') {
-                    Session.set('first_layer', line.slice(1).join());
-                } // skip any lines we don't know about
-            });
+        var id = 'Layer_Data_Types';
+       Ajax.get({
+            id: id,
+            error: function (error) {
+                projectNotFound(id);
+            },
+            success: function (parsed) {
             
-            Session.set('initedLayerTypes', true);
+                // This is an array of rows with the following content:
+                //
+                //	FirstAttribute		Layer6
+                //	Continuous		Layer1	Layer2	Layer3 ...
+                //	Binary	Layer4	Layer5	Layer6 ...
+                //	Categorical	Layer7	Layer8	Layer9 ...
+                _.each(parsed, function (line) {
+                    if (line[0] === 'Binary') {
+                        ctx.bin_layers = line.slice(1);
+                    } else if (line[0] === 'Continuous') {
+                        ctx.cont_layers = line.slice(1);
+                    } else if (line[0] === 'Categorical') {
+                        ctx.cat_layers = line.slice(1);
+                    } else if (line[0] === 'FirstAttribute') {
+                        Session.set('first_layer', line.slice(1).join());
+                    } // skip any lines we don't know about
+                });
+                
+                Session.set('initedLayerTypes', true);
+            },
         });
     },
 
     initIndex: function () {
 
         // Download the layer index
-        Meteor.call('getTsvFile', "layers.tab", ctx.project,
-            function (error, parsed) {;
+        var id = 'layers';
 
-            // Layer index is tab-separated like so:
-            // name  file  N-hex-value  binary-ones  layout0-clumpiness  layout1-clumpiness  ...
+        Ajax.get({
+            id: id,
+            error: function (error) {
+                projectNotFound(id);
+            },
+            success: function (parsed) {
 
-            if (error) {
-                projectNotFound("layers.tab");
-                return;
-            }
+                // Layer index is tab-separated like so:
+                // name  file  N-hex-value  binary-ones  layout0-clumpiness  layout1-clumpiness  ...
 
-            // Initialize the layer list for sortable layers.
-            var sorted = [];
-            
-            // Process each line of the file, one per layer.
-            for (var i = 0; i < parsed.length; i++) {
-                // Pull out the parts of the TSV entry
-                // This is the name of the layer.
-                var layer_name = parsed[i][0];
+                // Initialize the layer list for sortable layers.
+                var sorted = [];
                 
-                if (layer_name == "") {
+                // Initialize the static layer names-index lookup.
+                ctx.static_layer_names = [];
+                
+                // Process each line of the file, one per layer.
+                for (var i = 0; i < parsed.length; i++) {
+                
+                    // Pull out the parts of the TSV entry
+                    // This is the name of the layer.
+                    var layer_name = parsed[i][0];
+                 
                     // Skip any blank lines
-                    continue;
-                }
-                
-                // This array holds the layer's clumpiness scores under each layout,
-                // by index. A greater clumpiness score indicates more clumpiness.
-                var layer_clumpiness = [];
-                for(var j = 4; j < parsed[i].length; j++) {
-                
-                    // Each remaining column is the clumpiness score for a layout,
-                    // in layout order.
-                    // This is the layer's clumpiness score
-                    layer_clumpiness.push(parseFloat(parsed[i][j]));
-                }
-                
-                // Number of hexes for which the layer has values
-                var n = parseFloat(parsed[i][2]);
-                
-                // Add this to the global layers object.
-                layers[layer_name] = {
-                
-                    // The url from which to download this layers primary data.
-                    url: ctx.project + parsed[i][1],
-                    
-                    n: n,
-                    clumpiness_array: layer_clumpiness,
-                    
-                    // Clumpiness gets filled in with the appropriate value out
-                    // of the array, so out having a current layout index.
-                }
-                
-                // Save the number of 1s, in a binary layer only
-                var positives = parseFloat(parsed[i][3]);
-                if (!(isNaN(positives))) {
-                    layers[layer_name].positives = positives;
-                }
-                
-                // Add it to the sorted layer list.
-                sorted.push(layer_name);
-                
-                metadata_counts_check(
-                    'Layer.initIndex()', layer_name, n, positives);
+                    if (layer_name == "") { continue; }
 
-            }
-            
-            // Save sortable (not dynamic) layer names.
-            Session.set('sortedLayers', sorted);
-            Session.set('initedLayerIndex', true);
+                    // Save this layer name in the static layer names-index
+                    // lookup. Extract the index, say '6', from a file name
+                    // like layer_6.tab.
+                    var file = parsed [i][1];
+                    ctx.static_layer_names[
+                            file.substring(
+                                file.lastIndexOf("_") + 1,
+                                file.lastIndexOf(".")
+                            )
+                        ] = parsed[i][0];
+                 
+                    // This array holds the layer's clumpiness scores under each layout,
+                    // by index. A greater clumpiness score indicates more clumpiness.
+                    var layer_clumpiness = [];
+                    for(var j = 4; j < parsed[i].length; j++) {
+                    
+                        // Each remaining column is the clumpiness score for a layout,
+                        // in layout order.
+                        // This is the layer's clumpiness score
+                        layer_clumpiness.push(parseFloat(parsed[i][j]));
+                    }
+                    
+                    // Number of hexes for which the layer has values
+                    var n = parseFloat(parsed[i][2]);
+                    
+                    // Add this to the global layers object.
+                    layers[layer_name] = {
+                    
+                         // The url from which to download this layers primary data.
+                        url: ctx.project + parsed[i][1],
+                        
+                        n: n,
+                        clumpiness_array: layer_clumpiness,
+                        
+                        // Clumpiness gets filled in with the appropriate value out
+                        // of the array, so out having a current layout index.
+                    }
+                    
+                    // Add this layer's data ID.
+                    // Remove any '.tab' extension because the Data object
+                    // does not want that there.
+                    var idx = parsed[i][1].indexOf('.tab');
+                    if (idx > -1 && idx === parsed[i][1].length - 4) {
+                        layers[layer_name].dataId = parsed[i][1].slice(0, -4)
+                    } else {
+                        layers[layer_name].dataId = parsed[i][1]
+                    }
+                    
+                    // Save the number of 1s, in a binary layer only
+                    var positives = parseFloat(parsed[i][3]);
+                    if (!(isNaN(positives))) {
+                        layers[layer_name].positives = positives;
+                    }
+                    
+                    // Add it to the sorted layer list.
+                    sorted.push(layer_name);
+                }
+                
+                // Save sortable static (not dynamic) layer names.
+                Session.set('sortedLayers', sorted);
+                Session.set('initedStaticLayersArray', true);
+            },
         });
     },
 };

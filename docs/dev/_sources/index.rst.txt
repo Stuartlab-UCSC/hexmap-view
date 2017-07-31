@@ -1,4 +1,4 @@
-.. UCSC Tumor Map developer documentation master file
+.. UCSC TumorMap developer documentation master file
 
 Developer Docs
 ==============

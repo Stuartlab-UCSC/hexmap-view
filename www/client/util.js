@@ -45,11 +45,10 @@ Util = (function () { // jshint ignore: line
                 .show();
             $("#banner").delay(5000).fadeOut(1500);
         } else if (title === 'error') {
-            Message.display('Error', text);
+            Message.display('Error', 'Sorry, ' + text);
         } else {
             Message.display(title, text);
         }
-
         // Also inform the browser console of this issue.
         console.log(title + ':', text);
     }
@@ -59,7 +58,8 @@ Util = (function () { // jshint ignore: line
         // Bail with a message if the user is not logged in or does not have
         // the credentials.
         var returnVal = true;
-        if (!(Session.get('loggedIn'))) {
+        
+        if (!Meteor.user()) {
             banner('Credentials Required',
                 'Please log in ' + credential + '.');
             returnVal = false;
@@ -132,15 +132,17 @@ Util = (function () { // jshint ignore: line
         return project.slice(0, -1);
 	}
 
-    function projectNotFound (filename) {
+    function projectNotFound (dataId) {
         if (!ctx.projectNotFoundNotified) {
 
-            // make the project name look it would in the URL & alert the user
-            var proj = ctx.project.slice(5, -1).replace('/', '.');
-            alert('"' + proj +
-                '" does not seem to be a valid project.\nPlease select ' +
-                'another.\n(' + filename + ')');
             ctx.projectNotFoundNotified = true;
+        
+            Session.set('mapSnake', false);
+        
+            // Alert the user that essential data is missing for this project.
+             banner('error', '"' + getHumanProject(ctx.project) +
+                '" does not seem to be a valid project.\nPlease select ' +
+                'another.\n(' + dataId + ')');
         }
     }
 
@@ -244,6 +246,16 @@ Util = (function () { // jshint ignore: line
         createOurSelect2: createOurSelect2,
         timestamp: timestamp,
         
+        addToDataTypeList: function (layer_name, dataType) {
+            if (dataType === 'binary') {
+                ctx.bin_layers.push(layer_name);
+            } else if (dataType === 'categorical') {
+                ctx.cat_layers.push(layer_name);
+            } else {
+                ctx.cont_layers.push(layer_name);
+            }
+        },
+
         initSnake: function (snakeName, before) {
         
             // Manage the visibility of a progress snake given

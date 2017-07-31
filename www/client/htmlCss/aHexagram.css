@@ -18,6 +18,14 @@ body {
     padding: 0;
 }
 
+h3 {
+    font-size: 1.1em;
+    font-weight: normal;
+    margin-left: -2em;
+    margin-top: 0.5em;
+    margin-bottom: 0.2em;
+}
+
 .row {
     display: inline-block;
     width: 100%;
@@ -72,6 +80,13 @@ Read as "The content row", distinct from whatever else that element might be.
 	vertical-align: middle;
 	padding: 0.3em;
 	white-space: nowrap;
+}
+.meta_label {
+    text-align: right;
+}
+
+.meta_value {
+    text-align: left;
 }
 
 .dialog-value,
@@ -191,5 +206,14 @@ input.import {
 #jobDialog td {
     padding-right: 0.5em;
     padding-left: 0.5em;
+}
+
+#create_map_dialog div {
+    padding-bottom: 0.2em;
+}
+
+#create_map_dialog div,
+#create_map_dialog span {
+    font-size: 1em;
 }
 

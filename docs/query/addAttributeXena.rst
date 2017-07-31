@@ -3,7 +3,7 @@ Future: Add new coloring attributes via Xena
 
 https://<compute_server>/?...
 
-GET
+HTTP GET
 
 This API takes data for one or more attributes on Xena and adds them as
 values to color an existing map.
@@ -14,6 +14,7 @@ Example URL
 
 Line breaks and spaces added for clarity. The string should be URI-encoded.
 ::
+
  http://tumormap.ucsc.edu/?
     xena=addAttr&
     p=PancanAtlas/XenaPancanAtlas&
@@ -49,4 +50,9 @@ Response error
 --------------
 
 Response errors are returned with some code other than HTTP 200 with the content
-containing a more specific message as a JSON string.
+containing a more specific message as a JSON string in the form::
+
+ {
+    "error": "Some message."
+ }
+

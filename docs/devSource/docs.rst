@@ -33,12 +33,12 @@ Link to a page in this doc: :doc:`repository` ::
  :doc:`repository`
 
 Link to anywhere in this doc, given that you place a tag such as ".. _youMayUse:" just above the desired location:
-:ref:`Link title <youMayUse>` :
+:ref:`Link title <youMayUse>` ::
 
  :ref:`Link title <youMayUse>`
 
 Link to a section on any page in this doc, given that you place a tag such as ".. _aGitQuickStart:" just above the section header:
-:ref:`aGitQuickStart`:
+:ref:`aGitQuickStart`::
 
  :ref:`aGitQuickStart`
 

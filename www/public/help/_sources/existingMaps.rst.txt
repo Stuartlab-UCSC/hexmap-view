@@ -43,7 +43,7 @@ We assembled a dataset comprising all TCGA newly diagnosed diffuse glioma
 consisting of 1,122 patients and comprehensively analyzed using sequencing and
 array-based molecular profiling approaches.
 
-We extended our analysis using Tumor Map to perform integrated co-clustering
+We extended our analysis using TumorMap to perform integrated co-clustering
 analysis of the combined gene expression (n = 1,196) and DNA methylation (n =
 867) profiles. Clusters in the map indicate groups of samples with high
 similarity of integrated gene expression and DNA methylation profiles.

@@ -1,4 +1,4 @@
-.. UCSC Tumor Map Web API master file
+.. UCSC TumorMap Web API master file
 
 Web API
 =======
@@ -9,5 +9,6 @@ Web API
    addAttribute
    addAttributeXena
    createMap
+   jobStatus
    placeNode
 

@@ -16,6 +16,7 @@ UrlParms = (function () { // jshint ignore: line
         var xlate = {
             'evanPaull/pCHIPS': 'pCHIPS',
             'ynewton/gliomas-paper': 'Gliomas',
+            'ynewton.gliomas-paper': 'Gliomas',
             'Pancan12.GeneMap': 'Pancan12/GeneMap',
             'Pancan12.SampleMap': 'Pancan12/SampleMap',
             'CKCC.v1': 'CKCC/v1',
@@ -90,7 +91,6 @@ UrlParms = (function () { // jshint ignore: line
         // Build the layer and load it.
         var layer = {
                 data: data,
-                n: Object.keys(data).length,
                 dynamic: true,
                 imported: true,
             },
