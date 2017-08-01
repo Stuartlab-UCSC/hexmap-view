@@ -103,6 +103,12 @@ exports.query = function (operation, opts, successFx, errorFx) {
         type: 'POST',
         url: url,
         contentType: "application/json", // sending json
+        /* TODO: from the jquery docs:
+            Note: For cross-domain requests, setting the content type to 
+            anything other than application/x-www-form-urlencoded, 
+            multipart/form-data, or text/plain will trigger the browser to send \
+            a preflight OPTIONS request to the server.
+        */
         dataType: 'json', // expects json returned
         data: JSON.stringify(opts),
         success: successFx,
