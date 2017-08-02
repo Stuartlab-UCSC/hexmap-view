@@ -1,9 +1,6 @@
 // createMap.js
 // This creates a new map with user uploaded data.
 
-import React, { Component } from 'react';
-import { render } from 'react-dom';
-import UploadR from '../imports/UploadR.jsx';
 import Ajax from './ajax.js';
 
 var app = app || {};
@@ -284,6 +281,10 @@ CreateMap = (function () { // jshint ignore: line
  
     function build_dialog_content (username) {
  
+        import React, { Component } from 'react';
+        import { render } from 'react-dom';
+        import UploadR from '/imports/UploadR.jsx';
+
          // Define the file selector for features file
         feature_upload = render(
             <UploadR />, $dialog.find('.feature_upload_anchor')[0]);

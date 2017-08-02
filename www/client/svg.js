@@ -67,11 +67,11 @@ var app = app || {};
 
         // Define the svg element,
         // setting its size to that of the visible polygons area
-        svg = "<svg xmlns:svg='http://www.w3.org/2000/svg'"
-            + " width='" + dims.xSize
-            + "' height='" + dims.ySize
-            + "' style='z-index:102;border: 1px solid black'"
-            + ">\n";
+        svg = "<svg version='1.1' xmlns='http://www.w3.org/2000/svg'" +
+            " xmlns:xlink='http://www.w3.org/1999/xlink' " +
+            " width='" + dims.xSize +
+            "' height='" + dims.ySize +
+            "' ><defs/><g>\n";
 
         // Add a background to the svg area
         svg += "'<rect"
@@ -89,15 +89,32 @@ var app = app || {};
              }
         }
 
-        return svg + "</svg>\n";
+        return svg + "</g></svg>\n";
     }
 
     function click(event) {
+ 
+        import '/imports/canvas2svg.js';
 
-        // The handler for clicking the menu option
-        // to actually download it.
+        // Download the map.
         var svg = googleToSvg();
         Download.save('tumormap.svg', svg);
+ 
+        // Download the legend.
+        var context = new C2S(200,200),
+            current_layers = Shortlist.get_active_coloring_layers();
+        Layer.with_layers(current_layers, function(retrieved_layers) {
+            redraw_legend(retrieved_layers, current_layers, context);
+        });
+        svg = context.getSerializedSvg(); //returns the serialized SVG document
+        //svg = context.getSvg(); //inline svg
+        Download.save('tumormapLegend.svg', svg);
+
+        // Redraw the legend on the screen since the svg doesn't look good there.
+        Layer.with_layers(current_layers, function(retrieved_layers) {
+            redraw_legend(retrieved_layers, current_layers);
+        });
+
     }
 
     initSvg = function () {

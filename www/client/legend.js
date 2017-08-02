@@ -6,11 +6,28 @@ var app = app || {};
 (function (hex) { 
 
     // How big is our color key in pixels?
-    var KEY_WT = 125,
+    var display_context,
+        KEY_WT = 125,
         RANGE_HT = KEY_WT,
         IDEAL_ROW_HT = 32,
         MAX_LABEL_HT = 14,
         key_ht;
+ 
+    function getBandBackgroundColor (y_position) {
+ 
+        // Get the background color here as a 1x1 ImageData
+        var image = display_context.getImageData(0, y_position, 1, 1);
+ 
+        console.log('image:', image);
+
+        // Make a Color so we can operate on it
+        return Color({
+            r: image.data[0],
+            g: image.data[1],
+            b: image.data[2],
+            a: 1,
+        });
+    }
 
     function horizontalBandLabels (colormap, context) {
 
@@ -33,21 +50,12 @@ var app = app || {};
             
             // This holds the pixel position where our text goes
             var y_position = key_ht - (i + 1) * label_space_height
-                    + label_space_height / 2,
-
-                // Get the background color here as a 1x1 ImageData
-                image = context.getImageData(0, y_position, 1, 1),
-            
-                // Make a Color so we can operate on it
-                background_color = Color({
-                    r: image.data[0],
-                    g: image.data[1],
-                    b: image.data[2]
-                });
-
+                    + label_space_height / 2
+                background_color = getBandBackgroundColor(y_position);
+ 
             // Do we want white or black text?
             var fontColor = 'white';
-            if(background_color.light()) {
+            if (background_color.light()) {
                 fontColor = 'black';
             }
             context.fillStyle = fontColor;
@@ -80,7 +88,7 @@ var app = app || {};
     }
 
 
-    redraw_legend = function (retrieved_layers, current_layers) {
+    redraw_legend = function (retrieved_layers, current_layers, context) {
  
         // current_layers is an array of zero to two layer names
         // retrieved_layers are the current_layers' layer objects with data
@@ -135,7 +143,13 @@ var app = app || {};
         var canvas = $("#color-key")[0];
         
         // This holds the 2d rendering context
-        var context = canvas.getContext("2d");
+        if (_.isUndefined(context)) {
+ 
+            // Create a new context and save it for later in case an svg
+            // download is requested since the svg context does not know how to
+            // find the horizontal band background color.
+            context = display_context = canvas.getContext("2d")
+        }
 
         // Get the horizontal color count, the secondary active attr.
         colorCount1 = findColorCount(current_layers[1]);
