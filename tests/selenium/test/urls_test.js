@@ -16,6 +16,7 @@ function failed (expected, actual, line) {
     U.failed(expected, actual, line, path.basename(__filename));
 }
 
+/*
 var verifyNewMapLoads = function (mapId, driver, thisEndUrl) {
 
     // Wait for a reload, then for the map selector to be found.
@@ -32,7 +33,7 @@ var verifyNewMapLoads = function (mapId, driver, thisEndUrl) {
                 }
             });
 }
-
+*/
 function pOfynewtonGliomasPaperTest () {
 
     // Test this url to display the proper map

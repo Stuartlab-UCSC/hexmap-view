@@ -152,7 +152,7 @@ refreshColors = function () {
         // Go get the list of filter-passing hexes.
         Shortlist.with_filtered_signatures(filters, function(signatures) {
             for(var i = 0; i < signatures.length; i++) {
-                // For each hex passign the filter
+                // For each hex assign the filter
                 // This holds its signature label
                 var label = signatures[i];
                 
@@ -221,6 +221,8 @@ get_color = function (u_name, u, v_name, v) {
     // Either u or v may be undefined (or both), in which case the no-data color
     // is returned. If a layer name is undefined, that layer dimension is 
     // ignored.
+    //
+    // For categorical layers, the associated u or v is the category index.
     
     if(have_colormap(v_name) && !have_colormap(u_name)) {
         // We have a colormap as our second layer, and a layer as our first.
@@ -282,8 +284,9 @@ get_color = function (u_name, u, v_name, v) {
     var base_color;
    
     if(colorCountU > 0) {
-        // u is a colormap
+        // u is a colormap and for categoricals is the category index.
         if(colormaps[u_name].hasOwnProperty(u)) {
+
             // And the colormap has an entry here. Use it as the base color.
             var to_clone = colormaps[u_name][u].color;
             
@@ -330,6 +333,8 @@ get_color = function (u_name, u, v_name, v) {
             });
             
         } else {
+            // We should never get here because all categorical layers
+            // should have a colormap.
             // The colormap has no entry, and there are more than two options.
             // Assume we're calculating all the entries. We do this by splitting
             // the color circle evenly.

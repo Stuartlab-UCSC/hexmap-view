@@ -1032,8 +1032,11 @@ return {
                     // is to be added to the UI shortlist on load.
                     delete layer.magnitude;
 
-                    // Convert the colormap colors from an object to an array.
-                    if ('name' in colormaps) {
+                    if (!_.isUndefined(colormaps[name])) {
+                    
+                        // Convert the operating colormap colors to an object
+                        // with two arrays as:
+                        // {cats: ['subclass1', ...], colors: ['#123456', ...]}
                         layer.colormap = Colors.colormapToState(colormaps[name]);
                     }
                     entries[name] = layer;

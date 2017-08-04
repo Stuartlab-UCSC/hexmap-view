@@ -128,7 +128,7 @@ UrlParms = (function () { // jshint ignore: line
         // Find any xena requests.
         // @param P the url parameters
         //
-        // For example on PRODUCTION:
+        // For example of continuous on PRODUCTION:
         // http://localhost:3333/?
         //      xena=addAttr&
         //      p=PancanAtlas/XenaPancanAtlas&
@@ -137,7 +137,7 @@ UrlParms = (function () { // jshint ignore: line
         //      dataset=TCGA_pancancer_10852whitelistsamples_68ImmuneSigs.xena&
         //      attr=B_cell_PCA_16704732
         //
-        // For example on DEV:
+        // For example of continuous on DEV:
         // http://localhost:3333/?
         //      xena=addAttr&
         //      p=PancanAtlas/XenaPancanAtlas&

@@ -99,7 +99,7 @@ Layer = (function () { // jshint ignore: line
         var cats = layer.uniqueVals,
             indexedCats;
         
-        if ('colormap' in layer) {
+        if (!_.isUndefined(layer.colormap)) {
         
             // Load the supplied colormap
             colormaps[name] = _.map(layer.colormap.cats, function (cat, i) {
@@ -119,7 +119,8 @@ Layer = (function () { // jshint ignore: line
         // If there are more that two categories or the categories are not ones
         // or zeros, this gets a generated colormap.
         } else if (cats.length > 2 ||
-            ((cats[0] === 0 || cats[0] === 1) && (!cats[1] || cats[1] === 1))) {
+            (cats.length === 2 && !((cats[0] === 0 || cats[0] === 1)
+                && (cats[1] === 0 || cats[1] === 1)))) {
          
             // Generate a colormap.
             var jpColormap = _.map(
@@ -154,18 +155,23 @@ Layer = (function () { // jshint ignore: line
         
         if (indexedCats && !layer.reflection) {
 
-            // Replace category string values with codes.
-            // Note: reflections are already coded.
-            var codedData = _.object(
-                _.keys(layer.data),
-                _.map(layer.data, function (strVal, key) {
-                    return indexedCats.indexOf(strVal);
-                })
-            );
-            layer.data = codedData;
+
+            // Replace category string values with codes if needed.
+            // Note: reflections are not loaded through here, but by the
+            // reflections module.
+            if (layer.hasStringVals) {
+         
+                // These categories have not yet been encoded so encode them.
+                var vals = _.map(layer.data, function (strVal, key) {
+                        return indexedCats.indexOf(strVal);
+                    }),
+                    keys = _.keys(layer.data);
+                layer.data = _.object(keys, vals);
+            }
         }
 
         delete layer.uniqueVals;
+        delete layer.hasStringVals;
     }
 
     function find_dynamic_data_type (layer) {
@@ -239,7 +245,12 @@ Layer = (function () { // jshint ignore: line
                         return value;
                     })
                 );
+                layer.hasStringVals = _.find(layer.uniqueVals,
+                    function (value) {
+                        return _.isNaN(parseFloat(value));
+                    });
             }
+
             // If no dataType supplied, go find it.
             if (!layer.dataType) {
                 find_dynamic_data_type(layer);
@@ -260,7 +271,7 @@ Layer = (function () { // jshint ignore: line
             load_dynamic_colormap(layer_name, layer);
         }
 
-        // Save the layer data in the global layers object.
+        // Save the layer object in the global layers object.
         layers[layer_name] = layer;
         
         // Recurse with the same callback to get metadata.
@@ -447,6 +458,37 @@ return { // Public methods
         return layers.hasOwnProperty(layer_name);
     },
 
+    create_dynamic_category: function (nodeIds, values, new_layer_name) {
+    
+        // Given two arrays: one containing node IDs and one containing the
+        // category names for those nodeIds, add a new categorical layer with
+        // the gived layer name.
+        
+        if (nodeIds.length < 1) {
+            Util.banner('error',
+                "No nodes had values, so an attribute will not be created.");
+            return;
+        }
+
+        // Allow the user to change the suggested layer name.
+        var name = let_user_name_layer(new_layer_name);
+ 
+        if (name) {
+ 
+            // Create a data object using the category names.
+            var data = _.object(nodeIds, values),
+                dynLayer = {};
+         
+            // Add the layer.
+            dynLayer[name] = {
+                data: data,
+                dataType: 'categorical',
+                dynamic: true,
+            };
+            Layer.with_layer(name, function() {}, dynLayer);
+        }
+    },
+
     create_dynamic_selection: function (nodeIds, new_layer_name) {
  
         // Given an array of node IDs, add a new binary layer containing ones
@@ -477,6 +519,7 @@ return { // Public methods
             return nodeValue > 0;
         });
 
+        // Allow the user to change the suggested layer name.
         var name = let_user_name_layer(new_layer_name);
  
         if (name) {

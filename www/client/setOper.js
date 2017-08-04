@@ -22,10 +22,26 @@ var app = app || {};
         'union',
         'set difference',
         'symmetric difference',
+        'cartesian product',
         'absolute complement',
     ];
+ 
+    function find_decoded_value (layer_name, layer, node) {
+ 
+        // Find the decoded value which is the category name if categorical,
+        // otherwise the value given in the layer.
+        var decoded_val,
+            codedVal = layer.data[node],
+            colormap = colormaps[layer_name];
+        if (colormap.length) {
+            decoded_val = colormap[codedVal].name;
+        } else {
+            decoded_val = codedVal;
+        }
+        return decoded_val;
+    }
 
-    function compute_set_operation (values, layer_names, set_type) {
+    function compute_now (values, layer_names, set_type) {
  
         // A function that will take a list of layer names that have been
         // selected for a set operation. Fetches the respective layers and list
@@ -38,8 +54,9 @@ var app = app || {};
 
         Layer.with_layers (layer_names, function (set_layers) {
             //Array of signatures 
-            var nodeIds = [];
-        
+            var nodeIds = [],
+                nodeVals = [];
+
             // Gather the resulting node IDs using the given set operation
             for (hex in polygons) {
                 if (set_type === 'intersection') {
@@ -75,6 +92,30 @@ var app = app || {};
                     if (set_layers[0].data[hex] !== values[0]) {
                         nodeIds.push(hex);
                     }
+                } else if (set_type === 'cartesian product') {
+                    
+                    // Include NA values as an additional category
+                    nodeIds.push(hex);
+                    
+                    // Build the first part of the category name
+                    var val = '';
+                    if (_.isUndefined(set_layers[0].data[hex])) {
+                        val = 'NA , ';
+                    } else {
+                        var decoded_val = find_decoded_value(
+                            layer_names[0], set_layers[0], hex);
+                        val = decoded_val + ', ';
+                    }
+
+                    // Build the second part of the category name
+                    if (_.isUndefined(set_layers[1].data[hex])) {
+                        val += 'NA';
+                    } else {
+                        decoded_val = find_decoded_value(
+                            layer_names[1], set_layers[1], hex);
+                        val += decoded_val;
+                    }
+                    nodeVals.push(val);
                 }
             }
 
@@ -92,13 +133,20 @@ var app = app || {};
             } else if (set_type === 'symmetric difference') {
                 new_layer_name = layer_names[0] + ' ∆ ' + layer_names[1];
 
+            } else if (set_type === 'cartesian product') {
+                new_layer_name = layer_names[0] + ' X ' + layer_names[1];
+
             } else if (set_type === 'absolute complement') {
                 new_layer_name = 'Not: ' + layer_names[0];
             }
         
             // Add this new layer to the shortlist
-            var layer_name = Layer.create_dynamic_selection(
-                nodeIds, new_layer_name);
+            if (set_type === 'cartesian product') {
+                Layer.create_dynamic_category(nodeIds, nodeVals, new_layer_name);
+            } else {
+                var layer_name = Layer.create_dynamic_selection(
+                    nodeIds, new_layer_name);
+            }
         });
     }
 
@@ -121,14 +169,14 @@ var app = app || {};
         layer_values.push(Number(drop_down_data_values[0].options[selected_index].value));
 
         // Second layer name and values
-        if (selected_function != 5) {
+        if (selected_function != 6) {
             var selected_index = drop_down_data_values[1].selectedIndex;
             layer_values.push(Number(drop_down_data_values[1].options[selected_index].value));
             var selected_index = drop_down_layers[1].selectedIndex;
             layer_names.push(drop_down_layers[1].options[selected_index].text);
         }
 
-        compute_set_operation(layer_values, layer_names, set_types[selected_function]);
+        compute_now(layer_values, layer_names, set_types[selected_function]);
 
         reset_set_operations();
     };
@@ -147,14 +195,16 @@ var app = app || {};
         return selection;	
     }
 
-    function show_set_operation_drop_down () {
-        // Show Set Operation Drop Down Menu
+    function show_set_operation_window () {
+ 
+        // Show Set Operation window
         $(".set-operation.dropdown").show();
 
     }
 
-    function hide_set_operation_drop_down () {
-        // Hide Set Operation Drop Down Menu
+    function hide_window () {
+ 
+        // Hide Set Operation Window
         $(".set-operation.dropdown").hide();
 
         var drop_downs = document.getElementsByClassName("set-operation-value");
@@ -202,7 +252,7 @@ var app = app || {};
 
     function create_set_operation_ui () {
         // Returns a Jquery element that is then prepended to the existing 
-        // set theory drop-down menu	
+        // set operation window
 
         // This holds the root element for this set operation UI 
         var root = $("<div/>").addClass("set-operation-entry");
@@ -227,18 +277,20 @@ var app = app || {};
     }
 
     update_set_operation_drop_down = function () {
+        // The set operator changed to update the layer drop downs.
+        //
         // This is the onchange command for the drop down displaying the 
         // different set operation functions. It is called whenever the user changes
         // the selected set operation.
 
-        // Get the value of the set operation selection made by the user.
+        // Get the value of the set operator selection made by the user.
         var selection = get_set_operation_selection();
-        var value = selection.value;	
-        // Check if the selectin value is that of one of set operation functions
-        if (selection.value == 1 || selection.value == 2 
-            || selection.value == 3 || selection.value == 4
-            || selection.value == 5){
-                // Make the drop downs that hold layer names and data values visible
+        var value = selection.value;
+ 
+        // Check if the operator value is valid.
+        if (selection.value > 0 && selection.value < 7){
+ 
+                // Style the layer drop downs and layer value drop downs.
                 var drop_downs = document.getElementsByClassName("set-operation-value");
                 var drop_downs_layer_values = document.getElementsByClassName("set-operation-layer-value");
 
@@ -255,7 +307,8 @@ var app = app || {};
                 compute_button[0].value = "Compute Set Operation";
 
                 if (first_opening == true) {
-                    // Set the default value for the drop down, holding the selected layers
+ 
+                    // Set the default value for the layer drop downs
                     var default_value = document.createElement("option");
                     default_value.text = "Select Attribute 1";
                     default_value.value = 0;
@@ -270,8 +323,15 @@ var app = app || {};
                     first_opening = false;
                 }
 
-                // Hide the second set of drop downs if "Not:" is selected
+                // Hide the layer value drop downs if the operator is
+                // cartesian product.
                 if (selection.value == 5) {
+                    drop_downs_layer_values[0].style.visibility="hidden";
+                    drop_downs_layer_values[1].style.visibility="hidden";
+                }
+
+                // Hide the second layer drop downs if the operator is "Not:".
+                if (selection.value == 6) {
                     drop_downs[1].style.visibility="hidden";
                     drop_downs_layer_values[1].style.visibility="hidden";
                 }
@@ -291,7 +351,7 @@ var app = app || {};
         }
     }
 
-    function update_set_operation_selections () {
+    function update_layer_selectors () {
         // This function is called when the shortlist is changed.
         // It appropriately updates the drop down containing the list of layers
         // to match the layers found in the shortlist.
@@ -331,10 +391,12 @@ var app = app || {};
         var shortlist = Session.get('shortlist');
         for (var i = 0; i < drop_downs.length; i++){
             for (var j = 0; j < shortlist.length; j++) {
-                var option = document.createElement("option");
-                option.text = shortlist[j];
-                option.value = j+1;
-                drop_downs[i].add(option);
+                if (!Util.is_continuous(shortlist[j])) {
+                    var option = document.createElement("option");
+                    option.text = shortlist[j];
+                    option.value = j+1;
+                    drop_downs[i].add(option);
+                }
             }
         }
 
@@ -358,10 +420,10 @@ var app = app || {};
 
         // Call the function containing onchange commands for these dropdowns.
         // This way the data values are updated according the the selected layer.
-        update_set_operation_data_values ();
+        define_layer_selection_handlers ();
     }
 
-    function update_set_operation_data_values () {
+    function define_layer_selection_handlers () {
         // Define the onchange commands for the drop downs that hold layer names.
         // This way the data values are updated according the the selected layer.
 
@@ -384,7 +446,7 @@ var app = app || {};
             var selectedIndex = drop_downs[0].selectedIndex;
             var layer_name = drop_downs[0].options[selectedIndex].text;
             var set_operation_data_value_select = set_operation_layer_values[0];
-            create_set_operation_pick_list(set_operation_data_value_select, layer_name);
+            create_layer_selectors(set_operation_data_value_select, layer_name);
         };
 
         // The "Select Layer2" Dropdown onchange function
@@ -401,18 +463,17 @@ var app = app || {};
             var selectedIndex = drop_downs[1].selectedIndex;
             var layer_name = drop_downs[1].options[selectedIndex].text;
             var set_operation_data_value_select = set_operation_layer_values[1];
-            create_set_operation_pick_list(set_operation_data_value_select, layer_name);
+            create_layer_selectors(set_operation_data_value_select, layer_name);
         };
 
     }
 
-    function create_set_operation_pick_list(value,layer_object) {
+    function create_layer_selectors(value,layer_object) {
 
- 
         // Create a link to the methods
         add_tool("methods", function(ev) {
             if (!$(ev.target).hasClass('disabled')) {
-                $('.gridPage').click();
+                $('.gridPage').click();    // TODO  ???
                 tool_activity(false);
             }
         }, 'Map of nodes before final layout');
@@ -452,7 +513,7 @@ var app = app || {};
     }
 
     reset_set_operations = function () {
-            hide_set_operation_drop_down ();
+            hide_window ();
             set_operation_clicks = 0;
     }
 
@@ -462,12 +523,12 @@ var app = app || {};
         $("#set-operations").prepend(create_set_operation_ui ());
 
         // Update Values for GUI Dropdowns
-        update_set_operation_selections ();
+        update_layer_selectors ();
 
         // Hide other functions so that if one is visible, 
 		// it disappears from sight. Reset the set operation counter so that 
 		// if the user clicks on the function icon it will open immediately
-		hide_set_operation_drop_down ();
+		hide_window ();
 		set_operation_clicks = 0;
 
         // Action handler for display of set operation pop-up
@@ -478,12 +539,12 @@ var app = app || {};
             // it disappears from sight. Reset the set operation counter so that 
             // if the user clicks on the function icon it will open immediately
             if (set_operation_clicks % 2 != 0){
-                    show_set_operation_drop_down ();
+                    show_set_operation_window ();
                     // Update so that there are no repeated "Select" Attrributes
-                    update_set_operation_selections ();
+                    update_layer_selectors ();
                 }
             else {
-                hide_set_operation_drop_down ();
+                hide_window ();
             }		
         
         });

@@ -253,11 +253,16 @@ Colors = (function () { // jshint ignore: line
         },
         
         colormapToState: function (colorVals) {
-        
-            // Convert one attr colormap colors into a form that state can save.
-            return _.map(colorVals, function(val) {
-                return [val.name, val.color.hexString()];
-            });
+
+            // Convert one attr colormap into a form that state can save.
+            var cats = _.map(colorVals, function(val) {
+                    return val.name;
+
+                }),
+                colors = _.map(colorVals, function(val) {
+                    return val.color.hexString();
+                });
+            return {cats: cats, colors: colors};
         },
 
         colormapToColorArray: function (layerVal, layerKey) {

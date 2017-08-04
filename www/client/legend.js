@@ -17,8 +17,6 @@ var app = app || {};
  
         // Get the background color here as a 1x1 ImageData
         var image = display_context.getImageData(0, y_position, 1, 1);
- 
-        console.log('image:', image);
 
         // Make a Color so we can operate on it
         return Color({

@@ -9,7 +9,7 @@ var app = app || {};
 (function (hex) { 
     //'use strict';
 
-    var xyMapSize = 5120,
+    var xyMapSize = 5120 * 2,
         dims = null,
         initiated = false;
 
@@ -99,14 +99,19 @@ var app = app || {};
         // Download the map.
         var svg = googleToSvg();
         Download.save('tumormap.svg', svg);
+    }
+
+    function clickLegend(event) {
  
+        import '/imports/canvas2svg.js';
+
         // Download the legend.
-        var context = new C2S(200,200),
+        var context = new C2S(200,2000),
             current_layers = Shortlist.get_active_coloring_layers();
         Layer.with_layers(current_layers, function(retrieved_layers) {
             redraw_legend(retrieved_layers, current_layers, context);
         });
-        svg = context.getSerializedSvg(); //returns the serialized SVG document
+        var svg = context.getSerializedSvg(); //returns the serialized SVG document
         //svg = context.getSvg(); //inline svg
         Download.save('tumormapLegend.svg', svg);
 
@@ -114,7 +119,6 @@ var app = app || {};
         Layer.with_layers(current_layers, function(retrieved_layers) {
             redraw_legend(retrieved_layers, current_layers);
         });
-
     }
 
     initSvg = function () {
@@ -122,5 +126,7 @@ var app = app || {};
         initiated = true;
         $('#svgDownload')
             .on('click', click);
+        $('#svgDownloadLegend')
+            .on('click', clickLegend);
     }
 })(app);
