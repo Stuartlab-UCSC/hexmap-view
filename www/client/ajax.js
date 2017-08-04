@@ -44,8 +44,8 @@ function getData(url, successFx, errorFx, ok404, parse) {
                 successFx(parseTsv(result));
             } else {
            
-                // Return already-json-parsed data
-                successFx(result);
+                // Return json-parsed data
+                successFx(JSON.parse(result));
             }
         },
         error: function (error) {
