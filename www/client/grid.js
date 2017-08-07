@@ -1,7 +1,7 @@
 // grid.js
 // This handles the node density visualizations.
 
-import Ajax from './ajax.js';
+import Ajax from '/imports/ajax.js';
 
 var app = app || {}; 
 

@@ -1,7 +1,7 @@
 // hexagram.js
 // Run the hexagram visualizer client.
 
-import Ajax from './ajax.js';
+import Ajax from '/imports/ajax.js';
 
 var app = app || {}; 
 

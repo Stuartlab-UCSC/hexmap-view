@@ -2,7 +2,7 @@
 
 // This allows the user to view new node(s) placement overlaid on an existing map.
 
-import Ajax from './ajax.js';
+import Ajax from '/imports/ajax.js';
 
 var app = app || {};
 

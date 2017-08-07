@@ -1,7 +1,7 @@
 // hexagon.js
 // Handle things to do with hexagons.
 
-import Ajax from './ajax.js';
+import Ajax from '/imports/ajax.js';
 
 var app = app || {}; 
 

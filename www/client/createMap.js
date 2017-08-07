@@ -1,7 +1,7 @@
 // createMap.js
 // This creates a new map with user uploaded data.
 
-import Ajax from './ajax.js';
+import Ajax from '/imports/ajax.js';
 
 var app = app || {};
 

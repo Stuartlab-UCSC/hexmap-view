@@ -1,7 +1,7 @@
 // layer.js
 // Most of the code to handle the layer data.
 
-import Ajax from './ajax.js';
+import Ajax from '/imports/ajax.js';
 
 var app = app || {};
 (function (hex) { // jshint ignore: line
