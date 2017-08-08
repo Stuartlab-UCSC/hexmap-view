@@ -255,7 +255,9 @@ exports.get = function(opts) {
         parse = 'tsv';
     }
 
-    getData(HUB_URL + '/data/view/' + mapPath + opts.id,
+    //getData(HUB_URL + '/data/view/' + mapPath + opts.id +
+    getData(HUB_URL + (opts.ok404 ? '/dataOk404/view' : '/data/view/') +
+                mapPath + opts.id,
             opts.success,
             opts.error,
             opts.ok404,

@@ -1,6 +1,6 @@
 // download.js
 
-import Ajax from './ajax.js';
+import Ajax from '/imports/ajax.js';
 
 var app = app || {};
 (function (hex) { // jshint ignore: line
