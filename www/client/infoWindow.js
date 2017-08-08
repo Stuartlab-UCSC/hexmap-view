@@ -43,6 +43,32 @@ var app = app || {};
         return root;
     }
 
+    function get_signature_search_url() {
+        var default_url = "https://www.google.com/search?q=";
+        var mapMeta = Session.get("mapMeta");
+        if (mapMeta === "404" || _.isUndefined(mapMeta['nodeIdSearchUrl']) ){
+            return default_url;
+        } else {
+            return mapMeta['nodeIdSearchUrl']
+        }
+    }
+    function add_signature(signature) {
+
+        // Small helper function that returns a jQuery element that displays the
+        // given key being the given value.
+        // Using jQuery to build this saves us from HTML injection by making jQuery
+        // do all the escaping work (we only ever set text).
+
+        // This holds the root element of the row
+        var root = $("<div/>").addClass("info-row");
+        var url = get_signature_search_url();
+        url += signature;
+        // Add the key and value elements
+        root.append($("<div/>").addClass("info-key").text("ID"));
+        root.append($("<div/>").addClass("info-value").html(signature.link(url)));
+
+        return root;
+    }
     function with_infocard(signature, callback, gMap) {
         // Given a signature, call the callback with a jQuery element representing
         // an "info card" about that signature. It's the contents of the infowindow 
@@ -72,7 +98,7 @@ var app = app || {};
             var infocard = $("<div/>").addClass("infocard");
             
             // Display the hexagon name
-            infocard.append(row("ID", signature).addClass("info-name"));
+            infocard.append(add_signature(signature).addClass("info-name"));
 
             if (SHOW_COORDS) {
                 // Display the honeycomb coordinates
@@ -108,7 +134,6 @@ var app = app || {};
                 // Make a listing for this layer's value
                 infocard.append(row(current_layers[i], layer_value));
             }
-            
             // Return the infocard by callback
             callback(infocard);
         });
