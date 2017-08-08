@@ -9,8 +9,7 @@ Colors = (function () { // jshint ignore: line
         COLOR_BINARY_OFF = '#444444',       // binary attr off
         COLOR_BINARY_ON = '#FFFF00',        // binary attr on
         COLOR_BINARY_BOTH_ON = '#00FF00',   // binary both attrs on
-        COLOR_BINARY_SECOND_ON = '#0000FF'  // binary second attr on
-        COLOR_NO_ATTRIBUTES = '#8888ff';    // no attributes at all
+        COLOR_BINARY_SECOND_ON = '#0000FF'; // binary second attr on
 
     // The color to use as hexagon fill, depending on the background color
     var NO_DATA_LIGHT_BG = '#c0c0c0',
@@ -248,10 +247,6 @@ Colors = (function () { // jshint ignore: line
             return COLOR_BINARY_SECOND_ON;
         },
 
-        noAttrColor: function () {
-            return COLOR_NO_ATTRIBUTES;
-        },
-        
         noDataColor: function () {
             return (Session.equals('background', 'white')) ?
                 NO_DATA_LIGHT_BG : NO_DATA_DARK_BG;

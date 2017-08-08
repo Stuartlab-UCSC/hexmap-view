@@ -142,25 +142,26 @@ refreshColors = function () {
             layer_limits.push(range);
         }
         
+
+        // Turn all the hexes the filtered-out color, pre-emptively
+        // TODO redrawing would be faster to not change colors twice
+        for(var signature in polygons) {
+            setHexagonColor(polygons[signature], Colors.noDataColor());
+        }
+        
         // Go get the list of filter-passing hexes.
         Shortlist.with_filtered_signatures(filters, function(signatures) {
-            var no_data_color = Colors.noDataColor(),
-                no_attr_color = Colors.noAttrColor()
-            
             for(var i = 0; i < signatures.length; i++) {
                 // For each hex assign the filter
                 // This holds its signature label
                 var label = signatures[i];
                 
-                if (retrieved_layers.length < 1) {
+                // This holds the color we are calculating for this hexagon.
+                // Start with the no data color.
+                var computed_color = Colors.noDataColor();
                 
-                    // For no shortlist, use something other than no-data color.
-                    var computed_color = no_attr_color;
-                } else {
+                if(retrieved_layers.length >= 1) {
                     // We need to compute colors given the layers we found.
-                    
-                    // Start with the no data color.
-                    var computed_color = no_data_color;
 
                     // Get the heat along u and v axes. This puts us in a square
                     // of side length 2. Fun fact: undefined / number = NaN, but

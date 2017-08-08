@@ -853,21 +853,9 @@ Shortlist = (function () { // jshint ignore: line
             sortedLayers = Session.get('sortedLayers'),
             domLoaded = Session.get('domLoaded');
         
-        if (_.isUndefined(domLoaded)) {
-            
-            // We can't add to the shortlist until this is so.
-            return;
-        }
-        if (sortedLayers.length < 1 && Session.get('shortlist').length < 1) {
-        
-            // Special case of no attributes, so display a color other than
-            // no data.
-            refreshColors();
-            return;
-        }
-        if (sortedLayers.length < 1 || _.isUndefined(first_layer)) {
-        
-            // We can't add to the shortlist until this is so.
+        if (sortedLayers.length < 1 || _.isUndefined(first_layer) ||
+            _.isUndefined(domLoaded)) {
+            // We can't add to the shortlist until these are so.
             return;
         }
         
