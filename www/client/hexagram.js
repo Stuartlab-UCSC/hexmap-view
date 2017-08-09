@@ -439,6 +439,7 @@ initLayout = function () {
         var id = 'layouts';
         Ajax.get({
             id: id,
+            ok404: true,
             success: function (parsed) {
 
                 // This is an array of rows, with one element in each row:
