@@ -12,28 +12,8 @@ var webdriver = require('selenium-webdriver'),
 
 var U = require('./testUtils');
 
-function failed (expected, actual, line) {
-    U.failed(expected, actual, line, path.basename(__filename));
-}
+var __file = path.basename(__filename);
 
-/*
-var verifyNewMapLoads = function (mapId, driver, thisEndUrl) {
-
-    // Wait for a reload, then for the map selector to be found.
-    thisEndUrl = thisEndUrl || defaultEndUrl
-    
-    driver.wait(until.urlIs(thisEndUrl), 20000)
-        .then(_ => driver.sleep(500))
-        .then(_ => driver.wait(until.elementIsVisible(driver.findElement(
-            By.id('s2id_project'))), 60000))
-        .then(_ => driver.findElement(By.css('#s2id_project span'))
-            .getText()).then(function (text) {
-                if (text.indexOf(mapId) < 0) {
-                    failed(mapId, text, __line);
-                }
-            });
-}
-*/
 function pOfynewtonGliomasPaperTest () {
 
     // Test this url to display the proper map
@@ -44,7 +24,7 @@ function pOfynewtonGliomasPaperTest () {
             map = 'Gliomas';
     
     driver.get(url)
-        .then(_ => verifyNewMapLoads(map, driver, url))
+        .then(_ => U.verifyNewMapLoads(map, driver, url, __line, __file))
         .then(_ => driver.quit());
 }
 

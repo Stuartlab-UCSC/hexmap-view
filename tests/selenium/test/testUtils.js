@@ -1,10 +1,15 @@
 
+var path = require('path');
+
 var webdriver = require('selenium-webdriver'),
     By = webdriver.By,
     until = webdriver.until;
 
 var username = 'swat@soe.ucsc.edu',
     password = 'Mollium123';
+
+var U = require('./testUtils');
+var __file = path.basename(__filename);
 
 // Define these so we can display the test file line number with failures.
 Object.defineProperty(global, '__stack', {
@@ -23,6 +28,33 @@ Object.defineProperty(global, '__line', {
     return __stack[1].getLineNumber();
   }
 });
+
+exports.failed = function (expected, actual, line, filename, callerLine, callerFile) {
+
+    // Report a test failure.
+    console.log('FAILED: EXPECTED: "' + expected + '"\n          ACTUAL: "' +
+        actual + '"\n          (' + filename + ':' + line +
+        (callerFile ? ' from ' + callerFile : '') +
+        (callerLine ? ':' + callerLine : '') +
+        ')');
+};
+
+exports.verifyNewMapLoads = function (mapId, driver, url, callerLine, callerFile) {
+
+    // Wait for a reload, then for the map selector to be found.
+    thisEndUrl = url || defaultEndUrl
+    
+    driver.wait(until.urlIs(thisEndUrl), 20000)
+        .then(_ => driver.sleep(500))
+        .then(_ => driver.wait(until.elementIsVisible(driver.findElement(
+            By.id('s2id_project'))), 60000))
+        .then(_ => driver.findElement(By.css('#s2id_project span'))
+            .getText()).then(function (text) {
+                if (text.indexOf(mapId) < 0) {
+                    U.failed(mapId, text, __line, __file, callerLine, callerFile);
+                }
+            });
+};
 
 exports.clickDialogButton = function (driver, buttonPosition) {
 
@@ -55,13 +87,6 @@ exports.login = function (driver) {
             .sendKeys(password))
         .then(_ => driver.findElement(By.id('login-buttons-password')).click())
         .then(_ => driver.sleep(500)); // Let the maps be found after login.
-};
-
-exports.failed = function (expected, actual, line, filename) {
-
-    // Report a test failure.
-    console.log('FAILED: EXPECTED: "' + expected + '"\n          ACTUAL: "' +
-        actual + '"\n          (' + filename + ':' + line + ')');
 };
 
 exports.setUp  = function (featurePath) {
