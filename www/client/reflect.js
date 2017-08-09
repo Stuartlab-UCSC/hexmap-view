@@ -10,6 +10,7 @@ Reflect = (function () { // jshint ignore: line
 
     var title = 'Reflect on Another Map',
         dialogHex,
+        $link,
         $button,
         $dialog,
         mapId,
@@ -82,6 +83,12 @@ Reflect = (function () { // jshint ignore: line
         Util.createOurSelect2($dataTypeAnchor, {data: dataTypeData}, dataType);
  
         $dataTypeAnchor.show();
+
+        $link = $("<a href='' target='_blank' class='ui-button-text'> Reflect </a>");
+        var $button = $(".ui-dialog button");
+        var $span = $("button").find("span");
+        $span.detach();
+        $button.append($link);
 
         // Define the event handler for selecting in the list
         $dataTypeAnchor.on('change', function (ev) {
@@ -179,21 +186,14 @@ Reflect = (function () { // jshint ignore: line
             //show a message to user
             Util.banner('info', 'Your other map will update shortly.');
             hide();
+            var pathPeices = toMapId.split('/');
+            var major = pathPeices[0];
+            var minor = pathPeices[1];
+
+            var url = URL_BASE + '/?p=' + major + '.' + minor;
+            console.log(url);
+            $link.attr("href", url);
             
-            Meteor.call("isWindowOpen", Meteor.user().username, toMapId,
-                function (error, result) {
-                    // no errors are returned
-                    if (!result) { //result is true if window is opened
-                        var pathPeices = toMapId.split('/');
-                        var major = pathPeices[0];
-                        var minor = pathPeices[1];
-                        //how to open a new window
-                        // TODO use a slash instead of a .
-                        window.open(URL_BASE + '/?p=' + major + '.' + minor);
-                    }
-                });
-            
-        }
         return get_reflection_count(operation,dataType,toMapId,nodeIds);
     }
 
@@ -225,7 +225,7 @@ Reflect = (function () { // jshint ignore: line
                 if (val === 1)  { nodeIds.push(key); }
             }
         );
- 
+
         // Request the map manager to reflect using these nodes,
         // and receive a count of nodes that had data.
         var have_data_count = mapManager('reflection', nodeIds);
