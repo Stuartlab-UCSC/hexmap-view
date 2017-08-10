@@ -30,61 +30,98 @@ function log (url, code, userMsg) {
 function getData(url, successFx, errorFx, ok404, parse) {
 
     // Retrieve view data for the current project.
-    $.ajax({
-        type: 'GET',
-        url: url,
-        success:  function (result) {
-            if (parse === 'noParse') {
-           
-                // Return raw data
-                successFx(result);
-            } else if (parse === 'tsv') {
-           
-                // Return tsv-parsed data
-                successFx(parseTsv(result));
-            } else {
-           
-                // Return json-parsed data
-                successFx(JSON.parse(result));
-            }
-        },
-        error: function (error) {
-            var msg,
-                msg404 = ' GET ' + url + ' 404 (NOT FOUND) is OK here.';
-           
-            // Special handling where the caller has said a 404 is OK.
-            if (error.status === 404 && ok404) {
-                console.log(msg404);
-                successFx('404');
-           
-            // Special handling for 'layouts', whose dataId is
-            // 'matrixnames' in older maps.
-            } else if (error.status === 404 &&
-                url.slice(url.lastIndexOf('/') + 1) === 'layouts.tab') {
-                console.log(msg404);
-                url = url.slice(0, url.lastIndexOf('/') + 1) + 'matrixnames.tab';
-                getData(url, successFx, errorFx, ok404, parse);
-           
-            // Handle the usual case.
-            } else {
-                if (error.statusText) {
-                    msg = error.statusText;
-                } else if (error.responseJSON) {
-                    if (error.responseJSON.error) {
-                        msg = error.responseJSON.error;
-                    } else {
-                        msg = error.responseJSON;
-                    }
-                } else {
-                    msg = 'Unknown error retrieving ' + url;
-                }
-                log(url, error.status, msg);
-                if (errorFx) {
-                    errorFx(msg);
-                }
-            }
+    // For the case where 404 not found is OK we handle the 404 in the success
+    // block as well as the error block. This is because our current data
+    // server knows how to handle these and returns the 404 as success.
+    // However, in the future we may have a data server we don't have much
+    // control over, so we also handle this in the error block.
+    
+    var tryCount = 0,
+        tryMax = 3;
+    
+    function handle404 (url, successFx, errorFx, ok404, parse) {
+    
+        // Handle the cases where 404 not found is OK.
+        
+        var id = url.slice(url.lastIndexOf('/') + 1);
+    
+        if (id === 'layouts.tab') {
+        
+            // Special handling for 'layouts', whose ID is
+            // 'matrixnames' in older maps. Get again with the new ID.
+            url = url.slice(0, url.lastIndexOf('/') + 1) + 'matrixnames.tab';
+            var i = url.indexOf('Ok404');
+            url = url.slice(0, i) + url.slice(i+5);
+            
+            //console.log('url:', url);
+            
+            getData(url, successFx, errorFx, false, parse);
+   
+        } else {
+            //console.log('success 404 ID:', id);
+            successFx('404');
         }
-    });
+    }
+    
+    function tryGet (url, successFx, errorFx, ok404, parse) {
+        $.ajax({
+            type: 'GET',
+            url: url,
+            success:  function (result) {
+            
+                //console.log('\nurl result', url, result);
+               
+                if (result === '404' && ok404) {
+                    handle404(url, successFx, errorFx, ok404, parse);
+                    return;
+                } else if (parse === 'noParse') {
+               
+                    // Return raw data
+                    successFx(result);
+                } else if (parse === 'tsv') {
+               
+                    // Return tsv-parsed data
+                    successFx(parseTsv(result));
+                } else {
+               
+                    // Return json-parsed data
+                    successFx(JSON.parse(result));
+                }
+            },
+            error: function (error) {
+                var msg,
+                    msg404 = ' GET ' + url + ' 404 (NOT FOUND) is OK here.';
+               
+                // Special handling where the caller has said a 404 is OK.
+                if (error.status.toString() === '404' && ok404) {
+                    console.log(msg404);
+                    handle404(url, successFx, errorFx, ok404, parse);
+               
+                // Handle the usual case.
+                } else {
+                    if (error.statusText) {
+                        msg = error.statusText;
+                    } else if (error.responseJSON) {
+                        if (error.responseJSON.error) {
+                            msg = error.responseJSON.error;
+                        } else {
+                            msg = error.responseJSON;
+                        }
+                    } else {
+                        msg = 'Unknown error retrieving ' + url;
+                    }
+                    log(url, error.status, msg);
+                    if (errorFx) {
+                        errorFx(msg);
+                    }
+                }
+            }
+        });
+    }
+    if (tryCount < tryMax) {
+        tryCount += 1;
+        tryGet(url, successFx, errorFx, ok404, parse);
+    }
 }
     
 exports.query = function (operation, opts, successFx, errorFx) {
@@ -256,7 +293,7 @@ exports.get = function(opts) {
     }
 
     //getData(HUB_URL + '/data/view/' + mapPath + opts.id +
-    getData(HUB_URL + (opts.ok404 ? '/dataOk404/view' : '/data/view/') +
+    getData(HUB_URL + (opts.ok404 ? '/dataOk404/view/' : '/data/view/') +
                 mapPath + opts.id,
             opts.success,
             opts.error,

@@ -1,14 +1,15 @@
 
 // Environment-dependent values.
-var startUrl = 'http://localhost:3333/?p=unitTest/layoutBasicExp',
+var rootUrl = 'http://localhost:3333',
+    startUrl = rootUrl + '/?p=unitTest/layoutBasicExp',
+    endUrl = rootUrl + '/?';
     majorMap = 'swat_soe.ucsc.edu',
     minorMap = 'map',
     uploadRoot = '/Users/swat/dev/compute/tests/in/layout/',
     featurePrefix = '/Users/swat/data/featureSpace/' + majorMap + '/',
     featureRoot = featurePrefix + minorMap + '/',
     viewPrefix = '/Users/swat/data/view/' + majorMap + '/',
-    viewRoot = viewPrefix + minorMap + '/',
-    endUrl = 'http://localhost:3333/?';
+    viewRoot = viewPrefix + minorMap + '/';
 
 var $ = require('jquery');
 var path = require('path');
@@ -17,6 +18,8 @@ var webdriver = require('selenium-webdriver'),
     until = webdriver.until;
 
 var U = require('./testUtils');
+
+var __file = path.basename(__filename);
 
 var menuClass = 'fileMenu',
     menuOptionClass = 'createMap',
@@ -34,10 +37,6 @@ var menuClass = 'fileMenu',
         
     };
 
-function failed (expected, actual, line) {
-    U.failed(expected, actual, line, path.basename(__filename));
-}
-
 function verifyParametersProduced (testName, driver) {
     driver.findElement(By.css('#create_map_dialog .log')).getAttribute('value')
         .then(function (text) {
@@ -45,25 +44,10 @@ function verifyParametersProduced (testName, driver) {
             if (index > -1) {
                 var actual = text.substring(index + preOptsText.length);
                 if (actual !== expOpts[testName]) {
-                    failed(expOpts[testName], actual, __line);
+                    U.failed(expOpts[testName], actual, __line, __file);
                 }
             }
         });
-}
-
-var verifyNewMapLoads = function (mapId, driver) {
-
-    // Wait for a reload, then for the map selector to be found.
-    driver.wait(until.urlIs(endUrl), 20000)
-        .then(_ => driver.sleep(500))
-        .then(_ => driver.wait(until.elementIsVisible(driver.findElement(
-            By.id('s2id_project'))), 60000))
-        .then(_ => driver.findElement(By.css('#s2id_project span'))
-            .getText()).then(function (text) {
-                if (text.indexOf(mapId) < 0) {
-                    failed(mapId, text, __line);
-                }
-            });
 }
 
 function setUploadFile (path, anchor, driver) {
@@ -126,13 +110,16 @@ function basicTest () {
 
     var __function = arguments.callee.name,
         featurePath = uploadRoot + 'full_matrix.tab';
-        driver = U.setUp();
+        driver = U.setUp(),
+        endMap = majorMap + '/map',
+        targetUrl = rootUrl + '/?p=' + endMap;
     
     driver.get(startUrl)
         .then(_ => doThroughSetFeatureFile(featurePath, driver))
         .then(_ => U.clickDialogButton(driver))
         .then(_ => verifyParametersProduced (__function, driver))
-        .then(_ => verifyNewMapLoads(majorMap + '/map', driver))
+        .then(_ => U.verifyNewMapLoads(endMap, driver, endUrl,
+            __line, __file))
         //.then(_ => driver.sleep(3000))
         .then(_ => driver.quit());
 }
@@ -153,7 +140,8 @@ function mapNameTest () {
         .then(_ => setMapName(__function, driver))
         .then(_ => U.clickDialogButton(driver))
         .then(_ => verifyParametersProduced (__function, driver))
-        .then(_ => verifyNewMapLoads(majorMap + '/' + __function, driver))
+        .then(_ => U.verifyNewMapLoads(majorMap + '/' + __function, driver,
+            endUrl, __line, __file))
         //.then(_ => driver.sleep(3000))
         .then(_ => driver.quit());
 }
@@ -176,7 +164,8 @@ function fullSimTest () {
         .then(_ => setFormat('fullSimilarity', driver))
         .then(_ => U.clickDialogButton(driver))
         .then(_ => verifyParametersProduced (__function, driver))
-        .then(_ => verifyNewMapLoads(majorMap + '/' + __function, driver))
+        .then(_ => U.verifyNewMapLoads(majorMap + '/' + __function, driver, 
+            endUrl, __line, __file))
         //.then(_ => driver.sleep(3000))
         .then(_ => driver.quit());
 }
@@ -198,7 +187,8 @@ function attributeFileTest () {
         .then(_ => setUploadFile(attributePath, 'attribute_upload_anchor', driver))
         .then(_ => U.clickDialogButton(driver))
         .then(_ => verifyParametersProduced (__function, driver))
-        .then(_ => verifyNewMapLoads(majorMap + '/' + __function, driver))
+        .then(_ => U.verifyNewMapLoads(majorMap + '/' + __function, driver,
+            endUrl, __line, __file))
         //.then(_ => driver.sleep(3000))
         .then(_ => driver.quit());
 }
@@ -222,7 +212,8 @@ function attributeFirstTest () {
         .then(_ => setAdvancedOptions(driver))
         .then(_ => setFirstAttribute('continuous_integer', driver))
         .then(_ => verifyParametersProduced (__function, driver))
-        .then(_ => verifyNewMapLoads(majorMap + '/' + __function, driver))
+        .then(_ => u.verifyNewMapLoads(majorMap + '/' + __function, driver,
+            endUrl, __line, __file))
         //.then(_ => driver.sleep(3000))
         .then(_ => driver.quit());
 }
