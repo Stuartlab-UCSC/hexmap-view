@@ -19,7 +19,6 @@ Reflect = (function () { // jshint ignore: line
         dataType,
         dataTypes,
         selectionList,
-        lastUser,
         subscribedToMaps = false,
         selectionSelected = ''; // option selected from the selection list
 
@@ -158,13 +157,13 @@ Reflect = (function () { // jshint ignore: line
         return in_count;
     }
     function mapManager (operation, nodeIds) {
-        
-        var userId=Meteor.user().username;
+
+        var userId = Meteor.user().username;
         var rankCategories = Session.get('reflectRanked')
         //console.log("reflect MapMan nodeIds:",nodeIds,dataType);
         //only perform reflection if there if there is some intersect of
         // reflection nodes and selected nodes
-        if (get_reflection_count(operation,dataType,toMapId,nodeIds) !== 0) {
+        if (get_reflection_count(operation, dataType, toMapId, nodeIds) !== 0) {
             Meteor.call("mapManager", operation,
                 dataType,
                 userId,
@@ -191,12 +190,11 @@ Reflect = (function () { // jshint ignore: line
             var minor = pathPeices[1];
 
             var url = URL_BASE + '/?p=' + major + '.' + minor;
-            console.log(url);
             $link.attr("href", url);
-            
-        return get_reflection_count(operation,dataType,toMapId,nodeIds);
-    }
 
+            return get_reflection_count(operation, dataType, toMapId, nodeIds);
+        }
+    }
 
     function tell_user_about_subset(have_data_count, request_count) {
  
@@ -260,13 +258,6 @@ Reflect = (function () { // jshint ignore: line
         // When the user changes, either logs on or off, subscribe to ...
         var user = Meteor.user();
 
-        if (lastUser) {
-            Meteor.subscribe('ClosedWindow',lastUser.username, mapId);
-        }
-
-        // Save the user for cleaning up when it changes
-        lastUser = user;
-
         // Initialize the reflection criteria found flag.
         Session.set('reflectCriteria', false);
         
@@ -282,14 +273,6 @@ Reflect = (function () { // jshint ignore: line
                 Meteor.subscribe('ManagerFileCabinet',ctx.project);
                 subscribedToMaps = true;
             }
-            
-            //keep track of windows open
-            Meteor.subscribe('OpenedWindow',user.username,ctx.project);
-
-            // Just before the page is closed, update the DB
-            window.addEventListener('beforeunload', function () {
-                Meteor.subscribe('ClosedWindow',user.username,mapId);
-            });
         }
         // Save the map ID for cleaning up when it changes
         mapId = ctx.project;
