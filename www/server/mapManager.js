@@ -398,28 +398,6 @@ Meteor.publish('userLayerBox', function(userId, currMapId) {
     return LayerBoxCursor;
 });
 
-
-
-//Helper function for Windows database
-function getWindowCount(WindowsDoc,mapId){
-    /*
-    Input is windows document from the Windows collection.
-    Returns how many windows are open for a given mapId
-     */
-    var count = 0;
-
-    if (WindowsDoc) {
-        _.each(WindowsDoc.maps, function (val) {
-            if (val.mapId === mapId) { //flip switch and return
-                count = val.count;
-            }
-        });
-    }
-
-    return count;
-
-}
-
 function initPublishers () {
 
     //The following 2 publish functions are for manipulating the Windows database.
@@ -427,50 +405,9 @@ function initPublishers () {
     // a state database that keeps track of how many and which windows
     // are opened by a client
     // We keep track of this so that the manager can open a new window if desired
-    Meteor.publish('OpenedWindow', function(userId,mapId) {
-        //prevents update if user isn't signed in, or not on defined map
-        if(!this.userId || ! userId || ! mapId) { return this.stop(); }
-
-        //if we don't have a window open then make an entry
-        if( !Windows.findOne({user: userId, "maps.mapId": mapId}) ) {
-            Windows.upsert({user: userId},
-                           {$push :
-                               { maps :
-                                   {mapId: mapId, count : 1 } }} );
-        } else { //otherwise update
-            Windows.update( {user: userId,"maps.mapId":mapId},
-                            {$inc : {"maps.$.count": 1} } );
-        }
-        //console.log('user',userId, 'has just opened a window for', mapId);
-        return this.stop();
-    });
-
-    Meteor.publish('ClosedWindow', function(userId,mapId) {
-
-        //Decrement count, and make sure it is never negative
-        if (getWindowCount(
-                Windows.findOne({user: userId,"maps.mapId":mapId}),
-                mapId
-                ) > 0) {
-            Windows.update({user: userId,"maps.mapId":mapId},
-                           {$inc : {"maps.$.count": -1} } );
-        }
-
-        return this.stop();
-    });
 
     //deletes a layer (specified by layer_name)
     // from a (userId, mapId) LayerBox entry
-    Meteor.publish('deleteLayer',function(userId,mapId,layer_name) {
-        // if not logged in function won't do anything
-        if(!this.userId) { return this.stop(); }
-
-        LayerPostOffice.update({user: userId, toMapId: mapId},
-                               {$set :
-                                  { lastChange: "removed"},
-                                   $pull:
-                                      {layers: {layer_name: layer_name}} });
-    });
 
     //Gives client access to the address database
     // so that user knows where they can 'reflect' to.
@@ -489,21 +426,19 @@ function initPublishers () {
         return ManagerFileCabinet.find({mapId: mapId},{fields:{mapId:1,available_nodes:1, datatype:1,toMapId:1,operation:1}});
 
     });
+    //deletes a layer (specified by layer_name)
+    // from a (userId, mapId) LayerBox entry
+    Meteor.publish('deleteLayer',function(userId,mapId,layer_name) {
+        // if not logged in function won't do anything
+            if(!this.userId) { return this.stop(); }
+
+            LayerPostOffice.update({user: userId, toMapId: mapId},
+                                       {$set :
+                                              { lastChange: "removed"},
+                                           $pull:
+                                      {layers: {layer_name: layer_name}} });
+       });
 }
-
-Meteor.methods({
-    isWindowOpen: function (userId, mapId) {
-        this.unblock();
-        var future = new Future();
-
-        var userWindowsDoc = Windows.findOne({user: userId,
-                                              "maps.mapId": mapId});
-
-        future.return(getWindowCount(userWindowsDoc,mapId) !== 0);
-
-        return future.wait();
-    }
-});
 
 //populate the helper database from settings.json file
 initManagerHelper();
