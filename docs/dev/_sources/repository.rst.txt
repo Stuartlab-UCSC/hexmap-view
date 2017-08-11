@@ -1,9 +1,13 @@
-Code Repository
-===============
+Code Repository & git
+=====================
 
-The code repository is at
-`github.com/ucscHexmap/hexagram <https://github.com/ucscHexmap/hexagram>`_, in
-the dev branch for development.
+The compute server code repository is at: https://github.com/ucscHexmap/compute
+
+The most current code is in the dev branch.
+
+The view server code repository is at: https://github.com/ucscHexmap/hexagram
+
+The most current code is in the dev branch.
 
 Repository branches
 ...................
@@ -27,7 +31,7 @@ A git quick start
 Git comes pre-installed on most systems. Otherwise see https://github.com to
 install it.
 
-https://www.sourcetreeapp.com has a great UI for dealing with most of git. It
+https://www.sourcetreeapp.com has a great UI on macOS for dealing with most of git. It
 does all of the commands below and is especially good for viewing diffs.
 However it is good to understand the sequence of events and commands behind it,
 and sometimes the UI is slow to update.
@@ -36,6 +40,7 @@ These commands are everything you need from the point of checking out the dev
 branch through committing your files and merging to dev if you've branched off
 of it. If things awry, you may need some other commands.
 
+This uses the view servers repository for the examples.
 
 **#1**. Get a copy of the source code on the dev branch. Change to the directory where
 you want to put the source code, then::

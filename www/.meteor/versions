@@ -59,7 +59,6 @@ modules-runtime@0.7.9
 mongo@1.1.12_1
 mongo-id@1.0.5
 mrt:later@1.6.1
-nourharidy:ssl@0.2.2
 npm-bcrypt@0.9.1_1
 npm-mongo@1.5.50
 observe-sequence@1.0.12
