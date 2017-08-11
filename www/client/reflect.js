@@ -10,6 +10,7 @@ Reflect = (function () { // jshint ignore: line
 
     var title = 'Reflect on Another Map',
         dialogHex,
+        $link,
         $button,
         $dialog,
         mapId,
@@ -18,7 +19,6 @@ Reflect = (function () { // jshint ignore: line
         dataType,
         dataTypes,
         selectionList,
-        lastUser,
         subscribedToMaps = false,
         selectionSelected = ''; // option selected from the selection list
 
@@ -82,6 +82,12 @@ Reflect = (function () { // jshint ignore: line
         Util.createOurSelect2($dataTypeAnchor, {data: dataTypeData}, dataType);
  
         $dataTypeAnchor.show();
+
+        $link = $("<a href='' target='_blank' class='ui-button-text'> Reflect </a>");
+        var $button = $(".ui-dialog button");
+        var $span = $("button").find("span");
+        $span.detach();
+        $button.append($link);
 
         // Define the event handler for selecting in the list
         $dataTypeAnchor.on('change', function (ev) {
@@ -151,13 +157,13 @@ Reflect = (function () { // jshint ignore: line
         return in_count;
     }
     function mapManager (operation, nodeIds) {
-        
-        var userId=Meteor.user().username;
+
+        var userId = Meteor.user().username;
         var rankCategories = Session.get('reflectRanked')
         //console.log("reflect MapMan nodeIds:",nodeIds,dataType);
         //only perform reflection if there if there is some intersect of
         // reflection nodes and selected nodes
-        if (get_reflection_count(operation,dataType,toMapId,nodeIds) !== 0) {
+        if (get_reflection_count(operation, dataType, toMapId, nodeIds) !== 0) {
             Meteor.call("mapManager", operation,
                 dataType,
                 userId,
@@ -179,24 +185,16 @@ Reflect = (function () { // jshint ignore: line
             //show a message to user
             Util.banner('info', 'Your other map will update shortly.');
             hide();
-            
-            Meteor.call("isWindowOpen", Meteor.user().username, toMapId,
-                function (error, result) {
-                    // no errors are returned
-                    if (!result) { //result is true if window is opened
-                        var pathPeices = toMapId.split('/');
-                        var major = pathPeices[0];
-                        var minor = pathPeices[1];
-                        //how to open a new window
-                        // TODO use a slash instead of a .
-                        window.open(URL_BASE + '/?p=' + major + '.' + minor);
-                    }
-                });
-            
-        }
-        return get_reflection_count(operation,dataType,toMapId,nodeIds);
-    }
+            var pathPeices = toMapId.split('/');
+            var major = pathPeices[0];
+            var minor = pathPeices[1];
 
+            var url = URL_BASE + '/?p=' + major + '.' + minor;
+            $link.attr("href", url);
+
+            return get_reflection_count(operation, dataType, toMapId, nodeIds);
+        }
+    }
 
     function tell_user_about_subset(have_data_count, request_count) {
  
@@ -225,7 +223,7 @@ Reflect = (function () { // jshint ignore: line
                 if (val === 1)  { nodeIds.push(key); }
             }
         );
- 
+
         // Request the map manager to reflect using these nodes,
         // and receive a count of nodes that had data.
         var have_data_count = mapManager('reflection', nodeIds);
@@ -260,13 +258,6 @@ Reflect = (function () { // jshint ignore: line
         // When the user changes, either logs on or off, subscribe to ...
         var user = Meteor.user();
 
-        if (lastUser) {
-            Meteor.subscribe('ClosedWindow',lastUser.username, mapId);
-        }
-
-        // Save the user for cleaning up when it changes
-        lastUser = user;
-
         // Initialize the reflection criteria found flag.
         Session.set('reflectCriteria', false);
         
@@ -282,14 +273,6 @@ Reflect = (function () { // jshint ignore: line
                 Meteor.subscribe('ManagerFileCabinet',ctx.project);
                 subscribedToMaps = true;
             }
-            
-            //keep track of windows open
-            Meteor.subscribe('OpenedWindow',user.username,ctx.project);
-
-            // Just before the page is closed, update the DB
-            window.addEventListener('beforeunload', function () {
-                Meteor.subscribe('ClosedWindow',user.username,mapId);
-            });
         }
         // Save the map ID for cleaning up when it changes
         mapId = ctx.project;

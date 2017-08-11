@@ -59,13 +59,16 @@ var app = app || {};
         // Using jQuery to build this saves us from HTML injection by making jQuery
         // do all the escaping work (we only ever set text).
 
+
         // This holds the root element of the row
         var root = $("<div/>").addClass("info-row");
         var url = get_signature_search_url();
         url += signature;
         // Add the key and value elements
         root.append($("<div/>").addClass("info-key").text("ID"));
-        root.append($("<div/>").addClass("info-value").html(signature.link(url)));
+        var $infoValue = $("<div/>").addClass("info-value");
+        root.append($infoValue);
+        $infoValue.append($('<a href="' + url + '" target="_blank">' + signature + '</a>'));
 
         return root;
     }
