@@ -43,7 +43,7 @@ var app = app || {};
 
         // Build the rest of the data needed to locate these nodes on the map,
         // then call the computation utility.
-        var nodeData = tsvParseRows(tsv);
+        var nodeData = Util.parseTsv(tsv);
         var valid = validateNodeData(nodeData);
         if (!valid) {
             return;
@@ -121,7 +121,7 @@ var app = app || {};
  
         try {
         
-            // Read the file, and, when it comes in, stick it in the textbox.
+            // Read the file.
             reader.readAsText(event.target.files[0]);
         } catch (error) {
  

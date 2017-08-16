@@ -1,4 +1,7 @@
 
+// Global Environment
+var rootUrl = 'http://localhost:3333';
+
 var path = require('path');
 
 var webdriver = require('selenium-webdriver'),
@@ -39,16 +42,15 @@ exports.failed = function (expected, actual, line, filename, callerLine, callerF
         ')');
 };
 
+
 exports.verifyNewMapLoads = function (mapId, driver, url, callerLine, callerFile) {
 
     // Wait for a reload, then for the map selector to be found.
-    thisEndUrl = url || defaultEndUrl
-    
-    driver.wait(until.urlIs(thisEndUrl), 20000)
-        .then(_ => driver.sleep(500))
-        .then(_ => driver.wait(until.elementIsVisible(driver.findElement(
-            By.id('s2id_project'))), 60000))
-        .then(_ => driver.findElement(By.css('#s2id_project span'))
+    driver.wait(until.urlIs(url), 40000)
+        .then(_ => driver.wait(until.elementLocated(By.id('s2id_project')),
+            60000))
+        .then(_ => driver.wait(until.elementLocated(By.css(
+            '#s2id_project span')), 10000)
             .getText()).then(function (text) {
                 if (text.indexOf(mapId) < 0) {
                     U.failed(mapId, text, __line, __file, callerLine, callerFile);
@@ -66,17 +68,26 @@ exports.clickDialogButton = function (driver, buttonPosition) {
         .click();
 };
 
+exports.setUploadFile = function (path, anchor, dialogId, fileClass, driver) {
+    var fileCss = '#' + dialogId + ' .' + anchor + ' .' + fileClass;
+    
+    driver.wait(until.elementLocated(By.id(dialogId)), 60000)
+        .then(_ => driver.wait(until.elementLocated(By.css(fileCss)), 12000)
+            .sendKeys(path));
+};
+
 exports.clickMenuOption = function (menuClass, menuOptionClass, driver) {
 
     // Click on a secondary navigation bar menu option.
     // This only works for the second level of options which are just under the
     // primary menu options always displayed on the navigation bar
-    driver.wait(until.elementLocated(By.css('#navBar .' + menuClass)), 6000)
-            .click()
-        .then(_ => driver.sleep(100)) // to avoid dialog not opening occasionally
+    var menu = '#navBar .' + menuClass,
+        menuOption = menu + ' .' + menuOptionClass;
+    
+    driver.wait(until.elementLocated(By.css(menu)), 6000).click()
         .then(_ => driver.wait(until.elementIsVisible(driver.findElement(
-            By.css('#navBar .' + menuOptionClass))), 12000).click())
-        .then(_ => driver.sleep(100));  // to avoid dialog not opening occasionally
+            By.css(menuOption))), 12000).click())
+    ;
 };
 
 exports.login = function (driver) {
@@ -86,17 +97,21 @@ exports.login = function (driver) {
         .then(_ => driver.findElement(By.id('login-password'))
             .sendKeys(password))
         .then(_ => driver.findElement(By.id('login-buttons-password')).click())
-        .then(_ => driver.sleep(500)); // Let the maps be found after login.
+        .then(_ => driver.sleep(2000)); // Let the maps be found after login.
 };
 
 exports.setUp  = function (featurePath) {
 
     // Setup to run before each test.
-    return (new webdriver.Builder()
+    var driver = (new webdriver.Builder()
         .forBrowser('chrome')
         //.forBrowser('firefox')
         .build()
     );
+    
+    // Wait on everything for at least this long.
+    driver.manage().timeouts().implicitlyWait(3000);
+    return driver;
 };
 
 

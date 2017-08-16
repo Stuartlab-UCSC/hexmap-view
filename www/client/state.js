@@ -173,6 +173,16 @@ var app = app || {};  // jshint ignore: line
         Session.set('shortlist', []); // Array of layer names in the shortlist
         Session.set('shortlist_on_top', false); // maintain actives at the top
         s.zoom = 3;  // Map zoom level where 3 means zoomed in by 3 levels
+ 
+        // Project variables with prefixes
+        _.each(Session.keys, function (val, key) {
+            _.each(s.localStorage.key_prefixes, function (prefix) {
+                if (key.indexOf(prefix) > -1) {
+                    Session.set(key, undefined);
+                    delete Session.keys[key];
+                }
+            });
+        });
     };
 
     State.prototype.setAllDefaults = function () {

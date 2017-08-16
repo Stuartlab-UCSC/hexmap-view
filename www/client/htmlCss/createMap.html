@@ -19,9 +19,7 @@
                     <img class='context-help' src='/icons/question.png'>
                 </a>
             </h3>
-            <div class='attribute_upload_anchor'>
-                {{>upload_t}}
-            </div>
+            <div class='attribute_upload_anchor'></div>
             <div style='display:none'>
                 Display default:
                 <input class='default_attribute' value='{{ default_attribute }}' style='width:12.5em'>
@@ -80,8 +78,3 @@
         </div>
     </div>
 </template>
-
-<template name='upload_t'>
-    <input type='file' class='file_name' name='files' accept='MIME_text/tab-separated-values' />
-</template>
-

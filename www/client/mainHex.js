@@ -169,6 +169,9 @@ Hex = (function () { // jshint ignore: line
             Meteor.setTimeout(function () {
  
                 initMap();
+                
+                import NavBar from '/imports/navBar.js';
+                NavBar.init();
      
                 // Turn off the loading progress wheel
                 setTimeout(function () {
@@ -240,7 +243,6 @@ Hex = (function () { // jshint ignore: line
  
             initMapType();
             initLayout();
-            initHex();
             Layer.initDataTypes();
             Layer.initIndex();
             initColormaps();

@@ -153,7 +153,9 @@ var app = app || {};
             layer_array = Session.get('sortedLayers');
 
         // If layers are not loaded yet, we have nothing to sort
-        if (layer_array.length === 0) return;
+        if (_.isUndefined(layer_array) || layer_array.length === 0) {
+            return;
+        }
  
         // If the user did not define a 'first layer', define it now.
         if (Session.equals('first_layer', undefined)) {

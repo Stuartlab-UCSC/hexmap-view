@@ -10,6 +10,8 @@ Shortlist = (function () { // jshint ignore: line
 
     var range_extents = new ReactiveDict(); // to show the min & max values
     var zeroShow = new ReactiveDict(); // To show or hide the zero tick mark
+    var filterBuilt = new ReactiveDict(); // Is filter built?
+    var slider_vals = new ReactiveDict(); // low and high values of slider
     var template = {}; // A template for each layer
     var $shortlist; // The shortlist DOM element
     var $dynamic_controls; // The control DOM elements that come and go
@@ -28,7 +30,9 @@ Shortlist = (function () { // jshint ignore: line
     };
  
     function get_range_extents (layer_name, i) {
-        var vals = range_extents.get(layer_name.toString());
+    
+        // The min or max of all the layer's values, not the slider value.
+        var vals = range_extents.get(layer_name);
         if (vals && vals[i]) {
             return vals[i];
         } else {
@@ -36,8 +40,10 @@ Shortlist = (function () { // jshint ignore: line
         }
     }
  
-    function get_range_value (layer_name, i) {
-        var vals = Util.session('filter_value', 'get', layer_name.toString());
+    function get_slider_value (layer_name, i) {
+    
+        // The values as the slider is sliding, and not the range state.
+        var vals = slider_vals.get(layer_name);
         if (vals && vals[i]) {
             return vals[i];
         } else {
@@ -48,30 +54,31 @@ Shortlist = (function () { // jshint ignore: line
     function is_layer_active (layer_name) {
         var active = Session.get('active_layers');
         return (active.length > 0 &&
-                    active.indexOf(layer_name.toString()) > -1);
+                    active.indexOf(layer_name) > -1);
     }
 
     function is_primary (layer_name) {
         var actives = Session.get('active_layers');
         if (!layer_name) { return false; }
-        return (actives.indexOf(layer_name.toString()) === 0);
+        return (actives.indexOf(layer_name) === 0);
     }
 
     function is_secondary (layer_name) {
         var actives = Session.get('active_layers');
         if (!layer_name) { return false; }
-        return (actives.indexOf(layer_name.toString()) === 1);
+        return (actives.indexOf(layer_name) === 1);
     }
 
     function is_hovered (layer_name) {
         var hovered = hover_layer_name.get();
         if (!layer_name) { return false; }
-        return (hovered === layer_name.toString());
+        return (hovered === layer_name);
     }
 
     function is_filter_showing (layer_name) {
         if (!layer_name) { return false; }
-        show = Util.session('filter_show', 'get', layer_name.toString());
+        var show = Util.session('filter_show', 'get', layer_name);
+        
         if (_.isUndefined(show)) { return false; }
         return show;
     }
@@ -156,51 +163,57 @@ Shortlist = (function () { // jshint ignore: line
             return Session.get('shortlist');
         },
         range_value_display: function () {
-            return (Util.is_continuous(this)) ? 'initial' : 'none';
+            return (Util.is_continuous(this.toString())) ? 'initial' : 'none';
         },
         zero_display: function () {
-            return (zeroShow.get(this)) ? 'initial' : 'none';
+            return (zeroShow.get(this.toString())) ? 'initial' : 'none';
         },
         filter_icon: function () {
-            return (is_filter_active(this) ? icon.filter_hot : icon.filter);
+            return (is_filter_active(this.toString()) ? icon.filter_hot : icon.filter);
         },
         filter_icon_display: function () {
-            return ((is_hovered(this) || is_filter_showing(this)) &&
-                is_layer_active(this)) ?
+            var layer_name = this.toString();
+            return ((is_hovered(layer_name) || is_filter_showing(layer_name)) &&
+                is_layer_active(layer_name)) ?
                     'initial' : 'none';
         },
         filter_display: function () {
-            return (is_filter_showing(this) && is_layer_active(this)) ?
-                'initial' : 'none';
+            var layer_name = this.toString(),
+                show = is_filter_showing(layer_name),
+                active = is_layer_active(layer_name);
+            return (show && active) ? 'block' : 'none';
         },
         filter_value_display: function () {
-            return (Util.is_continuous(this)) ? 'none' : 'initial';
+            return (Util.is_continuous(this.toString())) ? 'none' : 'initial';
         },
         filter_value: function () {
-            return Util.session('filter_value', 'get', this);
+            return Util.session('filter_value', 'get', this.toString());
         },
         range: function () {
-            var vals = Util.session('filter_value', 'get', this);
+            var vals = Util.session('filter_value', 'get', this.toString());
             return (_.isUndefined(vals)) ? [0,0] : vals;
         },
         slider_display: function () {
-            return (Util.is_continuous(this)) ? 'inline-block' : 'none';
+            var show = Util.is_continuous(this.toString());
+            return (show ? 'inline-block' : 'none');
         },
         low: function () {
-            var val;
+            var val,
+                layer_name = this.toString();
             if (is_filter_showing(this)) {
-                val = get_range_value(this, 0);
+                val = get_slider_value(layer_name, 0);
             } else {
-                val = get_range_extents(this, 0);
+                val = get_range_extents(layer_name, 0);
             }
             return Number(val).toExponential(1);
         },
         high: function () {
-            var val;
-            if (is_filter_showing(this)) {
-                val = get_range_value(this, 1);
+            var val,
+                layer_name = this.toString();
+            if (is_filter_showing(layer_name)) {
+                val = get_slider_value(layer_name, 1);
             } else {
-                val = get_range_extents(this, 1);
+                val = get_range_extents(layer_name, 1);
             }
             return Number(val).toExponential(1);
         },
@@ -209,7 +222,7 @@ Shortlist = (function () { // jshint ignore: line
             return (Util.is_continuous(layer_name) ? '-0.25em' : '-0.35em');
         },
         save_filter_display: function () {
-            return is_hovered(this) ? 'initial' : 'none';
+            return is_hovered(this.toString()) ? 'initial' : 'none';
         },
     });
 
@@ -223,11 +236,6 @@ Shortlist = (function () { // jshint ignore: line
         // If the select list is already filled in there is nothing to do
         if (filter_value.children().length > 0) { return; }
         
-        // Set the filter show flag if it wasn't pulled from state
-        if (_.isUndefined(Util.session('filter_show', 'get', layer_name))) {
-            Util.session('filter_show', 'set', layer_name, false);
-        }
-
         // Find the option codes and text
         var first = 0,
             preSort,
@@ -292,7 +300,7 @@ Shortlist = (function () { // jshint ignore: line
     
     function create_range_slider (layer_name, root) {
  
-         // Create a filter range slider for continuous variables.
+        // Create a filter range slider for continuous variables.
  
         // If the range slider has already been created, there is nothing to do.
         if (root.find('.ui-slider-range').length > 0) { return; }
@@ -303,45 +311,50 @@ Shortlist = (function () { // jshint ignore: line
             span = max - min; // The span of the values
  
         // Handle a slider handle moving
-        var update_display = function(event, ui) {
+        var sliding = function(event, ui) {
             var low = ui.values[0],
                 high = ui.values[1];
-            Util.session('filter_value', 'set', layer_name, [low, high]);
+            
+            slider_vals.set(layer_name, [low, high]);
  
             // Set the width of the low and high masks
-            var x_span = $(event.target).width(), // The span in pixels
-                x_low_width = Math.abs(low - min) / span * x_span,
-                x_high_width = Math.abs(max - high) / span * x_span;
+            var x_span = $(event.target).width(); // The span in pixels
  
-            root.find('.low_mask').width(x_low_width);
-            root.find('.high_mask').width(x_high_width);
+            root.find('.low_mask').width(Math.abs(low - min) / span * x_span);
+            root.find('.high_mask').width(Math.abs(max - high) / span * x_span);
  
         };
  
         // Handler to apply the filter after the user has finished sliding
-        var update_filter = function (event, ui) {
-            Util.session('filter_value', 'set', layer_name,
-                [ui.values[0], ui.values[1]]);
+        var done_sliding = function (event, ui) {
+        
+            var low = ui.values[0],
+                high = ui.values[1];
+            
+            Util.session('filter_value', 'set', layer_name, [low, high]);
+            slider_vals.set(layer_name, [low, high]);
             refreshColors();
         };
  
         // Create the slider
         var vals = Util.session('filter_value', 'get', layer_name);
-        var slider = root.find('.range_slider');
-        slider.slider({
+        
+        var slider_line = root.find('.range_slider');
+        
+        var slider_var = slider_line.slider({
             range: true,
             min: min,
             max: max,
             values: vals,
             height: 10,
             step: 1E-9, // Ought to be fine enough
-            slide: update_display,
-            change: update_display,
-            stop: update_filter,
+            slide: sliding,
+            //change: sliding,
+            stop: done_sliding,
         });
  
         // Update the masks and slider with the saved values
-        update_display({target: slider[0]}, {values: vals});
+        sliding({target: slider_line[0]}, {values: vals});
     }
 
     function create_shortlist_ui_entry_with_data (layer_name, root) {
@@ -351,8 +364,10 @@ Shortlist = (function () { // jshint ignore: line
  
         if (Util.is_continuous(layer_name)) {
 
-            // Create the chart
-            newGchart(layer_name, root.find('.chart'), 'histogram');
+            // Create the chart after google chart has a chance to load.
+            setTimeout(function () {
+                newGchart(layer_name, root.find('.chart'), 'histogram');
+            }, 10);
  
             var min = layers[layer_name].minimum,
                 max = layers[layer_name].maximum;
@@ -361,8 +376,9 @@ Shortlist = (function () { // jshint ignore: line
                 Util.session('filter_value', 'get', layer_name))) {
             
                 // Range filter values are not yet saved,
-                // so initialize them to the layer extents.
+                // so initialize the state and slider to the layer extents.
                 Util.session('filter_value', 'set', layer_name, [min, max]);
+                slider_vals.set(layer_name, [min, max]);
             }
  
             // Set the extents of the range
@@ -414,96 +430,97 @@ Shortlist = (function () { // jshint ignore: line
         return Session.get('active_layers');
     }
 
-    function filter_control_changed (ev, layer_name_in, initializing) {
+    function save_filter_clicked (layer_name) {
+    
+        // Clicking on the save button creates a dynamic layer
+        var value = Util.session('filter_value', 'get', layer_name),
+            layer = layers[layer_name],
+            nodeIds = [];
+        
+        if (Util.is_continuous(layer_name)) {
 
-        // Functionality for turning filtering on and off
-        var root,
-            layer_name;
- 
-        if (layer_name_in) {
- 
-            // We are initializing from saved state
-            layer_name = layer_name_in;
-            root = get_root_from_layer_name(layer_name);
-            if (!root) {
- 
-                // If the layer's DOM element does not exist yet,
-                // there is nothing to do.
-                console.log(
-                    'error: cannot find the root DOM element of layer:', layer_name);
-                return;
-            }
- 
-        } else if (ev) {
- 
-            // We are responding to a filter button press
-            root = get_root_from_child ($(ev.target));
-            layer_name = get_layer_name_from_root(root);
-            Util.session('filter_show', 'set', layer_name,
-                        !is_filter_showing(layer_name));
-        } else {
-            console.log('Error: for some reason there is a blank layer_name_in',
-                'and no event in filter_control_changed().')
-        }
- 
-        // If the filter is showing...
-        if (is_filter_showing(layer_name)) {
- 
-            // Figure out what kind of filter settings we take based on
-            // what kind of layer we are.
-            Layer.with_layer (layer_name, function (layer) {
-            
-                if (Util.is_continuous(layer_name)) {
-                
-                    // Add a range slider
-                    create_range_slider(layer_name, root);
-                } else {
-
-                    // Add a value picker
-                    create_filter_select_options(layer_name, layer,
-                        root.find('.filter_contents').find('.filter_value'));
-                }
-
-                root.find('.save_filter').click(function() {
-                    // Clicking on the save button creates a dynamic layer
-                    var value = Util.session('filter_value', 'get', layer_name),
-                        layer = layers[layer_name],
-                        nodeIds = [];
-                    
-                    if (Util.is_continuous(layer_name)) {
-
-                        // Get the range values
-                        nodeIds = _.filter(_.keys(polygons), function (nodeId) {
-                            return (layer.data[nodeId] >= value[0] &&
-                                    layer.data[nodeId] <= value[1]);
-                        });
-                        value = value[0].toExponential(1).toString() +
-                            ' to ' + value[1].toExponential(1).toString();
-
-                    } else { // Binary and categorical layers
-                    
-                        // Gather Tumor-ID Signatures with the value
-                        nodeIds = _.filter(_.keys(polygons), function (nodeId) {
-                            return (layer.data[nodeId] === value);
-                        });
- 
-                        // Find the category label for the new layer name
-                        var category = colormaps[layer_name][value];
-                        if (category) {
-                            value = category.name;
-                        }
-                    }
-                    
-                    // Suggest a name for this new layer
-                    var name = layer_name + ': ' + value.toString();
-                    // Create the dynamic layer
-                    Layer.create_dynamic_selection(nodeIds, name);
-                });
+            // Get the range values
+            nodeIds = _.filter(_.keys(polygons), function (nodeId) {
+                return (layer.data[nodeId] >= value[0] &&
+                        layer.data[nodeId] <= value[1]);
             });
-        }
+            value = value[0].toExponential(1).toString() +
+                ' to ' + value[1].toExponential(1).toString();
 
-        // Update the colors with the new filtering or lack thereof
-        if (!initializing) { refreshColors(); }
+        } else { // Binary and categorical layers
+        
+            // Gather Tumor-ID Signatures with the value
+            nodeIds = _.filter(_.keys(polygons), function (nodeId) {
+                return (layer.data[nodeId] === value);
+            });
+
+            // Find the category label for the new layer name
+            var category = colormaps[layer_name][value];
+            if (category) {
+                value = category.name;
+            }
+        }
+        
+        // Suggest a name for this new layer
+        var name = layer_name + ': ' + value.toString();
+        // Create the dynamic layer
+        Layer.create_dynamic_selection(nodeIds, name);
+    }
+    
+    function build_filter (layer_name) {
+
+        // Build a filter area.
+        
+        // The filter may already be built and we only build it when the
+        // filter is to be shown.
+        if (filterBuilt.get(layer_name) || !is_filter_showing(layer_name)) {
+            return;
+        }
+        
+        var root = get_root_from_layer_name(layer_name);
+        
+        // Figure out what kind of filter settings we take based on
+        // what kind of layer we are.
+        Layer.with_layer (layer_name, function (layer) {
+        
+            if (Util.is_continuous(layer_name)) {
+            
+                // Add a range slider
+                create_range_slider(layer_name, root);
+            } else {
+
+                // Add a value picker
+                create_filter_select_options(layer_name, layer,
+                    root.find('.filter_contents').find('.filter_value'));
+            }
+            
+            filterBuilt.set(layer_name, true);
+
+            root.find('.save_filter').click(function() {
+                save_filter_clicked(layer_name);
+            });
+        });
+    }
+
+    function filter_control_changed (ev) {
+        
+        // We are responding to a filter button press to turn filtering
+        // on or off.
+        var root = get_root_from_child ($(ev.target));
+        layer_name = get_layer_name_from_root(root);
+ 
+        // Set the filter show flag may not yet be defined.
+        if (_.isUndefined(Util.session('filter_show', 'get', layer_name))) {
+            Util.session('filter_show', 'set', layer_name, true);
+        } else {
+            Util.session('filter_show', 'set', layer_name,
+                    !is_filter_showing(layer_name));
+        }
+ 
+        build_filter(layer_name);
+
+        // Update the colors with the new filtering or lack thereof.
+        refreshColors();
     }
 
     function create_shortlist_ui_entry (layer_name) {
@@ -553,6 +570,7 @@ Shortlist = (function () { // jshint ignore: line
     }
     
     function ui_and_list_add (layer_name) {
+    
         // This updates the shortlist variable and UI for add to shortlist.
         // Moves via the jqueryUI sortable are handled in the sortable's update
         // function.
@@ -823,11 +841,6 @@ Shortlist = (function () { // jshint ignore: line
             Session.set('active_layers', [shortlist[0]]);
         }
         
-        // Initialize filters
-        _.each(shortlist, function (layer_name) {
-            filter_control_changed(null, layer_name, true);
-        });
-        
         // Set the shortlist metadata resulting from the initial sort
         update_ui_metadata();
         
@@ -840,11 +853,23 @@ Shortlist = (function () { // jshint ignore: line
         _.each(ordered, function (layer_name) {
         
             $shortlist.prepend(create_shortlist_ui_entry(layer_name));
+        
+            // Initialize value display for continuous if it needs it.
+            if (Util.is_continuous(layer_name) &&
+                _.isUndefined(Util.session('filter_value', 'get', layer_name))) {
+               
+                Util.session('filter_value', 'set', layer_name,
+                    [layers[layer_name].minimum, layers[layer_name].maximum]);
+               
+            }
+            if (is_filter_showing(layer_name)) {
+                build_filter(layer_name)
+            }
         });
 
         Session.set('shortlistInitDone', true);
     }
-
+    
     function complete_initialization (autorun) {
 
         // Autorun to execute when the first layer is set
@@ -853,9 +878,10 @@ Shortlist = (function () { // jshint ignore: line
             sortedLayers = Session.get('sortedLayers'),
             domLoaded = Session.get('domLoaded');
         
-        if (sortedLayers.length < 1 || _.isUndefined(first_layer) ||
-            _.isUndefined(domLoaded)) {
-            // We can't add to the shortlist until these are so.
+        if (_.isUndefined(domLoaded) || _.isUndefined(sortedLayers) ||
+            _.isUndefined(first_layer)) {
+        
+            // We can't add to the shortlist until this is so.
             return;
         }
         
@@ -871,10 +897,11 @@ Shortlist = (function () { // jshint ignore: line
         var shortlist = Session.get('shortlist');
 
         // Add the 'first layer' to the shortlist if it is empty
-        if (shortlist.length < 1) {
+        if (shortlist.length < 1 && first_layer !== 'undefinedFirstLayer') {
             shortlist = [first_layer];
             Session.set('shortlist', shortlist);
         }
+        
         // Add the layers to the global layers object.
         Layer.with_layers(
             shortlist, entries_initialized, Session.get('dynamic_attrs'));
@@ -996,12 +1023,17 @@ return {
     get_slider_range: function (layer_name) {
     
         // Given the name of a layer, get the slider range from its shortlist UI
-        // entry. Assumes the layer has a shortlist UI entry.
-        var range = Util.session('filter_value', 'get', layer_name);
-        if (_.isUndefined(range)) {
-            return [layers[layer_name].minimum, layers[layer_name].maximum];
+        // entry if the filter is active. If not active, return the layer's
+        // max and min. Assumes the layer has a shortlist UI entry.
+        if (Util.session('filter_show', 'get', layer_name)) {
+            var range = Util.session('filter_value', 'get', layer_name);
+            if (_.isUndefined(range)) {
+                return [layers[layer_name].minimum, layers[layer_name].maximum];
+            } else {
+                return range;
+            }
         } else {
-            return range;
+            return [layers[layer_name].minimum, layers[layer_name].maximum];
         }
     },
     

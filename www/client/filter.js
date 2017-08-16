@@ -138,8 +138,11 @@ var app = app || {};
     filterAttributes = function () {
 
         // Apply all the filters to the sorted list to get the new displayLayers
-        Session.set('displayLayers',
-            _.filter(Session.get('sortedLayers'), passFilter));
+        var sorted = Session.get('sortedLayers');
+ 
+        if (!_.isUndefined(sorted)) {
+            Session.set('displayLayers', _.filter(sorted, passFilter));
+        }
     }
 
     function processTags () {

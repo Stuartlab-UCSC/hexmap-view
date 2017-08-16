@@ -70,7 +70,7 @@ Layer = (function () { // jshint ignore: line
         }
  
         // Start with a unique name as a suggestion
-        name = make_layer_name_unique(name);
+        name = Layer.make_unique_layer_name(name);
  
         var unique_name,
             dup_name;
@@ -83,7 +83,7 @@ Layer = (function () { // jshint ignore: line
             if (name === undefined) { break; }
  
             // We're done if the name is unique
-            unique_name = make_layer_name_unique(name);
+            unique_name = Layer.make_unique_layer_name(name);
             if (unique_name === name) { break; }
 
             // Suggest another unique name
@@ -266,9 +266,19 @@ Layer = (function () { // jshint ignore: line
         Util.addToDataTypeList(layer_name, layer.dataType);
         // Leave the dataType in the layer obj, we use it in saving state.
         
-        // If there are categories, load a colormap.
-        if (layer.uniqueVals) {
+        // If there are string values, load a colormap.
+        if (layer.hasStringVals) {
             load_dynamic_colormap(layer_name, layer);
+         
+        } else {
+        
+            // This is continous or binary of only 1 & 0,
+            // so convert the values from strings to floats.
+            var data = {};
+            _.each(layer.data, function (val, key) {
+                data[key] = parseFloat(val);
+            });
+            layer.data = data;
         }
 
         // Save the layer object in the global layers object.
@@ -316,6 +326,41 @@ Layer = (function () { // jshint ignore: line
 
 return { // Public methods
 
+    make_unique_layer_name: function (layer_name) {
+ 
+        // We're done if the name is unique
+        if (layers[layer_name] === undefined) { return layer_name; }
+
+        var last_suffix,
+            name = layer_name,
+            seq = 1;
+ 
+        // Special case a default selection layer name
+        if (name.startsWith(selection_prefix)) {
+            name = selection_prefix;
+        }
+ 
+        // Keep looking for a name until it is unique
+        while (true) {
+ 
+            // We're done if the name is unique
+            if (layers[name] === undefined) { break; }
+
+            // Find any previously tried sequence suffix
+            if (seq > 1) {
+                last_suffix = ' ' + (seq - 1);
+                if (name.endsWith(last_suffix)) {
+ 
+                    // Remove the existing sequence suffix
+                    name = name.slice(0, name.length - last_suffix.length);
+                }
+            }
+            name += ' ' + seq;
+            seq += 1;
+        }
+        return name;
+    },
+ 
     with_layer: function (layer_name, callback, dynamicLayers) {
         // This is how you get layers, and allows for layers to be downloaded
         // dynamically.
@@ -404,6 +449,7 @@ return { // Public methods
 		    // Now layer metadata has been filled in. Call the callback.
 		    callback(layer);
 		} else {
+
 		    // It's already downloaded, and already has metadata.
 		    // Pass it to our callback
 		    callback(layer);
@@ -697,6 +743,12 @@ return { // Public methods
                 
                 // Initialize the static layer names-index lookup.
                 ctx.static_layer_names = [];
+                
+                // If there are no static layers...
+                if (parsed.length < 1) {
+                    Session.set('first_layer', 'undefinedFirstLayer');
+                    Session.set('shortlist', []);
+                }
                 
                 // Process each line of the file, one per layer.
                 for (var i = 0; i < parsed.length; i++) {

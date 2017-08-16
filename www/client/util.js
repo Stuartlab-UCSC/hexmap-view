@@ -86,8 +86,10 @@ Util = (function () { // jshint ignore: line
             key = 'shortlist_filter_show_' + name;
         } else if (prefix === 'filter_value') {
             key = 'shortlist_filter_value_' + name;
+        } else if (prefix === 'filter_built') {
+            key = 'shortlist_filter_built_' + name;
         } else {
-            banner('error', 'Illegal key on session()');
+            banner('error', 'Illegal prefix on session(): ' + prefix);
             console.trace();
         }
  
@@ -146,22 +148,39 @@ Util = (function () { // jshint ignore: line
         }
     }
 
-    function tsvParseRows (tsv_data) {
+    function parseTsv (data) {
 
-        // Even though the retrieved file has no new line or carriage return,
-        // the browser inserts '\n\r' at the end of the file. So, remove any
-        // trailing new line and carriage return so that we don't end up with
-        // an extra empty row.
+        // Separate the data into an array of rows
+        var rows = data.split('\n'),
 
-        if (tsv_data.lastIndexOf('\n') === tsv_data.length - 1) {
-            tsv_data = tsv_data.slice(0, -1);
+        // Separate each row into an array of values
+        parsed = _.map(rows, function(row) {
+            return row.split('\t');
+        });
+        
+        // Remove any empty row left from the new-line split
+        if (parsed[parsed.length-1].length === 1 &&
+                parsed[parsed.length-1][0] === '') {
+            parsed.pop();
         }
+        return parsed;
+    }
 
-        // Remove any trailing microslop carriage return
-        if (tsv_data.lastIndexOf('\r') === tsv_data.length - 1) {
-            tsv_data = tsv_data.slice(0, -1);
+    function allPrintableCharacters (data) {
+    
+        // Verify all characters are printable with the data given as an array
+        // of arrays. Valid characters:
+        // space - tilde or decimal: 32-126 or hexadecimal: x20-x7e
+        if (_.isUndefined(data)) {
+            return false;
         }
-        return $.tsv.parseRows(tsv_data);
+        var pattern = /[^\x20-\x7e]/g,
+            unprintable = _.find(data, function (row) {
+            return _.find(row, function (field) {
+                return pattern.test(field);
+            });
+        });
+        return (unprintable ? false : true);
     }
 
     function removeFromDataTypeList (layer_name) {
@@ -240,7 +259,8 @@ Util = (function () { // jshint ignore: line
         getHumanProject: getHumanProject,
         projectNotFound: projectNotFound,
         banner: banner,
-        tsvParseRows: tsvParseRows,
+        parseTsv: parseTsv,
+        allPrintableCharacters: allPrintableCharacters,
         removeFromDataTypeList: removeFromDataTypeList,
         setHeightSelect2: setHeightSelect2,
         createOurSelect2: createOurSelect2,
@@ -307,7 +327,6 @@ round = Util.round;
 getHumanProject = Util.getHumanProject;
 projectNotFound = Util.projectNotFound;
 banner = Util.banner;
-tsvParseRows = Util.tsvParseRows;
 removeFromDataTypeList = Util.removeFromDataTypeList;
 setHeightSelect2 = Util.setHeightSelect2;
 createOurSelect2 = Util.createOurSelect2;

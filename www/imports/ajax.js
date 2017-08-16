@@ -5,24 +5,6 @@
 var UPLOAD_MAX_GIGABYTES = 4,
     UPLOAD_MAX_BYTES = 1024 * 1024 * 1024 * UPLOAD_MAX_GIGABYTES;
 
-function parseTsv(data) {
-
-    // Separate the data into an array of rows
-    var data1 = data.split('\n'),
-
-    // Separate each row into an array of values
-    parsed = _.map(data1, function(row) {
-        return row.split('\t');
-    });
-    
-    // Remove any empty row left from the new-line split
-    if (parsed[parsed.length-1].length === 1 &&
-            parsed[parsed.length-1][0] === '') {
-        parsed.pop();
-    }
-    return parsed;
-}
-
 function log (url, code, userMsg) {
     console.log('ajax error on:', url, '\n    ', code + ':', userMsg);
 }
@@ -81,7 +63,7 @@ function getData(url, successFx, errorFx, ok404, parse) {
                 } else if (parse === 'tsv') {
                
                     // Return tsv-parsed data
-                    successFx(parseTsv(result));
+                    successFx(Util.parseTsv(result));
                 } else {
                
                     // Return json-parsed data
@@ -150,7 +132,7 @@ exports.query = function (operation, opts, successFx, errorFx) {
         data: JSON.stringify(opts),
         success: successFx,
         error: function (error) {
-            var msg = 'Y unknown server error';
+            var msg = 'unknown server error';
             try {
                 if (error.responseText.length > 0) {
                     msg = JSON.parse(error.responseText).error;
