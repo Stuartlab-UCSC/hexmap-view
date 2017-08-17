@@ -1,5 +1,5 @@
 
-// readFile.js
+// ReadFile.jsx
 // Reads a local file into this web app.
 
 import React, { Component } from 'react';
@@ -10,6 +10,9 @@ export default class ReadFile extends Component {
 
     constructor (props) {
         super(props);
+        
+        // TODO: this is only used internally and
+        // does not need to be in persistent store.
         this.state = { fileObject: '' };
     }
     

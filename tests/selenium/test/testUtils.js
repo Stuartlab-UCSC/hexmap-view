@@ -46,11 +46,14 @@ exports.failed = function (expected, actual, line, filename, callerLine, callerF
 exports.verifyNewMapLoads = function (mapId, driver, url, callerLine, callerFile) {
 
     // Wait for a reload, then for the map selector to be found.
+    var project = '#project .select2-container',
+        projectSpan = project + ' span';
+    
     driver.wait(until.urlIs(url), 40000)
-        .then(_ => driver.wait(until.elementLocated(By.id('s2id_project')),
+        .then(_ => driver.wait(until.elementLocated(By.css(project)),
             60000))
         .then(_ => driver.wait(until.elementLocated(By.css(
-            '#s2id_project span')), 10000)
+            projectSpan)), 10000)
             .getText()).then(function (text) {
                 if (text.indexOf(mapId) < 0) {
                     U.failed(mapId, text, __line, __file, callerLine, callerFile);

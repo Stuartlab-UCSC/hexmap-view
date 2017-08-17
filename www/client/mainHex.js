@@ -57,8 +57,9 @@ Hex = (function () { // jshint ignore: line
                 initMainMapContainer();
             }
         });
+        import InitMapPage from '/imports/initMapPage.js';
         Message.init();
-        Project.init();
+        InitMapPage.init();
         GoogleMaps.load({ key: GOOGLE_API_KEY });  // browser key
         Tool.init();
     });
