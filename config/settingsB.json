@@ -408,7 +408,7 @@
                     ],
                     "datapath" : "reflection/PancanAtlas_mRNA-reflection.tab",
                     "featOrSamp" : "sample"
-                },
+                }
             ]
         }
     }
