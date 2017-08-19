@@ -6,9 +6,8 @@ Web API
 .. toctree::
    :maxdepth: 1
 
-   addAttribute
+   placeNode
    addAttributeXena
+   addAttribute
    createMap
    jobStatus
-   placeNode
-

@@ -243,8 +243,7 @@ Select = (function () { // jshint ignore: line
         // This is an array of signature names entered.
         var to_select = [];
         
-        // This holds the array of lines. Split on newlines (as seen in
-        // jQuery.tsv.js)
+        // This holds the array of lines. Split on newlines.
         var lines = string.split(/\r?\n/);
         
         for(var i = 0; i < lines.length; i++) {

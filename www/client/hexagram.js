@@ -495,19 +495,6 @@ initLayout = function () {
         });
 }
 
-initHex = function () {
-
-    // Initialize some operating values
-
-    // A list of layer names maintained in sorted order.
-    Session.set('sortedLayers', []);
-
-    // This is a count which is incremented every time the shortlist UI is
-    // updated. We would rather use 'shortlist', but that produces an infinite
-    // loop at times.
-    Session.set('shortlistFilterUpdated', 0);
-}
-
 initColormaps = function () {
     // Download color map information
     var id = 'colormaps';

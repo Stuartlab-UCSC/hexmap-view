@@ -1,8 +1,8 @@
 
 // Environment-dependent values.
-var rootUrl = 'http://localhost:3333/';
-    startUrl = rootUrl + '?p=ynewton.gliomas-paper',
-    endUrl = 'http://localhost:3333/?';
+var rootUrl = 'http://localhost:3333';
+    startUrl = rootUrl + '/?p=ynewton.gliomas-paper',
+    endUrl = rootUrl + '/?';
 
 var $ = require('jquery');
 var path = require('path');
@@ -14,18 +14,18 @@ var U = require('./testUtils');
 
 var __file = path.basename(__filename);
 
-function pOfynewtonGliomasPaperTest () {
+function ynewtonGliomasPaperTest () {
 
     // Test this url to display the proper map
 
-        var __function = arguments.callee.name,
-            driver = U.setUp();
-        var url = rootUrl + '?p=ynewton.gliomas-paper',
-            map = 'Gliomas';
+    var __function = arguments.callee.name,
+        driver = U.setUp();
+    var url = rootUrl + '/?p=ynewton.gliomas-paper',
+        map = 'Gliomas';
     
     driver.get(url)
         .then(_ => U.verifyNewMapLoads(map, driver, url, __line, __file))
         .then(_ => driver.quit());
 }
 
-pOfynewtonGliomasPaperTest();
+ynewtonGliomasPaperTest();

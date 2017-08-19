@@ -1,0 +1,263 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>View Server Install &#8212; Tumor Map Developer Documentation</title>
+    
+    <link rel="stylesheet" href="_static/agogo.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="This Document" href="docs.html" />
+    <link rel="prev" title="Compute Server Install" href="computeInstall.html" /> 
+  </head>
+  <body role="document">
+    <div class="header-wrapper" role="banner">
+      <div class="header">
+        <div class="headertitle"><a
+          href="index.html">Tumor Map Developer Documentation</a></div>
+        <div class="rel" role="navigation" aria-label="related navigation">
+          <a href="computeInstall.html" title="Compute Server Install"
+             accesskey="P">previous</a> |
+          <a href="docs.html" title="This Document"
+             accesskey="N">next</a> |
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a>
+        </div>
+       </div>
+    </div>
+
+    <div class="content-wrapper">
+      <div class="content">
+        <div class="document">
+            
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="view-server-install">
+<h1>View Server Install<a class="headerlink" href="#view-server-install" title="Permalink to this headline">¶</a></h1>
+<p>Get an SSL certificate if you plan to use https.</p>
+<div class="section" id="install-python-and-libraries">
+<h2>Install python and libraries<a class="headerlink" href="#install-python-and-libraries" title="Permalink to this headline">¶</a></h2>
+<p>python v2.7</p>
+<blockquote>
+<div><div class="line-block">
+<div class="line">colormath==2.1.1</div>
+<div class="line">numpy==1.10.4</div>
+<div class="line">pandas==0.17.1</div>
+<div class="line">scikit-learn==0.17.1</div>
+<div class="line">scipy==0.17.1</div>
+<div class="line">statsmodels==0.6.1</div>
+</div>
+</div></blockquote>
+</div>
+<div class="section" id="install-drl">
+<h2>Install DrL<a class="headerlink" href="#install-drl" title="Permalink to this headline">¶</a></h2>
+<p>DrL graph layout [1]</p>
+<p>To install in most unices. Other platforms may be installed as indicated in the
+drl-graph-layout/readme.txt:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">wget</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">bitbucket</span><span class="o">.</span><span class="n">org</span><span class="o">/</span><span class="n">adam_novak</span><span class="o">/</span><span class="n">drl</span><span class="o">-</span><span class="n">graph</span><span class="o">-</span><span class="n">layout</span><span class="o">/</span><span class="n">get</span><span class="o">/</span><span class="n">c41341de8058</span><span class="o">.</span><span class="n">zip</span>
+<span class="c1">#alternatively:</span>
+    <span class="n">curl</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">bitbucket</span><span class="o">.</span><span class="n">org</span><span class="o">/</span><span class="n">adam_novak</span><span class="o">/</span><span class="n">drl</span><span class="o">-</span><span class="n">graph</span><span class="o">-</span><span class="n">layout</span><span class="o">/</span><span class="n">get</span><span class="o">/</span><span class="n">c41341de8058</span><span class="o">.</span><span class="n">zip</span> <span class="o">&gt;</span> <span class="n">c41341de8058</span><span class="o">.</span><span class="n">zip</span>
+<span class="n">unzip</span> <span class="n">c41341de8058</span><span class="o">.</span><span class="n">zip</span>
+<span class="n">cd</span> <span class="n">adam</span><span class="o">*/</span><span class="n">src</span>
+<span class="n">cp</span> <span class="n">Configuration</span><span class="o">.</span><span class="n">gnu</span> <span class="n">Configuration</span><span class="o">.</span><span class="n">mk</span>
+<span class="n">make</span>
+<span class="n">ls</span> <span class="o">../</span><span class="nb">bin</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="install-meteor">
+<h2>Install meteor<a class="headerlink" href="#install-meteor" title="Permalink to this headline">¶</a></h2>
+<p>Install the specific meteor release:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>cd
+curl https://install.meteor.com/ &gt; meteor.install
+vi meteor.install
+  (set the definition of RELEASE as RELEASE=$METEOR_VERSION)
+sh meteor.install
+</pre></div>
+</div>
+<p>This will also install a copy of node.</p>
+</div>
+<div class="section" id="install-meteor-packages">
+<h2>Install meteor packages<a class="headerlink" href="#install-meteor-packages" title="Permalink to this headline">¶</a></h2>
+<p>Check to see what packages are currently installed:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">meteor</span> <span class="nb">list</span>
+</pre></div>
+</div>
+<p>This may take a while because meteor will download any packages needed.</p>
+<p>This should be the result of &#8216;meteor list&#8217;:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>accounts-password       1.3.0* Password support for accounts
+accounts-ui             1.1.9  Simple templates to add login widgets to an app
+alanning:roles          1.2.15* Authorization package for Meteor
+blaze-html-templates    1.0.5* Compile HTML templates into reactive UI with Meteor Blaze
+browser-policy-content  1.0.11* Configure content security policies
+check                   1.2.3* Check whether a value matches a pattern
+dburles:google-maps     1.1.5  Google Maps Javascript API v3
+ecmascript              0.6.3* Compiler plugin that supports ES2015+ in all .js files
+ejson                   1.0.12* Extended and Extensible JSON library
+es5-shim                4.6.15  Shims and polyfills to improve ECMAScript 5 support
+force-ssl               1.0.12* Require this application to use HTTPS
+http                    1.2.9_1* Make HTTP calls to remote servers
+jquery                  1.11.9* Manipulate the DOM using CSS selectors
+meteor-base             1.0.4* Packages that every Meteor app needs
+mobile-experience       1.0.4  Packages for a great mobile user experience
+modules                 0.7.9* CommonJS module system
+mongo                   1.1.12_1* Adaptor for using MongoDB and Minimongo over DDP
+nourharidy:ssl          0.2.2  Sexy SSL support for Meteor
+random                  1.0.10  Random number generator and utilities
+reactive-dict           1.1.8* Reactive dictionary
+reactive-var            1.0.10* Reactive variable
+session                 1.1.6* Session variable
+shell-server            0.2.1* Server-side component of the `meteor shell` command.
+standard-minifier-css   1.2.1* Standard css minifier used with Meteor apps by default.
+standard-minifier-js    1.2.0_1* Standard javascript minifiers used with Meteor apps by default.
+tracker                 1.1.0* Dependency tracker to allow reactive callbacks
+vsivsi:job-collection   1.4.0* A persistent and reactive job queue for Meteor, supporting distributed workers that can run anywhere
+</pre></div>
+</div>
+<p>Install any missing packages with &#8216;meteor add &lt;pkg&gt;&#8217;.</p>
+</div>
+<div class="section" id="set-environment-variable">
+<h2>Set Environment Variable<a class="headerlink" href="#set-environment-variable" title="Permalink to this headline">¶</a></h2>
+<p>Set the environment variable HEXMAP to the &#8216;hexagram&#8217; directory from your clone
+of the repository.</p>
+</div>
+<div class="section" id="set-path">
+<h2>Set Path<a class="headerlink" href="#set-path" title="Permalink to this headline">¶</a></h2>
+<p>Include this in your path so you can find meteor&#8217;s version of node and npm if
+you want to run those commands outside of meteor:</p>
+<p>~/.meteor/packages/meteor-tool/&lt;version&gt;/&lt;platform&gt;/dev_bundle/bin</p>
+<p>Include the bin directory under drl-graph-layout in your path.</p>
+</div>
+<div class="section" id="install-server">
+<h2>Install server<a class="headerlink" href="#install-server" title="Permalink to this headline">¶</a></h2>
+<p>If you want to use HTTPS, install a node module needed for the http proxies:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>cd $HEXMAP
+npm install http-proxy
+</pre></div>
+</div>
+<p>Install the node modules needed for meteor:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>cd $HEXMAP/www
+meteor npm install
+</pre></div>
+</div>
+<p>Edit these start-up scripts to match your environment:</p>
+<p>$HEXMAP/run-production
+$HEXMAP/config/config.prod
+$HEXMAP/config/settingsA.prod.json</p>
+<p>Create directories for your data where we&#8217;ll call your data root &#8216;DATA&#8217;:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">mkdir</span> <span class="n">DATA</span>
+<span class="n">cd</span> <span class="n">DATA</span>
+<span class="n">mkdir</span> <span class="n">featureSpace</span> <span class="n">layoutInput</span> <span class="n">view</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="start-server">
+<h2>Start server<a class="headerlink" href="#start-server" title="Permalink to this headline">¶</a></h2>
+<p>Start these servers:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>cd $HEXMAP
+run http
+run https
+run db
+run www
+</pre></div>
+</div>
+<p>Each server has a log file with an extension of: &#8216;.log&#8217;.</p>
+</div>
+<div class="section" id="sphinx">
+<h2>Sphinx<a class="headerlink" href="#sphinx" title="Permalink to this headline">¶</a></h2>
+<p>Sphinx is used to build this document. To modify any documents, Sphinx needs to
+be installed according to <a class="reference external" href="http://www.sphinx-doc.org/en/stable/install.html">http://www.sphinx-doc.org/en/stable/install.html</a></p>
+</div>
+<div class="section" id="references">
+<h2>References<a class="headerlink" href="#references" title="Permalink to this headline">¶</a></h2>
+<p>[1] S. Martin, W. M. Brown, R. Klavans, K. Boyack, &#8220;Dr. L: Distributed Recursive
+(Graph) Layout,&#8221; in preparation for Journal of Graph Algorithms and
+Applications.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+        </div>
+        <div class="sidebar">
+          <h3>Table Of Contents</h3>
+          <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="internalWebApi.html">Internal Web API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="computeSource.html">Source Code: Compute Server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="viewerSource.html">Source Code: View Server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="repository.html">Code Repository &amp; git</a></li>
+<li class="toctree-l1"><a class="reference internal" href="computeInstall.html">Compute Server Install</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">View Server Install</a></li>
+<li class="toctree-l1"><a class="reference internal" href="docs.html">This Document</a></li>
+<li class="toctree-l1"><a class="reference internal" href="licenses.html">Licenses</a></li>
+</ul>
+
+          <div role="search">
+            <h3 style="margin-top: 1.5em;">Search</h3>
+            <form class="search" action="search.html" method="get">
+                <input type="text" name="q" />
+                <input type="submit" value="Go" />
+                <input type="hidden" name="check_keywords" value="yes" />
+                <input type="hidden" name="area" value="default" />
+            </form>
+          </div>
+        </div>
+        <div class="clearer"></div>
+      </div>
+    </div>
+
+    <div class="footer-wrapper">
+      <div class="footer">
+        <div class="left">
+          <div role="navigation" aria-label="related navigaton">
+            <a href="computeInstall.html" title="Compute Server Install"
+              >previous</a> |
+            <a href="docs.html" title="This Document"
+              >next</a> |
+            <a href="genindex.html" title="General Index"
+              >index</a>
+          </div>
+          <div role="note" aria-label="source link">
+              <br/>
+              <a href="_sources/viewerInstall.rst.txt"
+                rel="nofollow">Show Source</a>
+          </div>
+        </div>
+
+        <div class="right">
+          
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2016, UCSC Tumor Map development team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+    </div>
+        </div>
+        <div class="clearer"></div>
+      </div>
+    </div>
+
+  </body>
+</html>

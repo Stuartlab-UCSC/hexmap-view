@@ -92,7 +92,6 @@ UrlParms = (function () { // jshint ignore: line
         var layer = {
                 data: data,
                 dynamic: true,
-                imported: true,
             },
             dynLayer = {};
         

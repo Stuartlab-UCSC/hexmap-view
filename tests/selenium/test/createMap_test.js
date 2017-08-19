@@ -50,21 +50,14 @@ function verifyParametersProduced (testName, driver) {
         });
 }
 
-function setUploadFile (path, anchor, driver) {
-    driver.wait(until.elementIsVisible(driver.findElement(
-            By.id('create_map_dialog'))), 60000)
-        .then(_ => driver.wait(until.elementIsVisible(driver.findElement(
-            By.css('#create_map_dialog .' + anchor + ' .upload-file'))),
-            6000).sendKeys(path));
-}
-
 function doThroughSetFeatureFile (featurePath, driver) {
 
     // Log in, click createMap menu option and set the feature file.
     driver.wait(until.titleIs('UCSC Tumor Map'), 6000)
         .then(_ => U.login(driver))
         .then(_ => U.clickMenuOption(menuClass, menuOptionClass, driver))
-        .then(_ => setUploadFile(featurePath, 'feature_upload_anchor', driver));
+        .then(_ => U.setUploadFile(featurePath, 'feature_upload_anchor',
+            'create_map_dialog', 'upload-file', driver));
 }
 
 function setMapName (name, driver) {
@@ -90,11 +83,11 @@ function setAdvancedOptions (driver) {
 /*
 // TODO untested
 function setFirstAttribute (first, driver) {
-    driver.wait(until.elementIsVisible(driver.findElement(
-            By.id('create_map_dialog'))), 60000)
-        .then(_ => driver.wait(until.elementIsVisible(driver.findElement(
-            By.css('#create_map_dialog .default_attribute'))),
-            6000).sendKeys(first));
+    var defAttrCss = '#create_map_dialog .default_attribute';
+ 
+    driver.wait(until.elementLocated(By.id('create_map_dialog')), 60000)
+        .then(_ => driver.wait(until.elementLocated(By.css(defAttrCss)), 6000)
+            .sendKeys(first));
 }
 */
 
@@ -184,7 +177,8 @@ function attributeFileTest () {
     driver.get(startUrl)
         .then(_ => doThroughSetFeatureFile(featurePath, driver))
         .then(_ => setMapName(__function, driver))
-        .then(_ => setUploadFile(attributePath, 'attribute_upload_anchor', driver))
+        .then(_ => U.setUploadFile(attributePath, 'attribute_upload_anchor',
+            'create_map_dialog', 'upload-file', driver))
         .then(_ => U.clickDialogButton(driver))
         .then(_ => verifyParametersProduced (__function, driver))
         .then(_ => U.verifyNewMapLoads(majorMap + '/' + __function, driver,
@@ -207,7 +201,8 @@ function attributeFirstTest () {
     
     driver.get(startUrl)
         .then(_ => doThroughSetFeatureFile(featurePath, driver))
-        .then(_ => setUploadFile(attributePath, 'attribute_upload_anchor', driver))
+        .then(_ => U.setUploadFile(attributePath, 'attribute_upload_anchor',
+            'create_map_dialog', 'upload-file', driver))
         .then(_ => U.clickDialogButton(driver))
         .then(_ => setAdvancedOptions(driver))
         .then(_ => setFirstAttribute('continuous_integer', driver))

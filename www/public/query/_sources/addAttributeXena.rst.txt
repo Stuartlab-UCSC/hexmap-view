@@ -1,5 +1,5 @@
-Future: Add new coloring attributes via Xena
-============================================
+Add new coloring attributes via Xena
+====================================
 
 https://<compute_server>/?...
 

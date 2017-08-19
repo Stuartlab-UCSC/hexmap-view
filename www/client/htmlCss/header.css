@@ -46,22 +46,21 @@
     width: 15em;
 }
 
-#project,
+#project {
+    width: 20em;
+}
+
 #layout-search,
 #search {
     width: 29em;
 }
 
-#s2id_project .select2-choice span.noProject {
-    color: #999;
-}
-
-/* ***************** LAYER header row **************** */
-
 #s2id_search.select2-container {
     margin-bottom: 0.6em;
     margin-left: 0.5em;
 }
+
+/* ***************** LAYER header row **************** */
 
 .layer-entry {
     padding-right: 20px;

@@ -1,76 +1,66 @@
-Internal Web API Overview
-=========================
+Internal Web API
+================
 
 .. toctree::
    :maxdepth: 1
 
-   createBookmark
-   statsDynamic
+These are APIs that we may not necessarily want to advertise to the public.
 
-These are web APIs that we don't necessarily want to advertise to the public,
-even though they will be available.
+Public web APIs are described at https://tumormap.ucsc.edu/query/index.html
 
 
-Get available maps
-------------------
+Get Data
+--------
 
-https://<hub>/query/**availableMaps**
+https://<compute-server>/data/<data-ID>
 
-GET or POST with content-type: application/json
+GET with content-type returned: application/json
 
-data-type: json
+This is a general data retrieval API usable for any data within a
+map's view data. Used by the viewer to retrieve view data.
 
-Retrieve the map names available on this view server, both major and minor.
+Example: retrieve the attribute metadata for the Pancan12 SampleMap::
 
-TBD
+ https://tumormap.ucsc.edu/data/view/Pancan12/SampleMap/layers.tab
+
+Returns json or tsv, depending on the file and in the same format as
+persistent store.
+
+More to be documented.
 
 
-Get map file by file name
--------------------------
+Create Bookmark
+---------------
 
-https://<hub>/file/<filename>/<map>
+https://<view-server>/bookmark/<state>
 
-GET or POST with content-type: application/json
+POST with content-type returned: application/json
 
-data-type: json
+This API creates a bookmark on a view server with the given client state data.
 
-This is a general data file retrieval API usable for any data file within a
-map's view data directory. Used by the viewer to retrieve view files.
+More to be documented.
 
-Example: retrieve the attribute names for the treehouse v3 map::
 
- https://treehouseHexHub.ucsc.edu/file/layers.tab/CKCC/v3
+Get available maps (future)
+---------------------------
 
-TBD
+https://<compute-server>/TBD
 
-Get map file by type
---------------------
+GET with content-type returned: application/json
 
-https://<hub>/file/<type>/<name>/<mapID>
-
-GET or POST with content-type: application/json
-
-data-type: json
-
-This retrieves certain data files by type within a map's view data directory.
-
-* <type> : one of: 'attr', 'node', 'layout', 'xyPreSquiggle'
-* <name> : the name of the attribute, node or layout for types layout and xyPreSquiggle
-
-Example: retrieve the attribute names for the treehouse v3 map::
-
- https://treehouseHexHub.ucsc.edu/data/attr/Tissue/CKCC/v3
+Retrieve the map names available on this view server for which the user is
+authorized.
 
 TBD
 
 
-Reflect from one map to another
--------------------------------
+Dynamic Statistics (future)
+---------------------------
 
-https://<hub>/query/**reflect**
+https://<compute-server>/query/TBD
 
-POST with content-type: application/json
+POST with content-type returned: application/json
 
-data-type: json
+Compute the statististics for a dynamically added attribute.
 
 TBD

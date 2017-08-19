@@ -6,14 +6,11 @@ Developer Docs
 .. toctree::
    :maxdepth: 1
 
-   internalApi
-   Nof1
    internalWebApi
-   source
-   clientSource
-   serverSource
+   computeSource
+   viewerSource
    repository
-   requirements
-   hub
+   computeInstall
+   viewerInstall
    docs
    licenses

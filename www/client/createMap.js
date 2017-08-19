@@ -283,15 +283,15 @@ CreateMap = (function () { // jshint ignore: line
  
         import React, { Component } from 'react';
         import { render } from 'react-dom';
-        import UploadR from '/imports/UploadR.jsx';
+        import Upload from '/imports/Upload.jsx';
 
          // Define the file selector for features file
         feature_upload = render(
-            <UploadR />, $dialog.find('.feature_upload_anchor')[0]);
+            <Upload />, $dialog.find('.feature_upload_anchor')[0]);
  
         // Define the file selector for attributes file
         attribute_upload = render(
-            <UploadR />, $dialog.find('.attribute_upload_anchor')[0]);
+            <Upload />, $dialog.find('.attribute_upload_anchor')[0]);
  
         // Find a name to use for this user's projects that will be
         // safe to use as a directory name. TODO this should be made unique for

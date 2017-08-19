@@ -1,5 +1,5 @@
-Future: Place new nodes
-=======================
+Place new nodes
+===============
 
 https://<compute_server>/query/**overlayNodes**
 
