@@ -73,6 +73,24 @@
                     [
                         "dmccoll_MESO/GeneMap/"
                     ]
+                },
+                {
+                    "mapId" : "PancanAtlas/SampleMap/",
+                    "operation" : "reflection",
+                    "datatypes"  : ["mRNA"],
+                    "toMapIds" :
+                    [
+                        "PancanAtlas/GeneMap/"
+                    ]
+                },
+                {
+                    "mapId" : "PancanAtlas/GeneMap/",
+                    "operation" : "reflection",
+                    "datatypes"  : ["mRNA"],
+                    "toMapIds" :
+                    [
+                        "PancanAtlas/SampleMap/"
+                    ]
                 }
             ],
             "ManagerFileCabinet":
@@ -356,7 +374,41 @@
                     ],
                     "datapath" : "reflection/clrMeso.tab",
                     "featOrSamp" : "sample"
-                }
+                },
+                {
+                    "operation" : "reflection",
+                    "datatype"  : "mRNA",
+                    "mapId" : "PancanAtlas/GeneMap/",
+                    "toMapId" : "PancanAtlas/SampleMap/",
+                    "opts" : null,
+                    "args" :
+                    [
+                        "datapath",
+                        "featOrSamp",
+                        "node_ids",
+                        "datatype",
+                        "rankCategories"
+                    ],
+                    "datapath" : "reflection/PancanAtlas_mRNA-reflection.tab",
+                    "featOrSamp" : "feature"
+                },
+                {
+                    "operation" : "reflection",
+                    "datatype"  : "mRNA",
+                    "mapId" : "PancanAtlas/SampleMap/",
+                    "toMapId" : "PancanAtlas/GeneMap/",
+                    "opts" : null,
+                    "args" :
+                    [
+                        "datapath",
+                        "featOrSamp",
+                        "node_ids",
+                        "datatype",
+                        "rankCategories"
+                    ],
+                    "datapath" : "reflection/PancanAtlas_mRNA-reflection.tab",
+                    "featOrSamp" : "sample"
+                },
             ]
         }
     }
