@@ -109,7 +109,7 @@ Layer = (function () { // jshint ignore: line
                     fileColor: new Color(layer.colormap.colors[i]),
                 }
             });
-    
+
             // Save the category index assignment.
             indexedCats = layer.colormap.cats
          
@@ -267,7 +267,7 @@ Layer = (function () { // jshint ignore: line
         // Leave the dataType in the layer obj, we use it in saving state.
         
         // If there are string values, load a colormap.
-        if (layer.hasStringVals) {
+        if (layer.hasStringVals || !_.isUndefined(layer.colormap)) {
             load_dynamic_colormap(layer_name, layer);
          
         } else {
