@@ -266,7 +266,9 @@ Layer = (function () { // jshint ignore: line
         Util.addToDataTypeList(layer_name, layer.dataType);
         // Leave the dataType in the layer obj, we use it in saving state.
         
-        // If there are string values, load a colormap.
+        // If there are string values, load a colormap
+        // of if the layer has a colormap field (meaning it is a
+        // categorical reflection)
         if (layer.hasStringVals || !_.isUndefined(layer.colormap)) {
             load_dynamic_colormap(layer_name, layer);
          
