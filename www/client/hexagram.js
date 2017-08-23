@@ -404,15 +404,28 @@ get_color = function (u_name, u, v_name, v) {
     // Interpolate each component by itself. Invert directions so we can define
     // our colors in terms of actual layer value space, and not key space.
     // To change the colors here, look vertically.
-    var red = mix2(0x33, 0xFF, 0x00, 0x00, -u, -v).toFixed(0);
-    var green = mix2(0x33, 0xFF, 0x00, 0xFF, -u, -v).toFixed(0);
-    var blue = mix2(0x33, 0x00, 0xFF, 0x00, -u, -v).toFixed(0);
-    
-    // Produce the color string
+    var red,
+        green,
+        blue;
+    current_layers = Shortlist.get_active_coloring_layers();
+
+    if (current_layers.length === 2 || Session.equals("background","black")) {
+        red = mix2(0x32, 0xFF, 0x00, 0, -u, -v).toFixed(0);
+        green = mix2(0x32, 0xFF, 0x00, 0xFF, -u, -v).toFixed(0);
+        blue = mix2(0x32, 0, 0xFF, 0x00, -u, -v).toFixed(0);
+    }
+
+    else if (Session.equals("background","white")) {
+        red = mix2(0xD3, 0xFF, 0x00, 0x00, -u, -v).toFixed(0);
+        green = mix2(0xD3, 0x00, 0x00, 0xFF, -u, -v).toFixed(0);
+        blue = mix2(0xD3, 0x00, 0xFF, 0x00, -u, -v).toFixed(0);
+    }
+
+    //Produce the color string...
     var color = "rgb(" + red + "," + green + "," + blue + ")";
     
     return color;
-}
+};
 
 function mix(a, b, amount) {
     // Mix between the numbers a and b, where an amount of -1 corresponds to a,
