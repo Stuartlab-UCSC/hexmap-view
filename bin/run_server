@@ -32,7 +32,7 @@ fi
 # Handle any tar actions first
 if [ $SERVER_TYPE == 'maketar' ] || [ $SERVER_TYPE == 'xtar' ]
     then
-    if [ $SERVER_TYPE == 'xtar' ] || [ $INSTALL == 'swat' ]
+    if [ $SERVER_TYPE == 'xtar' ] && [ $INSTALL == 'swat' ]
         then
         echo Sorry you cannot xtar to here and remove all of your current code!
         exit
