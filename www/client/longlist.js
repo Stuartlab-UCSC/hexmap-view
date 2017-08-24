@@ -50,7 +50,7 @@ var app = app || {};
 
         // Set up the layer search
         $search.select2({
-            placeholder: "Select Attributes...",
+            placeholder: "Search Attributes...",
             //closeOnSelect: false, doesn't work, maybe because of old version of select2?
             query: function(query) {
                 // Given a select2 query object, call query.callback with an object

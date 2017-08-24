@@ -1,0 +1,62 @@
+
+.ReactModal__Overlay {
+    z-index: 2000;
+}
+
+.ReactModal__Content {
+    padding: 0.5em;
+    background: white;
+    border: 1px solid grey;
+    border-radius: 5px;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.ReactModal__Content .modalTitle {
+    padding-bottom: 0.5em;
+    padding-left: 0.5em;
+}
+
+.ReactModal__Content .modalLabel,
+.ReactModal__Content input[type="text"],
+.ReactModal__Content textarea,
+.ReactModal__Content .Select,
+.ReactModal__Content .readFile,
+.ReactModal__Content .buttonBox,
+.ReactModal__Content button {
+    margin: 0.4em;
+    font-size: 1em;
+}
+
+.ReactModal__Content .readFile {
+    margin-top: 0.6em;
+}
+
+.ReactModal__Content input[type="text"],
+.ReactModal__Content textarea {
+    padding: 0.2em 0.4em;
+    font-size: 0.9em;
+}
+
+.ReactModal__Content button {
+    padding: 0.4em 0.6em;
+    font-size: 0.8em;
+    float: right;
+}
+
+/******************  Specific Modals ******************/
+
+.promptModal input {
+    display: block;
+    width: 17em;
+}
+
+.selectByNodeIdModal .readFile {
+    display: block;
+}
+
+.selectByNodeIdModal textarea {
+    width: 22.7em;
+}

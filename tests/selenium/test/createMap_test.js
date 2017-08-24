@@ -44,7 +44,7 @@ function verifyParametersProduced (testName, driver) {
             if (index > -1) {
                 var actual = text.substring(index + preOptsText.length);
                 if (actual !== expOpts[testName]) {
-                    U.failed(expOpts[testName], actual, __line, __file);
+                    U.failed(expOpts[testName], actual, __line, __file, driver);
                 }
             }
         });

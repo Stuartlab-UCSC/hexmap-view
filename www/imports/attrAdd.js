@@ -6,14 +6,12 @@ import React, { Component } from 'react';
 import { render } from 'react-dom';
 import ReadFile from './ReadFile.jsx'
 
-var dialogHex,
-    readFile;
+var dialogHex;
 
 function destroy() {
 
     dialogHex.hide();
     dialogHex = undefined;
-    readFile = undefined;
 }
 
 addAsLayers = function (data) {
@@ -71,7 +69,7 @@ function createWindow() {
     $('.content').append($dialog);
     
     // Attach the file reader
-    readFile = render(
+    render(
         <ReadFile
             parseTsv = {true}
             onSuccess = {addAsLayers}
@@ -86,9 +84,6 @@ function createWindow() {
         helpAnchor: '/help/addAttr.html',
     });
     dialogHex.show();
-     
-    // Attach event listeners.
-    $dialog.find('.file').change(ReadFile.read);
 }
 
 exports.init = function () {
