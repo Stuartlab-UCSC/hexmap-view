@@ -128,7 +128,8 @@ var app = app || {};
                 new_layer_name = layer_names[0] + ' U ' + layer_names[1];
 
             } else if (set_type === 'set difference') {
-                new_layer_name = layer_names[0] + ' \\ ' + layer_names[1];
+
+                new_layer_name = "In " + layer_names[0] + ' but not in ' + layer_names[1];
             
             } else if (set_type === 'symmetric difference') {
                 new_layer_name = layer_names[0] + ' ∆ ' + layer_names[1];
