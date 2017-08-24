@@ -4,6 +4,8 @@
 
 var app = app || {}; 
 
+import Ajax from '/imports/ajax';
+
 (function (hex) { 
     //'use strict';
 
@@ -612,7 +614,17 @@ var app = app || {};
         clearStats();
  
         // Attempt to retrieve the pre-computed stats data
-
+        Ajax.get({
+            id: dataId,
+            success: function(parsed) {
+                receive_data(parsed, focus_attr, opts);
+            },
+            error: function(error) {
+                computingTextDisplay();
+                getDynamicStats(focus_attr, opts);
+                return;
+           },
+        });
     }
 
     computingTextDisplay = function () {
@@ -644,7 +656,7 @@ var app = app || {};
         } else {
             // This is a primary attribute, so check for pre-computed stats
             var layer_index = ctx.static_layer_names.indexOf(focus_attr),
-                dataId = ctx.project + "stats_" + layer_index;
+                dataId = "stats_" + layer_index;
 
             getPreComputedStats(dataId, focus_attr, opts);
         }
@@ -743,8 +755,7 @@ var app = app || {};
         } else {
             // This is a primary attribute, so check for pre-computed stats
             var layer_index = ctx.static_layer_names.indexOf(focus_attr),
-                dataId = ctx.project + "statsL_"+ layer_index + "_" +
-                    layout_index;
+                dataId = "statsL_"+ layer_index + "_" + layout_index;
 
             getPreComputedStats(dataId, focus_attr, opts);
         }
