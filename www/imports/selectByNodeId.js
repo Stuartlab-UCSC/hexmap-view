@@ -5,13 +5,7 @@
 import React, { Component } from 'react';
 import { render, unmountComponentAtNode } from 'react-dom';
 import ReactModal from 'react-modal';
-import 'jquery';
 import './css/reactModal.css';
-//import Select from 'react-select';
-//import 'react-select/dist/react-select.css';
-import Select2 from 'react-select2-wrapper';
-import 'react-select2-wrapper/css/select2.css';
-import './css/select.css';
 import ReadFile from './ReadFile.jsx';
 import U from './utils.js';
 
@@ -142,7 +136,8 @@ class SelectByNodeId extends Component {
     render () {
         var self = this,
             textBoxPlaceholder = 'enter node IDs one per line,\n' +
-                'or search for nodes,\nor upload a file',
+                //'or search for nodes\n, +
+                'or upload a file',
             selectPlaceholder = 'Search nodes...';
         
         function handleTextareaChange (event) {
@@ -169,15 +164,6 @@ class SelectByNodeId extends Component {
                     Select Nodes by ID
                 </div>
                 <div className='modalContent'>
-                    <Select2
-                        data = {this.buildSelectorData()}
-                        value = ''
-                        options = {{
-                            placeholder: this.selectPlaceholder,
-                            width: 700,
-                        }}
-                        onChange = {handleSelectChange}
-                    />
                     <ReadFile
                         parseTsv = {true}
                         onSuccess = {this.handleReadSuccess}
