@@ -31,7 +31,7 @@ import PropTypes from 'prop-types';
 import ReactDOM from 'react-dom';
 import shallowEqualFuzzy from 'shallow-equal-fuzzy';
 
-import select2 from './lib/select2node.js';
+import select2 from './lib/select2.js';
 
 const namespace = 'select2-react';
 
