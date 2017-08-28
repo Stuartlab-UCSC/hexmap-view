@@ -1,12 +1,7 @@
 
+// A react wrapper for the vanilla javascript select2.
+
 /*
-select2.jsx
-
-One additional propType has been added that the original does not support:
-    choiceDisplay: a function that sets the choice display to something other
-                   than the text of the selected item after a selection is made.
-
-*//*
 Adapted from https://github.com/rkit/react-select2-wrapper
 
 The MIT License (MIT)
@@ -38,14 +33,13 @@ import shallowEqualFuzzy from 'shallow-equal-fuzzy';
 
 import select2 from './lib/select2node.js';
 
-const namespace = 'react-select2-wrapper';
+const namespace = 'select2-react';
 
 export default class Select2 extends Component {
 
   constructor(props) {
     super(props);
     this.el = null;
-    this.forceUpdateValue = false;
     this.initialRender = true;
   }
 
@@ -68,30 +62,19 @@ export default class Select2 extends Component {
   }
 
   initSelect2(props) {
-    const { options } = props;
-
+    const { select2options } = props;
     this.el = $(ReactDOM.findDOMNode(this));
-    // fix for updating selected value when data is changing
-    if (this.forceUpdateValue) {
-      this.updateSelect2Value(null);
-    }
-    this.el.select2(this.prepareOptions(options));
+    
+    this.el.select2(select2options);
     this.attachEventHandlers(props);
   }
 
   updSelect2(props) {
     const prevProps = this.props;
 
-    if (!shallowEqualFuzzy(prevProps.data, props.data)) {
-      this.forceUpdateValue = true;
-      this.destroySelect2(false);
-      this.initSelect2(props);
-      return;
-    }
-
-    const { options } = props;
-    if (!shallowEqualFuzzy(prevProps.options, options)) {
-      this.el.select2(this.prepareOptions(options));
+    const { select2options } = props;
+    if (!shallowEqualFuzzy(prevProps.select2options, select2options)) {
+      this.el.select2(select2options);
     }
 
     const handlerChanged = e => prevProps[e[1]] !== props[e[1]];
@@ -106,9 +89,11 @@ export default class Select2 extends Component {
 
     const onChange = this.props.onChange;
     if (onChange) {
-      const dropdownParent = this.props.options.dropdownParent,
+      const dropdownParent = this.props.select2options.dropdownParent,
             choiceDisplay = this.props.choiceDisplay;
 
+      // choiceDisplay is a function to change the text of the selected item
+      // to display it in the choice field.
       if (dropdownParent && choiceDisplay) {
         dropdownParent.find('.select2-choice span').text(choiceDisplay(value));
       }
@@ -117,22 +102,23 @@ export default class Select2 extends Component {
   }
 
   updateValue() {
+  
+    // from componentDidUpdate()
+    // TODO do we need all of this?
     const { value, defaultValue, multiple } = this.props;
-    const newValue = this.prepareValue(value, defaultValue);
     const currentValue = multiple ? this.el.val() || [] : this.el.val();
-
-    if (!this.fuzzyValuesEqual(currentValue, newValue) || this.forceUpdateValue) {
-      this.updateSelect2Value(newValue);
+    
+    if (!this.fuzzyValuesEqual(currentValue, value)) {
+      this.updateSelect2Value(value);
       if (!this.initialRender) {
         this.el.trigger('change');
       }
-      this.forceUpdateValue = false;
     }
   }
 
-  fuzzyValuesEqual(currentValue, newValue) {
-    return (currentValue === null && newValue === '') ||
-      shallowEqualFuzzy(currentValue, newValue);
+  fuzzyValuesEqual(currentValue, value) {
+    return (currentValue === null && value === '') ||
+      shallowEqualFuzzy(currentValue, value);
   }
 
   destroySelect2(withCallbacks = true) {
@@ -160,42 +146,11 @@ export default class Select2 extends Component {
     });
   }
 
-  prepareValue(value, defaultValue) {
-    const issetValue = typeof value !== 'undefined' && value !== null;
-    const issetDefaultValue = typeof defaultValue !== 'undefined';
-
-    if (!issetValue && issetDefaultValue) {
-      return defaultValue;
-    }
-    return value;
-  }
-
-  prepareOptions(options) {
-    const opt = options;
-    if (typeof opt.dropdownParent === 'string') {
-      opt.dropdownParent = $(opt.dropdownParent);
-    }
-    return opt;
-  }
-
-  isObject(value) {
-    const type = typeof value;
-    return type === 'function' || (value && type === 'object') || false;
-  }
-
-  makeOption(item) {
-    if (this.isObject(item)) {
-      const { id, text, ...itemParams } = item;
-      return (<option key={`option-${id}`} value={id} {...itemParams}>{text}</option>);
-    }
-
-    return (<option key={`option-${item}`} value={item}>{item}</option>);
-  }
-
   render() {
-    const { data, value, ...props } = this.props;
+    const { value, ...props } = this.props;
 
-    delete props.options;
+    // TODO what is this doing?
+    delete props.select2options;
     delete props.events;
     delete props.onOpen;
     delete props.onClose;
@@ -205,19 +160,8 @@ export default class Select2 extends Component {
     delete props.onUnselect;
 
     return (
-      <select {...props}>
-        {data.map((item, k) => {
-          if (this.isObject(item) && this.isObject(item.children)) {
-            const { children, text, ...itemParams } = item;
-            return (
-              <optgroup key={`optgroup-${k}`} label={text} {...itemParams}>
-                {children.map((child) => this.makeOption(child))}
-              </optgroup>
-            );
-          }
-          return this.makeOption(item);
-        })}
-      </select>
+      <div {...props}>
+      </div>
     );
   }
 }
@@ -233,9 +177,8 @@ Select2.propTypes = {
       PropTypes.array,
       PropTypes.string,
     ]),
-    data: PropTypes.array,
     events: PropTypes.array,
-    options: PropTypes.object,
+    select2options: PropTypes.object,
     multiple: PropTypes.bool,
     onOpen: PropTypes.func,
     onClose: PropTypes.func,
@@ -246,7 +189,6 @@ Select2.propTypes = {
 };
 
 Select2.defaultProps = {
-    data: [],
     events: [
       [`change.${namespace}`, 'onChange'],
       [`choiceDisplay.${namespace}`, 'choiceDisplay'],
@@ -257,3 +199,4 @@ Select2.defaultProps = {
     ],
     multiple: false,
 };
+

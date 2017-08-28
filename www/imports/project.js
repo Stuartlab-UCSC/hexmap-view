@@ -70,10 +70,11 @@ function populate () {
     // Attach the selector.
      render(
         <Select2
-            data = {data}
             value = {ctx.project}
-            options = {{
-                dropdownParent: '#project',
+            // options to the original, non-react select2.
+            select2options = {{
+                data: data,
+                dropdownParent: $('#project'),
                 placeholder: PLACEHOLDER_TEXT,
                 width: '20em',
                 dropdownAutoWidth: true,
