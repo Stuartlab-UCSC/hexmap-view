@@ -115,9 +115,6 @@ var app = app || {};
         $search.parent().on('select2-open', function () {
             var results = $('#select2-drop .select2-results');
             results.css('max-height', $(window).height() - results.offset().top - 15);
-            
-            // Allow the rest of the UI to remain active
-            $('#select2-drop-mask').css('display', 'none');
         });
 
         // Handle result selection
