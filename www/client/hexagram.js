@@ -497,7 +497,8 @@ initLayout = function () {
                     // resort the list to the default of density
                     find_clumpiness_stats(Session.get('layoutIndex'));
                     Session.set('sort', ctx.defaultSort());
-                    updateLonglist();
+                    import Longlist from '../imports/longlist.js';
+                    Longlist.update();
                     
                 });
                 Session.set('initedLayout', true);

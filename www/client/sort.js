@@ -246,7 +246,8 @@ import Ajax from '/imports/ajax';
                 focus_attr: focus_attr, color: 'inherit', background: 'inherit'});
         }
         clearAllFilters();
-        updateLonglist();
+        import Longlist from '../imports/longlist.js';
+        Longlist.update();
         Shortlist.update_ui_metadata();
  
         // Skip the banner on the first sort

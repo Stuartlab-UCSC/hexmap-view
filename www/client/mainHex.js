@@ -214,7 +214,8 @@ Hex = (function () { // jshint ignore: line
  
             initSortAttrs();
             initFilter();
-            initLayerLists();
+            import Longlist from '../imports/longlist.js';
+            Longlist.init();
             Session.set('retrievedLayerInfo', true);
         }
     }
