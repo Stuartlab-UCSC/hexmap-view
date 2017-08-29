@@ -905,6 +905,10 @@ Shortlist = (function () { // jshint ignore: line
         // Add the layers to the global layers object.
         Layer.with_layers(
             shortlist, entries_initialized, Session.get('dynamic_attrs'));
+            
+        if (_.isUndefined(layers) || Object.keys(layers) < 1) {
+            refreshColors();
+        }
     }
 
 return {

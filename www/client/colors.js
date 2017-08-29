@@ -14,6 +14,7 @@ Colors = (function () { // jshint ignore: line
     // The color to use as hexagon fill, depending on the background color
     var NO_DATA_LIGHT_BG = '#c0c0c0',
         NO_DATA_DARK_BG = '#333333',
+        COLOR_NO_ATTRS = 'red',
         badValue = false, // The current category input has a bad value
         $link;
         
@@ -250,6 +251,10 @@ Colors = (function () { // jshint ignore: line
         noDataColor: function () {
             return (Session.equals('background', 'white')) ?
                 NO_DATA_LIGHT_BG : NO_DATA_DARK_BG;
+        },
+        
+        noAttrsColor: function () {
+            return COLOR_NO_ATTRS;
         },
         
         colormapToState: function (colorVals) {

@@ -122,6 +122,14 @@ refreshColors = function () {
     
     // This holds all the current filters
     var filters = Shortlist.get_current_filters();
+ 
+    // Special case of no layers at all.
+    if (_.isUndefined(layers) || Object.keys(layers) < 1) {
+        for(var signature in polygons) {
+            setHexagonColor(polygons[signature], Colors.noAttrsColor());
+        }
+        return;
+    }
     
     // Obtain the layer objects (mapping from signatures/hex labels to colors)
     Layer.with_layers(current_layers, function(retrieved_layers) {  
