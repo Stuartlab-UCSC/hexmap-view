@@ -40,6 +40,7 @@ export default class Select2 extends Component {
   constructor(props) {
     super(props);
     this.el = null;
+    this.openEl = props.select2options.dropdownParent.parent();
     this.initialRender = true;
   }
 
@@ -86,20 +87,20 @@ export default class Select2 extends Component {
 
   updateSelect2Value(value) {
     this.el.off(`change.${namespace}`).val(value).trigger('change');
-
+    
     const onChange = this.props.onChange;
     if (onChange) {
       const dropdownParent = this.props.select2options.dropdownParent,
             choiceDisplay = this.props.choiceDisplay;
 
       // choiceDisplay is a function to change the text of the selected item
-      // to display it in the choice field.
+      // in the choice field.
       if (dropdownParent && choiceDisplay) {
         dropdownParent.find('.select2-choice span').text(choiceDisplay(value));
       }
-      this.el.on(`change.${namespace}`, onChange);
+        this.el.on(`change.${namespace}`, onChange);
+      }
     }
-  }
 
   updateValue() {
   
@@ -121,6 +122,13 @@ export default class Select2 extends Component {
       shallowEqualFuzzy(currentValue, value);
   }
 
+  handleOpen(event) {
+  
+    // Handle the select2 v3 open event.
+    var results = $('#select2-drop .select2-results');
+    results.css('max-height', $(window).height() - results.offset().top - 15);
+  }
+
   destroySelect2(withCallbacks = true) {
     if (withCallbacks) {
       this.detachEventHandlers();
@@ -131,6 +139,7 @@ export default class Select2 extends Component {
   }
 
   attachEventHandlers(props) {
+    this.openEl.on('select2-open', this.handleOpen);
     props.events.forEach(event => {
       if (typeof props[event[1]] !== 'undefined') {
         this.el.on(event[0], props[event[1]]);
@@ -139,6 +148,7 @@ export default class Select2 extends Component {
   }
 
   detachEventHandlers() {
+    this.openEl.off('select2-open')
     this.props.events.forEach(event => {
       if (typeof this.props[event[1]] !== 'undefined') {
         this.el.off(event[0]);
@@ -149,16 +159,17 @@ export default class Select2 extends Component {
   render() {
     const { value, ...props } = this.props;
 
-    // TODO what is this doing?
+    // These props don't work with a div, so remove them from this copy of props
     delete props.select2options;
     delete props.events;
     delete props.onOpen;
     delete props.onClose;
     delete props.onSelect;
     delete props.onChange;
+    delete props['select2-selecting'];
     delete props.choiceDisplay;
     delete props.onUnselect;
-
+    
     return (
       <div {...props}>
       </div>
@@ -180,6 +191,11 @@ Select2.propTypes = {
     events: PropTypes.array,
     select2options: PropTypes.object,
     multiple: PropTypes.bool,
+    
+    // Select2 v3 events.
+    'select2-selecting': PropTypes.func,
+    
+    // Select2 v4 events.
     onOpen: PropTypes.func,
     onClose: PropTypes.func,
     onSelect: PropTypes.func,
@@ -192,6 +208,7 @@ Select2.defaultProps = {
     events: [
       [`change.${namespace}`, 'onChange'],
       [`choiceDisplay.${namespace}`, 'choiceDisplay'],
+      [`select2-selecting`, 'select2-selecting'],
       [`select2:open.${namespace}`, 'onOpen'],
       [`select2:close.${namespace}`, 'onClose'],
       [`select2:select.${namespace}`, 'onSelect'],

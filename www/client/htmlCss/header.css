@@ -46,17 +46,13 @@
     width: 15em;
 }
 
-#project {
-    width: 20em;
-}
-
-#layout-search,
-#search {
+#layout-search {
     width: 29em;
 }
 
-#s2id_search.select2-container {
-    margin-bottom: 0.6em;
+#search .select2-container {
+    vertical-align: top;
+    margin-top: 0.45em;
     margin-left: 0.5em;
 }
 

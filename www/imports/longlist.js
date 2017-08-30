@@ -1,9 +1,16 @@
 // layerLists.js
 // Manage the layer lists.
 
+import React, { Component } from 'react';
+import { render } from 'react-dom';
+import Select2 from './select2React.js';
+
+import Longlist from './longlist.js';
+
 // How many layer results should we display at once?
 var SEARCH_PAGE_SIZE = 10,
-    $search;
+    $search,
+    reactComponent;
 
 function make_browse_ui(layer_name) {
     // Returns a jQuery element to represent the layer with the given name in
@@ -40,92 +47,103 @@ exports.update = function() {
     $("#search").select2("close");
 }
 
+function handleSelecting (event) {
+
+    // The select2 id of the thing clicked (the layer's name) is event.val
+    var layer_name = event.val;
+    
+    // User chose this layer. Add it to the global shortlist.
+    Shortlist.ui_and_list_add(layer_name);
+    
+    // Don't actually change the selection.
+    // This keeps the dropdown open when we click.
+    event.preventDefault();
+    }
+
 exports.init = function () {
 
     $search = $("#search");
 
     // Set up the layer search
-    $search.select2({
-        placeholder: "Search Attributes...",
-        //closeOnSelect: false, doesn't work, maybe because of old version of select2?
-        query: function(query) {
-            // Given a select2 query object, call query.callback with an object
-            // with a "results" array.
-            
-            // This is the array of result objects we will be sending back.
-            var results = [];
-        
-            // Get where we should start in the layer list, from select2's
-            // infinite scrolling.
-            var start_position = 0;
-            if(query.context != undefined) {
-                start_position = query.context;
-            }
-
-            var displayLayers = Session.get('displayLayers'),
-                sortedLayers = Session.get('sortedLayers');
-            for (var i = start_position; i < sortedLayers.length; i++) {
-
-                // Check for the sort layer being in the display layers
-                // and the sort term in the layer name
-                if (displayLayers.indexOf(sortedLayers[i]) > -1
-                    && sortedLayers[i].toLowerCase().indexOf(
-                    query.term.toLowerCase()) > -1) {
-                    
-                    // Query search term is in this layer's name. Add a select2
-                    // record to our results. Don't specify text: our custom
-                    // formatter looks up by ID and makes UI elements
-                    // dynamically.
-                    results.push({
-                        id: sortedLayers[i]
+    reactComponent = render(
+        <Select2
+            select2-selecting = {handleSelecting}
+            select2options = {{
+                data: {id: '', text: ''},
+                dropdownParent: $search,
+                placeholder: "Search Attributes...",
+                width: '29em',
+                value: null,
+                initSelection: function (element, callback) {
+                    var data = [];
+                    $(element.val().split(",")).each(function () {
+                        data.push({id: '', text: ''});
                     });
+                    callback(data);
+                },
+                nextSearchTerm: function (selectedObject, currentSearchTerm) {
+                    console.log('currentSearchTerm', currentSearchTerm);
+                },
+                query: function(query) {
+                    // Given a select2 query object, call query.callback with an object
+                    // with a "results" array.
                     
-                    if(results.length >= SEARCH_PAGE_SIZE) {
-                        // Page is full. Send it on.
-                        break;
+                    // This is the array of result objects we will be sending back.
+                    var results = [];
+                
+                    // Get where we should start in the layer list, from select2's
+                    // infinite scrolling.
+                    var start_position = 0;
+                    if(query.context != undefined) {
+                        start_position = query.context;
+                    }
+
+                    var displayLayers = Session.get('displayLayers'),
+                        sortedLayers = Session.get('sortedLayers');
+                    for (var i = start_position; i < sortedLayers.length; i++) {
+
+                        // Check for the sort layer being in the display layers
+                        // and the sort term in the layer name
+                        if (displayLayers.indexOf(sortedLayers[i]) > -1
+                            && sortedLayers[i].toLowerCase().indexOf(
+                            query.term.toLowerCase()) > -1) {
+                            
+                            // Query search term is in this layer's name. Add a select2
+                            // record to our results. Don't specify text: our custom
+                            // formatter looks up by ID and makes UI elements
+                            // dynamically.
+                            results.push({
+                                id: sortedLayers[i]
+                            });
+                            
+                            if(results.length >= SEARCH_PAGE_SIZE) {
+                                // Page is full. Send it on.
+                                break;
+                            }
+                            
+                        }
                     }
                     
-                }
-            }
-            
-            // Give the results back to select2 as the results parameter.
-            query.callback({
-                results: results,
-                // Say there's more if we broke out of the loop.
-                more: i < Session.get('sortedLayers').length,
-                // If there are more results, start after where we left off.
-                context: i + 1
-            });
-        },
-        formatResult: function(result, container, query) {
-            // Given a select2 result record, the element that our results go
-            // in, and the query used to get the result, return a jQuery element
-            // that goes in the container to represent the result.
-            
-            // Get the layer name, and make the browse UI for it.
-            return make_browse_ui(result.id);
-        },
-    });
-
-    // Make the bottom of the list within the main window
-    $search.parent().on('select2-open', function () {
-        var results = $('#select2-drop .select2-results');
-        results.css('max-height', $(window).height() - results.offset().top - 15);
-    });
-
-    // Handle result selection
-    $search.on("select2-selecting", function(event) {
-        // The select2 id of the thing clicked (the layer's name) is event.val
-        var layer_name = event.val;
-        
-        // User chose this layer. Add it to the global shortlist.
-        Shortlist.ui_and_list_add(layer_name);
-        
-        // Don't actually change the selection.
-        // This keeps the dropdown open when we click.
-        event.preventDefault();
-    });
-
+                    // Give the results back to select2 as the results parameter.
+                    query.callback({
+                        results: results,
+                        // Say there's more if we broke out of the loop.
+                        more: i < Session.get('sortedLayers').length,
+                        // If there are more results, start after where we left off.
+                        context: i + 1
+                    });
+                },
+                formatResult: function(result, container, query) {
+                    // Given a select2 result record, the element that our results go
+                    // in, and the query used to get the result, return a jQuery element
+                    // that goes in the container to represent the result.
+                    
+                    // Get the layer name, and make the browse UI for it.
+                    return make_browse_ui(result.id);
+                },
+            }}
+        />, $search[0]);
+    
     // Make the dropdown close if there is a click anywhere on the screen
     // other than the dropdown and search box
     $(window).on('mousedown', function (ev) {

@@ -77,7 +77,6 @@ function populate () {
                 dropdownParent: $('#project'),
                 placeholder: PLACEHOLDER_TEXT,
                 width: '20em',
-                dropdownAutoWidth: true,
             }}
             onChange = {function (event) {
                 Hex.loadProject(event.val);
