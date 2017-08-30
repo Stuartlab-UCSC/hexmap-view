@@ -219,7 +219,8 @@ refreshColors = function () {
     });
     
     // Make sure to also redraw the info window, which may be open.
-    redraw_info_window();
+    import InfoWindow from '/imports/infoWindow.js';
+    InfoWindow.redraw();
 }
 
 get_color = function (u_name, u, v_name, v) {

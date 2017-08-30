@@ -2,6 +2,7 @@
 // Handle things to do with hexagons.
 
 import Ajax from '/imports/ajax.js';
+import InfoWindow from '/imports/infoWindow.js';
 
 var app = app || {}; 
 
@@ -54,7 +55,7 @@ var app = app || {};
         // Set up the click listener to move the global info window to this hexagon
         // and display the hexagon's information
         google.maps.event.addListener(hexagon, "click", function (event) {
-            showInfoWindow(event, hexagon, xy.x, xy.y);
+            InfoWindow.show(event, hexagon, xy.x, xy.y);
         });
 
         // Listen to mouse events on this hexagon

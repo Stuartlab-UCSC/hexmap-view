@@ -190,7 +190,8 @@ Hex = (function () { // jshint ignore: line
                 Tool.initLabelTool();
                 Download.init();
                 Colors.init();
-                initInfoWindow();
+                import InfoWindow from '/imports/infoWindow.js';
+                InfoWindow.init();
                 initSetOperations();
                 CreateMap.init();
                 Select.init();
