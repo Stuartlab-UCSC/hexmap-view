@@ -418,15 +418,15 @@ get_color = function (u_name, u, v_name, v) {
     current_layers = Shortlist.get_active_coloring_layers();
 
     if (current_layers.length === 2 || Session.equals("background","black")) {
-        red = mix2(0x32, 0xFF, 0x00, 0, -u, -v).toFixed(0);
-        green = mix2(0x32, 0xFF, 0x00, 0xFF, -u, -v).toFixed(0);
-        blue = mix2(0x32, 0, 0xFF, 0x00, -u, -v).toFixed(0);
+          red = mix2(0x60, 0xFF, 0x00, 0x00, -u, -v).toFixed(0);
+        green = mix2(0x60, 0xFF, 0x00, 0xFF, -u, -v).toFixed(0);
+         blue = mix2(0x60, 0x00, 0xFF, 0x00, -u, -v).toFixed(0);
     }
 
     else if (Session.equals("background","white")) {
-        red = mix2(0xD3, 0xFF, 0x00, 0x00, -u, -v).toFixed(0);
-        green = mix2(0xD3, 0x00, 0x00, 0xFF, -u, -v).toFixed(0);
-        blue = mix2(0xD3, 0x00, 0xFF, 0x00, -u, -v).toFixed(0);
+          red = mix2(0xc0, 0xFF, 0x00, 0x00, -u, -v).toFixed(0);
+        green = mix2(0xc0, 0x00, 0x00, 0xFF, -u, -v).toFixed(0);
+         blue = mix2(0xc0, 0x00, 0xFF, 0x00, -u, -v).toFixed(0);
     }
 
     //Produce the color string...
