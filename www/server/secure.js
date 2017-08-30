@@ -69,7 +69,7 @@ function sendEnrollmentEmail(username) {
     var subject = 'An account has been created for you on ' +
         URL_BASE.toString();
     var msg = subject + '\n' +
-              'Please set your password at: \n\n' +
+              'Please set your password within one week at: \n\n' +
               enrollAccountUrl;
  
     sendMail(username, subject, msg);
@@ -100,7 +100,8 @@ function createUsers(users) {
             sendEnrollmentEmail(user.email);
            
         } catch (error) {
-            console.log('error on createUsers:' , user.email, error);
+            console.log('attempting to add user to role since createUser failed:' , user.email, error);
+            addUsersToRoles([user.email] , user.roles);
         }
     });
 }

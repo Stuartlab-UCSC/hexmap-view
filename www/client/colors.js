@@ -14,7 +14,7 @@ Colors = (function () { // jshint ignore: line
     // The color to use as hexagon fill, depending on the background color
     var NO_DATA_LIGHT_BG = '#c0c0c0',
         NO_DATA_DARK_BG = '#333333',
-        COLOR_NO_ATTRS = 'red',
+        COLOR_NO_ATTRS = 'cyan',
         badValue = false, // The current category input has a bad value
         $link;
         
