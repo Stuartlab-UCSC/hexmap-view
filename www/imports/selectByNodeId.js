@@ -6,6 +6,8 @@ import React, { Component } from 'react';
 import { render, unmountComponentAtNode } from 'react-dom';
 import ReactModal from 'react-modal';
 import './css/reactModal.css';
+
+import Select2 from './select2React.js';
 import ReadFile from './ReadFile.jsx';
 import U from './utils.js';
 
@@ -17,9 +19,12 @@ class SelectByNodeId extends Component {
             textString: '',
         };
         this.modalClass = 'selectByNodeIdModal';
+        this.searchPageSize = 20;
 
         this.handleOpenModal = this.handleOpenModal.bind(this);
         this.handleCloseModal = this.handleCloseModal.bind(this);
+        this.selectQuery = this.selectQuery.bind(this);
+        this.handleSelecting = this.handleSelecting.bind(this);
         this.handleReadSuccess = this.handleReadSuccess.bind(this);
         this.handleButtonClick = this.handleButtonClick.bind(this);
     }
@@ -95,8 +100,13 @@ class SelectByNodeId extends Component {
     }
     
     handleOpenModal () {
+    
+        // Set focus on the textarea and save its DOM element.
         $('.selectByNodeIdModal textarea').focus();
         this.$text = $('.selectByNodeIdModal textarea');
+        
+        // Build the list of node IDs.
+        this.allNodeIds = Object.keys(polygons).sort();
     }
   
     handleCloseModal () {
@@ -131,32 +141,88 @@ class SelectByNodeId extends Component {
         this.handleCloseModal();
     }
   
-    buildSelectorData () {
+    handleSelecting (event) {
+
+        // Add the selected ID to the textarea.
+        this.addToTextArea(event.val);
         
-        // Build the data for the node ID selector.
-        return _.map(Object.keys(polygons).sort(), function (id) {
-            return { 'id': id, 'text': id };
-            //return { 'value': id, 'label': id };
-        })
+        // Don't actually change the selection.
+        // This keeps the dropdown open when we click.
+        event.preventDefault();
     }
-  
+    
+    selectQuery (query) {
+    
+        // Given a select2 query object, find any matches and
+        // call query.callback with the results.
+        
+        var results = [];
+
+        // Get where we should start in the layer list,
+        // from select2's infinite scrolling.
+        var start_position = 0,
+            allIds = this.allNodeIds;
+        
+        if (query.context != undefined) {
+            start_position = query.context;
+        }
+
+        for (var i = start_position; i < allIds.length; i++) {
+        
+            var check = allIds[i].toLowerCase()
+                    .indexOf(query.term.toLowerCase());
+
+            // Is the search term in this node ID?
+            if (check > -1) {
+                
+                // Query search term is in this node ID,
+                // so add a select2 record to our results.
+                results.push({
+                    id: allIds[i],
+                    text: allIds[i]
+                });
+                
+                if (results.length >= this.searchPageSize) {
+                
+                    // Page is full. Send it on.
+                    break;
+                }
+                
+            }
+        }
+    
+        // Give the results back to select2 as the results parameter.
+        query.callback({
+            results: results,
+            
+            // Say there's more if we broke out of the loop.
+            more: i < allIds.length,
+            
+            // If there are more results, start after where we left off.
+            context: i + 1
+        });
+    }
+    
     render () {
         var self = this,
             textBoxPlaceholder = 'enter node IDs one per line,\n' +
-                //'or search for nodes\n, +
+                'or search for nodes,\n' +
                 'or upload a file',
-            selectPlaceholder = 'Search nodes...';
+            select2 = <Select2
+                    select2-selecting = {self.handleSelecting}
+                    select2options = {{
+                        data: {id: '', text: ''},
+                        dropdownParent: this.props.selectDropDownParent,
+                        placeholder: "Search nodes...",
+                        width: '43em',
+                        value: null,
+                        query: self.selectQuery,
+                    }}
+                />;
         
         // TODO move these out of the render function
         function handleTextareaChange (event) {
             self.state.textString = event.target.value;
-        }
-        
-        function handleSelectChange(event) {
-        
-            console.log('event.added.id:', event.added.id);
-            
-            self.addToTextArea(event.added.id);
         }
 
         return (
@@ -172,6 +238,7 @@ class SelectByNodeId extends Component {
                     Select Nodes by ID
                 </div>
                 <div className='modalContent'>
+                    {select2}
                     <ReadFile
                         parseTsv = {true}
                         onSuccess = {this.handleReadSuccess}
@@ -212,5 +279,6 @@ exports.show = function () {
     render(
         <SelectByNodeId
             closeModal = {closeModal}
+            selectDropDownParent = {$('#' + containerId)}
          />, $('#' + containerId)[0]);
 }

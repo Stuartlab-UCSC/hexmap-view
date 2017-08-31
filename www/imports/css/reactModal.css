@@ -63,6 +63,10 @@
     width: 17em;
 }
 
+.selectByNodeIdModal .select2-container {
+    margin: 0.4em;
+}
+
 .selectByNodeIdModal .readFile {
     display: block;
 }

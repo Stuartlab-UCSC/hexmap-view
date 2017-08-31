@@ -45,7 +45,13 @@ export default class Select2 extends Component {
     constructor(props) {
         super(props);
         this.el = null;
-        this.openEl = props.select2options.dropdownParent.parent();
+        
+        var dropdownParent = props.select2options.dropdownParent;
+        if (dropdownParent) {
+            
+            // The element to capture the select2-open event.
+            this.openEl = dropdownParent.parent();
+        }
         this.initialRender = true;
     }
 
@@ -146,7 +152,14 @@ export default class Select2 extends Component {
     }
 
     attachEventHandlers(props) {
-        this.openEl.on('select2-open', this.handleOpen);
+    
+        if (props.select2options.dropdownParent) {
+
+            // Event fired after the dropdown is shown.
+            this.openEl.on('select2-open', this.handleOpen);
+        }
+        
+        // Re-enable the rest of the event handlers.
         props.events.forEach(event => {
             if (typeof props[event[1]] !== 'undefined') {
                 this.el.on(event[0], props[event[1]]);

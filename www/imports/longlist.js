@@ -60,6 +60,70 @@ function handleSelecting (event) {
     event.preventDefault();
     }
 
+function query (query) {
+
+    // Given a select2 query object, call query.callback with an object
+    // with a "results" array.
+    
+    // This is the array of result objects we will be sending back.
+    var results = [];
+
+    // Get where we should start in the layer list, from select2's
+    // infinite scrolling.
+    var start_position = 0;
+    if (query.context != undefined) {
+        start_position = query.context;
+    }
+
+    var displayLayers = Session.get('displayLayers'),
+        sortedLayers = Session.get('sortedLayers');
+    for (var i = start_position; i < sortedLayers.length; i++) {
+
+        // Check for the sort layer being in the display layers
+        // and the search term in the layer name
+        if (displayLayers.indexOf(sortedLayers[i]) > -1
+            && sortedLayers[i].toLowerCase().indexOf(
+            query.term.toLowerCase()) > -1) {
+            
+            // Query search term is in this layer's name. Add a select2
+            // record to our results. Don't specify text: our custom
+            // formatter looks up by ID and makes UI elements
+            // dynamically.
+            results.push({
+                id: sortedLayers[i]
+            });
+            
+            if (results.length >= SEARCH_PAGE_SIZE) {
+            
+                // Page is full. Send it on.
+                break;
+            }
+            
+        }
+    }
+    
+    // Give the results back to select2 as the results parameter.
+    query.callback({
+        results: results,
+        
+        // Say there's more if we broke out of the loop.
+        more: i < Session.get('sortedLayers').length,
+        
+        // If there are more results, start after where we left off.
+        context: i + 1
+    });
+}
+
+function formatResult (result, container, query) {
+
+    // Given a select2 result record, the element that our results go
+    // in, and the query used to get the result, return a jQuery element
+    // that goes in the container to represent the result.
+    
+    // Get the layer name, and make the browse UI for it.
+    return make_browse_ui(result.id);
+}
+
 exports.init = function () {
 
     $search = $("#search");
@@ -74,73 +138,8 @@ exports.init = function () {
                 placeholder: "Search Attributes...",
                 width: '29em',
                 value: null,
-                initSelection: function (element, callback) {
-                    var data = [];
-                    $(element.val().split(",")).each(function () {
-                        data.push({id: '', text: ''});
-                    });
-                    callback(data);
-                },
-                nextSearchTerm: function (selectedObject, currentSearchTerm) {
-                    console.log('currentSearchTerm', currentSearchTerm);
-                },
-                query: function(query) {
-                    // Given a select2 query object, call query.callback with an object
-                    // with a "results" array.
-                    
-                    // This is the array of result objects we will be sending back.
-                    var results = [];
-                
-                    // Get where we should start in the layer list, from select2's
-                    // infinite scrolling.
-                    var start_position = 0;
-                    if(query.context != undefined) {
-                        start_position = query.context;
-                    }
-
-                    var displayLayers = Session.get('displayLayers'),
-                        sortedLayers = Session.get('sortedLayers');
-                    for (var i = start_position; i < sortedLayers.length; i++) {
-
-                        // Check for the sort layer being in the display layers
-                        // and the sort term in the layer name
-                        if (displayLayers.indexOf(sortedLayers[i]) > -1
-                            && sortedLayers[i].toLowerCase().indexOf(
-                            query.term.toLowerCase()) > -1) {
-                            
-                            // Query search term is in this layer's name. Add a select2
-                            // record to our results. Don't specify text: our custom
-                            // formatter looks up by ID and makes UI elements
-                            // dynamically.
-                            results.push({
-                                id: sortedLayers[i]
-                            });
-                            
-                            if(results.length >= SEARCH_PAGE_SIZE) {
-                                // Page is full. Send it on.
-                                break;
-                            }
-                            
-                        }
-                    }
-                    
-                    // Give the results back to select2 as the results parameter.
-                    query.callback({
-                        results: results,
-                        // Say there's more if we broke out of the loop.
-                        more: i < Session.get('sortedLayers').length,
-                        // If there are more results, start after where we left off.
-                        context: i + 1
-                    });
-                },
-                formatResult: function(result, container, query) {
-                    // Given a select2 result record, the element that our results go
-                    // in, and the query used to get the result, return a jQuery element
-                    // that goes in the container to represent the result.
-                    
-                    // Get the layer name, and make the browse UI for it.
-                    return make_browse_ui(result.id);
-                },
+                query: query,
+                formatResult: formatResult,
             }}
         />, $search[0]);
     
