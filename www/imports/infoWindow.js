@@ -9,7 +9,8 @@ var info_window = null;
 
 // This holds the signature name of the hex that the info window is currently
 // about.
-var selected_signature = undefined;
+var selected_signature = undefined,
+    justNodeId = false;
 
 function row(key, value, gMap) {
 
@@ -50,6 +51,7 @@ function get_signature_search_url() {
         return mapMeta['nodeIdSearchUrl']
     }
 }
+
 function add_signature(signature) {
 
     // Small helper function that returns a jQuery element that displays the
@@ -63,13 +65,20 @@ function add_signature(signature) {
     var url = get_signature_search_url();
     url += signature;
     // Add the key and value elements
-    root.append($("<div/>").addClass("info-key").text("ID"));
+    if (!justNodeId) {
+        root.append($("<div/>").addClass("info-key").text("ID"));
+    }
     var $infoValue = $("<div/>").addClass("info-value");
     root.append($infoValue);
-    $infoValue.append($('<a href="' + url + '" target="_blank">' + signature + '</a>'));
-
+    if (justNodeId) {
+        $infoValue.text(signature);
+    } else {
+        $infoValue.append($('<a href="' + url + '" target="_blank">' +
+            signature + '</a>'));
+    }
     return root;
 }
+
 function with_infocard(signature, callback, gMap) {
     // Given a signature, call the callback with a jQuery element representing
     // an "info card" about that signature. It's the contents of the infowindow 
@@ -101,40 +110,43 @@ function with_infocard(signature, callback, gMap) {
         // Display the hexagon name
         infocard.append(add_signature(signature).addClass("info-name"));
 
-        if (SHOW_COORDS) {
-            // Display the honeycomb coordinates
-            infocard.append(row('xyHex',
-                polygons[signature].xHex.toString() + ', ' +
-                polygons[signature].yHex.toString()));
-        }
+        if (!justNodeId) {
+            if (SHOW_COORDS) {
+                // Display the honeycomb coordinates
+                infocard.append(row('xyHex',
+                    polygons[signature].xHex.toString() + ', ' +
+                    polygons[signature].yHex.toString()));
+            }
 
-        for(var i = 0; i < current_layers.length; i++) {
-            // This holds the layer's value for this signature
-            var layer_value = retrieved_layers[i].data[signature];
-            
-            if (have_colormap(current_layers[i])) {
-                // This is a color map
+            for(var i = 0; i < current_layers.length; i++) {
+                // This holds the layer's value for this signature
+                var layer_value = retrieved_layers[i].data[signature];
                 
-                // This holds the category object for this category number, or
-                // undefined if there isn't one.
-                var category = colormaps[current_layers[i]][layer_value];
-                
-                if (category != undefined) {
-                    // There's a specific entry for this category, with a 
-                    // human-specified name and color.
-                    // Use the name as the layer value
-                    layer_value = category.name;
+                if (have_colormap(current_layers[i])) {
+                    // This is a color map
+                    
+                    // This holds the category object for this category number, or
+                    // undefined if there isn't one.
+                    var category = colormaps[current_layers[i]][layer_value];
+                    
+                    if (category != undefined) {
+                        // There's a specific entry for this category, with a 
+                        // human-specified name and color.
+                        // Use the name as the layer value
+                        layer_value = category.name;
+                    }
                 }
+                
+                if (layer_value == undefined) {
+                    // Let the user know that there's nothing there in this layer.
+                    layer_value = 'NA';
+                }
+                
+                // Make a listing for this layer's value
+                infocard.append(row(current_layers[i], layer_value));
             }
-            
-            if (layer_value == undefined) {
-                // Let the user know that there's nothing there in this layer.
-                layer_value = 'NA';
-            }
-            
-            // Make a listing for this layer's value
-            infocard.append(row(current_layers[i], layer_value));
         }
+        
         // Return the infocard by callback
         callback(infocard);
     });
@@ -148,9 +160,13 @@ function mapKeyup (e) {
     }
 }
 
-exports.close = function () {
-    if (!info_window) return;
+exports.close = function (mouseout) {
+    if (!info_window || (mouseout && !justNodeId)) {
+        return;
+    }
 
+    justNodeId = false;
+    
     info_window.close();
     
     // Also make sure that the selected signature is no longer selected,
@@ -189,7 +205,7 @@ exports.redraw = function (gMap, callback1) {
     }, gMap);
 }
 
-exports.show = function (event, hexagon, x, y, gMap, callback1) {
+exports.show = function (event, hexagon, gMap, callback1, justNodeId_in) {
 
     if (!info_window) return;
 
@@ -201,9 +217,12 @@ exports.show = function (event, hexagon, x, y, gMap, callback1) {
 
     // Remove the window from where it currently is
     InfoWindow.close();
+    
+    // Save the justNodeId boolean, whatever was passed in.
+    justNodeId = justNodeId_in;
 
-    // Place the window in the center of this hexagon.
-    info_window.setPosition(get_LatLng(x, y));
+    // Place the window point in the center of this hexagon.
+    info_window.setPosition(get_LatLng(hexagon.xy.x, hexagon.xy.y));
     
     // Record that this signature is selected now
     selected_signature = hexagon.signature;

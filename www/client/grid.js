@@ -354,7 +354,8 @@ var app = app || {};
             google.maps.event.addListener(hex.polygon, "click", function (event) {
                 if (Session.equals('viewEdges', true)) {
                     infoHex = hex.signature;
-                    InfoWindow.show(event, hex, xyPoint[0], xyPoint[1], gridMap, infoWindowShowing);
+                    hex.xy = {x: xyPoint[0], y: xyPoint[1]};
+                    InfoWindow.show(event, hex, gridMap, infoWindowShowing);
                 }
             });
             hexes[pointNames[i]] = hex;
