@@ -1,6 +1,8 @@
 // util.js
 // This contains various utilities used throughout the code.
 
+import Prompt from '/imports/prompt.js';
+
 var app = app || {};
 (function (hex) { // jshint ignore: line
 Util = (function () { // jshint ignore: line
@@ -29,7 +31,7 @@ Util = (function () { // jshint ignore: line
         return dirty.replace(/[^A-Za-z0-9_\-\.]/g, "_");
     }
     
-    function banner (title, text) {
+    function banner (title, text, $callerModal) {
     
         // Display a message, either as a timed banner when 'title' is one of
         // 'warn' or 'info', otherwise a dialog that requires the user to
@@ -45,7 +47,7 @@ Util = (function () { // jshint ignore: line
                 .show();
             $("#banner").delay(5000).fadeOut(1500);
         } else if (title === 'error') {
-            Message.display('Error', 'Sorry, ' + text);
+            Prompt.show(text, {severity: 'error', $callerModal: $callerModal});
         } else {
             Message.display(title, text);
         }

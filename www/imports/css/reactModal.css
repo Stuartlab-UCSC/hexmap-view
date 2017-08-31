@@ -48,6 +48,16 @@
 
 /******************  Specific Modals ******************/
 
+.modal .modalHeader {
+    border: none;
+}
+
+.modalHeader button.close {
+    margin: 0;
+    border: none;
+    padding: 0;
+}
+
 .promptModal input {
     display: block;
     width: 17em;

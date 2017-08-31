@@ -81,13 +81,20 @@ body,
     color: #2E662C;
     background: #D8EECE;
 }
+
 #banner.warn {
     background: #F9F5D9;
     color: #775B2A;
 }
 
+div.ReactModal__Content.ReactModal__Content--after-open.promptModal.error,
 #banner.error,
 #jobDialog .status.ui-widget-content.failed {
     background: #EDD4D5;
     color: #993031;
 }
+
+.modalHeader button.close {
+    background-color: inherit;
+}
+

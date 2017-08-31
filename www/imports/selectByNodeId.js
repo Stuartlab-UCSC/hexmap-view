@@ -10,17 +10,24 @@ import ReadFile from './ReadFile.jsx';
 import U from './utils.js';
 
 class SelectByNodeId extends Component {
-    constructor (props) {
 
+    constructor (props) {
         super(props);
         this.state = {
             textString: '',
         };
+        this.modalClass = 'selectByNodeIdModal';
+
         this.handleOpenModal = this.handleOpenModal.bind(this);
         this.handleCloseModal = this.handleCloseModal.bind(this);
         this.handleReadSuccess = this.handleReadSuccess.bind(this);
+        this.handleButtonClick = this.handleButtonClick.bind(this);
     }
-
+    
+    error (msg) {
+        Util.banner('error', msg, $('.' + this.modalClass).parent());
+    }
+    
     validateString (str) {
     
         // Validate the data as a single string and remove any carriage returns.
@@ -29,7 +36,7 @@ class SelectByNodeId extends Component {
         //           or undefined if not valid.
         
         if (_.isUndefined(str) || _.isNull(str) || str.length < 1) {
-            Util.banner('error', 'no node IDs provided');
+            this.error('no node IDs provided');
             return;
         }
         var valid = U.allPrintableCharsInString(str, true);
@@ -105,7 +112,7 @@ class SelectByNodeId extends Component {
     }
     
     handleReadError (msg) {
-        Util.banner('error', msg);
+        this.error(msg);
     }
     
     handleButtonClick () {
@@ -114,12 +121,12 @@ class SelectByNodeId extends Component {
         // and transform from a string to an array of one node per entry.
         var data = this.validateAndTransform(this.state.textString);
         if (_.isUndefined(data)) {
-            Util.banner('error', 'no valid node IDs provided');
+            this.error('no valid node IDs provided');
             return;
         }
         
-        // Create the attribute.
-        Layer.create_dynamic_selection(data);
+            // Create the attribute.
+            Layer.create_dynamic_selection(data);
         
         this.handleCloseModal();
     }
@@ -140,6 +147,7 @@ class SelectByNodeId extends Component {
                 'or upload a file',
             selectPlaceholder = 'Search nodes...';
         
+        // TODO move these out of the render function
         function handleTextareaChange (event) {
             self.state.textString = event.target.value;
         }
@@ -157,7 +165,7 @@ class SelectByNodeId extends Component {
                 contentLabel = "Minimal Modal Example"
                 onAfterOpen = {this.handleOpenModal}
                 onRequestClose = {this.handleCloseModal}
-                className = 'selectByNodeIdModal'
+                className = {this.modalClass}
                 parentSelector = {() => $('#selectByNodeIdContainer')[0]}
             >
                 <div className='modalTitle'>

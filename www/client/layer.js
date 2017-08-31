@@ -11,48 +11,13 @@ Layer = (function () { // jshint ignore: line
 
     var selection_prefix = 'Selection';
     
-    function make_layer_name_unique (layer_name) {
- 
-        // We're done if the name is unique
-        if (layers[layer_name] === undefined) { return layer_name; }
-
-        var last_suffix,
-            name = layer_name,
-            seq = 1;
- 
-        // Special case a default selection layer name
-        if (name.startsWith(selection_prefix)) {
-            name = selection_prefix;
-        }
- 
-        // Keep looking for a name until it is unique
-        while (true) {
- 
-            // We're done if the name is unique
-            if (layers[name] === undefined) { break; }
-
-            // Find any previously tried sequence suffix
-            if (seq > 1) {
-                last_suffix = ' ' + (seq - 1);
-                if (name.endsWith(last_suffix)) {
- 
-                    // Remove the existing sequence suffix
-                    name = name.slice(0, name.length - last_suffix.length);
-                }
-            }
-            name += ' ' + seq;
-            seq += 1;
-        }
-        return name;
-    }
- 
     function ask_user_to_name_layer (name, dup_name, callback) {
     
         // Give the user a chance to name the layer
         var promptString = (dup_name) ?
                             '"' + dup_name + '" is in use, how about this one?'
                             : 'Please name this new attribute';
-        Prompt.show(promptString, name, callback);
+        Prompt.show(promptString, { textStr: name, callback: callback });
     }
  
     function let_user_name_layer (layer_name, callback) {
