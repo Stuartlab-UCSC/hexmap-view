@@ -3,7 +3,7 @@
     z-index: 2000;
 }
 
-.ReactModal__Content {
+.modal {
     padding: 0.5em;
     background: white;
     border: 1px solid grey;
@@ -14,47 +14,40 @@
     transform: translate(-50%, -50%);
 }
 
-.ReactModal__Content .modalTitle {
+.modalHeader {
+    border: none;
+}
+
+.modalTitle {
     padding-bottom: 0.5em;
     padding-left: 0.5em;
 }
 
-.ReactModal__Content .readFile {
-    margin-top: 0.6em;
+.modalHeader button.close {
+    font-size: 1.4em;
+    line-height: 0.3em;
+    float: right;
+    margin: 0;
+    border: 0;
+    padding: 0;
 }
 
-.ReactModal__Content input[type="text"],
-.ReactModal__Content textarea {
+.modalBody > * > *,
+.modalButtons button {
+    margin: 0.2em;
     padding: 0.2em 0.4em;
     font-size: 0.9em;
 }
 
-.ReactModal__Content button {
-    padding: 0.4em 0.6em;
-    font-size: 0.8em;
+.modalBody textarea {
+    margin: 0.4em;
+}
+
+.modalButtons button {
     float: right;
 }
-
-/****************** TODO: make common to all of our Modals ******************/
-
-.modal .modalHeader {
-    border: none;
-}
-
-.modalHeader button.close {
-    margin: 0;
-    border: none;
-    padding: 0;
-}
-
-.modalBody > * > * {
-    margin: 0.5em;
-    font-size: 0.9em;
-}
-
-input.readFile {
-    font-size: 1em;
-    color: gray;
+.modalButtons {
+    margin-right: 0.4em;
 }
 
 /******************  Our Specific Modals ******************/
@@ -64,8 +57,9 @@ input.readFile {
     width: 25em;
 }
 
-.nodeIdSelectModal .placeHolding {
-    color: #999;
+.nodeIdSelectModal .readFile {
+    margin-top: 0.6em;
+    margin-left: 0.5em;
 }
 
 .nodeIdSelectModal .cartLabel {
@@ -74,7 +68,7 @@ input.readFile {
 }
 
 .nodeIdSelectModal textarea {
-    width: 47em;
+    width: 42em;
 }
 
 .selectByNodeDropdown li span.selected {

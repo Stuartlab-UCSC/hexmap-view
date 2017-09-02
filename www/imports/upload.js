@@ -17,7 +17,7 @@ export default class Upload extends Component {
                 ref = 'file'
                 type = 'file'
                 name = 'file'
-                className = 'upload-file'
+                className = 'readFile'
                 onChange = {this.saveFile.bind(this)}
             />
         );

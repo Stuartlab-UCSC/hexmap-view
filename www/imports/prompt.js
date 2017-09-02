@@ -15,11 +15,11 @@ class Prompt extends Component {
         if (this.props.textStr) {
             this.state.textStr = this.props.textStr;
         }
-        this.modalClass = 'promptModal';
-        this.promptStr = this.props.promptStr;
         if (this.props.severity === 'error') {
             this.title = 'Error';
         }
+        this.modalClass = 'promptModal';
+
         this.handleOpenModal = this.handleOpenModal.bind(this);
         this.handleCloseModal = this.handleCloseModal.bind(this);
         this.handleTextKeyPress = this.handleTextKeyPress.bind(this);
@@ -29,9 +29,9 @@ class Prompt extends Component {
     
     handleOpenModal() {
         
-        // Set the text value here to get the cursor at the end.
+        // Set the text value here to force the cursor to the end.
         if (this.state.textStr) {
-            $('.' + this.modalClass + ' input').val(this.state.textStr).focus();
+            this.$text.val(this.state.textStr).focus();
         }
     }
 
@@ -40,15 +40,14 @@ class Prompt extends Component {
     }
     
     handleButtonClick () {
-        
-        if (this.props.textStr) {
+        if (this.state.textStr) {
             this.handleCloseModal(this.state.textStr.trim());
         }
     }
   
     handleTextKeyPress (event) {
     
-        // Make a return key press trigger the button.
+        // Allow a return key press to trigger the button.
         if (event.which === 13 || event.keyCode === 13) {
             this.handleButtonClick();
         }
@@ -65,12 +64,13 @@ class Prompt extends Component {
             button = null;
         
         // Build the text box and buttons in the button box.
-        if (this.props.textStr) {
+        if (this.state.textStr) {
             var input =
                 <input
                     type = 'text'
                     onKeyPress = {self.handleTextKeyPress}
                     onChange = {self.handleTextChange}
+                    ref={(input) => { this.$text = $(input); }}
                 />,
                 button = <button onClick = {function () {
                         self.handleButtonClick();
@@ -79,23 +79,23 @@ class Prompt extends Component {
                     OK
                 </button>;
         }
-        body =
-            <div>
-                <div
-                    className = 'modalLabel'>
-                    {this.promptStr}
-                </div>
-                {input}
-            </div>;
         
         return (
             <Modal
                 onAfterOpen = {this.handleOpenModal}
                 onRequestClose = {self.handleCloseModal}
                 className = {this.modalClass + ' ' + this.props.severity}
-                parentSelector = {() => $('#prompt')[0]}
+                parentSelector = {() => this.props.parentSelector}
                 title = {this.title}
-                body = {body}
+                body = {
+                    <div>
+                        <div
+                            className = 'modalLabel'>
+                            {this.props.promptStr}
+                        </div>
+                        {input}
+                    </div>
+                }
                 buttons = {button}
             />
         );
@@ -107,11 +107,10 @@ var containerId = 'prompt',
 
 function closeModal (response) {
 
-    // TODO hopefully this marks memory as garbage collectable.
+    // TODO
     // If we could do this within the component the .show routine could be
-    // removed and the caller would call the component directly.
+    // removed and the non-react caller would call the component directly.
     $('#' + containerId).remove();
-    
     if (callback) {
         callback(response);
     }
@@ -124,19 +123,22 @@ exports.show = function (promptStr, opts) {
     // @param         promptStr: the prompt string
     // @param      opts.textStr: the text to put in the input box, optional
     // @param     opts.callback: function to call upon modal close, optional
-    // @param opts.$callerModal: the caller's DOM class, optional
+    // @param opts.$parentModal: the parent modal's DOM element via jquery
     // @param     opts.severity: one of [error, info, warning], optional
     
     callback = opts ? opts.callback : null;
 
     $('body').append($('<div id="' + containerId + '" />'));
 
+    var parentSelector = $('#' + containerId)[0];
+    
     render(
         <Prompt
             promptStr = {promptStr}
             textStr = {opts.textStr}
-            $callerModal = {opts.$callerModal}
+            parentSelector = {parentSelector}
+            $parentModal = {opts.$parentModal}
             severity = {opts.severity}
             closeModal = {closeModal}
-         />, $('#' + containerId)[0]);
+         />, parentSelector);
 }

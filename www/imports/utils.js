@@ -27,6 +27,12 @@ unprintableCharsInString = function (str) {
     return pattern.test(str);
 }
 
+exports.dropUnprintables = function (str) {
+
+    // Drop any unprintable chars from the string.
+    str.replace(/[^\x20-\x7e]/, '');
+}
+
 exports.allPrintableCharsInArray = function (data) {
 
     // Verify all characters are printable with the data given as an array

@@ -15,9 +15,7 @@ class SelectByNodeId extends Component {
 
     constructor (props) {
         super(props);
-        this.state = {
-            cart: []
-        };
+        this.cart = [];
         this.textBoxPlaceholder = 'enter node IDs one per line',
         this.modalClass = 'nodeIdSelectModal';
         this.searchPageSize = 20;
@@ -37,10 +35,11 @@ class SelectByNodeId extends Component {
         this.handleTextareaChange = this.handleTextareaChange.bind(this);
 
         this.handleButtonClick = this.handleButtonClick.bind(this);
+        this.error = this.error.bind(this);
     }
     
     error (msg) {
-        Util.banner('error', msg, $('.' + this.modalClass).parent());
+        Util.banner('error', msg, $(this.modal).parent());
     }
     
 /**************** cart / textarea start *************************/
@@ -56,17 +55,23 @@ class SelectByNodeId extends Component {
         var str = this.$text.val();
         
         if (_.isUndefined(str) || str.length < 1) {
-            this.state.cart = [];
+            this.cart = []
         } else {
         
             // Parse the string into an array of arrays
             // where the inner arrays contain one node ID each.
             var data = Util.parseTsv(str);
             
-            // Flatten the nested arrays into a single array, remove any empty
-            // lines, remove duplicates then replace the cart contents.
-             this.state.cart =
-                _.uniq(_.without(_.flatten(data), null, undefined));
+            // Flatten the nested arrays into a single array,
+            // remove white space from the ends of each element,
+            // remove any empty elements,
+            // remove duplicate elements,
+            // then replace the cart contents.
+            this.cart = _.uniq(_.without(
+                _.map(_.flatten(data), function (el) {
+                    return el.trim();
+                }),
+                null, ''));
         }
     }
     
@@ -103,30 +108,7 @@ class SelectByNodeId extends Component {
         var val = event.target.value.slice();
         
         // Look at the entire text because we don't know what changed.
-        while (i < val.length) {
-            var bad;
-            
-            // Get ascii code in decimal representation and check for bad.
-            try {
-                var code = val.charCodeAt(i);
-                bad = U.unprintableAsciiCode(code);
-
-            } catch (error) {
-            
-                bad = true;
-            }
-            if (bad) {
-            
-                // Drop this character.
-                var newVal = val.slice(0, i) + val.slice(i + 1);
-                val = newVal;
-                bad = false;
-                
-            } else {
-                i += 1;
-            }
-        }
-        
+        U.dropUnprintables(val);
         $(event.target).val(val);
     }
     
@@ -152,8 +134,7 @@ class SelectByNodeId extends Component {
     handleOpenModal () {
     
         // Set focus on the textarea and save its DOM element.
-        $('.nodeIdSelectModal textarea').focus();
-        this.$text = $('.nodeIdSelectModal textarea');
+        this.$text.focus();
         
         // Build the list of node IDs.
         this.allNodeIds = Object.keys(polygons).sort();
@@ -172,13 +153,13 @@ class SelectByNodeId extends Component {
         this.updateCart();
     
         // Create the new attribute.
-        if (this.state.cart.length < 1) {
+        if (this.cart.length < 1) {
             this.error('no valid node IDs so attribute cannot be created');
             return;
         }
         
         // Create the attribute.
-        Layer.create_dynamic_selection(this.state.cart);
+        Layer.create_dynamic_selection(this.cart);
         
         this.handleCloseModal();
     }
@@ -186,14 +167,10 @@ class SelectByNodeId extends Component {
 /**************** select2 start ***********************************************/
 
     isInCart (id) {
-        return (this.state.cart.indexOf(id) > -1);
+        return (this.cart.indexOf(id) > -1);
     }
     
     setDropdownSelectStatus () {
-    
-        console.log("setDropdownSelectStatus(): cart", this.state.cart);
-        console.log("$('.selectByNodeDropdown li span')",
-            $('.selectByNodeDropdown li span'));
     
         // For each item in the dropdown, update its select status.
         var self = this,
@@ -203,9 +180,6 @@ class SelectByNodeId extends Component {
         
         _.each($els, function (el) {
             var $el = $(el);
-            
-            console.log("$el:", $el);
-            console.log("text:", $el.text());
             
             if (self.isInCart($el.text())) {
                 $el.addClass('selected');
@@ -304,7 +278,6 @@ class SelectByNodeId extends Component {
         
         return $("<span class='nodeId" +
             (this.isInCart(result.in) ? ' selected' : '') +
-            //(this..state.cart.indexOf(result.in) > -1 ? ' selected' : '') +
             "'>" + result.id + "</span>");
     }
 
@@ -322,7 +295,7 @@ class SelectByNodeId extends Component {
                         placeholder: 'Search nodes...',
                         query: self.selectQuery,
                         value: null,
-                        width: '43em',
+                        width: '42em',
                     }}
                 />,
                 
@@ -349,7 +322,8 @@ class SelectByNodeId extends Component {
                         onChange = {this.handleTextareaChange}
                         rows = '10'
                         cols = '35'
-                        placeholder = {this.textBoxPlaceholder}>
+                        placeholder = {this.textBoxPlaceholder}
+                        ref={(textarea) => { this.$text = $(textarea); }}>
                     </textarea>
                 </div>,
             button =
@@ -364,9 +338,10 @@ class SelectByNodeId extends Component {
                 onAfterOpen = {this.handleOpenModal}
                 onRequestClose = {self.handleCloseModal}
                 className = {this.modalClass}
-                parentSelector = {() => $('#nodeIdSelectContainer')[0]}
+                parentSelector = {() => this.props.parentSelector}
                 body = {body}
                 buttons = {button}
+                ref={(Modal) => { this.modal = Modal; }}
             />
         );
     }
@@ -375,8 +350,6 @@ class SelectByNodeId extends Component {
 var containerId = 'nodeIdSelectContainer';
 
 function closeModal (result) {
-
-    // TODO" hopefully this marks memory as garbage collectable.
     $('#' + containerId).remove();
 }
 
@@ -384,9 +357,11 @@ exports.show = function () {
 
     // Create and render this modal.
     $('body').append($('<div id=' + containerId + ' />'));
+    var parentSelector = $('#' + containerId);
     render(
         <SelectByNodeId
             closeModal = {closeModal}
-            selectDropDownParent = {$('#' + containerId)}
-         />, $('#' + containerId)[0]);
+            parentSelector = {parentSelector[0]}
+            selectDropDownParent = {parentSelector}
+         />, parentSelector[0]);
 }

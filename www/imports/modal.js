@@ -11,8 +11,6 @@ import './css/reactModal.css';
 export default class Modal extends Component {
     constructor (props) {
         super(props);
-        this.state = {};
-        this.class = 'modal';
 
         this.handleOpenModal = this.handleOpenModal.bind(this);
         this.handleCloseModal = this.handleCloseModal.bind(this);
@@ -22,9 +20,9 @@ export default class Modal extends Component {
     handleOpenModal (event) {
         
         // Hide the instance parent modal if there is one.
-        var caller = this.props.$callerModal;
-        if (caller) {
-            caller.hide();
+        var parent = this.props.$parentModal;
+        if (parent) {
+            parent.hide();
         }
         
         // Call the instance onAfterOpen if there is one.
@@ -37,9 +35,9 @@ export default class Modal extends Component {
     handleCloseModal (response) {
     
         // Show the instance parent modal if there is one.
-        var caller = this.props.$callerModal;
-        if (caller) {
-            caller.show();
+        var parent = this.props.$parentModal;
+        if (parent) {
+            parent.show();
         }
         
         // Call the instance handleCloseModel if there is one.
@@ -77,7 +75,7 @@ export default class Modal extends Component {
                         title = 'Close'
                         onClick = {self.handleCancelModal}
                     >
-                        X
+                        x
                     </button>
                 </div>
                 <div className = 'modalBody'>
