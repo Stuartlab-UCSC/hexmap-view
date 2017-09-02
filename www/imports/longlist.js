@@ -140,6 +140,7 @@ exports.init = function () {
                 value: null,
                 query: query,
                 formatResult: formatResult,
+                dropdownCssClass: 'longList',
             }}
         />, $search[0]);
     

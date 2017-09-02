@@ -26,7 +26,7 @@ export default class ReadFile extends Component {
             // Return the result to the parent.
             this.props.onSuccess(data);
         } else {
-            this.props.onError('data contains unprintable characters')
+            this.props.onError('file contains unprintable characters')
         }
     }
 
@@ -34,7 +34,9 @@ export default class ReadFile extends Component {
         var self = this;
 
         // When a file is selected, read it in.
-        this.props.onStart();
+        if (this.props.onStart) {
+            this.props.onStart();
+        }
 
         // Make a FileReader to read the file
         var reader = new FileReader();

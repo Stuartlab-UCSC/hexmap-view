@@ -46,6 +46,8 @@ export default class Select2 extends Component {
         super(props);
         this.el = null;
         
+        // DropdownParent allows positioning the bottom of the dropdown
+        // close to the bottom of the window.
         var dropdownParent = props.select2options.dropdownParent;
         if (dropdownParent) {
             
@@ -140,7 +142,11 @@ export default class Select2 extends Component {
 
     handleOpen(event) {
       
-        // Handle the select2 v3 open event.
+        // Handle the select2 v3 open dropdown event.
+        // Size the bottom of the dropdown to be just
+        // above the bottom of the main window.
+        // TODO: what if an instance wants to use this event?
+        
         var results = $('#select2-drop .select2-results');
         results.css('max-height', $(window).height() - results.offset().top - 15);
     }
@@ -154,8 +160,6 @@ export default class Select2 extends Component {
     attachEventHandlers(props) {
     
         if (props.select2options.dropdownParent) {
-
-            // Event fired after the dropdown is shown.
             this.openEl.on('select2-open', this.handleOpen);
         }
         
@@ -188,6 +192,8 @@ export default class Select2 extends Component {
         delete props.onClose;
         delete props.onSelect;
         delete props.onChange;
+        delete props['select2-open'];
+        delete props['select2-loaded'];
         delete props['select2-selecting'];
         delete props.choiceDisplay;
         delete props.onUnselect;
@@ -224,7 +230,20 @@ Select2.propTypes = {
     // Callback for creating choice box text, optional.
     choiceDisplay: PropTypes.func,
     
-    // Select2 v3: Handler for click before adding to choice box, optional.
+    'select2-open': PropTypes.func,
+    
+    // Handler for after the query completes and dropdown has been updated,
+    // optional.
+    // and the data and the results list has been updated, optional.
+    // Fired when query function is done loading the data and the results list
+    // has been updated. (Select2 v3)
+    'select2-loaded': PropTypes.func,
+    
+    // Handler for click before adding to choice box, optional.
+    // Fired when a choice is being selected in the dropdown, but before any
+    // modification has been made to the selection. This event is used to
+    // allow the user to reject selection by calling event.preventDefault().
+    // (Select2 v3)
     'select2-selecting': PropTypes.func,
     
     // TODO: remove these if they are Select2 v4 events:
@@ -240,6 +259,8 @@ Select2.defaultProps = {
     events: [
         [`change.${namespace}`, 'onChange'],
         [`choiceDisplay.${namespace}`, 'choiceDisplay'],
+        [`select2-open`, 'select2-open'],
+        [`select2-loaded`, 'select2-loaded'],
         [`select2-selecting`, 'select2-selecting'],
         [`select2:open.${namespace}`, 'onOpen'],
         [`select2:close.${namespace}`, 'onClose'],

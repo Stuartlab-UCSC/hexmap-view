@@ -19,17 +19,6 @@
     padding-left: 0.5em;
 }
 
-.ReactModal__Content .modalLabel,
-.ReactModal__Content input[type="text"],
-.ReactModal__Content textarea,
-.ReactModal__Content .Select,
-.ReactModal__Content .readFile,
-.ReactModal__Content .buttonBox,
-.ReactModal__Content button {
-    margin: 0.4em;
-    font-size: 1em;
-}
-
 .ReactModal__Content .readFile {
     margin-top: 0.6em;
 }
@@ -46,7 +35,7 @@
     float: right;
 }
 
-/******************  Specific Modals ******************/
+/****************** TODO: make common to all of our Modals ******************/
 
 .modal .modalHeader {
     border: none;
@@ -58,19 +47,39 @@
     padding: 0;
 }
 
-.promptModal input {
+.modalBody > * {
+    margin: 0.5em;
+    font-size: 0.9em;
+}
+
+input.readFile {
+    font-size: 1em;
+    color: gray;
+}
+
+/* TODO this should be made specific to the prompt modal? */
+.modal input {
     display: block;
     width: 17em;
 }
 
-.selectByNodeIdModal .select2-container {
-    margin: 0.4em;
+/******************  Our Specific Modals ******************/
+
+.selectByNodeIdModal .placeHolding {
+    color: #999;
 }
 
-.selectByNodeIdModal .readFile {
-    display: block;
+.selectByNodeIdModal .cartLabel {
+    margin-top: 1em;
+    margin-bottom: 0;
 }
 
 .selectByNodeIdModal textarea {
     width: 47em;
 }
+
+.selectByNodeDropdown li span.selected {
+    color: green;
+    font-weight: bold;
+}
+

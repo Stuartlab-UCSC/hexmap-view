@@ -118,7 +118,7 @@ class Prompt extends Component {
                         X
                     </button>
                 </div>
-                <div className = 'modalContent'>
+                <div className = 'modalBody'>
                 
                     <div className = 'modalLabel'>
                         {this.promptStr}

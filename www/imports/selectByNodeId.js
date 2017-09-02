@@ -16,16 +16,26 @@ class SelectByNodeId extends Component {
     constructor (props) {
         super(props);
         this.state = {
-            textString: '',
+            cart: []
         };
+        this.textBoxPlaceholder = 'enter node IDs one per line',
         this.modalClass = 'selectByNodeIdModal';
         this.searchPageSize = 20;
 
+        // Save our selves.
         this.handleOpenModal = this.handleOpenModal.bind(this);
         this.handleCloseModal = this.handleCloseModal.bind(this);
+        
         this.selectQuery = this.selectQuery.bind(this);
-        this.handleSelecting = this.handleSelecting.bind(this);
+        this.handleSelectLoaded = this.handleSelectLoaded.bind(this);
+        this.handleSelectSelecting = this.handleSelectSelecting.bind(this);
+        this.selectFormatResult = this.selectFormatResult.bind(this);
+        
         this.handleReadSuccess = this.handleReadSuccess.bind(this);
+        
+        this.handleTextareaKeyPress = this.handleTextareaKeyPress.bind(this);
+        this.handleTextareaChange = this.handleTextareaChange.bind(this);
+
         this.handleButtonClick = this.handleButtonClick.bind(this);
     }
     
@@ -33,71 +43,111 @@ class SelectByNodeId extends Component {
         Util.banner('error', msg, $('.' + this.modalClass).parent());
     }
     
-    validateString (str) {
+/**************** cart / textarea *************************/
+
+    updateCart () {
     
-        // Validate the data as a single string and remove any carriage returns.
-        // @param str: the string to validate
-        // @returns: the string with carriage returns removed,
-        //           or undefined if not valid.
+        // Update the cart array. The string has already been validated.
+        // We need a cart update for two reason:
+        //      - the button to create the attribute has been pressed
+        //      - the dropdown is open and we want to show which nodes
+        //        are already in the cart.
         
-        if (_.isUndefined(str) || _.isNull(str) || str.length < 1) {
-            this.error('no node IDs provided');
-            return;
-        }
-        var valid = U.allPrintableCharsInString(str, true);
-        if (valid) {
-            return U.removeCarriageReturns(str);
+        var str = this.$text.val();
+        
+        if (_.isUndefined(str) || str.length < 1) {
+            this.state.cart = [];
         } else {
-            return;
-        }
-    }
-    
-    validateAndTransform (str) {
-    
-        // Validate the data and transform it into an array.
-        // @param str: the string to validate and transform
-        // @returns: the data as an array, or undefined if not valid.
         
-        var validStr = this.validateString(str);
-
-        if (_.isUndefined(validStr)) {
-            return;
-        }
-        U.removeCarriageReturns(validStr);
-
-        // Parse the string into an array of arrays
-        // where the inner arrays contain one node ID each.
-        var data = Util.parseTsv(validStr);
-        
-        // Flatten the nested arrays into a single array
-        // and remove any empty elements.
-        var cleanData = _.without(_.flatten(data), null, undefined);
-
-        if (cleanData.length > 0) {
-            return cleanData;
-        } else {
-            return;
+            // Parse the string into an array of arrays
+            // where the inner arrays contain one node ID each.
+            var data = Util.parseTsv(str);
+            
+            // Flatten the nested arrays into a single array, remove any empty
+            // lines, remove duplicates then replace the cart contents.
+             this.state.cart =
+                _.uniq(_.without(_.flatten(data), null, undefined));
         }
     }
     
     addToTextArea (str) {
     
-        // Append new text to the text area.
-        
-        // Look for printable chars allowing new lines.
-        var validStr = this.validateString(str);
-        if (_.isUndefined(validStr)) {
-            return;
-        }
+        // Append new text to the text area. This comes from either the
+        // dropdown or from an uploaded file. Uploaded files are
+        // already checked for unprintable characters and we assume
+        // node IDs from the dropdown have been check upon entry to the DB.
         
         // Add a new line if needed.
-        if (this.state.textString.length > 1 &&
-            !this.state.textString.endsWith('\n')) {
-            this.state.textString += '\n';
+        var textVal = this.$text.val();
+        if (textVal.length > 0 && !textVal.endsWith('\n')) {
+            textVal += '\n';
         }
-        this.state.textString += validStr;
-        this.$text.val(this.state.textString);
+        this.$text.val(textVal + str);
     }
+    
+    handleTextareaChange (event) {
+    
+        // This handles updates to the textarea directly by the user,
+        // including cutting and pasting.
+        // This excludes those updates added programatically, like from
+        // the search/selector or from a file upload.
+        
+        if (this.textareaKeyPressValidated) {
+        
+            // We already validated this key press.
+            this.textareaKeyPressValidated = false;
+            return;
+        }
+
+        // User modified textarea without a keyPress, so validate.
+        var val = event.target.value.slice();
+        
+        // Look at the entire text because we don't know what changed.
+        while (i < val.length) {
+            var bad;
+            
+            // Get ascii code in decimal representation and check for bad.
+            try {
+                var code = val.charCodeAt(i);
+                bad = U.unprintableAsciiCode(code);
+
+            } catch (error) {
+            
+                bad = true;
+            }
+            if (bad) {
+            
+                // Drop this character.
+                var newVal = val.slice(0, i) + val.slice(i + 1);
+                val = newVal;
+                bad = false;
+                
+            } else {
+                i += 1;
+            }
+        }
+        
+        $(event.target).val(val);
+    }
+    
+    handleTextareaKeyPress (event) {
+    
+        // Don't allow unprintables here except newLine.
+        // This does not capture cutting or pasting in the testarea.
+        
+        if (U.unprintableAsciiCode(event.which, true)) {
+
+            // Don't allow this value to be added to the textbox.
+            event.preventDefault();
+        } else {
+        
+            // Mark this char as validated to we don't validate it again.
+            this.textareaKeyPressValidated = true;
+        }
+    }
+    
+/**************** end cart / textarea *************************/
+    
     
     handleOpenModal () {
     
@@ -117,38 +167,80 @@ class SelectByNodeId extends Component {
         this.addToTextArea(_.flatten(data).join('\n'));
     }
     
-    handleReadStart () {
-        // TODO make this optional for the readFile widget
-    }
-    
-    handleReadError (msg) {
-        this.error(msg);
-    }
-    
     handleButtonClick () {
 
-        // Validate the node IDs in the textarea,
-        // and transform from a string to an array of one node per entry.
-        var data = this.validateAndTransform(this.state.textString);
-        if (_.isUndefined(data)) {
-            this.error('no valid node IDs provided');
+        this.updateCart();
+    
+        // Create the new attribute.
+        if (this.state.cart.length < 1) {
+            this.error('no valid node IDs so attribute cannot be created');
             return;
         }
         
-            // Create the attribute.
-            Layer.create_dynamic_selection(data);
+        // Create the attribute.
+        Layer.create_dynamic_selection(this.state.cart);
         
         this.handleCloseModal();
     }
-  
-    handleSelecting (event) {
+ 
+/**************** select2 *****************************************************/
 
-        // Add the selected ID to the textarea.
-        this.addToTextArea(event.val);
+    isInCart (id) {
+        return (this.state.cart.indexOf(id) > -1);
+    }
+    
+    setDropdownSelectStatus () {
+    
+        console.log("setDropdownSelectStatus(): cart", this.state.cart);
+        console.log("$('.selectByNodeDropdown li span')",
+            $('.selectByNodeDropdown li span'));
+    
+        // For each item in the dropdown, update its select status.
+        var self = this,
+            $els = $('.selectByNodeDropdown li span');
+        
+        this.updateCart();
+        
+        _.each($els, function (el) {
+            var $el = $(el);
+            
+            console.log("$el:", $el);
+            console.log("text:", $el.text());
+            
+            if (self.isInCart($el.text())) {
+                $el.addClass('selected');
+            } else {
+                $el.removeClass('selected');
+            }
+        });
+    }
+    
+    handleSelectSelecting (event) {
+    
+        // Handler for after the click and before adding to the cart,
+        // so we can skip the function to put the selection in the choice box.
+
+        // If the ID is not already in the cart...
+        if (!this.isInCart(event.val)) {
+        
+            // Add it to the cart.
+            this.addToTextArea(event.val);
+        
+            // Update the selected status of the dropdown items.
+            this.setDropdownSelectStatus();
+        }
         
         // Don't actually change the selection.
         // This keeps the dropdown open when we click.
         event.preventDefault();
+    }
+    
+    handleSelectLoaded (items) {
+    
+        // Handler for after the query completes and dropdown
+        // has been updated.
+        // Update the selected status of the dropdown items.
+        this.setDropdownSelectStatus();
     }
     
     selectQuery (query) {
@@ -166,7 +258,7 @@ class SelectByNodeId extends Component {
         if (query.context != undefined) {
             start_position = query.context;
         }
-
+        
         for (var i = start_position; i < allIds.length; i++) {
         
             var check = allIds[i].toLowerCase()
@@ -179,7 +271,7 @@ class SelectByNodeId extends Component {
                 // so add a select2 record to our results.
                 results.push({
                     id: allIds[i],
-                    text: allIds[i]
+                    text: allIds[i],
                 });
                 
                 if (results.length >= this.searchPageSize) {
@@ -187,7 +279,6 @@ class SelectByNodeId extends Component {
                     // Page is full. Send it on.
                     break;
                 }
-                
             }
         }
     
@@ -203,28 +294,39 @@ class SelectByNodeId extends Component {
         });
     }
     
+    selectFormatResult (result, container, query) {
+    
+        // Given a select2 result record, the element that our results go
+        // in, and the query used to get the result, return a jQuery element
+        // as the result.
+        // If the entry is selected, add a class to the element to
+        // highlight the entry.
+        
+        return $("<span class='nodeId" +
+            (this.isInCart(result.in) ? ' selected' : '') +
+            //(this..state.cart.indexOf(result.in) > -1 ? ' selected' : '') +
+            "'>" + result.id + "</span>");
+    }
+
     render () {
         var self = this,
-            textBoxPlaceholder = 'enter node IDs one per line,\n' +
-                'or search for nodes,\n' +
-                'or upload a file',
             select2 = <Select2
-                    select2-selecting = {self.handleSelecting}
+                    select2-loaded = {self.handleSelectLoaded}
+                    select2-selecting = {self.handleSelectSelecting}
                     select2options = {{
-                        data: {id: '', text: ''},
+                        data: { id: '', text: '' },
+                        dropdownCssClass: 'selectByNodeDropdown',
                         dropdownParent: this.props.selectDropDownParent,
-                        placeholder: "Search nodes...",
-                        width: '43em',
-                        value: null,
+                        formatResult: self.selectFormatResult,
+                        placeholder: 'Search nodes...',
                         query: self.selectQuery,
+                        value: null,
+                        width: '43em',
                     }}
                 />;
-        
-        // TODO move these out of the render function
-        function handleTextareaChange (event) {
-            self.state.textString = event.target.value;
-        }
 
+/**************** select2 end *************************************************/
+        
         return (
             <ReactModal
                 isOpen = {true}
@@ -237,20 +339,27 @@ class SelectByNodeId extends Component {
                 <div className='modalTitle'>
                     Select Nodes by ID
                 </div>
-                <div className='modalContent'>
+                <div className='modalBody'>
                     {select2}
-                    <ReadFile
-                        parseTsv = {true}
-                        onSuccess = {this.handleReadSuccess}
-                        onStart = {this.handleReadStart}
-                        onError = {this.handleReadError}
-                    />
+                    <div>
+                        <span>
+                            Or
+                        </span>
+                        <ReadFile
+                            parseTsv = {true}
+                            onSuccess = {this.handleReadSuccess}
+                            onError = {this.error}
+                        />
+                    </div>
+                    <div className = 'cartLabel'>
+                        Or direct to Your Cart
+                    </div>
                     <textarea
-                        onChange= {handleTextareaChange}
-                        defaultValue = {this.state.textString}
+                        onKeyPress = {this.handleTextareaKeyPress}
+                        onChange = {this.handleTextareaChange}
                         rows = '10'
                         cols = '35'
-                        placeholder = {textBoxPlaceholder}>
+                        placeholder = {this.textBoxPlaceholder}>
                     </textarea>
                     <div className = 'buttonBox'>
                         <button onClick = {function () {
