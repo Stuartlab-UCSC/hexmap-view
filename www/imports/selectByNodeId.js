@@ -4,7 +4,7 @@
 
 import React, { Component } from 'react';
 import { render, unmountComponentAtNode } from 'react-dom';
-import ReactModal from 'react-modal';
+import Modal from './modal.js';
 import './css/reactModal.css';
 
 import Select2 from './select2React.js';
@@ -43,7 +43,7 @@ class SelectByNodeId extends Component {
         Util.banner('error', msg, $('.' + this.modalClass).parent());
     }
     
-/**************** cart / textarea *************************/
+/**************** cart / textarea start *************************/
 
     updateCart () {
     
@@ -151,6 +151,8 @@ class SelectByNodeId extends Component {
     
     handleOpenModal () {
     
+        console.log('handleOpen')
+    
         // Set focus on the textarea and save its DOM element.
         $('.selectByNodeIdModal textarea').focus();
         this.$text = $('.selectByNodeIdModal textarea');
@@ -160,6 +162,9 @@ class SelectByNodeId extends Component {
     }
   
     handleCloseModal () {
+
+        console.log('handleCloseModal')
+
         this.props.closeModal();
     }
     
@@ -183,7 +188,7 @@ class SelectByNodeId extends Component {
         this.handleCloseModal();
     }
  
-/**************** select2 *****************************************************/
+/**************** select2 start ***********************************************/
 
     isInCart (id) {
         return (this.state.cart.indexOf(id) > -1);
@@ -310,7 +315,8 @@ class SelectByNodeId extends Component {
 
     render () {
         var self = this,
-            select2 = <Select2
+            select2 =
+                <Select2
                     select2-loaded = {self.handleSelectLoaded}
                     select2-selecting = {self.handleSelectSelecting}
                     select2options = {{
@@ -323,23 +329,9 @@ class SelectByNodeId extends Component {
                         value: null,
                         width: '43em',
                     }}
-                />;
-
-/**************** select2 end *************************************************/
-        
-        return (
-            <ReactModal
-                isOpen = {true}
-                contentLabel = "Minimal Modal Example"
-                onAfterOpen = {this.handleOpenModal}
-                onRequestClose = {this.handleCloseModal}
-                className = {this.modalClass}
-                parentSelector = {() => $('#selectByNodeIdContainer')[0]}
-            >
-                <div className='modalTitle'>
-                    Select Nodes by ID
-                </div>
-                <div className='modalBody'>
+                />,
+            body =
+                <div>
                     {select2}
                     <div>
                         <span>
@@ -361,14 +353,27 @@ class SelectByNodeId extends Component {
                         cols = '35'
                         placeholder = {this.textBoxPlaceholder}>
                     </textarea>
-                    <div className = 'buttonBox'>
-                        <button onClick = {function () {
-                                self.handleButtonClick();
-                            }}
-                            >OK</button>
-                    </div>
-                </div>
-            </ReactModal>
+                </div>,
+            button =
+                <button onClick = {function () {
+                        self.handleButtonClick();
+                    }}>
+                    OK
+                </button>;
+
+/**************** select2 end *************************************************/
+        
+                //title = 'Select Nodes by ID'
+                
+        return (
+            <Modal
+                onAfterOpen = {this.handleOpenModal}
+                onRequestClose = {self.handleCloseModal}
+                className = {this.modalClass}
+                parentSelector = {() => $('#selectByNodeIdContainer')[0]}
+                body = {body}
+                buttons = {button}
+            />
         );
     }
 }
@@ -377,6 +382,8 @@ var containerId = 'selectByNodeIdContainer';
 
 function closeModal (result) {
 
+    console.log('closeModal');
+    
     // TODO" hopefully this marks memory as garbage collectable.
     $('#' + containerId).remove();
 }

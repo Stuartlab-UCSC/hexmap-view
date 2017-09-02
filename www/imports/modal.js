@@ -43,7 +43,7 @@ export default class Modal extends Component {
         }
         
         // Call the instance handleCloseModel if there is one.
-        var close = this.props.handleCloseModal;
+        var close = this.props.onRequestClose;
         if (close) {
             close(response);
         }
@@ -63,7 +63,7 @@ export default class Modal extends Component {
             <ReactModal
                 isOpen = {true}
                 contentLabel = 'useless'
-                onAfterOpen = {self.handleOpenModal}
+                onAfterOpen = {this.handleOpenModal}
                 onRequestClose = {self.handleCancelModal}
                 className = {this.props.className + ' modal'}
                 parentSelector = {this.props.parentSelector}

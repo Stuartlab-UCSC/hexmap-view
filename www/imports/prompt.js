@@ -5,7 +5,7 @@
 import React, { Component } from 'react';
 import { render, unmountComponentAtNode } from 'react-dom';
 
-import Modal   from './modal.js';
+import Modal from './modal.js';
 import './css/reactModal.css';
 
 class Prompt extends Component {
@@ -15,7 +15,7 @@ class Prompt extends Component {
         if (this.props.textStr) {
             this.state.textStr = this.props.textStr;
         }
-        this.class = 'promptModal';
+        this.modalClass = 'promptModal';
         this.promptStr = this.props.promptStr;
         if (this.props.severity === 'error') {
             this.title = 'Error';
@@ -31,7 +31,7 @@ class Prompt extends Component {
         
         // Set the text value here to get the cursor at the end.
         if (this.state.textStr) {
-            $('.' + this.class + ' input').val(this.state.textStr).focus();
+            $('.' + this.modalClass + ' input').val(this.state.textStr).focus();
         }
     }
 
@@ -66,7 +66,8 @@ class Prompt extends Component {
         
         // Build the text box and buttons in the button box.
         if (this.props.textStr) {
-            var input = <input
+            var input =
+                <input
                     type = 'text'
                     onKeyPress = {self.handleTextKeyPress}
                     onChange = {self.handleTextChange}
@@ -79,23 +80,23 @@ class Prompt extends Component {
                 </button>;
         }
         body =
-        <div>
-            <div
-                className = 'modalLabel'>
-                {this.promptStr}
-            </div>
-            {input}
-        </div>;
+            <div>
+                <div
+                    className = 'modalLabel'>
+                    {this.promptStr}
+                </div>
+                {input}
+            </div>;
         
         return (
             <Modal
-                onAfterOpen = {self.handleOpenModal}
-                handleCloseModal = {self.handleCloseModal}
-                className = {this.class + ' ' + this.props.severity}
+                onAfterOpen = {this.handleOpenModal}
+                onRequestClose = {self.handleCloseModal}
+                className = {this.modalClass + ' ' + this.props.severity}
+                parentSelector = {() => $('#prompt')[0]}
                 title = {this.title}
                 body = {body}
                 buttons = {button}
-                parentSelector = {() => $('#prompt')[0]}
             />
         );
     }

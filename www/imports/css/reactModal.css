@@ -47,7 +47,7 @@
     padding: 0;
 }
 
-.modalBody > * {
+.modalBody > * > * {
     margin: 0.5em;
     font-size: 0.9em;
 }
@@ -57,20 +57,19 @@ input.readFile {
     color: gray;
 }
 
-/* TODO this should be made specific to the prompt modal? */
-.modal input {
-    display: block;
-    width: 17em;
-}
-
 /******************  Our Specific Modals ******************/
+
+.promptModal input {
+    display: block;
+    width: 25em;
+}
 
 .selectByNodeIdModal .placeHolding {
     color: #999;
 }
 
 .selectByNodeIdModal .cartLabel {
-    margin-top: 1em;
+    margin-top: 1.3em;
     margin-bottom: 0;
 }
 
