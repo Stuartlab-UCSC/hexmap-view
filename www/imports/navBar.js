@@ -8,11 +8,11 @@ function attrAdd () {
 }
 
 import SelectByNodeId from './nodeIdSelect.js';
-function selectByNodeId () {
-    $('#navBar .selectByNodeId').on('click', SelectByNodeId.show);
+function nodeIdSelect () {
+    $('#navBar .nodeIdSelect').on('click', SelectByNodeId.show);
 }
 
 exports.init = function () {
     attrAdd();
-    selectByNodeId();
+    nodeIdSelect();
 }

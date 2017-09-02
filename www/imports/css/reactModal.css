@@ -64,16 +64,16 @@ input.readFile {
     width: 25em;
 }
 
-.selectByNodeIdModal .placeHolding {
+.nodeIdSelectModal .placeHolding {
     color: #999;
 }
 
-.selectByNodeIdModal .cartLabel {
+.nodeIdSelectModal .cartLabel {
     margin-top: 1.3em;
     margin-bottom: 0;
 }
 
-.selectByNodeIdModal textarea {
+.nodeIdSelectModal textarea {
     width: 47em;
 }
 

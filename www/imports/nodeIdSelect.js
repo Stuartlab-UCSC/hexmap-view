@@ -19,7 +19,7 @@ class SelectByNodeId extends Component {
             cart: []
         };
         this.textBoxPlaceholder = 'enter node IDs one per line',
-        this.modalClass = 'selectByNodeIdModal';
+        this.modalClass = 'nodeIdSelectModal';
         this.searchPageSize = 20;
 
         // Save our selves.
@@ -152,8 +152,8 @@ class SelectByNodeId extends Component {
     handleOpenModal () {
     
         // Set focus on the textarea and save its DOM element.
-        $('.selectByNodeIdModal textarea').focus();
-        this.$text = $('.selectByNodeIdModal textarea');
+        $('.nodeIdSelectModal textarea').focus();
+        this.$text = $('.nodeIdSelectModal textarea');
         
         // Build the list of node IDs.
         this.allNodeIds = Object.keys(polygons).sort();
@@ -364,7 +364,7 @@ class SelectByNodeId extends Component {
                 onAfterOpen = {this.handleOpenModal}
                 onRequestClose = {self.handleCloseModal}
                 className = {this.modalClass}
-                parentSelector = {() => $('#selectByNodeIdContainer')[0]}
+                parentSelector = {() => $('#nodeIdSelectContainer')[0]}
                 body = {body}
                 buttons = {button}
             />
@@ -372,7 +372,7 @@ class SelectByNodeId extends Component {
     }
 }
 
-var containerId = 'selectByNodeIdContainer';
+var containerId = 'nodeIdSelectContainer';
 
 function closeModal (result) {
 

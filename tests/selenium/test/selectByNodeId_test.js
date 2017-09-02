@@ -20,8 +20,8 @@ var SU = require('./shortlistUtils');
 
 // Locals
 var menuClass = 'selectMenu',
-    menuOptionClass = 'selectByNodeId',
-    modalClass = 'selectByNodeIdModal',
+    menuOptionClass = 'nodeIdSelect',
+    modalClass = 'nodeIdSelectModal',
     modalCss = '.' + modalClass,
     textareaCss = modalCss + ' textarea',
     buttonCss = modalCss + ' button',
