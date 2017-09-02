@@ -283,7 +283,7 @@ CreateMap = (function () { // jshint ignore: line
  
         import React, { Component } from 'react';
         import { render } from 'react-dom';
-        import Upload from '/imports/Upload.jsx';
+        import Upload from '/imports/upload.js';
 
          // Define the file selector for features file
         feature_upload = render(

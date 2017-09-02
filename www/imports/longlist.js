@@ -3,7 +3,7 @@
 
 import React, { Component } from 'react';
 import { render } from 'react-dom';
-import Select2 from './select2React.js';
+import Select2 from './select2wrap.js';
 
 import Longlist from './longlist.js';
 

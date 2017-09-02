@@ -1,5 +1,5 @@
 
-// ReadFile.jsx
+// readFile.js
 // Reads a local file into this web app.
 
 import React, { Component } from 'react';

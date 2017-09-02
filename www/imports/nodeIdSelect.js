@@ -1,5 +1,5 @@
 
-// selectByNodeId.js
+// nodeIdSelect.js
 // The UI to allow the user to select nodes by ID to create a new attribute.
 
 import React, { Component } from 'react';
@@ -7,8 +7,8 @@ import { render, unmountComponentAtNode } from 'react-dom';
 import Modal from './modal.js';
 import './css/reactModal.css';
 
-import Select2 from './select2React.js';
-import ReadFile from './ReadFile.jsx';
+import Select2 from './select2wrap.js';
+import ReadFile from './readFile.js';
 import U from './utils.js';
 
 class SelectByNodeId extends Component {
@@ -151,8 +151,6 @@ class SelectByNodeId extends Component {
     
     handleOpenModal () {
     
-        console.log('handleOpen')
-    
         // Set focus on the textarea and save its DOM element.
         $('.selectByNodeIdModal textarea').focus();
         this.$text = $('.selectByNodeIdModal textarea');
@@ -162,9 +160,6 @@ class SelectByNodeId extends Component {
     }
   
     handleCloseModal () {
-
-        console.log('handleCloseModal')
-
         this.props.closeModal();
     }
     
@@ -330,6 +325,9 @@ class SelectByNodeId extends Component {
                         width: '43em',
                     }}
                 />,
+                
+/**************** select2 end *************************************************/
+        
             body =
                 <div>
                     {select2}
@@ -361,10 +359,6 @@ class SelectByNodeId extends Component {
                     OK
                 </button>;
 
-/**************** select2 end *************************************************/
-        
-                //title = 'Select Nodes by ID'
-                
         return (
             <Modal
                 onAfterOpen = {this.handleOpenModal}
@@ -382,8 +376,6 @@ var containerId = 'selectByNodeIdContainer';
 
 function closeModal (result) {
 
-    console.log('closeModal');
-    
     // TODO" hopefully this marks memory as garbage collectable.
     $('#' + containerId).remove();
 }

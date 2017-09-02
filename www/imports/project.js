@@ -4,7 +4,7 @@
 
 import React, { Component } from 'react';
 import { render } from 'react-dom';
-import Select2 from './select2React.js';
+import Select2 from './select2wrap.js';
 
 // Placeholder text when no project is selected
 var PLACEHOLDER_TEXT = 'Select a Map...';

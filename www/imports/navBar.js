@@ -7,7 +7,7 @@ function attrAdd () {
     $('#navBar .attrAdd').on('click', AttrAdd.init);
 }
 
-import SelectByNodeId from './selectByNodeId.js';
+import SelectByNodeId from './nodeIdSelect.js';
 function selectByNodeId () {
     $('#navBar .selectByNodeId').on('click', SelectByNodeId.show);
 }
