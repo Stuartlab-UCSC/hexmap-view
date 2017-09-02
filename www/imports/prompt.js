@@ -5,7 +5,7 @@
 import React, { Component } from 'react';
 import { render, unmountComponentAtNode } from 'react-dom';
 
-import ReactModal from 'react-modal';
+import Modal   from './modal.js';
 import './css/reactModal.css';
 
 class Prompt extends Component {
@@ -22,7 +22,6 @@ class Prompt extends Component {
         }
         this.handleOpenModal = this.handleOpenModal.bind(this);
         this.handleCloseModal = this.handleCloseModal.bind(this);
-        this.handleCancelModal = this.handleCancelModal.bind(this);
         this.handleTextKeyPress = this.handleTextKeyPress.bind(this);
         this.handleTextChange = this.handleTextChange.bind(this);
         this.handleButtonClick = this.handleButtonClick.bind(this);
@@ -31,38 +30,25 @@ class Prompt extends Component {
     handleOpenModal() {
         
         // Set the text value here to get the cursor at the end.
-        if (this.props.textStr) {
+        if (this.state.textStr) {
             $('.' + this.class + ' input').val(this.state.textStr).focus();
-        } else {
-            $('.' + this.class).blur();
-        }
-        
-        // Hide the caller modal.
-        var caller = this.props.$callerModal;
-        if (caller) {
-            caller.hide();
         }
     }
-  
+
     handleCloseModal (response) {
-        var caller = this.props.$callerModal;
-        if (caller) {
-            caller.show();
-        }
         this.props.closeModal(response);
     }
     
-    handleCancelModal () {
-        this.handleCloseModal();
-    }
-    
     handleButtonClick () {
+        
         if (this.props.textStr) {
             this.handleCloseModal(this.state.textStr.trim());
         }
     }
   
     handleTextKeyPress (event) {
+    
+        // Make a return key press trigger the button.
         if (event.which === 13 || event.keyCode === 13) {
             this.handleButtonClick();
         }
@@ -74,15 +60,9 @@ class Prompt extends Component {
         
     render () {
         var self = this,
-            title = null,
+            body = null,
             input = null,
             button = null;
-        
-        if (this.title) {
-            title = <span>
-                {this.title}
-            </span>
-        }
         
         // Build the text box and buttons in the button box.
         if (this.props.textStr) {
@@ -98,37 +78,25 @@ class Prompt extends Component {
                     OK
                 </button>;
         }
+        body =
+        <div>
+            <div
+                className = 'modalLabel'>
+                {this.promptStr}
+            </div>
+            {input}
+        </div>;
         
         return (
-            <ReactModal
-                isOpen = {true}
-                contentLabel = 'useless'
+            <Modal
                 onAfterOpen = {self.handleOpenModal}
-                onRequestClose = {self.handleCancelModal}
-                className = {this.class + ' ' + this.props.severity + ' modal'}
+                handleCloseModal = {self.handleCloseModal}
+                className = {this.class + ' ' + this.props.severity}
+                title = {this.title}
+                body = {body}
+                buttons = {button}
                 parentSelector = {() => $('#prompt')[0]}
-            >
-                <div className = 'modalHeader'>
-                    {title}
-                    <button
-                        className = 'close'
-                        title = 'Close'
-                        onClick = {self.handleCancelModal}
-                    >
-                        X
-                    </button>
-                </div>
-                <div className = 'modalBody'>
-                
-                    <div className = 'modalLabel'>
-                        {this.promptStr}
-                    </div>
-                    {input}
-                    <div className = 'buttonBox'>
-                        {button}
-                    </div>
-                </div>
-            </ReactModal>
+            />
         );
     }
 }
@@ -142,6 +110,7 @@ function closeModal (response) {
     // If we could do this within the component the .show routine could be
     // removed and the caller would call the component directly.
     $('#' + containerId).remove();
+    
     if (callback) {
         callback(response);
     }

@@ -17,6 +17,9 @@ body {
     margin: 0;
     padding: 0;
 }
+* {
+    outline: none;
+}
 
 h3 {
     font-size: 1.1em;

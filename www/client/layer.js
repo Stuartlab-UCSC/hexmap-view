@@ -21,7 +21,7 @@ Layer = (function () { // jshint ignore: line
     }
  
     function let_user_name_layer (layer_name, callback) {
- 
+
         var name = layer_name;
  
         // if no layer name was supplied, assume this is a selection
@@ -36,7 +36,7 @@ Layer = (function () { // jshint ignore: line
  
         // Keep asking the user for a name until it is unique or she cancels.
         function wasNamed (name) {
-         
+
             // We're done if she cancels or gives an empty name.
             if (name === undefined || name === '') {
                 callback();
@@ -51,7 +51,6 @@ Layer = (function () { // jshint ignore: line
             }
          
             // Suggest another unique name
-            var __function = arguments.callee.name; // this function
             ask_user_to_name_layer(unique_name, name, wasNamed);
         }
         
