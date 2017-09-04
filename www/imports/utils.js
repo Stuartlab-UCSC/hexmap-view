@@ -9,10 +9,7 @@ exports.unprintableAsciiCode = function (code, allowCR) {
     // @param code: ascii code in decimal representation
     // @param allowCR: also allow carriage return  (decimal code: 13)
     // @returns: true if there are any unprintables or false otherwise
-    return !(
-        (code >= 32 && code <= 126) ||
-        (allowCR && code === 13)
-    );
+    return !((code >= 32 && code <= 126) || (allowCR && code === 13));
 }
 
 unprintableCharsInString = function (str) {
@@ -22,7 +19,6 @@ unprintableCharsInString = function (str) {
     //      space - tilde (hexadecimal: x20-x7e)
     // @param str: the string to be validated
     // @returns: true if there are any unprintables or false otherwise
-    
     var pattern = /[^\x20-\x7e]/;
     return pattern.test(str);
 }

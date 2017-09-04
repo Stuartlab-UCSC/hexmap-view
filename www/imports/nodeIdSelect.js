@@ -8,6 +8,7 @@ import Modal from './modal.js';
 import './css/reactModal.css';
 
 import NodeIdSearch from './nodeIdSearch.js';
+import TextareaClean from './textareaClean.js';
 import ReadFile from './readFile.js';
 import U from './utils.js';
 
@@ -15,16 +16,16 @@ class NodeIdSelect extends Component {
 
     constructor (props) {
         super(props);
-        this.textBoxPlaceholder = 'enter node IDs one per line',
-
+        this.cartPlaceholder = 'enter node IDs one per line';
+        this.state = {
+            cartText: '',
+        }
         // Save our selves.
-        this.addToTextArea = this.addToTextArea.bind(this);
+        this.addToCart = this.addToCart.bind(this);
+        this.updateCart = this.updateCart.bind(this);
         this.getCart = this.getCart.bind(this);
-        this.handleOpenModal = this.handleOpenModal.bind(this);
         this.handleCloseModal = this.handleCloseModal.bind(this);
         this.handleReadSuccess = this.handleReadSuccess.bind(this);
-        this.handleTextareaKeyPress = this.handleTextareaKeyPress.bind(this);
-        this.handleTextareaChange = this.handleTextareaChange.bind(this);
         this.handleButtonClick = this.handleButtonClick.bind(this);
         this.error = this.error.bind(this);
     }
@@ -32,22 +33,19 @@ class NodeIdSelect extends Component {
     error (msg) {
         Util.banner('error', msg, $(this.modal).parent());
     }
-    
-/**************** cart / textarea start *************************/
 
-    getCart (onTextChange) {
+    getCart () {
         
-        // Update and return the cart array from the textarea contents.
+        // Update and return the cart array from the cart contents.
         // The contents have already been validated.
         // We need a cart update for two reason:
         //      - the button to create the attribute has been pressed
         //      - the dropdown is open and we want to show which nodes
         //        are already in the cart.
-        
-        var str = this.$text.val(),
+        var str = this.state.cartText,
             cart = [];
         
-        // If there is a textarea string...
+        // If there is a cart string...
         if (!(_.isUndefined(str) || str.length < 1)) {
         
             // Parse the string into an array of arrays
@@ -68,7 +66,7 @@ class NodeIdSelect extends Component {
         return (cart);
     }
     
-    addToTextArea (newText) {
+    addToCart (newText) {
     
         // Append new text to the text area. This comes from either the
         // dropdown or from an uploaded file. Uploaded files are
@@ -76,72 +74,16 @@ class NodeIdSelect extends Component {
         // node IDs from the dropdown have been check upon entry to the DB.
         
         // Add a new line if needed.
-        var text = this.$text.val();
+        var text = this.state.cartText;
         if (text.length > 0 && !text.endsWith('\n')) {
             text += '\n';
         }
-        this.$text.val(text + newText);
-    }
-    
-    handleTextareaChange (event) {
-    
-        // This handles updates to the textarea directly by the user,
-        // including cutting and pasting.
-        // This excludes those updates added programatically, like from
-        // the search or from a file upload.
-        
-        if (this.textareaKeyPressValidated) {
-        
-            // We already validated this key press.
-            this.textareaKeyPressValidated = false;
-            return;
-        }
-
-        // User modified textarea without a keyPress, so validate.
-        var val = event.target.value.slice();
-        
-        // Drop unprintable from the updated text. we need to look at the
-        // entire text because we don't know what changed.
-        U.dropUnprintables(val);
-        $(event.target).val(val);
-    }
-    
-    handleTextareaKeyPress (event) {
-    
-        // Don't allow unprintables here except newLine.
-        // This does not capture cutting or pasting in the textarea.
-        
-        if (U.unprintableAsciiCode(event.which, true)) {
-
-            // Don't allow this value to be added to the textbox.
-            event.preventDefault();
-        } else {
-        
-            // Mark this char as validated to we don't validate it again.
-            this.textareaKeyPressValidated = true;
-        }
-    }
-    
-/**************** end cart / textarea *************************/
-    
-    
-    handleOpenModal () {
-    
-        // Set focus on the textarea and save its DOM element.
-        this.$text.focus();
-    }
-  
-    handleCloseModal () {
-        this.props.closeModal();
-    }
-    
-    handleReadSuccess (data) {
-        this.addToTextArea(_.flatten(data).join('\n'));
+        this.setState({ cartText: text + newText });
     }
     
     handleButtonClick () {
 
-        // Not needed if we update with every textarea change
+        // Not needed if we update with every cart change
         var cart = this.getCart();
     
         // Create the new attribute.
@@ -156,12 +98,26 @@ class NodeIdSelect extends Component {
         this.handleCloseModal();
     }
 
+    handleReadSuccess (data) {
+        this.addToCart(_.flatten(data).join('\n'));
+    }
+    
+    updateCart (val) {
+    
+        // Replace the cart text.
+        this.setState({ cartText: val });
+    }
+    
+    handleCloseModal () {
+        this.props.closeModal();
+    }
+    
     render () {
         var self = this,        
             body =
                 <div>
                     <NodeIdSearch
-                        addToSelectedList = {self.addToTextArea}
+                        addToSelectedList = {self.addToCart}
                         getCart = {this.getCart}
                         dropdownParent = {this.props.searchDropDownParent}
                     />
@@ -176,16 +132,16 @@ class NodeIdSelect extends Component {
                         />
                     </div>
                     <div className = 'cartLabel'>
-                        Or direct to Your Cart
+                        Or add directly to Your Cart:
                     </div>
-                    <textarea
-                        onKeyPress = {this.handleTextareaKeyPress}
-                        onChange = {this.handleTextareaChange}
+                    <TextareaClean
+                        onChange = {this.updateCart}
+                        value = {this.state.cartText}
+                        placeholder = {this.cartPlaceholder}
+                        className = 'cart'
                         rows = '10'
                         cols = '35'
-                        placeholder = {this.textBoxPlaceholder}
-                        ref={(textarea) => { this.$text = $(textarea); }}>
-                    </textarea>
+                    />
                 </div>,
             button =
                 <button onClick = {function () {
@@ -196,7 +152,6 @@ class NodeIdSelect extends Component {
 
         return (
             <Modal
-                onAfterOpen = {this.handleOpenModal}
                 onRequestClose = {self.handleCloseModal}
                 className = 'nodeIdSelectModal'
                 parentSelector = {() => this.props.parentSelector}

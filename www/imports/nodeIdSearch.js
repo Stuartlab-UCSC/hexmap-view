@@ -27,6 +27,13 @@ export default class NodeIdSearch extends Component {
         this.allNodeIds = Object.keys(polygons).sort();
     }
 
+    shouldComponentUpdate(newProps) {
+    
+        // We don't want to re-render when props we're not interested in
+        // change. The parent never changes our props.
+        return false;
+    }
+
     isInCart (id) {
         return (this.cart.indexOf(id) > -1);
     }
