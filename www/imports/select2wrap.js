@@ -221,25 +221,24 @@ Select2.propTypes = {
     // Options for the pre-react select2 widget.
     select2options: PropTypes.object,
     
-    // Allow multiple selections, optional.
+    // Allow multiple selections.
     multiple: PropTypes.bool,
   
-    // Callback for value change, optional.
+    // Callback for value change.
     onChange: PropTypes.func,
     
-    // Callback for creating choice box text, optional.
+    // Callback for creating choice box text.
     choiceDisplay: PropTypes.func,
     
     'select2-open': PropTypes.func,
     
-    // Handler for after the query completes and dropdown has been updated,
-    // optional.
+    // Handler for after the query completes and dropdown has been updated.
     // and the data and the results list has been updated, optional.
     // Fired when query function is done loading the data and the results list
     // has been updated. (Select2 v3)
     'select2-loaded': PropTypes.func,
     
-    // Handler for click before adding to choice box, optional.
+    // Handler for click before adding to choice box.
     // Fired when a choice is being selected in the dropdown, but before any
     // modification has been made to the selection. This event is used to
     // allow the user to reject selection by calling event.preventDefault().

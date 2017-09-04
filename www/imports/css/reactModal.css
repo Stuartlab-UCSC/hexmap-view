@@ -71,7 +71,7 @@
     width: 42em;
 }
 
-.nodeIdSearchDropdown li span.selected {
+.nodeIdDropdown li span.selected {
     color: green;
     font-weight: bold;
 }

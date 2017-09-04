@@ -13,18 +13,29 @@ export default class NodeIdSearch extends Component {
         super(props);
         this.cart = [];
         this.searchPageSize = 20;
+        this.dropdownClass = 'nodeIdDropdown';
         
         // Save our selves.
         this.query = this.query.bind(this);
         this.handleLoaded = this.handleLoaded.bind(this);
+        this.handleOpen = this.handleOpen.bind(this);
         this.handleSelecting = this.handleSelecting.bind(this);
         this.formatResult = this.formatResult.bind(this);
+        this.handleDropdownKeyUpDown = this.handleDropdownKeyUpDown.bind(this);
     }
         
     componentDidMount() {
     
         // Build the list of node IDs.
         this.allNodeIds = Object.keys(polygons).sort();
+        
+        // Handle key up and down events on the entries.
+        $(document).on('keyup keydown', ".select2-drop-active",
+            this.handleDropdownKeyUpDown);
+    }
+
+    componentWillUnmount() {
+         $(document).off('keyup keydown', ".select2-drop-active",);
     }
 
     shouldComponentUpdate(newProps) {
@@ -41,53 +52,93 @@ export default class NodeIdSearch extends Component {
     setSelectStatus () {
     
         // For each item in the dropdown, update its select status.
-        var self = this,
-            $els = $('.nodeIdSearchDropdownEntry');
+        var self = this;
 
         // Get the latest cart contents.
         this.cart = this.props.getCart();
         
         // Add or remove the 'selected' class for each entry.
-        _.each($els, function (el) {
-            var $el = $(el);
+        _.each($('.nodeIdDropdown .entry'), function (el) {
+            el = $(el);
 
-            if (self.isInCart($el.text())) {
-                $el.addClass('selected');
+            if (self.isInCart(el.text())) {
+                el.addClass('selected');
             } else {
-                $el.removeClass('selected');
+                el.removeClass('selected');
             }
         });
+    }
+    
+    handleDropdownKeyUpDown (event) {
+    
+        // Save the status of the shift key down for multi-select.
+        this.shift = event.shiftKey;
     }
 
     handleSelecting (event) {
     
-        // Handler for after the click and before adding to the cart,
+        // Handler for the point after the click and before adding to the cart,
         // so we can skip the function to put the selection in the choice box.
+        var self = this,
+            id = event.val;
         
-        // TODO if we add shift-click to select multiple, does this event
-        //      include all entries selected? If not, we may not want to call
-        //      getCart() mulitiple times via setDropdownStatus. We could update
-        //      status for each entry without calling getCart();
-
-        // If the ID is not already in the cart...
-        if (!this.isInCart(event.val)) {
+        // Handle a shift-click to select multiple entries between the last
+        // entry clicked and this entry.
+        // If there is no previously-selected ID, treat this as a single-select.
+        if (this.shift && this.lastId !== id && this.lastId !== '') {
+            var range = [id, this.lastId].sort(),
+                min = range[0],
+                max = range[1];
+            
+            _.each($('.nodeIdDropdown .entry'), function (el) {
+                el = $(el);
+                var id = el.text();
+                
+                // If the id is within the range...
+                if ([min, id, max].sort()[1] === id) {
+                
+                    // Highlight the entry as just selected.
+                    el.parents('.select2-result')
+                        .addClass('select2-highlighted');
+                
+                    // Add the id to the cart if it's not there yet,
+                    // and mark the entry as selected.
+                    if (!self.isInCart(id)) {
+                        self.props.addToSelectedList(id);
+                        el.addClass('selected');
+                    }
+                }
+            });
+        } else {
         
-            // Add it to the cart.
-            this.props.addToSelectedList(event.val);
-        
-            // Update the selected status of the dropdown item.
-            this.setSelectStatus();
+            // Add the single-selected ID to the cart if it's not there yet.
+            if (!self.isInCart(id)) {
+                self.props.addToSelectedList(id);
+            }
         }
         
+        // Update the selected status of the dropdown items.
+        this.setSelectStatus();
+        
+        // Save our last selected ID for our next compare.
+        this.lastId = id;
+
         // Don't actually change the selection.
         // This keeps the dropdown open when we click.
         event.preventDefault();
     }
     
+    handleOpen (event) {
+    
+        // Handle the open dropdown event.
+        // Reset the previously-selected ID.
+        this.lastId = '';
+    }
+    
     handleLoaded (event) {
         
-        // Handler for after the query completes and dropdown
-        // has been updated.
+        // Handle the point after the query completes and dropdown updated.
+        // Update the select status of each entry.
         this.setSelectStatus();
     }
     
@@ -146,15 +197,14 @@ export default class NodeIdSearch extends Component {
         
         // This formats display entries every time a query is made
         // and is called once per entry. We only need it here to force
-        // the element to be added to the dom so it will be available to be
-        // updated in handleLoaded().
+        // the element to be added to the dom so it will be available for
+        // updates in handleLoaded().
         //
         // Given a select2 result record, the element that our results go
         // in, and the query used to get the result, return a jQuery element
         // as the result.
 
-        return $("<span class='nodeIdSearchDropdownEntry'>" +
-            result.id + "</span>");
+        return $("<span class='entry'>" + result.id + "</span>");
     }
 
     render () {
@@ -163,10 +213,11 @@ export default class NodeIdSearch extends Component {
         return (
             <Select2
                 select2-loaded = {self.handleLoaded}
+                select2-open = {self.handleOpen}
                 select2-selecting = {self.handleSelecting}
                 select2options = {{
                     data: { id: '', text: '' },
-                    dropdownCssClass: 'nodeIdSearchDropdown',
+                    dropdownCssClass: this.dropdownClass,
                     dropdownParent: this.props.searchDropDownParent,
                     formatResult: self.formatResult,
                     placeholder: 'Search nodes...',
