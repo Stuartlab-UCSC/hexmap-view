@@ -31,7 +31,7 @@ Util = (function () { // jshint ignore: line
         return dirty.replace(/[^A-Za-z0-9_\-\.]/g, "_");
     }
     
-    function banner (title, text, $parentModal) {
+    function banner (title, text) {
     
         // Display a message, either as a timed banner when 'title' is one of
         // 'warn' or 'info', otherwise a dialog that requires the user to
@@ -47,7 +47,7 @@ Util = (function () { // jshint ignore: line
                 .show();
             $("#banner").delay(5000).fadeOut(1500);
         } else if (title === 'error') {
-            Prompt.show(text, {severity: 'error', $parentModal: $parentModal});
+            Prompt.show(text, { severity: 'error' });
         } else {
             Message.display(title, text);
         }

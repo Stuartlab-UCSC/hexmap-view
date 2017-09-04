@@ -3,7 +3,11 @@
     z-index: 2000;
 }
 
-.modal {
+.ReactModal__Overlay.prompt {
+    z-index: 2002;
+}
+
+.ReactModal__Content {
     padding: 0.5em;
     background: white;
     border: 1px solid grey;
@@ -13,6 +17,8 @@
     left: 50%;
     transform: translate(-50%, -50%);
 }
+
+/************* Our Modals *****************************************************/
 
 .modalHeader {
     border: none;

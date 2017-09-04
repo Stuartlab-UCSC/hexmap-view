@@ -84,6 +84,7 @@ class Prompt extends Component {
             <Modal
                 onAfterOpen = {this.handleOpenModal}
                 onRequestClose = {self.handleCloseModal}
+                overlayClassName = 'prompt'
                 className = {this.modalClass + ' ' + this.props.severity}
                 parentSelector = {() => this.props.parentSelector}
                 title = {this.title}
@@ -123,7 +124,6 @@ exports.show = function (promptStr, opts) {
     // @param         promptStr: the prompt string
     // @param      opts.textStr: the text to put in the input box, optional
     // @param     opts.callback: function to call upon modal close, optional
-    // @param opts.$parentModal: the parent modal's DOM element via jquery
     // @param     opts.severity: one of [error, info, warning], optional
     
     callback = opts ? opts.callback : null;
@@ -137,7 +137,6 @@ exports.show = function (promptStr, opts) {
             promptStr = {promptStr}
             textStr = {opts.textStr}
             parentSelector = {parentSelector}
-            $parentModal = {opts.$parentModal}
             severity = {opts.severity}
             closeModal = {closeModal}
          />, parentSelector);

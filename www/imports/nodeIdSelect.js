@@ -30,6 +30,8 @@ class NodeIdSelect extends Component {
         this.error = this.error.bind(this);
     }
     
+    // TODO this should render the react prompt rather than go the long way
+    // out of react and back in.
     error (msg) {
         Util.banner('error', msg, $(this.modal).parent());
     }

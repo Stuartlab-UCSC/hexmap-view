@@ -1,6 +1,12 @@
 
 // modal.js
-// Our wrapper around react-model to add our common options
+// Our wrapper around react-model to add our own options of:
+//      - styling
+//      - header
+//          - title
+//          - close button
+//      - body
+//      - button box
 
 import React, { Component } from 'react';
 import { render, unmountComponentAtNode } from 'react-dom';
@@ -12,46 +18,16 @@ export default class Modal extends Component {
     constructor (props) {
         super(props);
 
-        this.handleOpenModal = this.handleOpenModal.bind(this);
-        this.handleCloseModal = this.handleCloseModal.bind(this);
         this.handleCancelModal = this.handleCancelModal.bind(this);
-    }
-    
-    handleOpenModal (event) {
-        
-        // Hide the instance parent modal if there is one.
-        var parent = this.props.$parentModal;
-        if (parent) {
-            parent.hide();
-        }
-        
-        // Call the instance onAfterOpen if there is one.
-        var after = this.props.onAfterOpen;
-        if (after) {
-            after(event);
-        }
-    }
-  
-    handleCloseModal (response) {
-    
-        // Show the instance parent modal if there is one.
-        var parent = this.props.$parentModal;
-        if (parent) {
-            parent.show();
-        }
-        
-        // Call the instance handleCloseModel if there is one.
-        var close = this.props.onRequestClose;
-        if (close) {
-            close(response);
-        }
     }
     
     handleCancelModal (event) {
     
         // User clicked on the close button in the upper right
         // or outside of the modal, so close without a response.
-        this.handleCloseModal();
+        if (this.props.onRequestClose) {
+            this.props.onRequestClose();
+        }
     }
     
     render () {
@@ -61,8 +37,8 @@ export default class Modal extends Component {
             <ReactModal
                 isOpen = {true}
                 contentLabel = 'useless'
-                onAfterOpen = {this.handleOpenModal}
-                onRequestClose = {self.handleCancelModal}
+                onAfterOpen = {this.props.onAfterOpen}
+                onRequestClose = {this.props.onRequestClose}
                 className = {this.props.className + ' modal'}
                 parentSelector = {this.props.parentSelector}
             >
