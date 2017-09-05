@@ -17,7 +17,10 @@ import './css/reactModal.css';
 export default class Modal extends Component {
     constructor (props) {
         super(props);
-
+        this.state = {
+            isOpen: (props.isOpen === false) ? false : true,
+        }
+        
         this.handleCancelModal = this.handleCancelModal.bind(this);
     }
     
@@ -35,7 +38,7 @@ export default class Modal extends Component {
         
         return (
             <ReactModal
-                isOpen = {true}
+                isOpen = {self.state.isOpen}
                 contentLabel = 'useless'
                 onAfterOpen = {this.props.onAfterOpen}
                 onRequestClose = {this.props.onRequestClose}

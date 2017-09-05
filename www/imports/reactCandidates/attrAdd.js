@@ -4,7 +4,7 @@
 
 import React, { Component } from 'react';
 import { render } from 'react-dom';
-import ReadFile from './readFile.js'
+import ReadFile from '/imports/readFile.js'
 
 var dialogHex;
 

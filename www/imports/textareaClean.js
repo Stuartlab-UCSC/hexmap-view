@@ -1,6 +1,6 @@
 
 // textAreaClean.js
-// The textarea to contain text that is free of unprintable characters.
+// A textarea to contain text that contains only printable characters.
 
 import React, { Component } from 'react';
 import { render, unmountComponentAtNode } from 'react-dom';
@@ -16,8 +16,8 @@ export default class TextareaClean extends Component {
         this.state = { value: this.props.value };
 
         // Save our selves.
-        this.handleTextareaKeyPress = this.handleTextareaKeyPress.bind(this);
-        this.handleTextareaChange = this.handleTextareaChange.bind(this);
+        this.handleKeyPress = this.handleKeyPress.bind(this);
+        this.handleChange = this.handleChange.bind(this);
     }
 
     componentDidMount () {
@@ -28,7 +28,7 @@ export default class TextareaClean extends Component {
         }
     }
   
-    handleTextareaChange (event) {
+    handleChange (event) {
     
         // This handles updates to the textarea directly by the user,
         // including cutting and pasting, and a user keypress.
@@ -49,7 +49,7 @@ export default class TextareaClean extends Component {
         this.props.onChange(val);
     }
     
-    handleTextareaKeyPress (event) {
+    handleKeyPress (event) {
     
         // Don't allow unprintables here except newLine.
         // This does not capture cutting or pasting in the textarea.
@@ -72,8 +72,8 @@ export default class TextareaClean extends Component {
 
         return (
             <textarea
-                onKeyPress = {this.handleTextareaKeyPress}
-                onChange = {this.handleTextareaChange}
+                onKeyPress = {this.handleKeyPress}
+                onChange = {this.handleChange}
                 value = {this.props.value}
                 className = {this.props.className}
                 placeholder = {this.props.placeholder}

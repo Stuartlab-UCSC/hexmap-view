@@ -4,7 +4,7 @@
 
 import React, { Component } from 'react';
 import { render } from 'react-dom';
-import Select2 from './select2wrap.js';
+import Select2 from '/imports/select2wrap.js';
 
 // Placeholder text when no project is selected
 var PLACEHOLDER_TEXT = 'Select a Map...';
@@ -128,7 +128,8 @@ function signInClicked(count) {
 
 exports.init = function () {
 
-    $('.login').on('click', $('#login-sign-in-link'), signInClicked);
+    // This may be causing password to lose focus on password error.
+    //$('.login').on('click', $('#login-sign-in-link'), signInClicked);
 
     // Re-populate projects whenever the user changes, including log out
     Meteor.autorun(function() {

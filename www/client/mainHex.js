@@ -190,7 +190,7 @@ Hex = (function () { // jshint ignore: line
                 Tool.initLabelTool();
                 Download.init();
                 Colors.init();
-                import InfoWindow from '/imports/infoWindow.js';
+                import InfoWindow from '/imports/reactCandidates/infoWindow.js';
                 InfoWindow.init();
                 initSetOperations();
                 CreateMap.init();
@@ -215,7 +215,7 @@ Hex = (function () { // jshint ignore: line
  
             initSortAttrs();
             initFilter();
-            import Longlist from '../imports/longlist.js';
+            import Longlist from '/imports/reactCandidates/longlist.js';
             Longlist.init();
             Session.set('retrievedLayerInfo', true);
         }

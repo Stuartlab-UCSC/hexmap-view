@@ -219,7 +219,7 @@ refreshColors = function () {
     });
     
     // Make sure to also redraw the info window, which may be open.
-    import InfoWindow from '/imports/infoWindow.js';
+    import InfoWindow from '/imports/reactCandidates/infoWindow.js';
     InfoWindow.redraw();
 }
 
@@ -506,7 +506,7 @@ initLayout = function () {
                     // resort the list to the default of density
                     find_clumpiness_stats(Session.get('layoutIndex'));
                     Session.set('sort', ctx.defaultSort());
-                    import Longlist from '../imports/longlist.js';
+                    import Longlist from '/imports/reactCandidates/longlist.js';
                     Longlist.update();
                     
                 });

@@ -1,7 +1,7 @@
 // infoWindow.js
 // Handle the google maps infoWindow objects.
 
-import InfoWindow from '/imports/infoWindow.js';
+import InfoWindow from '/imports/reactCandidates/infoWindow.js';
 
 // This is the global Google Maps info window. We only want one hex to have its
 // info open at a time.

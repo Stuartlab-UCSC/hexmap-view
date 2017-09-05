@@ -18,27 +18,25 @@ export default class NodeIdSearch extends Component {
         // Save our selves.
         this.query = this.query.bind(this);
         this.handleLoaded = this.handleLoaded.bind(this);
-        this.handleOpen = this.handleOpen.bind(this);
+        this.handleDropdownOpen = this.handleDropdownOpen.bind(this);
+        this.handleDropdownKeyUpDown = this.handleDropdownKeyUpDown.bind(this);
         this.handleSelecting = this.handleSelecting.bind(this);
         this.formatResult = this.formatResult.bind(this);
-        this.handleDropdownKeyUpDown = this.handleDropdownKeyUpDown.bind(this);
     }
         
-    componentDidMount() {
+    componentDidMount () {
     
-        // Build the list of node IDs.
-        this.allNodeIds = Object.keys(polygons).sort();
-        
         // Handle key up and down events on the entries.
         $(document).on('keyup keydown', ".select2-drop-active",
             this.handleDropdownKeyUpDown);
     }
 
-    componentWillUnmount() {
+    componentWillUnmount () {
          $(document).off('keyup keydown', ".select2-drop-active",);
+        $(document).off('keyup keydown', ".select2-drop-active",);
     }
 
-    shouldComponentUpdate(newProps) {
+    shouldComponentUpdate (newProps) {
     
         // We don't want to re-render when props we're not interested in
         // change. The parent never changes our props.
@@ -128,7 +126,7 @@ export default class NodeIdSearch extends Component {
         event.preventDefault();
     }
     
-    handleOpen (event) {
+    handleDropdownOpen (event) {
     
         // Handle the open dropdown event.
         // Reset the previously-selected ID.
@@ -152,7 +150,7 @@ export default class NodeIdSearch extends Component {
         // Get where we should start in the layer list,
         // from select2's infinite scrolling.
         var start_position = 0,
-            allIds = this.allNodeIds;
+            allIds = this.props.allIds;
         
         if (query.context != undefined) {
             start_position = query.context;
@@ -213,7 +211,7 @@ export default class NodeIdSearch extends Component {
         return (
             <Select2
                 select2-loaded = {self.handleLoaded}
-                select2-open = {self.handleOpen}
+                select2-open = {self.handleDropdownOpen}
                 select2-selecting = {self.handleSelecting}
                 select2options = {{
                     data: { id: '', text: '' },

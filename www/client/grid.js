@@ -2,7 +2,7 @@
 // This handles the node density visualizations.
 
 import Ajax from '/imports/ajax.js';
-import InfoWindow from '/imports/infoWindow.js';
+import InfoWindow from '/imports/reactCandidates/infoWindow.js';
 
 var app = app || {}; 
 

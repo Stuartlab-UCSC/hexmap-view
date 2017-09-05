@@ -2,7 +2,7 @@
 // navBar.js
 // Create the menu event handlers.
 
-import AttrAdd from './attrAdd.js';
+import AttrAdd from './reactCandidates/attrAdd.js';
 function attrAdd () {
     $('#navBar .attrAdd').on('click', AttrAdd.init);
 }

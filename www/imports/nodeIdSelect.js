@@ -20,6 +20,11 @@ class NodeIdSelect extends Component {
         this.state = {
             cartText: '',
         }
+        this.className = 'nodeIdSelectModal';
+        
+        // Build the list of node IDs.
+        this.allIds = Object.keys(polygons).sort();
+        
         // Save our selves.
         this.addToCart = this.addToCart.bind(this);
         this.updateCart = this.updateCart.bind(this);
@@ -33,7 +38,7 @@ class NodeIdSelect extends Component {
     // TODO this should render the react prompt rather than go the long way
     // out of react and back in.
     error (msg) {
-        Util.banner('error', msg, $(this.modal).parent());
+        Util.banner('error', msg);
     }
 
     getCart () {
@@ -44,7 +49,8 @@ class NodeIdSelect extends Component {
         //      - the button to create the attribute has been pressed
         //      - the dropdown is open and we want to show which nodes
         //        are already in the cart.
-        var str = this.state.cartText,
+        var self = this,
+            str = this.state.cartText,
             cart = [];
         
         // If there is a cart string...
@@ -59,11 +65,20 @@ class NodeIdSelect extends Component {
             // remove any empty elements,
             // remove duplicate elements,
             // then replace the cart contents.
-            cart = _.uniq(_.without(
-                _.map(_.flatten(data), function (el) {
-                    return el.trim();
-                }),
-                null, ''));
+            cart =
+                _.filter(
+                    _.uniq(
+                        _.without(
+                            _.map(_.flatten(data), function (el) {
+                                return el.trim();
+                            }),
+                            null, ''
+                        )
+                    ),
+                    function (id) {
+                        return (self.allIds.indexOf(id) > -1);
+                    }
+                );
         }
         return (cart);
     }
@@ -85,12 +100,13 @@ class NodeIdSelect extends Component {
     
     handleButtonClick () {
 
-        // Not needed if we update with every cart change
+        // Get the current cart contents.
         var cart = this.getCart();
     
         // Create the new attribute.
         if (cart.length < 1) {
-            this.error('no valid node IDs so attribute cannot be created');
+            this.error(
+               'there are no valid node IDs so an attribute cannot be created');
             return;
         }
         
@@ -119,6 +135,7 @@ class NodeIdSelect extends Component {
             body =
                 <div>
                     <NodeIdSearch
+                        allIds = {this.allIds}
                         addToSelectedList = {self.addToCart}
                         getCart = {this.getCart}
                         dropdownParent = {this.props.searchDropDownParent}
@@ -143,6 +160,8 @@ class NodeIdSelect extends Component {
                         className = 'cart'
                         rows = '10'
                         cols = '35'
+                        ref={(TextareaClean) => {
+                            self.textarea = TextareaClean; }}
                     />
                 </div>,
             button =
@@ -154,6 +173,7 @@ class NodeIdSelect extends Component {
 
         return (
             <Modal
+                isOpen = {this.props.isOpen}
                 onRequestClose = {self.handleCloseModal}
                 className = 'nodeIdSelectModal'
                 parentSelector = {() => this.props.parentSelector}
@@ -178,6 +198,7 @@ exports.show = function () {
     var parentSelector = $('#' + containerId);
     render(
         <NodeIdSelect
+            isOpen = {true}
             closeModal = {closeModal}
             parentSelector = {parentSelector[0]}
             searchDropDownParent = {parentSelector}

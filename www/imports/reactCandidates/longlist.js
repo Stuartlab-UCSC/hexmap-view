@@ -3,9 +3,7 @@
 
 import React, { Component } from 'react';
 import { render } from 'react-dom';
-import Select2 from './select2wrap.js';
-
-import Longlist from './longlist.js';
+import Select2 from '/imports/select2wrap.js';
 
 // How many layer results should we display at once?
 var SEARCH_PAGE_SIZE = 10,
@@ -140,7 +138,7 @@ exports.init = function () {
                 value: null,
                 query: query,
                 formatResult: formatResult,
-                dropdownCssClass: 'longList',
+                dropdownCssClass: 'longlist',
             }}
         />, $search[0]);
     

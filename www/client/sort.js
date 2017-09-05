@@ -4,7 +4,7 @@
 
 var app = app || {}; 
 
-import Ajax from '/imports/ajax';
+import Ajax from '/imports/ajax.js';
 
 (function (hex) { 
     //'use strict';
@@ -246,7 +246,7 @@ import Ajax from '/imports/ajax';
                 focus_attr: focus_attr, color: 'inherit', background: 'inherit'});
         }
         clearAllFilters();
-        import Longlist from '../imports/longlist.js';
+        import Longlist from '/imports/reactCandidates/longlist.js';
         Longlist.update();
         Shortlist.update_ui_metadata();
  

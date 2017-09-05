@@ -42,7 +42,7 @@ const namespace = 'select2-react';
 
 export default class Select2 extends Component {
 
-    constructor(props) {
+    constructor (props) {
         super(props);
         this.el = null;
         
@@ -57,32 +57,32 @@ export default class Select2 extends Component {
         this.initialRender = true;
     }
 
-    componentDidMount() {
+    componentDidMount () {
         this.initSelect2(this.props);
         this.updateValue();
     }
 
-    componentWillReceiveProps(nextProps) {
+    componentWillReceiveProps (nextProps) {
         this.initialRender = false;
         this.updSelect2(nextProps);
     }
 
-    componentDidUpdate() {
+    componentDidUpdate () {
         this.updateValue();
     }
 
-    componentWillUnmount() {
+    componentWillUnmount () {
         this.destroySelect2();
     }
 
-    initSelect2(props) {
+    initSelect2 (props) {
         const { select2options } = props;
         this.el = $(ReactDOM.findDOMNode(this));
         this.el.select2(select2options);
         this.attachEventHandlers(props);
     }
 
-    updSelect2(props) {
+    updSelect2 (props) {
         const prevProps = this.props;
         const { select2options } = props;
         
@@ -91,13 +91,9 @@ export default class Select2 extends Component {
         }
 
         const handlerChanged = e => prevProps[e[1]] !== props[e[1]];
-        if (props.events.some(handlerChanged)) {
-            this.detachEventHandlers();
-            this.attachEventHandlers(props);
-        }
     }
 
-    updateSelect2Value(value) {
+    updateSelect2Value (value) {
 
         // If a change handler was supplied...
         if (this.props.onChange) {
@@ -120,7 +116,7 @@ export default class Select2 extends Component {
         }
     }
 
-    updateValue() {
+    updateValue () {
 
         // from componentDidUpdate()
         // TODO do we need all of this?
@@ -135,12 +131,12 @@ export default class Select2 extends Component {
         }
     }
 
-    fuzzyValuesEqual(currentValue, value) {
+    fuzzyValuesEqual (currentValue, value) {
         return (currentValue === null && value === '') ||
             shallowEqualFuzzy(currentValue, value);
     }
 
-    handleOpen(event) {
+    handleOpen (event) {
       
         // Handle the select2 v3 open dropdown event.
         // Size the bottom of the dropdown to be just
@@ -151,13 +147,13 @@ export default class Select2 extends Component {
         results.css('max-height', $(window).height() - results.offset().top - 15);
     }
 
-    destroySelect2() {
+    destroySelect2 () {
         this.detachEventHandlers();
         this.el.select2('destroy');
         this.el = null;
     }
 
-    attachEventHandlers(props) {
+    attachEventHandlers (props) {
     
         if (props.select2options.dropdownParent) {
             this.openEl.on('select2-open', this.handleOpen);
@@ -171,7 +167,7 @@ export default class Select2 extends Component {
         });
     }
 
-    detachEventHandlers() {
+    detachEventHandlers () {
         this.openEl.off('select2-open')
         this.props.events.forEach(event => {
             if (typeof this.props[event[1]] !== 'undefined') {
@@ -180,23 +176,18 @@ export default class Select2 extends Component {
         });
     }
 
-    render() {
-        const { value, ...props } = this.props;
+    render () {
+        const { value, select2, ...props } = this.props;
 
         // These props don't work with a div,
         // so remove them from this copy of props.
         // TODO: put these all under 'props.comp'.
         delete props.select2options;
         delete props.events;
-        delete props.onOpen;
-        delete props.onClose;
-        delete props.onSelect;
-        delete props.onChange;
         delete props['select2-open'];
         delete props['select2-loaded'];
         delete props['select2-selecting'];
         delete props.choiceDisplay;
-        delete props.onUnselect;
         
         return (
             <div {...props}>
@@ -218,8 +209,8 @@ Select2.propTypes = {
     ]),
     events: PropTypes.array,
     
-    // Options for the pre-react select2 widget.
-    select2options: PropTypes.object,
+    // Parameters and options for the pre-react select2 widget.
+    select2: PropTypes.object,
     
     // Allow multiple selections.
     multiple: PropTypes.bool,
@@ -244,12 +235,6 @@ Select2.propTypes = {
     // allow the user to reject selection by calling event.preventDefault().
     // (Select2 v3)
     'select2-selecting': PropTypes.func,
-    
-    // TODO: remove these if they are Select2 v4 events:
-    onOpen: PropTypes.func,
-    onClose: PropTypes.func,
-    onSelect: PropTypes.func,
-    onUnselect: PropTypes.func,
 };
 
 Select2.defaultProps = {
@@ -261,10 +246,6 @@ Select2.defaultProps = {
         [`select2-open`, 'select2-open'],
         [`select2-loaded`, 'select2-loaded'],
         [`select2-selecting`, 'select2-selecting'],
-        [`select2:open.${namespace}`, 'onOpen'],
-        [`select2:close.${namespace}`, 'onClose'],
-        [`select2:select.${namespace}`, 'onSelect'],
-        [`select2:unselect.${namespace}`, 'onUnselect'],
     ],
     multiple: false,
 };
