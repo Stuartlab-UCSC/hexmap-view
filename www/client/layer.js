@@ -230,7 +230,7 @@ Layer = (function () { // jshint ignore: line
             // so convert the values from strings to floats.
             var data = {};
             _.each(layer.data, function (val, key) {
-                data[key] = parseFloat(val);
+                data[key] = Number(parseFloat(val));
             });
             layer.data = data;
         }
