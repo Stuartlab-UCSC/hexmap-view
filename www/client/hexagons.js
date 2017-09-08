@@ -168,11 +168,11 @@ var app = app || {};
         if (hoverInfoShowing) {
             hoverInfoShowing = false;
             _.each(polygons, removeHoverListeners);
-            el.text('Show Hover Info');
+            el.text('Show Node Hover');
         } else {
             hoverInfoShowing = true;
             _.each(polygons, addHoverListeners);
-            el.text('Hide Hover Info');
+            el.text('Hide Node Hover');
         }
     }
 
