@@ -23,7 +23,6 @@ ejson@1.0.12
 accounts-password@1.3.0
 accounts-ui@1.1.9
 alanning:roles
-dburles:google-maps
 force-ssl@1.0.12
 standard-minifier-css@1.2.0_1
 standard-minifier-js@1.2.0_1

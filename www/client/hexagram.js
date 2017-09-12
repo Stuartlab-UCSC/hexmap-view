@@ -37,12 +37,8 @@ createMap = function  () {
     };
 
     // Create the actual map
-    GoogleMaps.create({
-        name: 'googlemap',
-        options: mapOptions,
-        element: document.getElementById("visualization"),
-    });
-    googlemap = GoogleMaps.maps.googlemap.instance;
+    googlemap = new google.maps.Map(
+        document.getElementById('visualization'), mapOptions);
         
     // Attach the blank map type to the map
     googlemap.mapTypes.set("blank", new BlankMapType());

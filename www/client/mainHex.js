@@ -52,26 +52,16 @@ Hex = (function () { // jshint ignore: line
     });
 
     Template.mapPage.onRendered(function () {
-        Meteor.autorun(function () {
-            if (GoogleMaps.loaded()) {
-                initMainMapContainer();
-            }
-        });
+        initMainMapContainer();
         import InitMapPage from '/imports/initMapPage.js';
         Message.init();
         InitMapPage.init();
-        GoogleMaps.load({ key: GOOGLE_API_KEY });  // browser key
         Tool.init();
     });
 
     Template.gridPage.onRendered(function () {
-        Meteor.autorun(function () {
-            if (GoogleMaps.loaded()) {
-                initGridMapContainer();
-            }
-        });
+        initGridMapContainer();
         Message.init();
-        GoogleMaps.load({ key: GOOGLE_API_KEY });  // browser key
         Tool.init();
     });
 
