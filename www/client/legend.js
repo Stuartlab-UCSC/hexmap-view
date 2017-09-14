@@ -64,7 +64,6 @@ var app = app || {};
             if (!Number.isNaN(Number(colormap[i].name))){
                 context.fillText("", 2, y_position);
             } else {
-                console.log("drawing name");
                 context.fillText(colormap[i].name, 2, y_position);
             }
 
