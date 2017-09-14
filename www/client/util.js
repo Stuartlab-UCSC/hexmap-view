@@ -2,6 +2,7 @@
 // This contains various utilities used throughout the code.
 
 import Prompt from '/imports/prompt.js';
+import Select2 from '/imports/lib/select2.js';
 
 var app = app || {};
 (function (hex) { // jshint ignore: line
