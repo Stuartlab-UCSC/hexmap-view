@@ -12,7 +12,7 @@ import TextareaClean from './textareaClean.js';
 import ReadFile from './readFile.js';
 import U from './utils.js';
 
-class NodeIdSelect extends Component {
+export default class NodeIdSelect extends Component {
 
     constructor (props) {
         super(props);
@@ -183,24 +183,4 @@ class NodeIdSelect extends Component {
             />
         );
     }
-}
-
-var containerId = 'nodeIdSelectContainer';
-
-function closeModal (result) {
-    $('#' + containerId).remove();
-}
-
-exports.show = function () {
-
-    // Create and render this modal.
-    $('body').append($('<div id=' + containerId + ' />'));
-    var parentSelector = $('#' + containerId);
-    render(
-        <NodeIdSelect
-            isOpen = {true}
-            closeModal = {closeModal}
-            parentSelector = {parentSelector[0]}
-            searchDropDownParent = {parentSelector}
-         />, parentSelector[0]);
 }
