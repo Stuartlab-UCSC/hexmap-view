@@ -16,7 +16,7 @@ print = function (text) {
         // We know the console exists, and we can log to it.
         console.log(text);
     }
-}
+};
 
 createMap = function  () {
 
@@ -71,14 +71,14 @@ initMap = function () {
     // Initialize the google map and create the hexagon assignments
     createMap();
     createHexagons();
-}
+};
 
 have_colormap = function (colormap_name) {
     // Returns true if the given string is the name of a colormap, or false if 
     // it is only a layer.
 
     return (colormap_name in colormaps)
-}
+};
 
 function get_range_position(score, low, high) {
     // Given a score float, and the lower and upper bounds of an interval (which
@@ -91,7 +91,7 @@ function get_range_position(score, low, high) {
     
     if(interval_length > 0) {
         // First rescale 0 to 1
-        score = (score - low) / interval_length
+        score = (score - low) / interval_length;
         
         // Clamp
         score = Math.min(Math.max(score, 0), 1);
@@ -125,8 +125,7 @@ refreshColors = function () {
     
     // Obtain the layer objects (mapping from signatures/hex labels to colors)
     Layer.with_layers(current_layers, function(retrieved_layers) {  
-        print("Redrawing view with " + retrieved_layers.length + " layers.");
-        
+
         // This holds arrays of the lower and upper limit we want to use for 
         // each layer, by layer number. The lower limit corresponds to u or 
         // v = -1, and the upper to u or v = 1. The entries we make for 
@@ -135,7 +134,9 @@ refreshColors = function () {
         // We need to do this inside the callback, once we already have the
         // layers, so that we properly use the newest slider range endpoints,
         // which are updated asynchronously.
-        var layer_limits = []
+        var layer_limits = [];
+        var at_least_one_layer = retrieved_layers.length >= 1;
+        var two_layers = retrieved_layers.length >= 2;
         for(var i = 0; i < current_layers.length; i++) {
             var range = Shortlist.get_slider_range(current_layers[i]);
             print("Layer range " + range[0] + " to " + range[1]);
@@ -160,7 +161,7 @@ refreshColors = function () {
                 // Start with the no data color.
                 var computed_color = Colors.noDataColor();
                 
-                if(retrieved_layers.length >= 1) {
+                if(at_least_one_layer) {
                     // We need to compute colors given the layers we found.
 
                     // Get the heat along u and v axes. This puts us in a square
@@ -168,18 +169,18 @@ refreshColors = function () {
                     // !(NaN == NaN)
                     var u = retrieved_layers[0].data[label];
                     
-                    if(!have_colormap(current_layers[0])) {
+                    if(Util.is_continuous(current_layers[0])) {
                         // Take into account the slider values and re-scale the 
                         // layer value to express its position between them.
                         u = get_range_position(u, layer_limits[0][0], 
                             layer_limits[0][1]);
                     }
                     
-                    if(retrieved_layers.length >= 2) {
+                    if(two_layers) {
                         // There's a second layer, so use the v axis.
                         var v = retrieved_layers[1].data[label];
                         
-                        if(!have_colormap(current_layers[1])) {
+                        if(Util.is_continuous(current_layers[1])) {
                             // Take into account the slider values and re-scale
                             // the layer value to express its position between
                             // them.
@@ -223,7 +224,7 @@ get_color = function (u_name, u, v_name, v) {
     // ignored.
     //
     // For categorical layers, the associated u or v is the category index.
-    
+
     if(have_colormap(v_name) && !have_colormap(u_name)) {
         // We have a colormap as our second layer, and a layer as our first.
         // Swap everything around so colormap is our first layer instead.
@@ -233,7 +234,7 @@ get_color = function (u_name, u, v_name, v) {
         return get_color(v_name, v, u_name, u);
     }
 
-    if(isNaN(u) || isNaN(v) || u == undefined || v == undefined) {
+    if(isNaN(u) || isNaN(v) || u === undefined || v === undefined) {
         // At least one of our layers has no data for this hex.
         return Colors.noDataColor();
     }
