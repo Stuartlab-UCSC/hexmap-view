@@ -604,7 +604,8 @@ import Ajax from '/imports/ajax';
                 }
             }
         );
-    }
+
+    };
 
     function getPreComputedStats (dataId, focus_attr, opts) {
 
@@ -674,7 +675,7 @@ import Ajax from '/imports/ajax';
             hexnames2,
             vals,
             fill,
-            obj = {}
+            obj = {},
             diffData = {};
 
         // Create a new selection attribute from the one values of each layer
