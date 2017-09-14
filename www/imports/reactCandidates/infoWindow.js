@@ -62,8 +62,6 @@ function add_signature(signature) {
 
     // This holds the root element of the row
     var root = $("<div/>").addClass("info-row");
-    var url = get_signature_search_url();
-    url += signature;
     // Add the key and value elements
     if (!justNodeId) {
         root.append($("<div/>").addClass("info-key").text("ID"));
@@ -73,6 +71,7 @@ function add_signature(signature) {
     if (justNodeId) {
         $infoValue.text(signature);
     } else {
+        var url = get_signature_search_url() + signature;
         $infoValue.append($('<a href="' + url + '" target="_blank">' +
             signature + '</a>'));
     }
@@ -137,13 +136,10 @@ function with_infocard(signature, callback, gMap) {
                     }
                 }
                 
-                if (layer_value == undefined) {
-                    // Let the user know that there's nothing there in this layer.
-                    layer_value = 'NA';
+                // Only show the attribute if it has a value for this node.
+                if (!_.isUndefined(layer_value)) {
+                    infocard.append(row(current_layers[i], layer_value));
                 }
-                
-                // Make a listing for this layer's value
-                infocard.append(row(current_layers[i], layer_value));
             }
         }
         

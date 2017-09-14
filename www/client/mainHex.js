@@ -82,7 +82,7 @@ Hex = (function () { // jshint ignore: line
                 { id: 'Pancan12/GeneMap', png: 'pancan12gene.png' },
                 { id: 'Gliomas', png: 'gliomas-paper.png' },
                 { id: 'QuakeBrain', png: 'QuakeBrain.png' },
-                { id: 'pCHIPS', png: 'pCHIPS.png' },
+                { id: 'pCHIPS', png: 'pchips.png' },
                 { id: 'mgmarin_public/PCAWG_JuncBASE_CassetteExonPSIs',
                     label: 'PCAWG JuncBASE CassetteExonPSIs',
                     linkAnchor: 'PCAWGJuncBASE',

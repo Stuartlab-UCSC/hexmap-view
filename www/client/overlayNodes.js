@@ -138,9 +138,8 @@ var app = app || {};
  
         // Remove any overlay nodes due to menu click.
         var nodes = Session.get('overlayNodes');
-
-        if (nodes && node.length > 0) {
  
+        if (nodes) {
  
             _.each (Object.keys(nodes), function (n) {
             
