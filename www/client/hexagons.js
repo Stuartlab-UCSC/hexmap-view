@@ -129,7 +129,7 @@ var app = app || {};
         hexagon.setOptions({
             fillColor: color
         });
-    }
+    };
 
     initHexagons = function (draw) {
     
