@@ -94,7 +94,7 @@ var app = app || {};
 
     function click(event) {
  
-        import '/imports/canvas2svg.js';
+        import '/imports/lib/canvas2svg.js';
 
         // Download the map.
         var svg = googleToSvg();
@@ -103,7 +103,7 @@ var app = app || {};
 
     function clickLegend(event) {
  
-        import '/imports/canvas2svg.js';
+        import '/imports/lib/canvas2svg.js';
 
         // Download the legend.
         var context = new C2S(200,2000),

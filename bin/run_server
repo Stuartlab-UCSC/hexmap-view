@@ -51,6 +51,13 @@ fi
 # Configure the server
 source $BIN/../config/config.$INSTALL
 
+if [ $SERVER_TYPE == 'wwwViz' ]; then
+    VIZ=" --production --extra-packages bundle-visualizer"
+    SERVER_TYPE=www
+else
+    VIZ=
+fi
+
 # Run the server by type using one of the above configs
 
 if [ $SERVER_TYPE == 'http' ]; then
@@ -100,10 +107,11 @@ elif [ $SERVER_TYPE == 'www' ]; then
     cat $BIN/../config/settingsA.$INSTALL.json $BIN/../config/settingsB.json > $BIN/../config/settings.json
     if [ -z ${FOREGROUND} ]; then
         export MAIL_URL="smtp://localhost"
-        (nohup $METEOR/meteor --port $PORT --settings $BIN/../config/settings.json &> $HEXMAP/www.log &)
+        (nohup $METEOR/meteor $VIZ --port $PORT --settings $BIN/../config/settings.json &> $HEXMAP/www.log &)
     else
-        $METEOR/meteor --port $PORT --settings $HEXMAP/config/settings.json
+        $METEOR/meteor $VIZ --port $PORT --settings $HEXMAP/config/settings.json
     fi
+
 else
     echo Invalid SERVER_TYPE: $SERVER_TYPE
     echo Exiting

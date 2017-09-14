@@ -44,9 +44,15 @@
                                 </a>
                             </li>
                             <li class='mapShow gridShow' >
-                                <a class='xyPreSquiggle' download='hexmapXy.tab'
-                                    title = 'Download xy positions of nodes before flattening into hexagons'>
+                                <a class='xyAssignment' download='hexmapXy.tab'
+                                    title = 'Download xy positions of nodes on the hexagonal grid'>
                                     XY Coordinates
+                                </a>
+                            </li>
+                            <li class='mapShow gridShow' >
+                                <a class='xyPreSquiggle' download='hexmapDensityXy.tab'
+                                    title = 'Download xy positions of nodes before flattening into hexagons'>
+                                    Density Coordinates
                                 </a>
                             </li>
                             <!--
@@ -87,11 +93,9 @@
                     <li class='colormap'>
                         Colormap...
                     </li>
-                    <!--
                     <li class='addText'>
                         Attach Label...
                     </li>
-                    -->
                     <li class='attrAdd mapShow'>
                         Add Attributes...
                     </li>
@@ -109,13 +113,13 @@
                 Select
                 <img src='/icons/caret-down.png' style='height:8px'>
                 <ul class='select'>
-                    <li class='rectangle' title='Select a rectangular region of hexagons'>
+                    <li class='rectangle' title='Select a rectangular region of nodes'>
                         by Rectangle
                     </li>
-                    <li class='polygon' title='Select a polygonal region of hexagons'>
+                    <li class='polygon' title='Select a polygonal region of nodes'>
                         by Polygon
                     </li>
-                    <li class='import' title='Select hexagons by node IDs'>
+                    <li class='nodeIdSelect' title='Select nodes by node IDs'>
                         by Node IDs...
                     </li>
                 </ul>
@@ -125,6 +129,9 @@
                 View
                 <img src='/icons/caret-down.png' style='height:8px'>
                 <ul class='view'>
+                    <li class='showHoverInfo mapShow'>
+                        Show Node Hover
+                    </li>
                     <li class='mapLayout'>
                         <a href='/?pg=mapPage' style='color:inherit'>
                         Map Layout

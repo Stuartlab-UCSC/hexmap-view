@@ -44,7 +44,7 @@ function verifyParametersProduced (testName, driver) {
             if (index > -1) {
                 var actual = text.substring(index + preOptsText.length);
                 if (actual !== expOpts[testName]) {
-                    U.failed(expOpts[testName], actual, __line, __file);
+                    U.failed(expOpts[testName], actual, __line, __file, driver);
                 }
             }
         });
@@ -57,7 +57,7 @@ function doThroughSetFeatureFile (featurePath, driver) {
         .then(_ => U.login(driver))
         .then(_ => U.clickMenuOption(menuClass, menuOptionClass, driver))
         .then(_ => U.setUploadFile(featurePath, 'feature_upload_anchor',
-            'create_map_dialog', 'upload-file', driver));
+            'create_map_dialog', 'readFile', driver));
 }
 
 function setMapName (name, driver) {
@@ -178,7 +178,7 @@ function attributeFileTest () {
         .then(_ => doThroughSetFeatureFile(featurePath, driver))
         .then(_ => setMapName(__function, driver))
         .then(_ => U.setUploadFile(attributePath, 'attribute_upload_anchor',
-            'create_map_dialog', 'upload-file', driver))
+            'create_map_dialog', 'readFile', driver))
         .then(_ => U.clickDialogButton(driver))
         .then(_ => verifyParametersProduced (__function, driver))
         .then(_ => U.verifyNewMapLoads(majorMap + '/' + __function, driver,
@@ -202,7 +202,7 @@ function attributeFirstTest () {
     driver.get(startUrl)
         .then(_ => doThroughSetFeatureFile(featurePath, driver))
         .then(_ => U.setUploadFile(attributePath, 'attribute_upload_anchor',
-            'create_map_dialog', 'upload-file', driver))
+            'create_map_dialog', 'readFile', driver))
         .then(_ => U.clickDialogButton(driver))
         .then(_ => setAdvancedOptions(driver))
         .then(_ => setFirstAttribute('continuous_integer', driver))

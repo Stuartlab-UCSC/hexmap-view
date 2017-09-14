@@ -26,13 +26,15 @@ Object.defineProperty(global, '__stack', {
     return stack;
   }
 });
+
 Object.defineProperty(global, '__line', {
   get: function(){
     return __stack[1].getLineNumber();
   }
 });
 
-exports.failed = function (expected, actual, line, filename, callerLine, callerFile) {
+exports.failed = function (expected, actual, line, filename, callerLine,
+    callerFile, driver) {
 
     // Report a test failure.
     console.log('FAILED: EXPECTED: "' + expected + '"\n          ACTUAL: "' +
@@ -40,26 +42,82 @@ exports.failed = function (expected, actual, line, filename, callerLine, callerF
         (callerFile ? ' from ' + callerFile : '') +
         (callerLine ? ':' + callerLine : '') +
         ')');
+    /*
+    // It would be nice if we could quit this driver and not continue with
+    // this particular test
+    if (driver !== undefined) {
+        driver.quit();
+    }
+    */
 };
 
+exports.verifyPromptModal = function (promptStr, textStr, driver, callerLine,
+        callerFile) {
+    
+    // Verify a prompt modal exists and has the given prompt string
+    // and input text string.
+    var modalCss = '.promptModal',
+        promptCss = modalCss + ' .modalLabel',
+        textCss = modalCss + ' input';
+    
+    driver.findElements(By.css(modalCss))
+        .then(function (els) {
+            if (els.length < 1) {
+                U.failed('prompt modal found', 'not found',
+                         __line, __file, callerLine, callerFile, driver);
+                return els;
+            }
+        })
+        .then(_ => driver.findElement(By.css(promptCss)).getText())
+        .then(function (text) {
+             if (text !== promptStr) {
+                U.failed(promptStr, text, __line, __file,
+                    callerLine, callerFile, driver);
+            }
+        })
+        .then(_ => driver.findElement(By.css(textCss))
+            .getAttribute('value'))
+        .then(function (val) {
+            if (val !== textStr) {
+                U.failed(textStr, val, __line, __file, callerLine,
+                    callerFile, driver);
+            }
+        })
+    ;
+};
 
 exports.verifyNewMapLoads = function (mapId, driver, url, callerLine, callerFile) {
 
     // Wait for a reload, then for the map selector to be found.
     var project = '#project .select2-container',
-        projectSpan = project + ' span';
+        projectSpan = project + ' > a > span';
     
     driver.wait(until.urlIs(url), 40000)
         .then(_ => driver.wait(until.elementLocated(By.css(project)),
             60000))
-        .then(_ => driver.wait(until.elementLocated(By.css(
-            projectSpan)), 10000)
-            .getText()).then(function (text) {
-                if (text.indexOf(mapId) < 0) {
-                    U.failed(mapId, text, __line, __file, callerLine, callerFile);
-                }
-            });
+        .then(_ => driver.sleep(500)) // allow the select2 elements to load
+        .then(_ => driver.findElement(By.css(projectSpan)).getText())
+        .then(function (text) {
+            if (text.indexOf(mapId) < 0) {
+                U.failed(mapId, text, __line, __file, callerLine, callerFile,
+                    driver);
+            }
+        })
+    ;
 };
+
+/*
+// does not work
+exports.cancelModalWithClick = function (driver, callerLine, callerFile) {
+ 
+    // Cancel and close a modal by clicking outside the modal.
+    var outsideCss = '.ReactModal__Overlay';
+    
+    driver.sleep(1000)
+        .then(_ => driver.findElement(By.css(outsideCss)).click())
+    ;
+};
+*/
 
 exports.clickDialogButton = function (driver, buttonPosition) {
 
@@ -86,10 +144,11 @@ exports.clickMenuOption = function (menuClass, menuOptionClass, driver) {
     // primary menu options always displayed on the navigation bar
     var menu = '#navBar .' + menuClass,
         menuOption = menu + ' .' + menuOptionClass;
-    
+
     driver.wait(until.elementLocated(By.css(menu)), 6000).click()
+        .then(_ => driver.sleep(1000)) // wait for the handler to be attached
         .then(_ => driver.wait(until.elementIsVisible(driver.findElement(
-            By.css(menuOption))), 12000).click())
+            By.css(menuOption))), 100).click())
     ;
 };
 

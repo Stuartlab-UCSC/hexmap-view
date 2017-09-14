@@ -2,6 +2,8 @@
 // Most of the code to handle the layer data.
 
 import Ajax from '/imports/ajax.js';
+import U from '/imports/utils.js';
+import Prompt from '/imports/prompt.js';
 
 var app = app || {};
 (function (hex) { // jshint ignore: line
@@ -9,57 +11,17 @@ Layer = (function () { // jshint ignore: line
 
     var selection_prefix = 'Selection';
     
-    function make_layer_name_unique (layer_name) {
- 
-        // We're done if the name is unique
-        if (layers[layer_name] === undefined) { return layer_name; }
-
-        var last_suffix,
-            name = layer_name,
-            seq = 1;
- 
-        // Special case a default selection layer name
-        if (name.startsWith(selection_prefix)) {
-            name = selection_prefix;
-        }
- 
-        // Keep looking for a name until it is unique
-        while (true) {
- 
-            // We're done if the name is unique
-            if (layers[name] === undefined) { break; }
-
-            // Find any previously tried sequence suffix
-            if (seq > 1) {
-                last_suffix = ' ' + (seq - 1);
-                if (name.endsWith(last_suffix)) {
- 
-                    // Remove the existing sequence suffix
-                    name = name.slice(0, name.length - last_suffix.length);
-                }
-            }
-            name += ' ' + seq;
-            seq += 1;
-        }
-        return name;
-    }
- 
-    function ask_user_to_name_layer(layer_name, dup_name) {
- 
+    function ask_user_to_name_layer (name, dup_name, callback) {
+    
         // Give the user a chance to name the layer
         var promptString = (dup_name) ?
-                            dup_name + ' is in use, how about this one?'
-                            : 'Please provide a label for this new attribute.',
-            text = prompt(promptString, layer_name);
-        if (text) {
-            return text.trim();
-        } else {
-            return undefined;
-        }
+                            '"' + dup_name + '" is in use, how about this one?'
+                            : 'Please name this new attribute';
+        Prompt.show(promptString, { textStr: name, callback: callback });
     }
  
-    function let_user_name_layer(layer_name) {
- 
+    function let_user_name_layer (layer_name, callback) {
+
         var name = layer_name;
  
         // if no layer name was supplied, assume this is a selection
@@ -72,25 +34,27 @@ Layer = (function () { // jshint ignore: line
         // Start with a unique name as a suggestion
         name = Layer.make_unique_layer_name(name);
  
-        var unique_name,
-            dup_name;
- 
-        // Keep asking the user for a name until it is unique or she cancels
-        while (true) {
-            name = ask_user_to_name_layer(name, dup_name);
-            
-            // We're done if she cancels
-            if (name === undefined) { break; }
- 
-            // We're done if the name is unique
-            unique_name = Layer.make_unique_layer_name(name);
-            if (unique_name === name) { break; }
+        // Keep asking the user for a name until it is unique or she cancels.
+        function wasNamed (name) {
 
+            // We're done if she cancels or gives an empty name.
+            if (name === undefined || name === '') {
+                callback();
+                return;
+            }
+ 
+            // We're done if the name is unique.
+            var unique_name = Layer.make_unique_layer_name(name);
+            if (unique_name === name) {
+                callback(name);
+                return;
+            }
+         
             // Suggest another unique name
-            dup_name = name;
-            name = unique_name;
+            ask_user_to_name_layer(unique_name, name, wasNamed);
         }
-        return name;
+        
+        ask_user_to_name_layer(name, undefined, wasNamed);
     }
  
     function load_dynamic_colormap (name, layer) {
@@ -112,9 +76,6 @@ Layer = (function () { // jshint ignore: line
 
             // Save the category index assignment.
             indexedCats = layer.colormap.cats
-         
-            // This is no longer needed.
-            delete layer.colormap;
         
         // If there are more that two categories or the categories are not ones
         // or zeros, this gets a generated colormap.
@@ -169,9 +130,6 @@ Layer = (function () { // jshint ignore: line
                 layer.data = _.object(keys, vals);
             }
         }
-
-        delete layer.uniqueVals;
-        delete layer.hasStringVals;
     }
 
     function find_dynamic_data_type (layer) {
@@ -193,10 +151,6 @@ Layer = (function () { // jshint ignore: line
         // Otherwise, this is continuous.
         } else {
             layer.dataType = 'continuous';
-         
-            // Drop the uniqueVals because this is used to determine
-            // whether we need to load a colormap later.
-            delete layer.uniqueVals;
         }
         
     }
@@ -272,14 +226,19 @@ Layer = (function () { // jshint ignore: line
          
         } else {
         
-            // This is continous or binary of only 1 & 0,
+            // This is continuous or binary of only 1 & 0,
             // so convert the values from strings to floats.
             var data = {};
             _.each(layer.data, function (val, key) {
-                data[key] = parseFloat(val);
+                data[key] = Number(parseFloat(val));
             });
             layer.data = data;
         }
+        
+        // Remove layer meta data no longer needed.
+        delete layer.colormap;
+        delete layer.uniqueVals;
+        delete layer.hasStringVals;
 
         // Save the layer object in the global layers object.
         layers[layer_name] = layer;
@@ -517,10 +476,12 @@ return { // Public methods
         }
 
         // Allow the user to change the suggested layer name.
-        var name = let_user_name_layer(new_layer_name);
+        function named (name) {
  
-        if (name) {
- 
+            if (_.isUndefined(name)) {
+                return;
+            }
+            
             // Create a data object using the category names.
             var data = _.object(nodeIds, values),
                 dynLayer = {};
@@ -533,6 +494,8 @@ return { // Public methods
             };
             Layer.with_layer(name, function() {}, dynLayer);
         }
+        
+        let_user_name_layer(new_layer_name, named);
     },
 
     create_dynamic_selection: function (nodeIds, new_layer_name) {
@@ -566,9 +529,10 @@ return { // Public methods
         });
 
         // Allow the user to change the suggested layer name.
-        var name = let_user_name_layer(new_layer_name);
- 
-        if (name) {
+        function named (name) {
+            if (_.isUndefined(name)) {
+                return;
+            }
  
             // Create most of the layer.
             var layer = {
@@ -587,8 +551,7 @@ return { // Public methods
             
             Layer.with_layer(name, function(){}, dynLayers);
         }
- 
-        return (name);
+        let_user_name_layer(new_layer_name, named);
     },
 
     fill_metadata: function (container, layer_name) {
@@ -670,7 +633,7 @@ return { // Public methods
                 rawLees: "Uncorrected Lees L",
                 adjusted_p_value_b: "Bonferroni p-value",
             }
-            
+            var klass = attribute;
             if (lookup[attribute]) {
  
                 // Replace a boring short name with a useful long name
@@ -679,7 +642,8 @@ return { // Public methods
             var tr = $('<tr\>').css('margin-bottom', '-1em');
             var td = $('<td\>')
                 .css('text-align', 'right')
-                .text(attribute+':');
+                .text(attribute+':')
+                .addClass(klass);
             tr.append(td);
             td = $('<td\>')
                 .css('text-align', 'left')

@@ -22,7 +22,7 @@ body {
 /* COLORS */
 /*
 #2B5E91  ucsc pages blue
-#E0E0FF  shortlist lavender
+#E0E0FF  shortlist dynamic entry lavender
 */
 
 body,
@@ -74,20 +74,46 @@ body,
     text-decoration: underline;
 }
 
-/* BANNER BOOTSTRAP COLORS */
+/*************** BOOTSTRAP BANNER COLORS **************************************/
+/*
+#2B5E91  dk green, info  fg
+#D8EECE  lt green, info  bg
+#775B2A     brown, warn  fg
+#F9F5D9    yellow, warn  bg
+#993031       red, error fg
+#EDD4D5      pink, error bg
+*/
+
 #banner.info,
 #banner.stay,
 #jobDialog .status.ui-widget-content.completed {
     color: #2E662C;
     background: #D8EECE;
 }
+
 #banner.warn {
-    background: #F9F5D9;
     color: #775B2A;
+    background: #F9F5D9;
 }
 
 #banner.error,
+.modal.promptModal.error,
 #jobDialog .status.ui-widget-content.failed {
-    background: #EDD4D5;
     color: #993031;
+    background: #EDD4D5;
 }
+
+.nodeIdDropdown span.selected {
+    color: #2E662C;
+}
+
+.nodeIdDropdown .select2-result.select2-highlighted span.selected {
+    color: #D8EECE;
+}
+
+/*************** BANNER BOOTSTRAP COLORS end **********************************/
+
+.modalHeader button.close {
+    background-color: inherit;
+}
+

@@ -37,12 +37,8 @@ createMap = function  () {
     };
 
     // Create the actual map
-    GoogleMaps.create({
-        name: 'googlemap',
-        options: mapOptions,
-        element: document.getElementById("visualization"),
-    });
-    googlemap = GoogleMaps.maps.googlemap.instance;
+    googlemap = new google.maps.Map(
+        document.getElementById('visualization'), mapOptions);
         
     // Attach the blank map type to the map
     googlemap.mapTypes.set("blank", new BlankMapType());
@@ -122,6 +118,14 @@ refreshColors = function () {
     
     // This holds all the current filters
     var filters = Shortlist.get_current_filters();
+ 
+    // Special case of no layers at all.
+    if (_.isUndefined(layers) || Object.keys(layers) < 1) {
+        for(var signature in polygons) {
+            setHexagonColor(polygons[signature], Colors.noAttrsColor());
+        }
+        return;
+    }
     
     // Obtain the layer objects (mapping from signatures/hex labels to colors)
     Layer.with_layers(current_layers, function(retrieved_layers) {  
@@ -212,7 +216,8 @@ refreshColors = function () {
     });
     
     // Make sure to also redraw the info window, which may be open.
-    redraw_info_window();
+    import InfoWindow from '/imports/reactCandidates/infoWindow.js';
+    InfoWindow.redraw();
 }
 
 get_color = function (u_name, u, v_name, v) {
@@ -411,15 +416,15 @@ get_color = function (u_name, u, v_name, v) {
     current_layers = Shortlist.get_active_coloring_layers();
 
     if (current_layers.length === 2 || Session.equals("background","black")) {
-        red = mix2(0x32, 0xFF, 0x00, 0, -u, -v).toFixed(0);
-        green = mix2(0x32, 0xFF, 0x00, 0xFF, -u, -v).toFixed(0);
-        blue = mix2(0x32, 0, 0xFF, 0x00, -u, -v).toFixed(0);
+          red = mix2(0x60, 0xFF, 0x00, 0x00, -u, -v).toFixed(0);
+        green = mix2(0x60, 0xFF, 0x00, 0xFF, -u, -v).toFixed(0);
+         blue = mix2(0x60, 0x00, 0xFF, 0x00, -u, -v).toFixed(0);
     }
 
     else if (Session.equals("background","white")) {
-        red = mix2(0xD3, 0xFF, 0x00, 0x00, -u, -v).toFixed(0);
-        green = mix2(0xD3, 0x00, 0x00, 0xFF, -u, -v).toFixed(0);
-        blue = mix2(0xD3, 0x00, 0xFF, 0x00, -u, -v).toFixed(0);
+          red = mix2(0xc0, 0xFF, 0x00, 0x00, -u, -v).toFixed(0);
+        green = mix2(0xc0, 0x00, 0x00, 0xFF, -u, -v).toFixed(0);
+         blue = mix2(0xc0, 0x00, 0xFF, 0x00, -u, -v).toFixed(0);
     }
 
     //Produce the color string...
@@ -498,7 +503,8 @@ initLayout = function () {
                     // resort the list to the default of density
                     find_clumpiness_stats(Session.get('layoutIndex'));
                     Session.set('sort', ctx.defaultSort());
-                    updateLonglist();
+                    import Longlist from '/imports/reactCandidates/longlist.js';
+                    Longlist.update();
                     
                 });
                 Session.set('initedLayout', true);

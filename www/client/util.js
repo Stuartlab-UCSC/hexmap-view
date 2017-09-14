@@ -1,6 +1,9 @@
 // util.js
 // This contains various utilities used throughout the code.
 
+import Prompt from '/imports/prompt.js';
+import Select2 from '/imports/lib/select2.js';
+
 var app = app || {};
 (function (hex) { // jshint ignore: line
 Util = (function () { // jshint ignore: line
@@ -45,7 +48,7 @@ Util = (function () { // jshint ignore: line
                 .show();
             $("#banner").delay(5000).fadeOut(1500);
         } else if (title === 'error') {
-            Message.display('Error', 'Sorry, ' + text);
+            Prompt.show(text, { severity: 'error' });
         } else {
             Message.display(title, text);
         }
@@ -166,23 +169,6 @@ Util = (function () { // jshint ignore: line
         return parsed;
     }
 
-    function allPrintableCharacters (data) {
-    
-        // Verify all characters are printable with the data given as an array
-        // of arrays. Valid characters:
-        // space - tilde or decimal: 32-126 or hexadecimal: x20-x7e
-        if (_.isUndefined(data)) {
-            return false;
-        }
-        var pattern = /[^\x20-\x7e]/g,
-            unprintable = _.find(data, function (row) {
-            return _.find(row, function (field) {
-                return pattern.test(field);
-            });
-        });
-        return (unprintable ? false : true);
-    }
-
     function removeFromDataTypeList (layer_name) {
 
         // Remove this layer from the appropriate data type list
@@ -260,7 +246,6 @@ Util = (function () { // jshint ignore: line
         projectNotFound: projectNotFound,
         banner: banner,
         parseTsv: parseTsv,
-        allPrintableCharacters: allPrintableCharacters,
         removeFromDataTypeList: removeFromDataTypeList,
         setHeightSelect2: setHeightSelect2,
         createOurSelect2: createOurSelect2,

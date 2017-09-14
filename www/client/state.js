@@ -152,27 +152,56 @@ var app = app || {};  // jshint ignore: line
         var s = this;
 
         // Project variables maintained in this state object, with defaults.
-        Session.set('active_layers', []); // Layer names displaying their colors
-        s.center = null; // main google map center
-        Session.set('dynamic_attrs', undefined); // Dynamic layers dict
+        // (alphabetically)
+ 
+        // Layer names displaying their colors
+        Session.set('active_layers', []);
+ 
+        // main google map center
+        s.center = null;
+ 
+        // Dynamic layers dict
+        Session.set('dynamic_attrs', undefined);
         delete Session.keys.dynamic_attrs;
-        Session.set('first_layer', undefined); // first in shortlist
+ 
+        // first in shortlist
+        Session.set('first_layer', undefined);
         delete Session.keys.first_layer;
-        s.gridCenter = null; // grid map center
-        s.gridZoom = 3;  // Zoom level of the grid
-        Session.set('layouts', undefined); // List of layouts available
+ 
+        // grid map center
+        s.gridCenter = null;
+ 
+        // grid map zoom level
+        s.gridZoom = 3;
+ 
+        // List of layouts available
+        Session.set('layouts', undefined);
         delete Session.keys.layouts;
-        Session.set('layoutIndex', undefined); // Index of active layout
+ 
+        // Index of active layout
+        Session.set('layoutIndex', undefined);
         delete Session.keys.layoutIndex;
-        Session.set('layoutName', undefined); // name of active layout
+ 
+        // name of active layout (not stored in state)
+        Session.set('layoutName', undefined);
         delete Session.keys.layoutName;
-        Session.set('reflectRanked', undefined);  // Generate ranked attribute
+ 
+        // Generate ranked attribute
+        Session.set('reflectRanked', undefined);
         delete Session.keys.reflectRanked
-        Session.set('overlayNodes', undefined);  // overlay nodes to include
+ 
+        // overlay nodes to include
+        Session.set('overlayNodes', undefined);
         delete Session.keys.overlayNodes
-        Session.set('shortlist', []); // Array of layer names in the shortlist
-        Session.set('shortlist_on_top', false); // maintain actives at the top
-        s.zoom = 3;  // Map zoom level where 3 means zoomed in by 3 levels
+ 
+        // Array of layer names in the shortlist
+        Session.set('shortlist', []);
+ 
+        // maintain actives at the top
+        Session.set('shortlist_on_top', false);
+ 
+        // Map zoom level
+        s.zoom = 3;
  
         // Project variables with prefixes
         _.each(Session.keys, function (val, key) {
@@ -190,14 +219,24 @@ var app = app || {};  // jshint ignore: line
         s.setProjectDefaults();
 
         // Reactive variables maintained in global state & not project-specific
-        Session.set('sort', DEFAULT_SORT); // Default sort message & type
-        Session.set('background', 'black');  // Main map background color
-        Session.set('viewEdges', false); // Display of directed graph
-        Session.set('pdfMap', true); // Include map in pdf
-        Session.set('pdfLegend', false); // Include legend in pdf
  
-        // Non-reactive vars maintained in global state and not project-specific
-        s.project = DEFAULT_PROJECT;  // The project data to load
+        // Default sort message & type
+        Session.set('sort', DEFAULT_SORT);
+ 
+        // Main map background color
+        Session.set('background', 'black');
+ 
+        // Display of directed graph
+        Session.set('viewEdges', false);
+ 
+        // Include map in pdf
+        Session.set('pdfMap', true);
+ 
+        // Include legend in pdf
+        Session.set('pdfLegend', false);
+ 
+        // The project data to load
+        s.project = DEFAULT_PROJECT;
     };
 
     State.prototype.jsonify = function (newPage) {

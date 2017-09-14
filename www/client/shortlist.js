@@ -11,7 +11,7 @@ Shortlist = (function () { // jshint ignore: line
     var range_extents = new ReactiveDict(); // to show the min & max values
     var zeroShow = new ReactiveDict(); // To show or hide the zero tick mark
     var filterBuilt = new ReactiveDict(); // Is filter built?
-    var slider_vals = new ReactiveDict(); // low and high values of slider
+    var slider_vals = new ReactiveDict(); // low and high values as sliding
     var template = {}; // A template for each layer
     var $shortlist; // The shortlist DOM element
     var $dynamic_controls; // The control DOM elements that come and go
@@ -29,25 +29,21 @@ Shortlist = (function () { // jshint ignore: line
         close: '/icons/close.svg',
     };
  
-    function get_range_extents (layer_name, i) {
-    
-        // The min or max of all the layer's values, not the slider value.
-        var vals = range_extents.get(layer_name);
-        if (vals && vals[i]) {
-            return vals[i];
+    function get_range_display_values (layer_name, i, showing) {
+        var vals;
+        if (showing) {
+        
+            // The values as the slider is sliding.
+            vals = slider_vals.get(layer_name);
         } else {
-            return i ? 'low' : 'high';
+        
+            // The min or max of all the layer's values.
+            vals = range_extents.get(layer_name);
         }
-    }
- 
-    function get_slider_value (layer_name, i) {
-    
-        // The values as the slider is sliding, and not the range state.
-        var vals = slider_vals.get(layer_name);
-        if (vals && vals[i]) {
+        if (vals && !_.isUndefined(vals[i])) {
             return vals[i];
         } else {
-            return i ? 'low' : 'high';
+            return i < 1 ? 'low' : 'high';
         }
     }
  
@@ -198,24 +194,22 @@ Shortlist = (function () { // jshint ignore: line
             return (show ? 'inline-block' : 'none');
         },
         low: function () {
-            var val,
-                layer_name = this.toString();
-            if (is_filter_showing(this)) {
-                val = get_slider_value(layer_name, 0);
-            } else {
-                val = get_range_extents(layer_name, 0);
+            var layer_name = this.toString(),
+                val = get_range_display_values(
+                    layer_name, 0, is_filter_showing(this));
+            if (typeof val === 'number') {
+                val = Number(val).toExponential(1);
             }
-            return Number(val).toExponential(1);
+            return val;
         },
         high: function () {
-            var val,
-                layer_name = this.toString();
-            if (is_filter_showing(layer_name)) {
-                val = get_slider_value(layer_name, 1);
-            } else {
-                val = get_range_extents(layer_name, 1);
+            var layer_name = this.toString(),
+                val = get_range_display_values(
+                    layer_name, 1, is_filter_showing(this));
+            if (typeof val === 'number') {
+                val = Number(val).toExponential(1);
             }
-            return Number(val).toExponential(1);
+            return val;
         },
         save_filter_bottom: function () {
             var layer_name = this;
@@ -906,6 +900,10 @@ Shortlist = (function () { // jshint ignore: line
         // Add the layers to the global layers object.
         Layer.with_layers(
             shortlist, entries_initialized, Session.get('dynamic_attrs'));
+            
+        if (_.isUndefined(layers) || Object.keys(layers) < 1) {
+            refreshColors();
+        }
     }
 
 return {

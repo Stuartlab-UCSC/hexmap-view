@@ -9,7 +9,6 @@ var app = app || {};
 CreateMap = (function () { // jshint ignore: line
 
     var title = 'Create a Map',
-        initial_log = 'log messages',
         dialogHex, // instance of the class DialogHex
         $dialog, // our dialog DOM element
         $dialogCreateButton,
@@ -63,7 +62,7 @@ CreateMap = (function () { // jshint ignore: line
                     $log.scrollTop($log[0].scrollHeight);
                 }
             }, 0); // Give some time for the log message to show up
-            return text ? text : initial_log;
+            return text;
         },
         advanced_label: function () {
             return ui.get('show_advanced') ?
@@ -107,7 +106,10 @@ CreateMap = (function () { // jshint ignore: line
             msgs = msgs.slice(0, msgs.lastIndexOf('\n'));
         }
 
-        log.set(msgs + '\n' + msg);
+        if (msgs.length > 1) {
+            msg = '\n' + msg;
+        }
+        log.set(msgs + msg);
     }
 
     function report_error (msg) {
@@ -283,7 +285,7 @@ CreateMap = (function () { // jshint ignore: line
  
         import React, { Component } from 'react';
         import { render } from 'react-dom';
-        import Upload from '/imports/Upload.jsx';
+        import Upload from '/imports/upload.js';
 
          // Define the file selector for features file
         feature_upload = render(
@@ -299,7 +301,7 @@ CreateMap = (function () { // jshint ignore: line
         ui.set('major_project', Util.clean_file_name(username));
  
         // Initialize some ui values
-        log.set(initial_log);
+        log.set('');
         
         // Create the feature format list
         var data = [];

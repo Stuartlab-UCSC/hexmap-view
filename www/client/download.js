@@ -141,8 +141,8 @@ Download = (function () { // jshint ignore: line
         }
     }
 
-    function menu_mousedown(ev) {
-        var id = 'xyPreSquiggle_' + Session.get('layoutIndex')
+    function menu_mousedown(type) {
+        var id = type + Session.get('layoutIndex')
  
         // get the file.
         Ajax.get({
@@ -170,7 +170,12 @@ return {
             initPdf();
             initSvg();
         }
-        $('.fileMenu .xyPreSquiggle').on('click', menu_mousedown);
+        $('.fileMenu .xyPreSquiggle').on('click', function (ev) {
+            menu_mousedown('xyPreSquiggle_');
+        });
+        $('.fileMenu .xyAssignment').on('click', function (ev) {
+            menu_mousedown('assignments');
+        });
     },
 };
 }());

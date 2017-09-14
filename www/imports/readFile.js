@@ -1,21 +1,14 @@
 
-// ReadFile.jsx
+// readFile.js
 // Reads a local file into this web app.
 
 import React, { Component } from 'react';
 import { render } from 'react-dom';
 import PropTypes from 'prop-types';
+import U from './utils.js';
 
 export default class ReadFile extends Component {
 
-    constructor (props) {
-        super(props);
-        
-        // TODO: this is only used internally and
-        // does not need to be in persistent store.
-        this.state = { fileObject: '' };
-    }
-    
     validate (result) {
     
         // Validate the data received and tsv-parse it if requested.
@@ -29,11 +22,11 @@ export default class ReadFile extends Component {
         }
 
         // Validate strings for printable characters
-        if (Util.allPrintableCharacters(data)) {
+        if (U.allPrintableCharsInArray(data)) {
             // Return the result to the parent.
             this.props.onSuccess(data);
         } else {
-            this.props.onError('data contains unprintable characters')
+            this.props.onError('file contains unprintable characters')
         }
     }
 
@@ -41,7 +34,9 @@ export default class ReadFile extends Component {
         var self = this;
 
         // When a file is selected, read it in.
-        this.props.onStart();
+        if (this.props.onStart) {
+            this.props.onStart();
+        }
 
         // Make a FileReader to read the file
         var reader = new FileReader();
@@ -70,11 +65,8 @@ export default class ReadFile extends Component {
     render () {
         return (
             <input
-                ref = 'file'
                 type = 'file'
-                name = 'file'
                 className = 'readFile'
-                value = {this.state.fileObject}
                 onChange = {this.readNow.bind(this)}
             />
         );

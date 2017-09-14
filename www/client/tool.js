@@ -188,7 +188,7 @@ Tool = (function () { // jshint ignore: line
                         text: text,
                         position: event.latLng,
                         map: googlemap,
-                        fontSize: 10,
+                        fontSize: 12,
                         align: "left"
                     });
                     

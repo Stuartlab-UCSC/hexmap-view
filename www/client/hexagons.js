@@ -2,10 +2,11 @@
 // Handle things to do with hexagons.
 
 import Ajax from '/imports/ajax.js';
+import InfoWindow from '/imports/reactCandidates/infoWindow.js';
 
 var app = app || {}; 
 
-(function (hex) { 
+(function (hex) {
 
     // Global: hold objects of polygons by signature name
     polygons = {};
@@ -19,6 +20,9 @@ var app = app || {};
  
     // The node assignments in honeycomb space
     var assignments;
+ 
+    // The hover info flag
+    var hoverInfoShowing = false;
 
     function renderHexagon (row, column, overlayNode) {
 
@@ -26,9 +30,7 @@ var app = app || {};
         // space before transform to xy world space.
         // Returns the Google Maps polygon.
  
-        var xy = get_xyWorld_from_xyHex(column, row),
-            x = xy.x,
-            y = xy.y;
+        var xy = get_xyWorld_from_xyHex(column, row);
  
         var coords = getHexLatLngCoords(xy, sideLen);
 
@@ -51,10 +53,13 @@ var app = app || {};
         hexagon.xHex = column;
         hexagon.yHex = row;
 
+        // Save the xy coordinates for later.
+        hexagon.xy = xy;
+ 
         // Set up the click listener to move the global info window to this hexagon
         // and display the hexagon's information
         google.maps.event.addListener(hexagon, "click", function (event) {
-            showInfoWindow(event, hexagon, xy.x, xy.y);
+            InfoWindow.show(event, hexagon);
         });
 
         // Listen to mouse events on this hexagon
@@ -98,6 +103,29 @@ var app = app || {};
         polygons[label].setMap(null);
         delete polygons[label];
     }
+ 
+    function removeHoverListeners (hexagon) {
+        google.maps.event.removeListener(hexagon.mouseover);
+        google.maps.event.removeListener(hexagon.mouseout);
+        delete hexagon.mouseover;
+        delete hexagon.mouseout;
+    }
+ 
+    function addHoverListeners (hexagon) {
+        if (hoverInfoShowing) {
+ 
+            // Set up the hover listeners to move the infowindow to this node
+            // with just a node ID displayed.
+            hexagon.mouseover = google.maps.event.addListener(hexagon,
+                "mouseover", function (event) {
+                    InfoWindow.show(event, hexagon, null, null, true);
+                });
+            hexagon.mouseout = google.maps.event.addListener(hexagon,
+                "mouseout", function (event) {
+                    InfoWindow.close(true);
+                });
+        }
+    }
 
     addHexagon = function (x, y, label, overlayNode) {
 
@@ -108,6 +136,10 @@ var app = app || {};
 
         // Store by label
         polygons[label] = hexagon;
+ 
+        if (hoverInfoShowing) {
+            addHoverListeners(hexagon);
+        }
         
         // Set the polygon's signature so we can look stuff up for it when 
         // it's clicked.
@@ -131,11 +163,25 @@ var app = app || {};
         });
     };
 
+    function showHoverInfo () {
+        var el = $('#navBar .showHoverInfo');
+        if (hoverInfoShowing) {
+            hoverInfoShowing = false;
+            _.each(polygons, removeHoverListeners);
+            el.text('Show Node Hover');
+        } else {
+            hoverInfoShowing = true;
+            _.each(polygons, addHoverListeners);
+            el.text('Hide Node Hover');
+        }
+    }
+
     initHexagons = function (draw) {
     
         // Download the signature assignments to hexagons and fill in the global
         // hexagon assignment grid.
         var id = 'assignments' + Session.get('layoutIndex');
+        $('#navBar .showHoverInfo').on('click', showHoverInfo)
         Ajax.get({
             id: id,
             success: function (parsed) {

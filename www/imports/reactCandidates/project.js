@@ -4,7 +4,7 @@
 
 import React, { Component } from 'react';
 import { render } from 'react-dom';
-import Select2 from './lib/select2.jsx';
+import Select2 from '/imports/select2wrap.js';
 
 // Placeholder text when no project is selected
 var PLACEHOLDER_TEXT = 'Select a Map...';
@@ -70,13 +70,13 @@ function populate () {
     // Attach the selector.
      render(
         <Select2
-            data = {data}
             value = {ctx.project}
-            options = {{
-                dropdownParent: '#project',
+            // options to the original, non-react select2.
+            select2options = {{
+                data: data,
+                dropdownParent: $('#project'),
                 placeholder: PLACEHOLDER_TEXT,
                 width: '20em',
-                dropdownAutoWidth: true,
             }}
             onChange = {function (event) {
                 Hex.loadProject(event.val);
@@ -128,7 +128,8 @@ function signInClicked(count) {
 
 exports.init = function () {
 
-    $('.login').on('click', $('#login-sign-in-link'), signInClicked);
+    // This may be causing password to lose focus on password error.
+    //$('.login').on('click', $('#login-sign-in-link'), signInClicked);
 
     // Re-populate projects whenever the user changes, including log out
     Meteor.autorun(function() {

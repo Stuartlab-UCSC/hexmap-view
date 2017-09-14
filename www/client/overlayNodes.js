@@ -138,17 +138,20 @@ var app = app || {};
  
         // Remove any overlay nodes due to menu click.
         var nodes = Session.get('overlayNodes');
-
-        _.each (Object.keys(nodes), function (n) {
-        
-            // Remove any info window, marker & hexagon.
-            removeInfoWindow(markers[n]);
-            google.maps.event.clearInstanceListeners(markers[n]);
-            markers[n].setMap(null);
-            removeHexagon(n);
-        });
  
-        markers = {};
+        if (nodes) {
+ 
+            _.each (Object.keys(nodes), function (n) {
+            
+                // Remove any info window, marker & hexagon.
+                removeInfoWindow(markers[n]);
+                google.maps.event.clearInstanceListeners(markers[n]);
+                markers[n].setMap(null);
+                removeHexagon(n);
+            });
+     
+            markers = {};
+        }
  
         // Remove the overlayNode data
         Session.set('overlayNodes', undefined);

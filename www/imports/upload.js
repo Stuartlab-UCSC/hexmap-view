@@ -1,7 +1,8 @@
 
+// upload.js
+
 import React, { Component } from 'react';
 import { render } from 'react-dom';
-import PropTypes from 'prop-types';
 
 export default class Upload extends Component {
     
@@ -15,7 +16,7 @@ export default class Upload extends Component {
                 ref = 'file'
                 type = 'file'
                 name = 'file'
-                className = 'upload-file'
+                className = 'readFile'
                 onChange = {this.saveFile.bind(this)}
             />
         );

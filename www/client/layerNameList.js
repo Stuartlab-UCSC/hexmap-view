@@ -1,6 +1,8 @@
 // layerNameList.js
 // A class for a layer name list
 
+import Select2 from '/imports/lib/select2.js';
+
 var app = app || {}; // jshint ignore:line
 
 (function (hex) { // jshint ignore:line

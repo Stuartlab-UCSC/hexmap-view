@@ -30,11 +30,9 @@ function addToShortlist (filePath, attrName, driver) {
 
     // Click the menu option, upload the file
     var __function = arguments.callee.name;
-        //driver = U.setUp();
 
     driver.get(startUrl)
         .then(_ => driver.wait(until.titleIs(title), 6000))
-        .then(_ => driver.sleep(100))  // wait for menu button handler creation
         .then(_ => U.clickMenuOption(menuClass, menuOptionClass, driver))
         .then(_ => U.setUploadFile(filePath, 'fileAnchor', dialogId,
             fileClass, driver))

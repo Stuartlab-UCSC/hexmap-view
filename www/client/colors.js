@@ -6,14 +6,16 @@ Colors = (function () { // jshint ignore: line
 
     // Some color constants
     var DISABLED_COLOR = '#aaaaaa',
-        COLOR_BINARY_OFF = '#444444',       // binary attr off
         COLOR_BINARY_ON = '#FFFF00',        // binary attr on
+        BINARY_OFF_DARK_BG = '#404040',
+        BINARY_OFF_LIGHT_BG = '#c0c0c0',
         COLOR_BINARY_BOTH_ON = '#00FF00',   // binary both attrs on
         COLOR_BINARY_SECOND_ON = '#0000FF'; // binary second attr on
 
     // The color to use as hexagon fill, depending on the background color
-    var NO_DATA_LIGHT_BG = '#c0c0c0',
-        NO_DATA_DARK_BG = '#333333',
+    var NO_DATA_LIGHT_BG = '#E0E0E0',
+        NO_DATA_DARK_BG = '#303030',
+        COLOR_NO_ATTRS = 'cyan',
         badValue = false, // The current category input has a bad value
         $link;
         
@@ -230,7 +232,8 @@ Colors = (function () { // jshint ignore: line
         },
     
         binary_off: function () {
-            return COLOR_BINARY_OFF;
+            return (Session.equals('background', 'white')) ?
+                BINARY_OFF_LIGHT_BG : BINARY_OFF_DARK_BG;
         },
         
         binary_on: function () {
@@ -264,6 +267,10 @@ Colors = (function () { // jshint ignore: line
         noDataColor: function () {
             return (Session.equals('background', 'white')) ?
                 NO_DATA_LIGHT_BG : NO_DATA_DARK_BG;
+        },
+        
+        noAttrsColor: function () {
+            return COLOR_NO_ATTRS;
         },
         
         colormapToState: function (colorVals) {

@@ -1,0 +1,84 @@
+
+.ReactModal__Overlay {
+    z-index: 2000;
+}
+
+.ReactModal__Overlay.prompt {
+    z-index: 2002;
+}
+
+.ReactModal__Content {
+    padding: 0.5em;
+    background: white;
+    border: 1px solid grey;
+    border-radius: 5px;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+/************* Our Modals *****************************************************/
+
+.modalHeader {
+    border: none;
+}
+
+.modalTitle {
+    padding-bottom: 0.5em;
+    padding-left: 0.5em;
+}
+
+.modalHeader button.close {
+    font-size: 1.4em;
+    line-height: 0.3em;
+    float: right;
+    margin: 0;
+    border: 0;
+    padding: 0;
+}
+
+.modalBody > * > *,
+.modalButtons button {
+    margin: 0.2em;
+    padding: 0.2em 0.4em;
+    font-size: 0.9em;
+}
+
+.modalBody textarea {
+    margin: 0.4em;
+}
+
+.modalButtons button {
+    float: right;
+}
+.modalButtons {
+    margin-right: 0.4em;
+}
+
+/******************  Our Specific Modals ******************/
+
+.promptModal input {
+    display: block;
+    width: 25em;
+}
+
+.nodeIdSelectModal .readFile {
+    margin-top: 0.6em;
+    margin-left: 0.5em;
+}
+
+.nodeIdSelectModal .cartLabel {
+    margin-top: 1.3em;
+    margin-bottom: 0;
+}
+
+.nodeIdSelectModal textarea {
+    width: 42em;
+}
+
+.nodeIdDropdown li span.selected {
+    color: green;
+    font-weight: bold;
+}
+

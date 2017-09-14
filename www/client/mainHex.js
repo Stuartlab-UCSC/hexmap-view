@@ -52,26 +52,16 @@ Hex = (function () { // jshint ignore: line
     });
 
     Template.mapPage.onRendered(function () {
-        Meteor.autorun(function () {
-            if (GoogleMaps.loaded()) {
-                initMainMapContainer();
-            }
-        });
+        initMainMapContainer();
         import InitMapPage from '/imports/initMapPage.js';
         Message.init();
         InitMapPage.init();
-        GoogleMaps.load({ key: GOOGLE_API_KEY });  // browser key
         Tool.init();
     });
 
     Template.gridPage.onRendered(function () {
-        Meteor.autorun(function () {
-            if (GoogleMaps.loaded()) {
-                initGridMapContainer();
-            }
-        });
+        initGridMapContainer();
         Message.init();
-        GoogleMaps.load({ key: GOOGLE_API_KEY });  // browser key
         Tool.init();
     });
 
@@ -92,7 +82,7 @@ Hex = (function () { // jshint ignore: line
                 { id: 'Pancan12/GeneMap', png: 'pancan12gene.png' },
                 { id: 'Gliomas', png: 'gliomas-paper.png' },
                 { id: 'QuakeBrain', png: 'QuakeBrain.png' },
-                { id: 'pCHIPS', png: 'pCHIPS.png' },
+                { id: 'pCHIPS', png: 'pchips.png' },
                 { id: 'mgmarin_public/PCAWG_JuncBASE_CassetteExonPSIs',
                     label: 'PCAWG JuncBASE CassetteExonPSIs',
                     linkAnchor: 'PCAWGJuncBASE',
@@ -171,8 +161,8 @@ Hex = (function () { // jshint ignore: line
  
                 initMap();
                 
-                import NavBar from '/imports/navBar.js';
-                NavBar.init();
+                import LazyLoader from '/imports/lazyLoader.js';
+                LazyLoader.init();
      
                 // Turn off the loading progress wheel
                 setTimeout(function () {
@@ -190,7 +180,8 @@ Hex = (function () { // jshint ignore: line
                 Tool.initLabelTool();
                 Download.init();
                 Colors.init();
-                initInfoWindow();
+                import InfoWindow from '/imports/reactCandidates/infoWindow.js';
+                InfoWindow.init();
                 initSetOperations();
                 CreateMap.init();
                 Select.init();
@@ -214,7 +205,8 @@ Hex = (function () { // jshint ignore: line
  
             initSortAttrs();
             initFilter();
-            initLayerLists();
+            import Longlist from '/imports/reactCandidates/longlist.js';
+            Longlist.init();
             Session.set('retrievedLayerInfo', true);
         }
     }
