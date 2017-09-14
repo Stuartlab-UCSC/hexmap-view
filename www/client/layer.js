@@ -440,7 +440,7 @@ return { // Public methods
 		    if (!have_colormap(layer_name) && Util.is_binary(layer_name)) {
 		        // Add an empty colormap for this layer, so that 
 		        // auto-generated discrete colors will be used.
-		        colormaps[layer_name] = {};
+		        colormaps[layer_name] = Colors.default_binary_colormap();
 		    }
          
             // Add this layer to the shortlist.
