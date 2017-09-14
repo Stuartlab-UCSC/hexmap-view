@@ -161,8 +161,8 @@ Hex = (function () { // jshint ignore: line
  
                 initMap();
                 
-                import NavBar from '/imports/navBar.js';
-                NavBar.init();
+                import LazyLoader from '/imports/lazyLoader.js';
+                LazyLoader.init();
      
                 // Turn off the loading progress wheel
                 setTimeout(function () {
