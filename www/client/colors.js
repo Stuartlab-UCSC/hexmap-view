@@ -90,7 +90,6 @@ Colors = (function () { // jshint ignore: line
     }
 
     function updateColormap (aCat) {
-
         // Update the colormap, then redraw the hexmap
         var layer = aCat.layer,
             catI;
@@ -126,7 +125,6 @@ Colors = (function () { // jshint ignore: line
     }
 
     function inputBlur (ev) {
-
         // Fires when a color input field loses focus.
         // Update its properties & the map
         var $t = $(ev.currentTarget),
@@ -247,6 +245,22 @@ Colors = (function () { // jshint ignore: line
             return COLOR_BINARY_SECOND_ON;
         },
 
+        default_binary_colormap : function () {
+            var default_binary_colormap = [
+                {
+                    "color": new Color(COLOR_BINARY_OFF),
+                    "fileColor": new Color(COLOR_BINARY_OFF),
+                    "name": "0",
+                },
+                {
+                    "color": new Color(COLOR_BINARY_ON),
+                    "fileColor": new Color(COLOR_BINARY_ON),
+                    "name": "1",
+                }
+            ];
+            return default_binary_colormap;
+        },
+
         noDataColor: function () {
             return (Session.equals('background', 'white')) ?
                 NO_DATA_LIGHT_BG : NO_DATA_DARK_BG;
@@ -269,9 +283,10 @@ Colors = (function () { // jshint ignore: line
         
             // Convert one attr colormap colors into a form that templates
             // can use.
-            var cats = _.map(layerVal, function(val) {
+            var cats = _.map(layerVal, function(val,i) {
+
                 var cat = {
-                        name: val.name,
+                        name:  val.name,
                         fileVal: rgbArrayToObj(
                             val.fileColor.values.rgb).hexString(),
                         operVal: val.color.hexString(),
