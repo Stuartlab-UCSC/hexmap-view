@@ -251,8 +251,8 @@ Colors = (function () { // jshint ignore: line
         default_binary_colormap : function () {
             var default_binary_colormap = [
                 {
-                    "color": new Color(COLOR_BINARY_OFF),
-                    "fileColor": new Color(COLOR_BINARY_OFF),
+                    "color": new Color(Colors.binary_off()),
+                    "fileColor": new Color(Colors.binary_off()),
                     "name": "0",
                 },
                 {
