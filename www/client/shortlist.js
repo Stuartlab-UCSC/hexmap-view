@@ -304,20 +304,25 @@ Shortlist = (function () { // jshint ignore: line
         var layer = layers[layer_name],
             min = layer.minimum,
             max = layer.maximum,
-            span = max - min; // The span of the values
+            span = max - min,
+            
+            // This factor is used to compensate for the jquery-ui slider
+            // that has a problem with maximum values less than one.
+            // The factor makes the slider max be between one and 10.
+            factor = Math.pow(10, Math.floor(Math.log(max) / Math.LN10));
  
         // Handle a slider handle moving
         var sliding = function(event, ui) {
             var low = ui.values[0],
                 high = ui.values[1];
             
-            slider_vals.set(layer_name, [low, high]);
+            slider_vals.set(layer_name, [low * factor, high * factor]);
  
             // Set the width of the low and high masks
             var x_span = $(event.target).width(); // The span in pixels
  
-            root.find('.low_mask').width(Math.abs(low - min) / span * x_span);
-            root.find('.high_mask').width(Math.abs(max - high) / span * x_span);
+            root.find('.low_mask').width(Math.abs(low * factor - min) / span * x_span);
+            root.find('.high_mask').width(Math.abs(max - high * factor) / span * x_span);
  
         };
  
@@ -327,25 +332,27 @@ Shortlist = (function () { // jshint ignore: line
             var low = ui.values[0],
                 high = ui.values[1];
             
-            Util.session('filter_value', 'set', layer_name, [low, high]);
-            slider_vals.set(layer_name, [low, high]);
+            Util.session('filter_value', 'set', layer_name,
+                [low * factor, high * factor]);
+            slider_vals.set(layer_name, [low * factor, high * factor]);
             refreshColors();
         };
  
         // Create the slider
-        var vals = Util.session('filter_value', 'get', layer_name);
-        
-        var slider_line = root.find('.range_slider');
-        
-        var slider_var = slider_line.slider({
+        var vals = _.map(Util.session('filter_value', 'get', layer_name),
+                function (val) {
+                    return val / factor;
+                }
+            ),
+            slider_line = root.find('.range_slider');
+            slider_var = slider_line.slider({
             range: true,
-            min: min,
-            max: max,
+            min: min / factor,
+            max: max / factor,
             values: vals,
             height: 10,
-            step: 1E-9, // Ought to be fine enough
+            step: (max - min) / factor / 100,
             slide: sliding,
-            //change: sliding,
             stop: done_sliding,
         });
  
