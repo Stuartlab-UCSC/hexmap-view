@@ -48,7 +48,7 @@ var app = app || {};
             
             // This holds the pixel position where our text goes
             var y_position = key_ht - (i + 1) * label_space_height
-                    + label_space_height / 2
+                    + label_space_height / 2,
                 background_color = getBandBackgroundColor(y_position);
  
             // Do we want white or black text?
@@ -59,7 +59,14 @@ var app = app || {};
             context.fillStyle = fontColor;
 
             // Draw the name on the canvas
-            context.fillText(colormap[i].name, 2, y_position);
+            // If the name is a convertable to a number, do not draw
+            // the text.
+            if (!Number.isNaN(Number(colormap[i].name))){
+                context.fillText("", 2, y_position);
+            } else {
+                context.fillText(colormap[i].name, 2, y_position);
+            }
+
         }
     }
 

@@ -254,7 +254,9 @@ Shortlist = (function () { // jshint ignore: line
                 ];
             }
         } else { // No colormap categorical. This shouldn't happen.
-            console.log('error: no colormap for categorical attr:', layer_name);
+            console.log('error: no colormap for categorical attr: ' +
+                'please log an issue on git with a re-creatable error',
+                 layer_name);
         }
 
         // Create the option elements
@@ -352,7 +354,6 @@ Shortlist = (function () { // jshint ignore: line
     }
 
     function create_shortlist_ui_entry_with_data (layer_name, root) {
- 
         // Add all of the metadata
         Layer.fill_metadata(root.find('.metadata_holder'), layer_name);
  

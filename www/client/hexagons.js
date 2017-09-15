@@ -161,8 +161,8 @@ var app = app || {};
         hexagon.setOptions({
             fillColor: color
         });
-    }
- 
+    };
+
     function showHoverInfo () {
         var el = $('#navBar .showHoverInfo');
         if (hoverInfoShowing) {

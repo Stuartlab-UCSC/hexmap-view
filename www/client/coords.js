@@ -287,7 +287,7 @@ var app = app || {};
 
     initCoords = function () {
 
-        if (initialized || !SHOW_COORDS) return
+        if (initialized || !SHOW_COORDS) return;
         initialized = true;
 
         $('#coords').show();

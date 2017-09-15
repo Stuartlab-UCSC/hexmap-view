@@ -201,7 +201,7 @@ Layer = (function () { // jshint ignore: line
                 );
                 layer.hasStringVals = _.find(layer.uniqueVals,
                     function (value) {
-                        return _.isNaN(parseFloat(value));
+                        return _.isNaN(Number(value));
                     });
             }
 
@@ -219,13 +219,10 @@ Layer = (function () { // jshint ignore: line
         // Add the layer to the appropriate dataType list.
         Util.addToDataTypeList(layer_name, layer.dataType);
         // Leave the dataType in the layer obj, we use it in saving state.
-        
         // If there are string values, or there is a colormap supplied...
         if (layer.hasStringVals || !_.isUndefined(layer.colormap)) {
             load_dynamic_colormap(layer_name, layer);
-         
         } else {
-        
             // This is continuous or binary of only 1 & 0,
             // so convert the values from strings to floats.
             var data = {};
@@ -346,7 +343,6 @@ return { // Public methods
                     "If this is a reflection layer, this is expected. Otherwise,",
                     'try resetting to defaults.');
                 console.trace();
-                //console.log('### layers', Object.keys(layers));
                 return;
             }
         }
@@ -399,7 +395,7 @@ return { // Public methods
 		    if (!have_colormap(layer_name) && Util.is_binary(layer_name)) {
 		        // Add an empty colormap for this layer, so that 
 		        // auto-generated discrete colors will be used.
-		        colormaps[layer_name] = {};
+		        colormaps[layer_name] = Colors.default_binary_colormap();
 		    }
          
             // Add this layer to the shortlist.
@@ -464,7 +460,6 @@ return { // Public methods
     },
 
     create_dynamic_category: function (nodeIds, values, new_layer_name) {
-    
         // Given two arrays: one containing node IDs and one containing the
         // category names for those nodeIds, add a new categorical layer with
         // the gived layer name.
