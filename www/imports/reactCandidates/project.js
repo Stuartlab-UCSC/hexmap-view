@@ -31,6 +31,22 @@ function is_project_on_list (project) {
     });
 }
 
+function matcher (term, text, opt) {
+    
+    // Find matches given a term to search for, the text of the option,
+    // and the option's data object.
+    var lTerm = term.toLowerCase();
+    
+    // Is there a case-insensitive match with the option's text or its ID?
+    // This will match any children whose parents match the term.
+    if (text.toLowerCase().indexOf(lTerm) > -1 ||
+        (opt.hasOwnProperty('id') &&
+        opt.id.toLowerCase().indexOf(lTerm) > -1)) {
+        return true;
+    }
+    return false;
+}
+
 function populate () {
 
     // Populate the project list.
@@ -77,6 +93,8 @@ function populate () {
                 dropdownParent: $('#project'),
                 placeholder: PLACEHOLDER_TEXT,
                 width: '20em',
+                dropdownCssClass: 'projectDropDown',
+                matcher: matcher,
             }}
             onChange = {function (event) {
                 Hex.loadProject(event.val);
