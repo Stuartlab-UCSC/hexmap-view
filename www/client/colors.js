@@ -92,6 +92,7 @@ Colors = (function () { // jshint ignore: line
     }
 
     function updateColormap (aCat) {
+
         // Update the colormap, then redraw the hexmap
         var layer = aCat.layer,
             catI;
@@ -127,6 +128,7 @@ Colors = (function () { // jshint ignore: line
     }
 
     function inputBlur (ev) {
+
         // Fires when a color input field loses focus.
         // Update its properties & the map
         var $t = $(ev.currentTarget),
