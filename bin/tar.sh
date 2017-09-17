@@ -2,10 +2,9 @@
 # tar the contents of hexagram and scp to dev
 # or untar the contents of a tar ball
 
-ACTION=$1
-TARGET=$2
-
-#echo ACTION, TARGET: $ACTION, $TARGET
+ACTION=$1       # The tar action to take, one of: / maketar / xtar /
+HEXMAP=$2
+TARGET=$3       # Tar target, defaults to 'most', one of: / most / all / docs /
 
 if [ -z ${TARGET} ]; then
     TARGET=most

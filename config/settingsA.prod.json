@@ -13,5 +13,5 @@
             "IS_MAIN_SERVER": true,
             "IS_CALC_SERVER": true
         },
-        "SERVER_DIR": "/data/www/server/",
+        "SERVER_DIR": "/data/www/programs/server/assets/app/",
         "TEMP_DIR": "/cluster/home/swat/tmp/",

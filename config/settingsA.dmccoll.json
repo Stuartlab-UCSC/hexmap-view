@@ -13,5 +13,5 @@
             "IS_MAIN_SERVER": true,
             "IS_CALC_SERVER": true
         },
-        "SERVER_DIR": "/home/duncan/Desktop/TumorMap/TMdev/hexagram/www/server",
+        "SERVER_DIR": "/home/duncan/Desktop/TumorMap/TMdev/hexagram/www/private",
         "TEMP_DIR": "/home/duncan/tmp/",

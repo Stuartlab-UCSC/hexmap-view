@@ -1,5 +1,0 @@
-#!/bin/bash
-INSTALL=prod
-BIN=/data/bin
-$BIN/run_server $1 $INSTALL $BIN $2
-

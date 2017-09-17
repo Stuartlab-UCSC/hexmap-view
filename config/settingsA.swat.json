@@ -14,5 +14,5 @@
             "IS_CALC_SERVER": true,
             "IS_MAIN_SERVER": true
         },
-        "SERVER_DIR": "/Users/swat/dev/hexagram/www/server/",
+        "SERVER_DIR": "/Users/swat/dev/hexagram/www/private/",
         "TEMP_DIR": "/Users/swat/tmp/",

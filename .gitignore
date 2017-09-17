@@ -10,4 +10,7 @@ run
 *.log
 _build
 settings.json
-
+log
+deploy
+packages
+pid

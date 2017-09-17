@@ -1,119 +1,120 @@
 #!/bin/bash
 
-SERVER_TYPE=$1 # Type of server to start, one of: / db / http / https / www /
-INSTALL=$2     # The ID of the server: prod / dev / ....
-BIN=$3         # Location of the bin directory for this server
-TARGET=$4      # tar target, one of / www / hub / tests / docs / bin /
+# Point of entry for the run scripts. 
 
-if [ -z ${SERVER_TYPE} ]; then
-    echo Supply one of: db, http, https, www
+# Examples:
+# run db
+# run start db
+# run stop db
+# run install
+# run deploy
+# run maketar
+# run maketar docs
+
+# Production run script that calls this script
+# !/bin/bash
+# ACTION=$1
+# SERVER_TYPE=$2
+# CONFIG=prod
+# HEXMAP=/data
+# $HEXMAP/bin/run_server $ACTION $CONFIG $HEXMAP $SERVER_TYPE
+
+ACTION=$1       # The action on the server, one of:
+                #   / start / stop / deploy / install / maketar / xtar /
+                # or type of server for the short form of starting a server, one of:
+                #   / www / db / http / https /
+CONFIG=$2       # The configuration of the server, one of:
+                #   / prod / dev / ... /
+HEXMAP=$3       # Full path of this installation instance
+SERVER_TYPE=$4  # Type of server, one of:
+                #   / www / db / http / https /
+                # or tar target, defaults to 'most', one of:
+                #   / most / docs / all /
+                # or not required for the short form to start a server.
+
+# An action must be specified.
+if [ -z ${ACTION} ]; then
+    echo You need to specify an ACTION to the run script, one of:
+    echo     / start / stop / deploy / install / maketar / xtar /
     echo Exiting
     exit
-else
-    echo Starting $SERVER_TYPE
 fi
 
-if [ -z ${INSTALL} ]; then
-    echo You need to set the value of INSTALL in the run script.
+# A configuration must be specified.
+if [ -z ${CONFIG} ]; then # if no config specified
+    echo You need to set CONFIG in the run script.
     echo Exiting
     exit
-else
-    echo Using install: $INSTALL
 fi
 
-if [ -z ${BIN} ]; then
-    echo You need to set the value of BIN in the run script.
+# A hexmap path must be specified.
+if [ -z ${HEXMAP} ]; then
+    echo You need to set HEXMAP in the run script.
     echo Exiting
     exit
-else
-    echo Using bin: $BIN
 fi
 
-# Handle any tar actions first
-if [ $SERVER_TYPE == 'maketar' ] || [ $SERVER_TYPE == 'xtar' ]
-    then
-    if [ $SERVER_TYPE == 'xtar' ] && [ $INSTALL == 'swat' ]
-        then
-        echo Sorry you cannot xtar to here and remove all of your current code!
+# Handle the short form of starting a server.
+if [ $ACTION == 'www' ] || [ $ACTION == 'db' ] || [ $ACTION == 'http' ] || [ $ACTION == 'https' ]; then
+    SERVER_TYPE=$ACTION
+    ACTION=start
+fi
+
+export HEXMAP
+BIN=$HEXMAP/bin
+
+# If the action is for a server...
+if [ $ACTION == 'start' ] || [ $ACTION == 'stop' ]; then
+
+    # A server type must be specified.
+    if [ $SERVER_TYPE != 'www' ] && [ $SERVER_TYPE != 'db' ] && [ $SERVER_TYPE != 'http' ] && [ $SERVER_TYPE != 'https' ]; then
+        echo You need to specify a SERVER_TYPE to the run script, one of:
+        echo     / www / db / http / https /
+        echo Exiting
+        exit
+    elif [ $ACTION == 'start' ]; then
+        $BIN/start_server.sh $CONFIG $HEXMAP $SERVER_TYPE
+    else
+        $BIN/stop_server.sh $HEXMAP $SERVER_TYPE
+    fi
+
+# Handle the deploy action.
+elif [ $ACTION == 'deploy' ]; then
+
+    # Don't allow deploy on production or dev.
+    if [ $CONFIG == 'prod' ] || [ $CONFIG == 'dev' ]; then
+        echo Sorry you cannot deploy from production or dev!
+        echo Exiting
         exit
     fi
-    ACTION=$SERVER_TYPE
-    $BIN/tarAction $ACTION $TARGET
-    exit
-fi
+    $BIN/deploy_www.sh $HEXMAP
 
-# Run some development servers in the foreground
-if [ $INSTALL == swat ]
-    then
-    FOREGROUND=yes
-fi
+# Handle the install action.
+elif [ $ACTION == 'install' ]; then
 
-# Configure the server
-source $BIN/../config/config.$INSTALL
-
-if [ $SERVER_TYPE == 'wwwViz' ]; then
-    VIZ=" --production --extra-packages bundle-visualizer"
-    SERVER_TYPE=www
-else
-    VIZ=
-fi
-
-# Run the server by type using one of the above configs
-
-if [ $SERVER_TYPE == 'http' ]; then
-    touch $HEXMAP/http.log
-    mv $HEXMAP/http.log $HEXMAP/http.prev.log
-    (nohup $METEOR_BASE/bin/node $HEXMAP/http/http.js &> $HEXMAP/http.log &)
-
-elif [ $SERVER_TYPE == 'https' ] ; then
-    touch $HEXMAP/https.log
-    mv $HEXMAP/https.log $HEXMAP/https.prev.log
-    (nohup $METEOR_BASE/bin/node $HEXMAP/https/https.js &> $HEXMAP/https.log &)
-
-elif [ $SERVER_TYPE == 'db' ]; then
-    touch $HEXMAP/db.log
-    mv $HEXMAP/db.log $HEXMAP/db.prev.log
-    (nohup $METEOR_BASE/mongodb/bin/mongod \
-            --bind_ip 127.0.0.1 \
-            --port $DB_PORT \
-            --dbpath $HEXMAP/db \
-            &> $HEXMAP/db.log &)
-
-elif [ $SERVER_TYPE == 'dbRepair' ]; then
-    touch $HEXMAP/db.log
-    mv $HEXMAP/db.log $HEXMAP/db.prev.log
-    (nohup $METEOR_BASE/mongodb/bin/mongod \
-            --bind_ip 127.0.0.1 \
-            --port $DB_PORT \
-            --dbpath $HEXMAP/db \
-            --repair \
-            &> $HEXMAP/db.log &)
-
-elif [ $SERVER_TYPE == 'built' ]; then
-    export MONGO_URL=mongodb://localhost:$DB_PORT/$DB_NAME
-    #cd $HEXMAP/www
-    touch $HEXMAP/www.log
-    mv $HEXMAP/www.log $HEXMAP/www.prev.log
-    cat $BIN/../config/settingsA.$INSTALL.json $BIN/../config/settingsB.json > $BIN/../config/settings.json
-    export MAIL_URL="smtp://localhost"
-    export METEOR_SETTINGS=$(cat $BIN/../config/settings.json)
-    (nohup node $HEXMAP/www/bundle/main.js &> $HEXMAP/www.log &)
-
-elif [ $SERVER_TYPE == 'www' ]; then
-    export MONGO_URL=mongodb://localhost:$DB_PORT/$DB_NAME
-    cd $HEXMAP/www
-    touch $HEXMAP/www.log
-    mv $HEXMAP/www.log $HEXMAP/www.prev.log
-    cat $BIN/../config/settingsA.$INSTALL.json $BIN/../config/settingsB.json > $BIN/../config/settings.json
-    if [ -z ${FOREGROUND} ]; then
-        export MAIL_URL="smtp://localhost"
-        (nohup $METEOR/meteor $VIZ --port $PORT --settings $BIN/../config/settings.json &> $HEXMAP/www.log &)
-    else
-        $METEOR/meteor $VIZ --port $PORT --settings $HEXMAP/config/settings.json
+    # Don't allow install on anything other than production or dev.
+    if [ $CONFIG != 'prod' ] && [ $CONFIG != 'dev' ]; then
+        echo Sorry you cannot install to here and remove all of your current code!
+        echo Exiting
+        exit
     fi
+    $BIN/install_www.sh $HEXMAP
+
+# Handle tar actions.
+elif [ $ACTION == 'maketar' ] || [ $ACTION == 'xtar' ]; then
+
+    # Don't allow xtar on anything other than production or dev.
+    if [ $ACTION == 'xtar' ] && [ [ $CONFIG != 'prod' ] || [ $CONFIG != 'dev' ] ]
+        then
+        echo Sorry you cannot xtar to here and remove all of your current code!
+        echo Exiting
+        exit
+    fi
+    TARGET=$SERVER_TYPE
+    $BIN/tar.sh $ACTION $HEXMAP, $TARGET
 
 else
-    echo Invalid SERVER_TYPE: $SERVER_TYPE
+    echo Invalid ACTION as a first parameter: $ACTION
     echo Exiting
-    exit
 fi
+
