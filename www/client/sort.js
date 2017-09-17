@@ -563,6 +563,7 @@ import Ajax from '/imports/ajax.js';
     getDynamicStats = function (focus_attr, opts) {
  
         computingTextDisplay();
+        /*
         var good = Util.credentialCheck('to compute dynamic statistics. ' +
             'Only pre-computed statistics on static attributes are available ' +
             'to you', 'statsSnake');
@@ -571,9 +572,7 @@ import Ajax from '/imports/ajax.js';
             updateSortUi('noStats', 'credential');
             return;
         }
- 
-        //updateSortUi('noStats', 'Sorry, the dynamic stats are disabled for now');
-        //return;
+        */
  
         // This is a dynamically-generated attribute or a request because
         // the stats were not precomputed
