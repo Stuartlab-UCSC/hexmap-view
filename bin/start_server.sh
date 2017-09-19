@@ -25,7 +25,7 @@ fi
 # Run the server by type using one of the above configs
 
 if [ $TYPE == 'www' ]; then
-    DRLPATH=$HEXMAP/packages/drl/drl-graph-layout/bin
+    DRLPATH=$HEXMAP/packages/drl/bin
     export PATH=$DRLPATH:$PATH
     export MONGO_URL=mongodb://localhost:$DB_PORT/$DB_NAME
     cat $BIN/../config/settingsA.$CONFIG.json $BIN/../config/settingsB.json > $BIN/../config/settings.json
