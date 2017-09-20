@@ -307,7 +307,6 @@ var app = app || {};
                 path = getHexLatLngCoords(xy, hexLen);
 
             hex.polygon.setOptions({ path: path, fillOpacity: opacity});
-            hex.dot.setOptions({ path: line });
         });
         status('adjustForZoom() done');
     }
@@ -324,32 +323,20 @@ var app = app || {};
                 map: gridMap,
                 strokeWeight: 0,
                 zIndex: 2,
-            },
-            dotOpts = {
-                fillColor: '#000',
-                map: gridMap,
-                strokeColor: '#000',
-                strokeWeight: 1,
-                zIndex: 3,
             };
 
-        // Draw the point as a hexagon with a dot in the middle
+        // Draw the data point as a shape.
         _.each(points, function (xyPoint, i) {
 
             // Find the hexagon points
             var xy = {x: xyPoint[0], y: xyPoint[1]};
             hexOpts.path = getHexLatLngCoords(xy, hexLen);
 
-            // Find the center point
-            dotOpts.path = [get_LatLng(xyPoint[0]-add, xyPoint[1]-add),
-                             get_LatLng(xyPoint[0]+add, xyPoint[1]+add)];
-
             // Render the hexagon and its center, and save them in an array
             var hex = {
                 xyCenter: xyPoint,
                 signature: pointNames[i],
                 polygon: new google.maps.Polygon(hexOpts),
-                dot: new google.maps.Polyline(dotOpts),
             };
             google.maps.event.addListener(hex.polygon, "click", function (event) {
                 if (Session.equals('viewEdges', true)) {
