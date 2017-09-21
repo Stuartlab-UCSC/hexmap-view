@@ -518,5 +518,11 @@ var app = app || {};
  
         // Register a callback for the view graph menu click
         add_tool("viewEdges", viewEdgesMenuClick, 'Directed graph of node relationships');
+
+        // Set some event handlers
+        $('#navBar .mapLayout').on('click', function () {
+            Hex.pageReload('mapPage');
+            drawLayout(true);
+        });
     }
 })(app);

@@ -191,7 +191,7 @@ var app = app || {};
                 addMarkerClickListener(markers[n]);
 
                 // Render the overlay hexagon
-                addHexagon(nodes[n].x, nodes[n].y, n, true);
+                addHexagon(nodes[n].x, nodes[n].y, n, { overlay: true });
             });
         }, 500);
     }

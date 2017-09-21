@@ -55,7 +55,7 @@ createMap = function  () {
     google.maps.event.addListener(googlemap, "zoom_changed", function(event) {
         // Get the current zoom level (low is out)
         ctx.zoom = googlemap.getZoom();
-        setHexagonStrokes();
+        hexagonZoomChanged();
     });
     
     // Listen to mouse events on this map
@@ -497,7 +497,7 @@ initLayout = function () {
                 $("#layout-search").on('change', function (ev) {
                     Session.set('layoutIndex', ev.target.value);
                     createMap();
-                    initHexagons(true);
+                    drawLayout(true);
                     
                     // Update density stats to this layout and
                     // resort the list to the default of density

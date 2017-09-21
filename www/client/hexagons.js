@@ -18,36 +18,139 @@ var app = app || {};
     // And how thick should the border be when drawn?
     var HEX_STROKE_WEIGHT = 2;
  
+    // Some number used to determine the length for xy coords mapView.
+    var XY_HEX_LEN_SEED = 9;
+ 
     // The node assignments in honeycomb space
     var assignments;
  
+    // The opacity value when transparent is enabled.
+    var opacity;
+ 
     // The hover info flag
     var hoverInfoShowing = false;
+ 
+    var backgroundAutorun;
 
-    function renderHexagon (row, column, overlayNode) {
+    Template.navBarT.helpers({
+        mapViewLayoutSelected: function () {  
+            var page = Session.get('page'),
+                mapView = Session.get('mapView');
+            return (page && page === 'mapPage' && mapView &&
+                mapView === 'honeycomb') ? 'selected' : '';
+        },
+        mapViewXyDisplay: function () {
+            return DEV ? 'list-item' : 'none';
+        },
+        mapViewXySelected: function () {
+            var page = Session.get('page'),
+                mapView = Session.get('mapView');
+            return (page && page === 'mapPage' && mapView &&
+                mapView === 'xyCoords') ? 'selected' : '';
+        },
+        mapViewDensitySelected: function () {
+            var page = Session.get('page');
+            return (page && page === 'gridPage') ? 'selected' : '';
+        },
+        transparentDisplay: function () {
+            return DEV ? 'list-item' : 'none';
+        },
+        transparentSelected: function () {
+            return (Session.get('transparent')) ? 'selected' : '';
+        },
+    });
+
+    function setOpacity () {
+ 
+        if (Session.equals('transparent', true) &&
+            Session.equals('mapView', 'xyCoords')) {
+ 
+            var additive = 0.05;
+ 
+            // On a black background, the opacity needs to be more.
+            if (Session.equals('background', 'black')) {
+                additive = 0.5;
+            }
+
+            // Opacity is a function of zoom: more zoom means more opaque.
+            opacity = Math.min(1.0, ((ctx.zoom - 1) / 20) +  additive);
+        } else {
+            opacity = 1.0;
+        }
+    }
+ 
+    function setZoomOptions(nodeId, xy, opts) {
+ 
+        var polygonDrawn = polygons[nodeId] ? true : false;
+        opts = opts || {};
+ 
+        opts.fillOpacity = opacity;
+
+        if (Session.equals('mapView', 'honeycomb')) {
+
+            // Given a polygon, set the weight of hexagon's border stroke, in
+            // number of screen pixels, and the border color.
+
+            // API docs say: pixelCoordinate = worldCoordinate * 2 ^ zoomLevel
+            // So this holds the number of pixels that the global length sideLen 
+            // corresponds to at this zoom level.
+            var weight = (sideLen * Math.pow(2, ctx.zoom) >= MIN_BORDER_SIZE)
+                    ? HEX_STROKE_WEIGHT
+                    : 0;
+ 
+            opts.strokeWeight = weight;
+            opts.strokeColor = Session.get('background');
+            opts.strokeOpacity = 1.0;
+        } else {
+ 
+            // This must be an xyCoords mapview.
+            // Retain the hexgon size, regardless of zoom.
+            var hexLen = XY_HEX_LEN_SEED / Math.pow(2, ctx.zoom);
+            opts.path = getHexLatLngCoords(xy, hexLen);
+        }
+
+        // If the hexagon has already been drawn...
+        if (polygonDrawn) {
+ 
+            // Change the drawn polygon options.
+            polygons[nodeId].setOptions(opts);
+        }
+ 
+        // This has not yet been drawn yet,
+        // so return with the modified shape options provided.
+        return;
+    }
+
+    function renderHexagon (row, column, nodeId, opts) {
 
         // Make a new hexagon representing the hexagon at the given xy object
         // space before transform to xy world space.
         // Returns the Google Maps polygon.
  
-        var xy = get_xyWorld_from_xyHex(column, row);
+        var xy = get_xyWorld_from_xyHex(column, row),
+            mapView = Session.get('mapView'),
+            thisSideLen = (mapView === 'honeycomb') ? sideLen : sideLen * 2,
+            coords = getHexLatLngCoords(xy, thisSideLen)
+            shapeOpts = {
+                map: googlemap,
+                //paths: coords,
+                fillColor: Colors.noDataColor(),
+                zIndex: (opts && opts.overlay) ? 200 : 1,
+            };
  
-        var coords = getHexLatLngCoords(xy, sideLen);
+        setZoomOptions(nodeId, xy, shapeOpts);
+ 
+        if (mapView === 'honeycomb') {
+            shapeOpts.path = getHexLatLngCoords(xy, sideLen);
+        } else {
+            shapeOpts.strokeWeight = 0;
+        }
 
-        // TODO can we process many polygons in one call?
+        // TODO can we process many polygons in one call to googlemaps?
         // Can we leave out the fill color until we have one?
         // Construct the Polygon
-        var hexagon = new google.maps.Polygon({
-            paths: coords,
-            strokeOpacity: 1.0,
-            fillColor: Colors.noDataColor(),
-            fillOpacity: 1.0,
-            zIndex: overlayNode ? 200 : 1, // overlays are on top
-        });
-        setHexagonStroke(hexagon);
-        
-        // Attach the hexagon to the global map
-        hexagon.setMap(googlemap);
+        var saveLabel
+        var hexagon = new google.maps.Polygon(shapeOpts);
  
         // Save the honeycomb coordinates with the hexagon
         hexagon.xHex = column;
@@ -55,6 +158,9 @@ var app = app || {};
 
         // Save the xy coordinates for later.
         hexagon.xy = xy;
+ 
+        // Save other flags for later.
+        hexagon.overlay = opts.overlay ? opts.overlay : undefined;
  
         // Set up the click listener to move the global info window to this hexagon
         // and display the hexagon's information
@@ -68,27 +174,13 @@ var app = app || {};
         return hexagon;
     } 
 
-    function setHexagonStroke(hexagon) {
- 
-        // Given a polygon, set the weight of hexagon's border stroke, in number of
-        // screen pixels, and the border color.
-
-        // API docs say: pixelCoordinate = worldCoordinate * 2 ^ zoomLevel
-        // So this holds the number of pixels that the global length sideLen 
-        // corresponds to at this zoom level.
-        var weight = (sideLen * Math.pow(2, ctx.zoom) >= MIN_BORDER_SIZE)
-                ? HEX_STROKE_WEIGHT
-                : 0;
-
-        hexagon.setOptions({
-            strokeWeight: weight,
-            strokeColor: Session.get('background'),
-        });
-    }
-
     createHexagons = function (draw) {
 
-        // Create the hexagons from the assignments.
+        // Create the hexagons from the positions data.
+        setOpacity();
+ 
+        // Clear any old polygons from the map.
+        _.each(_.keys(polygons), removeHexagon);
         polygons = {};
         _.each(assignments, function (hex, id) {
             addHexagon (hex.x, hex.y, id);
@@ -127,12 +219,14 @@ var app = app || {};
         }
     }
 
-    addHexagon = function (x, y, label, overlayNode) {
+    addHexagon = function (x, y, label, opts) {
 
         // Make a hexagon on the Google map and store that.
         // x and y are in object coordinates before transform to world xy coords
-        // overlayNode is optional
-        var hexagon = renderHexagon(y, x, overlayNode);
+        // opts:
+        // @param opts.overlay: true for overlay
+
+        var hexagon = renderHexagon(y, x, label, opts || {});
 
         // Store by label
         polygons[label] = hexagon;
@@ -145,13 +239,11 @@ var app = app || {};
         // it's clicked.
         hexagon.signature = label;
     }
-
-    setHexagonStrokes = function () {
-
-        // Turns off hex borders if we zoom out far enough, and turn them on
-        // again if we come back.
+ 
+    hexagonZoomChanged = function () {
+        setOpacity();
         for (var signature in polygons) {
-            setHexagonStroke(polygons[signature]);
+            setZoomOptions(signature, polygons[signature].xy);
         }
     }
 
@@ -175,13 +267,17 @@ var app = app || {};
             el.text('Hide Node Hover');
         }
     }
-
-    initHexagons = function (draw) {
-    
-        // Download the signature assignments to hexagons and fill in the global
+ 
+    drawLayout = function (draw) {
+ 
+        // Download the positions of nodes and fill in the global
         // hexagon assignment grid.
-        var id = 'assignments' + Session.get('layoutIndex');
-        $('#navBar .showHoverInfo').on('click', showHoverInfo)
+ 
+        // Get the appropriate coordinates depending on the map view.
+        var mapView = Session.get('mapView'),
+            id = (mapView === 'honeycomb') ? 'assignments' : 'xyPreSquiggle_';
+        id += Session.get('layoutIndex');
+ 
         Ajax.get({
             id: id,
             success: function (parsed) {
@@ -189,17 +285,29 @@ var app = app || {};
                 // This is an array of rows, which are arrays of values:
                 // id, x, y
 
-                // Show the number of nodes on the UI
-                Session.set('nodeCount', parsed.length);
-
-                // This holds the maximum observed x & y
+                // These hold the maximum observed x & y
                 var max_x = max_y = 0;
 
                 // Find the max x and y while storing the assignments
                 assignments = {};
-                for (var i = 0; i < parsed.length; i++) {
-                    var x = parseInt(parsed[i][1]),
-                        y = parseInt(parsed[i][2]);
+                var start = 0;
+                
+                if (parsed[0][0][0] === '#') {
+                    start = 1;
+                }
+
+                // Show the number of nodes on the UI
+                Session.set('nodeCount', parsed.length - start);
+                
+                for (var i = start; i < parsed.length; i++) {
+                    var x = parsed[i][1],
+                        y = parsed[i][2];
+                    if (mapView === 'honeycomb') {
+             
+                        // Force the nodes into hexagonal grid coordinates.
+                        x = parseInt(x);
+                        y = parseInt(y);
+                    }
                     assignments[parsed[i][0]] = {x: x, y: y};
                     max_x = Math.max(x, max_x);
                     max_y = Math.max(y, max_y);
@@ -207,6 +315,8 @@ var app = app || {};
 
                 findDimensions(max_x, max_y);
                 Session.set('initedHexagons', true);
+                setOpacity();
+
                 if (draw) {
                     createHexagons(draw);
                 }
@@ -216,5 +326,39 @@ var app = app || {};
                 return;
             },
         });
+    }
+
+    initHexagons = function () {
+    
+        // Default the mapView to honeycomb.
+        Session.set('mapView', Session.get('mapView') || 'honeycomb');
+ 
+        // Default the transparency and set the opacity value.
+        Session.set('transparent', Session.get('transparent') || false);
+ 
+        // Set some event handlers
+        $('#navBar li.mapLayout').on('click', function () {
+            Session.set('mapView', 'honeycomb');
+            if (!Session.equals('page', 'mapPage')) {
+                Hex.pageReload('mapPage');
+            }
+            drawLayout(true);
+        });
+        $('#navBar li.xyCoordView').on('click', function () {
+            Session.set('mapView', 'xyCoords');
+            drawLayout(true);
+        });
+        $('#navBar .transparent').on('click', function () {
+            var transparent = Session.get('transparent');
+            Session.set('transparent', !transparent);
+            setOpacity();
+            _.each(polygons, function(hex) {
+                hex.setOptions({ fillOpacity: opacity });
+            });
+        });
+        $('#navBar .showHoverInfo').on('click', showHoverInfo);
+ 
+        // Get the node positions for the initial view.
+        drawLayout(true);
     }
 })(app);

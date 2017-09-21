@@ -190,6 +190,10 @@
     background: #999;
 }
 
+#navBar li.selected {
+    font-weight: bold;
+}
+
 .gridPage .stacker {
     line-height: 2.1em;
 }

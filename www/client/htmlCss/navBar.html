@@ -108,7 +108,6 @@
                 </ul>
             </li>
             
-            <!-- select menu -->
             <li class='selectMenu mapShow'>
                 Select
                 <img src='/icons/caret-down.png' style='height:8px'>
@@ -129,21 +128,25 @@
                 View
                 <img src='/icons/caret-down.png' style='height:8px'>
                 <ul class='view'>
-                    <li class='showHoverInfo mapShow'>
-                        Show Node Hover
-                    </li>
-                    <li class='mapLayout'>
-                        <a href='/?pg=mapPage' style='color:inherit'>
+                    <li class='mapLayout mapView {{ mapViewLayoutSelected }}'>
                         Map Layout
-                        </a>
                     </li>
-                    <li class='gridPage mapShow gridShow'>
+                    <li class='xyCoordView mapView mapShow {{ mapViewXySelected}}' style='display:{{ mapViewXyDisplay }}'>
+                        XY Coordinates
+                    </li>
+                    <li class='gridPage mapView mapShow gridShow {{ mapViewDensitySelected }}'>
                         <a href='/?pg=gridPage' style='color:inherit'>
                         Node Density
                         </a>
                     </li>
-                    <li class='disabled gridShow'>
+                    <li>
                         <hr>
+                    </li>
+                    <li class='transparent mapShow {{ transparentSelected }}' style='display:{{ transparentDisplay }}'>
+                        Transparent
+                    </li>
+                    <li class='showHoverInfo mapShow'>
+                        Show Node Hover
                     </li>
                     <li class='viewEdges gridShow'>
                         {{viewEdges}} Edges
@@ -167,11 +170,6 @@
                     <li class='reflectTrigger'>
                         Map Reflection...
                     </li>
-                    <!--
-                    <li class='jobs'>
-                        Jobs
-                    </li>
-                    -->
                 </ul>
             </li>
             

@@ -227,7 +227,6 @@ Tool = (function () { // jshint ignore: line
             } else if (Session.equals('page', 'gridPage')) {
                 $('body').find('.homeShow, .mapShow').hide();
                 $('body').find('.gridShow').show();
-                $('.gridPage').addClass('disabled');
                 Session.set('mapSnake', true);
                 $('body').css('overflow-y', 'hidden');
             }

@@ -121,7 +121,7 @@ exports.cancelModalWithClick = function (driver, callerLine, callerFile) {
 
 exports.clickDialogButton = function (driver, buttonPosition) {
 
-    // Click on a dialog control button at the bottom of the dialog.
+    // Click on a dialog control button at the bottom of the jquery-ui dialog.
     // This assumes only one dialog is open and retrieves all
     // ui-dialog-buttonset.
     var pos = buttonPosition || 1;
