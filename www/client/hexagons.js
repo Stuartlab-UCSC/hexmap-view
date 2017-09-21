@@ -39,9 +39,6 @@ var app = app || {};
             return (page && page === 'mapPage' && mapView &&
                 mapView === 'honeycomb') ? 'selected' : '';
         },
-        mapViewXyDisplay: function () {
-            return DEV ? 'list-item' : 'none';
-        },
         mapViewXySelected: function () {
             var page = Session.get('page'),
                 mapView = Session.get('mapView');
@@ -51,9 +48,6 @@ var app = app || {};
         mapViewDensitySelected: function () {
             var page = Session.get('page');
             return (page && page === 'gridPage') ? 'selected' : '';
-        },
-        transparentDisplay: function () {
-            return DEV ? 'list-item' : 'none';
         },
         transparentSelected: function () {
             return (Session.get('transparent')) ? 'selected' : '';
@@ -335,6 +329,15 @@ var app = app || {};
  
         // Default the transparency and set the opacity value.
         Session.set('transparent', Session.get('transparent') || false);
+ 
+        // Show some non-dev widgets if need be.
+        if (DEV) {
+            $('#navBar li.xyCoordView').show();
+            $('#navBar .transparent').show();
+        } else {
+            $('#navBar li.xyCoordView').hide();
+            $('#navBar .transparent').hide();
+        }
  
         // Set some event handlers
         $('#navBar li.mapLayout').on('click', function () {
