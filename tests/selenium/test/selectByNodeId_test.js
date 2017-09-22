@@ -178,4 +178,4 @@ function dupNameTest () {
 
 basicTest();
 renameTest();
-//dupNameTest();
+dupNameTest();

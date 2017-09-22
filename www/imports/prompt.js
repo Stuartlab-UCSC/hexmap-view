@@ -23,6 +23,7 @@ class Prompt extends Component {
         this.modalClass = 'promptModal';
 
         this.handleOpenModal = this.handleOpenModal.bind(this);
+        this.handleCloseModal = this.handleCloseModal.bind(this);
         this.handleTextKeyPress = this.handleTextKeyPress.bind(this);
         this.handleTextChange = this.handleTextChange.bind(this);
         this.handleButtonClick = this.handleButtonClick.bind(this);
@@ -36,9 +37,15 @@ class Prompt extends Component {
         }
     }
 
+    handleCloseModal (response) {
+        if (this.props.closeModal) {
+            this.props.closeModal(response);
+        }
+    }
+    
     handleButtonClick () {
-        if (this.state.textStr && this.props.closeModal) {
-            this.props.closeModal(this.state.textStr.trim());
+        if (this.state.textStr) {
+            this.handleCloseModal(this.state.textStr.trim());
         }
     }
   
@@ -80,7 +87,7 @@ class Prompt extends Component {
         return (
             <Modal
                 onAfterOpen = {this.handleOpenModal}
-                onRequestClose = {self.props.closeModal}
+                onRequestClose = {self.handleCloseModal}
                 overlayClassName = 'prompt'
                 className = {this.modalClass + ' ' + this.props.severity}
                 parentSelector = {self.props.parentSelector}
@@ -101,6 +108,9 @@ class Prompt extends Component {
 }
 Prompt.propTypes = {
 
+    // The text to display as a prompt.
+    promptStr: PropTypes.string.isRequired,
+    
     // The default text to display in the optional text input.
     textStr: PropTypes.string,
     
@@ -109,7 +119,7 @@ Prompt.propTypes = {
     severity: PropTypes.string,
     
     // Function to call when this modal closes.
-    closeModal: PropTypes.func.isRequired,
+    closeModal: PropTypes.func,
 
     // Pass-thru to the React-modal.
     parentSelector: PropTypes.func,

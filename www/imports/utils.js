@@ -55,12 +55,18 @@ exports.createReactRoot = function (containerId) {
 exports.destroyReactRoot = function (containerId) {
     var id = document.querySelector('#' + containerId);
     
-    // This timeout prevents this error:
+    // The timeout prevents this error:
     // invariant.js:44 Uncaught Error:
     //      React DOM tree root should always have a node reference.
-    setTimeout(function () {
+    // However the timeout also confuses any new react component of the same
+    // class that is created before the timeout is up. Even if the second react
+    // component has a different DOM container element.
+    // Without the timeout we get the error, however the react component is
+    // unmounted. Do this for now until we know how to create a new instance of
+    // the same react component class.
+    //setTimeout(function () {
         unmountComponentAtNode(id);
         $(id).remove();
-    });
+    //});
 }
 
