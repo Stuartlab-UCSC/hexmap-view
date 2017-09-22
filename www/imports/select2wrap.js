@@ -45,14 +45,11 @@ export default class Select2 extends Component {
     constructor (props) {
         super(props);
         this.el = null;
-        
-        // DropdownParent allows positioning the bottom of the dropdown
-        // close to the bottom of the window.
-        var dropdownParent = props.select2options.dropdownParent;
-        if (dropdownParent) {
+        var parent = props.select2options.dropdownParent;
+        if (parent) {
             
             // The element to capture the select2-open event.
-            this.openEl = dropdownParent.parent();
+            this.openEl = parent.parent();
         }
         this.initialRender = true;
     }
@@ -77,6 +74,8 @@ export default class Select2 extends Component {
 
     initSelect2 (props) {
         const { select2options } = props;
+        
+        // TODO should this be a ref in the render ?
         this.el = $(ReactDOM.findDOMNode(this));
         this.el.select2(select2options);
         this.attachEventHandlers(props);
@@ -102,13 +101,12 @@ export default class Select2 extends Component {
             // TODO why are we triggering an event here?
             this.el.off(`change.${namespace}`).val(value).trigger('change');
 
-            const dropdownParent = this.props.select2options.dropdownParent,
             choiceDisplay = this.props.choiceDisplay;
 
             // Get modified text to go in the choice box if we have
             // the dropdown parent and the caller supplied a function.
-            if (dropdownParent && choiceDisplay) {
-                dropdownParent.find('.select2-choice span')
+            if (this.openEl && choiceDisplay) {
+                this.openEl.find('.select2-choice span')
                     .text(choiceDisplay(value));
             }
             // Attach the supplied change handler.
@@ -155,11 +153,11 @@ export default class Select2 extends Component {
 
     attachEventHandlers (props) {
     
-        if (props.select2options.dropdownParent) {
+        if (this.openEl) {
             this.openEl.on('select2-open', this.handleOpen);
         }
         
-        // Re-enable the rest of the event handlers.
+        // (Re-)enable the rest of the event handlers.
         props.events.forEach(event => {
             if (typeof props[event[1]] !== 'undefined') {
                 this.el.on(event[0], props[event[1]]);
@@ -168,7 +166,9 @@ export default class Select2 extends Component {
     }
 
     detachEventHandlers () {
-        this.openEl.off('select2-open')
+        if (this.openEl) {
+            this.openEl.off('select2-open');
+        }
         this.props.events.forEach(event => {
             if (typeof this.props[event[1]] !== 'undefined') {
                 this.el.off(event[0]);
@@ -210,11 +210,16 @@ Select2.propTypes = {
     events: PropTypes.array,
     
     // Parameters and options for the pre-react select2 widget.
-    select2: PropTypes.object,
+    select2options: PropTypes.object.isRequired,
     
     // Allow multiple selections.
     multiple: PropTypes.bool,
-  
+    
+    // DropdownParent allows positioning the bottom of the dropdown
+    // close to the bottom of the window. It also allows something other than
+    // the selected option to display in the choice field.
+    dropdownParent: PropTypes.object,
+
     // Callback for value change.
     onChange: PropTypes.func,
     

@@ -9,7 +9,7 @@
 //      - button box
 
 import React, { Component } from 'react';
-import { render, unmountComponentAtNode } from 'react-dom';
+import PropTypes from 'prop-types';
 
 import ReactModal from 'react-modal';
 import './css/reactModal.css';
@@ -18,7 +18,7 @@ export default class Modal extends Component {
     constructor (props) {
         super(props);
         this.state = {
-            isOpen: (props.isOpen === false) ? false : true,
+            isOpen: props.isOpen,
         }
         
         this.handleCancelModal = this.handleCancelModal.bind(this);
@@ -43,7 +43,7 @@ export default class Modal extends Component {
                 onAfterOpen = {this.props.onAfterOpen}
                 onRequestClose = {this.props.onRequestClose}
                 className = {this.props.className + ' modal'}
-                parentSelector = {this.props.parentSelector}
+                parentSelector = {self.props.parentSelector}
             >
                 <div className = 'modalHeader'>
                     <span>
@@ -67,3 +67,27 @@ export default class Modal extends Component {
         );
     }
 }
+Modal.propTypes = {
+
+    // A css class to add to the react-modal.
+    className: PropTypes.string,
+    
+    // Visibility of this component, passed thru to ReactModal.
+    isOpen: PropTypes.bool,
+    
+    // Function to retrieve the DOM container element.
+    // Pass-thru to the React-modal.
+    parentSelector: PropTypes.func,
+    
+    // Function to call when a modal is about to be closed.
+    // Pass-thru to react-modal.
+    onRequestClose: PropTypes.func,
+    
+    // Function to call after the modal opens.
+    // Pass-thru to react-modal.
+    onAfterOpen: PropTypes.func,
+};
+
+Modal.defaultProps = {
+    isOpen: true,
+};

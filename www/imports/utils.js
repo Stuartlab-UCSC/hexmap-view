@@ -1,5 +1,6 @@
 
 // Various utilities.
+import { unmountComponentAtNode } from 'react-dom';
 
 exports.unprintableAsciiCode = function (code, allowCR) {
     
@@ -45,3 +46,21 @@ exports.allPrintableCharsInArray = function (data) {
         });
     return (unprintable ? false : true);
 }
+
+exports.createReactRoot = function (containerId) {
+    $('body').append($('<div id="' + containerId + '" />'));
+    return document.querySelector('#' + containerId);
+}
+
+exports.destroyReactRoot = function (containerId) {
+    var id = document.querySelector('#' + containerId);
+    
+    // This timeout prevents this error:
+    // invariant.js:44 Uncaught Error:
+    //      React DOM tree root should always have a node reference.
+    setTimeout(function () {
+        unmountComponentAtNode(id);
+        $(id).remove();
+    });
+}
+

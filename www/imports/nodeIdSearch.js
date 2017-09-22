@@ -3,7 +3,8 @@
 // The UI to allow the user to select nodes by ID to create a new attribute.
 
 import React, { Component } from 'react';
-import { render, unmountComponentAtNode } from 'react-dom';
+import { render } from 'react-dom';
+import PropTypes from 'prop-types';
 
 import Select2 from './select2wrap.js';
 
@@ -216,7 +217,7 @@ export default class NodeIdSearch extends Component {
                 select2options = {{
                     data: { id: '', text: '' },
                     dropdownCssClass: this.dropdownClass,
-                    dropdownParent: this.props.searchDropDownParent,
+                    dropdownParent: this.props.dropDownParent,
                     formatResult: self.formatResult,
                     placeholder: 'Search nodes...',
                     query: self.query,
@@ -227,3 +228,22 @@ export default class NodeIdSearch extends Component {
         );
     }
 }
+
+NodeIdSearch.propTypes = {
+
+    // IDs available for selection.
+    allIds: PropTypes.array.isRequired,
+
+    // Pass-through to Select2wrap.
+    dropdownParent: PropTypes.object.isRequired,
+    
+    // Function to call when an ID is selected.
+    addToSelectedList: PropTypes.func.isRequired,
+    
+    // Function to call to get the current cart contents.
+    getCart: PropTypes.func.isRequired,
+};
+
+NodeIdSearch.defaultProps = {
+    /* none */
+};

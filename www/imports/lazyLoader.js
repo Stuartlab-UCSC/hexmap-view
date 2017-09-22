@@ -8,27 +8,32 @@
 // components that now have their own root.
 
 import React, { Component } from 'react';
-import { render, unmountComponentAtNode } from 'react-dom';
+import { render } from 'react-dom';
+import Utils from './utils.js';
 
 nodeIdSelectInit = function () {
     
     import NodeIdSelect from './nodeIdSelect.js';
     
     var containerId = 'nodeIdSelectContainer';
-
-    function closeModal (result) {
-        $('#' + containerId).remove();
+    
+    function getParentSelector() {
+        return document.querySelector('#' + containerId);
     }
 
-    $('body').append($('<div id=' + containerId + ' />'));
-    var parentSelector = $('#' + containerId);
+    function closeModal (result) {
+        Utils.destroyReactRoot(containerId);
+    }
+
+    var container = Utils.createReactRoot(containerId);
+
     render(
         <NodeIdSelect
             isOpen = {true}
             closeModal = {closeModal}
-            parentSelector = {parentSelector[0]}
-            searchDropDownParent = {parentSelector}
-         />, parentSelector[0]);
+            parentSelector = {getParentSelector}
+            searchDropDownParent = {$(container)}
+         />, container);
 }
 
 exports.init = function () {

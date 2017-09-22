@@ -3,10 +3,12 @@
 // The UI to prompt the user with a string and an optional text field.
 
 import React, { Component } from 'react';
-import { render, unmountComponentAtNode } from 'react-dom';
+import { render } from 'react-dom';
+import PropTypes from 'prop-types';
 
 import Modal from './modal.js';
 import './css/reactModal.css';
+import Utils from './utils.js';
 
 class Prompt extends Component {
     constructor (props) {
@@ -21,7 +23,6 @@ class Prompt extends Component {
         this.modalClass = 'promptModal';
 
         this.handleOpenModal = this.handleOpenModal.bind(this);
-        this.handleCloseModal = this.handleCloseModal.bind(this);
         this.handleTextKeyPress = this.handleTextKeyPress.bind(this);
         this.handleTextChange = this.handleTextChange.bind(this);
         this.handleButtonClick = this.handleButtonClick.bind(this);
@@ -35,13 +36,9 @@ class Prompt extends Component {
         }
     }
 
-    handleCloseModal (response) {
-        this.props.closeModal(response);
-    }
-    
     handleButtonClick () {
-        if (this.state.textStr) {
-            this.handleCloseModal(this.state.textStr.trim());
+        if (this.state.textStr && this.props.closeModal) {
+            this.props.closeModal(this.state.textStr.trim());
         }
     }
   
@@ -65,7 +62,7 @@ class Prompt extends Component {
         
         // Build the text box and buttons in the button box.
         if (this.state.textStr) {
-            var input =
+            input =
                 <input
                     type = 'text'
                     onKeyPress = {self.handleTextKeyPress}
@@ -83,10 +80,10 @@ class Prompt extends Component {
         return (
             <Modal
                 onAfterOpen = {this.handleOpenModal}
-                onRequestClose = {self.handleCloseModal}
+                onRequestClose = {self.props.closeModal}
                 overlayClassName = 'prompt'
                 className = {this.modalClass + ' ' + this.props.severity}
-                parentSelector = {() => this.props.parentSelector}
+                parentSelector = {self.props.parentSelector}
                 title = {this.title}
                 body = {
                     <div>
@@ -102,42 +99,53 @@ class Prompt extends Component {
         );
     }
 }
+Prompt.propTypes = {
 
+    // The default text to display in the optional text input.
+    textStr: PropTypes.string,
+    
+    // The type of prompt to control color and more.
+    // one of / info / warn / error /
+    severity: PropTypes.string,
+    
+    // Function to call when this modal closes.
+    closeModal: PropTypes.func.isRequired,
+
+    // Pass-thru to the React-modal.
+    parentSelector: PropTypes.func,
+};
+
+Prompt.defaultProps = {
+};
 var containerId = 'prompt',
     callback;
 
 function closeModal (response) {
-
-    // TODO
-    // If we could do this within the component the .show routine could be
-    // removed and the non-react caller would call the component directly.
-    $('#' + containerId).remove();
+    Utils.destroyReactRoot(containerId);
     if (callback) {
         callback(response);
     }
 }
 
+function getParentSelector() {
+    return document.querySelector('#' + containerId);
+}
+
 exports.show = function (promptStr, opts) {
     
     // Create and render this modal.
-    //
     // @param         promptStr: the prompt string
     // @param      opts.textStr: the text to put in the input box, optional
     // @param     opts.callback: function to call upon modal close, optional
     // @param     opts.severity: one of [error, info, warning], optional
-    
+    var container = Utils.createReactRoot(containerId);
     callback = opts ? opts.callback : null;
-
-    $('body').append($('<div id="' + containerId + '" />'));
-
-    var parentSelector = $('#' + containerId)[0];
-    
     render(
         <Prompt
             promptStr = {promptStr}
             textStr = {opts.textStr}
-            parentSelector = {parentSelector}
+            parentSelector = {getParentSelector}
             severity = {opts.severity}
             closeModal = {closeModal}
-         />, parentSelector);
+         />, container);
 }

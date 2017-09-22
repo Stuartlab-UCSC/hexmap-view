@@ -3,7 +3,8 @@
 // The UI to allow the user to select nodes by ID to create a new attribute.
 
 import React, { Component } from 'react';
-import { render, unmountComponentAtNode } from 'react-dom';
+import { render } from 'react-dom';
+import PropTypes from 'prop-types';
 import Modal from './modal.js';
 import './css/reactModal.css';
 
@@ -20,7 +21,6 @@ export default class NodeIdSelect extends Component {
         this.state = {
             cartText: '',
         }
-        this.className = 'nodeIdSelectModal';
         
         // Build the list of node IDs.
         this.allIds = Object.keys(polygons).sort();
@@ -29,7 +29,6 @@ export default class NodeIdSelect extends Component {
         this.addToCart = this.addToCart.bind(this);
         this.updateCart = this.updateCart.bind(this);
         this.getCart = this.getCart.bind(this);
-        this.handleCloseModal = this.handleCloseModal.bind(this);
         this.handleReadSuccess = this.handleReadSuccess.bind(this);
         this.handleButtonClick = this.handleButtonClick.bind(this);
         this.error = this.error.bind(this);
@@ -113,7 +112,9 @@ export default class NodeIdSelect extends Component {
         // Create the attribute.
         Layer.create_dynamic_selection(cart);
         
-        this.handleCloseModal();
+        if (this.props.closeModal) {
+            this.props.closeModal();
+        }
     }
 
     handleReadSuccess (data) {
@@ -124,10 +125,6 @@ export default class NodeIdSelect extends Component {
     
         // Replace the cart text.
         this.setState({ cartText: val });
-    }
-    
-    handleCloseModal () {
-        this.props.closeModal();
     }
     
     render () {
@@ -174,13 +171,31 @@ export default class NodeIdSelect extends Component {
         return (
             <Modal
                 isOpen = {this.props.isOpen}
-                onRequestClose = {self.handleCloseModal}
+                onRequestClose = {self.props.closeModal}
                 className = 'nodeIdSelectModal'
-                parentSelector = {() => this.props.parentSelector}
+                parentSelector = {self.props.parentSelector}
                 body = {body}
                 buttons = {button}
-                ref={(Modal) => { this.modal = Modal; }}
             />
         );
     }
 }
+
+NodeIdSelect.propTypes = {
+
+    // Function to call on close of this component.
+    closeModal: PropTypes.func,
+    
+    // Pass-thru to Select2wrap
+    searchDropDownParent: PropTypes.object.isRequired,
+    
+    // Visibility of this component, passed thru to ReactModal.
+    isOpen: PropTypes.bool,
+
+    // Dom container used to destroy the component. Pass-thru to Select2Wrap.
+    parentSelector: PropTypes.func,
+};
+
+NodeIdSelect.defaultProps = {
+    isOpen: true,
+};

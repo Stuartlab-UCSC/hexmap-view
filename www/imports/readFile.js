@@ -72,3 +72,22 @@ export default class ReadFile extends Component {
         );
     }
 };
+
+ReadFile.propTypes = {
+
+    // Flag to indicate the file read results should be parsed as TSV.
+    parseTsv: PropTypes.bool,
+
+    // Function to call when the file read starts.
+    onStart: PropTypes.func,
+    
+    // Function to call when the file read and validation are complete.
+    onSuccess: PropTypes.func.isRequired,
+    
+    // Function to call when there is an error.
+    onError: PropTypes.func.isRequired,
+};
+
+ReadFile.defaultProps = {
+    // none
+};

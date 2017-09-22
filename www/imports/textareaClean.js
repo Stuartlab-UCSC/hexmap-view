@@ -3,7 +3,7 @@
 // A textarea to contain text that contains only printable characters.
 
 import React, { Component } from 'react';
-import { render, unmountComponentAtNode } from 'react-dom';
+import { render } from 'react-dom';
 import PropTypes from 'prop-types';
 
 import U from './utils.js';
@@ -110,6 +110,7 @@ TextareaClean.propTypes = {
 TextareaClean.defaultProps = {
     rows: '10',
     cols: '20',
+    noFocus: false,
 };
 
   

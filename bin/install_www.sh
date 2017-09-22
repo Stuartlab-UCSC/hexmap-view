@@ -7,6 +7,7 @@ NODE_BIN=$HEXMAP/packages/node/bin
 
 cd $HEXMAP
 
+echo date
 echo untarring...
 if [ $HEXMAP == '/data' ]; then
     tar xf /cluster/home/swat/dev/www.tar.gz
@@ -18,6 +19,7 @@ echo npm installing...
 cd $HEXMAP/bundle/programs/server
 $NODE_BIN/npm install > $HEXMAP/log/npmInstall
 
+echo date
 echo stopping www
 cd $HEXMAP
 run stop www
@@ -30,3 +32,4 @@ mv bundle www
 
 echo starting www
 run www
+echo date
