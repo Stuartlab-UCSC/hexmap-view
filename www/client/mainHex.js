@@ -3,6 +3,27 @@
 import React from 'react';
 import { Meteor } from 'meteor/meteor';
 import { render } from 'react-dom';
+import CheckLayerBox from '/imports/legacy/checkLayerBox.js';
+import Colors from '/imports/legacy/colors.js';
+import Coords from '/imports/legacy/coords.js';
+import CreateMap from '/imports/legacy/createMap.js';
+import Download from '/imports/legacy/download.js';
+import Filter from '/imports/legacy/filter.js';
+import GChart from '/imports/legacy/gChart.js';
+import Grid from '/imports/legacy/grid.js';
+import Hexagons from '/imports/legacy/hexagons.js';
+import Layer from '/imports/legacy/layer.js';
+import Legend from '/imports/legacy/legend.js';
+import Message from '/imports/legacy/message.js';
+import OverlayNodes from '/imports/legacy/overlayNodes.js';
+import OverlayNodeUI from '/imports/legacy/overlayNodeUI.js';
+import Reflect from '/imports/legacy/reflect.js';
+import Select from '/imports/legacy/select.js';
+import SetOper from '/imports/legacy/setOper.js';
+import Shortlist from '/imports/legacy/shortlist.js';
+import SortUi from '/imports/legacy/sortUi.js';
+import State from '/imports/legacy/state.js';
+import Tool from '/imports/legacy/tool.js';
 
 var app = app || {};
 (function (hex) { // jshint ignore: line
@@ -16,7 +37,7 @@ Hex = (function () { // jshint ignore: line
 
     Template.localStoreT.created = function () {
         // This template is only used to initialize state
-        if (_.isNull(ctx)) { ctx = initState(); }
+        if (_.isNull(ctx)) { ctx = State.init(); }
     };
 
     Template.body.helpers({
@@ -171,24 +192,24 @@ Hex = (function () { // jshint ignore: line
                 }, 300);
 
                 // Initialize the background functions.
-                initOverlayNodes();
-                initOverlayNodeUi();
-                initLegend();
+                OverlayNodes.init();
+                OverlayNodeUI.init();
+                Legend.init();
                 Shortlist.init();
-                initCoords();
+                Coords.init();
                 CheckLayerBox.init();
                 Reflect.init();
-                Tool.initLabelTool();
+                Tool.initLabel();
                 Download.init();
                 Colors.init();
                 import InfoWindow from '/imports/reactCandidates/infoWindow.js';
                 InfoWindow.init();
-                initSetOperations();
+                SetOper.init();
                 CreateMap.init();
                 Select.init();
-                initGchart();
-                initBookmark();
-                Jobs.init();
+                GChart.init();
+                State.initBookmark();
+                //Jobs.init();
                 if (!DEV) { googleAnalytics(); }
                 //initDiffAnalysis();
             }, 0);
@@ -204,8 +225,8 @@ Hex = (function () { // jshint ignore: line
             Session.get('initedStaticLayersArray')) {
             autorun.stop();
  
-            initSortAttrs();
-            initFilter();
+            SortUi.init();
+            Filter.init();
             import Longlist from '/imports/reactCandidates/longlist.js';
             Longlist.init();
             Session.set('retrievedLayerInfo', true);
@@ -220,7 +241,7 @@ Hex = (function () { // jshint ignore: line
         if (Session.get('initedLayout')) {
             autorun.stop();
  
-            initHexagons();
+            Hexagons.init();
         }
     }
     Meteor.autorun(isLayoutInitialized);
@@ -235,7 +256,7 @@ Hex = (function () { // jshint ignore: line
             Session.get('initedMapType')) {
             autorun.stop();
  
-            initMapType();
+            Coords.initMapType();
             initLayout();
             Layer.initDataTypes();
             Layer.initIndex();
@@ -252,7 +273,7 @@ Hex = (function () { // jshint ignore: line
             resizeMap();
             $(window).resize(resizeMap);
             $('#shortlist_holder').css('top', $('#navBar').height());
-            ctx.center = centerToLatLng(ctx.center);
+            ctx.center = State.centerToLatLng(ctx.center);
             Session.set('initedMapContainer', true);
         }, 0);
     }
@@ -260,8 +281,8 @@ Hex = (function () { // jshint ignore: line
     function initGridMapContainer () { // jshint ignore: line
         setTimeout(function () { // The timeout allows the google libs to load
             $(window).resize(resizeMap);
-            ctx.gridCenter = centerToLatLng(ctx.gridCenter);
-            initGrid();
+            ctx.gridCenter = State.centerToLatLng(ctx.gridCenter);
+            Grid.init();
             
             // Resize the map to fill the available space
             Meteor.setTimeout(resizeMap, 0);

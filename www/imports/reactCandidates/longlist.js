@@ -4,6 +4,8 @@
 import React, { Component } from 'react';
 import { render } from 'react-dom';
 import Select2 from '/imports/select2wrap.js';
+import Shortlist from '/imports/legacy/shortlist.js';
+import Sort from '/imports/legacy/sort.js';
 
 // How many layer results should we display at once?
 var SEARCH_PAGE_SIZE = 10,
@@ -38,7 +40,7 @@ exports.update = function() {
     // order.
     
     // Re-sort the sorted list that we maintain
-    sort_layers();
+    Sort.sort_layers();
 
     // Close the select if it was open, forcing the data to refresh when it
     // opens again.

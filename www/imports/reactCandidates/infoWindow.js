@@ -1,7 +1,8 @@
 // infoWindow.js
 // Handle the google maps infoWindow objects.
 
-import InfoWindow from '/imports/reactCandidates/infoWindow.js';
+import Coords from '/imports/legacy/coords.js';
+import Tool from '/imports/legacy/tool.js';
 
 // This is the global Google Maps info window. We only want one hex to have its
 // info open at a time.
@@ -101,7 +102,7 @@ function with_infocard(signature, callback, gMap) {
     var current_layers = Session.get('shortlist').slice();
     
     // Obtain the layer objects (mapping from signatures/hex labels to colors)
-    Layer.with_layers(current_layers, function(retrieved_layers) { 
+    Layer.with_all(current_layers, function(retrieved_layers) { 
         
         // This holds the root element of the card.
         var infocard = $("<div/>").addClass("infocard");
@@ -110,7 +111,7 @@ function with_infocard(signature, callback, gMap) {
         infocard.append(add_signature(signature).addClass("info-name"));
 
         if (!justNodeId) {
-            if (SHOW_COORDS) {
+            if (Coords.getShowCoords()) {
                 // Display the honeycomb coordinates
                 infocard.append(row('xyHex',
                     polygons[signature].xHex.toString() + ', ' +
@@ -152,7 +153,7 @@ function mapKeyup (e) {
 
     var code = (e.keyCode ? e.keyCode : e.which);
     if (code === 27) { // 27 = ESC key
-        InfoWindow.close();
+        exports.close();
     }
 }
 
@@ -205,26 +206,26 @@ exports.show = function (event, hexagon, gMap, callback1, justNodeId_in) {
 
     if (!info_window) return;
 
-    if (tool_activity()) {
+    if (Tool.activity()) {
         // The user is using a tool currently, so we cannot use
         // their clicks for the info window.
         return;
     }
 
     // Remove the window from where it currently is
-    InfoWindow.close();
+    exports.close();
     
     // Save the justNodeId boolean, whatever was passed in.
     justNodeId = justNodeId_in;
 
     // Place the window point in the center of this hexagon.
-    info_window.setPosition(get_LatLng(hexagon.xy.x, hexagon.xy.y));
+    info_window.setPosition(Coords.get_LatLng(hexagon.xy.x, hexagon.xy.y));
     
     // Record that this signature is selected now
     selected_signature = hexagon.signature;
 
     // Calculate the window's contents and make it display them.
-    InfoWindow.redraw(gMap, callback1);
+    exports.redraw(gMap, callback1);
 }
 
 exports.init = function (gMap) {
@@ -232,20 +233,20 @@ exports.init = function (gMap) {
     // Make the global info window
     info_window = new google.maps.InfoWindow({
         content: "No Signature Selected",
-        position: get_LatLng(0, 0)
+        position: Coords.get_LatLng(0, 0)
     });
 
     // Attach a listener for the ESC key to close the info_window
     // TODO use session var
-    google.maps.event.addDomListener(document, 'keyup', InfoWindow.mapKeyup);
+    google.maps.event.addDomListener(document, 'keyup', exports.mapKeyup);
     
     // Add an event to close the info window when the user clicks outside of any
     // any hexagon
     var map = googlemap;
     if (gMap) map = gMap;
-    google.maps.event.addListener(map, "click", InfoWindow.close);
+    google.maps.event.addListener(map, "click", exports.close);
 
     // And an event to clear the selected hex when the info_window closes.
     // TODO use session var
-    google.maps.event.addListener(info_window, "closeclick", InfoWindow.close);
+    google.maps.event.addListener(info_window, "closeclick", exports.close);
 }

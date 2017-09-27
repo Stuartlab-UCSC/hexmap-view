@@ -6,7 +6,7 @@ import React, { Component } from 'react';
 import { render } from 'react-dom';
 import PropTypes from 'prop-types';
 
-import Select2 from './select2wrap.js';
+import Select2 from '/imports/select2wrap.js';
 
 export default class NodeIdSearch extends Component {
 

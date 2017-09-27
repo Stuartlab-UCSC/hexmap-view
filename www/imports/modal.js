@@ -12,7 +12,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
 import ReactModal from 'react-modal';
-import './css/reactModal.css';
+import '/imports/htmlCss/reactModal.css';
 
 export default class Modal extends Component {
     constructor (props) {

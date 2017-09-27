@@ -3,15 +3,16 @@
 // The UI to allow the user to select nodes by ID to create a new attribute.
 
 import React, { Component } from 'react';
-import { render } from 'react-dom';
 import PropTypes from 'prop-types';
-import Modal from './modal.js';
-import './css/reactModal.css';
 
-import NodeIdSearch from './nodeIdSearch.js';
-import TextareaClean from './textareaClean.js';
-import ReadFile from './readFile.js';
-import U from './utils.js';
+import Layer from '/imports/legacy/layer.js';
+import NodeIdSearch from '/imports/nodeIdSearch.js';
+import Modal from '/imports/modal.js';
+import '/imports/htmlCss/reactModal.css';
+import TextareaClean from '/imports/textareaClean.js';
+import ReadFile from '/imports/readFile.js';
+import U from '/imports/utils.js';
+import Util from '/imports/legacy/util.js';
 
 export default class NodeIdSelect extends Component {
 

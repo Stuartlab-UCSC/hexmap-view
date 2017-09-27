@@ -6,6 +6,7 @@ if (Meteor.isClient) {
     layers = {}; // contains almost all information about attributes
     googlemap = null; // our main googlemap instance
     colormaps = {};
+    polygons = {}; // Global: hold objects of polygons by signature name
 }
 
 Meteor.startup( () => {

@@ -4,7 +4,12 @@
 
 import React, { Component } from 'react';
 import { render } from 'react-dom';
+import DialogHex from '/imports/legacy/dialogHex.js';
+import Layer from '/imports/legacy/layer.js';
 import ReadFile from '/imports/readFile.js'
+import Util from '/imports/legacy/util.js';
+
+import '/imports/htmlCss/attrAdd.html';
 
 var dialogHex;
 
@@ -20,7 +25,7 @@ addAsLayers = function (data) {
 
     // Find unique names for the attributes.
     var attrNames = _.map(data[0].slice(1), function (origName) {
-            return Layer.make_unique_layer_name(origName);
+            return Layer.make_unique_name(origName);
         }),
         dynLayers = {};
     
@@ -38,7 +43,7 @@ addAsLayers = function (data) {
     });
     
     // All the layers to our layers global and the shortlist.
-    Layer.with_layers(attrNames, function() {}, dynLayers);
+    Layer.with_all(attrNames, function() {}, dynLayers);
 
     // Remove the busy snake.
     Session.set('mapSnake', false);
@@ -61,7 +66,7 @@ function createWindow() {
     // Create the dialog.
 
     // Retrieve the html template.
-    import '/imports/html/attrAdd.html';
+    import '/imports/htmlCss/attrAdd.html';
     Blaze.render(Template.attrAddTemplate, $('.content')[0]);
     
     // Attach the html to the page content.
@@ -78,7 +83,7 @@ function createWindow() {
         />, $dialog.find('.fileAnchor')[0]);
 
     // Create a dialog and show it.
-    dialogHex = createDialogHex({
+    dialogHex = DialogHex.create({
         $el: $dialog,
         opts: { title: 'Add Color Attributes' },
         helpAnchor: '/help/addAttr.html',

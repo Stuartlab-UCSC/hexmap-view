@@ -2,6 +2,8 @@
  * Talk to the data/compute server.
  */
 
+import Util from '/imports/legacy/util.js';
+
 var UPLOAD_MAX_GIGABYTES = 4,
     UPLOAD_MAX_BYTES = 1024 * 1024 * 1024 * UPLOAD_MAX_GIGABYTES;
 
