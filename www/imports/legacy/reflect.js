@@ -6,6 +6,8 @@ import LayerNameList from '/imports/legacy/layerNameList.js';
 import Tool from '/imports/legacy/tool.js';
 import Util from '/imports/legacy/util.js';
 
+import '/imports/legacy/htmlCss/reflect.html';
+
 var ManagerAddressBook = new Mongo.Collection('ManagerAddressBook');
 var ManagerFileCabinet = new Mongo.Collection('ManagerFileCabinet');
 //'use strict';

@@ -6,6 +6,8 @@ import DialogHex from '/imports/legacy/dialogHex.js';
 import Tool from '/imports/legacy/tool.js';
 import Util from '/imports/legacy/util.js';
 
+import './htmlCss/createMap.html';
+
 var title = 'Create a Map',
     dialogHex, // instance of the class DialogHex
     $dialog, // our dialog DOM element

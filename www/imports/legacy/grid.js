@@ -9,6 +9,13 @@ import InfoWindow from '/imports/reactCandidates/infoWindow.js';
 import Tool from '/imports/legacy/tool.js';
 import Util from '/imports/legacy/util.js';
 
+// TODO move these up after we're routing pages.
+import '/imports/legacy/htmlCss/jobs.html';
+import './htmlCss/navBar.html';
+import './htmlCss/navBar.css';
+
+import './htmlCss/grid.html';
+
 // our map range: lng: -90 -> 90   x: 0 -> 128
 //                lat: -45 -> 45   y: 0 -> 128
 

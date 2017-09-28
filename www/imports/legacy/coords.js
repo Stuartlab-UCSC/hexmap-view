@@ -33,6 +33,7 @@
 
 import Grid from '/imports/legacy/grid.js';
 import Util from '/imports/legacy/util.js';
+import './htmlCss/coords.html';
 
 var SHOW_COORDS = false; // true = show them, false = not
 

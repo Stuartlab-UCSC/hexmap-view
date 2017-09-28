@@ -2,10 +2,16 @@
 // Handle most of the functions of the shortlist, which contain the layers the
 // user has added so they can be quickly selected for display.
 
+import '/imports/lib/jquery-ui.js';
+import '/imports/lib/jquery-ui.theme.css';
+
 import Colors from '/imports/legacy/colors.js';
 import GChart from '/imports/legacy/gChart.js';
 import Layer from '/imports/legacy/layer.js';
 import Util from '/imports/legacy/util.js';
+
+import './htmlCss/shortlist.html';
+import './htmlCss/shortlist.css';
 
 var initialization_started = false;
 

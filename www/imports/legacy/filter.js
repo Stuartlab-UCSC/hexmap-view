@@ -3,8 +3,11 @@
 
 import Ajax from '/imports/ajax.js';
 import DialogHex from '/imports/legacy/dialogHex.js';
-import Util from '/imports/legacy/util.js';
 import Tool from '/imports/legacy/tool.js';
+import Util from '/imports/legacy/util.js';
+
+import './htmlCss/filter.html';
+import './htmlCss/filter.css';
 
 var TITLE = 'Filter Attributes',
     BIN_LABEL = 'Binary',
@@ -377,6 +380,6 @@ exports.init = function () {
     // Create a link from the navBar
     Tool.add("filterAttributes", function(ev) {
         $button.click();
-        Toolactivity(false);
+        Tool.activity(false);
     }, 'Filter attributes');
 }

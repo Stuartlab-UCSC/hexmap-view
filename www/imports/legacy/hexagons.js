@@ -4,7 +4,7 @@
 import Ajax from '/imports/ajax.js';
 import Colors from '/imports/legacy/colors.js';
 import Coords from '/imports/legacy/coords.js';
-import InfoWindow from '/imports/legacy/util.js';
+import InfoWindow from '/imports/reactCandidates/infoWindow.js';
 import Tool from '/imports/legacy/tool.js';
 import Util from '/imports/reactCandidates/infoWindow.js';
 

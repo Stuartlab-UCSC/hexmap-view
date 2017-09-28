@@ -3,6 +3,7 @@
 
 import DialogHex from '/imports/legacy/dialogHex.js';
 import Util from '/imports/legacy/util.js';
+import './htmlCss/diffAnalysis.html';
 
 var title = 'Differential Analysis',
     computingText = 'Computing differential Analysis now...',

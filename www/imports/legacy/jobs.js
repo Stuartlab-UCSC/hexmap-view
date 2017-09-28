@@ -6,6 +6,8 @@
 
 import DialogHex from '/imports/legacy/dialogHex.js';
 
+import '/imports/legacy/htmlCss/jobs.html';
+
 var title = 'Jobs',
     dialogHex, // instance of the class DialogHex
     $dialog, // our dialog DOM element

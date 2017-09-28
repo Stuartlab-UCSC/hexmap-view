@@ -3,6 +3,7 @@
 
 import React, { Component } from 'react';
 import { render } from 'react-dom';
+import Layer from '/imports/legacy/layer.js';
 import Select2 from '/imports/select2wrap.js';
 import Shortlist from '/imports/legacy/shortlist.js';
 import Sort from '/imports/legacy/sort.js';

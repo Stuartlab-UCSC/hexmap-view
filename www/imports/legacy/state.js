@@ -426,22 +426,6 @@ function checkLocalStore () {
     return true;
 }
 
-exports.centerToLatLng = function (centerIn) {
-
-    // If needed, create the center or translate from an array to latLng.
-    var center = centerIn;
-    if (_.isNull(center)) {
-        center = [0, 0];
-    }
-    if (Array.isArray(center)) {
-
-        // This is stored as an array of two numbers rather
-        // than as the google-specific latLng.
-        center = new google.maps.LatLng(center[0], center[1]);
-    }
-    return center;
-};
-
 function closeBookmark () {
     bookmarkDialogHex.hide()
 };

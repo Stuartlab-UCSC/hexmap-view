@@ -6,6 +6,8 @@ import Svg from '/imports/legacy/svg.js';
 import Tool from '/imports/legacy/tool.js';
 import Util from '/imports/legacy/util.js';
 
+import '/imports/legacy/htmlCss/pdf.html';
+
 function initDownloadSelectTool () {
 
     // And a tool for exporting selections as lists of hexes

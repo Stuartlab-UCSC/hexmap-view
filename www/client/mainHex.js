@@ -25,10 +25,34 @@ import SortUi from '/imports/legacy/sortUi.js';
 import State from '/imports/legacy/state.js';
 import Tool from '/imports/legacy/tool.js';
 
+import '/imports/legacy/htmlCss/aHexagram.css';
+import '/imports/legacy/htmlCss/colorsFont.css';
+import '/imports/legacy/htmlCss/hexagram.html';
+import '/imports/legacy/htmlCss/pdf.html';
+import '/imports/home/home.html';
+import '/imports/home/home.css';
+
 var app = app || {};
 (function (hex) { // jshint ignore: line
 Hex = (function () { // jshint ignore: line
  
+
+function centerToLatLng (centerIn) {
+
+    // If needed, create the center or translate from an array to latLng.
+    var center = centerIn;
+    if (_.isNull(center)) {
+        center = [0, 0];
+    }
+    if (Array.isArray(center)) {
+
+        // This is stored as an array of two numbers rather
+        // than as the google-specific latLng.
+        center = new google.maps.LatLng(center[0], center[1]);
+    }
+    return center;
+};
+
     var VERSION = 'Version 1.0';
  
     window.addEventListener("load", function(event) {
@@ -37,6 +61,16 @@ Hex = (function () { // jshint ignore: line
 
     Template.localStoreT.created = function () {
         // This template is only used to initialize state
+       /*
+        // Get the googlemaps API.
+        $.getScript( "https://maps.googleapis.com/maps/api/js?key=AIzaSyBb8AJUB4x-xxdUCnjzb-Xbcg0-T1mPw3I" )
+            .done(function( script, textStatus ) {
+                console.log( textStatus );
+            })
+            .fail(function( jqxhr, settings, exception ) {
+                console.log( "Failed to load googlemaps API" );
+            });
+        */
         if (_.isNull(ctx)) { ctx = State.init(); }
     };
 
@@ -273,7 +307,7 @@ Hex = (function () { // jshint ignore: line
             resizeMap();
             $(window).resize(resizeMap);
             $('#shortlist_holder').css('top', $('#navBar').height());
-            ctx.center = State.centerToLatLng(ctx.center);
+            ctx.center = centerToLatLng(ctx.center);
             Session.set('initedMapContainer', true);
         }, 0);
     }
@@ -281,7 +315,7 @@ Hex = (function () { // jshint ignore: line
     function initGridMapContainer () { // jshint ignore: line
         setTimeout(function () { // The timeout allows the google libs to load
             $(window).resize(resizeMap);
-            ctx.gridCenter = State.centerToLatLng(ctx.gridCenter);
+            ctx.gridCenter = centerToLatLng(ctx.gridCenter);
             Grid.init();
             
             // Resize the map to fill the available space

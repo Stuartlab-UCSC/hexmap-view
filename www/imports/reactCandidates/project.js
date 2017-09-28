@@ -5,6 +5,7 @@
 import React, { Component } from 'react';
 import { render } from 'react-dom';
 import Select2 from '/imports/select2wrap.js';
+import '/imports/lib/select2.css';
 import Util from '/imports/legacy/util.js';
 
 // Placeholder text when no project is selected

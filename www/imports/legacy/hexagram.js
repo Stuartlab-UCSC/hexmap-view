@@ -1,6 +1,8 @@
 // hexagram.js
 // Run the hexagram visualizer client.
 
+import '/imports/lib/color.js';
+
 import Ajax from '/imports/ajax.js';
 import Colors from '/imports/legacy/colors.js';
 import Hexagons from '/imports/legacy/hexagons.js';

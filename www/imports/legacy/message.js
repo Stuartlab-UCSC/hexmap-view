@@ -1,6 +1,8 @@
 
 import DialogHex from '/imports/legacy/dialogHex.js';
 
+import '/imports/legacy/htmlCss/message.html';
+
 var dialogHex, // the dialogHex object instance
     $dialog, // the DOM element that the jquery dialog belongs to
     message = ReactiveVar();

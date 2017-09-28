@@ -5,6 +5,8 @@ import Select2 from '/imports/lib/select2.js';
 import Colors from '/imports/legacy/colors.js';
 import Util from '/imports/legacy/util.js';
 
+import '/imports/legacy/htmlCss/layerNameList.html';
+
 LayerNameList = function ($anchor, $label, selected, firstList) {
 
     this.$anchor = $anchor;

@@ -5,6 +5,9 @@ import Layer from '/imports/legacy/layer.js';
 import Tool from '/imports/legacy/tool.js';
 import Util from '/imports/legacy/util.js';
 
+import './htmlCss/setOper.html';
+import './htmlCss/setOper.css';
+
 // Boolean stating whether this is the first time the set operation popup & stats query
 // has been created so that "Select Layer" Default is added only once
 var first_opening = true;
@@ -179,7 +182,7 @@ function compute_button_clicked () {
 
     compute_now(layer_values, layer_names, set_types[selected_function]);
 
-    reset_set_operations();
+    reset();
 };
 
 // Set Operation GUI
@@ -556,7 +559,8 @@ exports.init = function () {
         Tool.activity(false);
     }, 'Calculate set operation');
     
-    $('#update_drop_operation').on('change', reset)
+    $('#set-operations-list').on('change', exports.update_drop_down);
+    $('.set-operation .cancel').on('click', reset);
     
     var compute_button = document.getElementsByClassName ("compute-button");
     compute_button[0].onclick = compute_button_clicked;

@@ -3,6 +3,7 @@
 // Handle the PDF request
 
 import DialogHex from '/imports/legacy/dialogHex.js';
+import '/imports/legacy/htmlCss/pdf.html';
 
 var title = 'PDF',
     dialogHex,

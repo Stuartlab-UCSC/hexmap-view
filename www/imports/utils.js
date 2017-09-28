@@ -65,6 +65,7 @@ exports.destroyReactRoot = function (containerId) {
     // unmounted. Do this for now until we know how to create a new instance of
     // the same react component class.
     //setTimeout(function () {
+        console.log('this message is OK for now: invariant.js:44 Uncaught Error: React DOM tree root should always have a node reference.');
         unmountComponentAtNode(id);
         $(id).remove();
     //});

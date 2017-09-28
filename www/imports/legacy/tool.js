@@ -14,6 +14,11 @@
 import Ajax from '/imports/ajax.js';
 import Util from '/imports/legacy/util.js';
 
+import './htmlCss/header.html';
+import './htmlCss/header.css';
+import './htmlCss/overlayNode.html';
+import '/imports//lib/mapLabel.min.js';
+
 // This is an array of all Google Maps events that tools can use.
 var TOOL_EVENTS = [
     "click",
@@ -161,7 +166,7 @@ exports.initLabel = function () {
             
         if(!text) {
             // They don't want to put a label
-                activity(false);
+                exports.activity(false);
             return;
         }
         
@@ -189,7 +194,7 @@ exports.initLabel = function () {
             remove_tool_listener(handle);
         }, function() {
             // Cleanup: de-select ourselves.
-                activity(false);
+                exports.activity(false);
         });
     }, 'Add a label to the map', 'mapShow');
 },

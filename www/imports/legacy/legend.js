@@ -4,6 +4,8 @@
 import Layer from '/imports/legacy/layer.js';
 import Shortlist from '/imports/legacy/shortlist.js';
 
+import '/imports/legacy/htmlCss/legend.css';
+
     // How big is our color key in pixels?
     var display_context,
         KEY_WT = 125,
@@ -89,7 +91,6 @@ exports.findColorCount = function (layer_name) {
             return 0;
         }
     }
-
 
 exports.redraw = function (retrieved_layers, current_layers, context) {
  

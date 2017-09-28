@@ -8,6 +8,8 @@ import OverlayNodes from '/imports/legacy/overlayNodes.js';
 import Tool from '/imports/legacy/tool.js';
 import Util from '/imports/legacy/util.js';
 
+import '/imports/legacy/htmlCss/overlayNode.html';
+
 var title = 'Place New Nodes',
     dialogHex,
     $dialog;

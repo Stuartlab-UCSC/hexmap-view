@@ -8,6 +8,8 @@ import Sort from '/imports/legacy/sort.js';
 import Tool from '/imports/legacy/tool.js';
 import Util from '/imports/legacy/util.js';
 
+import './htmlCss/sort.html';
+
     var title = 'Sort Attributes by Associative Statistics',
         FOCUS_LIST_LABEL = 'Attribute A:', //was 'Focus attribute:',
         DIFF_LIST_LABEL = 'Attribute A:',
