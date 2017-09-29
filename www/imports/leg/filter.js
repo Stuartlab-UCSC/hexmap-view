@@ -32,8 +32,7 @@ var TITLE = 'Filter Attributes',
     $passFilters,
     tagsAutorun,
     autorun = [],
-    tagData,
-    hasTagInfo = false;
+    tagData;
 
 // Meteor HTML template values
 
@@ -121,7 +120,7 @@ function passFilter(layer) {
     }
 
     // If there is no tag information we're done with filters
-    if (!hasTagInfo) {
+    if (!tagData || tagData.length < 1) {
         return true;
     }
 
@@ -208,8 +207,7 @@ function processTags () {
 
 function requestLayerTags () {
 
-    // Retrieve the layer tags data from the server
-            // Download the file now.
+    // Retrieve the layer tags data from the server.
     Ajax.get({
         id: 'attribute_tags',
         ok404: true,  // treat 404 not found as a form of success
@@ -221,9 +219,6 @@ function requestLayerTags () {
                 tagsAutorun.stop();
             }
         
-            // Save the fact there is tag information for this project
-            hasTagInfo = true;
-            
             // Save the counts. Dynamic layer don't get reflected here.
             if (ctx.bin_layers) count.set('bin', ctx.bin_layers.length);
             if (ctx.cat_layers) count.set('cat', ctx.cat_layers.length);
