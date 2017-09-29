@@ -71,3 +71,33 @@ exports.destroyReactRoot = function (containerId) {
     //});
 }
 
+exports.resizeMap = function () {
+
+    // Set the initial map size and capture any resize window event so
+    // the map gets resized too.
+    var windowHt = $(window).height(),
+        navHt = $('#navBar').height(),
+        headerHt = $('#header').height();
+    $('#mapContent').height(windowHt - navHt - headerHt - 1);
+    $('#visualization').show();
+}
+
+function queryFreeReload () {
+    Session.set('mapSnake', true);
+    if (window.location.search.length > 0) {
+        window.location.search = '';
+    } else {
+        window.location.reload();
+    }
+}
+
+exports.pageReload = function (page) {
+    Session.set('page', page);
+    queryFreeReload();
+}
+
+exports.loadProject = function (project) {
+    ctx.project = project;
+    Session.set('page', 'mapPage');
+    queryFreeReload();
+}

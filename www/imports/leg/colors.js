@@ -3,11 +3,11 @@
 // TODO pull the colormap editor out of here into its own file.
 // TODO move the color functions from hexagram.js to here.
 
-import DialogHex from '/imports/legacy/dialogHex.js';
-import Hexagons from '/imports/legacy/hexagons.js';
-import Hexagram from '/imports/legacy/hexagram.js';
-import OverlayNodes from '/imports/legacy/overlayNodes.js';
-import Tool from '/imports/legacy/tool.js';
+import DialogHex from '/imports/leg/dialogHex.js';
+import Hexagons from '/imports/leg/hexagons.js';
+import Hexagram from '/imports/leg/hexagram.js';
+import OverlayNodes from '/imports/leg/overlayNodes.js';
+import Tool from '/imports/leg/tool.js';
 import './htmlCss/colors.html';
 import './htmlCss/colors.css';
 

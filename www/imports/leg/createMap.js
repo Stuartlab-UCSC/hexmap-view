@@ -1,10 +1,11 @@
 // createMap.js
 // This creates a new map with user uploaded data.
 
-import Ajax from '/imports/ajax.js';
-import DialogHex from '/imports/legacy/dialogHex.js';
-import Tool from '/imports/legacy/tool.js';
-import Util from '/imports/legacy/util.js';
+import Ajax from '/imports/app/ajax.js';
+import DialogHex from '/imports/leg/dialogHex.js';
+import Tool from '/imports/leg/tool.js';
+import Util from '/imports/leg/util.js';
+import Utils from '/imports/app/utils.js';
 
 import './htmlCss/createMap.html';
 
@@ -200,7 +201,7 @@ function create_map () {
             log_it('Map was successfully created and is loading now.');
 
             // Open the new map.
-            Hex.loadProject(getProjectName());
+            Utils.loadProject(getProjectName());
         }
     });
 }
@@ -285,7 +286,7 @@ function build_dialog_content (username) {
 
     import React, { Component } from 'react';
     import { render } from 'react-dom';
-    import Upload from '/imports/upload.js';
+    import Upload from '/imports/comp/upload.js';
 
      // Define the file selector for features file
     feature_upload = render(

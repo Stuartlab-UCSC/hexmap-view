@@ -2,8 +2,8 @@
 // Handle project parameters in the URL.
 // Bookmarks and page-only parms are handled in state.js.
 
-import Layer from '/imports/legacy/layer.js';
-import Util from '/imports/legacy/util.js';
+import Layer from '/imports/leg/layer.js';
+import Util from '/imports/leg/util.js';
 
 var store = {},
     xenaAttrsAwaiting = [];

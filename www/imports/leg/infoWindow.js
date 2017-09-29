@@ -1,11 +1,11 @@
 // infoWindow.js
 // Handle the google maps infoWindow objects.
 
-import Coords from '/imports/legacy/coords.js';
-import Layer from '/imports/legacy/layer.js';
-import Tool from '/imports/legacy/tool.js';
+import Coords from '/imports/leg/coords.js';
+import Layer from '/imports/leg/layer.js';
+import Tool from '/imports/leg/tool.js';
 
-import '/imports/legacy/htmlCss/infoWindow.html';
+import '/imports/leg/htmlCss/infoWindow.html';
 
 // This is the global Google Maps info window. We only want one hex to have its
 // info open at a time.

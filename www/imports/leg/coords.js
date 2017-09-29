@@ -31,8 +31,8 @@
  *        xyWorld  to  xyIn     get_xyWorld_from_xyIn
  */
 
-import Grid from '/imports/legacy/grid.js';
-import Util from '/imports/legacy/util.js';
+import Grid from '/imports/leg/grid.js';
+import Util from '/imports/leg/util.js';
 import './htmlCss/coords.html';
 
 var SHOW_COORDS = false; // true = show them, false = not
@@ -92,13 +92,13 @@ exports.getSideLen = function () {
     return sideLen;
 }
 
-// Define a flat projection
-FlatProjection = function () {
-}
-BlankMapType = function () {
-}
+function initMapType () {
 
-exports.initMapType = function() {
+    // Define a flat projection
+    FlatProjection = function () {
+    }
+    BlankMapType = function () {
+    }
 
     // See https://developers.google.com/maps/documentation/javascript/maptypes#Projections
     FlatProjection.prototype.fromLatLngToPoint = function(latLng) {
@@ -289,10 +289,30 @@ exports.findPolygonExtents = function (hexagonKeys, xyMapSize) {
     return XY;
 }
 
+exports.centerToLatLng = function (centerIn) {
+
+    // If needed, create the center or translate from an array to latLng.
+    var center = centerIn;
+    if (_.isNull(center)) {
+        center = [0, 0];
+    }
+    if (Array.isArray(center)) {
+
+        // This is stored as an array of two numbers rather
+        // than as the google-specific latLng.
+        center = new google.maps.LatLng(center[0], center[1]);
+    }
+    return center;
+};
+
 exports.init = function () {
 
-    if (initialized || !SHOW_COORDS) return;
+    if (initialized ) return;
     initialized = true;
+    
+    initMapType();
+    
+    if (!SHOW_COORDS) return;
 
     $('#coords').show();
 

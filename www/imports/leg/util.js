@@ -1,8 +1,8 @@
 // util.js
 // This contains various utilities used throughout the code.
 
-import Message from '/imports/legacy/message.js';
-import Prompt from '/imports/prompt.js';
+import Message from '/imports/leg/message.js';
+import Prompt from '/imports/comp/prompt.js';
 import Select2 from '/imports/lib/select2.js';
 
 exports.get_username = function (callback) {
@@ -231,44 +231,4 @@ exports.addToDataTypeList = function (layer_name, dataType) {
     } else {
         ctx.cont_layers.push(layer_name);
     }
-}
-
-exports.initSnake = function (snakeName, before) {
-
-    // Manage the visibility of a progress snake given
-    // relative-positioned parent anchor with a class of
-    // snakeName = 'Anchor'.
-    // @param snakeName snake ID with:
-    //                  - an associated Session variable of snakeName
-    //                  - an associated relative parent anchor with a
-    //                    class of snakeName + 'Anchor'
-    Meteor.autorun(function () {
-        var snake = Session.get(snakeName),
-            $snake = $('.' + snakeName);
-        if (snake) {
-            
-            // Show a snake if it is not yet showing
-            // and the anchor element exists.
-            var $anchor = $('.' + snakeName + 'Anchor');
-            if ($snake && $snake.length < 1 &&
-                $anchor && $anchor.length) {
-                
-                // Add the snake to the anchor.
-                $snake = $('<div/>')
-                      .addClass(snakeName)
-                      .addClass('snake');
-                if (before) {
-                    $anchor.before($snake);
-                } else {
-                    $anchor.append($snake);
-                }
-            }
-        } else {
-    
-            // Hide snake if it is showing
-            if ($snake && $snake.length) {
-                $snake.remove();
-            }
-        }
-    });
 }

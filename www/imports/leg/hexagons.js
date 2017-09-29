@@ -1,12 +1,15 @@
 // hexagon.js
 // Handle things to do with hexagons.
 
-import Ajax from '/imports/ajax.js';
-import Colors from '/imports/legacy/colors.js';
-import Coords from '/imports/legacy/coords.js';
-import InfoWindow from '/imports/reactCandidates/infoWindow.js';
-import Tool from '/imports/legacy/tool.js';
-import Util from '/imports/reactCandidates/infoWindow.js';
+import Ajax from '/imports/app/ajax.js';
+import Colors from '/imports/leg/colors.js';
+import Coords from '/imports/leg/coords.js';
+import InfoWindow from '/imports/leg/infoWindow.js';
+import Perform from '/imports/app/perform.js';
+import Tool from '/imports/leg/tool.js';
+import Util from '/imports/leg/infoWindow.js';
+import Utils from '/imports/app/utils.js';
+import '/imports/leg/htmlCss/navBar.html';
 
 // What's the minimum number of pixels that sideLen must represent at the
 // current zoom level before we start drawing hex borders?
@@ -271,12 +274,16 @@ exports.layout = function (draw) {
         id = (mapView === 'honeycomb') ? 'assignments' : 'xyPreSquiggle_';
     id += Session.get('layoutIndex');
 
+    Perform.log(id + '.tab_get');
+
     Ajax.get({
         id: id,
         success: function (parsed) {
 
             // This is an array of rows, which are arrays of values:
             // id, x, y
+
+            Perform.log(id + '.tab_got');
 
             // These hold the maximum observed x & y
             var max_x = max_y = 0;
@@ -342,7 +349,7 @@ exports.init = function () {
     $('#navBar li.mapLayout').on('click', function () {
         Session.set('mapView', 'honeycomb');
         if (!Session.equals('page', 'mapPage')) {
-            Hex.pageReload('mapPage');
+            Utils.pageReload('mapPage');
         }
         exports.layout(true);
     });

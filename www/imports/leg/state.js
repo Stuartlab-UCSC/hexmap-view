@@ -1,12 +1,13 @@
 // state.js
 // An object to write and load state
 
-import DialogHex from '/imports/legacy/dialogHex.js';
-import OverlayNodes from '/imports/legacy/overlayNodes.js';
-import Shortlist from '/imports/legacy/shortlist.js';
-import Tool from '/imports/legacy/tool.js';
-import UrlParms from '/imports/legacy/urlParms.js';
-import Util from '/imports/legacy/util.js';
+import DialogHex from '/imports/leg/dialogHex.js';
+import OverlayNodes from '/imports/leg/overlayNodes.js';
+import Shortlist from '/imports/leg/shortlist.js';
+import Tool from '/imports/leg/tool.js';
+import UrlParms from '/imports/leg/urlParms.js';
+import Util from '/imports/leg/util.js';
+import Utils from '/imports/app/utils.js';
 
 var DEFAULT_PAGE = 'homePage',
     DEFAULT_PROJECT = 'Gliomas/',
@@ -430,6 +431,13 @@ function closeBookmark () {
     bookmarkDialogHex.hide()
 };
 
+exports.bookmarkReload = function (bookmark) {
+    if (bookmark.slice(0,9) === 'localhost') {
+        bookmark = 'http://' + bookmark;
+    }
+    window.location.assign(bookmark);
+}
+
 exports.initBookmark = function () {
 
     // Create an instance of DialogHex
@@ -495,7 +503,7 @@ exports.init = function () {
         var project = s.project;
         s.setAllDefaults();
         s.project = project;
-        Hex.pageReload('mapPage');
+        Utils.pageReload('mapPage');
     })
 
     if (storageSupported) {

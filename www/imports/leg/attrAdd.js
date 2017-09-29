@@ -4,10 +4,10 @@
 
 import React, { Component } from 'react';
 import { render } from 'react-dom';
-import DialogHex from '/imports/legacy/dialogHex.js';
-import Layer from '/imports/legacy/layer.js';
-import ReadFile from '/imports/readFile.js'
-import Util from '/imports/legacy/util.js';
+import DialogHex from '/imports/leg/dialogHex.js';
+import Layer from '/imports/leg/layer.js';
+import ReadFile from '/imports/comp/readFile.js'
+import Util from '/imports/leg/util.js';
 
 import '/imports/htmlCss/attrAdd.html';
 

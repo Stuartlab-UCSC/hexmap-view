@@ -2,16 +2,16 @@
 // Run the hexagram visualizer client.
 
 import '/imports/lib/color.js';
-
-import Ajax from '/imports/ajax.js';
-import Colors from '/imports/legacy/colors.js';
-import Hexagons from '/imports/legacy/hexagons.js';
-import Layer from '/imports/legacy/layer.js';
-import Legend from '/imports/legacy/legend.js';
-import Shortlist from '/imports/legacy/shortlist.js';
-import Sort from '/imports/legacy/sort.js';
-import Tool from '/imports/legacy/tool.js';
-import Util from '/imports/legacy/util.js';
+import Ajax from '/imports/app/ajax.js';
+import Colors from '/imports/leg/colors.js';
+import Hexagons from '/imports/leg/hexagons.js';
+import Layer from '/imports/leg/layer.js';
+import Legend from '/imports/leg/legend.js';
+import Perform from '/imports/app/perform.js';
+import Shortlist from '/imports/leg/shortlist.js';
+import Sort from '/imports/leg/sort.js';
+import Tool from '/imports/leg/tool.js';
+import Util from '/imports/leg/util.js';
 
 var userDebug = false; // Turn user debugging on/off
 
@@ -57,7 +57,7 @@ exports.createMap = function  () {
     Tool.subscribe_listeners(googlemap);
 }
 
-initMap = function () {
+exports.initMap = function () {
 
     // Initialize the google map and create the hexagon assignments
     exports.createMap();
@@ -210,7 +210,7 @@ refreshColors = function () {
     });
     
     // Make sure to also redraw the info window, which may be open.
-    import InfoWindow from '/imports/reactCandidates/infoWindow.js';
+    import InfoWindow from '/imports/leg/infoWindow.js';
     InfoWindow.redraw();
 }
 
@@ -446,75 +446,41 @@ function mix2 (a, b, c, d, amount1, amount2) {
     return mix(mix(a, b, amount1), mix(c, d, amount1), amount2);
 }
 
-initLayout = function () {
+exports.initLayoutList = function () {
 
-// Download the layout names and save to the layouts array
-    var id = 'layouts';
-    Ajax.get({
-        id: id,
-        ok404: true,
-        success: function (parsed) {
+    // Transform the layout list into the form wanted by select2
+    var data = _.map(Session.get('layouts'), function (layout, i) {
+        return { id: i, text: layout }
+    });
 
-            // This is an array of rows, with one element in each row:
-            // layout name.
-            var layouts = [];
-            for (var i = 0; i < parsed.length; i++) {
-                var row = parsed[i];
-                if (row.length === 0) {
-                    // Skip any blank lines
-                    continue;
-                }
-                layouts.push(row[0]);
-            }
-            Session.set('layouts', layouts);
+    // Create our selection list
+    
+    Util.createOurSelect2($("#layout-search"),
+        {data: data}, Session.get('layoutIndex').toString());
 
-            // Transform the layout list into the form wanted by select2
-            var data = _.map(layouts, function (layout, i) {
-                return { id: i, text: layout }
-            });
-
-            // Create our selection list
-            
-            // Determine the layout index whose map will be displayed.
-            // Layout index takes precedent over layout name.
-            if (Session.equals('layoutIndex', undefined)) {
-                Session.set('layoutIndex',
-                    (Session.equals('layoutName', undefined) ? 0 :
-                        layouts.indexOf(Session.get('layoutName')))
-                );
-            }
-            
-            Util.createOurSelect2($("#layout-search"),
-                {data: data}, Session.get('layoutIndex').toString());
-
-            // Define the event handler for the selecting in the list
-            $("#layout-search").on('change', function (ev) {
-                Session.set('layoutIndex', ev.target.value);
-                exports.createMap();
-                Hexagons.layout(true);
-                
-                // Update density stats to this layout and
-                // resort the list to the default of density
-                Sort.find_clumpiness_stats(Session.get('layoutIndex'));
-                Session.set('sort', ctx.defaultSort());
-                import Longlist from '/imports/reactCandidates/longlist.js';
-                Longlist.update();
-                
-            });
-            Session.set('initedLayout', true);
-        },
-        error: function (error) {
-            Util.projectNotFound(id);
-        },
+    // Define the event handler for the selecting in the list
+    $("#layout-search").on('change', function (ev) {
+        Session.set('layoutIndex', ev.target.value);
+        exports.createMap();
+        Hexagons.layout(true);
+        
+        // Update density stats to this layout and
+        // resort the list to the default of density
+        Sort.find_clumpiness_stats(Session.get('layoutIndex'));
+        Session.set('sort', ctx.defaultSort());
+        import Longlist from '/imports/leg/longlist.js';
+        Longlist.update();
     });
 }
 
-initColormaps = function () {
+exports.initColormaps = function () {
     // Download color map information
     var id = 'colormaps';
+    Perform.log(id + '.tab_get');
     Ajax.get({
         id: id,
         success: function (parsed) {
+            Perform.log(id + '.tab_got');
             for(var i = 0; i < parsed.length; i++) {
                 // Get the name of the layer
                 var layer_name = parsed[i][0];

@@ -5,8 +5,8 @@
 import React, { Component } from 'react';
 import { render } from 'react-dom';
 import PropTypes from 'prop-types';
-import U from '/imports/utils.js';
-import Util from '/imports/legacy/util.js';
+import U from '/imports/app/utils.js';
+import Util from '/imports/leg/util.js';
 
 export default class ReadFile extends Component {
 

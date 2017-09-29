@@ -5,10 +5,10 @@
 import '/imports/lib/jquery-ui.js';
 import '/imports/lib/jquery-ui.theme.css';
 
-import Colors from '/imports/legacy/colors.js';
-import GChart from '/imports/legacy/gChart.js';
-import Layer from '/imports/legacy/layer.js';
-import Util from '/imports/legacy/util.js';
+import Colors from '/imports/leg/colors.js';
+import GChart from '/imports/leg/gChart.js';
+import Layer from '/imports/leg/layer.js';
+import Util from '/imports/leg/util.js';
 
 import './htmlCss/shortlist.html';
 import './htmlCss/shortlist.css';

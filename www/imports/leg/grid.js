@@ -1,16 +1,17 @@
 // grid.js
 // This handles the node density visualizations.
 
-import Ajax from '/imports/ajax.js';
-import Coords from '/imports/legacy/coords.js';
-import Download from '/imports/legacy/download.js';
-import Hexagons from '/imports/legacy/hexagons.js';
-import InfoWindow from '/imports/reactCandidates/infoWindow.js';
-import Tool from '/imports/legacy/tool.js';
-import Util from '/imports/legacy/util.js';
+import Ajax from '/imports/app/ajax.js';
+import Coords from '/imports/leg/coords.js';
+import Download from '/imports/leg/download.js';
+import Hexagons from '/imports/leg/hexagons.js';
+import InfoWindow from '/imports/leg/infoWindow.js';
+import Tool from '/imports/leg/tool.js';
+import Util from '/imports/leg/util.js';
+import Utils from '/imports/app/utils.js';
 
 // TODO move these up after we're routing pages.
-import '/imports/legacy/htmlCss/jobs.html';
+import '/imports/leg/htmlCss/jobs.html';
 import './htmlCss/navBar.html';
 import './htmlCss/navBar.css';
 
@@ -401,8 +402,8 @@ function findNodePoints() {
             // Find the extents of the map so we and normalize it to our
             // standard size.
             dims = findGridExtents(xyMapSize-TINY_BIT, xyPointsRaw);
-            Coords.findDimensions(dims.xMaxIn, dims.yMaxIn);
             Coords.init();
+            Coords.findDimensions(dims.xMaxIn, dims.yMaxIn);
 
             // Scale to create object coords of (0, 0) -> (xyMapSize/2, xyMapSize/2)
             // so the map will not wrap around the world east and west. And add
@@ -425,8 +426,6 @@ function findNodePoints() {
 function createGridMap () {
 
     // Creates the google map for methods
-    Coords.initMapType();
-
     var mapOptions = {
         center: ctx.gridCenter,
         zoom: ctx.gridZoom,
@@ -531,7 +530,7 @@ exports.init = function () {
 
     // Set some event handlers
     $('#navBar .mapLayout').on('click', function () {
-        Hex.pageReload('mapPage');
+        Utils.pageReload('mapPage');
         Hexagons.layout(true);
     });
 }

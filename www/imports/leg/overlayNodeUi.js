@@ -2,13 +2,14 @@
 
 // This allows the user to view new node(s) placement overlaid on an existing map.
 
-import Ajax from '/imports/ajax.js';
-import DialogHex from '/imports/legacy/dialogHex.js';
-import OverlayNodes from '/imports/legacy/overlayNodes.js';
-import Tool from '/imports/legacy/tool.js';
-import Util from '/imports/legacy/util.js';
+import Ajax from '/imports/app/ajax.js';
+import DialogHex from '/imports/leg/dialogHex.js';
+import OverlayNodes from '/imports/leg/overlayNodes.js';
+import State from '/imports/leg/state.js';
+import Tool from '/imports/leg/tool.js';
+import Util from '/imports/leg/util.js';
 
-import '/imports/legacy/htmlCss/overlayNode.html';
+import '/imports/leg/htmlCss/overlayNode.html';
 
 var title = 'Place New Nodes',
     dialogHex,
@@ -37,7 +38,7 @@ function validateNodeData (data) {
 
 function showNewNodes (result) {
     nodeNames = Object.keys(result.nodes);
-    Hex.bookmarkReload(result.nodes[nodeNames[0]].url);
+    State.bookmarkReload(result.nodes[nodeNames[0]].url);
 }
 
 function doIt (tsv) {

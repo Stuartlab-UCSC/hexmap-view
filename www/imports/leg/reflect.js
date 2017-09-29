@@ -1,12 +1,12 @@
 // reflect.js
 // This captures the user input to reflect a set of nodes on another map.
 
-import DialogHex from '/imports/legacy/dialogHex.js';
-import LayerNameList from '/imports/legacy/layerNameList.js';
-import Tool from '/imports/legacy/tool.js';
-import Util from '/imports/legacy/util.js';
+import DialogHex from '/imports/leg/dialogHex.js';
+import LayerNameList from '/imports/leg/layerNameList.js';
+import Tool from '/imports/leg/tool.js';
+import Util from '/imports/leg/util.js';
 
-import '/imports/legacy/htmlCss/reflect.html';
+import '/imports/leg/htmlCss/reflect.html';
 
 var ManagerAddressBook = new Mongo.Collection('ManagerAddressBook');
 var ManagerFileCabinet = new Mongo.Collection('ManagerFileCabinet');

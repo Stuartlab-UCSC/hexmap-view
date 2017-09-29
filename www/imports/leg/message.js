@@ -1,7 +1,7 @@
 
-import DialogHex from '/imports/legacy/dialogHex.js';
+import DialogHex from '/imports/leg/dialogHex.js';
 
-import '/imports/legacy/htmlCss/message.html';
+import '/imports/leg/htmlCss/message.html';
 
 var dialogHex, // the dialogHex object instance
     $dialog, // the DOM element that the jquery dialog belongs to

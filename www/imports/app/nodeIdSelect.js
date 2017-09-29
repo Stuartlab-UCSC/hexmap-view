@@ -5,14 +5,14 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
-import Layer from '/imports/legacy/layer.js';
-import NodeIdSearch from '/imports/nodeIdSearch.js';
-import Modal from '/imports/modal.js';
+import Layer from '/imports/leg/layer.js';
+import NodeIdSearch from '/imports/comp/nodeIdSearch.js';
+import Modal from '/imports/comp/modal.js';
 import '/imports/htmlCss/reactModal.css';
-import TextareaClean from '/imports/textareaClean.js';
-import ReadFile from '/imports/readFile.js';
-import U from '/imports/utils.js';
-import Util from '/imports/legacy/util.js';
+import TextareaClean from '/imports/comp/textareaClean.js';
+import ReadFile from '/imports/comp/readFile.js';
+import U from '/imports/app/utils.js';
+import Util from '/imports/leg/util.js';
 
 export default class NodeIdSelect extends Component {
 

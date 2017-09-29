@@ -2,8 +2,8 @@
 // overlayNodes.js
 // Drop new nodes onto the map
 
-import Coords from '/imports/legacy/coords.js';
-import Hexagons from '/imports/legacy/hexagons.js';
+import Coords from '/imports/leg/coords.js';
+import Hexagons from '/imports/leg/hexagons.js';
 
 var DEFAULT_MARKER_COLOR = 'ff0000',
     DEFAULT_MARKER_SCALE = 2,

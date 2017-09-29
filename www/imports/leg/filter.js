@@ -1,10 +1,10 @@
 // filter.js: Filter the attributes displayed in the longlist by data type and
 // tags.
 
-import Ajax from '/imports/ajax.js';
-import DialogHex from '/imports/legacy/dialogHex.js';
-import Tool from '/imports/legacy/tool.js';
-import Util from '/imports/legacy/util.js';
+import Ajax from '/imports/app/ajax.js';
+import DialogHex from '/imports/leg/dialogHex.js';
+import Tool from '/imports/leg/tool.js';
+import Util from '/imports/leg/util.js';
 
 import './htmlCss/filter.html';
 import './htmlCss/filter.css';

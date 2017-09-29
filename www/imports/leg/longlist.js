@@ -3,10 +3,10 @@
 
 import React, { Component } from 'react';
 import { render } from 'react-dom';
-import Layer from '/imports/legacy/layer.js';
-import Select2 from '/imports/select2wrap.js';
-import Shortlist from '/imports/legacy/shortlist.js';
-import Sort from '/imports/legacy/sort.js';
+import Layer from '/imports/leg/layer.js';
+import Select2 from '/imports/comp/select2wrap.js';
+import Shortlist from '/imports/leg/shortlist.js';
+import Sort from '/imports/leg/sort.js';
 
 // How many layer results should we display at once?
 var SEARCH_PAGE_SIZE = 10,

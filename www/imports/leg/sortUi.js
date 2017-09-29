@@ -1,12 +1,12 @@
 // sortUi.js
 // This contains the logic for handling the sort attribute function.
 
-import Colors from '/imports/legacy/colors.js';
-import DialogHex from '/imports/legacy/dialogHex.js';
-import LayerNameList from '/imports/legacy/layerNameList.js';
-import Sort from '/imports/legacy/sort.js';
-import Tool from '/imports/legacy/tool.js';
-import Util from '/imports/legacy/util.js';
+import Colors from '/imports/leg/colors.js';
+import DialogHex from '/imports/leg/dialogHex.js';
+import LayerNameList from '/imports/leg/layerNameList.js';
+import Sort from '/imports/leg/sort.js';
+import Tool from '/imports/leg/tool.js';
+import Util from '/imports/leg/util.js';
 
 import './htmlCss/sort.html';
 

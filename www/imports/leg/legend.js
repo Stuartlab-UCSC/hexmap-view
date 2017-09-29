@@ -1,10 +1,10 @@
 // legend.js
 // Handle the legend.
 
-import Layer from '/imports/legacy/layer.js';
-import Shortlist from '/imports/legacy/shortlist.js';
+import Layer from '/imports/leg/layer.js';
+import Shortlist from '/imports/leg/shortlist.js';
 
-import '/imports/legacy/htmlCss/legend.css';
+import '/imports/leg/htmlCss/legend.css';
 
     // How big is our color key in pixels?
     var display_context,

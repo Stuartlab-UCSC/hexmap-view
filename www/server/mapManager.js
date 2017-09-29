@@ -187,7 +187,7 @@ function dropInLayerBox(layerData,user,toMapId){
         layerData.data = arrayLayer(layerData);
         var old_layer_names = [];
 
-        console.log("dropInLayerbox user and toMapId", user, toMapId)
+        //console.log("dropInLayerbox user and toMapId", user, toMapId)
 
         _.each(LayerPostOffice.findOne({user:user,toMapId:toMapId}).layers,
                function(layer){

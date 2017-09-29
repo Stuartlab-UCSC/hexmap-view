@@ -2,12 +2,12 @@
 
 // A tool to download an svg file of the current viewport
 
-import Coords from '/imports/legacy/coords.js';
-import Download from '/imports/legacy/download.js';
-import Layer from '/imports/legacy/layer.js';
-import Legend from '/imports/legacy/legend.js';
-import Select from '/imports/legacy/select.js';
-import Shortlist from '/imports/legacy/shortlist.js';
+import Coords from '/imports/leg/coords.js';
+import Download from '/imports/leg/download.js';
+import Layer from '/imports/leg/layer.js';
+import Legend from '/imports/leg/legend.js';
+import Select from '/imports/leg/select.js';
+import Shortlist from '/imports/leg/shortlist.js';
 
 var xyMapSize = 5120 * 2,
     dims = null,

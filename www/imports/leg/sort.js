@@ -4,10 +4,10 @@
 
 var app = app || {}; 
 
-import Ajax from '/imports/ajax.js';
-import Filter from '/imports/legacy/filter.js';
-import Util from '/imports/legacy/util.js';
-import Shortlist from '/imports/legacy/shortlist.js';
+import Ajax from '/imports/app/ajax.js';
+import Filter from '/imports/leg/filter.js';
+import Util from '/imports/leg/util.js';
+import Shortlist from '/imports/leg/shortlist.js';
 
 var computingText = 'Computing statistics ...',
     firstSort = true;
@@ -180,7 +180,7 @@ function updateSortUi (type, text, focus_attr, opts) {
             color: 'inherit', background: 'inherit'});
     }
     Filter.clearAll();
-    import Longlist from '/imports/reactCandidates/longlist.js';
+    import Longlist from '/imports/leg/longlist.js';
     Longlist.update();
     Shortlist.update_ui_metadata();
 
@@ -199,7 +199,6 @@ function updateSortUi (type, text, focus_attr, opts) {
         }
     }
 }
-
 
 function cleanPvalue (val) {
     var clean = Number(val);
@@ -529,6 +528,15 @@ function computingTextDisplay () {
     Session.set('sort', {
         text: computingText, color: '#2E662C', background: '#D8EECE'});
     Session.set('statsSnake', true);
+}
+
+exports.findFirstLayerByDensity = function () {
+
+    // Use the first layer of the default density sort as our
+    // 'first layer' which effects the default short list display
+    var layer_array = Session.get('sortedLayers');
+    layer_array.sort(finalCompare);
+    Session.set('first_layer', layer_array[0]);
 }
 
 exports.sort_layers = function  () {

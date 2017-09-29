@@ -1,8 +1,8 @@
 // diffAnalysis.js
 // This contains the logic for handling the differential analysis function.
 
-import DialogHex from '/imports/legacy/dialogHex.js';
-import Util from '/imports/legacy/util.js';
+import DialogHex from '/imports/leg/dialogHex.js';
+import Util from '/imports/leg/util.js';
 import './htmlCss/diffAnalysis.html';
 
 var title = 'Differential Analysis',

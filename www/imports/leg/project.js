@@ -3,10 +3,12 @@
 // doc dir
 
 import React, { Component } from 'react';
+import Perform from '/imports/app/perform.js';
 import { render } from 'react-dom';
-import Select2 from '/imports/select2wrap.js';
+import Select2 from '/imports/comp/select2wrap.js';
 import '/imports/lib/select2.css';
-import Util from '/imports/legacy/util.js';
+import Util from '/imports/leg/util.js';
+import Utils from '/imports/app/utils.js';
 
 // Placeholder text when no project is selected
 var PLACEHOLDER_TEXT = 'Select a Map...';
@@ -99,14 +101,18 @@ function populate () {
                 matcher: matcher,
             }}
             onChange = {function (event) {
-                Hex.loadProject(event.val);
+                Utils.loadProject(event.val);
             }}
             choiceDisplay = {function (dataId) {
+            
+                console.log('dataId', dataId)
+            
                 return dataId.slice(0, -1); // remove trailing '/' for display
             }}
         />, $('#project')[0]);
     
-
+    Perform.log('project-list-rendered');
+    
     // If a protected project was loaded before and the new user is not
     // authorized to see it, or there is no one logged in, give a message
     // to the user.
@@ -148,7 +154,7 @@ function signInClicked(count) {
 
 exports.init = function () {
 
-    // This may be causing password to lose focus on password error.
+    // This may be causing password to not allow focus on password error.
     //$('.login').on('click', $('#login-sign-in-link'), signInClicked);
 
     // Re-populate projects whenever the user changes, including log out
@@ -160,6 +166,9 @@ exports.init = function () {
             Session.set('mapSnake', true);
         }
         
+        Perform.log('project-list-get,-user:-' +
+            (user ? user.username : 'none'));
+        
         Meteor.call('getProjects', function (error, projects_returned) {
             if (error) {
                 Util.banner('error',
@@ -167,6 +176,8 @@ exports.init = function () {
                     error);
                 return;
             }
+        
+            Perform.log('project-list-got');
             projects = projects_returned;
             populate();
         });

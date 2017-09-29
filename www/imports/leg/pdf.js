@@ -2,8 +2,9 @@
 
 // Handle the PDF request
 
-import DialogHex from '/imports/legacy/dialogHex.js';
-import '/imports/legacy/htmlCss/pdf.html';
+import DialogHex from '/imports/leg/dialogHex.js';
+import Utils from '/imports/app/utils.js';
+import '/imports/leg/htmlCss/pdf.html';
 
 var title = 'PDF',
     dialogHex,
@@ -34,7 +35,7 @@ function restoreView () {
     $head.show();
     $legend.show();
     $map.show();
-    Hex.resizeMap();
+    Utils.resizeMap();
 }
 
 function mapDisplay () {

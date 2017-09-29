@@ -2,8 +2,8 @@
 * Created by duncan on 6/6/16.
 */
 
-import Layer from '/imports/legacy/layer.js';
-import Shortlist from '/imports/legacy/shortlist.js';
+import Layer from '/imports/leg/layer.js';
+import Shortlist from '/imports/leg/shortlist.js';
 
 var LayerPostOffice = new Mongo.Collection('LayerPostOffice');
 var last_layer_names = []; // list of layer names from the last update

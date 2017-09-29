@@ -11,13 +11,15 @@
 //   workflow completes, so that the infowindow can use click events again.
 //   (it got set to your tool's name by the code prepended to your callback).
 
-import Ajax from '/imports/ajax.js';
-import Util from '/imports/legacy/util.js';
+import Ajax from '/imports/app/ajax.js';
+import Util from '/imports/leg/util.js';
 
 import './htmlCss/header.html';
 import './htmlCss/header.css';
+import './htmlCss/reflect.html';
+import './htmlCss/setOper.html';
 import './htmlCss/overlayNode.html';
-import '/imports//lib/mapLabel.min.js';
+import '/imports/lib/mapLabel.min.js';
 
 // This is an array of all Google Maps events that tools can use.
 var TOOL_EVENTS = [
@@ -206,23 +208,16 @@ exports.init = function () {
     if (Session.equals('page', 'homePage')) {
         $('body').find('.mapShow, .gridShow').hide();
         $('body').find('.homeShow').show();
-        Session.set('mapSnake', false);
         $('body').css('overflow-y', 'auto');
 
     } else if (Session.equals('page', 'mapPage')) {
         $('body').find('.homeShow, .gridShow').hide();
         $('body').find('.mapShow').show();
-        Session.set('mapSnake', true);
         $('body').css('overflow-y', 'hidden');
-
-        // Initialize the busy snakes
-        Util.initSnake('mapSnake');
-        Util.initSnake('statsSnake');     
 
     } else if (Session.equals('page', 'gridPage')) {
         $('body').find('.homeShow, .mapShow').hide();
         $('body').find('.gridShow').show();
-        Session.set('mapSnake', true);
         $('body').css('overflow-y', 'hidden');
     }
 

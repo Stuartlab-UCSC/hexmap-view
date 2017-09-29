@@ -4,9 +4,9 @@
 // Makes status on jobs visible and allows status changes by user. Jobs are
 // created elsewhere.
 
-import DialogHex from '/imports/legacy/dialogHex.js';
+import DialogHex from '/imports/leg/dialogHex.js';
 
-import '/imports/legacy/htmlCss/jobs.html';
+import '/imports/leg/htmlCss/jobs.html';
 
 var title = 'Jobs',
     dialogHex, // instance of the class DialogHex

@@ -1,8 +1,8 @@
 
 // select.js: Handle the various ways to select hexagons.
 
-import Layer from '/imports/legacy/layer.js';
-import Tool from '/imports/legacy/tool.js';
+import Layer from '/imports/leg/layer.js';
+import Tool from '/imports/leg/tool.js';
 
 // boundaries of the selectable area
 var SELECTING_CURSOR = 'crosshair',

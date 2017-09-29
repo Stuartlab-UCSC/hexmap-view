@@ -1,9 +1,9 @@
 // setOperUI.js
 // Handle the UI for the set operations.
 
-import Layer from '/imports/legacy/layer.js';
-import Tool from '/imports/legacy/tool.js';
-import Util from '/imports/legacy/util.js';
+import Layer from '/imports/leg/layer.js';
+import Tool from '/imports/leg/tool.js';
+import Util from '/imports/leg/util.js';
 
 import './htmlCss/setOper.html';
 import './htmlCss/setOper.css';
