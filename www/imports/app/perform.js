@@ -2,6 +2,8 @@
 // perform.js
 // Capture performance metrics.
 
+PERFORM = false;
+
 var startTime = 1506190000000;
 exports.log = function (msg) {
     if (!PERFORM) { return; }
@@ -29,5 +31,4 @@ exports.init = function () {
     _.each(meta, function(val, key) {
         console.log(key + ',' + val);
     });
-    exports.log('perform init');
 }

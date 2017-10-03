@@ -461,6 +461,7 @@ function getDynamicStats (focus_attr, opts) {
 
     computingTextDisplay();
     /*
+    // First check for this user having the credentials to do this.
     var good = Util.credentialCheck('to compute dynamic statistics. ' +
         'Only pre-computed statistics on static attributes are available ' +
         'to you', 'statsSnake');

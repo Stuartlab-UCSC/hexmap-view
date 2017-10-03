@@ -3,6 +3,7 @@
 
 import Coords from '/imports/leg/coords.js';
 import Layer from '/imports/leg/layer.js';
+import Hexagram from '/imports/leg/hexagram.js';
 import Tool from '/imports/leg/tool.js';
 
 import '/imports/leg/htmlCss/infoWindow.html';
@@ -125,7 +126,7 @@ function with_infocard(signature, callback, gMap) {
                 // This holds the layer's value for this signature
                 var layer_value = retrieved_layers[i].data[signature];
                 
-                if (have_colormap(current_layers[i])) {
+                if (Hexagram.have_colormap(current_layers[i])) {
                     // This is a color map
                     
                     // This holds the category object for this category number, or

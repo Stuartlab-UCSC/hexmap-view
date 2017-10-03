@@ -41,7 +41,7 @@ export default class Modal extends Component {
                 isOpen = {self.state.isOpen}
                 contentLabel = 'useless'
                 onAfterOpen = {this.props.onAfterOpen}
-                onRequestClose = {this.props.onRequestClose}
+                onRequestClose = {self.props.onRequestClose}
                 className = {this.props.className + ' modal'}
                 parentSelector = {self.props.parentSelector}
             >

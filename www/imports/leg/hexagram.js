@@ -64,7 +64,7 @@ exports.initMap = function () {
     Hexagons.create();
 };
 
-have_colormap = function (colormap_name) {
+exports.have_colormap = function (colormap_name) {
     // Returns true if the given string is the name of a colormap, or false if 
     // it is only a layer.
 
@@ -197,7 +197,7 @@ refreshColors = function () {
                     // OK. Compute the color that we should use to express this
                     // combination of layer values. It's OK to pass undefined
                     // names here for layers.
-                    computed_color = get_color(current_layers[0], u, 
+                    computed_color = exports.get_color(current_layers[0], u, 
                         current_layers[1], v);
                 }
                 
@@ -214,9 +214,28 @@ refreshColors = function () {
     InfoWindow.redraw();
 }
 
-get_color = function (u_name, u, v_name, v) {
-    // Given u and v, which represent the heat in each of the two currently 
-    // displayed layers, as well as u_name and v_name, which are the 
+function mix(a, b, amount) {
+    // Mix between the numbers a and b, where an amount of -1 corresponds to a,
+    // and an amount of +1 corresponds to b.
+    
+    // Convert to 0 to 1 range.
+    var i = (amount + 1) / 2; 
+    
+    // Do the linear interpolation.
+    return i * a + (1 - i) * b;
+    
+}
+
+function mix2 (a, b, c, d, amount1, amount2) {
+    // Mix between a and b (or c and d) on amount1, and then mix between the
+    // results on amount2. Amounts are in range -1 to 1.
+    
+    return mix(mix(a, b, amount1), mix(c, d, amount1), amount2);
+}
+
+exports.get_color = function (u_name, u, v_name, v) {
+    // Given u and v, which represent the heat in each of the two currently
+    // displayed layers, as well as u_name and v_name, which are the
     // corresponding layer names, return the computed CSS color.
     // Either u or v may be undefined (or both), in which case the no-data color
     // is returned. If a layer name is undefined, that layer dimension is 
@@ -224,13 +243,13 @@ get_color = function (u_name, u, v_name, v) {
     //
     // For categorical layers, the associated u or v is the category index.
 
-    if(have_colormap(v_name) && !have_colormap(u_name)) {
+    if(exports.have_colormap(v_name) && !exports.have_colormap(u_name)) {
         // We have a colormap as our second layer, and a layer as our first.
         // Swap everything around so colormap is our first layer instead.
         // Now we don't need to think about drawing a layer first with a 
         // colormap second.
         
-        return get_color(v_name, v, u_name, u);
+        return exports.get_color(v_name, v, u_name, u);
     }
 
     if(isNaN(u) || isNaN(v) || u === undefined || v === undefined) {
@@ -426,25 +445,6 @@ get_color = function (u_name, u, v_name, v) {
     
     return color;
 };
-
-function mix(a, b, amount) {
-    // Mix between the numbers a and b, where an amount of -1 corresponds to a,
-    // and an amount of +1 corresponds to b.
-    
-    // Convert to 0 to 1 range.
-    var i = (amount + 1) / 2; 
-    
-    // Do the linear interpolation.
-    return i * a + (1 - i) * b;
-    
-}
-
-function mix2 (a, b, c, d, amount1, amount2) {
-    // Mix between a and b (or c and d) on amount1, and then mix between the
-    // results on amount2. Amounts are in range -1 to 1.
-    
-    return mix(mix(a, b, amount1), mix(c, d, amount1), amount2);
-}
 
 exports.initLayoutList = function () {
 

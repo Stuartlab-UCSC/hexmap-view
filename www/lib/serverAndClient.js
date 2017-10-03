@@ -71,7 +71,6 @@ if (Meteor.isServer) {
 }
 // Some global settings available to server and client.
 // Enable performance metric collection.
-PERFORM = false;
 URL_BASE = Meteor.settings.public.URL_BASE;
 VIEW_DIR = Meteor.settings.public.VIEW_DIR;
 LAYOUT_INPUT_DIR = Meteor.settings.public.LAYOUT_INPUT_DIR;

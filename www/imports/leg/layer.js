@@ -3,7 +3,7 @@
 
 import Ajax from '/imports/app/ajax.js';
 import Colors from '/imports/leg/colors.js';
-import Jpalette from '/imports/leg/jpalette.js';
+import Hexagram from '/imports/leg/hexagram.js';
 import U from '/imports/app/utils.js';
 import Perform from '/imports/app/perform.js';
 import Prompt from '/imports/comp/prompt.js';
@@ -86,7 +86,7 @@ function load_dynamic_colormap (name, layer) {
      
         // Generate a colormap.
         var jpColormap = _.map(
-            Jpalette.ColorMap.get('hexmap')(cats.length + 1).map,
+            jPalette.ColorMap.get('hexmap')(cats.length + 1).map,
             function (val, key) {
         
                 // Ignore alpha, taking the default of one.
@@ -407,7 +407,7 @@ exports.with_one = function (layer_name, callback, dynamicLayers) {
         // Keep track of the unsigned magnitude.
         layer.magnitude = Math.max(Math.abs(minimum), maximum);
 
-        if (!have_colormap(layer_name) && Util.is_binary(layer_name)) {
+        if (!Hexagram.have_colormap(layer_name) && Util.is_binary(layer_name)) {
             // Add an empty colormap for this layer, so that 
             // auto-generated discrete colors will be used.
             colormaps[layer_name] = Colors.default_binary_colormap();
@@ -564,33 +564,29 @@ exports.fill_metadata = function (container, layer_name) {
     // Empty the given jQuery container element, and fill it with layer metadata
     // for the layer with the given name.
     
-    // Layer properties we don't want to display.
-    var noDisplay = [
-        'clumpiness_array',
-        'data',
-        'dataId',
-        'dataType',
-        'dynamic',
-        'magnitude',
-        'maximum',
-        'minimum',
-        'rank',
-        'removeFx',
-        'selection',
-        'tags',
-        'url',
-    ];
-    
+        // Do some transformations to make the displayed labels make
+        // more sense.
+    var lookup = {
+        n: "Values",
+        positives: "Positives",
+        clumpiness: "Density",
+        p_value: "Single test p-value",
+        correlation: "Correlation",
+        adjusted_p_value: "BH FDR",
+        leesL: "Lees L",
+        rawLees: "Uncorrected Lees L",
+        adjusted_p_value_b: "Bonferroni p-value",
+    };
+
     // Empty the container.
     container.html("");
     var metadata = $('<table\>').addClass('layer-metadata');
     container.append(metadata);
 
     for(attribute in layers[layer_name]) {
-        if (noDisplay.indexOf(attribute) > -1) {
+        if (!lookup.hasOwnProperty(attribute)) {
      
             // Skip things we don't want to display
-            // TODO: Ought to maybe have all metadata in its own object?
             continue;
         }
         // This holds the metadata value we're displaying
@@ -625,25 +621,9 @@ exports.fill_metadata = function (container, layer_name) {
             value_formatted = value;
         }
 
-        // Do some transformations to make the displayed labels make
-        // more sense.
-        lookup = {
-            n: "Values",
-            positives: "Positives",
-            clumpiness: "Density",
-            p_value: "Single test p-value",
-            correlation: "Correlation",
-            adjusted_p_value: "BH FDR",
-            leesL: "Lees L",
-            rawLees: "Uncorrected Lees L",
-            adjusted_p_value_b: "Bonferroni p-value",
-        }
         var klass = attribute;
-        if (lookup[attribute]) {
-
-            // Replace a boring short name with a useful long name
-            attribute = lookup[attribute];
-        }
+        // Replace a boring short name with a useful long name
+        attribute = lookup[attribute];
         var tr = $('<tr\>').css('margin-bottom', '-1em');
         var td = $('<td\>')
             .css('text-align', 'right')

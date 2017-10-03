@@ -1,6 +1,7 @@
 // legend.js
 // Handle the legend.
 
+import Hexagram from '/imports/leg/hexagram.js';
 import Layer from '/imports/leg/layer.js';
 import Shortlist from '/imports/leg/shortlist.js';
 
@@ -74,7 +75,7 @@ exports.findColorCount = function (layer_name) {
 
         // Find the number of colors for this layer. Continuous values and
         // undefined layer_names are assigned a count of zero.
-        if (have_colormap(layer_name)) {
+        if (Hexagram.have_colormap(layer_name)) {
             var colormap = colormaps[layer_name];
             if (colormap.length > 0) {
 
@@ -187,7 +188,7 @@ exports.redraw = function (retrieved_layers, current_layers, context) {
                 
                 // Set the pixel color to the right thing for this u, v
                 // It's OK to pass undefined names here for layers.
-                context.fillStyle = get_color(current_layers[0], u, 
+                context.fillStyle = Hexagram.get_color(current_layers[0], u, 
                     current_layers[1], v);
                 
                 // Fill the pixel

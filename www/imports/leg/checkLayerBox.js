@@ -86,10 +86,13 @@ exports.init = function() {
     
     // Subscribe if we have a user
     // TODO do we need to unsubcribe the old user to free memory?
-    Meteor.autorun(function() {
-        var user = Meteor.user();
-        if (user) {
-            Meteor.subscribe('userLayerBox', user.username, mapId);
-        }
+    // Make this independent of the init map autorun.
+    setTimeout(function () {
+        Meteor.autorun(function() {
+            var user = Meteor.user();
+            if (user) {
+                Meteor.subscribe('userLayerBox', user.username, mapId);
+            }
+        });
     });
 }

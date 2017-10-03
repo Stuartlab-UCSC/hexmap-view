@@ -6,7 +6,6 @@ import CreateMap from '/imports/leg/createMap.js';
 import Download from '/imports/leg/download.js';
 import Grid from '/imports/leg/grid.js';
 import InitMapPage from '/imports/app/initMapPage.js';
-import Message from '/imports/leg/message.js';
 import Perform from '/imports/app/perform.js';
 import State from '/imports/leg/state.js';
 import Tool from '/imports/leg/tool.js';
@@ -47,14 +46,12 @@ Template.body.helpers({
 Template.homePage.onRendered(function () {
     Session.set('mapSnake', false);
     Tool.init();
-    Message.init();
     Download.init();
-    CreateMap.init();
+    CreateMap.init();  // TODO why?
 });
 
 Template.gridPage.onRendered(function () {
     initGridMapContainer();
-    Message.init();
     Tool.init();
 });
 

@@ -69,7 +69,7 @@ function findScale (maxX, maxY) {
 }
 
 function coordsMouseMove (e) {
-    var xyWorld = Coords.get_xyWorld(e.latLng),
+    var xyWorld = exports.get_xyWorld(e.latLng),
         xy;
     if (Session.equals('page', 'gridPage')) {
         xy = get_xyIn_from_xyWorld(xyWorld.x, xyWorld.y);

@@ -1,7 +1,6 @@
 // util.js
 // This contains various utilities used throughout the code.
 
-import Message from '/imports/leg/message.js';
 import Prompt from '/imports/comp/prompt.js';
 import Select2 from '/imports/lib/select2.js';
 
@@ -29,28 +28,27 @@ exports.clean_file_name = function (dirty) {
     return dirty.replace(/[^A-Za-z0-9_\-\.]/g, "_");
 }
 
-exports.banner = function (title, text) {
+exports.banner = function (severity, text) {
 
-    // Display a message, either as a timed banner when 'title' is one of
+    // Display a message, either as a timed banner when 'severity' is one of
     // 'warn' or 'info', otherwise a dialog that requires the user to
-    // dismiss the message. For a dialog when 'title' is 'error', the dialog
-    // title will be 'Error'. Otherwise the given title will be used.
-    if (title === 'warn' || title === 'info') {
+    // dismiss the message.
+    if (severity === 'warn' || severity === 'warning' || severity === 'info') {
     
         // Display a temporary message to the user on a banner.
         $("#banner")
             .removeClass('info warn error stay')
-            .addClass(title)
+            .addClass(severity)
             .text(text)
             .show();
         $("#banner").delay(5000).fadeOut(1500);
-    } else if (title === 'error') {
+    } else if (severity === 'error') {
         Prompt.show(text, { severity: 'error' });
     } else {
-        Message.display(title, text);
+        console.log('invalid user message severity');
     }
     // Also inform the browser console of this issue.
-    console.log(title + ':', text);
+    console.log(severity + ':', text);
 }
 
 exports.credentialCheck = function (credential) {
@@ -58,17 +56,14 @@ exports.credentialCheck = function (credential) {
     // Bail with a message if the user is not logged in or does not have
     // the credentials.
     var returnVal = true;
-    
     if (!Meteor.user()) {
-        exports.banner('Credentials Required',
-            'Please log in ' + credential + '.');
+        exports.banner('error', 'Please log in ' + credential + '.');
         returnVal = false;
     } else if (!(Session.get('jobCredential'))) {
-        exports.banner('Credentials Required',
-            'Sorry, you do not have credentials ' + credential + '. Please ' +
-            'request access from hexmap at ucsc dot edu.')
+        exports.banner('error', 'Sorry, you do not have credentials ' +
+           credential + '. Please request access from hexmap at ucsc dot edu.');
         returnVal = false;
-    }        
+    }
     return returnVal;
 }
 

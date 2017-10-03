@@ -46,6 +46,8 @@ class Prompt extends Component {
     handleButtonClick () {
         if (this.state.textStr) {
             this.handleCloseModal(this.state.textStr.trim());
+        } else {
+            this.handleCloseModal();
         }
     }
   

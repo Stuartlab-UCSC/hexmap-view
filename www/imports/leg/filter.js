@@ -216,7 +216,9 @@ function requestLayerTags () {
 
                 // This means no tags were generated, which is just fine.
                 // Don't look for tags data anymore
-                tagsAutorun.stop();
+                if (tagsAutorun) {
+                    tagsAutorun.stop();
+                }
             }
         
             // Save the counts. Dynamic layer don't get reflected here.
@@ -235,7 +237,9 @@ function requestLayerTags () {
         error: function(error) {
 
             // Don't look for tags data anymore
-            tagsAutorun.stop();
+            if (tagsAutorun) {
+                tagsAutorun.stop();
+            }
         },
     });
 }
@@ -360,7 +364,9 @@ exports.init = function () {
         });
 
     // Define a function to run when the first attribute sort happens
-    tagsAutorun = Tracker.autorun(processTags);
+    setTimeout(function () {
+        tagsAutorun = Tracker.autorun(processTags);
+    });
 
     // Create an instance of DialogHex
     dialogHex = DialogHex.create({

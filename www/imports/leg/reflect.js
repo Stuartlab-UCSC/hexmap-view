@@ -119,7 +119,7 @@ function criteriaCheck () {
     // Bail with a message if the required data needed is not present.
     if (!(Session.get('reflectCriteria'))) {
         dialogHex.hide();
-        Util.banner('Data not available', 'Sorry, the required data to ' +
+        Util.banner('error', 'Sorry, the required data to ' +
         'reflect onto another map is not available for this map.');
         return false;
     }
@@ -127,8 +127,13 @@ function criteriaCheck () {
 }
 
 function preShow () {
+
+    // First check for this user having the credentials to do this.
     var good = Util.credentialCheck('to reflect onto another map');
     if (good) {
+    
+        // Then check for the map having the proper criteria to do this.
+        // Does this map have the pre-computed data needed to do this?
         good = criteriaCheck();
     }
     return good;
@@ -286,7 +291,11 @@ exports.init = function () {
 
     $button = $('.reflectTrigger');
     $dialog = $('#reflectDialog');
-    Meteor.autorun(userChange);
+    
+    // Timeout so this is not dependent on the init map autorun.
+    setTimeout(function () {
+        Meteor.autorun(userChange);
+    });
     if (_.isUndefined(Session.get('reflectRanked'))) {
         Session.set('reflectRanked', false);
     }

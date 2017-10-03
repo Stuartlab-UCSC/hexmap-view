@@ -1,3 +1,5 @@
+// TODO make this work in imports.
+
 /**
  * Small javascript library to generate a color palette.
  *

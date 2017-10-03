@@ -104,9 +104,6 @@ function populate () {
                 Utils.loadProject(event.val);
             }}
             choiceDisplay = {function (dataId) {
-            
-                console.log('dataId', dataId)
-            
                 return dataId.slice(0, -1); // remove trailing '/' for display
             }}
         />, $('#project')[0]);
@@ -158,28 +155,30 @@ exports.init = function () {
     //$('.login').on('click', $('#login-sign-in-link'), signInClicked);
 
     // Re-populate projects whenever the user changes, including log out
-    Meteor.autorun(function() {
-        var user = Meteor.user(); // jshint ignore: line
-        
-        if (user && !Session.get('initedProject') &&
-                window.location.search.length > 0) {
-            Session.set('mapSnake', true);
-        }
-        
-        Perform.log('project-list-get,-user:-' +
-            (user ? user.username : 'none'));
-        
-        Meteor.call('getProjects', function (error, projects_returned) {
-            if (error) {
-                Util.banner('error',
-                    "Unable to retrieve project data from server." +
-                    error);
-                return;
+    setTimeout(function () {
+        Meteor.autorun(function() {
+            var user = Meteor.user(); // jshint ignore: line
+            
+            if (user && !Session.get('initedProject') &&
+                    window.location.search.length > 0) {
+                Session.set('mapSnake', true);
             }
-        
-            Perform.log('project-list-got');
-            projects = projects_returned;
-            populate();
+            
+            Perform.log('project-list-get,-user:-' +
+                (user ? user.username : 'none'));
+            
+            Meteor.call('getProjects', function (error, projects_returned) {
+                if (error) {
+                    Util.banner('error',
+                        "Unable to retrieve project data from server." +
+                        error);
+                    return;
+                }
+            
+                Perform.log('project-list-got');
+                projects = projects_returned;
+                populate();
+            });
         });
     });
 }

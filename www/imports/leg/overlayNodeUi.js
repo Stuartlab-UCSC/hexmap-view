@@ -167,7 +167,7 @@ function criteriaCheck () {
         return true;
     } else {
         dialogHex.hide();
-        Util.banner('Data not available', 'Sorry, the required data to ' +
+        Util.banner('error', 'Sorry, the required data to ' +
         'place new nodes is not available for this map.');
         return false;
     }
@@ -175,10 +175,11 @@ function criteriaCheck () {
 
 function preShow () {
 
-    // Does user have credentials to run this?
+    // First check for this user having the credentials to do this.
     var good = Util.credentialCheck('to place new nodes');
     if (good) {
 
+        // Then check for the map having the proper criteria to do this.
         // Does this map and layout have the data needed to place nodes?
         good = criteriaCheck();
     }

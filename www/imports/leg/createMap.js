@@ -370,6 +370,8 @@ function show () {
 }
 
 function preShow () {
+
+    // Check for this user having the credentials to do this.
     return Util.credentialCheck('to create a map');
 }
 

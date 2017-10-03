@@ -15,7 +15,6 @@ import Hexagons from '/imports/leg/hexagons.js';
 import Hexagram from '/imports/leg/hexagram.js';
 import Layer from '/imports/leg/layer.js';
 import Legend from '/imports/leg/legend.js';
-import Message from '/imports/leg/message.js';
 import OverlayNodes from '/imports/leg/overlayNodes.js';
 import OverlayNodeUi from '/imports/leg/overlayNodeUi.js';
 import Perform from '/imports/app/perform.js';
@@ -177,13 +176,11 @@ function firstLayerWasFound (autorun) {
         Tool.init();
 
         // Prepare to draw the map.
-        //setTimeout(function () { // The timeout allows the google libs to load
-            Utils.resizeMap();
-            $(window).resize(Utils.resizeMap);
-            $('#shortlist_holder').css('top', $('#navBar').height());
-            ctx.center = Coords.centerToLatLng(ctx.center);
-            Session.set('mapPrepComplete', true);
-        //}, 0);
+        Utils.resizeMap();
+        $(window).resize(Utils.resizeMap);
+        $('#shortlist_holder').css('top', $('#navBar').height());
+        ctx.center = Coords.centerToLatLng(ctx.center);
+        Session.set('mapPrepComplete', true);
     }
 }
 Meteor.autorun(firstLayerWasFound);
@@ -227,7 +224,6 @@ function initPage () { // jshint ignore: line
     
     initSnake('mapSnake');
     initSnake('statsSnake');
-    Message.init();
     Project.init();
 }
 
