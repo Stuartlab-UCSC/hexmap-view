@@ -520,5 +520,7 @@ exports.init = function () {
         });
     }
 
+    Session.set('stateLoaded', true);
+    
     return s;
 };

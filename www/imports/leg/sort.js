@@ -658,9 +658,9 @@ exports.get_layout_ignore_stats = function (focus_attr) {
         contLayers: ctx.cont_layers,
     }
 
-    if (layers[focus_attr].hasOwnProperty('selection')) {
+    if (layers[focus_attr].hasOwnProperty('dynamic')) {
 
-        // This is a user-selection attribute
+        // This is a generated attribute.
         getDynamicStats(focus_attr, opts);
 
     } else {

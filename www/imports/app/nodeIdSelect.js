@@ -11,7 +11,6 @@ import Modal from '/imports/comp/modal.js';
 import '/imports/htmlCss/reactModal.css';
 import TextareaClean from '/imports/comp/textareaClean.js';
 import ReadFile from '/imports/comp/readFile.js';
-import U from '/imports/app/utils.js';
 import Util from '/imports/leg/util.js';
 
 export default class NodeIdSelect extends Component {
@@ -21,7 +20,7 @@ export default class NodeIdSelect extends Component {
         this.cartPlaceholder = 'enter node IDs one per line';
         this.state = {
             cartText: '',
-        }
+        };
         
         // Build the list of node IDs.
         this.allIds = Object.keys(polygons).sort();
@@ -136,7 +135,6 @@ export default class NodeIdSelect extends Component {
                         allIds = {this.allIds}
                         addToSelectedList = {self.addToCart}
                         getCart = {this.getCart}
-                        dropdownParent = {this.props.searchDropDownParent}
                     />
                     <div>
                         <span>
@@ -164,8 +162,8 @@ export default class NodeIdSelect extends Component {
                 </div>,
             button =
                 <button onClick = {function () {
-                        self.handleButtonClick();
-                    }}>
+                    self.handleButtonClick();
+                }}>
                     OK
                 </button>;
 
@@ -187,13 +185,10 @@ NodeIdSelect.propTypes = {
     // Function to call on close of this component.
     closeModal: PropTypes.func,
     
-    // Pass-thru to Select2wrap
-    searchDropDownParent: PropTypes.object.isRequired,
-    
     // Visibility of this component, passed thru to ReactModal.
     isOpen: PropTypes.bool,
 
-    // Dom container used to destroy the component. Pass-thru to Select2Wrap.
+    // Dom container used to destroy the modal. Pass-thru to React-modal.
     parentSelector: PropTypes.func,
 };
 

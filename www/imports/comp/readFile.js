@@ -3,7 +3,6 @@
 // Reads a local file into this web app.
 
 import React, { Component } from 'react';
-import { render } from 'react-dom';
 import PropTypes from 'prop-types';
 import U from '/imports/app/utils.js';
 import Util from '/imports/leg/util.js';
@@ -27,7 +26,7 @@ export default class ReadFile extends Component {
             // Return the result to the parent.
             this.props.onSuccess(data);
         } else {
-            this.props.onError('file contains unprintable characters')
+            this.props.onError('file contains unprintable characters');
         }
     }
 
@@ -42,16 +41,16 @@ export default class ReadFile extends Component {
         // Make a FileReader to read the file
         var reader = new FileReader();
 
-        reader.onload = function(read_event) {
+        reader.onload = function() {
 
             // The file transfer is complete.
             self.validate(reader.result);
         };
 
-        reader.onerror = function(read_event) {
+        reader.onerror = function() {
             self.props.onError('Could not read file.');
         };
-        reader.onabort = function(read_event) {
+        reader.onabort = function() {
             self.props.onError('aborted reading file.');
         };
 
@@ -72,7 +71,7 @@ export default class ReadFile extends Component {
             />
         );
     }
-};
+}
 
 ReadFile.propTypes = {
 

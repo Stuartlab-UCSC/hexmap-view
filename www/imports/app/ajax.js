@@ -124,12 +124,11 @@ exports.query = function (operation, opts, successFx, errorFx) {
         type: 'POST',
         url: url,
         contentType: "application/json", // sending json
-        /* TODO: from the jquery docs:
-            Note: For cross-domain requests, setting the content type to 
-            anything other than application/x-www-form-urlencoded, 
-            multipart/form-data, or text/plain will trigger the browser to send \
-            a preflight OPTIONS request to the server.
-        */
+        // TODO: from the jquery docs:
+        // Note: For cross-domain requests, setting the content type to
+        // anything other than application/x-www-form-urlencoded,
+        // multipart/form-data, or text/plain will trigger the browser to send
+        // a preflight OPTIONS request to the server.
         dataType: 'json', // expects json returned
         data: JSON.stringify(opts),
         success: successFx,
@@ -251,14 +250,13 @@ exports.get = function(opts) {
     // and does not contain the map segment. If this is a simple map
     // name, the project segment is the map segment.
     if (opts.id === 'meta') {
-        var count = 0,
-            first = mapPath.indexOf('/'),
+        var first = mapPath.indexOf('/'),
             second = mapPath.indexOf(first + 1);
         if (second > 1) {
             
             // This map id contains a major and minor directory,
             // so extract the major directory
-            mapPath = map.path.slice(0, first + 1);
+            mapPath = mapPath.slice(0, first + 1);
         }
     }
 
@@ -268,7 +266,7 @@ exports.get = function(opts) {
     if (opts.raw) {
         opts.id += '.tab';
         parse = 'noParse';
-    } else if (opts.id === 'meta' || opts.id == 'mapMeta') {
+    } else if (opts.id === 'meta' || opts.id === 'mapMeta') {
         opts.id += '.json';
         parse = 'json';
     } else {
@@ -277,11 +275,12 @@ exports.get = function(opts) {
     }
 
     //getData(HUB_URL + '/data/view/' + mapPath + opts.id +
-    getData(HUB_URL + (opts.ok404 ? '/dataOk404/view/' : '/data/view/') +
-                mapPath + opts.id,
-            opts.success,
-            opts.error,
-            opts.ok404,
-            parse,
+    getData(
+        HUB_URL + (opts.ok404 ? '/dataOk404/view/' : '/data/view/') +
+            mapPath + opts.id,
+        opts.success,
+        opts.error,
+        opts.ok404,
+        parse
     );
 };

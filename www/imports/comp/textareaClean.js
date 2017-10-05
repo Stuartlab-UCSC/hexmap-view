@@ -3,7 +3,6 @@
 // A textarea to contain text that contains only printable characters.
 
 import React, { Component } from 'react';
-import { render } from 'react-dom';
 import PropTypes from 'prop-types';
 
 import U from '/imports/app/utils.js';
@@ -53,7 +52,6 @@ export default class TextareaClean extends Component {
     
         // Don't allow unprintables here except newLine.
         // This does not capture cutting or pasting in the textarea.
-        var self = this;
         
         // If this is an unprintable character...
         if (U.unprintableAsciiCode(event.which, true)) {
@@ -68,8 +66,6 @@ export default class TextareaClean extends Component {
     }
 
     render () {
-        var self = this;
-
         return (
             <textarea
                 onKeyPress = {this.handleKeyPress}

@@ -11,9 +11,9 @@ exports.unprintableAsciiCode = function (code, allowCR) {
     // @param allowCR: also allow carriage return  (decimal code: 13)
     // @returns: true if there are any unprintables or false otherwise
     return !((code >= 32 && code <= 126) || (allowCR && code === 13));
-}
+};
 
-unprintableCharsInString = function (str) {
+function unprintableCharsInString (str) {
 
     // Check for unprintable chars in the given string.
     // Valid characters:
@@ -28,7 +28,7 @@ exports.dropUnprintables = function (str) {
 
     // Drop any unprintable chars from the string.
     str.replace(/[^\x20-\x7e]/, '');
-}
+};
 
 exports.allPrintableCharsInArray = function (data) {
 
@@ -40,17 +40,17 @@ exports.allPrintableCharsInArray = function (data) {
         return false;
     }
     var unprintable = _.find(data, function (row) {
-            return _.find(row, function (str) {
-                return unprintableCharsInString(str);
-            });
+        return _.find(row, function (str) {
+            return unprintableCharsInString(str);
         });
+    });
     return (unprintable ? false : true);
-}
+};
 
 exports.createReactRoot = function (containerId) {
     $('body').append($('<div id="' + containerId + '" />'));
     return document.querySelector('#' + containerId);
-}
+};
 
 exports.destroyReactRoot = function (containerId) {
     var id = document.querySelector('#' + containerId);
@@ -65,12 +65,12 @@ exports.destroyReactRoot = function (containerId) {
     // unmounted. Do this for now until we know how to create a new instance of
     // the same react component class.
     //setTimeout(function () {
-        console.log('!!! The below messsage is OK for now. See imports/app/utils.js:destroyReactRoot()');
-        console.log('  Uncaught Error: React DOM tree root should always have a node reference.');
-        unmountComponentAtNode(id);
-        $(id).remove();
+    console.log('!!! The below messsage is OK for now. See imports/app/utils.js:destroyReactRoot()');
+    console.log('  Uncaught Error: React DOM tree root should always have a node reference.');
+    unmountComponentAtNode(id);
+    $(id).remove();
     //});
-}
+};
 
 exports.resizeMap = function () {
 
@@ -81,7 +81,7 @@ exports.resizeMap = function () {
         headerHt = $('#header').height();
     $('#mapContent').height(windowHt - navHt - headerHt - 1);
     $('#visualization').show();
-}
+};
 
 function queryFreeReload () {
     Session.set('mapSnake', true);
@@ -95,10 +95,10 @@ function queryFreeReload () {
 exports.pageReload = function (page) {
     Session.set('page', page);
     queryFreeReload();
-}
+};
 
 exports.loadProject = function (project) {
     ctx.project = project;
     Session.set('page', 'mapPage');
     queryFreeReload();
-}
+};

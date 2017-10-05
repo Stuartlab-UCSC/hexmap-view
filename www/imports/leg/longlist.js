@@ -132,10 +132,9 @@ exports.init = function () {
     // Set up the layer search
     reactComponent = render(
         <Select2
-            select2-selecting = {handleSelecting}
+            // Options for the original non-react select2.
             select2options = {{
                 data: {id: '', text: ''},
-                dropdownParent: $search,
                 placeholder: "Search Attributes...",
                 width: '29em',
                 value: null,
@@ -143,6 +142,7 @@ exports.init = function () {
                 formatResult: formatResult,
                 dropdownCssClass: 'longlist',
             }}
+            select2-selecting = {handleSelecting}
         />, $search[0]);
     
     // Make the dropdown close if there is a click anywhere on the screen

@@ -60,12 +60,11 @@ class Prompt extends Component {
     }
     
     handleTextChange (event) {
-        this.state.textStr = event.target.value;
+        this.setState({ textStr: event.target.value });
     }
         
     render () {
         var self = this,
-            body = null,
             input = null,
             button = null;
         
@@ -79,9 +78,8 @@ class Prompt extends Component {
                     ref={(input) => { this.$text = $(input); }}
                 />,
                 button = <button onClick = {function () {
-                        self.handleButtonClick();
-                    }}
-                >
+                    self.handleButtonClick();
+                }}>
                     OK
                 </button>;
         }
@@ -117,13 +115,12 @@ Prompt.propTypes = {
     textStr: PropTypes.string,
     
     // The type of prompt to control color and more.
-    // one of / info / warn / error /
-    severity: PropTypes.string,
-    
+    severity: PropTypes.oneOf(['info', 'warn', 'error']),
+ 
     // Function to call when this modal closes.
     closeModal: PropTypes.func,
 
-    // Pass-thru to the React-modal.
+    // Pass-thru to the React-modal to destroy the container.
     parentSelector: PropTypes.func,
 };
 
@@ -160,4 +157,4 @@ exports.show = function (promptStr, opts) {
             severity = {opts.severity}
             closeModal = {closeModal}
          />, container);
-}
+};

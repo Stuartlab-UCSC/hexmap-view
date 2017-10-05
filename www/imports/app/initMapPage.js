@@ -44,7 +44,7 @@ Template.headerT.helpers({
     },
 });
 
-function initSnake (snakeName, before) {
+function initSnakes () {
         
     // Manage the visibility of a progress snake given
     // relative-positioned parent anchor with a class of
@@ -52,44 +52,54 @@ function initSnake (snakeName, before) {
     // @param snakeName snake ID with:
     //                  - an associated Session variable of snakeName
     //                  - an associated relative parent anchor with a
-    //                    class of snakeName + 'Anchor'
-    Session.set('mapSnake', true);
-    Meteor.autorun(function () {
-        var snake = Session.get(snakeName),
-            $snake = $('.' + snakeName);
+    //                    class of snakeName + 'Anchor'a
+    function showHide (snake, snakeName) {
+        var $snake = $('.' + snakeName);
         if (snake) {
             
-            // Show a snake if it is not yet showing
-            // and the anchor element exists.
-            var $anchor = $('.' + snakeName + 'Anchor');
-            if ($snake && $snake.length < 1 &&
-                $anchor && $anchor.length) {
+            // Show the snake if it is not yet showing.
+            if ($snake.length < 1) {
                 
                 // Add the snake to the anchor.
                 $snake = $('<div/>')
                       .addClass(snakeName)
                       .addClass('snake');
-                if (before) {
-                    $anchor.before($snake);
-                } else {
-                    $anchor.append($snake);
-                }
+                $('.' + snakeName + 'Anchor').append($snake);
             }
         } else {
     
-            // Hide snake if it is showing
-            if ($snake && $snake.length) {
-                $snake.remove();
-            }
+            // Hide the snake.
+            $snake.remove();
         }
+    }
+
+    // Start up these autoruns independent of the map init autorun.
+    setTimeout(function () {
+        Meteor.autorun(function () {
+            var snake = Session.get('mapSnake'),
+                domLoaded = Session.get('domLoaded');
+            if (domLoaded) {
+                showHide(snake, 'mapSnake');
+            }
+        });
+        Meteor.autorun(function () {
+            var snake = Session.get('statsSnake'),
+                domLoaded = Session.get('domLoaded');
+            if (domLoaded) {
+                showHide(snake, 'statsSnake');
+            }
+        });
     });
 }
 
 function googleAnalytics() {
-    window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
-    ga('create', 'UA-76132249-2', 'auto');
-    ga('send', 'pageview');
-    //<script async src='https://www.google-analytics.com/analytics.js'></script>
+/* eslint-disable */
+window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+ga('create', 'UA-76132249-2', 'auto');
+ga('send', 'pageview');
+//<script async src='https://www.google-analytics.com/analytics.js'>
+//  </script>
+/* eslint-enable */
 }
 
 // Phase 5 init: when all data has been loaded
@@ -106,70 +116,78 @@ function mapPrepComplete (autorun) {
         Session.get('mapPrepComplete')) {
         autorun.stop();
         Perform.log('5-init:-all-data-loaded');
-   
+
         Hexagram.initMap();
 
-        // Turn off the loading progress wheel
+        // Allow some rendering to happen.
         setTimeout(function () {
-            Perform.log('mapSnake-was-hidden');
+
+            Perform.log('background-functions-init');
+
+            // Turn off the loading progress wheel
             Session.set('mapSnake', false);
-        }, 500);
 
-        Perform.log('background-functions-init');
-        SortUi.init();
-        Filter.init();
-        import Longlist from '/imports/leg/longlist.js';
-        Longlist.init();
-
-        //Meteor.setTimeout(function () {
-
-            import LazyLoader from '/imports/app/lazyLoader.js';
-            LazyLoader.init();
- 
-            // Initialize the background functions.
+            import Longlist from '/imports/leg/longlist.js';
+            Longlist.init();
             Hexagram.initLayoutList();
-            Legend.init();
             Shortlist.init();
-            CheckLayerBox.init();
-            Reflect.init();
-            Tool.initLabel();
-            Download.init();
-            Colors.init();
-            import InfoWindow from '/imports/leg/infoWindow.js';
-            InfoWindow.init();
-            SetOper.init();
-            CreateMap.init();
-            Select.init();
-            GChart.init();
-            State.initBookmark();
-            OverlayNodes.init();
-            OverlayNodeUi.init();
-            if (!DEV) {
-                Perform.log('google-analytics-loading');
-                googleAnalytics();
-            }
-        //});
+            setTimeout(function () {
+ 
+                Perform.log('way-background-functions-init');
+ 
+                Filter.init();
+                SortUi.init();
+ 
+                import LazyLoader from '/imports/app/lazyLoader.js';
+                LazyLoader.init();
+
+                // Initialize the background functions.
+                Legend.init();
+                CheckLayerBox.init();
+                Reflect.init();
+                Tool.initLabel();
+                Download.init();
+                Colors.init();
+                import InfoWindow from '/imports/leg/infoWindow.js';
+                InfoWindow.init();
+                SetOper.init();
+                CreateMap.init();
+                Select.init();
+                GChart.init();
+                State.initBookmark();
+                OverlayNodes.init();
+                OverlayNodeUi.init();
+                if (!DEV) {
+                    Perform.log('google-analytics-loading');
+                    googleAnalytics();
+                }
+            });
+ 
+        });
     }
 }
 Meteor.autorun(mapPrepComplete);
 
-// Phase 4 init: when the first layer has been found
+// Phase 4 init: when the first layer has been resolved,
 //               and the layout index data received,
 //               get the node coords, first layer data & colormaps,
 //               then prepare for the map to be drawn.
-Session.set('firstLayerFound', false);
-function firstLayerWasFound (autorun) {
-    if (Session.get('firstLayerFound') &&
+Session.set('firstLayerResolved', false);
+function firstLayerWasResolved (autorun) {
+    if (Session.get('firstLayerResolved') &&
         Session.get('layouts')) {
         autorun.stop();
-        Perform.log('4-init:first-layer-found');
-        
-        // TODO can this be later?
+        Perform.log('4-init:first-layer-resolved');
+
         Coords.init();
 
         // Get the rest of the initial data.
         Hexagons.init();
-        Layer.loadFirstLayer();
+        if (Session.equals('first_layer', 'noStaticLayers')) {
+            Session.set('firstLayerLoaded', true);
+        } else {
+            Layer.loadFirstLayer();
+        }
         Hexagram.initColormaps();
    
         // Initialize some more.
@@ -183,7 +201,7 @@ function firstLayerWasFound (autorun) {
         Session.set('mapPrepComplete', true);
     }
 }
-Meteor.autorun(firstLayerWasFound);
+Meteor.autorun(firstLayerWasResolved);
 
 // Phase 3 init: when the data to determine the first layer is loaded,
 //               sort to find the first layer if not supplied with types.
@@ -195,40 +213,35 @@ function haveFirstLayerData (autorun) {
         autorun.stop();
         Perform.log('3-init:first-layer-data-received');
 
-        // If the first layer was not in the types data received...
+        // If the first layer was not in the types data received
+        // or there are no static layers...
         var first_layer = Session.get('first_layer');
-        if (!first_layer || first_layer === 'undefinedFirstLayer') {
+        if (!first_layer) {
             
             // Sort the layers to find the first layer.
             Sort.findFirstLayerByDensity();
         }
-        Session.set('firstLayerFound', true);
+        Session.set('firstLayerResolved', true);
     }
 }
 Meteor.autorun(haveFirstLayerData);
 
-// Phase 2 init: when the project list is loaded,
-//               get the data needed to determine the first layer.
-Session.set('initedProject', false);
-function areProjectsLoaded (autorun) {
-    if (Session.get('initedProject')) {
+// Phase 2 init: when initial data has been requested and DOM loaded.
+Session.set('dataInitd', false);
+function isDataInitialized (autorun) {
+    if (Session.get('dataInitd') &&
+        Session.get('domLoaded')) {
         autorun.stop();
-        Perform.log('2-init:projects-loaded');
+        Perform.log('2-init:data-requested-dom-loaded');
+        initSnakes();
+        Project.init();
     }
-    // TODO remove this phase.
 }
-Meteor.autorun(areProjectsLoaded);
+Meteor.autorun(isDataInitialized);
 
-// Phase 1 init: when meteor has been rendered.
-function initPage () { // jshint ignore: line
-    
-    initSnake('mapSnake');
-    initSnake('statsSnake');
-    Project.init();
-}
-
+// Phase 1 init: get initial data.
 exports.init = function () {
     Perform.log('1-init:get-initial-data');
+    Session.set('mapSnake', true);
     Data.init();
-    initPage();
-}
+};

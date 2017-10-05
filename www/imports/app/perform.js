@@ -2,7 +2,8 @@
 // perform.js
 // Capture performance metrics.
 
-PERFORM = false;
+PERFORM = true; // eslint-disable-line
+var header = false; // true = log header
 
 var startTime = 1506190000000;
 exports.log = function (msg) {
@@ -10,12 +11,12 @@ exports.log = function (msg) {
     
     var now = Date.now();
     console.log(now - startTime + ',' +  msg);
-}
+};
 
 exports.init = function () {
     if (!PERFORM) { return; }
 
-    var date = new Date().toString()
+    var date = new Date().toString();
     startTime = Date.now();
     var meta = {
         date: date.slice(4, (date.indexOf('GMT') - 4)),
@@ -27,8 +28,10 @@ exports.init = function () {
         language: navigator.language,
     };
     
-    // Output each metadata piece.
-    _.each(meta, function(val, key) {
-        console.log(key + ',' + val);
-    });
-}
+    if (header) {
+        // Output each metadata piece.
+        _.each(meta, function(val, key) {
+            console.log(key + ',' + val);
+        });
+    }
+};

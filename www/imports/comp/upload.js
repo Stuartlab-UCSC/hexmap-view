@@ -2,18 +2,19 @@
 // upload.js
 
 import React, { Component } from 'react';
-import { render } from 'react-dom';
 
 export default class Upload extends Component {
+
+    // TODO fix deprecated refs.
     
-    saveFile (event) {
-        this.refs.fileObj = this.refs.file.files[0];
+    saveFile () {
+        this.refs.fileObj = this.refs.file.files[0]; // eslint-disable-line
     }
 
     render () {
         return (
             <input
-                ref = 'file'
+                ref = 'file' // eslint-disable-line
                 type = 'file'
                 name = 'file'
                 className = 'readFile'
@@ -21,4 +22,4 @@ export default class Upload extends Component {
             />
         );
     }
-};
+}

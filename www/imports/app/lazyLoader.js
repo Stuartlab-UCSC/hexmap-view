@@ -7,11 +7,11 @@
 // a react component and it could be the react root for some of our react
 // components that now have their own root.
 
-import React, { Component } from 'react';
+import React from 'react';
 import { render } from 'react-dom';
 import Utils from '/imports/app/utils.js';
 
-nodeIdSelectInit = function () {
+function nodeIdSelectInit () {
     
     import NodeIdSelect from '/imports/app/nodeIdSelect.js';
     
@@ -21,7 +21,7 @@ nodeIdSelectInit = function () {
         return document.querySelector('#' + containerId);
     }
 
-    function closeModal (result) {
+    function closeModal () {
         Utils.destroyReactRoot(containerId);
     }
 
@@ -32,7 +32,6 @@ nodeIdSelectInit = function () {
             isOpen = {true}
             closeModal = {closeModal}
             parentSelector = {getParentSelector}
-            searchDropDownParent = {$(container)}
          />, container);
 }
 
@@ -44,5 +43,4 @@ exports.init = function () {
         import AttrAdd from '/imports/leg/attrAdd.js';
         AttrAdd.init();
     });
-}
-
+};

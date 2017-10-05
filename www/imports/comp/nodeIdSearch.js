@@ -3,7 +3,6 @@
 // The UI to allow the user to select nodes by ID to create a new attribute.
 
 import React, { Component } from 'react';
-import { render } from 'react-dom';
 import PropTypes from 'prop-types';
 
 import Select2 from '/imports/comp/select2wrap.js';
@@ -33,11 +32,11 @@ export default class NodeIdSearch extends Component {
     }
 
     componentWillUnmount () {
-         $(document).off('keyup keydown', ".select2-drop-active",);
-        $(document).off('keyup keydown', ".select2-drop-active",);
+        $(document).off('keyup keydown', ".select2-drop-active");
+        $(document).off('keyup keydown', ".select2-drop-active");
     }
 
-    shouldComponentUpdate (newProps) {
+    shouldComponentUpdate (newProps) { // eslint-disable-line
     
         // We don't want to re-render when props we're not interested in
         // change. The parent never changes our props.
@@ -127,14 +126,14 @@ export default class NodeIdSearch extends Component {
         event.preventDefault();
     }
     
-    handleDropdownOpen (event) {
+    handleDropdownOpen () {
     
         // Handle the open dropdown event.
         // Reset the previously-selected ID.
         this.lastId = '';
     }
     
-    handleLoaded (event) {
+    handleLoaded () {
         
         // Handle the point after the query completes and dropdown updated.
         // Update the select status of each entry.
@@ -192,7 +191,7 @@ export default class NodeIdSearch extends Component {
         });
     }
     
-    formatResult (result, container, query) {
+    formatResult (result) {
         
         // This formats display entries every time a query is made
         // and is called once per entry. We only need it here to force
@@ -214,14 +213,14 @@ export default class NodeIdSearch extends Component {
                 select2-loaded = {self.handleLoaded}
                 select2-open = {self.handleDropdownOpen}
                 select2-selecting = {self.handleSelecting}
+        
+                // Options for the original non-react select2.
                 select2options = {{
                     data: { id: '', text: '' },
                     dropdownCssClass: this.dropdownClass,
-                    dropdownParent: this.props.dropDownParent,
                     formatResult: self.formatResult,
                     placeholder: 'Search nodes...',
                     query: self.query,
-                    value: null,
                     width: '42em',
                 }}
             />
@@ -234,9 +233,6 @@ NodeIdSearch.propTypes = {
     // IDs available for selection.
     allIds: PropTypes.array.isRequired,
 
-    // Pass-through to Select2wrap.
-    dropdownParent: PropTypes.object.isRequired,
-    
     // Function to call when an ID is selected.
     addToSelectedList: PropTypes.func.isRequired,
     

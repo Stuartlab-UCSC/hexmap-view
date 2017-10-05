@@ -21,22 +21,7 @@ var VERSION = 'Version 1.0';
 window.addEventListener("load", function(event) {
     Session.set('domLoaded', true);
 });
-/*
-Template.localStoreT.created = function () {
 
-    // This template is only used to initialize state and
-    // begin the initial data download.
-    
-    // Get the googlemaps API.
-    $.getScript( "https://maps.googleapis.com/maps/api/js?key=AIzaSyBb8AJUB4x-xxdUCnjzb-Xbcg0-T1mPw3I" )
-        .done(function( script, textStatus ) {
-            console.log( textStatus );
-        })
-        .fail(function( jqxhr, settings, exception ) {
-            console.log( "Failed to load googlemaps API" );
-        });
-};
-*/
 Template.body.helpers({
     page: function () {
         return Session.get('page');
@@ -44,7 +29,6 @@ Template.body.helpers({
 });
 
 Template.homePage.onRendered(function () {
-    Session.set('mapSnake', false);
     Tool.init();
     Download.init();
     CreateMap.init();  // TODO why?
@@ -111,7 +95,6 @@ Template.homePage.helpers({
 });
 
 function initGridMapContainer () { // jshint ignore: line
-    Session.set('mapSnake', true);
     setTimeout(function () { // The timeout allows the google libs to load
         $(window).resize(Utils.resizeMap);
         ctx.gridCenter = Coords.centerToLatLng(ctx.gridCenter);
@@ -122,11 +105,21 @@ function initGridMapContainer () { // jshint ignore: line
     }, 0);
 }
 
+// When the state has been loaded...
+Session.set('stateLoaded', false);
+function isStateLoaded (autorun) {
+    if (Session.get('stateLoaded')) {
+        autorun.stop();
+        Perform.log('init:state-loaded');
+        
+        if (Session.equals('page', 'mapPage')) {
+            InitMapPage.init();
+        }
+    }
+}
+Meteor.autorun(isStateLoaded);
+
 Meteor.startup(() => {
     Perform.init();
     ctx = State.init();
-    Perform.log('Meteor.startup for project: ' + ctx.project);
-    if (Session.equals('page', 'mapPage')) {
-        InitMapPage.init();
-    }
 });

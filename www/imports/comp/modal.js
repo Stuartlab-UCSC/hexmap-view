@@ -19,12 +19,12 @@ export default class Modal extends Component {
         super(props);
         this.state = {
             isOpen: props.isOpen,
-        }
+        };
         
         this.handleCancelModal = this.handleCancelModal.bind(this);
     }
     
-    handleCancelModal (event) {
+    handleCancelModal () {
     
         // User clicked on the close button in the upper right
         // or outside of the modal, so close without a response.
@@ -68,6 +68,16 @@ export default class Modal extends Component {
     }
 }
 Modal.propTypes = {
+
+    // Text to put in the header.
+    // Pass-thru to react-modal.
+    title: PropTypes.string,
+    
+    // The body jsx definition of the body.
+    body: PropTypes.element,
+    
+    // One or more buttons at the bottom.
+    buttons: PropTypes.element,
 
     // A css class to add to the react-modal.
     className: PropTypes.string,

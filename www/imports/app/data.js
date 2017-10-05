@@ -32,7 +32,8 @@ function dataTypesReceived (parsed, id) {
 function layerSummaryReceived (parsed, id) {
 
     // Layer index is tab-separated like so:
-    // name  file  N-hex-value  binary-ones  layout0-clumpiness  layout1-clumpiness  ...
+    // name file N-hex-value binary-ones layout0-clumpiness layout1-clumpiness
+    //      ...
 
     // Initialize the layer list for sortable layers.
     Perform.log(id + '.tab_got');
@@ -43,7 +44,7 @@ function layerSummaryReceived (parsed, id) {
     
     // If there are no static layers...
     if (parsed.length < 1) {
-        Session.set('first_layer', 'undefinedFirstLayer');
+        Session.set('first_layer', 'noStaticLayers');
         Session.set('shortlist', []);
     }
     
@@ -55,18 +56,18 @@ function layerSummaryReceived (parsed, id) {
         var layer_name = parsed[i][0];
      
         // Skip any blank lines
-        if (layer_name == "") { continue; }
+        if (layer_name === "") { continue; }
 
         // Save this layer name in the static layer names-index
         // lookup. Extract the index, say '6', from a file name
         // like layer_6.tab.
         var file = parsed [i][1];
         ctx.static_layer_names[
-                file.substring(
-                    file.lastIndexOf("_") + 1,
-                    file.lastIndexOf(".")
-                )
-            ] = parsed[i][0];
+            file.substring(
+                file.lastIndexOf("_") + 1,
+                file.lastIndexOf(".")
+            )
+        ] = parsed[i][0];
      
         // This array holds the layer's clumpiness scores under each layout,
         // by index. A greater clumpiness score indicates more clumpiness.
@@ -85,7 +86,7 @@ function layerSummaryReceived (parsed, id) {
         // Add this to the global layers object.
         layers[layer_name] = {
         
-             // The url from which to download this layers primary data.
+            // The url from which to download this layers primary data.
             url: ctx.project + parsed[i][1],
             
             n: n,
@@ -93,16 +94,16 @@ function layerSummaryReceived (parsed, id) {
             
             // Clumpiness gets filled in with the appropriate value out
             // of the array, so out having a current layout index.
-        }
+        };
         
         // Add this layer's data ID.
         // Remove any '.tab' extension because the Data object
         // does not want that there.
         var idx = parsed[i][1].indexOf('.tab');
         if (idx > -1 && idx === parsed[i][1].length - 4) {
-            layers[layer_name].dataId = parsed[i][1].slice(0, -4)
+            layers[layer_name].dataId = parsed[i][1].slice(0, -4);
         } else {
-            layers[layer_name].dataId = parsed[i][1]
+            layers[layer_name].dataId = parsed[i][1];
         }
         
         // Save the number of 1s, in a binary layer only
@@ -120,7 +121,7 @@ function layerSummaryReceived (parsed, id) {
     Session.set('layerIndexReceived', true);
 }
 
-getLayoutNames = function () {
+function getLayoutNames () {
 
     // Download the layout names and save to the layouts array
     var id = 'layouts';
@@ -153,12 +154,11 @@ getLayoutNames = function () {
                 );
             }
             Session.set('layouts', layouts);
-
-            },
-            error: function (error) {
-                Util.projectNotFound(id);
-            },
-        });
+        },
+        error: function () {
+            Util.projectNotFound(id);
+        },
+    });
 }
 
 function getDataTypes () {
@@ -168,8 +168,8 @@ function getDataTypes () {
     Perform.log(id + '.tab_get');
     Ajax.get({
         id: id,
-        error: function (error) {
-            projectNotFound(id);
+        error: function () {
+            Util.projectNotFound(id);
         },
         success: function (parsed) {
             dataTypesReceived(parsed, id);
@@ -184,8 +184,8 @@ function getLayerSummary () {
     Perform.log(id + '.tab_get');
     Ajax.get({
         id: id,
-        error: function (error) {
-            projectNotFound(id);
+        error: function () {
+            Util.projectNotFound(id);
         },
         success: function (parsed) {
             layerSummaryReceived(parsed, id);
@@ -199,5 +199,7 @@ exports.init = function () {
     getLayerSummary();
     getDataTypes();
     getLayoutNames();
-    // Authenticate & authorize for current project.
-}
+    Session.set('dataInitd', true);
+    
+    // TODO Authenticate & authorize for current project.
+};

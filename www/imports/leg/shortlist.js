@@ -816,7 +816,7 @@ function complete_initialization (autorun) {
     var shortlist = Session.get('shortlist');
 
     // Add the 'first layer' to the shortlist if it is empty
-    if (shortlist.length < 1 && first_layer !== 'undefinedFirstLayer') {
+    if (shortlist.length < 1 && first_layer !== 'noStaticLayers') {
         shortlist = [first_layer];
         Session.set('shortlist', shortlist);
     }

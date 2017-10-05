@@ -90,14 +90,13 @@ function populate () {
     // Attach the selector.
      render(
         <Select2
-            value = {ctx.project}
-            // options to the original, non-react select2.
+
+            // Options for the original non-react select2.
             select2options = {{
                 data: data,
-                dropdownParent: $('#project'),
+                value: ctx.project,
                 placeholder: PLACEHOLDER_TEXT,
                 width: '20em',
-                dropdownCssClass: 'projectDropDown',
                 matcher: matcher,
             }}
             onChange = {function (event) {
@@ -113,10 +112,7 @@ function populate () {
     // If a protected project was loaded before and the new user is not
     // authorized to see it, or there is no one logged in, give a message
     // to the user.
-    if (is_project_on_list(ctx.project)) {
-        Session.set('initedProject', true);
-
-    } else {
+    if (!is_project_on_list(ctx.project)) {
     
         // The project may be protected and has been loaded before under an
         // authorized account and is either in the user's saved state or
@@ -158,11 +154,6 @@ exports.init = function () {
     setTimeout(function () {
         Meteor.autorun(function() {
             var user = Meteor.user(); // jshint ignore: line
-            
-            if (user && !Session.get('initedProject') &&
-                    window.location.search.length > 0) {
-                Session.set('mapSnake', true);
-            }
             
             Perform.log('project-list-get,-user:-' +
                 (user ? user.username : 'none'));

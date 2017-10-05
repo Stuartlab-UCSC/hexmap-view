@@ -11,6 +11,7 @@ run
 _build
 settings.json
 log
+node_modules
 deploy
 packages
 pid
