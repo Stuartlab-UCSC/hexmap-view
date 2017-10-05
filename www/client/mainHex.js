@@ -1,20 +1,18 @@
 // mainHex.js
 
 import { Meteor } from 'meteor/meteor';
-import Coords from '/imports/leg/coords.js';
-import CreateMap from '/imports/leg/createMap.js';
-import Download from '/imports/leg/download.js';
-import Grid from '/imports/leg/grid.js';
-import InitMapPage from '/imports/app/initMapPage.js';
-import Perform from '/imports/app/perform.js';
-import State from '/imports/leg/state.js';
-import Tool from '/imports/leg/tool.js';
-import Utils from '/imports/app/utils.js';
-import '/imports/leg/htmlCss/aHexagram.css';
-import '/imports/leg/htmlCss/colorsFont.css';
-import '/imports/leg/htmlCss/hexagram.html';
-import '/imports/home/home.html';
-import '/imports/home/home.css';
+import Coords from '/imports/viewport/coords.js';
+import CreateMap from '/imports/calc/createMap.js';
+import Download from '/imports/data/download.js';
+import Grid from '/imports/densityPage/grid.js';
+import InitMapPage from '/imports/mapPage/initMapPage.js';
+import Perform from '/imports/common/perform.js';
+import State from '/imports/mapPage/state.js';
+import Tool from '/imports/mapPage/tool.js';
+import Utils from '/imports/common/utils.js';
+import '/imports/color/colorsFont.css';
+import '/imports/homePage/home.html';
+import '/imports/homePage/home.css';
 
 var VERSION = 'Version 1.0';
 

@@ -1,13 +1,13 @@
 // state.js
 // An object to write and load state
 
-import DialogHex from '/imports/leg/dialogHex.js';
-import OverlayNodes from '/imports/leg/overlayNodes.js';
-import Shortlist from '/imports/leg/shortlist.js';
-import Tool from '/imports/leg/tool.js';
-import UrlParms from '/imports/leg/urlParms.js';
-import Util from '/imports/leg/util.js';
-import Utils from '/imports/app/utils.js';
+import DialogHex from '../common/dialogHex.js';
+import OverlayNodes from '../calc/overlayNodes.js';
+import Shortlist from '../shortlist/shortlist.js';
+import Tool from './tool.js';
+import UrlParms from './urlParms.js';
+import Util from '../common/util.js';
+import Utils from '../common/utils.js';
 
 var DEFAULT_PAGE = 'homePage',
     DEFAULT_PROJECT = 'Gliomas/',

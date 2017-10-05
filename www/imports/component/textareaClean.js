@@ -5,7 +5,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
-import U from '/imports/app/utils.js';
+import U from '../common/utils.js';
 
 export default class TextareaClean extends Component {
 

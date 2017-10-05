@@ -2,12 +2,12 @@
 
 // A tool to download an svg file of the current viewport
 
-import Coords from '/imports/leg/coords.js';
-import Download from '/imports/leg/download.js';
-import Layer from '/imports/leg/layer.js';
-import Legend from '/imports/leg/legend.js';
-import Select from '/imports/leg/select.js';
-import Shortlist from '/imports/leg/shortlist.js';
+import Coords from './coords.js';
+import Download from '../data/download.js';
+import Layer from '../longlist/layer.js';
+import Legend from '../color/legend.js';
+import Select from '../shortlist/select.js';
+import Shortlist from '../shortlist/shortlist.js';
 
 var xyMapSize = 5120 * 2,
     dims = null,
@@ -94,7 +94,7 @@ function googleToSvg () {
 
 function click(event) {
 
-    import '/imports/lib/canvas2svg.js';
+    import '../lib/canvas2svg.js';
 
     // Download the map.
     var svg = googleToSvg();
@@ -103,7 +103,7 @@ function click(event) {
 
 function clickLegend(event) {
 
-    import '/imports/lib/canvas2svg.js';
+    import '../lib/canvas2svg.js';
 
     // Download the legend.
     var context = new C2S(200,2000),

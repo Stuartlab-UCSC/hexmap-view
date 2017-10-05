@@ -1,13 +1,13 @@
 // filter.js: Filter the attributes displayed in the longlist by data type and
 // tags.
 
-import Ajax from '/imports/app/ajax.js';
-import DialogHex from '/imports/leg/dialogHex.js';
-import Tool from '/imports/leg/tool.js';
-import Util from '/imports/leg/util.js';
+import Ajax from '../data/ajax.js';
+import DialogHex from '../common/dialogHex.js';
+import Tool from '../mapPage/tool.js';
+import Util from '../common/util.js';
 
-import './htmlCss/filter.html';
-import './htmlCss/filter.css';
+import './filter.html';
+import './filter.css';
 
 var TITLE = 'Filter Attributes',
     BIN_LABEL = 'Binary',

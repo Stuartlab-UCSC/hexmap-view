@@ -6,9 +6,9 @@ import React, { Component } from 'react';
 import { render } from 'react-dom';
 import PropTypes from 'prop-types';
 
-import Modal from '/imports/comp/modal.js';
-import '/imports/htmlCss/reactModal.css';
-import Utils from '/imports/app/utils.js';
+import Modal from './modal.js';
+import './reactModal.css';
+import Utils from '../common/utils.js';
 
 class Prompt extends Component {
     constructor (props) {

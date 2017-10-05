@@ -3,13 +3,13 @@
 // TODO pull the colormap editor out of here into its own file.
 // TODO move the color functions from hexagram.js to here.
 
-import DialogHex from '/imports/leg/dialogHex.js';
-import Hexagons from '/imports/leg/hexagons.js';
-import Hexagram from '/imports/leg/hexagram.js';
-import OverlayNodes from '/imports/leg/overlayNodes.js';
-import Tool from '/imports/leg/tool.js';
-import './htmlCss/colors.html';
-import './htmlCss/colors.css';
+import DialogHex from '../common/dialogHex.js';
+import Hexagons from '../viewport/hexagons.js';
+import Hexagram from '../viewport/hexagram.js';
+import OverlayNodes from '../calc/overlayNodes.js';
+import Tool from '../mapPage/tool.js';
+import './colorEdit.html';
+import './colorEdit.css';
 
 // Some color constants
 var DISABLED_COLOR = '#aaaaaa',

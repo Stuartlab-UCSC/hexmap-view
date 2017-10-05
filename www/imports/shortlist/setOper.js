@@ -1,12 +1,12 @@
 // setOperUI.js
 // Handle the UI for the set operations.
 
-import Layer from '/imports/leg/layer.js';
-import Tool from '/imports/leg/tool.js';
-import Util from '/imports/leg/util.js';
+import Layer from '../longlist/layer.js';
+import Tool from '../mapPage/tool.js';
+import Util from '../common/util.js';
 
-import './htmlCss/setOper.html';
-import './htmlCss/setOper.css';
+import './setOper.html';
+import './setOper.css';
 
 // Boolean stating whether this is the first time the set operation popup & stats query
 // has been created so that "Select Layer" Default is added only once

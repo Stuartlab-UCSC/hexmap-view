@@ -55,21 +55,22 @@ exports.createReactRoot = function (containerId) {
 exports.destroyReactRoot = function (containerId) {
     var id = document.querySelector('#' + containerId);
     
-    // The timeout prevents this error:
+    // TODO: unmountComponentAtNode() causes this error:
     // invariant.js:44 Uncaught Error:
     //      React DOM tree root should always have a node reference.
-    // However the timeout also confuses any new react component of the same
+    // However the react component is unmounted and freed.
+    // Wrapping in a timeout confuses any new react component of the same
     // class that is created before the timeout is up. Even if the second react
     // component has a different DOM container element.
-    // Without the timeout we get the error, however the react component is
-    // unmounted. Do this for now until we know how to create a new instance of
-    // the same react component class.
-    //setTimeout(function () {
-    console.log('!!! The below messsage is OK for now. See imports/app/utils.js:destroyReactRoot()');
-    console.log('  Uncaught Error: React DOM tree root should always have a node reference.');
-    unmountComponentAtNode(id);
+    // For now, allow react elements to stay mounted in DEV to prevent so much
+    // red in the console. Do the unmounts in production so memory will not be
+    // tied up.
+    if (!DEV) {
+        console.log('!!! The below messsage is OK for now. See imports/common/utils.js:destroyReactRoot()');
+        console.log('  Uncaught Error: React DOM tree root should always have a node reference.');
+        unmountComponentAtNode(id);
+    }
     $(id).remove();
-    //});
 };
 
 exports.resizeMap = function () {

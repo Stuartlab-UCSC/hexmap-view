@@ -4,12 +4,12 @@
 
 import React, { Component } from 'react';
 import { render } from 'react-dom';
-import DialogHex from '/imports/leg/dialogHex.js';
-import Layer from '/imports/leg/layer.js';
-import ReadFile from '/imports/comp/readFile.js'
-import Util from '/imports/leg/util.js';
+import DialogHex from '../common/dialogHex.js';
+import Layer from '../longlist/layer.js';
+import ReadFile from '../component/readFile.js'
+import Util from '../common/util.js';
 
-import '/imports/htmlCss/attrAdd.html';
+import './attrAdd.html';
 
 var dialogHex;
 
@@ -66,7 +66,6 @@ function createWindow() {
     // Create the dialog.
 
     // Retrieve the html template.
-    import '/imports/htmlCss/attrAdd.html';
     Blaze.render(Template.attrAddTemplate, $('.content')[0]);
     
     // Attach the html to the page content.

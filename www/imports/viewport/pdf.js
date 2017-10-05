@@ -2,9 +2,9 @@
 
 // Handle the PDF request
 
-import DialogHex from '/imports/leg/dialogHex.js';
-import Utils from '/imports/app/utils.js';
-import '/imports/leg/htmlCss/pdf.html';
+import DialogHex from '../common/dialogHex.js';
+import Utils from '../common/utils.js';
+import './pdf.html';
 
 var title = 'PDF',
     dialogHex,

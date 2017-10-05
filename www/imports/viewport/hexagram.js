@@ -1,17 +1,17 @@
 // hexagram.js
 // Run the hexagram visualizer client.
 
-import '/imports/lib/color.js';
-import Ajax from '/imports/app/ajax.js';
-import Colors from '/imports/leg/colors.js';
-import Hexagons from '/imports/leg/hexagons.js';
-import Layer from '/imports/leg/layer.js';
-import Legend from '/imports/leg/legend.js';
-import Perform from '/imports/app/perform.js';
-import Shortlist from '/imports/leg/shortlist.js';
-import Sort from '/imports/leg/sort.js';
-import Tool from '/imports/leg/tool.js';
-import Util from '/imports/leg/util.js';
+import '../lib/color.js';
+import Ajax from '../data/ajax.js';
+import Colors from '../color/colorEdit.js';
+import Hexagons from './hexagons.js';
+import Layer from '../longlist/layer.js';
+import Legend from '../color/legend.js';
+import Perform from '../common/perform.js';
+import Shortlist from '../shortlist/shortlist.js';
+import Sort from '../longlist/sort.js';
+import Tool from '../mapPage/tool.js';
+import Util from '../common/util.js';
 
 var userDebug = false; // Turn user debugging on/off
 
@@ -210,7 +210,7 @@ refreshColors = function () {
     });
     
     // Make sure to also redraw the info window, which may be open.
-    import InfoWindow from '/imports/leg/infoWindow.js';
+    import InfoWindow from './infoWindow.js';
     InfoWindow.redraw();
 }
 
@@ -468,7 +468,7 @@ exports.initLayoutList = function () {
         // resort the list to the default of density
         Sort.find_clumpiness_stats(Session.get('layoutIndex'));
         Session.set('sort', ctx.defaultSort());
-        import Longlist from '/imports/leg/longlist.js';
+        import Longlist from '../longlist/longlist.js';
         Longlist.update();
     });
 }

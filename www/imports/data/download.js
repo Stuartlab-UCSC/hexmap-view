@@ -1,12 +1,12 @@
 // download.js
 
-import Ajax from '/imports/app/ajax.js';
-import Pdf from '/imports/leg/pdf.js';
-import Svg from '/imports/leg/svg.js';
-import Tool from '/imports/leg/tool.js';
-import Util from '/imports/leg/util.js';
+import Ajax from './ajax.js';
+import Pdf from '../viewport/pdf.js';
+import Svg from '../viewport/svg.js';
+import Tool from '../mapPage/tool.js';
+import Util from '../common/util.js';
 
-import '/imports/leg/htmlCss/pdf.html';
+import '../viewport/pdf.html';
 
 function initDownloadSelectTool () {
 

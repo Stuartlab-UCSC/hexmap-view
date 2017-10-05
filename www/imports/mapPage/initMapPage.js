@@ -3,37 +3,37 @@
  */
 
 import { Meteor } from 'meteor/meteor';
-import CheckLayerBox from '/imports/leg/checkLayerBox.js';
-import Colors from '/imports/leg/colors.js';
-import Coords from '/imports/leg/coords.js';
-import CreateMap from '/imports/leg/createMap.js';
-import Data from '/imports/app/data.js';
-import Download from '/imports/leg/download.js';
-import Filter from '/imports/leg/filter.js';
-import GChart from '/imports/leg/gChart.js';
-import Hexagons from '/imports/leg/hexagons.js';
-import Hexagram from '/imports/leg/hexagram.js';
-import Layer from '/imports/leg/layer.js';
-import Legend from '/imports/leg/legend.js';
-import OverlayNodes from '/imports/leg/overlayNodes.js';
-import OverlayNodeUi from '/imports/leg/overlayNodeUi.js';
-import Perform from '/imports/app/perform.js';
-import Project from '/imports/leg/project.js';
-import Reflect from '/imports/leg/reflect.js';
-import Shortlist from '/imports/leg/shortlist.js';
-import Select from '/imports/leg/select.js';
-import SetOper from '/imports/leg/setOper.js';
-import Sort from '/imports/leg/sort.js';
-import SortUi from '/imports/leg/sortUi.js';
-import State from '/imports/leg/state.js';
-import Tool from '/imports/leg/tool.js';
-import Utils from '/imports/app/utils.js';
-import '/imports/leg/htmlCss/aHexagram.css';
-import '/imports/leg/htmlCss/colorsFont.css';
-import '/imports/leg/htmlCss/navBar.html';
-import '/imports/leg/htmlCss/navBar.css';
-import '/imports/leg/htmlCss/hexagram.html';
-import '/imports/leg/htmlCss/jobs.html';
+import CheckLayerBox from '../calc/checkLayerBox.js';
+import Colors from '../color/colorEdit.js';
+import Coords from '../viewport/coords.js';
+import CreateMap from '../calc/createMap.js';
+import Data from '../data/data.js';
+import Download from '../data/download.js';
+import Filter from '../longlist/filter.js';
+import GChart from '../shortlist/gChart.js';
+import Hexagons from '../viewport/hexagons.js';
+import Hexagram from '../viewport/hexagram.js';
+import Layer from '../longlist/layer.js';
+import Legend from '../color/legend.js';
+import OverlayNodes from '../calc/overlayNodes.js';
+import OverlayNodeUi from '../calc/overlayNodeUi.js';
+import Perform from '../common/perform.js';
+import Reflect from '../calc/reflect.js';
+import Shortlist from '../shortlist/shortlist.js';
+import Select from '../shortlist/select.js';
+import SetOper from '../shortlist/setOper.js';
+import Sort from '../longlist/sort.js';
+import SortUi from '../longlist/sortUi.js';
+import Utils from '../common/utils.js';
+
+import Project from './project.js';
+import State from './state.js';
+import Tool from './tool.js';
+import './mapPage.html';
+import './mapPage.css';
+import '../color/colorsFont.css';
+import './navBar.html';
+import './navBar.css';
 
 Template.headerT.helpers({
     sort: function () {
@@ -127,7 +127,7 @@ function mapPrepComplete (autorun) {
             // Turn off the loading progress wheel
             Session.set('mapSnake', false);
 
-            import Longlist from '/imports/leg/longlist.js';
+            import Longlist from '../longlist/longlist.js';
             Longlist.init();
             Hexagram.initLayoutList();
             Shortlist.init();
@@ -138,7 +138,7 @@ function mapPrepComplete (autorun) {
                 Filter.init();
                 SortUi.init();
  
-                import LazyLoader from '/imports/app/lazyLoader.js';
+                import LazyLoader from './lazyLoader.js';
                 LazyLoader.init();
 
                 // Initialize the background functions.
@@ -148,7 +148,7 @@ function mapPrepComplete (autorun) {
                 Tool.initLabel();
                 Download.init();
                 Colors.init();
-                import InfoWindow from '/imports/leg/infoWindow.js';
+                import InfoWindow from '../viewport/infoWindow.js';
                 InfoWindow.init();
                 SetOper.init();
                 CreateMap.init();

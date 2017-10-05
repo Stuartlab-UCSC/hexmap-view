@@ -1,14 +1,14 @@
 // sortUi.js
 // This contains the logic for handling the sort attribute function.
 
-import Colors from '/imports/leg/colors.js';
-import DialogHex from '/imports/leg/dialogHex.js';
-import LayerNameList from '/imports/leg/layerNameList.js';
-import Sort from '/imports/leg/sort.js';
-import Tool from '/imports/leg/tool.js';
-import Util from '/imports/leg/util.js';
+import Colors from '../color/colorEdit.js';
+import DialogHex from '../common/dialogHex.js';
+import LayerNameList from '../shortlist/layerNameList.js';
+import Sort from './sort.js';
+import Tool from '../mapPage/tool.js';
+import Util from '../common/util.js';
 
-import './htmlCss/sort.html';
+import './sort.html';
 
     var title = 'Sort Attributes by Associative Statistics',
         FOCUS_LIST_LABEL = 'Attribute A:', //was 'Focus attribute:',

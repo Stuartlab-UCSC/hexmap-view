@@ -2,14 +2,14 @@
 
 // This allows the user to view new node(s) placement overlaid on an existing map.
 
-import Ajax from '/imports/app/ajax.js';
-import DialogHex from '/imports/leg/dialogHex.js';
-import OverlayNodes from '/imports/leg/overlayNodes.js';
-import State from '/imports/leg/state.js';
-import Tool from '/imports/leg/tool.js';
-import Util from '/imports/leg/util.js';
+import Ajax from '../data/ajax.js';
+import DialogHex from '../common/dialogHex.js';
+import OverlayNodes from './overlayNodes.js';
+import State from '../mapPage/state.js';
+import Tool from '../mapPage/tool.js';
+import Util from '../common/util.js';
 
-import '/imports/leg/htmlCss/overlayNode.html';
+import './overlayNode.html';
 
 var title = 'Place New Nodes',
     dialogHex,

@@ -1,21 +1,21 @@
 // grid.js
 // This handles the node density visualizations.
 
-import Ajax from '/imports/app/ajax.js';
-import Coords from '/imports/leg/coords.js';
-import Download from '/imports/leg/download.js';
-import Hexagons from '/imports/leg/hexagons.js';
-import InfoWindow from '/imports/leg/infoWindow.js';
-import Tool from '/imports/leg/tool.js';
-import Util from '/imports/leg/util.js';
-import Utils from '/imports/app/utils.js';
+import Ajax from '../data/ajax.js';
+import Coords from '../viewport/coords.js';
+import Download from '../data/download.js';
+import Hexagons from '../viewport/hexagons.js';
+import InfoWindow from '../viewport/infoWindow.js';
+import Tool from '../mapPage/tool.js';
+import Util from '../common/util.js';
+import Utils from '../common/utils.js';
 
 // TODO move these up after we're routing pages.
-import '/imports/leg/htmlCss/jobs.html';
-import './htmlCss/navBar.html';
-import './htmlCss/navBar.css';
+import '../calc/jobs.html';
+import '../mapPage/navBar.html';
+import '../mapPage/navBar.css';
 
-import './htmlCss/grid.html';
+import './grid.html';
 
 // our map range: lng: -90 -> 90   x: 0 -> 128
 //                lat: -45 -> 45   y: 0 -> 128

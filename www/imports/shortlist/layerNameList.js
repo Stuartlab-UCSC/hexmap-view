@@ -1,11 +1,11 @@
 // layerNameList.js
 // A class for a layer name list
 
-import Select2 from '/imports/lib/select2.js';
-import Colors from '/imports/leg/colors.js';
-import Util from '/imports/leg/util.js';
+import Select2 from '../lib/select2.js';
+import Colors from '../color/colorEdit.js';
+import Util from '../common/util.js';
 
-import '/imports/leg/htmlCss/layerNameList.html';
+import './layerNameList.html';
 
 LayerNameList = function ($anchor, $label, selected, firstList) {
 

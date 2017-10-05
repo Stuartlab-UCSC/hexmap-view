@@ -4,10 +4,10 @@
 
 var app = app || {}; 
 
-import Ajax from '/imports/app/ajax.js';
-import Filter from '/imports/leg/filter.js';
-import Util from '/imports/leg/util.js';
-import Shortlist from '/imports/leg/shortlist.js';
+import Ajax from '../data/ajax.js';
+import Filter from './filter.js';
+import Util from '../common/util.js';
+import Shortlist from '../shortlist/shortlist.js';
 
 var computingText = 'Computing statistics ...',
     firstSort = true;
@@ -180,7 +180,7 @@ function updateSortUi (type, text, focus_attr, opts) {
             color: 'inherit', background: 'inherit'});
     }
     Filter.clearAll();
-    import Longlist from '/imports/leg/longlist.js';
+    import Longlist from './longlist.js';
     Longlist.update();
     Shortlist.update_ui_metadata();
 

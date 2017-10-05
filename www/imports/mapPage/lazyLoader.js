@@ -9,11 +9,11 @@
 
 import React from 'react';
 import { render } from 'react-dom';
-import Utils from '/imports/app/utils.js';
+import Utils from '../common/utils.js';
 
 function nodeIdSelectInit () {
     
-    import NodeIdSelect from '/imports/app/nodeIdSelect.js';
+    import NodeIdSelect from '../shortlist/nodeIdSelect.js';
     
     var containerId = 'nodeIdSelectContainer';
     
@@ -40,7 +40,7 @@ exports.init = function () {
     $('#navBar .nodeIdSelect').on('click', nodeIdSelectInit);
 
     $('#navBar .attrAdd').on('click', function () {
-        import AttrAdd from '/imports/leg/attrAdd.js';
+        import AttrAdd from '../shortlist/attrAdd.js';
         AttrAdd.init();
     });
 };

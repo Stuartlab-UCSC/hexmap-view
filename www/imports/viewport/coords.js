@@ -31,9 +31,9 @@
  *        xyWorld  to  xyIn     get_xyWorld_from_xyIn
  */
 
-import Grid from '/imports/leg/grid.js';
-import Util from '/imports/leg/util.js';
-import './htmlCss/coords.html';
+import Grid from '../densityPage/grid.js';
+import Util from '../common/util.js';
+import './coords.html';
 
 var SHOW_COORDS = false; // true = show them, false = not
 

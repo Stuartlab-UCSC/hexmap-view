@@ -3,12 +3,12 @@
 // doc dir
 
 import React, { Component } from 'react';
-import Perform from '/imports/app/perform.js';
+import Perform from '../common/perform.js';
 import { render } from 'react-dom';
-import Select2 from '/imports/comp/select2wrap.js';
-import '/imports/lib/select2.css';
-import Util from '/imports/leg/util.js';
-import Utils from '/imports/app/utils.js';
+import Select2 from '../component/select2wrap.js';
+import '../lib/select2.css';
+import Util from '../common/util.js';
+import Utils from '../common/utils.js';
 
 // Placeholder text when no project is selected
 var PLACEHOLDER_TEXT = 'Select a Map...';

@@ -2,16 +2,16 @@
 // Handle most of the functions of the shortlist, which contain the layers the
 // user has added so they can be quickly selected for display.
 
-import '/imports/lib/jquery-ui.js';
-import '/imports/lib/jquery-ui.theme.css';
+import '../lib/jquery-ui.js';
+import '../lib/jquery-ui.theme.css';
 
-import Colors from '/imports/leg/colors.js';
-import GChart from '/imports/leg/gChart.js';
-import Layer from '/imports/leg/layer.js';
-import Util from '/imports/leg/util.js';
+import Colors from '../color/colorEdit.js';
+import GChart from './gChart.js';
+import Layer from '../longlist/layer.js';
+import Util from '../common/util.js';
 
-import './htmlCss/shortlist.html';
-import './htmlCss/shortlist.css';
+import './shortlist.html';
+import './shortlist.css';
 
 var initialization_started = false;
 

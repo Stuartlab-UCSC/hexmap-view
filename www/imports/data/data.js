@@ -2,9 +2,9 @@
  * Retrieve data.
  */
 
-import Ajax from '/imports/app/ajax.js';
-import Perform from '/imports/app/perform.js';
-import Util from '/imports/leg/util.js';
+import Ajax from './ajax.js';
+import Perform from '../common/perform.js';
+import Util from '../common/util.js';
 
 function dataTypesReceived (parsed, id) {
 

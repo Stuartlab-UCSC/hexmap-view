@@ -1,14 +1,14 @@
 // layer.js
 // Most of the code to handle the layer data.
 
-import Ajax from '/imports/app/ajax.js';
-import Colors from '/imports/leg/colors.js';
-import Hexagram from '/imports/leg/hexagram.js';
-import U from '/imports/app/utils.js';
-import Perform from '/imports/app/perform.js';
-import Prompt from '/imports/comp/prompt.js';
-import Shortlist from '/imports/leg/shortlist.js';
-import Util from '/imports/leg/util.js';
+import Ajax from '../data/ajax.js';
+import Colors from '../color/colorEdit.js';
+import Hexagram from '../viewport/hexagram.js';
+import U from '../common/utils.js';
+import Perform from '../common/perform.js';
+import Prompt from '../component/prompt.js';
+import Shortlist from '../shortlist/shortlist.js';
+import Util from '../common/util.js';
 
 var selection_prefix = 'Selection';
 

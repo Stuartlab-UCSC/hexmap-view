@@ -1,11 +1,11 @@
 // legend.js
 // Handle the legend.
 
-import Hexagram from '/imports/leg/hexagram.js';
-import Layer from '/imports/leg/layer.js';
-import Shortlist from '/imports/leg/shortlist.js';
+import Hexagram from '../viewport/hexagram.js';
+import Layer from '../longlist/layer.js';
+import Shortlist from '../shortlist/shortlist.js';
 
-import '/imports/leg/htmlCss/legend.css';
+import './legend.css';
 
     // How big is our color key in pixels?
     var display_context,
