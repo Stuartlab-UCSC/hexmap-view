@@ -4,6 +4,7 @@
 import '../lib/color.js';
 import Ajax from '../data/ajax.js';
 import Colors from '../color/colorEdit.js';
+import Data from '../data/data.js';
 import Hexagons from './hexagons.js';
 import Layer from '../longlist/layer.js';
 import Legend from '../color/legend.js';
@@ -62,6 +63,7 @@ exports.initMap = function () {
     // Initialize the google map and create the hexagon assignments
     exports.createMap();
     Hexagons.create();
+    exports.refreshColors();
 };
 
 exports.have_colormap = function (colormap_name) {
@@ -98,7 +100,7 @@ function get_range_position(score, low, high) {
     return score;
 }
 
-refreshColors = function () {
+exports.refreshColors = function () {
 
     // Make the view display the correct hexagons in the colors of the current
     // layer(s), as read from the values of the layer pickers in the global
@@ -123,7 +125,7 @@ refreshColors = function () {
     }
     
     // Obtain the layer objects (mapping from signatures/hex labels to colors)
-    Layer.with_all(current_layers, function(retrieved_layers) {  
+    Layer.with_many(current_layers, function(retrieved_layers) {  
 
         // This holds arrays of the lower and upper limit we want to use for 
         // each layer, by layer number. The lower limit corresponds to u or 
@@ -462,7 +464,7 @@ exports.initLayoutList = function () {
     $("#layout-search").on('change', function (ev) {
         Session.set('layoutIndex', ev.target.value);
         exports.createMap();
-        Hexagons.layout(true);
+        Hexagons.layout();
         
         // Update density stats to this layout and
         // resort the list to the default of density
@@ -473,50 +475,40 @@ exports.initLayoutList = function () {
     });
 }
 
-exports.initColormaps = function () {
-    // Download color map information
-    var id = 'colormaps';
-    Perform.log(id + '.tab_get');
-    Ajax.get({
-        id: id,
-        success: function (parsed) {
-            Perform.log(id + '.tab_got');
-            for(var i = 0; i < parsed.length; i++) {
-                // Get the name of the layer
-                var layer_name = parsed[i][0];
-                
-                // Skip blank lines
-                if(layer_name == "") {
-                    continue;
-                }
-                
-                // This holds all the categories (name and color) by integer index
-                var colormap = [];
-             
-                for(j = 1; j < parsed[i].length; j += 3) {
-                    // Store each color assignment.
-                    // Doesn't run if there aren't any assignments, leaving an empty
-                    // colormap object that just forces automatic color selection.
-                    
-                    // This holds the index of the category
-                    var category_index = parseInt(parsed[i][j]);
-                    
-                    // The colormap gets an object with the name and color that the
-                    // index number refers to. Color is stored as a color object.
-                    colormap[category_index] = {
-                        name: parsed[i][j + 1],
-                        color: Color(parsed[i][j + 2]), // operating color in map
-                        fileColor: Color(parsed[i][j + 2]), // color from orig file
-                    };
-                }
-                
-                // Store the finished color map in the global object
-                colormaps[layer_name] = colormap;
-            }
-            Session.set('initedColormaps', true);
-        },
-        error: function (error) {
-            Util.projectNotFound(id);
-        },
-    });
+exports.colormapsReceived = function (parsed, id) {
+
+    // Process downloaded color map information.
+    for(var i = 0; i < parsed.length; i++) {
+        // Get the name of the layer
+        var layer_name = parsed[i][0];
+        
+        // Skip blank lines
+        if(layer_name == "") {
+            continue;
+        }
+        
+        // This holds all the categories (name and color) by integer index
+        var colormap = [];
+     
+        for(j = 1; j < parsed[i].length; j += 3) {
+            // Store each color assignment.
+            // Doesn't run if there aren't any assignments, leaving an empty
+            // colormap object that just forces automatic color selection.
+            
+            // This holds the index of the category
+            var category_index = parseInt(parsed[i][j]);
+            
+            // The colormap gets an object with the name and color that the
+            // index number refers to. Color is stored as a color object.
+            colormap[category_index] = {
+                name: parsed[i][j + 1],
+                color: Color(parsed[i][j + 2]), // operating color in map
+                fileColor: Color(parsed[i][j + 2]), // color from orig file
+            };
+        }
+        
+        // Store the finished color map in the global object
+        colormaps[layer_name] = colormap;
+    }
+    Session.set('colormapsLoaded', true);
 }

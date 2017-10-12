@@ -180,8 +180,7 @@ State.prototype.setProjectDefaults = function () {
     delete Session.keys.layouts;
 
     // Index of active layout
-    Session.set('layoutIndex', undefined);
-    delete Session.keys.layoutIndex;
+    Session.set('layoutIndex', 0);
 
     // name of active layout (not stored in state)
     Session.set('layoutName', undefined);

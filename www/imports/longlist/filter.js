@@ -205,45 +205,6 @@ function processTags () {
     tagList.set(uniqTags);
 }
 
-function requestLayerTags () {
-
-    // Retrieve the layer tags data from the server.
-    Ajax.get({
-        id: 'attribute_tags',
-        ok404: true,  // treat 404 not found as a form of success
-        success: function(data) {
-            if (data === '404') {
-
-                // This means no tags were generated, which is just fine.
-                // Don't look for tags data anymore
-                if (tagsAutorun) {
-                    tagsAutorun.stop();
-                }
-            }
-        
-            // Save the counts. Dynamic layer don't get reflected here.
-            if (ctx.bin_layers) count.set('bin', ctx.bin_layers.length);
-            if (ctx.cat_layers) count.set('cat', ctx.cat_layers.length);
-            if (ctx.cont_layers) count.set('cont', ctx.cont_layers.length);
-
-            // Update the untagged count
-            if (taggedCount) {
-                count.set('untagged', sorted.length - taggedCount);
-            }
-
-            tagData = data;
-            processTags();
-        },
-        error: function(error) {
-
-            // Don't look for tags data anymore
-            if (tagsAutorun) {
-                tagsAutorun.stop();
-            }
-        },
-    });
-}
-
 function whenAllChanges () {
 
     // Whenever the 'all' checkbox changes, set all of the tag checkboxes
@@ -312,31 +273,9 @@ function show() {
     autorun[2] = Tracker.autorun(whenCheckboxesChange);
 }
 
-exports.clearAll = function () {
-
-    // Set all the filters to the defaults, unless 'save' is checked
-    if (chk.equals('save', true)) return;
-
-    // Initialize the filter list to the data types
-    var filters = dataTypeList;
-
-    // If we have any tags, add those to the reset list
-    if (!_.isUndefined(chk.get('allTags'))) {
-        filters = filters.concat(tagList.get(), 'untagged', 'allTags');
-    }
-
-    // Set all of the filters to include everything
-    _.each(filters, function (filter) {
-        chk.set(filter, true);
-    });
-}
-
-exports.init = function () {
+function init () {
 
     // Initialize the attribute filtering function, happens once per app load
-
-    // Initialize some reactive vars
-    Session.set('displayLayers', Session.get('sortedLayers'));
 
     // Initialize the data type information
     _.each (dataTypeList, function (type) {
@@ -346,8 +285,6 @@ exports.init = function () {
     label.bin = BIN_LABEL;
     label.cat = CAT_LABEL;
     label.cont = CONT_LABEL;
-
-    requestLayerTags();
 
     // Save jquery element names
     $dialog = $('.filterDialog');
@@ -383,4 +320,53 @@ exports.init = function () {
         $button.click();
         Tool.activity(false);
     }, 'Filter attributes');
+};
+exports.clearAll = function () {
+
+    // Set all the filters to the defaults, unless 'save' is checked
+    if (chk.equals('save', true)) return;
+
+    // Initialize the filter list to the data types
+    var filters = dataTypeList;
+
+    // If we have any tags, add those to the reset list
+    if (!_.isUndefined(chk.get('allTags'))) {
+        filters = filters.concat(tagList.get(), 'untagged', 'allTags');
+    }
+
+    // Set all of the filters to include everything
+    _.each(filters, function (filter) {
+        chk.set(filter, true);
+    });
 }
+
+exports.requestLayerTagsError = function () {
+
+    // Don't look for tags data anymore
+    if (tagsAutorun) {
+        tagsAutorun.stop();
+    }
+    init();
+};
+
+exports.receiveLayerTags = function (data) {
+    if (data === '404') {
+
+        // This means no tags were generated, which is just fine.
+        exports.requestLayerTagsError();
+    }
+
+    // Save the counts. Dynamic layer don't get reflected here.
+    if (ctx.bin_layers) count.set('bin', ctx.bin_layers.length);
+    if (ctx.cat_layers) count.set('cat', ctx.cat_layers.length);
+    if (ctx.cont_layers) count.set('cont', ctx.cont_layers.length);
+
+    // Update the untagged count
+    if (taggedCount) {
+        count.set('untagged', sorted.length - taggedCount);
+    }
+
+    tagData = data;
+    init();
+    processTags();
+};

@@ -43,7 +43,7 @@ addAsLayers = function (data) {
     });
     
     // All the layers to our layers global and the shortlist.
-    Layer.with_all(attrNames, function() {}, dynLayers);
+    Layer.with_many(attrNames, function() {}, dynLayers);
 
     // Remove the busy snake.
     Session.set('mapSnake', false);

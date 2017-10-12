@@ -1,7 +1,7 @@
 // layer.js
 // Most of the code to handle the layer data.
 
-import Ajax from '../data/ajax.js';
+import Data from '../data/data.js';
 import Colors from '../color/colorEdit.js';
 import Hexagram from '../viewport/hexagram.js';
 import U from '../common/utils.js';
@@ -245,8 +245,11 @@ function load_dynamic_data (layer_name, callback, dynamicLayers) {
     exports.with_one(layer_name, callback);
 }
 
+layerReceived = function (layer_parsed, id) {
+}
+
 function load_static_data (layer_name, callback) {
-  
+
     // Download a static layer, then load into global layers and colormaps.
     // Go get it.
         
@@ -255,46 +258,51 @@ function load_static_data (layer_name, callback) {
     if (layer.dataRequested) {
         return;
     }
-    var id = layer.dataId;
-    Perform.log(id + '.tab_get');
     layer.dataRequested = true;
-    Ajax.get({
-        id: id,
-        success: function (layer_parsed) {
-            Perform.log(id + '.tab_got');
-            var data = {};
 
-            for (var j = 0; j < layer_parsed.length; j++) {
+    function layerReceived (layer_parsed, id) {
+        var data = {};
+
+        for (var j = 0; j < layer_parsed.length; j++) {
+        
+            // This is the label of the hexagon
+            var label = layer_parsed[j][0];
             
-                // This is the label of the hexagon
-                var label = layer_parsed[j][0];
-                
-                if (label === "") {
-                    // Skip blank lines
-                    continue;
-                }
-                
-                // Store the values in the layer
-                data[label] = parseFloat(layer_parsed[j][1]);
+            if (label === "") {
+                // Skip blank lines
+                continue;
             }
+            
+            // Store the values in the layer
+            data[label] = parseFloat(layer_parsed[j][1]);
+        }
+
+        // Save the layer data in the global layers object.
+        layer.data = data;
+
+        // Now the layer has been properly downloaded, but it may not
+        // have metadata. Recurse to get metadata.
+        exports.with_one(layer_name, callback);
+    }
     
-            // Save the layer data in the global layers object.
-            layer.data = data;
- 
-            // Now the layer has been properly downloaded, but it may not
-            // have metadata. Recurse to get metadata.
-            exports.with_one(layer_name, callback);
-        },
-        error: function (error) {
-            Util.projectNotFound(layer.url);
-        },
-    });
+    Data.requestLayer(layer.dataId, { successFx: layerReceived })
 }
 
-exports.loadFirstLayer = function () {
-    load_static_data(Session.get('first_layer'), function () {
-        Session.set('firstLayerLoaded', true);
-    });
+exports.loadInitialActiveLayers = function () {
+
+    // Load the active layers that will be used to show the initial colors.
+    
+    var active = Session.get('active_layers');
+    
+    function loaded () {
+        Session.set('activeLayersLoaded', true);
+    }
+    
+    if (active.length < 1) {
+        loaded();
+    } else {
+        exports.with_many(active, loaded, Session.get('dynamic_attrs'));
+    }
 }
 
 exports.make_unique_name = function (layer_name) {
@@ -361,6 +369,7 @@ exports.with_one = function (layer_name, callback, dynamicLayers) {
             return;
         }
     }
+    
     if (layer.data === undefined) {
 
         // This layer's data has not yet been loaded so load it.
@@ -426,7 +435,7 @@ exports.with_one = function (layer_name, callback, dynamicLayers) {
     }
 }
 
-exports.with_all = function (layer_list, callback, dynamicLayers) {
+exports.with_many = function (layer_list, callback, dynamicLayers) {
 
     // Given an array of layer names, call the callback with an array of the
     // corresponding layer objects (objects from signatures to floats).
@@ -440,16 +449,15 @@ exports.with_all = function (layer_list, callback, dynamicLayers) {
     // @param dynamicLayers an object of layer objects for dynamic layers
     //
     // TODO: If the layers are already in the shortlist there is no need
-    // to call with_all because they are loaded before being added to the
+    // to call with_many because they are loaded before being added to the
     // shortlist. In this case we can reference the global layers array
     // directly.
-
     if(layer_list.length == 0) {
         // Base case: run the callback with an empty list
         callback([]);
     } else {
         // Recursive case: handle the last thing in the list
-        exports.with_all(layer_list.slice(0, layer_list.length - 1),
+        exports.with_many(layer_list.slice(0, layer_list.length - 1),
             function(rest) {
             
             // We've recursively gotten all but the last layer

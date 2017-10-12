@@ -531,6 +531,6 @@ exports.init = function () {
     // Set some event handlers
     $('#navBar .mapLayout').on('click', function () {
         Utils.pageReload('mapPage');
-        Hexagons.layout(true);
+        Hexagons.layout();
     });
 }

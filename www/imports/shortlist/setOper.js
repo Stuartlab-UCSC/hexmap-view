@@ -1,6 +1,7 @@
 // setOperUI.js
 // Handle the UI for the set operations.
 
+import Hexagram from '../viewport/hexagram.js';
 import Layer from '../longlist/layer.js';
 import Tool from '../mapPage/tool.js';
 import Util from '../common/util.js';
@@ -55,7 +56,7 @@ function compute_now (values, layer_names, set_type) {
     // @param: set_type: the set operation to perform
     //
 
-    Layer.with_all (layer_names, function (set_layers) {
+    Layer.with_many (layer_names, function (set_layers) {
         //Array of signatures 
         var nodeIds = [],
             nodeVals = [];
@@ -512,7 +513,6 @@ function create_layer_selectors(value,layer_object) {
                  var last_index = value.options.length - 1;
                  value.selectedIndex = last_index;   
                 }                
-            //refreshColors();
      });
 }
 

@@ -1,7 +1,7 @@
 // layerLists.js
 // Manage the layer lists.
 
-import React, { Component } from 'react';
+import React from 'react';
 import { render } from 'react-dom';
 import Layer from './layer.js';
 import Select2 from '../component/select2wrap.js';
@@ -10,8 +10,7 @@ import Sort from './sort.js';
 
 // How many layer results should we display at once?
 var SEARCH_PAGE_SIZE = 10,
-    $search,
-    reactComponent;
+    $search;
 
 function make_browse_ui(layer_name) {
     // Returns a jQuery element to represent the layer with the given name in
@@ -46,7 +45,7 @@ exports.update = function() {
     // Close the select if it was open, forcing the data to refresh when it
     // opens again.
     $("#search").select2("close");
-}
+};
 
 function handleSelecting (event) {
 
@@ -59,7 +58,7 @@ function handleSelecting (event) {
     // Don't actually change the selection.
     // This keeps the dropdown open when we click.
     event.preventDefault();
-    }
+}
 
 function query (query) {
 
@@ -115,8 +114,8 @@ function query (query) {
     });
 }
 
-function formatResult (result, container, query) {
-
+function formatResult (result) {
+    
     // Given a select2 result record, the element that our results go
     // in, and the query used to get the result, return a jQuery element
     // that goes in the container to represent the result.
@@ -125,7 +124,7 @@ function formatResult (result, container, query) {
     return make_browse_ui(result.id);
 }
 
-exports.layerSummaryReceived = function (parsed, id) {
+exports.layerSummaryLoaded = function (parsed) {
 
     // Layer index is tab-separated like so:
     // name file N-hex-value binary-ones layout0-clumpiness layout1-clumpiness
@@ -212,17 +211,20 @@ exports.layerSummaryReceived = function (parsed, id) {
     
     // Save sortable static (not dynamic) layer names.
     Session.set('sortedLayers', sorted);
-    Session.set('layerSummaryReceived', true);
-}
+    
+    // Initialize the display layers resulting from filtering to all layers.
+    Session.set('displayLayers', Session.get('sortedLayers'));
 
-exports.dataTypesReceived = function (parsed, id) {
+    Session.set('layerSummaryLoaded', true);
+};
+
+exports.layerTypesReceived = function (parsed) {
 
     // This is an array of rows with the following content:
     //    FirstAttribute        Layer6
     //    Continuous        Layer1    Layer2    Layer3 ...
     //    Binary    Layer4    Layer5    Layer6 ...
     //    Categorical    Layer7    Layer8    Layer9 ...
-    Perform.log(id + '.tab_received');
     _.each(parsed, function (line) {
         if (line[0] === 'Binary') {
             ctx.bin_layers = line.slice(1);
@@ -235,15 +237,14 @@ exports.dataTypesReceived = function (parsed, id) {
         } // skip any lines we don't know about
     });
 
-    Session.set('layerTypesReceived', true);
-}
+    Session.set('layerTypesLoaded', true);
+};
 
 exports.init = function () {
-
     $search = $("#search");
 
-    // Set up the layer search
-    reactComponent = render(
+    // Set up the layer search.
+    render(
         <Select2
             // Options for the original non-react select2.
             select2options = {{
@@ -260,7 +261,7 @@ exports.init = function () {
     
     // Make the dropdown close if there is a click anywhere on the screen
     // other than the dropdown and search box
-    $(window).on('mousedown', function (ev) {
+    $(window).on('mousedown', function () {
         $("#search").select2("close");
     });
 };

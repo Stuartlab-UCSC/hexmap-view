@@ -5,7 +5,7 @@ import Coords from '/imports/viewport/coords.js';
 import CreateMap from '/imports/calc/createMap.js';
 import Download from '/imports/data/download.js';
 import Grid from '/imports/densityPage/grid.js';
-import InitMapPage from '/imports/mapPage/initMapPage.js';
+import mapPageInit from '/imports/mapPage/mapPageInit.js';
 import Perform from '/imports/common/perform.js';
 import State from '/imports/mapPage/state.js';
 import Tool from '/imports/mapPage/tool.js';
@@ -16,6 +16,7 @@ import '/imports/homePage/home.css';
 
 var VERSION = 'Version 1.0';
 
+Session.set('domLoaded', false);
 window.addEventListener("load", function(event) {
     Session.set('domLoaded', true);
 });
@@ -111,7 +112,7 @@ function isStateLoaded (autorun) {
         Perform.log('init:state-loaded');
         
         if (Session.equals('page', 'mapPage')) {
-            InitMapPage.init();
+            mapPageInit.init();
         }
     }
 }

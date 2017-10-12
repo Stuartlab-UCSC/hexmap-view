@@ -8,6 +8,7 @@ import Hexagons from '../viewport/hexagons.js';
 import Hexagram from '../viewport/hexagram.js';
 import OverlayNodes from '../calc/overlayNodes.js';
 import Tool from '../mapPage/tool.js';
+import '../mapPage/navBar.html';
 import './colorEdit.html';
 import './colorEdit.css';
 
@@ -112,7 +113,7 @@ function updateColormap (aCat) {
         return false;
     });
     colormaps[layer][catI].color = new Color(aCat.operVal);
-    refreshColors();
+    Hexagram.refreshColors();
 }
 
 function rowClick(ev) {
@@ -339,7 +340,8 @@ exports.init = function () {
         // The background change requires a new map to show the
         // background.
         Hexagram.createMap();
-        Hexagons.create(true);
+        Hexagons.create();
+        Hexagram.refreshColors();
         OverlayNodes.show();
     });
 

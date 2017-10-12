@@ -42,7 +42,7 @@ function getData(url, successFx, errorFx, ok404, parse) {
             getData(url, successFx, errorFx, false, parse);
    
         } else {
-            //console.log('success 404 ID:', id);
+            // The success handler of the caller should handle 404s.
             successFx('404');
         }
     }
@@ -284,3 +284,4 @@ exports.get = function(opts) {
         parse
     );
 };
+

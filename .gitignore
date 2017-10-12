@@ -3,7 +3,7 @@ tests/pyUnittest/out/*
 db
 .python/statsLayer.py
 analyze
-run
+/run
 *.save
 *.pyc
 *.tar

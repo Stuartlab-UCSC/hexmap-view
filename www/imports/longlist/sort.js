@@ -4,7 +4,7 @@
 
 var app = app || {}; 
 
-import Ajax from '../data/ajax.js';
+import Data from '../data/data.js';
 import Filter from './filter.js';
 import Util from '../common/util.js';
 import Shortlist from '../shortlist/shortlist.js';
@@ -510,19 +510,26 @@ function getPreComputedStats (dataId, focus_attr, opts) {
 
     // Clear the stats in the layers before loading new ones
     clearStats();
+    
+    function error (focus_attr, opts) {
+        // If precomputed stats are not there, compute them now.
+        computingTextDisplay();
+        getDynamicStats(focus_attr, opts);
+    }
 
     // Attempt to retrieve the pre-computed stats data
-    Ajax.get({
-        id: dataId,
-        success: function(parsed) {
-            receive_data(parsed, focus_attr, opts);
-        },
-        error: function(error) {
-            computingTextDisplay();
-            getDynamicStats(focus_attr, opts);
-            return;
-       },
-    });
+    Data.requestStats(dataId, {
+            successFx: function (parsed) {
+                if (parsed === '404') {
+                    error(focus_attr, opts);
+                } else {
+                    receive_data(parsed, focus_attr, opts);
+                }
+            },
+            errorFx: function () {
+                error(focus_attr, opts);
+            },
+        });
 }
 
 function computingTextDisplay () {
@@ -566,18 +573,6 @@ exports.sort_layers = function  () {
     // If layers are not loaded yet, we have nothing to sort
     if (_.isUndefined(layer_array) || layer_array.length === 0) {
         return;
-    }
-
-    // If the user did not define a 'first layer', define it now.
-    if (Session.equals('first_layer', undefined)) {
-
-        // Use the first layer of the default density sort as our
-        // 'first layer' which effects the default short list display
-        layer_array.sort(finalCompare);
-        Session.set('first_layer', layer_array[0]);
-
-        // Now sort the way the user requested
-        exports.sort_layers();
     }
 
     if (type_value == "layout-aware-positive") {

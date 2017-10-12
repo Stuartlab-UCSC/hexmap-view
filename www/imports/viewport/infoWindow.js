@@ -106,7 +106,7 @@ function with_infocard(signature, callback, gMap) {
     var current_layers = Session.get('shortlist').slice();
     
     // Obtain the layer objects (mapping from signatures/hex labels to colors)
-    Layer.with_all(current_layers, function(retrieved_layers) { 
+    Layer.with_many(current_layers, function(retrieved_layers) { 
         
         // This holds the root element of the card.
         var infocard = $("<div/>").addClass("infocard");

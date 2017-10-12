@@ -130,50 +130,23 @@ function initDownloadSelectTool () {
     }, 'Export the selection as a list of hexagon IDs', 'mapShow');
 }
 
-function menu_mousedown(type) {
-    var id = type + Session.get('layoutIndex')
-
-    // get the file.
-    Ajax.get({
-        id: id,
-        raw: true,
-        success: function(data) {
-        
-            // Download the file to the user
-            exports.save(id, data);
-        },
-        error: function(error) {
-            Util.banner('error', 'while downloading XY coordinates: ' +
-                error );
-        },
-    });
+function getDataUrl (prefix) {
+    return HUB_URL + '/dataOk404/view/' + ctx.project
+        + prefix + Session.get('layoutIndex') + '.tab';
 }
-
-exports.save = function (filename, data) {
-    var blob = new Blob([data], {type: 'text/csv'});
-    if (window.navigator.msSaveOrOpenBlob) {
-        window.navigator.msSaveBlob(blob, filename);
-    } else {
-        var elem = window.document.createElement('a');
-        elem.href = window.URL.createObjectURL(blob);
-        elem.download = filename;        
-        document.body.appendChild(elem);
-        elem.click();        
-        document.body.removeChild(elem);
-    }
-}
-
 
 exports.init = function () {
-    if (Session.equals('page', 'mapPage')) {
-        initDownloadSelectTool();
-        Pdf.init();
-        Svg.init();
-    }
-    $('.fileMenu .xyPreSquiggle').on('click', function (ev) {
-        menu_mousedown('xyPreSquiggle_');
-    });
-    $('.fileMenu .xyAssignment').on('click', function (ev) {
-        menu_mousedown('assignments');
-    });
+
+    // Add the link to the menu for XY coordinate download.
+    var link = $('<a href=' + getDataUrl('xyPreSquiggle_') +
+            ' title=' +
+            '"Download xy positions of nodes before binning to hexagonal ' +
+            'grid" download > XY Coordinates </>');
+    $('.fileMenu .xyPreSquiggleAnchor').append(link);
+    
+    // Add the link to the menu for hexagon coordinate download.
+    link = $('<a href=' + getDataUrl('assignments') +
+        ' title="Download positions of nodes on the hexagonal grid"' +
+        ' download > Hexagon Coordinates </>');
+    $('.fileMenu .xyAssignmentAnchor').append(link);
 }

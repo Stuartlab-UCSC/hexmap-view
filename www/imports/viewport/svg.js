@@ -108,7 +108,7 @@ function clickLegend(event) {
     // Download the legend.
     var context = new C2S(200,2000),
         current_layers = Shortlist.get_active_coloring_layers();
-    Layer.with_all(current_layers, function(retrieved_layers) {
+    Layer.with_many(current_layers, function(retrieved_layers) {
         Legend.redraw(retrieved_layers, current_layers, context);
     });
     var svg = context.getSerializedSvg(); //returns the serialized SVG document
@@ -116,7 +116,7 @@ function clickLegend(event) {
     Download.save('tumormapLegend.svg', svg);
 
     // Redraw the legend on the screen since the svg doesn't look good there.
-    Layer.with_all(current_layers, function(retrieved_layers) {
+    Layer.with_many(current_layers, function(retrieved_layers) {
         Legend.redraw(retrieved_layers, current_layers);
     });
 }

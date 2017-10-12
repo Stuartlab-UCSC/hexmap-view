@@ -1,0 +1,71 @@
+
+# $1 is one of / all / *_test.js / lint / lint *.js /
+# Run one or all tests or lint .js files.
+echo
+echo 
+echo
+if [ $1 == 'all' ]; then
+    for f in $HEXMAP/tests/selenium/test/*_test.js
+        do
+        node $f
+    done
+elif [ $1 == 'lint' ] && [ $2 ]; then
+    eslint $2
+elif [ $1 == 'lint' ]; then
+    DONT_LINT_FILES=(
+        attrAdd.js
+        canvas2svg.js
+        checkLayerBox.js
+        color.js
+        colorEdit.js
+        coords.js
+        createMap.js
+        download.js
+        grid.js
+        dialogHex.js
+        filter.js
+        gChart.js
+        hexagons.js
+        hexagram.js
+        infoWindow.js
+        jobs.js
+        jquery-ui.js
+        layer.js
+        layerNameList.js
+        legend.js
+        longList.js
+        mapLabel.js
+        mapLabel.min.js
+        nodeIdSelect.js
+        overlayNodeUi.js
+        overlayNodes.js
+        pdf.js
+        project.js
+        reflect.js
+        select.js
+        select2.js
+        setOper.js
+        shortlist.js
+        sort.js
+        sortUi.js
+        state.js
+        svg.js
+        tool.js
+        urlParms.js
+        util.js
+    )
+    echo linting...
+    for d in $HEXMAP/www/imports/*
+        do
+        #echo files $d/*.js
+        for f in $d/*.js
+            do
+            if [[ ! " ${DONT_LINT_FILES[@]} " =~ " $(basename "$f") " ]]; then
+                echo $(basename "$f")
+                eslint $f
+            fi
+        done
+    done
+else
+    node $1
+fi

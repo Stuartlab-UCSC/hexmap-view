@@ -7,6 +7,7 @@ import '../lib/jquery-ui.theme.css';
 
 import Colors from '../color/colorEdit.js';
 import GChart from './gChart.js';
+import Hexagram from '../viewport/hexagram.js';
 import Layer from '../longlist/layer.js';
 import Util from '../common/util.js';
 
@@ -289,7 +290,7 @@ function create_filter_select_options (layer_name, layer, filter_value) {
     }
 
     // Update colors to reflect the filter created by the initial selection
-    refreshColors();
+    Hexagram.refreshColors();
 
     // Define the event handler for selecting an item
     filter_value.on('change', function (ev) {
@@ -297,7 +298,7 @@ function create_filter_select_options (layer_name, layer, filter_value) {
             'filter_value', 'set', layer_name, parseInt(ev.target.value));
         
         // Update the colors to reflect the filter updated by this select
-        refreshColors();
+        Hexagram.refreshColors();
     });
 }
 
@@ -342,7 +343,7 @@ function create_range_slider (layer_name, root) {
         Util.session('filter_value', 'set', layer_name,
             [low * factor, high * factor]);
         slider_vals.set(layer_name, [low * factor, high * factor]);
-        refreshColors();
+        Hexagram.refreshColors();
     };
 
     // Create the slider
@@ -523,7 +524,7 @@ function filter_control_changed (ev) {
     build_filter(layer_name);
 
     // Update the colors with the new filtering or lack thereof.
-    refreshColors();
+    Hexagram.refreshColors();
 }
 
 function create_shortlist_ui_entry (layer_name) {
@@ -627,7 +628,7 @@ function when_active_color_layers_change () {
     });
 
     // Finally, refresh the map colors
-    refreshColors();
+    Hexagram.refreshColors();
 }
 
 function create_float_controls () {
@@ -748,30 +749,11 @@ function create_float_controls () {
     });
 }
 
-function entries_initialized (layers_added) {
-
-    // The ui entries are now loaded.
-    var shortlist = Session.get('shortlist');
+function addInitialEntriesToShortlist (layerNames) {    
+    // Add some initial entries to the shortlist.
+    _.each(layerNames, function (layer_name) {
     
-    // If there are no active layers, make the first entry active
-    entriesInited.set(true);
-    var active = Session.get('active_layers');
-    if (active.length < 1 && shortlist.length > 0) {
-        Session.set('active_layers', [shortlist[0]]);
-    }
-    
-    // Set the shortlist metadata resulting from the initial sort
-    exports.update_ui_metadata();
-    
-    // Make the shortlist entries re-orderable
-    make_sortable_ui_and_list();
-
-    // Add entries to the UI in the shortlist list order.
-    var ordered = Session.get('shortlist').reverse();
-    
-    _.each(ordered, function (layer_name) {
-    
-        $shortlist.prepend(create_shortlist_ui_entry(layer_name));
+        $shortlist.append(create_shortlist_ui_entry(layer_name));
     
         // Initialize value display for continuous if it needs it.
         if (Util.is_continuous(layer_name) &&
@@ -785,49 +767,23 @@ function entries_initialized (layers_added) {
             build_filter(layer_name)
         }
     });
-
-    Session.set('shortlistInitDone', true);
 }
 
-function complete_initialization (autorun) {
+function receivedInitialActiveLayers (layers_added) {
 
-    // Autorun to execute when the first layer is set
-    // and after the initial sort and the dom is loaded.
-    var first_layer = Session.get('first_layer'),
-        sortedLayers = Session.get('sortedLayers'),
-        domLoaded = Session.get('domLoaded');
+    // The initial active layer values are now loaded.
     
-    if (_.isUndefined(domLoaded) || _.isUndefined(sortedLayers) ||
-        _.isUndefined(first_layer)) {
+    // Make the shortlist entries re-orderable
+    make_sortable_ui_and_list();
     
-        // We can't add to the shortlist until this is so.
-        return;
-    }
-    
-    /* unused
-    // Set up the flag to always put the active layers at the top of list
-    Session.set('shortlist_on_top', '');
-    $('.shortlist .on_top').on('click', function () {
-        Session.set('shortlist_on_top', '$(ev.target.checked)');
-    });
+    addInitialEntriesToShortlist(Session.get('shortlist'));
+    entriesInited.set(true);
+    when_active_color_layers_change();
+    /*
+    console.log('setting shortlistInited to true')
+
+    Session.set('shortlistInited', true);
     */
-    
-    autorun.stop();
-    var shortlist = Session.get('shortlist');
-
-    // Add the 'first layer' to the shortlist if it is empty
-    if (shortlist.length < 1 && first_layer !== 'noStaticLayers') {
-        shortlist = [first_layer];
-        Session.set('shortlist', shortlist);
-    }
-    
-    // Add the layers to the global layers object.
-    Layer.with_all(
-        shortlist, entries_initialized, Session.get('dynamic_attrs'));
-        
-    if (_.isUndefined(layers) || Object.keys(layers) < 1) {
-        refreshColors();
-    }
 }
 
 exports.get_active_coloring_layers = function () {
@@ -841,7 +797,7 @@ exports.ui_and_list_add = function (layer_name) {
     // This updates the shortlist variable and UI for add to shortlist.
     // Moves via the jqueryUI sortable are handled in the sortable's update
     // function.
-    if (!Session.equals('shortlistInitDone', true)) {
+    if (!Session.equals('shortlistInited', true)) {
         
         // We'll add the shortlist UI entries as part of initialization
         // and not here.
@@ -854,7 +810,6 @@ exports.ui_and_list_add = function (layer_name) {
         index = shortlist.indexOf(layer_name);
         
     $shortlist = $shortlist || $('#shortlist');
-
     
     if (index > -1) {
 
@@ -938,7 +893,7 @@ exports.with_filtered_signatures = function (filters, callback) {
         layer_names.push(filters[i].layer_name);
     }
     
-    Layer.with_all(layer_names, function(filter_layers) {
+    Layer.with_many(layer_names, function(filter_layers) {
         // filter_layers is guaranteed to be in the same order as filters.
         
         // This is an array of signatures that pass all the filters.
@@ -1093,6 +1048,32 @@ exports.get_dynamic_entries_for_persistent_state = function () {
     }
 }
 
+exports.complete_initialization = function (autorun) {
+
+    // Executed after other initially visible widgets are populated.
+    
+    /* unused
+    // Set up the flag to always put the active layers at the top of list
+    Session.set('shortlist_on_top', '');
+    $('.shortlist .on_top').on('click', function () {
+        Session.set('shortlist_on_top', '$(ev.target.checked)');
+    });
+    */
+    
+    function loadRemainderOfEntries () {
+        var actives = Session.get('active_layers'),
+            layerNames = _.filter(Session.get('shortlist'), function (layer) {
+                return (actives.indexOf(layer) < 0);
+            });
+        addInitialEntriesToShortlist(layerNames);
+        Session.set('shortlistInited', true);
+   }
+ 
+    // Add the shortlist layer values to the global layers object.
+    Layer.with_many(Session.get('shortlist'), loadRemainderOfEntries,
+        Session.get('dynamic_attrs'));
+}
+
 exports.init = function () {
 
     if (initialization_started) { return; }
@@ -1104,18 +1085,22 @@ exports.init = function () {
     $dynamic_controls = $shortlist.find('.dynamic_controls');
     $float_controls = $shortlist.find('.float');
     
-    Session.set('shortlistInitDone', false);
+    Session.set('shortlistInited', false);
     entriesInited.set(false);
     
     // Make this independent of the map initialization autorun.
     setTimeout(function () {
-        Meteor.autorun(complete_initialization);
     
         // Run this whenever the active list changes to update the hot primary
         // and secondary icons and change the map colors.
         Meteor.autorun(when_active_color_layers_change);
     });
     
-    // Create the controls that move from entry to entry
+    // Create the controls that move from entry to entry.
     create_float_controls();
+    
+    // Add the active shortlist layer values to the global layers object.
+    Layer.with_many(Session.get('active_layers'), receivedInitialActiveLayers,
+        Session.get('dynamic_attrs'));
+
  }

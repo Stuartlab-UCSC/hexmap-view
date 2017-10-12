@@ -4,6 +4,7 @@
 
 import Coords from '../viewport/coords.js';
 import Hexagons from '../viewport/hexagons.js';
+import '../viewport/infoWindow.html';
 
 var DEFAULT_MARKER_COLOR = 'ff0000',
     DEFAULT_MARKER_SCALE = 2,

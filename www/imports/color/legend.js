@@ -239,7 +239,7 @@ exports.init = function () {
         // Resize the legend along with the window
         $(window).resize(function () {
             current_layers = Shortlist.get_active_coloring_layers();
-            Layer.with_all(current_layers, function(retrieved_layers) {
+            Layer.with_many(current_layers, function(retrieved_layers) {
                 exports.redraw(retrieved_layers, current_layers);
             });
         });

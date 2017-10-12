@@ -80,23 +80,6 @@ function remove_tool_listener (handle) {
     delete tool_listeners[handle];
 }
 
-function getMapMetadata () {
-
-    // Retrieve the map metadata.
-    Ajax.get({
-        id: 'mapMeta',
-        // treat 404 not found as a form of success since not all maps
-        // have metadata
-        ok404: true,
-        success: function (mapMeta) {
-            Session.set('mapMeta', mapMeta);
-        },
-        error: function (error) {
-            Session.set('mapMeta', undefined);
-        },
-    });
-}
-
 exports.add = function (tool_name, callback, hover_text, klass) {
 
     // Register a name for a tool that matches the select data in a
@@ -201,6 +184,17 @@ exports.initLabel = function () {
     }, 'Add a label to the map', 'mapShow');
 },
 
+exports.requestMapMetadataError = function (error) {
+    Session.set('mapMeta', undefined);
+}
+
+exports.receiveMapMetadata = function (mapMeta) {
+    if (mapMeta === '404') {
+        mapMeta = undefined;
+    }
+    Session.set('mapMeta', mapMeta);
+}
+
 exports.init = function () {
 
     // Initialize for the page we are on, first enabling all
@@ -220,9 +214,6 @@ exports.init = function () {
         $('body').find('.gridShow').show();
         $('body').css('overflow-y', 'hidden');
     }
-
-    // Retrieve the meta data for this map.
-    getMapMetadata();
 
     // Whenever the user changes, including logout, check to see
     // if the user has job credentials.

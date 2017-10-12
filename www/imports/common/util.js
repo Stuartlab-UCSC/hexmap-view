@@ -137,7 +137,7 @@ exports.projectNotFound = function (dataId) {
         Session.set('mapSnake', false);
     
         // Alert the user that essential data is missing for this project.
-         exports.banner('error', '"' + getHumanProject(ctx.project) +
+         exports.banner('error', '"' + exports.getHumanProject(ctx.project) +
             '" does not seem to be a valid project.\nPlease select ' +
             'another.\n(' + dataId + ')');
     }

@@ -94,10 +94,10 @@ function receiveXenaAttr(dataIn, P, index) {
     dynLayer[attrName] = layer;
     
     Meteor.autorun(function (runner) {
-        var initedLayerTypes = Session.get('initedLayerTypes'),
-            shortlistInitDone = Session.get('shortlistInitDone');
+        var layerTypesLoaded = Session.get('layerTypesLoaded'),
+            shortlistInited = Session.get('shortlistInited');
         
-        if (initedLayerTypes && shortlistInitDone) {
+        if (layerTypesLoaded && shortlistInited) {
             runner.stop();
             Layer.with_one(attrName, function() {}, dynLayer);
         }

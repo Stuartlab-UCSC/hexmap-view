@@ -1,13 +1,15 @@
 // hexagon.js
 // Handle things to do with hexagons.
 
-import Ajax from '../data/ajax.js';
+import Data from '../data/data.js';
 import Colors from '../color/colorEdit.js';
 import Coords from './coords.js';
+import Hexagram from './hexagram.js';
 import InfoWindow from './infoWindow.js';
+import Longlist from '../longlist/longlist.js';
 import Perform from '../common/perform.js';
 import Tool from '../mapPage/tool.js';
-import Util from './infoWindow.js';
+import Util from '../common/util.js';
 import Utils from '../common/utils.js';
 import '../mapPage/navBar.html';
 
@@ -206,7 +208,7 @@ function showHoverInfo () {
     }
 }
 
-exports.create = function (draw) {
+exports.create = function () {
 
     // Create the hexagons from the positions data.
     setOpacity();
@@ -217,9 +219,6 @@ exports.create = function (draw) {
     _.each(assignments, function (hex, id) {
         exports.addOne (hex.x, hex.y, id);
     });
-    if (draw) {
-        refreshColors();
-    }
 }
 
 exports.removeOne = function (label) {
@@ -264,69 +263,79 @@ exports.setOneColor = function (hexagon, color) {
     });
 };
 
-exports.layout = function (draw) {
+exports.layoutNamesReceived = function (parsed, id) {
+
+    // This is an array of rows, with one element in each row:
+    // layout name.
+    Perform.log(id + '.tab_received');
+    var layouts = [];
+    for (var i = 0; i < parsed.length; i++) {
+        var row = parsed[i];
+        if (row.length === 0) {
+            // Skip any blank lines
+            continue;
+        }
+        layouts.push(row[0]);
+    }
+
+    // Determine the layout index whose map will be displayed.
+    // Layout name takes precedent over layout index.
+    // Layout name may be in the URL before we know the index.
+    Session.set('layoutIndex',
+        (Session.get('layoutName') ?
+            layouts.indexOf(Session.get('layoutName')) : 0));
+
+    Session.set('layouts', layouts);
+};
+
+exports.layoutAssignmentsReceived = function (parsed, id) {
+    // This is an array of rows, which are arrays of values:
+    // id, x, y
+
+    // These hold the maximum observed x & y
+    var max_x = max_y = 0;
+
+    // Find the max x and y while storing the assignments
+    assignments = {};
+    var start = 0;
+
+    if (parsed[0][0][0] === '#') {
+        start = 1;
+    }
+
+    // Show the number of nodes on the UI
+    Session.set('nodeCount', parsed.length - start);
+
+    for (var i = start; i < parsed.length; i++) {
+        var x = parsed[i][1],
+            y = parsed[i][2],
+            mapView = Session.get('mapView');
+        if (mapView === 'honeycomb') {
+ 
+            // Force the nodes into hexagonal grid coordinates.
+            x = parseInt(x);
+            y = parseInt(y);
+        }
+        assignments[parsed[i][0]] = {x: x, y: y};
+        max_x = Math.max(x, max_x);
+        max_y = Math.max(y, max_y);
+    }
+
+    Coords.findDimensions(max_x, max_y);
+    Session.set('initedHexagons', true);
+    setOpacity();
+    if (Session.equals('initializeingApp', false)) {
+        exports.create();
+        Hexagram.refreshColors();
+    }
+};
+
+exports.layout = function () {
 
     // Download the positions of nodes and fill in the global
     // hexagon assignment grid.
-
-    // Get the appropriate coordinates depending on the map view.
-    var mapView = Session.get('mapView'),
-        id = (mapView === 'honeycomb') ? 'assignments' : 'xyPreSquiggle_';
-    id += Session.get('layoutIndex');
-
-    Perform.log(id + '.tab_get');
-
-    Ajax.get({
-        id: id,
-        success: function (parsed) {
-
-            // This is an array of rows, which are arrays of values:
-            // id, x, y
-
-            Perform.log(id + '.tab_got');
-
-            // These hold the maximum observed x & y
-            var max_x = max_y = 0;
-
-            // Find the max x and y while storing the assignments
-            assignments = {};
-            var start = 0;
-            
-            if (parsed[0][0][0] === '#') {
-                start = 1;
-            }
-
-            // Show the number of nodes on the UI
-            Session.set('nodeCount', parsed.length - start);
-            
-            for (var i = start; i < parsed.length; i++) {
-                var x = parsed[i][1],
-                    y = parsed[i][2];
-                if (mapView === 'honeycomb') {
-         
-                    // Force the nodes into hexagonal grid coordinates.
-                    x = parseInt(x);
-                    y = parseInt(y);
-                }
-                assignments[parsed[i][0]] = {x: x, y: y};
-                max_x = Math.max(x, max_x);
-                max_y = Math.max(y, max_y);
-            }
-
-            Coords.findDimensions(max_x, max_y);
-            Session.set('initedHexagons', true);
-            setOpacity();
-
-            if (draw) {
-                exports.create(draw);
-            }
-        },
-        error: function (error) {
-            Util.projectNotFound(id);
-            return;
-        },
-    });
-}
+    Data.requestLayoutAssignments(exports.layoutAssignmentsReceived);
+};
 
 exports.init = function () {
 
@@ -368,5 +377,5 @@ exports.init = function () {
     $('#navBar .showHoverInfo').on('click', showHoverInfo);
 
     // Get the node positions for the initial view.
-    exports.layout(true);
-}
+    //exports.layout(true);
+};
