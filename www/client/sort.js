@@ -614,17 +614,23 @@ import Ajax from '/imports/ajax.js';
         // Clear the stats in the layers before loading new ones
         clearStats();
  
+        function error () {
+            computingTextDisplay();
+            getDynamicStats(focus_attr, opts);
+        }
+ 
         // Attempt to retrieve the pre-computed stats data
         Ajax.get({
             id: dataId,
-            success: function(parsed) {
-                receive_data(parsed, focus_attr, opts);
+            ok404: true,
+            success: function (parsed) {
+                if (parsed === '404') {
+                    error();
+                } else {
+                    receive_data(parsed, focus_attr, opts);
+                }
             },
-            error: function(error) {
-                computingTextDisplay();
-                getDynamicStats(focus_attr, opts);
-                return;
-           },
+            error: error,
         });
     }
 
