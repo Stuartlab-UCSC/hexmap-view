@@ -1,13 +1,13 @@
 // createMap.js
 // This creates a new map with user uploaded data.
 
-import Ajax from '../data/ajax.js';
-import DialogHex from '../common/dialogHex.js';
-import Tool from '../mapPage/tool.js';
-import Util from '../common/util.js';
-import Utils from '../common/utils.js';
+import Ajax from '/imports/mapPage/data/ajax.js';
+import DialogHex from '/imports/common/dialogHex.js';
+import Tool from '/imports/mapPage/head/tool.js';
+import Util from '/imports/common/util.js';
+import Utils from '/imports/common/utils.js';
 
-import './createMap.html';
+import '/imports/mapPage/calc/createMap.html';
 
 var title = 'Create a Map',
     dialogHex, // instance of the class DialogHex
@@ -286,7 +286,7 @@ function build_dialog_content (username) {
 
     import React, { Component } from 'react';
     import { render } from 'react-dom';
-    import Upload from '../component/upload.js';
+    import Upload from '/imports/component/upload.js';
 
      // Define the file selector for features file
     feature_upload = render(

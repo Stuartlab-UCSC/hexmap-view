@@ -1,12 +1,12 @@
 // sortUi.js
 // This contains the logic for handling the sort attribute function.
 
-import Colors from '../color/colorEdit.js';
-import DialogHex from '../common/dialogHex.js';
-import LayerNameList from '../shortlist/layerNameList.js';
+import Colors from '/imports/mapPage/color/colorEdit.js';
+import DialogHex from '/imports/common/dialogHex.js';
+import LayerNameList from '/imports/mapPage/shortlist/layerNameList.js';
 import Sort from './sort.js';
-import Tool from '../mapPage/tool.js';
-import Util from '../common/util.js';
+import Tool from '/imports/mapPage/head/tool.js';
+import Util from '/imports/common/util.js';
 
 import './sort.html';
 

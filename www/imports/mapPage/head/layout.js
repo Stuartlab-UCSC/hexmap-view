@@ -1,10 +1,10 @@
 // layout.js
 
-import Data from '../data/data.js';
-import Hexagons from '../viewport/hexagons.js';
-import Hexagram from '../viewport/hexagram.js';
-import Sort from '../longlist/sort.js';
-import Util from '../common/util.js';
+import Data from '/imports/mapPage/data/data.js';
+import Hexagons from '/imports/mapPage/viewport/hexagons.js';
+import Hexagram from '/imports/mapPage/viewport/hexagram.js';
+import Sort from '/imports/mapPage/longlist/sort.js';
+import Util from '/imports/common/util.js';
 
 exports.findCurrentName = function () {
     var index = Session.get('layoutIndex'),
@@ -89,7 +89,7 @@ exports.initList = function () {
             // resort the list to the default of density
             Sort.find_clumpiness_stats();
             Session.set('sort', ctx.defaultSort());
-            import Longlist from '../longlist/longlist.js';
+            import Longlist from '/imports/mapPage/longlist/longlist.js';
             Longlist.update();
         }
     });

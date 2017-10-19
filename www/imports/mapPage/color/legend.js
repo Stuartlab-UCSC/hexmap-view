@@ -1,9 +1,9 @@
 // legend.js
 // Handle the legend.
 
-import Hexagram from '../viewport/hexagram.js';
-import Layer from '../longlist/layer.js';
-import Shortlist from '../shortlist/shortlist.js';
+import Hexagram from '/imports/mapPage/viewport/hexagram.js';
+import Layer from '/imports/mapPage/longlist/layer.js';
+import Shortlist from '/imports/mapPage/shortlist/shortlist.js';
 
 import './legend.css';
 

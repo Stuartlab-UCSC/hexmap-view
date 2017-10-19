@@ -1,8 +1,8 @@
 
 // select.js: Handle the various ways to select hexagons.
 
-import Layer from '../longlist/layer.js';
-import Tool from '../mapPage/tool.js';
+import Layer from '/imports/mapPage/longlist/layer.js';
+import Tool from '/imports/mapPage/head/tool.js';
 
 // boundaries of the selectable area
 var SELECTING_CURSOR = 'crosshair',

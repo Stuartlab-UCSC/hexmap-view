@@ -3,37 +3,36 @@
  */
 
 import { Meteor } from 'meteor/meteor';
-import CheckLayerBox from '../calc/checkLayerBox.js';
-import Colors from '../color/colorEdit.js';
-import Coords from '../viewport/coords.js';
-import CreateMap from '../calc/createMap.js';
-import Data from '../data/data.js';
-import Download from '../data/download.js';
-import GChart from '../shortlist/gChart.js';
-import Hexagons from '../viewport/hexagons.js';
-import Hexagram from '../viewport/hexagram.js';
-import Layer from '../longlist/layer.js';
-import Layout from '../mapPage/layout.js';
-import Legend from '../color/legend.js';
-import OverlayNodes from '../calc/overlayNodes.js';
-import OverlayNodeUi from '../calc/overlayNodeUi.js';
-import Perform from '../common/perform.js';
-import Reflect from '../calc/reflect.js';
-import Shortlist from '../shortlist/shortlist.js';
-import Select from '../shortlist/select.js';
-import SetOper from '../shortlist/setOper.js';
-import Sort from '../longlist/sort.js';
-import SortUi from '../longlist/sortUi.js';
-import Utils from '../common/utils.js';
+import CheckLayerBox from '/imports/mapPage/calc/checkLayerBox.js';
+import Colors from '/imports/mapPage/color/colorEdit.js';
+import Coords from '/imports/mapPage/viewport/coords.js';
+import CreateMap from '/imports/mapPage/calc/createMap.js';
+import Data from '/imports/mapPage/data/data.js';
+import Download from '/imports/mapPage/data/download.js';
+import GChart from '/imports/mapPage/shortlist/gChart.js';
+import Hexagons from '/imports/mapPage/viewport/hexagons.js';
+import Hexagram from '/imports/mapPage/viewport/hexagram.js';
+import Layer from '/imports/mapPage/longlist/layer.js';
+import Layout from '/imports/mapPage/head/layout.js';
+import Legend from '/imports/mapPage/color/legend.js';
+import OverlayNodes from '/imports/mapPage/calc/overlayNodes.js';
+import OverlayNodeUi from '/imports/mapPage/calc/overlayNodeUi.js';
+import Perform from '/imports/common/perform.js';
+import Reflect from '/imports/mapPage/calc/reflect.js';
+import Shortlist from '/imports/mapPage/shortlist/shortlist.js';
+import Select from '/imports/mapPage/shortlist/select.js';
+import SetOper from '/imports/mapPage/shortlist/setOper.js';
+import Sort from '/imports/mapPage/longlist/sort.js';
+import SortUi from '/imports/mapPage/longlist/sortUi.js';
+import Utils from '/imports/common/utils.js';
 
-import Project from './project.js';
-import State from './state.js';
-import Tool from './tool.js';
-import './mapPage.html';
-import './navBar.html';
+import Project from '/imports/mapPage/head/project.js';
+import State from '/imports/common/state.js';
+import Tool from '/imports/mapPage/head/tool.js';
+import '/imports/mapPage/init/mapPage.html';
 
-import '/imports/mapPage/mapPage.css';
-import '/imports/mapPage/header.css';
+import '/imports/mapPage/init/mapPage.css';
+import '/imports/mapPage/head/header.css';
 
 var shortlistSaved;
 
@@ -134,7 +133,7 @@ function areProjectsAndLayoutsPopulated (autorun) {
  
                 SortUi.init();
  
-                import LazyLoader from './lazyLoader.js';
+                import LazyLoader from '/imports/mapPage/init/lazyLoader.js';
                 LazyLoader.init();
 
                 // Initialize the background functions.
@@ -144,7 +143,7 @@ function areProjectsAndLayoutsPopulated (autorun) {
                 Tool.initLabel();
                 Download.init();
                 Colors.init();
-                import InfoWindow from '../viewport/infoWindow.js';
+                import InfoWindow from '/imports/mapPage/viewport/infoWindow.js';
                 InfoWindow.init();
                 SetOper.init();
                 CreateMap.init();
@@ -213,7 +212,7 @@ function isMapRendered (autorun) {
             Data.requestMapMeta();
 
             // Populate the longlist.
-            import Longlist from '../longlist/longlist.js';
+            import Longlist from '/imports/mapPage/longlist/longlist.js';
             Longlist.init();
             
             // Populate the shortlist with only the active layers by faking

@@ -1,10 +1,10 @@
 // setOperUI.js
 // Handle the UI for the set operations.
 
-import Hexagram from '../viewport/hexagram.js';
-import Layer from '../longlist/layer.js';
-import Tool from '../mapPage/tool.js';
-import Util from '../common/util.js';
+import Hexagram from '/imports/mapPage/viewport/hexagram.js';
+import Layer from '/imports/mapPage/longlist/layer.js';
+import Tool from '/imports/mapPage/head/tool.js';
+import Util from '/imports/common/util.js';
 
 import './setOper.html';
 import './setOper.css';

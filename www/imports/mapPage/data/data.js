@@ -2,15 +2,15 @@
  * Retrieve data.
  */
 
-import Ajax from './ajax.js';
-import Filter from '../longlist/filter.js';
-import Hexagons from '../viewport/hexagons.js';
-import Hexagram from '../viewport/hexagram.js';
-import Layout from '../mapPage/layout.js';
-import Longlist from '../longlist/longlist.js';
-import Perform from '../common/perform.js';
-import Tool from '../mapPage/tool.js';
-import Util from '../common/util.js';
+import Ajax from '/imports/mapPage/data/ajax.js';
+import Filter from '/imports/mapPage/longlist/filter.js';
+import Hexagons from '/imports/mapPage/viewport/hexagons.js';
+import Hexagram from '/imports/mapPage/viewport/hexagram.js';
+import Layout from '/imports/mapPage/head/layout.js';
+import Longlist from '/imports/mapPage/longlist/longlist.js';
+import Perform from '/imports/common/perform.js';
+import Tool from '/imports/mapPage/head/tool.js';
+import Util from '/imports/common/util.js';
 
 function request (id, opts) {
 
@@ -58,7 +58,7 @@ exports.requestMapMeta = function (opts) {
     }
     opts.ok404 = true;
     opts.successFx = opts.successFx || Tool.receiveMapMetadata;
-    opts.errorFx = opts.errorFx || Filter.requestMapMetadataError;
+    opts.errorFx = opts.errorFx || Tool.requestMapMetadataError;
     request('mapMeta', opts);
 };
 

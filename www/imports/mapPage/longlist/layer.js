@@ -1,14 +1,14 @@
 // layer.js
 // Most of the code to handle the layer data.
 
-import Data from '../data/data.js';
-import Colors from '../color/colorEdit.js';
-import Hexagram from '../viewport/hexagram.js';
-import U from '../common/utils.js';
-import Perform from '../common/perform.js';
-import Prompt from '../component/prompt.js';
-import Shortlist from '../shortlist/shortlist.js';
-import Util from '../common/util.js';
+import Data from '/imports/mapPage/data/data.js';
+import Colors from '/imports/mapPage/color/colorEdit.js';
+import Hexagram from '/imports/mapPage/viewport/hexagram.js';
+import U from '/imports/common/utils.js';
+import Perform from '/imports/common/perform.js';
+import Prompt from '/imports/component/prompt.js';
+import Shortlist from '/imports/mapPage/shortlist/shortlist.js';
+import Util from '/imports/common/util.js';
 
 var selection_prefix = 'Selection';
 

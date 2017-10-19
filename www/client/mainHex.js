@@ -1,21 +1,21 @@
 // mainHex.js
 
 import { Meteor } from 'meteor/meteor';
-import Coords from '/imports/viewport/coords.js';
-import CreateMap from '/imports/calc/createMap.js';
+import Coords from '/imports/mapPage/viewport/coords.js';
+import CreateMap from '/imports/mapPage/calc/createMap.js';
 import Grid from '/imports/densityPage/grid.js';
 import Perform from '/imports/common/perform.js';
-import State from '/imports/mapPage/state.js';
-import Tool from '/imports/mapPage/tool.js';
+import State from '/imports/common/state.js';
+import Tool from '/imports/mapPage/head/tool.js';
 import Utils from '/imports/common/utils.js';
 import '/imports/homePage/home.html';
 
 // We need this order to retain the correct cascading effect.
 import '/imports/lib/jquery-ui.theme.css';
-import '/imports/color/colorsFont.css';
-import '/imports/mapPage/navBar.css';
+import '/imports/common/colorsFont.css';
+import '/imports/common/navBar.css';
 
-import mapPageInit from '/imports/mapPage/mapPageInit.js';
+import mapPageInit from '/imports/mapPage/init/mapPageInit.js';
 
 import '/imports/homePage/home.css';
 

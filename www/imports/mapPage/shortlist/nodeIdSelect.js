@@ -5,12 +5,12 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
-import Layer from '../longlist/layer.js';
-import NodeIdSearch from '../component/nodeIdSearch.js';
-import Modal from '../component/modal.js';
-import TextareaClean from '../component/textareaClean.js';
-import ReadFile from '../component/readFile.js';
-import Util from '../common/util.js';
+import Layer from '/imports/mapPage/longlist/layer.js';
+import NodeIdSearch from '/imports/component/nodeIdSearch.js';
+import Modal from '/imports/component/modal.js';
+import TextareaClean from '/imports/component/textareaClean.js';
+import ReadFile from '/imports/component/readFile.js';
+import Util from '/imports/common/util.js';
 
 export default class NodeIdSelect extends Component {
 

@@ -2,8 +2,8 @@
 * gChart.js 
 * For use of google charts
 */
-import Colors from '../color/colorEdit.js';
-import Layer from '../longlist/layer.js';
+import Colors from '/imports/mapPage/color/colorEdit.js';
+import Layer from '/imports/mapPage/longlist/layer.js';
 
 var load = new ReactiveVar('notLoaded'), // notLoaded, loading, loaded
     appReady = new ReactiveVar(false),

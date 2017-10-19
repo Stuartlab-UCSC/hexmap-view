@@ -1,10 +1,11 @@
 // filter.js: Filter the attributes displayed in the longlist by data type and
 // tags.
 
-import DialogHex from '../common/dialogHex.js';
-import Tool from '../mapPage/tool.js';
-import Util from '../common/util.js';
+import DialogHex from '/imports/common/dialogHex.js';
+import Tool from '/imports/mapPage/head/tool.js';
+import Util from '/imports/common/util.js';
 
+import '/imports/mapPage/head/header.html';
 import './filter.html';
 import './filter.css';
 

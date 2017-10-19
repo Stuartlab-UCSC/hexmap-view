@@ -1,17 +1,17 @@
 // hexagon.js
 // Handle things to do with hexagons.
 
-import Data from '../data/data.js';
-import Colors from '../color/colorEdit.js';
-import Coords from './coords.js';
-import Hexagram from './hexagram.js';
-import InfoWindow from './infoWindow.js';
-import Longlist from '../longlist/longlist.js';
-import Perform from '../common/perform.js';
-import Tool from '../mapPage/tool.js';
-import Util from '../common/util.js';
-import Utils from '../common/utils.js';
-import '../mapPage/navBar.html';
+import Data from '/imports/mapPage/data/data.js';
+import Colors from '/imports/mapPage/color/colorEdit.js';
+import Coords from '/imports/mapPage/viewport/coords.js';
+import Hexagram from '/imports/mapPage/viewport/hexagram.js';
+import InfoWindow from '/imports/mapPage/viewport/infoWindow.js';
+import Longlist from '/imports/mapPage/longlist/longlist.js';
+import Perform from '/imports/common/perform.js';
+import Tool from '/imports/mapPage/head/tool.js';
+import Util from '/imports/common/util.js';
+import Utils from '/imports/common/utils.js';
+import '/imports/common/navBar.html';
 
 // What's the minimum number of pixels that sideLen must represent at the
 // current zoom level before we start drawing hex borders?

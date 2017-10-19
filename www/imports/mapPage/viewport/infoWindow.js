@@ -1,10 +1,10 @@
 // infoWindow.js
 // Handle the google maps infoWindow objects.
 
-import Coords from './coords.js';
-import Layer from '../longlist/layer.js';
-import Hexagram from './hexagram.js';
-import Tool from '../mapPage/tool.js';
+import Coords from '/imports/mapPage/viewport/coords.js';
+import Layer from '/imports/mapPage/longlist/layer.js';
+import Hexagram from '/imports/mapPage/viewport/hexagram.js';
+import Tool from '/imports/mapPage/head/tool.js';
 
 import './infoWindow.html';
 

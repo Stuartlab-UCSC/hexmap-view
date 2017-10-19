@@ -4,10 +4,10 @@
 
 var app = app || {}; 
 
-import Data from '../data/data.js';
-import Filter from './filter.js';
-import Util from '../common/util.js';
-import Shortlist from '../shortlist/shortlist.js';
+import Data from '/imports/mapPage/data/data.js';
+import Filter from '/imports/mapPage/longlist/filter.js';
+import Util from '/imports/common/util.js';
+import Shortlist from '/imports/mapPage/shortlist/shortlist.js';
 
 var computingText = 'Computing statistics ...',
     firstSort = true;
@@ -180,7 +180,7 @@ function updateSortUi (type, text, focus_attr, opts) {
             color: 'inherit', background: 'inherit'});
     }
     Filter.clearAll();
-    import Longlist from './longlist.js';
+    import Longlist from '/imports/mapPage/longlist/longlist.js';
     Longlist.update();
     Shortlist.update_ui_metadata();
 

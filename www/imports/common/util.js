@@ -1,8 +1,8 @@
 // util.js
 // This contains various utilities used throughout the code.
 
-import Prompt from '../component/prompt.js';
-import Select2 from '../lib/select2.js';
+import Prompt from '/imports/component/prompt.js';
+import Select2 from '/imports/lib/select2.js';
 
 exports.get_username = function (callback) {
     

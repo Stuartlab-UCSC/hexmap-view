@@ -1,15 +1,15 @@
 // hexagram.js
 // Run the hexagram visualizer client.
 
-import '../lib/color.js';
-import Colors from '../color/colorEdit.js';
-import Hexagons from './hexagons.js';
-import Layer from '../longlist/layer.js';
-import Legend from '../color/legend.js';
-import Shortlist from '../shortlist/shortlist.js';
-import Sort from '../longlist/sort.js';
-import Tool from '../mapPage/tool.js';
-import Util from '../common/util.js';
+import '/imports/lib/color.js';
+import Colors from '/imports/mapPage/color/colorEdit.js';
+import Hexagons from '/imports/mapPage/viewport/hexagons.js';
+import Layer from '/imports/mapPage/longlist/layer.js';
+import Legend from '/imports/mapPage/color/legend.js';
+import Shortlist from '/imports/mapPage/shortlist/shortlist.js';
+import Sort from '/imports/mapPage/longlist/sort.js';
+import Tool from '/imports/mapPage/head/tool.js';
+import Util from '/imports/common/util.js';
 
 var userDebug = false; // Turn user debugging on/off
 
@@ -209,7 +209,7 @@ exports.refreshColors = function () {
     });
     
     // Make sure to also redraw the info window, which may be open.
-    import InfoWindow from './infoWindow.js';
+    import InfoWindow from '/imports/mapPage/viewport/infoWindow.js';
     InfoWindow.redraw();
 }
 

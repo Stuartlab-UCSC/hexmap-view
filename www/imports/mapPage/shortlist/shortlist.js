@@ -2,13 +2,13 @@
 // Handle most of the functions of the shortlist, which contain the layers the
 // user has added so they can be quickly selected for display.
 
-import '../lib/jquery-ui.js';
+import '/imports/lib/jquery-ui.js';
 
-import Colors from '../color/colorEdit.js';
-import GChart from './gChart.js';
-import Hexagram from '../viewport/hexagram.js';
-import Layer from '../longlist/layer.js';
-import Util from '../common/util.js';
+import Colors from '/imports/mapPage/color/colorEdit.js';
+import GChart from '/imports/mapPage/shortlist/gChart.js';
+import Hexagram from '/imports/mapPage/viewport/hexagram.js';
+import Layer from '/imports/mapPage/longlist/layer.js';
+import Util from '/imports/common/util.js';
 
 import './shortlist.html';
 import './shortlist.css';
@@ -628,7 +628,7 @@ function when_active_color_layers_change () {
 
     // Finally, refresh the map colors if we have the data,
     // otherwise the colors are refreshed when the data arrives.
-    if (layers[active[0]].data) {
+    if (active.length > 1 && layers[active[0]].data) {
         Hexagram.refreshColors();
     }
 }

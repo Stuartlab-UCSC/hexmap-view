@@ -1,10 +1,10 @@
 // reflect.js
 // This captures the user input to reflect a set of nodes on another map.
 
-import DialogHex from '../common/dialogHex.js';
-import LayerNameList from '../shortlist/layerNameList.js';
-import Tool from '../mapPage/tool.js';
-import Util from '../common/util.js';
+import DialogHex from '/imports/common/dialogHex.js';
+import LayerNameList from '/imports/mapPage/shortlist/layerNameList.js';
+import Tool from '/imports/mapPage/head/tool.js';
+import Util from '/imports/common/util.js';
 
 import './reflect.html';
 

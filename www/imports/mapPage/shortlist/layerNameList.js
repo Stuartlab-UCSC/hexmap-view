@@ -1,9 +1,9 @@
 // layerNameList.js
 // A class for a layer name list
 
-import Select2 from '../lib/select2.js';
-import Colors from '../color/colorEdit.js';
-import Util from '../common/util.js';
+import Select2 from '/imports/lib/select2.js';
+import Colors from '/imports/mapPage/color/colorEdit.js';
+import Util from '/imports/common/util.js';
 
 import './layerNameList.html';
 

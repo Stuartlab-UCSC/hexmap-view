@@ -2,8 +2,8 @@
 * Created by duncan on 6/6/16.
 */
 
-import Layer from '../longlist/layer.js';
-import Shortlist from '../shortlist/shortlist.js';
+import Layer from '/imports/mapPage/longlist/layer.js';
+import Shortlist from '/imports/mapPage/shortlist/shortlist.js';
 
 var LayerPostOffice = new Mongo.Collection('LayerPostOffice');
 var last_layer_names = []; // list of layer names from the last update

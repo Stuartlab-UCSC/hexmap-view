@@ -2,9 +2,9 @@
 // overlayNodes.js
 // Drop new nodes onto the map
 
-import Coords from '../viewport/coords.js';
-import Hexagons from '../viewport/hexagons.js';
-import '../viewport/infoWindow.html';
+import Coords from '/imports/mapPage/viewport/coords.js';
+import Hexagons from '/imports/mapPage/viewport/hexagons.js';
+import '/imports/mapPage/viewport/infoWindow.html';
 
 var DEFAULT_MARKER_COLOR = 'ff0000',
     DEFAULT_MARKER_SCALE = 2,

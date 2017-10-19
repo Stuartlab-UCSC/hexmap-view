@@ -4,6 +4,7 @@
 echo
 echo 
 echo
+
 if [ $1 == 'all' ]; then
     for f in $HEXMAP/tests/selenium/test/*_test.js
         do
@@ -56,18 +57,26 @@ elif [ $1 == 'lint' ]; then
         urlParms.js
         util.js
     )
-    echo linting...
-    for d in $HEXMAP/www/imports/*
-        do
-        #echo files $d/*.js
-        for f in $d/*.js
+
+    recurse() {
+        # recursively look for .js files and lint them
+        # where $1 is the directory to start searching
+        for i in "$1"/*
             do
-            if [[ ! " ${DONT_LINT_FILES[@]} " =~ " $(basename "$f") " ]]; then
-                echo $(basename "$f")
-                eslint $f
+            if [ -d "$i" ];then
+                recurse "$i"
+            elif [ -f "$i" ] && \
+                [[ $i == *.js ]] && \
+                [[ ! " ${DONT_LINT_FILES[@]} " =~ " $(basename "$i") " ]]
+                then
+                echo $(basename "$i")
+                eslint $i
             fi
         done
-    done
+    }
+
+    echo linting...
+    recurse $HEXMAP/www/imports
 else
     node $1
 fi

@@ -11,13 +11,13 @@
 //   workflow completes, so that the infowindow can use click events again.
 //   (it got set to your tool's name by the code prepended to your callback).
 
-import Util from '../common/util.js';
+import Util from '/imports/common/util.js';
 
-import './header.html';
-import '../calc/reflect.html';
-import '../shortlist/setOper.html';
-import '../calc/overlayNode.html';
-import '../lib/mapLabel.min.js';
+import '/imports/mapPage/head/header.html';
+import '/imports/mapPage/calc/reflect.html';
+import '/imports/mapPage/shortlist/setOper.html';
+import '/imports/mapPage/calc/overlayNode.html';
+import '/imports/lib/mapLabel.min.js';
 
 // This is an array of all Google Maps events that tools can use.
 var TOOL_EVENTS = [

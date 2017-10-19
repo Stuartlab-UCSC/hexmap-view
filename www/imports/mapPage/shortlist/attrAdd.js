@@ -4,12 +4,12 @@
 
 import React, { Component } from 'react';
 import { render } from 'react-dom';
-import DialogHex from '../common/dialogHex.js';
-import Layer from '../longlist/layer.js';
-import ReadFile from '../component/readFile.js'
-import Util from '../common/util.js';
+import DialogHex from '/imports/common/dialogHex.js';
+import Layer from '/imports/mapPage/longlist/layer.js';
+import ReadFile from '/imports/component/readFile.js'
+import Util from '/imports/common/util.js';
 
-import './attrAdd.html';
+import '/imports/mapPage/shortlist/attrAdd.html';
 
 var dialogHex;
 

@@ -1,18 +1,18 @@
 // grid.js
 // This handles the node density visualizations.
 
-import Ajax from '../data/ajax.js';
-import Coords from '../viewport/coords.js';
-import Download from '../data/download.js';
-import Hexagons from '../viewport/hexagons.js';
-import InfoWindow from '../viewport/infoWindow.js';
-import Tool from '../mapPage/tool.js';
-import Util from '../common/util.js';
-import Utils from '../common/utils.js';
+import Ajax from '/imports/mapPage/data/ajax.js';
+import Coords from '/imports/mapPage/viewport/coords.js';
+import Download from '/imports/mapPage/data/download.js';
+import Hexagons from '/imports/mapPage/viewport/hexagons.js';
+import InfoWindow from '/imports/mapPage/viewport/infoWindow.js';
+import Tool from '/imports/mapPage/head/tool.js';
+import Util from '/imports/common/util.js';
+import Utils from '/imports/common/utils.js';
 
 // TODO move these up after we're routing pages.
-import '../calc/jobs.html';
-import '../mapPage/navBar.html';
+import '/imports/mapPage/calc/jobs.html';
+import '/imports/common/navBar.html';
 
 import './grid.html';
 

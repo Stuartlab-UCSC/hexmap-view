@@ -1,11 +1,11 @@
 // download.js
 
-import Pdf from '../viewport/pdf.js';
-import Svg from '../viewport/svg.js';
-import Tool from '../mapPage/tool.js';
-import Util from '../common/util.js';
+import Pdf from '/imports/mapPage/viewport/pdf.js';
+import Svg from '/imports/mapPage/viewport/svg.js';
+import Tool from '/imports/mapPage/head/tool.js';
+import Util from '/imports/common/util.js';
 
-import '../viewport/pdf.html';
+import '/imports/mapPage/viewport/pdf.html';
 
 function initDownloadSelectTool () {
 
