@@ -6,8 +6,10 @@ import Ajax from './ajax.js';
 import Filter from '../longlist/filter.js';
 import Hexagons from '../viewport/hexagons.js';
 import Hexagram from '../viewport/hexagram.js';
+import Layout from '../mapPage/layout.js';
 import Longlist from '../longlist/longlist.js';
 import Perform from '../common/perform.js';
+import Tool from '../mapPage/tool.js';
 import Util from '../common/util.js';
 
 function request (id, opts) {
@@ -17,6 +19,9 @@ function request (id, opts) {
     // @param successFx: function to call on success
     // @param stateVar; optional state variable to set to true on success
     Perform.log(id + '.tab_request');
+    if (_.isUndefined(opts)) {
+        opts = {};
+    }
     var aOpts = {
         id: id,
         success: function (results) {
@@ -52,7 +57,7 @@ exports.requestMapMeta = function (opts) {
         opts = {};
     }
     opts.ok404 = true;
-    opts.successFx = opts.successFx || Filter.receiveMapMetadata;
+    opts.successFx = opts.successFx || Tool.receiveMapMetadata;
     opts.errorFx = opts.errorFx || Filter.requestMapMetadataError;
     request('mapMeta', opts);
 };
@@ -68,9 +73,16 @@ exports.requestAttributeTags = function (opts) {
 };
 
 exports.requestLayoutNames = function (opts) {
-    opts.successFx = opts.successFx || Hexagons.layoutNamesReceived;
+
+    // This may have been requested already if a layout name was supplied,
+    // but no layout index.
+    if (Session.equals('layoutNamesRequested', true)) {
+        return;
+    }
+    Session.set('layoutNamesRequested', true);
+    opts.successFx = opts.successFx || Layout.layoutNamesReceived;
+    opts.ok404 = true;
     request('layouts', opts);
-    //TODO: handle 'matrices.tab'
 };
 
 exports.requestColormaps = function (opts) {
@@ -93,7 +105,27 @@ exports.requestLayerSummary = function (opts) {
 };
 
 exports.requestLayoutAssignments = function (opts) {
+    var index = Session.get('layoutIndex');
+    
+    // If no layout index was supplied ...
+    if (_.isUndefined(index)) {
+    
+        // If a layout name was supplied (in the url) ...
+        if (Session.get('layoutName')) {
+        
+            // A layout name was supplied, so we need to get the layout list
+            // before we know the layout index to download layout node placement
+            exports.requestLayoutNames({ stateVar: 'layoutNamesReceived' });
+            return;
+        } else {
+            // Default to the first layout.
+            index = 0;
+        }
+    }
+    if (_.isUndefined(opts)) {
+        opts = {};
+    }
     opts.successFx = opts.successFx || Hexagons.layoutAssignmentsReceived;
     request((Session.get('mapView') === 'honeycomb' ? 'assignments' :
-        'xyPreSquiggle_') + Session.get('layoutIndex'), opts);
+        'xyPreSquiggle_') + index, opts);
 };

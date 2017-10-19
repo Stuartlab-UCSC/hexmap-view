@@ -13,7 +13,6 @@ import Utils from '../common/utils.js';
 // TODO move these up after we're routing pages.
 import '../calc/jobs.html';
 import '../mapPage/navBar.html';
-import '../mapPage/navBar.css';
 
 import './grid.html';
 

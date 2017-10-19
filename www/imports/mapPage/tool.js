@@ -11,11 +11,9 @@
 //   workflow completes, so that the infowindow can use click events again.
 //   (it got set to your tool's name by the code prepended to your callback).
 
-import Ajax from '../data/ajax.js';
 import Util from '../common/util.js';
 
 import './header.html';
-import './header.css';
 import '../calc/reflect.html';
 import '../shortlist/setOper.html';
 import '../calc/overlayNode.html';

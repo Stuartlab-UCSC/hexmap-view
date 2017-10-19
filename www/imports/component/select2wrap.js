@@ -34,6 +34,8 @@ import PropTypes from 'prop-types';
 import ReactDOM from 'react-dom';
 import shallowEqualFuzzy from 'shallow-equal-fuzzy';
 
+import '../lib/select2.css';
+
 const namespace = 'select2-react';
 
 export default class Select2 extends Component {

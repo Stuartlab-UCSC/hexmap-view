@@ -1,6 +1,5 @@
 // download.js
 
-import Ajax from './ajax.js';
 import Pdf from '../viewport/pdf.js';
 import Svg from '../viewport/svg.js';
 import Tool from '../mapPage/tool.js';
@@ -15,16 +14,15 @@ function initDownloadSelectTool () {
     // need to be modal
     Tool.add("hexagonNames", function() {
         // Make the export form
-        var export_form = $("<form/>").attr("title", 
-            "Export Selection As List");
+        var export_form = $("<form/>").attr("title", "Export Nodes");
         
         export_form.append(
-            $("<div/>").text("Select a selection to export:"));
+            $("<div/>").text("Select an attribute to export:"));
         
         // Make a select box for picking from all selections.
         var select_box = $("<select/>");
         
-        // Populate it with all existing selections
+        // Populate it with all existing selections and continuous.
         for(var layer_name in layers) {
             if ((layers[layer_name].selection) ||
             (layers[layer_name].data && Util.is_continuous(layer_name))) {
@@ -71,7 +69,7 @@ function initDownloadSelectTool () {
             
             // Get the layer name.
             var layer_name = select_box.val();
-            if (!layers.hasOwnProperty('layer_name')) {
+            if (!layers.hasOwnProperty(layer_name)) {
 
                 // Not a real layer.
                 // Probably just an empty select or something
@@ -135,7 +133,24 @@ function getDataUrl (prefix) {
         + prefix + Session.get('layoutIndex') + '.tab';
 }
 
+exports.save = function (filename, data) {
+    var blob = new Blob([data], {type: 'text/csv'});
+    if (window.navigator.msSaveOrOpenBlob) {
+        window.navigator.msSaveBlob(blob, filename);
+    } else {
+        var elem = window.document.createElement('a');
+        elem.href = window.URL.createObjectURL(blob);
+        elem.download = filename;
+        document.body.appendChild(elem);
+        elem.click();
+        document.body.removeChild(elem);
+    }
+}
+
 exports.init = function () {
+    initDownloadSelectTool();
+    Svg.init();
+    Pdf.init();
 
     // Add the link to the menu for XY coordinate download.
     var link = $('<a href=' + getDataUrl('xyPreSquiggle_') +

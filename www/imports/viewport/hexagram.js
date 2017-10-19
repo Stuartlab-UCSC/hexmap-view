@@ -2,13 +2,10 @@
 // Run the hexagram visualizer client.
 
 import '../lib/color.js';
-import Ajax from '../data/ajax.js';
 import Colors from '../color/colorEdit.js';
-import Data from '../data/data.js';
 import Hexagons from './hexagons.js';
 import Layer from '../longlist/layer.js';
 import Legend from '../color/legend.js';
-import Perform from '../common/perform.js';
 import Shortlist from '../shortlist/shortlist.js';
 import Sort from '../longlist/sort.js';
 import Tool from '../mapPage/tool.js';
@@ -447,33 +444,6 @@ exports.get_color = function (u_name, u, v_name, v) {
     
     return color;
 };
-
-exports.initLayoutList = function () {
-
-    // Transform the layout list into the form wanted by select2
-    var data = _.map(Session.get('layouts'), function (layout, i) {
-        return { id: i, text: layout }
-    });
-
-    // Create our selection list
-    
-    Util.createOurSelect2($("#layout-search"),
-        {data: data}, Session.get('layoutIndex').toString());
-
-    // Define the event handler for the selecting in the list
-    $("#layout-search").on('change', function (ev) {
-        Session.set('layoutIndex', ev.target.value);
-        exports.createMap();
-        Hexagons.layout();
-        
-        // Update density stats to this layout and
-        // resort the list to the default of density
-        Sort.find_clumpiness_stats(Session.get('layoutIndex'));
-        Session.set('sort', ctx.defaultSort());
-        import Longlist from '../longlist/longlist.js';
-        Longlist.update();
-    });
-}
 
 exports.colormapsReceived = function (parsed, id) {
 

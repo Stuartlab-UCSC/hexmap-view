@@ -270,14 +270,9 @@ exports.load = function (P) {
         project: fixUpProjectNames(P.p),
         page: 'mapPage',
     }
-
-    // Find any layout specified by index.
-    if (P.li) {
-        store.layoutIndex = P.li;
     
-    // Find any layout name specified. Save it for later to set
-    // the layoutIndex state variable.
-    } else if (P.layout) {
+    // Find any layout name specified.
+    if (P.layout) {
         Session.set('layoutName', P.layout);
     }
     

@@ -3,15 +3,20 @@
 import { Meteor } from 'meteor/meteor';
 import Coords from '/imports/viewport/coords.js';
 import CreateMap from '/imports/calc/createMap.js';
-import Download from '/imports/data/download.js';
 import Grid from '/imports/densityPage/grid.js';
-import mapPageInit from '/imports/mapPage/mapPageInit.js';
 import Perform from '/imports/common/perform.js';
 import State from '/imports/mapPage/state.js';
 import Tool from '/imports/mapPage/tool.js';
 import Utils from '/imports/common/utils.js';
-import '/imports/color/colorsFont.css';
 import '/imports/homePage/home.html';
+
+// We need this order to retain the correct cascading effect.
+import '/imports/lib/jquery-ui.theme.css';
+import '/imports/color/colorsFont.css';
+import '/imports/mapPage/navBar.css';
+
+import mapPageInit from '/imports/mapPage/mapPageInit.js';
+
 import '/imports/homePage/home.css';
 
 var VERSION = 'Version 1.0';
@@ -29,7 +34,6 @@ Template.body.helpers({
 
 Template.homePage.onRendered(function () {
     Tool.init();
-    Download.init();
     CreateMap.init();  // TODO why?
 });
 

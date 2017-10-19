@@ -106,10 +106,12 @@ State = function() { // jshint ignore: line
         // Contains the non-project state we want to save with unique keys
         all: [
             'background',
+            'mapView',
             'page',
             'pdfLegend',
             'pdfMap',
             'project',
+            'transparent',
             'viewEdges',
             'reflectRanked',
         ],
@@ -179,12 +181,9 @@ State.prototype.setProjectDefaults = function () {
     Session.set('layouts', undefined);
     delete Session.keys.layouts;
 
-    // Index of active layout
-    Session.set('layoutIndex', 0);
-
-    // name of active layout (not stored in state)
-    Session.set('layoutName', undefined);
-    delete Session.keys.layoutName;
+    // Index of active layout.
+    Session.set('layoutIndex', undefined);
+    delete Session.keys.layoutIndex;
 
     // Generate ranked attribute
     Session.set('reflectRanked', undefined);
@@ -197,7 +196,7 @@ State.prototype.setProjectDefaults = function () {
     // Array of layer names in the shortlist
     Session.set('shortlist', []);
 
-    // maintain actives at the top
+    // maintain actives at the top (unused)
     Session.set('shortlist_on_top', false);
 
     // Map zoom level
@@ -220,23 +219,29 @@ State.prototype.setAllDefaults = function () {
 
     // Reactive variables maintained in global state & not project-specific
 
-    // Default sort message & type
-    Session.set('sort', DEFAULT_SORT);
-
     // Main map background color
     Session.set('background', 'black');
 
-    // Display of directed graph
-    Session.set('viewEdges', false);
-
-    // Include map in pdf
-    Session.set('pdfMap', true);
+    // View on hexagonal grid or xy coordinates.
+    Session.set('mapView', 'honeycomb');
 
     // Include legend in pdf
     Session.set('pdfLegend', false);
 
+    // Include map in pdf
+    Session.set('pdfMap', true);
+
     // The project data to load
     s.project = DEFAULT_PROJECT;
+
+    // Default sort message & type
+    Session.set('sort', DEFAULT_SORT);
+
+    // Display of hexagon opacity.
+    Session.set('transparent', false);
+
+    // Display of directed graph
+    Session.set('viewEdges', false);
 };
 
 State.prototype.jsonify = function (newPage) {
@@ -374,6 +379,8 @@ State.prototype.load = function (store) {
         Session.set('overlayNodes',
             OverlayNodes.get('youngwookExponentialNormalization'));
     }
+    
+    Session.set('stateLoaded', true);
 };
 
 State.prototype.loadFromLocalStore = function () {
@@ -518,8 +525,6 @@ exports.init = function () {
             s.save();
         });
     }
-
-    Session.set('stateLoaded', true);
     
     return s;
 };

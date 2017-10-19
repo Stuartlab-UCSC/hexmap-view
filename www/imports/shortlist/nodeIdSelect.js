@@ -8,7 +8,6 @@ import PropTypes from 'prop-types';
 import Layer from '../longlist/layer.js';
 import NodeIdSearch from '../component/nodeIdSearch.js';
 import Modal from '../component/modal.js';
-import '../component/reactModal.css';
 import TextareaClean from '../component/textareaClean.js';
 import ReadFile from '../component/readFile.js';
 import Util from '../common/util.js';

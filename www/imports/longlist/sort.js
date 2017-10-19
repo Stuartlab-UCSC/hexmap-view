@@ -600,7 +600,7 @@ exports.sort_layers = function  () {
     Session.set('sortedLayers', layer_array);
 }
 
-exports.find_clumpiness_stats = function (layout) {
+exports.find_clumpiness_stats = function () {
 
     // Reset the sort to the default of density
 
@@ -610,7 +610,8 @@ exports.find_clumpiness_stats = function (layout) {
     // Set the clumpiness scores for all layers to the appropriate values for
     // the given layout index. Just pulls from each layer's clumpiness_array
     // field.
-    var layer,
+    var layout = Session.get('layoutIndex'),
+        layer,
         count = 0,
         sortedLayers = Session.get('sortedLayers');
     for (var i = 0; i < sortedLayers.length; i += 1) {
@@ -739,8 +740,7 @@ exports.get_diff_stats = function (focus_attr, focus_attr2) {
     return undefined;
 }
 
-exports.get_layout_aware_stats = function (layout_index, focus_attr,
-    anticorrelated) {
+exports.get_layout_aware_stats = function (focus_attr, anticorrelated) {
 
     // Retrieve the layer's layout-aware values
 
@@ -748,7 +748,8 @@ exports.get_layout_aware_stats = function (layout_index, focus_attr,
     clearStats();
 
    // Save the layout index and anticorrelated flag to the options
-    var opts = {
+    var layout_index = Session.get('layoutIndex'),
+        opts = {
         statsLayers: ctx.bin_layers,
         layout: layout_index,
         anticorrelated: anticorrelated,

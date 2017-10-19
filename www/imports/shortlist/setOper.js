@@ -124,6 +124,7 @@ function compute_now (values, layer_names, set_type) {
         }
 
         // Create a default label for this dynamic layer
+        // TODO add the values to the suggested layer name.
         var new_layer_name;
         if (set_type === 'intersection') {
             new_layer_name = layer_names[0] + ' n ' + layer_names[1];

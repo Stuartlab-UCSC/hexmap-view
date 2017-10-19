@@ -4,6 +4,7 @@
 
 import Ajax from '../data/ajax.js';
 import DialogHex from '../common/dialogHex.js';
+import Layout from '../mapPage/layout.js';
 import OverlayNodes from './overlayNodes.js';
 import State from '../mapPage/state.js';
 import Tool from '../mapPage/tool.js';
@@ -77,13 +78,12 @@ function doIt (tsv) {
     // Build the rest of the options to pass to the computation utility.
     var opts = {
         map: Util.getHumanProject(ctx.project),
-        layout: Session.get('layouts')[Session.get('layoutIndex')],
+        layout: Layout.findCurrentName(),
         nodes: data,
     };
     if (Meteor.user()) {
         opts.email = Meteor.user().username;
     }
-
 
     Ajax.query('overlayNodes', opts,
         function (result) {
@@ -153,7 +153,7 @@ function criteriaCheck () {
 
         // If the mapMeta data was found and there is cluster data, we've
         // met the data criteria to run placeNode.
-        var layout = Session.get('layouts')[Session.get('layoutIndex')];
+        var layout = Layout.findCurrentName();
         if (meta &&
             meta !== '404' &&
             meta.layouts &&

@@ -10,6 +10,8 @@ if [ $1 == 'all' ]; then
         node $f
     done
 elif [ $1 == 'lint' ] && [ $2 ]; then
+    echo linting...
+    echo $(basename "$2")
     eslint $2
 elif [ $1 == 'lint' ]; then
     DONT_LINT_FILES=(

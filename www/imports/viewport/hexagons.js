@@ -56,14 +56,13 @@ Template.navBarT.helpers({
     },
 });
 
-function setOpacity () {
+function findOpacity () {
 
-    if (Session.equals('transparent', true) &&
-        Session.equals('mapView', 'xyCoords')) {
+    if (Session.equals('transparent', true)) {
 
         var additive = 0.05;
 
-        // On a black background, the opacity needs to be more.
+        // On a black background, the opacity needs to be higher.
         if (Session.equals('background', 'black')) {
             additive = 0.5;
         }
@@ -211,7 +210,7 @@ function showHoverInfo () {
 exports.create = function () {
 
     // Create the hexagons from the positions data.
-    setOpacity();
+    findOpacity();
 
     // Clear any old polygons from the map.
     _.each(_.keys(polygons), exports.removeOne);
@@ -249,7 +248,7 @@ exports.addOne = function (x, y, label, opts) {
 }
 
 exports.zoomChanged = function () {
-    setOpacity();
+    findOpacity();
     for (var signature in polygons) {
         setZoomOptions(signature, polygons[signature].xy);
     }
@@ -261,31 +260,6 @@ exports.setOneColor = function (hexagon, color) {
     hexagon.setOptions({
         fillColor: color
     });
-};
-
-exports.layoutNamesReceived = function (parsed, id) {
-
-    // This is an array of rows, with one element in each row:
-    // layout name.
-    Perform.log(id + '.tab_received');
-    var layouts = [];
-    for (var i = 0; i < parsed.length; i++) {
-        var row = parsed[i];
-        if (row.length === 0) {
-            // Skip any blank lines
-            continue;
-        }
-        layouts.push(row[0]);
-    }
-
-    // Determine the layout index whose map will be displayed.
-    // Layout name takes precedent over layout index.
-    // Layout name may be in the URL before we know the index.
-    Session.set('layoutIndex',
-        (Session.get('layoutName') ?
-            layouts.indexOf(Session.get('layoutName')) : 0));
-
-    Session.set('layouts', layouts);
 };
 
 exports.layoutAssignmentsReceived = function (parsed, id) {
@@ -322,11 +296,12 @@ exports.layoutAssignmentsReceived = function (parsed, id) {
     }
 
     Coords.findDimensions(max_x, max_y);
-    Session.set('initedHexagons', true);
-    setOpacity();
-    if (Session.equals('initializeingApp', false)) {
+ 
+    if (Session.equals('initedHexagons', true)) {
         exports.create();
         Hexagram.refreshColors();
+    } else {
+        Session.set('initedHexagons', true);
     }
 };
 
@@ -334,7 +309,8 @@ exports.layout = function () {
 
     // Download the positions of nodes and fill in the global
     // hexagon assignment grid.
-    Data.requestLayoutAssignments(exports.layoutAssignmentsReceived);
+    Data.requestLayoutAssignments(
+        { successFx: exports.layoutAssignmentsReceived });
 };
 
 exports.init = function () {
@@ -357,6 +333,7 @@ exports.init = function () {
     // Set some event handlers
     $('#navBar li.mapLayout').on('click', function () {
         Session.set('mapView', 'honeycomb');
+        Session.set('transparent', false);
         if (!Session.equals('page', 'mapPage')) {
             Utils.pageReload('mapPage');
         }
@@ -364,12 +341,12 @@ exports.init = function () {
     });
     $('#navBar li.xyCoordView').on('click', function () {
         Session.set('mapView', 'xyCoords');
+        Session.set('transparent', true);
         exports.layout(true);
     });
     $('#navBar .transparent').on('click', function () {
-        var transparent = Session.get('transparent');
-        Session.set('transparent', !transparent);
-        setOpacity();
+        Session.set('transparent', !Session.get('transparent'));
+        findOpacity();
         _.each(polygons, function(hex) {
             hex.setOptions({ fillOpacity: opacity });
         });

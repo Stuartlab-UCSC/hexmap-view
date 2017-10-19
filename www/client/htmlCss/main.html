@@ -5,11 +5,10 @@
     <title>UCSC Tumor Map</title>
     <link rel="icon" href="/favicon.ico?v=2" type="image/x-icon" />
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBb8AJUB4x-xxdUCnjzb-Xbcg0-T1mPw3I"></script>
-    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script async src="https://www.gstatic.com/charts/loader.js"></script>
 </head>
 <body>
     {{> Template.dynamic template=page }}
-    {{> localStoreT}}
     {{> pdf}}
     <a href="" class="homePage" style='display:none'></a>
     <a href="" class="mapPage" style='display:none'></a>
@@ -17,6 +16,3 @@
 
     <script async src='https://www.google-analytics.com/analytics.js'></script>
 </body>
-
-<template name="localStoreT">
-</template>

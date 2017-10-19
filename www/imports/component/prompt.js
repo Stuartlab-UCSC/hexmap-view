@@ -7,7 +7,6 @@ import { render } from 'react-dom';
 import PropTypes from 'prop-types';
 
 import Modal from './modal.js';
-import './reactModal.css';
 import Utils from '../common/utils.js';
 
 class Prompt extends Component {
@@ -132,7 +131,13 @@ var containerId = 'prompt',
 function closeModal (response) {
     Utils.destroyReactRoot(containerId);
     if (callback) {
-        callback(response);
+    
+        // Only allow string or undefined responses to be returned.
+        if (_.isUndefined(response) || typeof response !== 'string') {
+            callback();
+        } else {
+            callback(response);
+        }
     }
 }
 

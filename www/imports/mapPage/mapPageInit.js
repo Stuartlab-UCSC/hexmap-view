@@ -13,6 +13,7 @@ import GChart from '../shortlist/gChart.js';
 import Hexagons from '../viewport/hexagons.js';
 import Hexagram from '../viewport/hexagram.js';
 import Layer from '../longlist/layer.js';
+import Layout from '../mapPage/layout.js';
 import Legend from '../color/legend.js';
 import OverlayNodes from '../calc/overlayNodes.js';
 import OverlayNodeUi from '../calc/overlayNodeUi.js';
@@ -29,10 +30,10 @@ import Project from './project.js';
 import State from './state.js';
 import Tool from './tool.js';
 import './mapPage.html';
-import './mapPage.css';
-import '../color/colorsFont.css';
 import './navBar.html';
-import './navBar.css';
+
+import '/imports/mapPage/mapPage.css';
+import '/imports/mapPage/header.css';
 
 var shortlistSaved;
 
@@ -126,7 +127,7 @@ function areProjectsAndLayoutsPopulated (autorun) {
 
             Perform.log('background-functions-init');
 
-            Hexagram.initLayoutList();
+            Layout.initList();
             setTimeout(function () {
  
                 Perform.log('way-background-functions-init');
@@ -153,7 +154,6 @@ function areProjectsAndLayoutsPopulated (autorun) {
                 OverlayNodes.init();
                 OverlayNodeUi.init();
                 if (!DEV) {
-                    // TODO retrieve googl analytics
                     Perform.log('google-analytics-loading');
                     googleAnalytics();
                 }
@@ -173,7 +173,7 @@ function areLayoutNamesReceived (autorun) {
         autorun.stop();
         Perform.log('2.2-init:layout-names-received');
 
-        Hexagram.initLayoutList();
+        Layout.initList();
         Session.set('layoutsPopulated', true);
     }
 }

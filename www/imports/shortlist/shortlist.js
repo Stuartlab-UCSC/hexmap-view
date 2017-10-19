@@ -3,7 +3,6 @@
 // user has added so they can be quickly selected for display.
 
 import '../lib/jquery-ui.js';
-import '../lib/jquery-ui.theme.css';
 
 import Colors from '../color/colorEdit.js';
 import GChart from './gChart.js';
@@ -579,8 +578,8 @@ function make_sortable_ui_and_list () {
      $shortlist.sortable({
         update: function () {
         
-            // Find shortlist entries, ingnoring the dynamic controls.
-            var entries = _.filter($shortlist.children(), function (entry) {
+            // Find shortlist entries, ignoring the dynamic controls.
+            var entries = _.filter($shortlist.children(), function (el) {
                 return (!_.isUndefined($(el).data("layer")));
             });
         
@@ -627,8 +626,11 @@ function when_active_color_layers_change () {
         }
     });
 
-    // Finally, refresh the map colors
-    Hexagram.refreshColors();
+    // Finally, refresh the map colors if we have the data,
+    // otherwise the colors are refreshed when the data arrives.
+    if (layers[active[0]].data) {
+        Hexagram.refreshColors();
+    }
 }
 
 function create_float_controls () {

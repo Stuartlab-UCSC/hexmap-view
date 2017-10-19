@@ -245,9 +245,6 @@ function load_dynamic_data (layer_name, callback, dynamicLayers) {
     exports.with_one(layer_name, callback);
 }
 
-layerReceived = function (layer_parsed, id) {
-}
-
 function load_static_data (layer_name, callback) {
 
     // Download a static layer, then load into global layers and colormaps.
@@ -255,10 +252,10 @@ function load_static_data (layer_name, callback) {
         
     // Don't request this data more than once.
     var layer = layers[layer_name];
-    if (layer.dataRequested) {
+    if (layer.status === 'dataRequested') {
         return;
     }
-    layer.dataRequested = true;
+    layer.status = 'dataRequested';
 
     function layerReceived (layer_parsed, id) {
         var data = {};
@@ -279,6 +276,12 @@ function load_static_data (layer_name, callback) {
 
         // Save the layer data in the global layers object.
         layer.data = data;
+        layer.status = 'dataReceived';
+        
+        // If this is the primary active attr, then refresh the colors.
+        if (Shortlist.get_active_coloring_layers().indexOf(layer_name) > -1) {
+            Hexagram.refreshColors();
+        }
 
         // Now the layer has been properly downloaded, but it may not
         // have metadata. Recurse to get metadata.

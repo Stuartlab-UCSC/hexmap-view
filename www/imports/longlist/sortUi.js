@@ -147,7 +147,7 @@ import './sort.html';
         if (ui.equals('sortBy', 'density')) {
 
             // Density sort has been requested
-            Sort.find_clumpiness_stats(Session.get('layoutIndex'));
+            Sort.find_clumpiness_stats();
 
         } else if (ui.equals('sortBy', 'focus')) {
 
@@ -157,7 +157,7 @@ import './sort.html';
                 returnMessage = 'For some reason an attribute is not selected';
 
             } else if (ui.equals('layoutAware', true)) {
-                Sort.get_layout_aware_stats(Session.get('layoutIndex'), focusAttr,
+                Sort.get_layout_aware_stats(focusAttr,
                     ui.equals('corrNeg', true));
 
             } else { // ignore layout requested
@@ -203,7 +203,7 @@ exports.init = function () {
         // Initialize the sort functions
 
         // Density sort is the default sort
-        Sort.find_clumpiness_stats(Session.get('layoutIndex'));
+        Sort.find_clumpiness_stats();
 
         // Initialize the reactive variables
         ui.set({
