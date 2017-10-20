@@ -628,7 +628,7 @@ function when_active_color_layers_change () {
 
     // Finally, refresh the map colors if we have the data,
     // otherwise the colors are refreshed when the data arrives.
-    if (active.length > 1 && layers[active[0]].data) {
+    if (active.length > 0 && layers[active[0]].data) {
         Hexagram.refreshColors();
     }
 }

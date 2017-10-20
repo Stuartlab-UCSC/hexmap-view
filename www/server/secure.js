@@ -301,9 +301,10 @@ Meteor.methods({
         return Roles.userIsInRole(Meteor.user(), role);
     },
     
-    is_user_authorized_to_view: function (role) {
+    is_user_authorized_to_view: function (mapId) {
     
-        // Is the user authorized to view this role's maps/projects?
-        return is_user_authorized_to_view(role);
+        // Is the user authorized to view this map?
+        var major = mapId.split('/')[0];
+        return is_user_authorized_to_view(getProjectRole(major), major);
     },
 });

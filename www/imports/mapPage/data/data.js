@@ -53,6 +53,8 @@ exports.requestStats = function (id, opts) {
 };
 
 exports.requestMapMeta = function (opts) {
+
+    // Request the metadata within the map minor data.
     if (_.isUndefined(opts)) {
         opts = {};
     }

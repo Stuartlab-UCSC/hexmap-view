@@ -115,9 +115,12 @@ function isStateLoaded (autorun) {
         autorun.stop();
         Perform.log('init:state-loaded');
         
-        if (Session.equals('page', 'mapPage')) {
-            mapPageInit.init();
-        }
+        // Set timeout so the init routines will not be owned by this autorun.
+        setTimeout(function () {
+            if (Session.equals('page', 'mapPage')) {
+                mapPageInit.init();
+            }
+        });
     }
 }
 Meteor.autorun(isStateLoaded);

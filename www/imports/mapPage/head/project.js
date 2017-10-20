@@ -14,6 +14,7 @@ var PLACEHOLDER_TEXT = 'Select a Map...';
 
 var projects; // project list
 var data; // data for select widget
+var initialized = false;
 
 function is_project_on_list (project) {
 
@@ -48,6 +49,19 @@ function matcher (term, text, opt) {
         return true;
     }
     return false;
+}
+
+function notAuthdMessage () {
+
+    // The user is not authorized to see the current project. Let her know.
+    Session.set('mapSnake', false);
+
+    var notFoundMsg = Util.getHumanProject(ctx.project) +
+        " cannot be found.\nPlease select another map.";
+    if (!Meteor.user()) {
+        notFoundMsg += ' Or sign in.';
+    }
+    Util.banner('error', notFoundMsg);
 }
 
 function populate () {
@@ -87,7 +101,7 @@ function populate () {
     });
     
     // Attach the selector.
-     render(
+    render(
         <Select2
 
             // Options for the original non-react select2.
@@ -112,20 +126,7 @@ function populate () {
     // authorized to see it, or there is no one logged in, give a message
     // to the user.
     if (!is_project_on_list(ctx.project)) {
-    
-        // The project may be protected and has been loaded before under an
-        // authorized account and is either in the user's saved state or
-        // is a parameter in the URL.
-
-        Session.set('mapSnake', false);
-
-        var notFoundMsg = Util.getHumanProject(ctx.project) +
-            ' cannot be found. Either you are not authorized to view ' +
-            "it or it doesn't exist.\nPlease select another map.";
-        if (!Meteor.user()) {
-            notFoundMsg += ' Or sign in.';
-        }
-        Util.banner('error', notFoundMsg);
+        notAuthdMessage();
      }
 }
 
@@ -144,31 +145,57 @@ function signInClicked(count) {
         }, mSecs);
 }
 
+exports.authorize = function () {
+    
+    // Check to see if the user is authorized to view the project
+    // every time the user changes.
+    Meteor.autorun(function() {
+        var user = Meteor.user();
+        Meteor.call('is_user_authorized_to_view', ctx.project,
+            function (error, results) {
+                if (results) {
+                    Session.set('authdForProject', true);
+                    if (Session.equals('mapRendered', false)) {
+                        Session.set('mapSnake', true);
+                    }
+                } else {
+                    
+                    // Build the project list for the user to choose another.
+                    exports.init();
+                    notAuthdMessage();
+                }
+            }
+        );
+    });
+};
+
 exports.init = function () {
 
+    if (initialized) {
+        return;
+    }
+    
+    initialized = true;
     // This may be causing password to not allow focus on password error.
     //$('.login').on('click', $('#login-sign-in-link'), signInClicked);
 
     // Re-populate projects whenever the user changes, including log out
-    setTimeout(function () {
-        Meteor.autorun(function() {
-            var user = Meteor.user(); // jshint ignore: line
-            
-            Perform.log('project-list-get,-user:-' +
-                (user ? user.username : 'none'));
-            
-            Meteor.call('getProjects', function (error, projects_returned) {
-                if (error) {
-                    Util.banner('error',
-                        "Unable to retrieve project data from server." +
-                        error);
-                    return;
-                }
-            
-                Perform.log('project-list-got');
-                projects = projects_returned;
-                populate();
-            });
+    Meteor.autorun(function() {
+        var user = Meteor.user();
+        Perform.log('project-list-get,-user:-' +
+            (user ? user.username : 'none'));
+        
+        Meteor.call('getProjects', function (error, projects_returned) {
+            if (error) {
+                Util.banner('error',
+                    "Unable to retrieve project data from server." +
+                    error);
+                return;
+            }
+        
+            Perform.log('project-list-got');
+            projects = projects_returned;
+            populate();
         });
     });
-}
+};
