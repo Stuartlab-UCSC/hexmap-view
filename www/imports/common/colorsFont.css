@@ -1,6 +1,7 @@
 
 /* FONTS */
-body {
+body,
+body .ui-widget {
     /*font-family: sans-serif */
     font-family: Verdana, Arial, sans-serif;
 }

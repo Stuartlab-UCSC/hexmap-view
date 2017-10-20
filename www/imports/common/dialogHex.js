@@ -40,19 +40,8 @@ DialogHexagon = function (parms, $el, opts, showFx, hideFx, helpAnchor) {
     DialogHexagon.prototype.finishShow = function () {
 
         // Complete the show after the dom elements are built.
-        var self = this,
-            closeSvg = '/icons/close.svg';
-
-        // Replace jqueryUI's sad close icon
-        $('.ui-dialog-titlebar-close').css({
-            'background-color': 'inherit',
-            'background-image': 'url(' + closeSvg + ')',
-            'border-size': '0',
-            'width': '14',
-            'height': '14',
-        })
-        .find('span').hide();
-
+        var self = this;
+        
         if (this.helpAnchor) {
             this.initHelp();
         }

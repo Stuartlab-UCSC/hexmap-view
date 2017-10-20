@@ -11,7 +11,7 @@ import Utils from '/imports/common/utils.js';
 import '/imports/homePage/home.html';
 
 // We need this order to retain the correct cascading effect.
-import '/imports/lib/jquery-ui.theme.css';
+import '/imports/lib/jquery-ui.css';
 import '/imports/common/colorsFont.css';
 import '/imports/common/navBar.css';
 

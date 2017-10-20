@@ -257,16 +257,10 @@
     background-color: white;
 }
 
-.ui-slider .ui-slider-handle {
+.ui-slider .ui-slider-handle.ui-state-default.ui-corner-all {
     width: 0.8em;
     height: 0.8em;
     border-color: #aaa;
-}
-
-.ui-slider-horizontal .ui-slider-handle {
     margin-left: -0.4em;
-}
-
-.ui-slider-handle.ui-corner-all {
     border-radius: 0.5em;
 }
