@@ -4,6 +4,7 @@
 import Data from '/imports/mapPage/data/data.js';
 import Colors from '/imports/mapPage/color/colorEdit.js';
 import Hexagram from '/imports/mapPage/viewport/hexagram.js';
+import JPalette from '/imports/mapPage/color/jpalette.js';
 import U from '/imports/common/utils.js';
 import Perform from '/imports/common/perform.js';
 import Prompt from '/imports/component/prompt.js';
@@ -86,7 +87,7 @@ function load_dynamic_colormap (name, layer) {
      
         // Generate a colormap.
         var jpColormap = _.map(
-            jPalette.ColorMap.get('hexmap')(cats.length + 1).map,
+            JPalette.jColormap.get('hexmap')(cats.length + 1).map,
             function (val, key) {
         
                 // Ignore alpha, taking the default of one.

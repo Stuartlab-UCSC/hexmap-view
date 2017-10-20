@@ -70,7 +70,7 @@ function centerToArray (centerIn) {
     return center;
 }
 
-State = function() { // jshint ignore: line
+var State = function() {
 
     // The state stores the values used across modules for different
     // purposes. These may belong to this object or to the reactive meteor

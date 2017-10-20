@@ -99,11 +99,17 @@ ga('send', 'pageview');
 /* eslint-enable */
 }
 
-// Phase 6b init: when the layout selector has been populated,
+// Phase 6b init: when the active layers have been added to the shortlist
+//           and the map has rendered
+//           and layout selector has been populated,
 //           complete initialization.
+Session.set('activeLayersInShortlist', false);
+Session.set('mapRendered', false);
 Session.set('layoutsPopulated', false);
 function areLayoutsPopulated (autorun) {
-    if (Session.get('layoutsPopulated')) {
+    if (Session.get('activeLayersInShortlist') &&
+        Session.get('layoutsPopulated') &&
+        Session.get('mapRendered')) {
         autorun.stop();
         Perform.log('6b-init:complete initialization');
 
@@ -178,7 +184,6 @@ Meteor.autorun(areLayoutNamesReceived);
 
 // Phase 5 init: when the map has been rendered,
 //               request the secondary data.
-Session.set('mapRendered', false);
 function isMapRendered (autorun) {
     if (Session.get('mapRendered')) {
         autorun.stop();
@@ -203,6 +208,7 @@ function isMapRendered (autorun) {
             shortlistSaved = Session.get('shortlist');
             Session.set('shortlist', Session.get('active_layers'));
             Shortlist.init();
+            Session.set('activeLayersInShortlist', true);
         });
     }
 }

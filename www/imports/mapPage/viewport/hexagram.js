@@ -3,6 +3,7 @@
 
 import '/imports/lib/color.js';
 import Colors from '/imports/mapPage/color/colorEdit.js';
+import Coords from '/imports/mapPage/viewport/coords.js';
 import Hexagons from '/imports/mapPage/viewport/hexagons.js';
 import Layer from '/imports/mapPage/longlist/layer.js';
 import Legend from '/imports/mapPage/color/legend.js';
@@ -36,7 +37,7 @@ exports.createMap = function  () {
         document.getElementById('visualization'), mapOptions);
         
     // Attach the blank map type to the map
-    googlemap.mapTypes.set("blank", new BlankMapType());
+    googlemap.mapTypes.set("blank", new Coords.BlankMap());
     
     google.maps.event.addListener(googlemap, "center_changed", function(event) {
         ctx.center = googlemap.getCenter();

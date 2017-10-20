@@ -92,13 +92,10 @@ exports.getSideLen = function () {
     return sideLen;
 }
 
-function initMapType () {
+var FlatProjection = function () {};
+var BlankMapType = function () {};
 
-    // Define a flat projection
-    FlatProjection = function () {
-    }
-    BlankMapType = function () {
-    }
+function initMapType () {
 
     // See https://developers.google.com/maps/documentation/javascript/maptypes#Projections
     FlatProjection.prototype.fromLatLngToPoint = function(latLng) {
@@ -141,6 +138,8 @@ function initMapType () {
     BlankMapType.prototype.alt = "Blank Map";
     BlankMapType.prototype.projection = new FlatProjection();
 }
+
+export class BlankMap extends BlankMapType{};
 
 exports.get_LatLng = function (x, y) {
 

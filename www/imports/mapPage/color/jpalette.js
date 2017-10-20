@@ -3,14 +3,10 @@
 /**
  * Small javascript library to generate a color palette.
  *
- * @namespace jPalette
  * @version 0.4.0
  * @author Julien Descamps
  * https://github.com/jsrdescamps/jpalette
  */
-;(function(namespace, undefined) {
-  'use strict';
-
   /**
    * Create an instance of Color.
    *
@@ -21,7 +17,7 @@
    * @param {number} b - Blue color in range [0,255]
    * @param {number} a - Alpha transparency in range [0,255]
    */
-  var Color = function(r, g, b, a) {
+var Color = function(r, g, b, a) {
     this.r = r || 0;
     this.g = g || 0;
     this.b = b || 0;
@@ -111,7 +107,7 @@
    * @param {number} numSteps - number of colors shades in the palette.
    * @param {object[]} colors - Color array to display in the palette.
    */
-  var ColorMap = function(numSteps, colors) {
+var ColorMap = function(numSteps, colors) {
     if (colors.length <= 1) {
       throw 'Two colors minimum.';
     }
@@ -216,9 +212,4 @@
       }
     };
   };
-
-  // Declare classes into namespace
-  namespace.Color = Color;
-  namespace.ColorMap = ColorMap;
-
-}(window.jPalette = window.jPalette || {}));
+export class jColormap extends ColorMap {};

@@ -443,7 +443,7 @@ function createGridMap () {
         mapOptions);
         
     // Attach the blank map type to the map
-    gridMap.mapTypes.set("blank", new BlankMapType());
+    gridMap.mapTypes.set("blank", new Coords.BlankMapType());
 
     // Add a listener for the center changing
     google.maps.event.addListener(gridMap, "center_changed", function(event) {
