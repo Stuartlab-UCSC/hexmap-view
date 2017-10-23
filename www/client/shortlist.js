@@ -1043,6 +1043,27 @@ return {
         }
     },
     
+    inShortList: function(layerName){
+        var shortList = Session.get('shortlist');
+        return (shortList.indexOf(layerName) > -1)
+    },
+
+    getContinuousLayerNames: function() {
+        var shortlist = Session.get('shortlist');
+        var contLayers = shortlist.filter(function(layerName) {
+            return Util.is_continuous(layerName)
+        });
+        return contLayers
+    },
+
+    getBinaryLayerNames: function() {
+        var shortlist = Session.get('shortlist');
+        var binLayers = shortlist.filter(function(layerName) {
+            return Util.is_binary(layerName)
+        });
+        return binLayers
+    },
+
     get_dynamic_entries_for_persistent_state: function () {
     
         // Return the dynamic entries in the short list, while converting the
