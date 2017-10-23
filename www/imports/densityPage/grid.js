@@ -12,7 +12,6 @@ import Utils from '/imports/common/utils.js';
 
 // TODO move these up after we're routing pages.
 import '/imports/mapPage/calc/jobs.html';
-import '/imports/common/navBar.html';
 
 import './grid.html';
 

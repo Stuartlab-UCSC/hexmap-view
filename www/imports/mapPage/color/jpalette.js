@@ -1,4 +1,3 @@
-// TODO make this work in imports.
 
 /**
  * Small javascript library to generate a color palette.
@@ -17,6 +16,8 @@
    * @param {number} b - Blue color in range [0,255]
    * @param {number} a - Alpha transparency in range [0,255]
    */
+// Don't lint this modified library.
+/* eslint-disable */
 var Color = function(r, g, b, a) {
     this.r = r || 0;
     this.g = g || 0;
@@ -213,3 +214,4 @@ var ColorMap = function(numSteps, colors) {
     };
   };
 export class jColormap extends ColorMap {};
+/* eslint-enable */

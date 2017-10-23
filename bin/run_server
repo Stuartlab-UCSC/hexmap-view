@@ -67,7 +67,7 @@ BIN=$HEXMAP/bin
 if [ $ACTION == 'start' ] || [ $ACTION == 'stop' ]; then
 
     # A server type must be specified.
-    if [ $SERVER_TYPE != 'www' ] && [ $SERVER_TYPE != 'db' ] && [ $SERVER_TYPE != 'http' ] && [ $SERVER_TYPE != 'https' ]; then
+    if [ $SERVER_TYPE != 'www' ] && [ $SERVER_TYPE != 'wwwViz' ] && [ $SERVER_TYPE != 'db' ] && [ $SERVER_TYPE != 'http' ] && [ $SERVER_TYPE != 'https' ]; then
         echo You need to specify a SERVER_TYPE to the run script, one of:
         echo     / www / db / http / https /
         echo Exiting

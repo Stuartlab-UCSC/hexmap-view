@@ -8,7 +8,6 @@ import Perform from '/imports/common/perform.js';
 import State from '/imports/common/state.js';
 import Tool from '/imports/mapPage/head/tool.js';
 import Utils from '/imports/common/utils.js';
-import '/imports/homePage/home.html';
 
 // We need this order to retain the correct cascading effect.
 import '/imports/lib/jquery-ui.css';
@@ -17,9 +16,7 @@ import '/imports/common/navBar.css';
 
 import mapPageInit from '/imports/mapPage/init/mapPageInit.js';
 
-import '/imports/homePage/home.css';
-
-var VERSION = 'Version 1.0';
+Session.set('version', '1.0');
 
 Session.set('domLoaded', false);
 window.addEventListener("load", function(event) {
@@ -32,69 +29,9 @@ Template.body.helpers({
     },
 });
 
-Template.homePage.onRendered(function () {
-    Tool.init();
-    CreateMap.init();  // TODO why?
-});
-
 Template.gridPage.onRendered(function () {
     initGridMapContainer();
-    Tool.init();
-});
-
-Template.navBarT.helpers({
-    version: function () {
-        if (DEV) {
-            return VERSION + ' DEV';
-        } else {
-            return VERSION;
-        }
-    },
-});
-
-Template.homePage.helpers({
-    projects: function () {
-        return [
-            { id: 'Pancan12/SampleMap', png: 'pancan12.png' },
-            { id: 'Pancan12/GeneMap', png: 'pancan12gene.png' },
-            { id: 'Gliomas', png: 'gliomas-paper.png' },
-            { id: 'QuakeBrain', png: 'QuakeBrain.png' },
-            { id: 'pCHIPS', png: 'pchips.png' },
-            { id: 'mgmarin_public/PCAWG_JuncBASE_CassetteExonPSIs',
-                label: 'PCAWG JuncBASE CassetteExonPSIs',
-                linkAnchor: 'PCAWGJuncBASE',
-                png: 'PCAWG_JuncBASE.png' },
-        ];
-    },
-    id: function () {
-        return this.id;
-    },
-    label: function () {
-        if (this.label) {
-            return this.label;
-        } else {
-            return this.id;
-        }
-    },
-    png: function () {
-        return this.png;
-    },
-    linkAnchor: function () {
-        if (this.linkAnchor) {
-            return this.linkAnchor.toLowerCase();
-        } else if (this.label) {
-            return this.label.toLowerCase();
-        } else {
-            return this.id.toLowerCase();
-        }
-    },
-    version: function () {
-        if (DEV) {
-            return VERSION + ' DEV';
-        } else {
-            return VERSION;
-        }
-    },
+    NavBar.init();
 });
 
 function initGridMapContainer () { // jshint ignore: line
@@ -119,6 +56,8 @@ function isStateLoaded (autorun) {
         setTimeout(function () {
             if (Session.equals('page', 'mapPage')) {
                 mapPageInit.init();
+            } else if (Session.equals('page', 'homePage')) {
+               import('/imports/homePage/home.js').then(home => home.init());
             }
         });
     }

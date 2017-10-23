@@ -15,6 +15,7 @@ import Hexagram from '/imports/mapPage/viewport/hexagram.js';
 import Layer from '/imports/mapPage/longlist/layer.js';
 import Layout from '/imports/mapPage/head/layout.js';
 import Legend from '/imports/mapPage/color/legend.js';
+import NavBar from '/imports/common/navBar.js';
 import OverlayNodes from '/imports/mapPage/calc/overlayNodes.js';
 import OverlayNodeUi from '/imports/mapPage/calc/overlayNodeUi.js';
 import Perform from '/imports/common/perform.js';
@@ -119,7 +120,7 @@ function areLayoutsPopulated (autorun) {
             Shortlist.complete_initialization();
 
             // Show the appropriate options on the navigation bar.
-            Tool.init();
+            NavBar.init();
 
             // Allow some rendering to happen.
             setTimeout(function () {
