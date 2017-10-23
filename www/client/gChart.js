@@ -29,15 +29,15 @@ var app = app || {};
             });
 
             // Fill any undefined array values with zero
-            var filled = []
-            for (i = 0; i < counts.length; i += 1) {
+            var filled = [];
+            for (var i = 0; i < counts.length; i += 1) {
                 filled[i] = (counts[i]) ? counts[i] : 0;
             }
             
             // Find the colors from the colormap or the default binary colors
             var colormap = colormaps[layer_name];
             if (!colormap || Object.keys(colormap).length === 0) {
-                colors = [Colors.binary_off(), Colors.binary_on()];
+                colors = [Colors.binaryOffColor(), Colors.binaryOnColor()];
             } else {
                 colors = _.map(colormap, function (cat) {
                     return cat.color.hexString();
