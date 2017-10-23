@@ -28,6 +28,7 @@ HEXMAP=$3       # Full path of this installation instance
 SERVER_TYPE=$4  # Type of server, one of:
                 #   / www / db / http / https /
                 # or not required for the short form to start a server.
+OPTION=$5       # only for prod install. full path of tar.gz file
 
 # An action must be specified.
 if [ -z ${ACTION} ]; then
@@ -95,20 +96,7 @@ elif [ $ACTION == 'install' ]; then
         echo Exiting
         exit
     fi
-    $BIN/install_www.sh $HEXMAP $TAR_FILE
-
-# Handle tar actions.
-elif [ $ACTION == 'maketar' ] || [ $ACTION == 'xtar' ]; then
-
-    # Don't allow xtar on anything other than production or dev.
-    if [ $ACTION == 'xtar' ] && [ [ $CONFIG != 'prod' ] || [ $CONFIG != 'dev' ] ]
-        then
-        echo Sorry you cannot xtar to here and remove all of your current code!
-        echo Exiting
-        exit
-    fi
-    TARGET=$SERVER_TYPE
-    $BIN/tar.sh $ACTION $HEXMAP, $TARGET
+    $BIN/install_www.sh $HEXMAP $OPTION
 
 else
     echo Invalid ACTION as a first parameter: $ACTION
