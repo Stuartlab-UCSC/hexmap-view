@@ -54,7 +54,7 @@ var app = app || {};
 
             // Disable base options of focus sort
             disabled = true;
-            color = Colors.disabled_color();
+            color = Colors.disabledColor();
         }
         $dialog.find('.based')
             .attr('disabled', disabled)
@@ -70,7 +70,7 @@ var app = app || {};
 
             // Disable correlation options for sample-based
             disabled = true;
-            color = Colors.disabled_color();
+            color = Colors.disabledColor();
         }
         $dialog.find('.corr')
             .attr('disabled', disabled)
