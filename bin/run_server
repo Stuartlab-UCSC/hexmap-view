@@ -3,10 +3,11 @@
 # Point of entry for the run scripts. 
 
 # Examples:
-# run db
+# run db        (action default to 'start')
 # run start db
 # run stop db
-# run install
+# run install   (for installing on hexdev)
+# run install <full-path-to-tar.gz-file>   (for installing on prod)
 # run deploy
 # run maketar
 # run maketar docs
@@ -15,9 +16,10 @@
 # !/bin/bash
 # ACTION=$1
 # SERVER_TYPE=$2
+# $OPTION=$3
 # CONFIG=prod
 # HEXMAP=/data
-# $HEXMAP/bin/run_server $ACTION $CONFIG $HEXMAP $SERVER_TYPE
+# $HEXMAP/bin/run_server $ACTION $CONFIG $HEXMAP $SERVER_TYPE $OPTION
 
 ACTION=$1       # The action on the server, one of:
                 #   / start / stop / deploy / install / maketar / xtar /
@@ -31,6 +33,7 @@ SERVER_TYPE=$4  # Type of server, one of:
                 # or tar target, defaults to 'most', one of:
                 #   / most / docs / all /
                 # or not required for the short form to start a server.
+OPTION=$5       # only for 'install' on prod. the full path to tar file.
 
 # An action must be specified.
 if [ -z ${ACTION} ]; then
@@ -82,7 +85,7 @@ if [ $ACTION == 'start' ] || [ $ACTION == 'stop' ]; then
 elif [ $ACTION == 'deploy' ]; then
 
     # Don't allow deploy on production or dev.
-    if [ $CONFIG == 'prod' ] || [ $CONFIG == 'dev' ]; then
+    if [ $CONFIG == 'prod' ] || [ $CONFIG == 'dev' ] || [ $CONFIG == 'dmccolldev' ]; then
         echo Sorry you cannot deploy from production or dev!
         echo Exiting
         exit
@@ -93,12 +96,12 @@ elif [ $ACTION == 'deploy' ]; then
 elif [ $ACTION == 'install' ]; then
 
     # Don't allow install on anything other than production or dev.
-    if [ $CONFIG != 'prod' ] && [ $CONFIG != 'dev' ]; then
+    if [ $CONFIG != 'prod' ] && [ $CONFIG != 'dev' ] && [ $CONFIG != 'dmccolldev' ]; then
         echo Sorry you cannot install to here and remove all of your current code!
         echo Exiting
         exit
     fi
-    $BIN/install_www.sh $HEXMAP
+    $BIN/install_www.sh $HEXMAP $TAR_FILE
 
 # Handle tar actions.
 elif [ $ACTION == 'maketar' ] || [ $ACTION == 'xtar' ]; then
