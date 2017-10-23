@@ -71,27 +71,20 @@ var app = app || {};
     }
 
     findColorCount = function (layer_name) {
-
         // Find the number of colors for this layer. Continuous values and
         // undefined layer_names are assigned a count of zero.
-        if (have_colormap(layer_name)) {
+        var nColors = 0;
+
+        if (Util.is_cat_or_bin(layer_name)) {
             var colormap = colormaps[layer_name];
             if (colormap.length > 0) {
 
                 // Categorical values
-                return colormap.length;
-            } else {
-
-                // Binary values
-                return 2;
+                nColors = colormap.length;
             }
-        } else {
-
-            // Continuous values or undefined layer_name
-            return 0;
         }
-    }
-
+        return nColors
+    };
 
     redraw_legend = function (retrieved_layers, current_layers, context) {
  
