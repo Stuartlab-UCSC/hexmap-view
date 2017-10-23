@@ -388,6 +388,7 @@ return { // Public methods
             if (Util.is_continuous(layer_name)) {
                 layer.maximum = maximum;
                 layer.minimum = minimum;
+                colormaps[layer_name] = Colors.defaultContinuousColormap()
             }
 		    // Keep track of the unsigned magnitude.
 		    layer.magnitude = Math.max(Math.abs(minimum), maximum);
@@ -395,7 +396,7 @@ return { // Public methods
 		    if (!have_colormap(layer_name) && Util.is_binary(layer_name)) {
 		        // Add an empty colormap for this layer, so that 
 		        // auto-generated discrete colors will be used.
-		        colormaps[layer_name] = Colors.default_binary_colormap();
+		        colormaps[layer_name] = Colors.defaultBinaryColorMap();
 		    }
          
             // Add this layer to the shortlist.
