@@ -139,7 +139,7 @@ var app = app || {}; // jshint ignore:line
                 }
             }
 
-            var color = this.enabled ? 'inherit' : Colors.disabled_color();
+            var color = this.enabled ? 'inherit' : Colors.disabledColor();
 
             // Disable any list message up front
             this.message.set('');
