@@ -3,24 +3,23 @@
 # Point of entry for the run scripts. 
 
 # Examples:
-# run db
+# run db        (action defaults to 'start')
 # run start db
 # run stop db
-# run install
+# run install <full-path-to-tar.gz-file>   (for installing on prod)
 # run deploy
-# run maketar
-# run maketar docs
 
 # Production run script that calls this script
 # !/bin/bash
 # ACTION=$1
 # SERVER_TYPE=$2
+# OPTION=$3
 # CONFIG=prod
 # HEXMAP=/data
-# $HEXMAP/bin/run_server $ACTION $CONFIG $HEXMAP $SERVER_TYPE
+# $HEXMAP/bin/run_server $ACTION $CONFIG $HEXMAP $SERVER_TYPE $OPTION
 
 ACTION=$1       # The action on the server, one of:
-                #   / start / stop / deploy / install / maketar / xtar /
+                #   / start / stop / deploy / install /
                 # or type of server for the short form of starting a server, one of:
                 #   / www / db / http / https /
 CONFIG=$2       # The configuration of the server, one of:
@@ -28,14 +27,12 @@ CONFIG=$2       # The configuration of the server, one of:
 HEXMAP=$3       # Full path of this installation instance
 SERVER_TYPE=$4  # Type of server, one of:
                 #   / www / db / http / https /
-                # or tar target, defaults to 'most', one of:
-                #   / most / docs / all /
                 # or not required for the short form to start a server.
 
 # An action must be specified.
 if [ -z ${ACTION} ]; then
     echo You need to specify an ACTION to the run script, one of:
-    echo     / start / stop / deploy / install / maketar / xtar /
+    echo     / start / stop / deploy / install /
     echo Exiting
     exit
 fi
@@ -67,7 +64,7 @@ BIN=$HEXMAP/bin
 if [ $ACTION == 'start' ] || [ $ACTION == 'stop' ]; then
 
     # A server type must be specified.
-    if [ $SERVER_TYPE != 'www' ] && [ $SERVER_TYPE != 'db' ] && [ $SERVER_TYPE != 'http' ] && [ $SERVER_TYPE != 'https' ]; then
+    if [ $SERVER_TYPE != 'www' ] && [ $SERVER_TYPE != 'wwwViz' ] && [ $SERVER_TYPE != 'db' ] && [ $SERVER_TYPE != 'http' ] && [ $SERVER_TYPE != 'https' ]; then
         echo You need to specify a SERVER_TYPE to the run script, one of:
         echo     / www / db / http / https /
         echo Exiting
@@ -99,19 +96,6 @@ elif [ $ACTION == 'install' ]; then
         exit
     fi
     $BIN/install_www.sh $HEXMAP
-
-# Handle tar actions.
-elif [ $ACTION == 'maketar' ] || [ $ACTION == 'xtar' ]; then
-
-    # Don't allow xtar on anything other than production or dev.
-    if [ $ACTION == 'xtar' ] && [ [ $CONFIG != 'prod' ] || [ $CONFIG != 'dev' ] ]
-        then
-        echo Sorry you cannot xtar to here and remove all of your current code!
-        echo Exiting
-        exit
-    fi
-    TARGET=$SERVER_TYPE
-    $BIN/tar.sh $ACTION $HEXMAP, $TARGET
 
 else
     echo Invalid ACTION as a first parameter: $ACTION

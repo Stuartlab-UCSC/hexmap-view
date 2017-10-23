@@ -3,9 +3,9 @@
 DB_NAME=live
 DB_PORT=27017
 METEOR=/Users/swat/.meteor
-PORT=3333
-HTTPS_PORT=$PORT
 
 # Needed by the www server.
+export HTTPS_PORT=$PORT
+export PORT=3333
 export PYTHONPATH=/Users/swat/dev/compute/calc
 export ROOT_URL=http://localhost:$HTTPS_PORT
