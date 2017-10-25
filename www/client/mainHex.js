@@ -20,9 +20,8 @@ import '/imports/common/navBar.css';
 
 VERSION = '1.0';
 
-Session.set('domLoaded', false);
 window.addEventListener("load", function(event) {
-    Session.set('domLoaded', true);
+	rx.dispatch({ type: Action.INIT_DOM_LOADED })
 });
 var unsubFx = {};
 

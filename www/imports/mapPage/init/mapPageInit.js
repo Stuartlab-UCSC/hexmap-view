@@ -3,6 +3,7 @@
  */
 
 import { Meteor } from 'meteor/meteor';
+//import Action from '/imports/store/action.js';
 import CheckLayerBox from '/imports/mapPage/calc/checkLayerBox.js';
 import Colors from '/imports/mapPage/color/colorEdit.js';
 import Coords from '/imports/mapPage/viewport/coords.js';
@@ -36,6 +37,10 @@ import '/imports/mapPage/init/mapPage.css';
 import '/imports/mapPage/head/header.css';
 
 var shortlistSaved;
+
+// State unsubscribe functions.
+var unsubFx = {},
+    autorun = {};
 
 Template.headerT.helpers({
     sort: function () {
@@ -75,18 +80,10 @@ function initSnakes () {
         }
     }
     Meteor.autorun(function () {
-        var snake = Session.get('mapSnake'),
-            domLoaded = Session.get('domLoaded');
-        if (domLoaded) {
-            showHide(snake, 'mapSnake');
-        }
+        showHide(Session.get('mapSnake'), 'mapSnake');
     });
     Meteor.autorun(function () {
-        var snake = Session.get('statsSnake'),
-            domLoaded = Session.get('domLoaded');
-        if (domLoaded) {
-            showHide(snake, 'statsSnake');
-        }
+        showHide(Session.get('statsSnake'), 'statsSnake');
     });
 }
 
@@ -241,13 +238,14 @@ Meteor.autorun(isMapPreppedAndUserAuthorized);
 Session.set('layoutAssignmentsReceived', false);
 Session.set('colormapsLoaded', false);
 Session.set('activeLayersLoaded', false);
-function isReadyToRenderMap (autorun) {
+function isReadyToRenderMap () {
     if (Session.get('layoutAssignmentsReceived') &&
         Session.get('colormapsLoaded') &&
         Session.get('activeLayersLoaded') &&
-        Session.get('domLoaded')) {
-        autorun.stop();
+        rx.getState().initDomLoad) {
+
         Perform.log('3-init:prep-map');
+        autorun.isReadyToRenderMap.stop();
         
         // Set timeout so the init routines will not be owned by this autorun.
         setTimeout(function () {
@@ -263,7 +261,6 @@ function isReadyToRenderMap (autorun) {
         });
     }
 }
-Meteor.autorun(isReadyToRenderMap);
 
 // Phase 2 init: when layer summary and types are received, & dom loaded
 //             determine the first coloring layers & default first layer.
@@ -307,18 +304,16 @@ function haveActiveLayerIndex (autorun) {
 }
 Meteor.autorun(haveActiveLayerIndex);
 
-// Phase 1b init: when primary data has been requested and DOM loaded,
-//           show the loading snake.
-Session.set('primaryDataRequested', false);
-function hasInitialDataBeenRequested (autorun) {
-    if (Session.get('primaryDataRequested') &&
-        Session.get('domLoaded')) {
-        autorun.stop();
+// Phase 1b init: when the DOM has loaded, show the loading snake.
+function hasDomLoaded () {
+    if (rx.getState().initDomLoad) {
+    
+        unsubFx.hasDomLoaded();
         Perform.log('1b-init:init-snakes');
+        
         setTimeout(initSnakes);
     }
 }
-Meteor.autorun(hasInitialDataBeenRequested);
 
 // Phase 1a init: State has been received,
 //           so request primary data and authorization.
@@ -330,7 +325,11 @@ exports.init = function () {
     Data.requestDataTypes({ stateVar: 'dataTypesLoaded' });
     Data.requestLayoutAssignments({ stateVar: 'layoutAssignmentsReceived' });
     Data.requestColormaps({ stateVar: 'colormapsLoaded' });
-    Session.set('primaryDataRequested', true);
+    
+    // Subscribe to state changes.
+    unsubFx.hasDomLoaded = rx.subscribe(hasDomLoaded);
+    unsubFx.haveActiveLayerIndex = rx.subscribe(haveActiveLayerIndex);
+    autorun.isReadyToRenderMap = Meteor.autorun(isReadyToRenderMap);
     
     // Check if the user is authorized for the project.
     Project.authorize();
