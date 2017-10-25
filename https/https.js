@@ -10,7 +10,7 @@ var HEXMAP = process.env.HEXMAP,
     KEY,
     CERT;
     
-if (HEXMAP = '/data') {
+if (HEXMAP === '/data') {
     SERVER_BASE_URL = 'tumormap.ucsc.edu';
     KEY = SECDIR + 'tumormap.key';
     CERT = SECDIR + 'tumormap.crt';
