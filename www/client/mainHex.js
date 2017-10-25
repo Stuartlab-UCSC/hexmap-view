@@ -1,9 +1,13 @@
 // mainHex.js
 
 import { Meteor } from 'meteor/meteor';
+
+import Action from '/imports/store/action.js';
+import ReducerCreator from  '/imports/store/reducerCreator.js';
 import Coords from '/imports/mapPage/viewport/coords.js';
 import CreateMap from '/imports/mapPage/calc/createMap.js';
 import Grid from '/imports/densityPage/grid.js';
+import mapPageInit from '/imports/mapPage/init/mapPageInit.js';
 import Perform from '/imports/common/perform.js';
 import State from '/imports/common/state.js';
 import Tool from '/imports/mapPage/head/tool.js';
@@ -14,14 +18,13 @@ import '/imports/lib/jquery-ui.css';
 import '/imports/common/colorsFont.css';
 import '/imports/common/navBar.css';
 
-import mapPageInit from '/imports/mapPage/init/mapPageInit.js';
-
-Session.set('version', '1.0');
+VERSION = '1.0';
 
 Session.set('domLoaded', false);
 window.addEventListener("load", function(event) {
     Session.set('domLoaded', true);
 });
+var unsubFx = {};
 
 Template.body.helpers({
     page: function () {
@@ -46,25 +49,29 @@ function initGridMapContainer () { // jshint ignore: line
 }
 
 // When the state has been loaded...
-Session.set('stateLoaded', false);
-function isStateLoaded (autorun) {
-    if (Session.get('stateLoaded')) {
-        autorun.stop();
+function isStateLoaded () {
+    if (rx.getState().initCtxLoad &&
+        rx.getState().initStateLoad) {
+
+        unsubFx.isStateLoaded();
         Perform.log('init:state-loaded');
         
-        // Set timeout so the init routines will not be owned by this autorun.
-        setTimeout(function () {
-            if (Session.equals('page', 'mapPage')) {
-                mapPageInit.init();
-            } else if (Session.equals('page', 'homePage')) {
-               import('/imports/homePage/home.js').then(home => home.init());
-            }
-        });
+        if (Session.equals('page', 'mapPage')) {
+            mapPageInit.init();
+        } else if (Session.equals('page', 'homePage')) {
+           import('/imports/homePage/home.js').then(home => home.init());
+        }
     }
 }
-Meteor.autorun(isStateLoaded);
+
+function subscribeToStore () {
+    unsubFx.isStateLoaded = rx.subscribe(isStateLoaded);
+}
 
 Meteor.startup(() => {
     Perform.init();
+    ReducerCreator.init();
+    subscribeToStore();
     ctx = State.init();
+    rx.dispatch({ type: Action.INIT_CTX_LOADED })
 });

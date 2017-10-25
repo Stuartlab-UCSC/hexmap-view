@@ -1,6 +1,7 @@
 // state.js
 // An object to write and load state
 
+import Action from '/imports/store/action.js';
 import DialogHex from '/imports/common/dialogHex.js';
 import OverlayNodes from '/imports/mapPage/calc/overlayNodes.js';
 import Shortlist from '/imports/mapPage/shortlist/shortlist.js';
@@ -380,7 +381,7 @@ State.prototype.load = function (store) {
             OverlayNodes.get('youngwookExponentialNormalization'));
     }
     
-    Session.set('stateLoaded', true);
+    rx.dispatch({ type: Action.INIT_STATE_LOADED });
 };
 
 State.prototype.loadFromLocalStore = function () {

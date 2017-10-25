@@ -18,6 +18,8 @@ exports.init = function () {
 
     var date = new Date().toString();
     startTime = Date.now();
+    exports.log('0-init:begin');
+
     var meta = {
         date: date.slice(4, (date.indexOf('GMT') - 4)),
         viewDir: VIEW_DIR,

@@ -1,12 +1,13 @@
 module.exports = {
     "globals": {
         "_": false,
-        "ctx": false,
+        "ctx": true,
         "DEV": false,
         "HUB_URL": false,
         "layers": false,
         "PERFORM": false,
         "polygons": false,
+        "rx": true,
         "VIEW_DIR": false,
     },
     "env": {

@@ -6,9 +6,9 @@ import './navBar.css';
 Template.navBarT.helpers({
     version: function () {
         if (DEV) {
-            return Session.get('version') + ' DEV';
+            return VERSION + ' DEV';
         } else {
-            return Session.get('version');
+            return VERSION;
         }
     },
 });
