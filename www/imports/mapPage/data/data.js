@@ -2,6 +2,7 @@
  * Retrieve data.
  */
 
+import Action from '/imports/store/action.js';
 import Ajax from '/imports/mapPage/data/ajax.js';
 import Filter from '/imports/mapPage/longlist/filter.js';
 import Hexagons from '/imports/mapPage/viewport/hexagons.js';
@@ -30,7 +31,11 @@ function request (id, opts) {
                 opts.successFx(results, id);
             }
             if (opts.stateVar) {
-                Session.set(opts.stateVar, true);
+                if (rx.getState().hasOwnProperty(opts.stateVar)) {
+                    rx.dispatch({ type: Action[opts.stateAction] })
+                } else {
+                    Session.set(opts.stateVar, true);
+                }
             }
         },
         error: function (error) {

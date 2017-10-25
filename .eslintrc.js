@@ -8,6 +8,7 @@ module.exports = {
         "PERFORM": false,
         "polygons": false,
         "rx": true,
+        "VERSION": false,
         "VIEW_DIR": false,
     },
     "env": {

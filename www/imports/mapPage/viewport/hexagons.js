@@ -34,6 +34,10 @@ var hoverInfoShowing = false;
 
 var backgroundAutorun;
 
+// Save the xy extents.
+var max_x,
+    max_y;
+
 Template.navBarT.helpers({
     mapViewLayoutSelected: function () {  
         var page = Session.get('page'),
@@ -207,6 +211,12 @@ function showHoverInfo () {
     }
 }
 
+function initNewLayout () {
+    Coords.findDimensions(max_x, max_y);
+    exports.create();
+    Hexagram.refreshColors();
+}
+
 exports.create = function () {
 
     // Create the hexagons from the positions data.
@@ -266,8 +276,8 @@ exports.layoutAssignmentsReceived = function (parsed, id) {
     // This is an array of rows, which are arrays of values:
     // id, x, y
 
-    // These hold the maximum observed x & y
-    var max_x = max_y = 0;
+    // These file globals hold the maximum observed x & y.
+    max_x = max_y = 0;
 
     // Find the max x and y while storing the assignments
     assignments = {};
@@ -294,18 +304,14 @@ exports.layoutAssignmentsReceived = function (parsed, id) {
         max_x = Math.max(x, max_x);
         max_y = Math.max(y, max_y);
     }
-
-    Coords.findDimensions(max_x, max_y);
- 
     if (Session.equals('initedHexagons', true)) {
-        exports.create();
-        Hexagram.refreshColors();
+        initNewLayout();
     } else {
         Session.set('initedHexagons', true);
     }
 };
 
-exports.layout = function () {
+exports.getAssignments = function () {
 
     // Download the positions of nodes and fill in the global
     // hexagon assignment grid.
@@ -337,12 +343,12 @@ exports.init = function () {
         if (!Session.equals('page', 'mapPage')) {
             Utils.pageReload('mapPage');
         }
-        exports.layout(true);
+        exports.getAssignments();
     });
     $('#navBar li.xyCoordView').on('click', function () {
         Session.set('mapView', 'xyCoords');
         Session.set('transparent', true);
-        exports.layout(true);
+        exports.getAssignments();
     });
     $('#navBar .transparent').on('click', function () {
         Session.set('transparent', !Session.get('transparent'));
@@ -354,5 +360,5 @@ exports.init = function () {
     $('#navBar .showHoverInfo').on('click', showHoverInfo);
 
     // Get the node positions for the initial view.
-    //exports.layout(true);
+    initNewLayout();
 };
