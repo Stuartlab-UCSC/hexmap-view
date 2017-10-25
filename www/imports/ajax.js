@@ -3,7 +3,8 @@
  */
 
 var UPLOAD_MAX_GIGABYTES = 4,
-    UPLOAD_MAX_BYTES = 1024 * 1024 * 1024 * UPLOAD_MAX_GIGABYTES;
+    UPLOAD_MAX_BYTES = 1024 * 1024 * 1024 * UPLOAD_MAX_GIGABYTES,
+    retryLimit = 3;
 
 function log (url, code, userMsg) {
     console.log('ajax error on:', url, '\n    ', code + ':', userMsg);
@@ -17,10 +18,6 @@ function getData(url, successFx, errorFx, ok404, parse) {
     // server knows how to handle these and returns the 404 as success.
     // However, in the future we may have a data server we don't have much
     // control over, so we also handle this in the error block.
-    
-    var tryCount = 0,
-        tryMax = 3;
-    
     function handle404 (url, successFx, errorFx, ok404, parse) {
     
         // Handle the cases where 404 not found is OK.
@@ -34,76 +31,69 @@ function getData(url, successFx, errorFx, ok404, parse) {
             url = url.slice(0, url.lastIndexOf('/') + 1) + 'matrixnames.tab';
             var i = url.indexOf('Ok404');
             url = url.slice(0, i) + url.slice(i+5);
-            
-            //console.log('url:', url);
-            
             getData(url, successFx, errorFx, false, parse);
    
         } else {
-            //console.log('success 404 ID:', id);
             successFx('404');
         }
     }
     
-    function tryGet (url, successFx, errorFx, ok404, parse) {
-        $.ajax({
-            type: 'GET',
-            url: url,
-            success:  function (result) {
-            
-                //console.log('\nurl result', url, result);
-               
-                if (result === '404' && ok404) {
-                    handle404(url, successFx, errorFx, ok404, parse);
-                    return;
-                } else if (parse === 'noParse') {
-               
-                    // Return raw data
-                    successFx(result);
-                } else if (parse === 'tsv') {
-               
-                    // Return tsv-parsed data
-                    successFx(Util.parseTsv(result));
-                } else {
-               
-                    // Return json-parsed data
-                    successFx(JSON.parse(result));
-                }
-            },
-            error: function (error) {
-                var msg,
-                    msg404 = ' GET ' + url + ' 404 (NOT FOUND) is OK here.';
-               
-                // Special handling where the caller has said a 404 is OK.
-                if (error.status.toString() === '404' && ok404) {
-                    console.log(msg404);
-                    handle404(url, successFx, errorFx, ok404, parse);
-               
-                // Handle the usual case.
-                } else {
-                    if (error.statusText) {
-                        msg = error.statusText;
-                    } else if (error.responseJSON) {
-                        if (error.responseJSON.error) {
-                            msg = error.responseJSON.error;
-                        } else {
-                            msg = error.responseJSON;
-                        }
+    $.ajax({
+        type: 'GET',
+        url: url,
+        tryCount : 0,
+        retryLimit : retryLimit,
+
+        success:  function (result) {
+        
+            //console.log('\nurl result', url, result);
+           
+            if (result === '404' && ok404) {
+                handle404(url, successFx, errorFx, ok404, parse);
+                return;
+            } else if (parse === 'noParse') {
+           
+                // Return raw data
+                successFx(result);
+            } else if (parse === 'tsv') {
+           
+                // Return tsv-parsed data
+                successFx(Util.parseTsv(result));
+            } else {
+           
+                // Return json-parsed data
+                successFx(JSON.parse(result));
+            }
+        },
+        error: function (error) {
+            var msg,
+                msg404 = ' GET ' + url + ' 404 (NOT FOUND) is OK here.';
+           
+            // Special handling where the caller has said a 404 is OK.
+            if (error.status.toString() === '404' && ok404) {
+                console.log(msg404);
+                handle404(url, successFx, errorFx, ok404, parse);
+           
+            // Handle the usual case.
+            } else {
+                if (error.statusText) {
+                    msg = error.statusText;
+                } else if (error.responseJSON) {
+                    if (error.responseJSON.error) {
+                        msg = error.responseJSON.error;
                     } else {
-                        msg = 'Unknown error retrieving ' + url;
+                        msg = error.responseJSON;
                     }
-                    log(url, error.status, msg);
-                    if (errorFx) {
-                        errorFx(msg);
-                    }
+                } else {
+                    msg = 'Unknown error retrieving ' + url;
+                }
+                log(url, error.status, msg);
+                if (errorFx) {
+                    errorFx(msg);
                 }
             }
-        });
-    }
-    if (tryCount < tryMax) {
-        tryCount += 1;
-        tryGet(url, successFx, errorFx, ok404, parse);
-    }
+        }
+    });
 }
     
 exports.query = function (operation, opts, successFx, errorFx) {
@@ -121,6 +111,8 @@ exports.query = function (operation, opts, successFx, errorFx) {
     $.ajax({
         type: 'POST',
         url: url,
+        tryCount : 0,
+        retryLimit : retryLimit,
         contentType: "application/json", // sending json
         /* TODO: from the jquery docs:
             Note: For cross-domain requests, setting the content type to 
@@ -196,6 +188,8 @@ exports.upload = function(opts) {
         processData: false,
         contentType: false,
         type: 'POST',
+        tryCount : 0,
+        retryLimit : retryLimit,
         success: function (result) {
             opts.success(result, dataId);
         },
