@@ -45,12 +45,6 @@ export default class Select2 extends Component {
     constructor (props) {
         super(props);
         this.el = null;
-        var parent = props.select2options.dropdownParent;
-        if (parent) {
-            
-            // The element to capture the select2-open event.
-            this.openEl = parent.parent();
-        }
         this.initialRender = true;
     }
 
@@ -77,6 +71,8 @@ export default class Select2 extends Component {
         
         // TODO should this be a ref in the render ?
         this.el = $(ReactDOM.findDOMNode(this));
+        this.openEl =
+            $('#' + ReactDOM.findDOMNode(this).parentNode.getAttribute("id"));
         this.el.select2(select2options);
         this.attachEventHandlers(props);
     }
