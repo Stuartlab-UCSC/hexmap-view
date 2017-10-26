@@ -143,10 +143,14 @@ Hex = (function () { // jshint ignore: line
     }
 
     function googleAnalytics() {
-        window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
-        ga('create', 'UA-76132249-2', 'auto');
-        ga('send', 'pageview');
-        //<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+       // Before including google analytics, respect the user's wish not to be
+       // tracked if she set this in her browser preferences.
+       if (!_dntEnabled()) {
+            window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+            ga('create', 'UA-76132249-2', 'auto');
+            ga('send', 'pageview');
+        }
     }
 
     // Phase 5 init: Autotracker to find when the basic UI is drawn
