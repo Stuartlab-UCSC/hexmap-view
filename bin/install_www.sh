@@ -4,6 +4,11 @@
 
 HEXMAP=$1
 TAR_FILE=$2  # Only needed for production, full path name of tar file
+
+# By default use the tar file in swat's dev dir
+if [ -z ${TAR_FILE} ]; then
+    TAR_FILE=/cluster/home/swat/dev/www.tar.gz
+fi
 NODE_BIN=$HEXMAP/packages/node/bin
 
 cd $HEXMAP
