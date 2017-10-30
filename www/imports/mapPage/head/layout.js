@@ -58,8 +58,7 @@ exports.layoutNamesReceived = function (parsed) {
         Session.set('layoutIndex', index);
         
         // Now request the node locations since we have an index.
-        Data.requestLayoutAssignments(
-            { stateVar: 'layoutAssignmentsReceived' });
+        Data.requestLayoutAssignments();
     }
 
     // Save the layout list.

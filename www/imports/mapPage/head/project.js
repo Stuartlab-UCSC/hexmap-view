@@ -5,6 +5,7 @@
 import React, { Component } from 'react';
 import Perform from '/imports/common/perform.js';
 import { render } from 'react-dom';
+import rxAction from '/imports/rx/rxAction.js';
 import Select2 from '/imports/component/select2wrap.js';
 import Util from '/imports/common/util.js';
 import Utils from '/imports/common/utils.js';
@@ -154,8 +155,8 @@ exports.authorize = function () {
         Meteor.call('is_user_authorized_to_view', ctx.project,
             function (error, results) {
                 if (results) {
-                    Session.set('authdForProject', true);
-                    if (Session.equals('mapRendered', false)) {
+                    rx.dispatch({ type: rxAction.INIT_MAP_AUTHORIZED });
+                    if (!rx.getState().initAppMapRendered) {
                         Session.set('mapSnake', true);
                     }
                 } else {

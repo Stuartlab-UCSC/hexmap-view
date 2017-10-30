@@ -55,7 +55,7 @@ if [ -z ${HEXMAP} ]; then
 fi
 
 # Handle the short form of starting a server.
-if [ $ACTION == 'www' ] || [ $ACTION == 'db' ] || [ $ACTION == 'http' ] || [ $ACTION == 'https' ]; then
+if [ $ACTION == 'www' ] || [ $ACTION == 'wwwViz' ] || [ $ACTION == 'db' ] || [ $ACTION == 'http' ] || [ $ACTION == 'https' ]; then
     SERVER_TYPE=$ACTION
     ACTION=start
 fi

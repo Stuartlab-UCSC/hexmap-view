@@ -8,6 +8,7 @@ import Hexagram from '/imports/mapPage/viewport/hexagram.js';
 import InfoWindow from '/imports/mapPage/viewport/infoWindow.js';
 import Longlist from '/imports/mapPage/longlist/longlist.js';
 import Perform from '/imports/common/perform.js';
+import rxAction from '/imports/rx/rxAction.js';
 import Tool from '/imports/mapPage/head/tool.js';
 import Util from '/imports/common/util.js';
 import Utils from '/imports/common/utils.js';
@@ -304,10 +305,9 @@ exports.layoutAssignmentsReceived = function (parsed, id) {
         max_x = Math.max(x, max_x);
         max_y = Math.max(y, max_y);
     }
+    rx.dispatch({ type: rxAction.INIT_LAYOUT_POSITIONS_LOADED });
     if (Session.equals('initedHexagons', true)) {
         initNewLayout();
-    } else {
-        Session.set('initedHexagons', true);
     }
 };
 
@@ -360,5 +360,8 @@ exports.init = function () {
     $('#navBar .showHoverInfo').on('click', showHoverInfo);
 
     // Get the node positions for the initial view.
-    initNewLayout();
+    Session.set('initedHexagons', true);
+    if (rx.getState().layoutPositionLoaded) {
+        initNewLayout();
+    }
 };

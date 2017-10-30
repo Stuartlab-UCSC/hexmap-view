@@ -2,7 +2,6 @@
  * Retrieve data.
  */
 
-import Action from '/imports/store/action.js';
 import Ajax from '/imports/mapPage/data/ajax.js';
 import Filter from '/imports/mapPage/longlist/filter.js';
 import Hexagons from '/imports/mapPage/viewport/hexagons.js';
@@ -10,6 +9,8 @@ import Hexagram from '/imports/mapPage/viewport/hexagram.js';
 import Layout from '/imports/mapPage/head/layout.js';
 import Longlist from '/imports/mapPage/longlist/longlist.js';
 import Perform from '/imports/common/perform.js';
+import Rx from '/imports/rx/rxAction.js';
+import rxAction from '/imports/rx/rxAction.js';
 import Tool from '/imports/mapPage/head/tool.js';
 import Util from '/imports/common/util.js';
 
@@ -18,6 +19,7 @@ function request (id, opts) {
     // Retrieve a data file via ajax.
     // @param id: the identifier for this data (file)
     // @param successFx: function to call on success
+    // @param rxAction; optional state action to take on success
     // @param stateVar; optional state variable to set to true on success
     Perform.log(id + '.tab_request');
     if (_.isUndefined(opts)) {
@@ -30,12 +32,10 @@ function request (id, opts) {
             if (opts.successFx) {
                 opts.successFx(results, id);
             }
-            if (opts.stateVar) {
-                if (rx.getState().hasOwnProperty(opts.stateVar)) {
-                    rx.dispatch({ type: Action[opts.stateAction] })
-                } else {
-                    Session.set(opts.stateVar, true);
-                }
+            if (opts.rxAction) {
+                rx.dispatch({ type: opts.rxAction });
+            } else if (opts.stateVar) {
+                Session.set(opts.stateVar, true);
             }
         },
         error: function (error) {
@@ -83,10 +83,10 @@ exports.requestLayoutNames = function (opts) {
 
     // This may have been requested already if a layout name was supplied,
     // but no layout index.
-    if (Session.equals('layoutNamesRequested', true)) {
+    if (rx.getState().INIT_APP_LAYOUT_NAMES_REQUESTED) {
         return;
     }
-    Session.set('layoutNamesRequested', true);
+    rx.dispatch({ type: rxAction.INIT_APP_LAYOUT_NAMES_REQUESTED });
     opts.successFx = opts.successFx || Layout.layoutNamesReceived;
     opts.ok404 = true;
     request('layouts', opts);
@@ -122,7 +122,8 @@ exports.requestLayoutAssignments = function (opts) {
         
             // A layout name was supplied, so we need to get the layout list
             // before we know the layout index to download layout node placement
-            exports.requestLayoutNames({ stateVar: 'layoutNamesReceived' });
+            exports.requestLayoutNames(
+                { rxAction: rxAction.INIT_APP_LAYOUT_NAMES_RECEIVED });
             return;
         } else {
             // Default to the first layout.
