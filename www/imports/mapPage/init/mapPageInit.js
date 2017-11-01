@@ -245,37 +245,33 @@ function isMapPreppedAndUserAuthorized () {
 //               dom loaded and authorization received,
 //               draw the map.
 function isReadyToRenderMap () {
+	/*
+	console.log('XXX isReadyToRenderMap ()')
+    console.log('rx.getState().initLayoutPositionsLoaded', rx.getState().initLayoutPositionsLoaded)
+    console.log('rx.getState().initMapColormapLoaded', rx.getState().initMapColormapLoaded)
+    console.log('rx.getState().initMapActiveAttrsLoaded', rx.getState().initMapActiveAttrsLoaded)
+    console.log('rx.getState().initAppDomLoaded', rx.getState().initAppDomLoaded)
+	*/
+    if (rx.getState().initLayoutPositionsLoaded &&
+        rx.getState().initMapColormapLoaded &&
+        rx.getState().initMapActiveAttrsLoaded &&
+        rx.getState().initAppDomLoaded) {
+        
+        Perform.log('3-init:prep-map');
+        unsubFx.isReadyToRenderMap();
 
-    // Timeout allows processing to catch up.
-    setTimeout(function () {
-    
-        //console.log('XXX isReadyToRenderMap ()')
-        //console.log('rx.getState().initLayoutPositionsLoaded', rx.getState().initLayoutPositionsLoaded)
-        //console.log('rx.getState().initMapColormapLoaded', rx.getState().initMapColormapLoaded)
-        //console.log('rx.getState().initMapActiveAttrsLoaded', rx.getState().initMapActiveAttrsLoaded)
-        //console.log('rx.getState().initAppDomLoaded', rx.getState().initAppDomLoaded)
+    	// Timeout allows processing to catch up.
+    	setTimeout(function () {
+            Hexagons.init();
 
-        if (rx.getState().initLayoutPositionsLoaded &&
-            rx.getState().initMapColormapLoaded &&
-            rx.getState().initMapActiveAttrsLoaded &&
-            rx.getState().initAppDomLoaded) {
-
-            Perform.log('3-init:prep-map');
-            unsubFx.isReadyToRenderMap();
-
-            // Set timeout so the init routines will not be owned by this autorun.
-            setTimeout(function () {
-                Hexagons.init();
-
-                // Prepare to draw the map.
-                Utils.resizeMap();
-                $(window).resize(Utils.resizeMap);
-                $('#shortlist_holder').css('top', $('#navBar').height());
-                ctx.center = Coords.centerToLatLng(ctx.center);
-                rx.dispatch({ type: rxAction.INIT_APP_MAP_PREPARED });
-            });
-        }
-    });
+            // Prepare to draw the map.
+            Utils.resizeMap();
+            $(window).resize(Utils.resizeMap);
+            $('#shortlist_holder').css('top', $('#navBar').height());
+            ctx.center = Coords.centerToLatLng(ctx.center);
+            rx.dispatch({ type: rxAction.INIT_APP_MAP_PREPARED });
+        });
+    }
 }
 
 // Phase 2 init: when layer summary and types are received, & dom loaded

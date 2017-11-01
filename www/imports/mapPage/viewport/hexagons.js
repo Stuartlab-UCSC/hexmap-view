@@ -311,12 +311,11 @@ exports.layoutAssignmentsReceived = function (parsed, id) {
     }
 };
 
-exports.getAssignments = function () {
+exports.getAssignmentsForMapViewChange = function () {
 
     // Download the positions of nodes and fill in the global
     // hexagon assignment grid.
-    Data.requestLayoutAssignments(
-        { successFx: exports.layoutAssignmentsReceived });
+    Data.requestLayoutAssignments();
 };
 
 exports.init = function () {
@@ -343,12 +342,12 @@ exports.init = function () {
         if (!Session.equals('page', 'mapPage')) {
             Utils.pageReload('mapPage');
         }
-        exports.getAssignments();
+        exports.getAssignmentsForMapViewChange();
     });
     $('#navBar li.xyCoordView').on('click', function () {
         Session.set('mapView', 'xyCoords');
         Session.set('transparent', true);
-        exports.getAssignments();
+        exports.getAssignmentsForMapViewChange();
     });
     $('#navBar .transparent').on('click', function () {
         Session.set('transparent', !Session.get('transparent'));
@@ -361,7 +360,7 @@ exports.init = function () {
 
     // Get the node positions for the initial view.
     Session.set('initedHexagons', true);
-    if (rx.getState().layoutPositionLoaded) {
+    if (rx.getState().initLayoutPositionsLoaded) {
         initNewLayout();
     }
 };

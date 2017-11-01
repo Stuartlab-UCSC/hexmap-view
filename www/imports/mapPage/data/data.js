@@ -128,6 +128,7 @@ exports.requestLayoutAssignments = function (opts) {
         } else {
             // Default to the first layout.
             index = 0;
+            Session.set('layoutIndex', 0);
         }
     }
     if (_.isUndefined(opts)) {
