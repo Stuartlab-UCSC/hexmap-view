@@ -21,9 +21,9 @@ if (HEXMAP === '/data') {
 }
 TARGET = 'HTTP://' + SERVER_BASE_URL + ':' + TARGET_PORT,
 
-const httpProxy = require('http-proxy');
-const fs = require('fs');
-const PATH_TO_CHAIN = SECDIR + 'chain.crt';
+var httpProxy = require('http-proxy');
+var fs = require('fs');
+var PATH_TO_CHAIN = SECDIR + 'chain.crt';
 
 var options = {
     ssl: {

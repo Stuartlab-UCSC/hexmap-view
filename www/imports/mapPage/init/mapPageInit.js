@@ -3,6 +3,7 @@
  */
 
 import { Meteor } from 'meteor/meteor';
+import dnt from '/imports/lib/dnt-helper.js';
 import CheckLayerBox from '/imports/mapPage/calc/checkLayerBox.js';
 import Colors from '/imports/mapPage/color/colorEdit.js';
 import Coords from '/imports/mapPage/viewport/coords.js';
@@ -39,8 +40,7 @@ import '/imports/mapPage/head/header.css';
 var shortlistSaved;
 
 // State unsubscribe functions.
-var unsubFx = {},
-    autorun = {};
+var unsubFx = {};
 
 Template.headerT.helpers({
     sort: function () {
@@ -91,7 +91,7 @@ function googleAnalytics() {
 
     // Before including google analytics, respect the user's wish not to be
     // tracked if she set this in her browser preferences.
-    if (!_dntEnabled()) {
+    if (!dnt._dntEnabled()) {
 		/* eslint-disable */
         window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
         ga('create', 'UA-76132249-2', 'auto');
@@ -245,7 +245,7 @@ function isMapPreppedAndUserAuthorized () {
 }
 
 // Phase 3 init: when layout assignments & colormap have been received,
-//               dom loaded and authorization received,
+//               google map api loaded and authorization received,
 //               draw the map.
 function isReadyToRenderMap () {
 	/*
@@ -253,18 +253,19 @@ function isReadyToRenderMap () {
     console.log('rx.getState().initLayoutPositionsLoaded', rx.getState().initLayoutPositionsLoaded)
     console.log('rx.getState().initMapColormapLoaded', rx.getState().initMapColormapLoaded)
     console.log('rx.getState().initMapActiveAttrsLoaded', rx.getState().initMapActiveAttrsLoaded)
-    console.log('rx.getState().initAppDomLoaded', rx.getState().initAppDomLoaded)
-	*/
+    console.log('rx.getState().initAppGoogleMapApiLoaded', rx.getState().initAppGoogleMapApiLoaded)
+    */
     if (rx.getState().initLayoutPositionsLoaded &&
         rx.getState().initMapColormapLoaded &&
         rx.getState().initMapActiveAttrsLoaded &&
-        rx.getState().initAppDomLoaded) {
+        rx.getState().initAppGoogleMapApiLoaded) {
         
         Perform.log('3-init:prep-map');
         unsubFx.isReadyToRenderMap();
 
-    	// Timeout allows processing to catch up.
-    	setTimeout(function () {
+        // Timeout allows processing to catch up.
+        setTimeout(function () {
+            Coords.init();
             Hexagons.init();
 
             // Prepare to draw the map.
@@ -318,7 +319,22 @@ function haveActiveLayerIndex () {
     }
 }
 
-// Phase 1b init: when the DOM has loaded, show the loading snake.
+function loadGoogleMapApi () {
+    
+    // Request google map api
+    Meteor.autorun(function (autorun) {
+        if (GoogleMaps.loaded()) {
+            autorun.stop();
+            rx.dispatch({ type: rxAction.INIT_APP_GOOGLE_MAP_API_LOADED });
+        }
+    });
+    GoogleMaps.load(
+        { v: '3', key: 'AIzaSyBb8AJUB4x-xxdUCnjzb-Xbcg0-T1mPw3I' });
+}
+
+// Phase 1b init: when the DOM has loaded,
+//                load the googlemap api,
+//                and show the loading snake.
 function hasDomLoaded () {
     if (rx.getState().initAppDomLoaded) {
     
@@ -332,10 +348,6 @@ function hasDomLoaded () {
 //           so request primary data and authorization.
 exports.init = function () {
     Perform.log('1a-init:request-primary-data-&-auth');
-    
-    // Initialize the coordinates early so the google API is laoded by the
-    // time it's needed.
-    Coords.init();
 
     Session.set('mapSnake', true);
     
@@ -357,4 +369,6 @@ exports.init = function () {
 
     // Check if the user is authorized for the project.
     Project.authorize();
+    
+    loadGoogleMapApi();
 };

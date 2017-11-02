@@ -32,3 +32,4 @@ vsivsi:job-collection
 browser-policy-content@1.1.0
 modules@0.10.0
 dynamic-import
+dburles:google-maps

@@ -17,7 +17,6 @@ import '/imports/mapPage/head/header.html';
 import '/imports/mapPage/calc/reflect.html';
 import '/imports/mapPage/shortlist/setOper.html';
 import '/imports/mapPage/calc/overlayNode.html';
-import '/imports/lib/mapLabel.min.js';
 
 // This is an array of all Google Maps events that tools can use.
 var TOOL_EVENTS = [
@@ -137,6 +136,7 @@ exports.subscribe_listeners = function (maps_object) {
 }
 
 exports.initLabel = function () {
+    import '/imports/lib/mapLabel.js';
 
     // Set up the add text control
     exports.add("addText", function() {

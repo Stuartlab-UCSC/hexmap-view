@@ -8,7 +8,7 @@
  * @params {string} [userAgent] - An optional mock userAgent string to ease unit testing.
  * @returns {boolean} true if enabled else false
  */
-function _dntEnabled(dnt, userAgent) {
+exports._dntEnabled = function (dnt, userAgent) {
 
     'use strict';
 

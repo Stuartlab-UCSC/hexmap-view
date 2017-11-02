@@ -34,8 +34,12 @@ exports.createMap = function  () {
     };
 
     // Create the actual map
-    googlemap = new google.maps.Map(
-        document.getElementById('visualization'), mapOptions);
+    GoogleMaps.create({
+        name: 'googlemap',
+        options: mapOptions,
+        element: document.getElementById("visualization"),
+    });
+    googlemap = GoogleMaps.maps.googlemap.instance;
         
     // Attach the blank map type to the map
     googlemap.mapTypes.set("blank", new Coords.BlankMap());

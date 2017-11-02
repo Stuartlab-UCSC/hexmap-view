@@ -3,15 +3,9 @@
  */
 
 import Ajax from '/imports/mapPage/data/ajax.js';
-import Filter from '/imports/mapPage/longlist/filter.js';
-import Hexagons from '/imports/mapPage/viewport/hexagons.js';
-import Hexagram from '/imports/mapPage/viewport/hexagram.js';
-import Layout from '/imports/mapPage/head/layout.js';
-import Longlist from '/imports/mapPage/longlist/longlist.js';
 import Perform from '/imports/common/perform.js';
 import Rx from '/imports/rx/rxAction.js';
 import rxAction from '/imports/rx/rxAction.js';
-import Tool from '/imports/mapPage/head/tool.js';
 import Util from '/imports/common/util.js';
 
 function request (id, opts) {
@@ -60,6 +54,7 @@ exports.requestStats = function (id, opts) {
 exports.requestMapMeta = function (opts) {
 
     // Request the metadata within the map minor data.
+    import Tool from '/imports/mapPage/head/tool.js';
     if (_.isUndefined(opts)) {
         opts = {};
     }
@@ -70,6 +65,7 @@ exports.requestMapMeta = function (opts) {
 };
 
 exports.requestAttributeTags = function (opts) {
+    import Filter from '/imports/mapPage/longlist/filter.js';
     if (_.isUndefined(opts)) {
         opts = {};
     }
@@ -80,6 +76,8 @@ exports.requestAttributeTags = function (opts) {
 };
 
 exports.requestLayoutNames = function (opts) {
+    import Hexagram from '/imports/mapPage/viewport/hexagram.js';
+    import Layout from '/imports/mapPage/head/layout.js';
 
     // This may have been requested already if a layout name was supplied,
     // but no layout index.
@@ -93,6 +91,7 @@ exports.requestLayoutNames = function (opts) {
 };
 
 exports.requestColormaps = function (opts) {
+    import Hexagram from '/imports/mapPage/viewport/hexagram.js';
     opts.successFx = opts.successFx || Hexagram.colormapsReceived;
     request('colormaps', opts);
 };
@@ -102,16 +101,19 @@ exports.requestLayer = function (id, opts) {
 };
 
 exports.requestDataTypes = function (opts) {
+    import Longlist from '/imports/mapPage/longlist/longlist.js';
     opts.successFx = opts.successFx || Longlist.layerTypesReceived;
     request('Layer_Data_Types', opts);
 };
 
 exports.requestLayerSummary = function (opts) {
+    import Longlist from '/imports/mapPage/longlist/longlist.js';
     opts.successFx = opts.successFx || Longlist.layerSummaryLoaded;
     request('layers', opts);
 };
 
 exports.requestLayoutAssignments = function (opts) {
+    import Hexagons from '/imports/mapPage/viewport/hexagons.js';
     var index = Session.get('layoutIndex');
     
     // If no layout index was supplied ...

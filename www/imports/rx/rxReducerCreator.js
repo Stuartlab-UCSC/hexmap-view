@@ -38,6 +38,11 @@ const initAppDomLoaded = (state = false, action) => {
     return (action.type === rxAction.INIT_APP_DOM_LOADED) ? true : state;
 };
 
+const initAppGoogleMapApiLoaded = (state = false, action) => {
+    return (action.type === rxAction.INIT_APP_GOOGLE_MAP_API_LOADED) ?
+        true : state;
+};
+
 const initAppLayoutNamesReceived = (state = false, action) => {
     return (action.type === rxAction.INIT_APP_LAYOUT_NAMES_RECEIVED) ?
         true : state;
@@ -92,6 +97,7 @@ const reducers = combineReducers({
     initAppActiveAttrsInShortlist,
     initAppCtxLoaded,
     initAppDomLoaded,
+    initAppGoogleMapApiLoaded,
     initAppLayoutNamesReceived,
     initAppLayoutsNamesRequested,
     initAppLayoutsPopulated,

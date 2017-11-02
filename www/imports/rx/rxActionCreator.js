@@ -19,6 +19,8 @@ const initAppActiveAttrsInList =
     makeAction(RxActin.INIT_APP_ACTIVE_ATTRS_IN_SHORTLIST);
 const initAppCtxLoaded = makeActionCreator(rxAction.INIT_APP_CTX_LOADED);
 const initAppDomLoaded = makeActionCreator(rxAction.INIT_APP_DOM_LOADED);
+const initAppGoogleMapApiLoaded =
+    makeAction(rxAction.INIT_APP_GOOGLE_MAP_API_LOADED):
 const initAppLayoutNamesReceived =
     makeActionCreator(rxAction.INIT_APP_LAYOUT_NAMES_RECEIVED);
 const initAppLayoutNamesRequested =
