@@ -1,23 +1,25 @@
 
 // https.js: server proxy to handle ssl.
 
-var HEXMAP = process.env.HEXMAP
-if (!HEXMAP || HEXMAP === '/cluster/home/swat/dev') {
-    var PROXY_PORT = 8222,
-        TARGET_PORT = 8223,
-        TARGET = "http://hexdev.sdsc.edu:" + TARGET_PORT,
-        SECDIR = '/data/certs/',
-        KEY = SECDIR + 'hexdev.key',
-        CERT = SECDIR + 'hexdev.crt';
+var HEXMAP = process.env.HEXMAP,
+    PROXY_PORT = process.env.HTTPS_PORT,
+    TARGET_PORT = process.env.PORT, // meteor server port
+    SECDIR = '/data/certs/',
+    SERVER_BASE_URL,
+    TARGET,
+    KEY,
+    CERT;
     
+if (HEXMAP === '/data') {
+    SERVER_BASE_URL = 'tumormap.ucsc.edu';
+    KEY = SECDIR + 'tumormap.key';
+    CERT = SECDIR + 'tumormap.crt';
 } else {
-    var PROXY_PORT = 443,
-        TARGET_PORT = 8443;
-        SECDIR = '/data/certs/',
-        TARGET = "http://tumormap.ucsc.edu:" + TARGET_PORT,
-        KEY = SECDIR + 'tumormap.key',
-        CERT = SECDIR + 'tumormap.crt';
+    SERVER_BASE_URL = 'hexdev.sdsc.edu';
+    KEY = SECDIR + 'hexdev.key';
+    CERT = SECDIR + 'hexdev.crt';
 }
+TARGET = 'HTTP://' + SERVER_BASE_URL + ':' + TARGET_PORT,
 
 const httpProxy = require('http-proxy');
 const fs = require('fs');

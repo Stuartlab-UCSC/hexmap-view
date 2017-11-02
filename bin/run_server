@@ -3,39 +3,37 @@
 # Point of entry for the run scripts. 
 
 # Examples:
-# run db
+# run db        (action defaults to 'start')
 # run start db
 # run stop db
-# run install
+# run install <full-path-to-tar.gz-file>   (for installing on prod)
 # run deploy
-# run maketar
-# run maketar docs
 
 # Production run script that calls this script
 # !/bin/bash
 # ACTION=$1
 # SERVER_TYPE=$2
+# OPTION=$3
 # CONFIG=prod
 # HEXMAP=/data
-# $HEXMAP/bin/run_server $ACTION $CONFIG $HEXMAP $SERVER_TYPE
+# $HEXMAP/bin/run_server $ACTION $CONFIG $HEXMAP $SERVER_TYPE $OPTION
 
 ACTION=$1       # The action on the server, one of:
-                #   / start / stop / deploy / install / maketar / xtar /
+                #   / start / stop / deploy / install /
                 # or type of server for the short form of starting a server, one of:
                 #   / www / db / http / https /
 CONFIG=$2       # The configuration of the server, one of:
-                #   / prod / dev / ... /
+                #   / prod / dev / dmccolldev / ... /
 HEXMAP=$3       # Full path of this installation instance
 SERVER_TYPE=$4  # Type of server, one of:
                 #   / www / db / http / https /
-                # or tar target, defaults to 'most', one of:
-                #   / most / docs / all /
                 # or not required for the short form to start a server.
+OPTION=$5       # only for prod install. full path of tar.gz file
 
 # An action must be specified.
 if [ -z ${ACTION} ]; then
     echo You need to specify an ACTION to the run script, one of:
-    echo     / start / stop / deploy / install / maketar / xtar /
+    echo     / start / stop / deploy / install /
     echo Exiting
     exit
 fi
@@ -82,7 +80,7 @@ if [ $ACTION == 'start' ] || [ $ACTION == 'stop' ]; then
 elif [ $ACTION == 'deploy' ]; then
 
     # Don't allow deploy on production or dev.
-    if [ $CONFIG == 'prod' ] || [ $CONFIG == 'dev' ]; then
+    if [ $CONFIG == 'prod' ] || [ $CONFIG == 'dev' ] || [ $CONFIG == 'dmccolldev' ]; then
         echo Sorry you cannot deploy from production or dev!
         echo Exiting
         exit
@@ -93,25 +91,12 @@ elif [ $ACTION == 'deploy' ]; then
 elif [ $ACTION == 'install' ]; then
 
     # Don't allow install on anything other than production or dev.
-    if [ $CONFIG != 'prod' ] && [ $CONFIG != 'dev' ]; then
+    if [ $CONFIG != 'prod' ] && [ $CONFIG != 'dev' ] && [ $CONFIG != 'dmccolldev' ]; then
         echo Sorry you cannot install to here and remove all of your current code!
         echo Exiting
         exit
     fi
-    $BIN/install_www.sh $HEXMAP
-
-# Handle tar actions.
-elif [ $ACTION == 'maketar' ] || [ $ACTION == 'xtar' ]; then
-
-    # Don't allow xtar on anything other than production or dev.
-    if [ $ACTION == 'xtar' ] && [ [ $CONFIG != 'prod' ] || [ $CONFIG != 'dev' ] ]
-        then
-        echo Sorry you cannot xtar to here and remove all of your current code!
-        echo Exiting
-        exit
-    fi
-    TARGET=$SERVER_TYPE
-    $BIN/tar.sh $ACTION $HEXMAP, $TARGET
+    $BIN/install_www.sh $HEXMAP $OPTION
 
 else
     echo Invalid ACTION as a first parameter: $ACTION

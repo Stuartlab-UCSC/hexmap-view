@@ -1,16 +1,17 @@
 
 // http.js: server proxy to forward http requests to https.
 
-var HEXMAP = process.env.HEXMAP
-if (!HEXMAP || HEXMAP === '/cluster/home/swat/dev') {
-    var LISTEN_PORT = 8221,
-        HTTPS_PORT = 8222,
-        TARGET = 'https://hexdev.sdsc.edu:' + HTTPS_PORT;
+var HEXMAP = process.env.HEXMAP,
+    LISTEN_PORT = process.env.HTTP_PORT,
+    HTTPS_PORT = process.env.HTTPS_PORT,
+    SERVER_BASE_URL,
+    TARGET;
+if (HEXMAP === '/data') {
+    SERVER_BASE_URL = 'tumormap.ucsc.edu';
 } else {
-    var LISTEN_PORT = 80,
-        HTTPS_PORT = 443,
-        TARGET = 'https://tumormap.ucsc.edu:' + HTTPS_PORT;
+    SERVER_BASE_URL = 'hexdev.sdsc.edu';
 }
+TARGET = 'https://' + SERVER_BASE_URL + ':' + HTTPS_PORT;
 
 var http = require("http");
 var server = http.createServer(function (req, res) {

@@ -3,14 +3,20 @@
 # Install a www server with compression and other production enhancements.
 
 HEXMAP=$1
+TAR_FILE=$2  # Only needed for production, full path name of tar file
+
+# By default use the tar file in swat's dev dir
+if [ -z ${TAR_FILE} ]; then
+    TAR_FILE=/cluster/home/swat/dev/www.tar.gz
+fi
 NODE_BIN=$HEXMAP/packages/node/bin
 
 cd $HEXMAP
 
 date
 echo untarring...
-if [ $HEXMAP == '/data' ]; then
-    tar xf /cluster/home/swat/dev/www.tar.gz
+if [ $HEXMAP == '/data' ]; then # untar to production from dev area
+    tar xf $TAR_FILE
 else
     tar xf www.tar.gz
 fi
