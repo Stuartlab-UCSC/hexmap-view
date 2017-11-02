@@ -748,6 +748,9 @@ function create_float_controls () {
         
         // Remove this layer's shortlist entry template
         delete template[layer_name];
+        
+        // Refresh the map.
+        Hexagram.refreshColors();
     });
 }
 

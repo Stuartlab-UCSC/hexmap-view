@@ -19,11 +19,11 @@ if (HEXMAP === '/data') {
     KEY = SECDIR + 'hexdev.key';
     CERT = SECDIR + 'hexdev.crt';
 }
-TARGET = 'HTTP://' + SERVER_BASE_URL + ':' + TARGET_PORT,
+TARGET = 'HTTP://' + SERVER_BASE_URL + ':' + TARGET_PORT;
 
-var httpProxy = require('http-proxy');
-var fs = require('fs');
-var PATH_TO_CHAIN = SECDIR + 'chain.crt';
+const httpProxy = require('http-proxy');
+const fs = require('fs');
+const PATH_TO_CHAIN = SECDIR + 'chain.crt';
 
 var options = {
     ssl: {
