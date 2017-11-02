@@ -336,14 +336,6 @@ exports.init = function () {
     }
 
     // Set some event handlers
-    $('#navBar li.mapLayout').on('click', function () {
-        Session.set('mapView', 'honeycomb');
-        Session.set('transparent', false);
-        if (!Session.equals('page', 'mapPage')) {
-            Utils.pageReload('mapPage');
-        }
-        exports.getAssignmentsForMapViewChange();
-    });
     $('#navBar li.xyCoordView').on('click', function () {
         Session.set('mapView', 'xyCoords');
         Session.set('transparent', true);

@@ -1,5 +1,6 @@
 // Handle the navigation bar
 
+import Utils from '/imports/common/utils.js'
 import './navBar.html';
 import './navBar.css';
 
@@ -32,6 +33,18 @@ exports.init = function () {
         $('body').find('.gridShow').show();
         $('body').css('overflow-y', 'hidden');
     }
+    
+    $('#navBar li.mapLayout').on('click', function () {
+        Session.set('mapView', 'honeycomb');
+        Session.set('transparent', false);
+        if (Session.equals('page', 'mapPage')) {
+        	import Hexagons from '/imports/mapPage/viewport/hexagons.js';
+            Hexagons.getAssignmentsForMapViewChange();
+        } else {
+            Utils.pageReload('mapPage');
+        }
+    });
+
 
     // Whenever the user changes, including logout, check to see
     // if the user has job credentials.
