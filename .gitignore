@@ -4,6 +4,7 @@ db
 .python/statsLayer.py
 analyze
 run
+.idea*
 *.save
 *.pyc
 *.tar
