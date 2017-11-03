@@ -220,218 +220,180 @@ refreshColors = function () {
     InfoWindow.redraw();
 }
 
-get_color = function (u_name, u, v_name, v) {
-    // Given u and v, which represent the heat in each of the two currently 
-    // displayed layers, as well as u_name and v_name, which are the 
-    // corresponding layer names, return the computed CSS color.
-    // Either u or v may be undefined (or both), in which case the no-data color
+
+
+get_color = function (layerName1, layerVal1, layerName2, layerVal2) {
+    // Either layer value may be undefined (or both), in which case the no-data color
     // is returned. If a layer name is undefined, that layer dimension is 
     // ignored.
+
+    var color,
+        base_color,
+        hsv_value;
+
+    // These are all cases we need to pay attention to.
+    var onlyOneLayer = _.isUndefined(layerName2);
+
+    var oneBinaryLayer = (
+        onlyOneLayer &&
+        Util.is_binary(layerName1)
+    );
+
+    var oneContinuousLayer = (
+        onlyOneLayer &&
+        !oneBinaryLayer &&
+        Util.is_continuous(layerName1)
+    );
+
+    var oneCategoricalLayer = (
+        onlyOneLayer &&
+        !oneBinaryLayer &&
+        !oneContinuousLayer
+    );
+
+    var bothContinuous = (
+        !onlyOneLayer &&
+        Util.is_continuous(layerName1) &&
+        Util.is_continuous(layerName2)
+    );
+
+    var continuousAndCatOrBin =(
+        !onlyOneLayer &&
+        Util.is_cat_or_bin(layerName2) &&
+        Util.is_continuous(layerName1)
+    );
+
+    var catOrBinAndContinous = (
+        !onlyOneLayer &&
+        !continuousAndCatOrBin &&
+        Util.is_cat_or_bin(layerName1) &&
+        Util.is_continuous(layerName2)
+    );
+
+    var catAndCatOrBin=(
+        !onlyOneLayer &&
+        Util.is_categorical(layerName1) &&
+        Util.is_cat_or_bin(layerName2) ||
+        Util.is_categorical(layerName2) &&
+        Util.is_cat_or_bin(layerName1)
+    );
+
+
+    var bothLayersBinary = (
+        Util.is_binary(layerName1) && Util.is_binary(layerName2)
+    );
+
+    var any_missing_values =(
+        isNaN(layerVal1) ||
+        isNaN(layerVal2) ||
+        _.isUndefined(layerVal1) ||
+        _.isUndefined(layerVal2)
+    );
     //
-    // For categorical layers, the associated u or v is the category index.
+    ////////////////
+    var on = 1;
+    var off = 0;
 
-    if(have_colormap(v_name) && !have_colormap(u_name)) {
-        // We have a colormap as our second layer, and a layer as our first.
-        // Swap everything around so colormap is our first layer instead.
-        // Now we don't need to think about drawing a layer first with a 
-        // colormap second.
-        
-        return get_color(v_name, v, u_name, u);
-    }
+    if(continuousAndCatOrBin) {
+        //Manipulate the ordering of arguments so an extra case is not needed.
+        color = get_color(layerName2, layerVal2, layerName1, layerVal1);
 
-    if(isNaN(u) || isNaN(v) || u === undefined || v === undefined) {
-        // At least one of our layers has no data for this hex.
-        return Colors.noDataColor();
-    }
-    
-    // Find the color counts  for each of the layers
-    var colorCountU = findColorCount(u_name),
-        colorCountV = findColorCount(v_name);
-    
-    if(colorCountU > 0 && colorCountV > 0 &&
-        !colormaps[u_name].hasOwnProperty(u) && 
-        !colormaps[v_name].hasOwnProperty(v) &&
-        colorCountU === 2  && colorCountV === 2) {
-        
-        // Special case: two binary or unary auto-generated colormaps.
-        // Use dark grey/yellow/blue/green color scheme
-        if(u == 1) {
-            if(v == 1) {    
+    } else if (any_missing_values) {
+        color = Colors.noDataColor();
+
+    } else if(oneBinaryLayer) {
+        // User's choice from color map or default.
+        if(layerVal1 === on) { // layerVal1 is 1
+            color =  Colors.binaryOnColor(layerName1);
+        } else if (layerVal1 === off) { // layerVal1 is 0
+            color = Colors.binaryOffColor(layerName1);
+        } else {
+            throw "There was an error making the color of the binary layer"
+        }
+
+    } else if(bothLayersBinary) {
+        // Special color scheme for two binaries,
+        // always uses default, never choice from user.
+        if(layerVal1 === on) {
+            if(layerVal2 === on) {
                 // Both are on
-                return Colors.binary_both_on();
-            } else {
+                return Colors.defaultBinBothOn();
+            } else if (layerVal2 === off) {
                 // Only the first is on
-                return Colors.binary_on();
+                return Colors.defaultBinaryOn();
             }
-        } else {
-            if(v == 1) {
+        } else if (layerVal1 === off) {
+            if(layerVal2 === on) {
                 // Only the second is on
-                return Colors.binary_second_on();
-            } else {
+                return Colors.defaultSecondBinOn();
+            } else if (layerVal2 === off) {
                 // Neither is on
-                return Colors.binary_off();
+                return Colors.defaultBinaryOff();
             }
         }
-    }
-    
-    if(colorCountU > 0 && !colormaps[u_name].hasOwnProperty(u) &&
-        colorCountU <= 2 && v_name == undefined) {
-        
-        // Special case: a single binary or unary auto-generated colormap.
-        // Use dark grey/yellow to make 1s stand out.
-        
-        if(u == 1) {
-            return Colors.binary_on();
-        } else {
-            return Colors.binary_off();
-        }
-    }
 
-    var base_color;
-   
-    if(colorCountU > 0) {
-        // u is a colormap and for categoricals is the category index.
-        if(colormaps[u_name].hasOwnProperty(u)) {
+    } else if (oneCategoricalLayer) {
+        base_color = baseCategoricalColor(layerName1, layerVal1);
+        base_color.value(base_color.value());
+        color = base_color.hexString();
 
-            // And the colormap has an entry here. Use it as the base color.
-            var to_clone = colormaps[u_name][u].color;
-            
-            base_color = Color({
-                hue: to_clone.hue(),
-                saturation: to_clone.saturationv(),
-                value: to_clone.value()
-            });
-        } else if(colorCountU <= 2) {
-
-            // Binary values with default colormap
-            // The colormap has no entry, but there are only two options (i.e.
-            // we're doing a binary layer against a continuous one.)
-            
-            // We break out of the base_color path and do a special case:
-            // interpolate between one pair of colors for on, and a different
-            // pair for off.
-            
-            if(u == 0) {
-                // What color should we use for a 0 value?
-                
-                // Interpolate each component by itself. Invert directions so we
-                // can define our colors in terms of actual layer value space,
-                // and not key space. To change the colors here, look
-                // vertically.
-                
-                // Interpolate grey to yellow.
-                var red = mix(0x33, 0xFF, -v).toFixed(0);
-                var green = mix(0x33, 0xFF, -v).toFixed(0);
-                var blue = mix(0x33, 0x00, -v).toFixed(0);
-                
-            } else if (u == 1) {
-                // And for a 1 value? Do a different set of interpolations.
-                // Interpolate blue to green.
-                var red = mix(0x00, 0x00, -v).toFixed(0);
-                var green = mix(0x00, 0xFF, -v).toFixed(0);
-                var blue = mix(0xFF, 0x00, -v).toFixed(0);
-            }
-            
-            base_color = Color({
-                'red': red,
-                'green': green,
-                'blue': blue
-            });
-            
-        } else {
-            // We should never get here because all categorical layers
-            // should have a colormap.
-            // The colormap has no entry, and there are more than two options.
-            // Assume we're calculating all the entries. We do this by splitting
-            // the color circle evenly.
-
-            // Calculate the hue for this number.
-            var hsv_hue = u / colorCountU * 360;
-    
-            // The base color is a color at that hue, with max saturation and 
-            // value
-            base_color = Color({
-                hue: hsv_hue, 
-                saturation: 100,
-                value: 100
-            })
-        }
-        
-        // Now that the base color is set, consult v to see what shade to use.
-        if(v_name == undefined) {
-            // No v layer is actually in use. Use whatever is in the base 
-            // color
-            // TODO: This code path is silly, clean it up.
-            var hsv_value = base_color.value();
-        } else if(colorCountV > 0) {
-
-            // Binary or categorical values.
-            // Do discrete shades in v
-
-            // Calculate what shade we need from the nonnegative integer v
-            // We want 100 to be included (since that's full brightness), but we
-            // want to skip 0 (since no color can be seen at 0), so we add 1 to 
-            // v.
-            var hsv_value = (v + 1) / colorCountV * 100;
-        } else {
-
-            // Continuous values.
-            // Calculate what shade we need from v on -1 to 1, with a minimum
-            // value of 20 to avoid blacks.
-            var hsv_value = 60 + v * 40;
-        }
-        
-        // Set the color's value component.
+    } else if (catAndCatOrBin) {
+        base_color = baseCategoricalColor(layerName1, layerVal1);
+        // Do discrete shades of second layer.
+        // Calculate what shade we need from second layer value
+        // We want 100 to be included (since that's full brightness), but we
+        // want to skip 0 (since no color can be seen at 0), so we add 5 to
+        // the second layer's value.
+        var colorCountL2 = findColorCount(layerName2);
+        hsv_value = (layerVal2 + 1) / colorCountL2 * 100;
         base_color.value(hsv_value);
-        
-        // Return the shaded color
-        return base_color.hexString();
-    }
-    
-    
-    // If we get here, we only have non-colormap layers.
-    
-    // We want the same grey/yellow/blue/white scheme as for binary layers, but
-    // interpolated. TODO do we still use these colors?
-    
-    // Remember: u and v are backwards. I.e.  (-1, -1) is the upper left of the
-    // key.
-    
-    if(v_name == undefined) {
-        // No v layer present. Use the edge and not the middle.
-        v = -1;
-    }
-    
-    if(u_name == undefined) {
-        // No u layer present. Use the edge and not the middle.
-        u = -1;
-    }
-    
-    // Interpolate each component by itself. Invert directions so we can define
-    // our colors in terms of actual layer value space, and not key space.
-    // To change the colors here, look vertically.
-    var red,
-        green,
-        blue;
-    current_layers = Shortlist.get_active_coloring_layers();
+        color = base_color.hexString()
 
-    if (current_layers.length === 2 || Session.equals("background","black")) {
-          red = mix2(0x60, 0xFF, 0x00, 0x00, -u, -v).toFixed(0);
-        green = mix2(0x60, 0xFF, 0x00, 0xFF, -u, -v).toFixed(0);
-         blue = mix2(0x60, 0x00, 0xFF, 0x00, -u, -v).toFixed(0);
+    } else if (catOrBinAndContinous) {
+        base_color = baseCategoricalColor(layerName1, layerVal1);
+        // Calculate what shade we need from v on -1 to 1, with a minimum
+        // value of 20 to avoid blacks.
+        hsv_value = 60 + layerVal2 * 40;
+        base_color.value(hsv_value);
+        color = base_color.hexString()
+
+    } else if(oneContinuousLayer) {
+        // Sets the interpolation so the second color is not mixed.
+        // Chooses the user's specified coloring or
+        color = mixOneContinuous(layerName1, layerVal1)
+    } else if (bothContinuous) {
+        color = mix2Continuos(layerVal1, layerVal2)
+    } else {
+        throw "An error occurred when determining a nodes color."
     }
 
-    else if (Session.equals("background","white")) {
-          red = mix2(0xc0, 0xFF, 0x00, 0x00, -u, -v).toFixed(0);
-        green = mix2(0xc0, 0x00, 0x00, 0xFF, -u, -v).toFixed(0);
-         blue = mix2(0xc0, 0x00, 0xFF, 0x00, -u, -v).toFixed(0);
-    }
-
-    //Produce the color string...
-    var color = "rgb(" + red + "," + green + "," + blue + ")";
-    
     return color;
 };
+
+function baseCategoricalColor(layerName, layerValue) {
+    var base_color;
+    if(colormaps[layerName].hasOwnProperty(layerValue)) {
+        // And the colormap has an entry here. Use it as the base color.
+        var to_clone = colormaps[layerName][layerValue].color;
+
+        base_color = Color({
+            hue: to_clone.hue(),
+            saturation: to_clone.saturationv(),
+            value: to_clone.value()
+        });
+    } else {
+        // Something went wrong. This case catches when a value in the layer
+        // doesn't have a colormap entry.
+        // This conforms to the old code (since refactored),
+        // which hid the error by skipping the category.
+        base_color = Color({
+            red : undefined,
+            blue : undefined,
+            green : undefined
+        })
+    }
+    return base_color;
+}
 
 function mix(a, b, amount) {
     // Mix between the numbers a and b, where an amount of -1 corresponds to a,
@@ -450,6 +412,101 @@ function mix2 (a, b, c, d, amount1, amount2) {
     // results on amount2. Amounts are in range -1 to 1.
     
     return mix(mix(a, b, amount1), mix(c, d, amount1), amount2);
+}
+
+function parseColorPortions(hexStr){
+
+    var portion_prefix = "0x";
+    var red_portion = parseInt(portion_prefix + hexStr.slice(1,3));
+    var green_portion = parseInt(portion_prefix + hexStr.slice(3,5));
+    var blue_portion = parseInt(portion_prefix + hexStr.slice(5,7));
+
+    return {
+        "red" : red_portion,
+        "green" : green_portion,
+        "blue" : blue_portion,
+    }
+
+}
+
+function colorify(red, green, blue){
+    var color = "rgb(" + red + "," + green + "," + blue + ")";
+    return color
+}
+
+function mixOneContinuous(layerName, layerValue){
+    var ignoreValue = -1;
+    var ignoreColor = 0;
+    var highColor = Colors.continuousHighColor(layerName);
+    var lowColor = Colors.continuousLowColor(layerName);
+    var highColorParsed = parseColorPortions(highColor);
+    var lowColorParsed = parseColorPortions(lowColor);
+
+    var red = mix2(
+        lowColorParsed["red"],
+        highColorParsed["red"],
+        ignoreColor, ignoreColor,
+        -layerValue, -ignoreValue
+    ).toFixed(0);
+
+    var green = mix2(
+        lowColorParsed["green"],
+        highColorParsed["green"],
+        ignoreColor, ignoreColor,
+        -layerValue, -ignoreValue
+    ).toFixed(0);
+
+    var blue = mix2(
+        lowColorParsed["blue"],
+        highColorParsed["blue"],
+        ignoreColor, ignoreColor,
+        -layerValue, -ignoreValue
+    ).toFixed(0);
+
+    var color = colorify(red, green, blue);
+
+    return color
+}
+
+function mix2Continuos(layerVal1, layerVal2){
+    // Ignore color map entries.
+    var highColor1 = Colors.defaultContHigh();
+    var lowColor1 = Colors.defaultContLow();
+    var lowColor1HighColor2 = Colors.defaultCont2High1Low();
+    var bothHighColor = Colors.defaultContBothHigh();
+
+    var high1Parsed = parseColorPortions(highColor1);
+    var low1Parsed = parseColorPortions(lowColor1);
+    var lowHighParsed = parseColorPortions(lowColor1HighColor2);
+    var bothHighParsed = parseColorPortions(bothHighColor);
+
+    var red = mix2(
+        low1Parsed["red"],
+        high1Parsed["red"],
+        lowHighParsed["red"],
+        bothHighParsed["red"],
+        -layerVal1, -layerVal2
+    ).toFixed(0);
+
+    var green = mix2(
+        low1Parsed["green"],
+        high1Parsed["green"],
+        lowHighParsed["green"],
+        bothHighParsed["green"],
+        -layerVal1, -layerVal2
+    ).toFixed(0);
+
+    var blue = mix2(
+        low1Parsed["blue"],
+        high1Parsed["blue"],
+        lowHighParsed["blue"],
+        bothHighParsed["blue"],
+        -layerVal1, -layerVal2
+    ).toFixed(0);
+
+    var color = colorify(red, green , blue);
+
+    return color
 }
 
 initLayout = function () {
