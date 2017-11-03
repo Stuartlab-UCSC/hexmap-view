@@ -114,13 +114,29 @@ Util = (function () { // jshint ignore: line
     function is_continuous (layer_name) {
         return (ctx.cont_layers.indexOf(layer_name.toString()) > -1);
     }
- 
+
     function is_categorical (layer_name) {
-        return (ctx.cat_layers.indexOf(layer_name.toString()) > -1);
+        var is_cat;
+        if ( _.isUndefined(layer_name) ){
+            is_cat = false
+        } else {
+            is_cat = (ctx.cat_layers.indexOf(layer_name.toString()) > -1)
+        }
+        return is_cat;
     }
- 
+
+    function is_cat_or_binary (layer_name){
+        return (is_categorical(layer_name) || is_binary(layer_name));
+    }
+
     function is_binary (layer_name) {
-        return (ctx.bin_layers.indexOf(layer_name.toString()) > -1);
+        var is_bin;
+        if ( _.isUndefined(layer_name) ){
+            is_bin = false
+        } else {
+            is_bin = (ctx.bin_layers.indexOf(layer_name.toString()) > -1)
+        }
+        return is_bin;
     }
  
     function round (x, n) {
@@ -241,6 +257,7 @@ Util = (function () { // jshint ignore: line
         is_continuous: is_continuous,
         is_categorical: is_categorical,
         is_binary: is_binary,
+        is_cat_or_bin: is_cat_or_binary,
         round: round,
         getHumanProject: getHumanProject,
         projectNotFound: projectNotFound,
@@ -305,6 +322,7 @@ Util = (function () { // jshint ignore: line
 
 // TODO needed while transitioning to more scope protection
 session = Util.session;
+//is_cat_or_bin = Utils.is_cat_or_bin;
 is_continuous = Util.is_continuous;
 is_categorical = Util.is_categorical;
 is_binary = Util.is_binary;
