@@ -6,7 +6,7 @@ var HEXMAP = process.env.HEXMAP,
     HTTPS_PORT = process.env.HTTPS_PORT,
     SERVER_BASE_URL,
     TARGET;
-if (HEXMAP = '/data') {
+if (HEXMAP === '/data') {
     SERVER_BASE_URL = 'tumormap.ucsc.edu';
 } else {
     SERVER_BASE_URL = 'hexdev.sdsc.edu';
