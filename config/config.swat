@@ -7,5 +7,5 @@ METEOR=/Users/swat/.meteor
 # Needed by the www server.
 export PORT=3333
 export HTTPS_PORT=$PORT
-export PYTHONPATH=/Users/swat/dev/compute/calc
+export PYENV=$HOME/dev/env
 export ROOT_URL=http://localhost:$HTTPS_PORT
