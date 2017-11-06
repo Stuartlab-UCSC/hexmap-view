@@ -1,290 +1,75 @@
 // mainHex.js
 
-import React from 'react';
 import { Meteor } from 'meteor/meteor';
-import { render } from 'react-dom';
+import Coords from '/imports/mapPage/viewport/coords.js';
+import CreateMap from '/imports/mapPage/calc/createMap.js';
+import Grid from '/imports/densityPage/grid.js';
+import mapPageInit from '/imports/mapPage/init/mapPageInit.js';
+import ReducerCreator from  '/imports/rx/rxReducerCreator.js';
+import Perform from '/imports/common/perform.js';
+import rxAction from '/imports/rx/rxAction.js';
+import State from '/imports/common/state.js';
+import Tool from '/imports/mapPage/head/tool.js';
+import Utils from '/imports/common/utils.js';
 
-var app = app || {};
-(function (hex) { // jshint ignore: line
-Hex = (function () { // jshint ignore: line
- 
-    var VERSION = 'Version 1.0';
- 
-    window.addEventListener("load", function(event) {
-        Session.set('domLoaded', true);
-    });
+// We need this order to retain the correct cascading effect.
+import '/imports/lib/jquery-ui.css';
+import '/imports/common/colorsFont.css';
+import '/imports/common/navBar.css';
 
-    Template.localStoreT.created = function () {
-        // This template is only used to initialize state
-        if (_.isNull(ctx)) { ctx = initState(); }
-    };
+VERSION = '1.0';
 
-    Template.body.helpers({
-        page: function () {
-            return Session.get('page');
-        },
-    });
+window.addEventListener("load", function(event) {
+	rx.dispatch({ type: rxAction.INIT_APP_DOM_LOADED })
+});
+var unsubFx = {};
 
-    function queryFreeReload () {
-        Session.set('mapSnake', true);
-        if (window.location.search.length > 0) {
-            window.location.search = '';
-        } else {
-            window.location.reload();
-        }
-    }
-
-    function pageReload (page) {
-        Session.set('page', page);
-        queryFreeReload();
-    }
-
-    function loadProject (project) {
-        ctx.project = project;
-        Session.set('page', 'mapPage');
-        queryFreeReload();
-    }
- 
-    Template.homePage.onRendered(function () {
-        Tool.init();
-        Message.init();
-        Download.init();
-        CreateMap.init();
-    });
-
-    Template.mapPage.onRendered(function () {
-        initMainMapContainer();
-        import InitMapPage from '/imports/initMapPage.js';
-        Message.init();
-        InitMapPage.init();
-        Tool.init();
-    });
-
-    Template.gridPage.onRendered(function () {
-        initGridMapContainer();
-        Message.init();
-        Tool.init();
-    });
-
-    Template.navBarT.helpers({
-        version: function () {
-            if (DEV) {
-                return VERSION + ' DEV';
-            } else {
-                return VERSION;
-            }
-        },
-    });
-
-    Template.homePage.helpers({
-        projects: function () {
-            return [
-                { id: 'Pancan12/SampleMap', png: 'pancan12.png' },
-                { id: 'Pancan12/GeneMap', png: 'pancan12gene.png' },
-                { id: 'Gliomas', png: 'gliomas-paper.png' },
-                { id: 'QuakeBrain', png: 'QuakeBrain.png' },
-                { id: 'pCHIPS', png: 'pchips.png' },
-                { id: 'mgmarin_public/PCAWG_JuncBASE_CassetteExonPSIs',
-                    label: 'PCAWG JuncBASE CassetteExonPSIs',
-                    linkAnchor: 'PCAWGJuncBASE',
-                    png: 'PCAWG_JuncBASE.png' },
-            ];
-        },
-        id: function () {
-            return this.id;
-        },
-        label: function () {
-            if (this.label) {
-                return this.label;
-            } else {
-                return this.id;
-            }
-        },
-        png: function () {
-            return this.png;
-        },
-        linkAnchor: function () {
-            if (this.linkAnchor) {
-                return this.linkAnchor.toLowerCase();
-            } else if (this.label) {
-                return this.label.toLowerCase();
-            } else {
-                return this.id.toLowerCase();
-            }
-        },
-        version: function () {
-            if (DEV) {
-                return VERSION + ' DEV';
-            } else {
-                return VERSION;
-            }
-        },
-    });
-
-    Template.headerT.helpers({
-        sort: function () {
-            return Session.get('sort');
-        },
-        nodeCount: function () {
-            return Session.get('nodeCount');
-        },
-    });
-
-    function resizeMap () {
-
-        // Set the initial map size and capture any resize window event so
-        // the map gets resized too.
-        var windowHt = $(window).height(),
-            navHt = $('#navBar').height(),
-            headerHt = $('#header').height();
-        $('#mapContent').height(windowHt - navHt - headerHt - 1);
-        $('#gridContent').height(windowHt - navHt);
-        $('#visualization').show();
-    }
-
-    function googleAnalytics() {
-
-       // Before including google analytics, respect the user's wish not to be
-       // tracked if she set this in her browser preferences.
-       if (!_dntEnabled()) {
-            window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
-            ga('create', 'UA-76132249-2', 'auto');
-            ga('send', 'pageview');
-        }
-    }
-
-    // Phase 5 init: Autotracker to find when the basic UI is drawn
-    Session.set('initedHexagons', false);
-    Session.set('initialiedLayers', false);
-    Session.set('initedColormaps', false);
-    function isUiDrawn (autorun) {
-        if (Session.get('initedHexagons') &&
-            Session.get('retrievedLayerInfo') &&
-            Session.get('initedColormaps')) {
-            autorun.stop();
-            Meteor.setTimeout(function () {
- 
-                initMap();
-                
-                import LazyLoader from '/imports/lazyLoader.js';
-                LazyLoader.init();
-     
-                // Turn off the loading progress wheel
-                setTimeout(function () {
-                    Session.set('mapSnake', false);
-                }, 300);
-
-                // Initialize the background functions.
-                initOverlayNodes();
-                initOverlayNodeUi();
-                initLegend();
-                Shortlist.init();
-                initCoords();
-                CheckLayerBox.init();
-                Reflect.init();
-                Tool.initLabelTool();
-                Download.init();
-                Colors.init();
-                import InfoWindow from '/imports/reactCandidates/infoWindow.js';
-                InfoWindow.init();
-                initSetOperations();
-                CreateMap.init();
-                Select.init();
-                initGchart();
-                initBookmark();
-                Jobs.init();
-                if (!DEV) { googleAnalytics(); }
-                //initDiffAnalysis();
-            }, 0);
-        }
-    }
-    Meteor.autorun(isUiDrawn);
- 
-    // Phase 4 init: Autotracker to find when the layers are initialized
-    Session.set('initedLayerTypes', false);
-    Session.set('initedStaticLayersArray', false);
-    function areLayersInitialized (autorun) {
-        if (Session.get('initedLayerTypes') &&
-            Session.get('initedStaticLayersArray')) {
-            autorun.stop();
- 
-            initSortAttrs();
-            initFilter();
-            import Longlist from '/imports/reactCandidates/longlist.js';
-            Longlist.init();
-            Session.set('retrievedLayerInfo', true);
-        }
-    }
-    Meteor.autorun(areLayersInitialized);
-
- 
-    // Phase 3 init: Autotracker to find when the layout is initialized
-    Session.set('initedLayout', false);
-    function isLayoutInitialized (autorun) {
-        if (Session.get('initedLayout')) {
-            autorun.stop();
- 
-            initHexagons();
-        }
-    }
-    Meteor.autorun(isLayoutInitialized);
- 
-    // Phase 2 init: Autotracker to find when the map prep is complete
-    Session.set('initedProject', false);
-    Session.set('initedMapContainer', false);
-    Session.get('initedMapType', false);
-    function areWeReadyForMap (autorun) {
-        if (Session.get('initedProject') &&
-            Session.get('initedMapContainer') &&
-            Session.get('initedMapType')) {
-            autorun.stop();
- 
-            initMapType();
-            initLayout();
-            Layer.initDataTypes();
-            Layer.initIndex();
-            initColormaps();
-        }
-    }
-    Meteor.autorun(areWeReadyForMap);
-
-    // Phase 1 init: when meteor has been rendered
-    // For a graphical view see:
-    // https://docs.google.com/presentation/d/1BrHDwcyGkmxD2MeimZ9bU3OPN3KJ85-wPpZxFy0yhmg/edit#slide=id.g12d3244251_0_30
-    function initMainMapContainer () { // jshint ignore: line
-        setTimeout(function () { // The timeout allows the google libs to load
-            resizeMap();
-            $(window).resize(resizeMap);
-            $('#shortlist_holder').css('top', $('#navBar').height());
-            ctx.center = centerToLatLng(ctx.center);
-            Session.set('initedMapContainer', true);
-        }, 0);
-    }
-
-    function initGridMapContainer () { // jshint ignore: line
-        setTimeout(function () { // The timeout allows the google libs to load
-            $(window).resize(resizeMap);
-            ctx.gridCenter = centerToLatLng(ctx.gridCenter);
-            initGrid();
-            
-            // Resize the map to fill the available space
-            Meteor.setTimeout(resizeMap, 0);
-        }, 0);
-    }
-
-return { // Public methods
-
-    resizeMap: resizeMap,
-    loadProject: loadProject,
-    pageReload: pageReload,
- 
-    bookmarkReload: function (bookmark) {
-        if (bookmark.slice(0,9) === 'localhost') {
-            bookmark = 'http://' + bookmark;
-        }
-        window.location.assign(bookmark);
+Template.body.helpers({
+    page: function () {
+        return Session.get('page');
     },
-};
-}());
-})(app);
+});
 
+Template.gridPage.onRendered(function () {
+    initGridMapContainer();
+    NavBar.init();
+});
+
+function initGridMapContainer () { // jshint ignore: line
+    setTimeout(function () { // The timeout allows the google libs to load
+        $(window).resize(Utils.resizeMap);
+        ctx.gridCenter = Coords.centerToLatLng(ctx.gridCenter);
+        Grid.init();
+        
+        // Resize the map to fill the available space
+        Meteor.setTimeout(Utils.resizeMap, 0);
+    }, 0);
+}
+
+// When the state has been loaded...
+function isStateLoaded () {
+    if (rx.getState().initAppCtxLoaded &&
+        rx.getState().initAppStateLoaded) {
+
+        unsubFx.isStateLoaded();
+        Perform.log('init:state-loaded');
+        
+        if (Session.equals('page', 'mapPage')) {
+            mapPageInit.init();
+        } else if (Session.equals('page', 'homePage')) {
+            import('/imports/homePage/home.js').then(home => home.init());
+        }
+    }
+}
+
+function subscribeToStore () {
+    unsubFx.isStateLoaded = rx.subscribe(isStateLoaded);
+}
+
+Meteor.startup(() => {
+    Perform.init();
+    ReducerCreator.init();
+    subscribeToStore();
+    ctx = State.init();
+    rx.dispatch({ type: rxAction.INIT_APP_CTX_LOADED })
+});

@@ -2,10 +2,13 @@
 // globals for client and server
 
 if (Meteor.isClient) {
+    rx = null; // The global redux client state
     ctx = null; // The global client state
     layers = {}; // contains almost all information about attributes
     googlemap = null; // our main googlemap instance
     colormaps = {};
+    polygons = {}; // Global: hold objects of polygons by signature name
+    VERSION = null;  // Application version
 }
 
 Meteor.startup( () => {
@@ -69,6 +72,7 @@ if (Meteor.isServer) {
     }
 }
 // Some global settings available to server and client.
+// Enable performance metric collection.
 URL_BASE = Meteor.settings.public.URL_BASE;
 VIEW_DIR = Meteor.settings.public.VIEW_DIR;
 LAYOUT_INPUT_DIR = Meteor.settings.public.LAYOUT_INPUT_DIR;

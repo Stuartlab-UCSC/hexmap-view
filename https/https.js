@@ -19,7 +19,7 @@ if (HEXMAP === '/data') {
     KEY = SECDIR + 'hexdev.key';
     CERT = SECDIR + 'hexdev.crt';
 }
-TARGET = 'HTTP://' + SERVER_BASE_URL + ':' + TARGET_PORT,
+TARGET = 'HTTP://' + SERVER_BASE_URL + ':' + TARGET_PORT;
 
 const httpProxy = require('http-proxy');
 const fs = require('fs');
