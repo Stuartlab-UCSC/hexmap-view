@@ -11,5 +11,8 @@ export PYTHONPATH=/hive/groups/hexmap/dev/compute/calc
 export ROOT_URL=https://hexdev.sdsc.edu:$HTTPS_PORT
 
 # Use the python virtual environment.
-source /hive/groups/hexmap/dev/env/bin/activate
-
+# If the python environment is present then open it up.
+PYENV=/hive/groups/hexmap/dev/env
+if [ -e $PYENV/bin/activate ]; then
+    source $PYENV/bin/activate
+fi
