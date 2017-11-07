@@ -1,0 +1,259 @@
+<template name='navBarT'>
+    <div id='navBar'>
+        <img src="/cyber-slug.svg" class="cyber-slug"/>
+        <ul>
+            <li class='home mapShow gridShow homeShow'>
+                <a href='/?pg=homePage' style='color:inherit'>
+                Home
+                </a>
+            </li>
+            
+            <li class='fileMenu'>
+                File
+                <img src='/icons/caret-down.png' style='height:8px'>
+                <ul class='file'>
+                    <li class='bookmark mapShow'>
+                        Save/Bookmark
+                    </li>
+                    <li class='createMap homeShow mapShow'>
+                        Create Map...
+                    </li>
+                    <li class='mapShow'>
+                        Download
+                        <img src='/icons/caret-down.png' style='height:8px'>
+                        <ul class='download'>
+                            <li class='hexagonNames mapShow'>
+                                Node IDs...
+                            </li>
+                            <li>
+                                <a id='pdfDownload'
+                                    title = 'Download the page in PDF format'>
+                                    PDF...
+                                </a>
+                            </li>
+                            <li>
+                                <a id='svgDownload' download='hexmap.svg'
+                                    title = 'Download the map in SVG format'>
+                                    SVG Map
+                                </a>
+                            </li>
+                            <li>
+                                <a id='svgDownloadLegend' download='hexmapLegend.svg'
+                                    title = 'Download the legend in SVG format'>
+                                    SVG Legend
+                                </a>
+                            </li>
+                            <li class='xyPreSquiggleAnchor mapShow gridShow' >
+                            </li>
+                            <li class='xyAssignmentAnchor mapShow gridShow' >
+                            </li>
+                            <!--
+                            <li class='input_files homeShow mapShow'>
+                                Example Input Files
+                                <img src='/icons/caret-down.png' style='height:8px'>
+                                <ul>
+                                    <li>
+                                        <a href='example_features_xy.tab' download='example_features_xy.tab'
+                                            title = 'Example feature input file to create a map, in node xy coordinates'>
+                                            XY Positions
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href='example_attributes.tab' download='example_attributes.tab'
+                                            title = 'Example attributes file to add to a map'>
+                                            Attributes for Colors
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+                            -->
+                        </ul>
+                    </li>
+                    <li class='resetDefaults mapShow gridShow'>
+                        Reset to Defaults
+                    </li>
+                </ul>
+            </li>
+            
+            <li class='editMenu mapShow'>
+                Edit
+                <img src='/icons/caret-down.png' style='height:8px'>
+                <ul class='edit'>
+                    <li id='background'>
+                        {{background}} Background
+                    </li>
+                    <li class='colormap'>
+                        Colormap...
+                    </li>
+                    <li class='addText'>
+                        Attach Label...
+                    </li>
+                    <li class='attrAdd mapShow'>
+                        Add Attributes...
+                    </li>
+                    <li class='overlayNode mapShow'>
+                        Place New Nodes...
+                    </li>
+                    <li class='overlayNodeRemove mapShow display={{ overlayNodeRemove }}'>
+                        Remove New Nodes
+                    </li>
+                </ul>
+            </li>
+            
+            <li class='selectMenu mapShow'>
+                Select
+                <img src='/icons/caret-down.png' style='height:8px'>
+                <ul class='select'>
+                    <li class='rectangle' title='Select a rectangular region of nodes'>
+                        by Rectangle
+                    </li>
+                    <li class='polygon' title='Select a polygonal region of nodes'>
+                        by Polygon
+                    </li>
+                    <li class='nodeIdSelect' title='Select nodes by node IDs'>
+                        by Node IDs...
+                    </li>
+                </ul>
+            </li>
+
+            <li>
+                View
+                <img src='/icons/caret-down.png' style='height:8px'>
+                <ul class='view'>
+                    <li class='mapLayout mapView {{ mapViewLayoutSelected }}'>
+                        Hexagonal Grid
+                    </li>
+                    <li class='xyCoordView mapView mapShow {{ mapViewXySelected}}'>
+                        Cartesian Plane
+                    </li>
+                    <li class='gridPage mapView gridShow {{ mapViewDensitySelected }}'>
+                        <a href='/?pg=gridPage' style='color:inherit'>
+                        Node Density
+                        </a>
+                    </li>
+                    <li>
+                        <hr>
+                    </li>
+                    <li class='transparent gridShow {{ transparentSelected }}' style='display:none'>
+                        Transparent
+                    </li>
+                    <li class='showHoverInfo mapShow'>
+                        Show Node Hover
+                    </li>
+                    <li class='viewEdges gridShow'>
+                        {{viewEdges}} Edges
+                    </li>
+                </ul>
+            </li>
+
+            <li class='mapShow'>
+                Tools
+                <img src='/icons/caret-down.png' style='height:8px'>
+                <ul class='data'>
+                    <li class='statsSort'>
+                        Stats &amp; Sort...
+                    </li>
+                    <li class='setOperations'>
+                        Set Operations...
+                    </li>
+                    <li class='filterAttributes'>
+                        Filter Attributes...
+                    </li>
+                    <li class='reflectTrigger'>
+                        Map Reflection...
+                    </li>
+                </ul>
+            </li>
+            
+            <li class='help mapSnakeAnchor' style='position:relative'>
+                Help
+                <img src='/icons/caret-down.png' style='height:8px'>
+                <ul class='help'>
+                    <li>
+                        Get Started
+                        {{> tutorialMenuT }}
+                        <img src='/icons/caret-down.png' style='height:8px'>
+                    </li>
+                    <li>
+                        <a href="/help/index.html" class='user_guide' target='_blank'>User Guide</a>
+                    </li>
+                    <li>
+                        <a href="mailto:hexmap@ucsc.edu">Email...</a>
+                    </li>
+                    <li class='disabled'>
+                        <hr>
+                    </li>
+                    <li class='queryDocs'>
+                        <a href='/query/index.html' target='_blank'>Web APIs</a>
+                    </li>
+                    <li class='version'>
+                        {{ version }}
+                    </li>
+                </ul>
+            </li>
+
+            <!-- login -->
+            <li class='login'>
+                {{> loginButtons}}
+            </li>
+        </ul>
+    </div>
+    
+    {{> jobT}}
+    {{> bookmarkT}}
+    {{> create_map_t}}
+    
+</template>
+
+<template name='bookmarkT'>
+    <div id='bookmarkDialog'>
+        <input class='message' value='{{ message }}' style='color:{{ color }}' readonly />
+    </div>
+</template>
+
+<template name='tutorialMenuT'>
+    <ul class='tutorial'>
+        <li>
+            <a href='/help/video.html' target='_blank'>
+                Video Introduction</a>
+        </li>
+        <li>
+            <a href='/help/case1pancan12.html' target='_blank'>
+                How do I view the Pancan12 Tumor Map?</a>
+        </li>
+        <li>
+            <a href='/help/case1.5createMap.html' target='_blank'>
+                How do I create a map from my data?</a>
+        </li>
+        <li>
+            <a href='/help/case8.saveAndShare.html' target='_blank'>
+                How do I save and share my work?</a>
+        </li>
+        <li>
+            <a href='/help/case2colors.html' target='_blank'>
+                How are colors customized and an image downloaded?</a>
+        </li>
+        <li>
+            <a href='/help/case3share.html' target='_blank'>
+                Which samples share a particular genomic alteration?</a>
+        </li>
+        <li>
+            <a href='/help/case4annotation.html' target='_blank'>
+                How are custom annotations created?</a>
+        </li>
+        <li>
+            <a href='/help/case5topDiff.html' target='_blank'>
+                What is the top differentiating attribute for squamous-like bladder cancer?</a>
+        </li>
+        <li>
+            <a href='/help/case6subtype.html' target='_blank'>
+                Which genomic events distinguish one subtype of cancer from another?</a>
+        </li>
+        <li>
+            <a href='/help/case7drive.html' target='_blank'>
+                Which genes and pathways drive clustering of basal breast tumors?</a>
+        </li>
+    </ul>
+</template>
+
+

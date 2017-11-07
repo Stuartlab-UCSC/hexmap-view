@@ -1,0 +1,23 @@
+<template name='setOper'>
+    <div class="set-operation dropdown">
+        <div class="dropdown-title">Perform Set Operation
+            <a class="cancel" href="#">X</a>
+            <a  class='help_container' href='/help/setOper.html' target='_blank' style='padding-left:4em'>
+                <img class='context-help' src='/icons/question.png'>
+            </a>
+        </div>
+        <div class="dropdown-body">
+            <select id="set-operations-list">
+                <option value = "0" selected = 'selected'>Select Set Operation:</option>
+                <option value = "1">∩ - Intersection</option>
+                <option value = "2">U - Union</option>  
+                <option value = "3">\ - Set Difference</option>
+                <option value = "4">∆ - Symmetric Difference</option>
+                <option value = "5">X - Cartesian Product</option>
+                <option value = "6">Not:</option>
+            </select>
+            <div id="set-operations" class="dropdown-contents">
+            </div>
+        </div>
+    </div>
+</template>

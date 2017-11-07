@@ -1,0 +1,239 @@
+
+html,
+body,
+#mapPage {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+}
+* {
+    outline: none;
+}
+
+h3 {
+    font-size: 1.1em;
+    font-weight: normal;
+    margin-left: -2em;
+    margin-top: 0.5em;
+    margin-bottom: 0.2em;
+}
+
+input.readFile {
+    font-size: 1em;
+}
+
+::-webkit-input-placeholder { /* Chrome */
+  color: #999;
+}
+:-ms-input-placeholder { /* IE 10+ */
+  color: #999;
+}
+::-moz-placeholder { /* Firefox 19+ */
+  color: #999;
+  opacity: 1;
+}
+:-moz-placeholder { /* Firefox 4 - 18 */
+  color: #999;
+  opacity: 1;
+}
+
+.row {
+    display: inline-block;
+    width: 100%;
+    vertical-align: middle;
+}
+
+/*
+The visualization element needs to take up all available space.
+*/
+#visualization, #gridMap {
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+}
+
+#gridMap .gm-style {
+    background-color: #fff;
+}
+
+.select2-default {
+    color: #444 !important;
+}
+
+.select2-results {
+    font-size: 0.9em;
+}
+
+/*
+Read as "The content row", distinct from whatever else that element might be.
+*/
+.content {
+    position: relative;
+    top: 0px;
+    height: 300px;
+    z-index: 1;
+}
+
+.layerNameListAnchor {
+    width: 20em;
+}
+.dialog {
+    font-size: 0.9em;
+}
+
+.dialogDiv {
+    min-height: 3em;
+    padding: 0.5em;
+}
+
+.dialog-label,
+.dialog_label,
+.dialog-value,
+.dialog_value {
+	text-align: right;
+	font-weight: normal;
+	vertical-align: middle;
+	padding: 0.3em;
+	white-space: nowrap;
+}
+.meta_label {
+    text-align: right;
+}
+
+.meta_value {
+    text-align: left;
+}
+
+.dialog-value,
+.dialog_value {
+	text-align: left;
+}
+
+/* Popups for ordering up stats operations. */
+.dropdown {
+    display:none;
+    width: 25em;
+    overflow: visible;
+    width:370px;
+    height: 160px;
+    margin-left: 21em;
+    top: 68px;
+    position: fixed;
+    border-radius: 10px;
+    border: 1px solid gray;
+    background: white;
+    z-index: 100;
+}
+
+.dropdown-title {
+    text-align: center;
+}
+
+.dropdown-body {
+    padding: 5px;
+    text-align: center;
+}
+
+.no_underline {
+    text-decoration: none;
+}
+
+.cancel {
+    float: right;
+    margin-right: 5px;
+}
+
+.dialog-help {
+    position: absolute;
+    right: 30px;
+    top: 5px;
+    height: 16px;
+    cursor: pointer;
+}
+
+.context-help {
+    vertical-align: middle;
+    height: 16px;
+    padding-left: 0.2em;
+}
+
+.help-dialog {
+    display: none;
+}
+
+.help-text {
+    width: 30em;
+    max-height: 30em;
+    overflow: auto;
+}
+
+.checkbox-labels {
+	font-size: 0.6em;
+}
+
+.radio-label, .radio-clear {
+    margin-right: 0.1em;
+    margin-left: 0.1em;
+}
+
+/* This is the info window/infocard styling */
+
+.infocard {
+    word-break: break-all;
+    cursor: text;
+}
+
+.info-row {
+    margin-bottom: 0.1em;
+}
+
+.info-key {
+    text-align: left;
+    font-weight: bold;
+}
+
+.info-value {
+    text-align: left;
+}
+
+.log {
+    width: 100%;
+}
+/* Tool stuff */
+textarea {
+    width: 100%;
+}
+textarea.import {
+    height: 10em;
+    font-size: 10pt;
+}
+
+input.import {
+    width: 100%;
+}
+
+.inlineMessage,
+.redMessage {
+    font-size: 0.8em;
+    font-style: italic;
+}
+
+#jobDialog td {
+    padding-right: 0.5em;
+    padding-left: 0.5em;
+}
+
+#create_map_dialog div {
+    padding-bottom: 0.2em;
+}
+
+#create_map_dialog div,
+#create_map_dialog span {
+    font-size: 1em;
+}
+
