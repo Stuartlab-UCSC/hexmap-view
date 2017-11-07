@@ -12,6 +12,7 @@ import Tool from '/imports/mapPage/head/tool.js';
 import '/imports/common/navBar.html';
 import './colorEdit.html';
 import './colorEdit.css';
+import Util from '/imports/common/util.js';
 
 // Some color constants
 var DISABLED_COLOR = '#aaaaaa',
@@ -470,7 +471,23 @@ exports.colormapToState = function (colorVals) {
             return val.color.hexString();
         });
     return {cats: cats, colors: colors};
-}
+};
+
+exports.findColorCount = function (layer_name) {
+    // Find the number of colors for this layer. Continuous values and
+    // undefined layer_names are assigned a count of zero.
+    var nColors = 0;
+
+    if (Util.is_cat_or_bin(layer_name)) {
+        var colormap = colormaps[layer_name];
+        if (colormap.length > 0) {
+
+            // Categorical values
+            nColors = colormap.length;
+        }
+    }
+    return nColors
+};
 
 exports.init = function () {
     
