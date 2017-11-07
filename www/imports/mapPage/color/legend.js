@@ -4,7 +4,7 @@
 import Hexagram from '/imports/mapPage/viewport/hexagram.js';
 import Layer from '/imports/mapPage/longlist/layer.js';
 import Shortlist from '/imports/mapPage/shortlist/shortlist.js';
-import Util from '/imports/common/util.js';
+import Colors from '/imports/mapPage/color/colorEdit.js';
 
 import './legend.css';
 
@@ -71,23 +71,6 @@ function horizontalBandLabels (colormap, context) {
     }
 }
 
-exports.findColorCount = function (layer_name) {
-
-    // Find the number of colors for this layer. Continuous values and
-    // undefined layer_names are assigned a count of zero.
-    var nColors = 0;
-
-    if (Util.is_cat_or_bin(layer_name)) {
-        var colormap = colormaps[layer_name];
-        if (colormap.length > 0) {
-
-            // Categorical values
-            nColors = colormap.length;
-        }
-    }
-    return nColors
-};
-
 exports.redraw = function (retrieved_layers, current_layers, context) {
 
     // current_layers is an array of zero to two layer names
@@ -114,7 +97,7 @@ exports.redraw = function (retrieved_layers, current_layers, context) {
         colorCount1 = -1;
 
     // Get the vertical color count, the primary active attr.
-    colorCount0 = exports.findColorCount(current_layers[0]);
+    colorCount0 = Colors.findColorCount(current_layers[0]);
     if (colorCount0 > 0) {
 
         // This is either categorical or binary. Find the key height
@@ -152,7 +135,7 @@ exports.redraw = function (retrieved_layers, current_layers, context) {
     }
 
     // Get the horizontal color count, the secondary active attr.
-    colorCount1 = exports.findColorCount(current_layers[1]);
+    colorCount1 = Colors.findColorCount(current_layers[1]);
 
     for (var i = 0; i < KEY_WT; i++) {
 
