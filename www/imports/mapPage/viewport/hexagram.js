@@ -292,7 +292,7 @@ exports.get_color = function (layerName1, layerVal1, layerName2, layerVal2) {
 
     if(continuousAndCatOrBin) {
         //Manipulate the ordering of arguments so an extra case is not needed.
-        color = get_color(layerName2, layerVal2, layerName1, layerVal1);
+        color = exports.get_color(layerName2, layerVal2, layerName1, layerVal1);
 
     } else if (any_missing_values) {
         color = Colors.noDataColor();
@@ -340,7 +340,7 @@ exports.get_color = function (layerName1, layerVal1, layerName2, layerVal2) {
         // We want 100 to be included (since that's full brightness), but we
         // want to skip 0 (since no color can be seen at 0), so we add 5 to
         // the second layer's value.
-        var colorCountL2 = findColorCount(layerName2);
+        var colorCountL2 = Colors.findColorCount(layerName2);
         hsv_value = (layerVal2 + 1) / colorCountL2 * 100;
         base_color.value(hsv_value);
         color = base_color.hexString()
