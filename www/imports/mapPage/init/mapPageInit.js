@@ -349,7 +349,11 @@ function hasDomLoaded () {
 exports.init = function () {
     Perform.log('1a-init:request-primary-data-&-auth');
 
+    // Iniitialize some session vars we don't want carried over
+    // from the last session.
+    Session.set('initedHexagons', false);
     Session.set('mapSnake', true);
+    Session.set('mapMeta', {});
     
     // Request the primary data.
     Data.requestLayerSummary({ rxAction: rxAction.INIT_MAP_LAYER_SUMMARY_LOADED });

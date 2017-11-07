@@ -149,27 +149,24 @@ function criteriaCheck () {
     // Bail with a message if the required data needed is not present.
     var placeNodeCriteria = false,
         meta = Session.get('mapMeta');
-    if (meta) {
-
-        // If the mapMeta data was found and there is cluster data, we've
-        // met the data criteria to run placeNode.
-        var layout = Layout.findCurrentName();
-        if (meta &&
-            meta !== '404' &&
-            meta.layouts &&
-            meta.layouts[layout] &&
-            meta.layouts[layout].clusterData) {
-            placeNodeCriteria = true;
-        }
+    // If there is cluster data, we've
+    // met the data criteria to run placeNode.
+    var layout = Layout.findCurrentName();
+    if (meta.layouts &&
+        meta.layouts[layout] &&
+        meta.layouts[layout].clusterData) {
+        placeNodeCriteria = true;
     }
-
-    if (placeNodeCriteria) {
-        return true;
-    } else {
-        dialogHex.hide();
+    if (!placeNodeCriteria) {
         Util.banner('error', 'Sorry, the required data to ' +
         'place new nodes is not available for this map.');
         return false;
+    } else if (! Session.equals('mapView', 'honeycomb')) {
+        Util.banner('error', 'Sorry, nodes may only be placed in the ' +
+            '"Hexagonal Grid" view. (Selectable under the "View menu".)');
+        return false;
+    } else {
+        return true;
     }
 }
 

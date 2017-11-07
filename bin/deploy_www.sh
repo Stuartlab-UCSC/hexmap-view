@@ -12,4 +12,7 @@ meteor build $HEXMAP/deploy --architecture os.linux.x86_64
 cd $HEXMAP/deploy
 echo Built the deploy bundle in $HEXMAP/deploy.
 cd $HEXMAP/deploy
+echo
+echo !!!!!!!!!!!!!!!!! ENTER YOUR PASSWORD BEFORE I TIME OUT !!!!!!!!!!!!!!!!!!!
+echo
 scp *gz kolossus:dev

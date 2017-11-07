@@ -50,7 +50,8 @@ function row(key, value, gMap) {
 function get_signature_search_url() {
     var default_url = "https://www.google.com/search?q=";
     var mapMeta = Session.get("mapMeta");
-    if (mapMeta === "404" || _.isUndefined(mapMeta['nodeIdSearchUrl']) ){
+    
+    if (_.isUndefined(mapMeta['nodeIdSearchUrl']) ){
         return default_url;
     } else {
         return mapMeta['nodeIdSearchUrl']

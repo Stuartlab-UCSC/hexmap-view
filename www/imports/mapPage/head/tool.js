@@ -183,12 +183,12 @@ exports.initLabel = function () {
 },
 
 exports.requestMapMetadataError = function (error) {
-    Session.set('mapMeta', undefined);
+    Session.set('mapMeta', {});
 }
 
 exports.receiveMapMetadata = function (mapMeta) {
     if (mapMeta === '404') {
-        mapMeta = undefined;
+        mapMeta = {};
     }
     Session.set('mapMeta', mapMeta);
 }

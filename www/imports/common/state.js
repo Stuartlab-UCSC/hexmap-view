@@ -474,6 +474,9 @@ exports.init = function () {
     // Load state from URL parms.
     if (s.uParm !== null) {
 
+        console.log('NOTE: local session state was ignored in favor of the',
+            'URL parameters');
+
         // Handle a bookmark ID parm in the URL.
         if (s.uParm.bookmark) {
             s.loadFromBookmark(s.uParm.bookmark);

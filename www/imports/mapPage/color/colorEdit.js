@@ -316,7 +316,7 @@ function continuosColorChanged (layerName) {
     return (currentH !== originalH) || (currentL !== originalL)
 }
 
-exports.disabled_color = function () {
+exports.disabledColor = function () {
     return DISABLED_COLOR;
 }
 

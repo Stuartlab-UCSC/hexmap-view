@@ -292,7 +292,7 @@ exports.get_color = function (layerName1, layerVal1, layerName2, layerVal2) {
 
     if(continuousAndCatOrBin) {
         //Manipulate the ordering of arguments so an extra case is not needed.
-        color = get_color(layerName2, layerVal2, layerName1, layerVal1);
+        color = exports.get_color(layerName2, layerVal2, layerName1, layerVal1);
 
     } else if (any_missing_values) {
         color = Colors.noDataColor();
