@@ -1,0 +1,7 @@
+#!/bin/bash
+# tar the server support files, not www.
+tar cf support.tar \
+    bin \
+    config \
+    http*
+scp support.tar kolossus:dev
