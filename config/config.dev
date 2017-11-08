@@ -7,12 +7,5 @@ DB_PORT=28223
 export HTTP_PORT=8221
 export HTTPS_PORT=8222
 export PORT=8223
-export PYTHONPATH=/hive/groups/hexmap/dev/compute/calc
+export PYENV=/hive/groups/hexmap/dev/env
 export ROOT_URL=https://hexdev.sdsc.edu:$HTTPS_PORT
-
-# Use the python virtual environment.
-# If the python environment is present then open it up.
-PYENV=/hive/groups/hexmap/dev/env
-if [ -e $PYENV/bin/activate ]; then
-    source $PYENV/bin/activate
-fi
