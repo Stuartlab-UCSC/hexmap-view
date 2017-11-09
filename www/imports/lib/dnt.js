@@ -44,4 +44,4 @@ exports._dntEnabled = function (dnt, userAgent) {
     }
 
     return dntStatus === 'Enabled' ? true : false;
-}
+};

@@ -365,7 +365,7 @@ exports.receiveLayerTags = function (data) {
 
     // Update the untagged count
     if (taggedCount) {
-        count.set('untagged', sorted.length - taggedCount);
+        count.set('untagged', Session.get('sortedLayers').length - taggedCount);
     }
 
     tagData = data;

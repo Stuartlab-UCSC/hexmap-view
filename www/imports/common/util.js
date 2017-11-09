@@ -1,6 +1,7 @@
 // util.js
 // This contains various utilities used throughout the code.
 
+import dnt from '/imports/lib/dnt.js';
 import Prompt from '/imports/component/prompt.js';
 import Select2 from '/imports/lib/select2.js';
 
@@ -244,3 +245,18 @@ exports.addToDataTypeList = function (layer_name, dataType) {
         ctx.cont_layers.push(layer_name);
     }
 }
+
+exports.googleAnalytics = function () {
+
+    // Before including google analytics, respect the user's wish not to be
+    // tracked if she set this in her browser preferences.
+    if (!dnt._dntEnabled()) {
+        /* eslint-disable */
+        window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+        ga('create', 'UA-76132249-2', 'auto');
+        ga('send', 'pageview');
+        /* eslint-enable */
+    }
+}
+
+
