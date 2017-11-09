@@ -4,7 +4,6 @@
 
 import Ajax from '/imports/mapPage/data/ajax.js';
 import Perform from '/imports/common/perform.js';
-import Rx from '/imports/rx/rxAction.js';
 import rxAction from '/imports/rx/rxAction.js';
 import Util from '/imports/common/util.js';
 
@@ -76,7 +75,6 @@ exports.requestAttributeTags = function (opts) {
 };
 
 exports.requestLayoutNames = function (opts) {
-    import Hexagram from '/imports/mapPage/viewport/hexagram.js';
     import Layout from '/imports/mapPage/head/layout.js';
 
     // This may have been requested already if a layout name was supplied,
