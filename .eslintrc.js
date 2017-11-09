@@ -3,6 +3,7 @@ module.exports = {
         "_": false,
         "ctx": true,
         "DEV": false,
+        "GoogleMaps": false,
         "HUB_URL": false,
         "layers": false,
         "PERFORM": false,

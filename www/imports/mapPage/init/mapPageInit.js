@@ -3,7 +3,6 @@
  */
 
 import { Meteor } from 'meteor/meteor';
-import dnt from '/imports/lib/dnt-helper.js';
 import CheckLayerBox from '/imports/mapPage/calc/checkLayerBox.js';
 import Colors from '/imports/mapPage/color/colorEdit.js';
 import Coords from '/imports/mapPage/viewport/coords.js';
@@ -27,6 +26,7 @@ import Select from '/imports/mapPage/shortlist/select.js';
 import SetOper from '/imports/mapPage/shortlist/setOper.js';
 import Sort from '/imports/mapPage/longlist/sort.js';
 import SortUi from '/imports/mapPage/longlist/sortUi.js';
+import Util from '/imports/common/util.js';
 import Utils from '/imports/common/utils.js';
 
 import Project from '/imports/mapPage/head/project.js';
@@ -87,19 +87,6 @@ function initSnakes () {
     });
 }
 
-function googleAnalytics() {
-
-    // Before including google analytics, respect the user's wish not to be
-    // tracked if she set this in her browser preferences.
-    if (!dnt._dntEnabled()) {
-		/* eslint-disable */
-        window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
-        ga('create', 'UA-76132249-2', 'auto');
-        ga('send', 'pageview');
-		/* eslint-enable */
-    }
-}
-
 // Phase 6b init: when the active layers have been added to the shortlist
 //           and the map has rendered
 //           and layout selector has been populated,
@@ -116,62 +103,49 @@ function areLayoutsPopulated () {
         rx.getState().initAppMapRendered) {
         
         Perform.log('6b-init:complete initialization');
-        unsubFx.areLayoutsPopulated()
+        unsubFx.areLayoutsPopulated();
 
         // Timeout to allow the map to render.
         setTimeout(function () {
+            Perform.log('background-functions-init');
             Session.set('shortlist', shortlistSaved);
             Shortlist.complete_initialization();
 
             // Show the appropriate options on the navigation bar.
             NavBar.init();
 
-            // Timeout to allow some rendering to complete.
-            setTimeout(function () {
+            Layout.initList();
+            SortUi.init();
 
-                Perform.log('background-functions-init');
-
-                Layout.initList();
-                setTimeout(function () {
-     
-                    Perform.log('way-background-functions-init');
-     
-                    SortUi.init();
-     
-                    import LazyLoader from '/imports/mapPage/init/lazyLoader.js';
-                    LazyLoader.init();
-
-                    // Initialize the background functions.
-                    Legend.init();
-                    CheckLayerBox.init();
-                    Reflect.init();
-                    Tool.initLabel();
-                    Download.init();
-                    Colors.init();
-                    import InfoWindow from '/imports/mapPage/viewport/infoWindow.js';
-                    InfoWindow.init();
-                    SetOper.init();
-                    CreateMap.init();
-                    Select.init();
-                    GChart.init();
-                    State.initBookmark();
-                    OverlayNodes.init();
-                    OverlayNodeUi.init();
-                    if (!DEV) {
-                        Perform.log('google-analytics-loading');
-                        googleAnalytics();
-                    }
-                    Session.set('mapSnake', false);
-                }, 100);
-     
-            });
+            import LazyLoader from '/imports/mapPage/init/lazyLoader.js';
+            LazyLoader.init();
+            Legend.init();
+            CheckLayerBox.init();
+            Reflect.init();
+            Tool.initLabel();
+            Download.init();
+            Colors.init();
+            import InfoWindow from '/imports/mapPage/viewport/infoWindow.js';
+            InfoWindow.init();
+            SetOper.init();
+            CreateMap.init();
+            Select.init();
+            GChart.init();
+            State.initBookmark();
+            OverlayNodes.init();
+            OverlayNodeUi.init();
+            if (!DEV) {
+                Perform.log('google-analytics-loading');
+                Util.googleAnalytics();
+            }
+            Session.set('mapSnake', false);
         });
     }
 }
 
 // Phase 6a init: when the layout names have been received,
 //           populate the layout selector.
-function areLayoutNamesReceived (autorun) {
+function areLayoutNamesReceived () {
 
     //console.log('areLayoutNamesReceived()')
     //console.log('rx.getState().initAppLayoutNamesReceived:', rx.getState().initAppLayoutNamesReceived)
@@ -179,13 +153,10 @@ function areLayoutNamesReceived (autorun) {
     if (rx.getState().initAppLayoutNamesReceived) {
 
         Perform.log('6a-init:layout-names-received');
-        unsubFx.areLayoutNamesReceived()
+        unsubFx.areLayoutNamesReceived();
 
-        // Set timeout so the init routines will not be owned by this autorun.
-        //setTimeout(function () {
-            Layout.initList();
-            rx.dispatch({ type: rxAction.INIT_APP_LAYOUTS_POPULATED });
-        //});
+        Layout.initList();
+        rx.dispatch({ type: rxAction.INIT_APP_LAYOUTS_POPULATED });
     }
 }
 
@@ -236,11 +207,8 @@ function isMapPreppedAndUserAuthorized () {
         Perform.log('4-init:render-map');
         unsubFx.isMapPreppedAndUserAuthorized();
 
-        // Set timeout so the init routines will not be owned by this autorun.
-        setTimeout(function () {
-            Hexagram.initMap();
-            rx.dispatch({ type: rxAction.INIT_APP_MAP_RENDERED });
-        });
+        Hexagram.initMap();
+        rx.dispatch({ type: rxAction.INIT_APP_MAP_RENDERED });
     }
 }
 
