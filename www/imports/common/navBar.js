@@ -38,7 +38,7 @@ exports.init = function () {
         Session.set('mapView', 'honeycomb');
         Session.set('transparent', false);
         if (Session.equals('page', 'mapPage')) {
-        	import Hexagons from '/imports/mapPage/viewport/hexagons.js';
+            import Hexagons from '/imports/mapPage/viewport/hexagons.js';
             Hexagons.getAssignmentsForMapViewChange();
         } else {
             Utils.pageReload('mapPage');
