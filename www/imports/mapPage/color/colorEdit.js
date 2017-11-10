@@ -211,10 +211,10 @@ function inputKeyup (ev) {
 }
 
 function makeTsv($link) {
-        // Make a colormaps formatted string for a requested download.
+    // Make a colormaps formatted string for a requested download.
     var tsv = '';
-        // Only add layers in the string that have been loaded into the
-        // shortlist.
+    // Only add layers in the string that have been loaded into the
+    // shortlist.
     Object.keys(colormaps).forEach(function (layer) {
             if (Shortlist.inShortList(layer)) {
         tsv += layer;
@@ -237,6 +237,7 @@ function makeTsv($link) {
 
     $link[0].click();
 }
+
 exports.colormapToColorArray = function (layerVal, layerKey) {
 
     // Convert one attr colormap colors into a form that templates
@@ -254,7 +255,11 @@ exports.colormapToColorArray = function (layerVal, layerKey) {
         return cat;
     });
     return {name: layerKey, cats: cats, selected: ''};
-}
+};
+
+exports.getCategoryString = function(layerName, layerValue) {
+    return colormaps[layerName][layerValue].name
+};
 
 exports.colormapsToColorArray = function () {
 
