@@ -137,12 +137,23 @@ function renderHexagon (row, column, nodeId, opts) {
             map: googlemap,
             //paths: coords,
             fillColor: Colors.noDataColor(),
-            zIndex: (opts && opts.overlay) ? 200 : 1,
+            zIndex: 1,
         };
+    
+    // Special treatment for overlay nodes.
+    if (opts && opts.overlay) {
+        shapeOpts.zIndex = 200;
+        if (polygons[nodeId]) {
+            
+            // This overlay node is already on the frozen map so use it's color.
+            shapeOpts.fillColor = polygons[nodeId].fillColor;
+        }
+    }
 
     setZoomOptions(nodeId, xy, shapeOpts);
 
     if (mapView === 'honeycomb') {
+        // TODO this duplicates code above
         shapeOpts.path = Coords.getHexLatLngCoords(xy, Coords.getSideLen());
     } else {
         shapeOpts.strokeWeight = 0;
