@@ -5,9 +5,9 @@ import Coords from '/imports/mapPage/viewport/coords.js';
 import CreateMap from '/imports/mapPage/calc/createMap.js';
 import Grid from '/imports/densityPage/grid.js';
 import mapPageInit from '/imports/mapPage/init/mapPageInit.js';
-import ReducerCreator from  '/imports/rx/rxReducerCreator.js';
 import Perform from '/imports/common/perform.js';
-import rxAction from '/imports/rx/rxAction.js';
+import rx from '/imports/common/rx.js';
+import rxInternal from '/imports/common/rxInternal.js';
 import State from '/imports/common/state.js';
 import Tool from '/imports/mapPage/head/tool.js';
 import Utils from '/imports/common/utils.js';
@@ -20,8 +20,9 @@ import '/imports/common/navBar.css';
 VERSION = '1.0';
 
 window.addEventListener("load", function(event) {
-	rx.dispatch({ type: rxAction.INIT_APP_DOM_LOADED })
+	rx.set(rx.act.INIT_APP_DOM_LOADED)
 });
+
 var unsubFx = {};
 
 Template.body.helpers({
@@ -48,8 +49,9 @@ function initGridMapContainer () { // jshint ignore: line
 
 // When the state has been loaded...
 function isStateLoaded () {
-    if (rx.getState().initAppCtxLoaded &&
-        rx.getState().initAppStateLoaded) {
+    var R = rx.getState();
+    if (R[rx.bit.initAppCtxLoaded] &&
+        R[rx.bit.initAppStateLoaded]) {
 
         unsubFx.isStateLoaded();
         Perform.log('init:state-loaded');
@@ -62,14 +64,10 @@ function isStateLoaded () {
     }
 }
 
-function subscribeToStore () {
-    unsubFx.isStateLoaded = rx.subscribe(isStateLoaded);
-}
-
 Meteor.startup(() => {
     Perform.init();
-    ReducerCreator.init();
-    subscribeToStore();
+    rxInternal.init();
+    unsubFx.isStateLoaded = rx.subscribe(isStateLoaded);
     ctx = State.init();
-    rx.dispatch({ type: rxAction.INIT_APP_CTX_LOADED })
+    rx.set(rx.act.INIT_APP_CTX_LOADED);
 });

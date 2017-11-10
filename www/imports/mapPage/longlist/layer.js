@@ -8,7 +8,7 @@ import JPalette from '/imports/mapPage/color/jpalette.js';
 import U from '/imports/common/utils.js';
 import Perform from '/imports/common/perform.js';
 import Prompt from '/imports/component/prompt.js';
-import rxAction from '/imports/rx/rxAction.js';
+import rx from '/imports/common/rx.js';
 import Shortlist from '/imports/mapPage/shortlist/shortlist.js';
 import Util from '/imports/common/util.js';
 
@@ -300,7 +300,7 @@ exports.loadInitialActiveLayers = function () {
     var active = Session.get('active_layers');
     
     function loaded () {
-        rx.dispatch({ type: rxAction.INIT_MAP_ACTIVE_ATTRS_LOADED });
+        rx.set(rx.act.INIT_MAP_ACTIVE_ATTRS_LOADED);
     }
     
     if (active.length < 1) {
