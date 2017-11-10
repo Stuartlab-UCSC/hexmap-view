@@ -7,7 +7,7 @@ import Coords from '/imports/mapPage/viewport/coords.js';
 import Hexagons from '/imports/mapPage/viewport/hexagons.js';
 import Layer from '/imports/mapPage/longlist/layer.js';
 import Legend from '/imports/mapPage/color/legend.js';
-import rxAction from '/imports/rx/rxAction.js';
+import rx from '/imports/common/rx.js';
 import Shortlist from '/imports/mapPage/shortlist/shortlist.js';
 import Sort from '/imports/mapPage/longlist/sort.js';
 import Tool from '/imports/mapPage/head/tool.js';
@@ -603,5 +603,5 @@ exports.colormapsReceived = function (parsed, id) {
         // Store the finished color map in the global object
         colormaps[layer_name] = colormap;
     }
-    rx.dispatch({ type: rxAction.INIT_MAP_COLORMAP_LOADED })
+    rx.set(rx.act.INIT_MAP_COLORMAP_LOADED)
 }
