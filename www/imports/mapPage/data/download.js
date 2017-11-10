@@ -6,6 +6,8 @@ import Tool from '/imports/mapPage/head/tool.js';
 import Util from '/imports/common/util.js';
 
 import '/imports/mapPage/viewport/pdf.html';
+import Colors from '/imports/mapPage/color/colorEdit.js';
+import Shortlist from '/imports/mapPage/shortlist/shortlist.js';
 
 function initDownloadSelectTool () {
 
@@ -14,39 +16,47 @@ function initDownloadSelectTool () {
     // need to be modal
     Tool.add("hexagonNames", function() {
         // Make the export form
-        var export_form = $("<form/>").attr("title", "Export Nodes");
+        var export_form = $("<form/>").attr("title", "Attribute Download");
         
-        export_form.append(
-            $("<div/>").text("Select an attribute to export:"));
+        //export_form.append(
+            //$("<div/>").text("Select an attribute to download:"));
         
         // Make a select box for picking from all selections.
-        var select_box = $("<select/>");
+        var WIDTH = 275;
+        var select_box = $("<select/>").width(WIDTH+6);
         
-        // Populate it with all existing selections and continuous.
-        for(var layer_name in layers) {
-            if ((layers[layer_name].selection) ||
-            (layers[layer_name].data && Util.is_continuous(layer_name))) {
-                // This is a selection, so add it to the dropdown.
+        // Populate it with all entries in the shortlist.
+        var activeLayers = Shortlist.getAllLayerNames();
+        activeLayers.map(
+            function(layerName) {
                 select_box
                     .append($("<option/>")
-                    .text(layer_name).attr("value", layer_name));
-            }
-        }
+                        .text(layerName).attr("value", layerName));
+        });
+
         
         export_form.append(select_box);
         
-        export_form.append($("<div/>").text("Exported data:"));
+        //export_form.append($("<div/>").text("Exported data:"));
         
         // A big text box
-        var text_area = $("<textarea/>").addClass("export");
+        var text_area = $("<textarea/>").addClass("export")
+            .width(WIDTH)
+            .height(WIDTH);
         text_area.prop("readonly", true);
             export_form.append(text_area);
 
         // Add a download as file link. The "download" attribute makes the
         // browser save it, and the href data URI holds the data.
-        var download_link = $("<a/>").attr("download", "selection.txt");
+        var download_link = $("<a/>").attr("download", "attribute.txt");
         download_link.attr("href", "data:text/plain;base64,");
-        download_link.text("Download As Text");
+        download_link.html("<button type='button'>Download</button>");
+        download_link.css({
+            "position": "relative",
+            "left": "67%",
+            });
+
+        //download_link.text("Download");
         
         export_form.append(download_link);
         
@@ -77,7 +87,10 @@ function initDownloadSelectTool () {
             }
 
             var isContinuous = Util.is_continuous(layer_name);
-
+            var isCategorical = Util.is_categorical(layer_name);
+            var isBinary = Util.is_binary(layer_name);
+            var isSelection = layers[layer_name].selection;
+            
             // This holds our list. We build it in a string so we can escape
             // it with one .text() call when adding it to the page.
             var exported = "";
@@ -85,18 +98,28 @@ function initDownloadSelectTool () {
             // Get the layer data to export
             var layer_data = layers[layer_name].data;
             for(var signature in layer_data) {
-                if(layer_data[signature]) {
+                if(!_.isUndefined(layer_data[signature])) {
                     // It's selected, put it in
                     
                     if(exported !== "") {
                         // If there's already text, add a newline.
                         exported += "\n";
                     }
-                    if (isContinuous){
+
+                    if (isSelection) {
+                        exported += signature;
+                    } else if (isContinuous || isBinary){
                         //add the value
                         exported += signature + '\t' + layer_data[signature]
+                    } else if (isCategorical) {
+                        var catString = Colors.getCategoryString(
+                            layer_name,
+                            layer_data[signature]
+                        );
+                        exported += signature + '\t' + catString
                     } else {
-                        exported += signature;
+                        // If hit not good.
+                        // TODO: throw an error or do something instructive
                     }
 
                 }
