@@ -1028,6 +1028,10 @@ exports.get_slider_range = function (layer_name) {
         return binLayers
     }
 
+    exports.getAllLayerNames = function() {
+        return Session.get('shortlist')
+    };
+
 exports.get_dynamic_entries_for_persistent_state = function () {
 
     // Return the dynamic entries in the short list, while converting the
