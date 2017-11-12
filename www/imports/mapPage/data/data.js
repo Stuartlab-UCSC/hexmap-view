@@ -4,7 +4,7 @@
 
 import Ajax from '/imports/mapPage/data/ajax.js';
 import Perform from '/imports/common/perform.js';
-import rxAction from '/imports/rx/rxAction.js';
+import rx from '/imports/common/rx.js';
 import Util from '/imports/common/util.js';
 
 function request (id, opts) {
@@ -26,7 +26,7 @@ function request (id, opts) {
                 opts.successFx(results, id);
             }
             if (opts.rxAction) {
-                rx.dispatch({ type: opts.rxAction });
+                rx.set(opts.rxAction);
             } else if (opts.stateVar) {
                 Session.set(opts.stateVar, true);
             }
@@ -79,10 +79,10 @@ exports.requestLayoutNames = function (opts) {
 
     // This may have been requested already if a layout name was supplied,
     // but no layout index.
-    if (rx.getState().INIT_APP_LAYOUT_NAMES_REQUESTED) {
+    if (rx.get(rx.INIT_APP_LAYOUT_NAMES_REQUESTED)) {
         return;
     }
-    rx.dispatch({ type: rxAction.INIT_APP_LAYOUT_NAMES_REQUESTED });
+    rx.set(rx.act.INIT_APP_LAYOUT_NAMES_REQUESTED);
     opts.successFx = opts.successFx || Layout.layoutNamesReceived;
     opts.ok404 = true;
     request('layouts', opts);
@@ -123,7 +123,7 @@ exports.requestLayoutAssignments = function (opts) {
             // A layout name was supplied, so we need to get the layout list
             // before we know the layout index to download layout node placement
             exports.requestLayoutNames(
-                { rxAction: rxAction.INIT_APP_LAYOUT_NAMES_RECEIVED });
+                { rxAction: rx.act.INIT_APP_LAYOUT_NAMES_RECEIVED });
             return;
         } else {
             // Default to the first layout.

@@ -2,7 +2,6 @@
 // globals for client and server
 
 if (Meteor.isClient) {
-    rx = null; // The global redux client state
     ctx = null; // The global client state
     layers = {}; // contains almost all information about attributes
     googlemap = null; // our main googlemap instance
