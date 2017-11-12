@@ -23,9 +23,10 @@ function initDownloadSelectTool () {
         
         // Make a select box for picking from all selections.
         var WIDTH = 275;
+        // Add a little more to the width so the select and text box line up.
         var select_box = $("<select/>").width(WIDTH+6);
-        
-        // Populate it with all entries in the shortlist.
+
+        // Populate the select box with all entries in the shortlist.
         var activeLayers = Shortlist.getAllLayerNames();
         activeLayers.map(
             function(layerName) {
@@ -36,34 +37,121 @@ function initDownloadSelectTool () {
 
         
         export_form.append(select_box);
-        
-        //export_form.append($("<div/>").text("Exported data:"));
-        
-        // A big text box
+
+        // Make the text box.
         var text_area = $("<textarea/>").addClass("export")
             .width(WIDTH)
             .height(WIDTH);
         text_area.prop("readonly", true);
             export_form.append(text_area);
 
-        // Add a download as file link. The "download" attribute makes the
+        // Add a download file link. The "download" attribute makes the
         // browser save it, and the href data URI holds the data.
-        var download_link = $("<a/>").attr("download", "attribute.txt");
-        download_link.attr("href", "data:text/plain;base64,");
-        download_link.html("<button type='button'>Download</button>");
-        download_link.css({
-            "position": "relative",
-            "left": "67%",
+        var download_link = $("<a/>")
+            .attr("href", "data:text/plain;base64,")
+            .html("<button type='button'>Download</button>")
+            .css({
+                "position": "relative",
+                "left": "67%",
             });
-
-        //download_link.text("Download");
-        
         export_form.append(download_link);
-        
+
+        function selectionStringExtender(textAreaStr, nodeId, value, layerName){
+            // Used to fill the text box when the layer is a selection.
+            return textAreaStr.concat(nodeId)
+        }
+
+        function contStringExtender(textAreaStr, nodeId, value, layerName){
+            // Used to fill the text box when the layer is continuous.
+            return textAreaStr.concat(nodeId)
+                .concat("\t")
+                .concat(value)
+        }
+
+        function catOrBinStringExtender(textAreaStr, nodeId, value, layerName){
+            // Used to fill the text box when the layer is categorical or
+            // binary.
+            var categoryString = Colors.getCategoryString(
+                layerName,
+                value
+            );
+            return textAreaStr.concat(nodeId)
+                .concat("\t")
+                .concat(categoryString)
+        }
+
+        function textAreaExtender(layerName){
+            // Returns a function for extending text
+            // depending on the datatype of the layer name.
+            var extender;
+            if (layers[layerName].selection){
+                extender = selectionStringExtender;
+            } else if (Util.is_categorical(layerName) ||
+                Util.is_binary(layerName)) {
+                extender = catOrBinStringExtender
+            } else if (Util.is_continuous(layerName) ) {
+                extender = contStringExtender
+            } else {
+                throw "DataType for downloading not found."
+            }
+
+            return extender;
+        }
+
+        function updateTextArea(layer_data, layerName, linelimit){
+            // Updates the text_area element with downloadable text.
+            // Will write no more lines than linelimit.
+            var textAreaStr = "",
+                linecount = 0,
+            // The function used to extend the text string:
+                textExtender = textAreaExtender(layerName);
+
+            // Make the string that will populate the text box.
+            for(var nodeId in layer_data) {
+                var value = layer_data[nodeId];
+                // Skip undefined values.
+                if(_.isUndefined(value)) continue;
+
+                // Break out if we've reached our limit.
+                linecount+=1;
+                if(!_.isUndefined(linelimit)
+                    && linelimit < linecount) break;
+
+                // If there's already text, add a newline.
+                if(textAreaStr !== "") textAreaStr += "\n";
+                
+                // Extend the text string with the nodeId and value.
+                textAreaStr = textExtender(
+                    textAreaStr,
+                    nodeId,
+                    value,
+                    layerName
+                );
+            }
+            // Update the text area.
+            text_area.text(textAreaStr);
+        };
+
         text_area.focus(function() {
             // Select all on focus.
-            
+            var NO_LIMIT = undefined,
+                layerName = select_box.val();
+            // Exit if there is somehow no entry for the layer.
+            if (_.isUndefined(layers[layerName])) return;
+
+            var layerData = layers[layerName].data;
+
+            updateTextArea(layerData, layerName, NO_LIMIT);
+
+            // Highlight all the text.
             $(this).select();
+
+            // Fill in the download data URI.
+            download_link
+                .attr("href", "data:text/plain;base64,"
+                    + window.btoa(text_area.text()))
+                .attr("download", layerName.concat(".txt"));
+
         });
         
         text_area.mouseup(function(event) {
@@ -74,69 +162,30 @@ function initDownloadSelectTool () {
         });
         
         select_box.change(function() {
-            // Update the text area with the list of hexes in the selected
-            // layer.
-            
-            // Get the layer name.
-            var layer_name = select_box.val();
-            if (!layers.hasOwnProperty(layer_name)) {
+            // Update the text area with a smaller version of the data so
+            // initialization is faster.
+            var MOST_TO_DISPLAY=200,
+                NO_LIMIT = undefined,
+                layerName = select_box.val();
+                if (_.isUndefined(layers[layerName])) return;
+                var layerData = layers[layerName].data;
 
-                // Not a real layer.
-                // Probably just an empty select or something
-                return;
-            }
+            updateTextArea(layerData, layerName, MOST_TO_DISPLAY);
 
-            var isContinuous = Util.is_continuous(layer_name);
-            var isCategorical = Util.is_categorical(layer_name);
-            var isBinary = Util.is_binary(layer_name);
-            var isSelection = layers[layer_name].selection;
-            
-            // This holds our list. We build it in a string so we can escape
-            // it with one .text() call when adding it to the page.
-            var exported = "";
-            
-            // Get the layer data to export
-            var layer_data = layers[layer_name].data;
-            for(var signature in layer_data) {
-                if(!_.isUndefined(layer_data[signature])) {
-                    // It's selected, put it in
-                    
-                    if(exported !== "") {
-                        // If there's already text, add a newline.
-                        exported += "\n";
-                    }
-
-                    if (isSelection) {
-                        exported += signature;
-                    } else if (isContinuous || isBinary){
-                        //add the value
-                        exported += signature + '\t' + layer_data[signature]
-                    } else if (isCategorical) {
-                        var catString = Colors.getCategoryString(
-                            layer_name,
-                            layer_data[signature]
-                        );
-                        exported += signature + '\t' + catString
-                    } else {
-                        // If hit not good.
-                        // TODO: throw an error or do something instructive
-                    }
-
-                }
-            }
-            
-            // Now we know all the signatures from the selection, so tell=
-            // the page.
-            text_area.text(exported);
-            
-            // Also fill in the data URI for saving. We use the handy
-            // window.bota encoding function.
-            download_link.attr("href", "data:text/plain;base64," + 
-                window.btoa(exported));
+            // When the download button is clicked all of the data is put
+            // into the text area before downloading.
+            download_link
+                .on("click", function () {
+                    updateTextArea(layerData, layerName, NO_LIMIT);
+                    // Fill in the download data URI.
+                    download_link.attr("href",
+                        "data:text/plain;base64,"
+                        + window.btoa(text_area.text())
+                    )
+                        .attr("download", layerName.concat(".txt"));
+                });
         });
-        
-        // Trigger the change event on the select box for the first selected
-        // thing, if any.
+        // Populate the text area and select box by triggering the change event.
         select_box.change();
         
         export_form.dialog({
