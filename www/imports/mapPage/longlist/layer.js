@@ -285,8 +285,10 @@ function load_static_data (layer_name, callback) {
         layer.data = data;
         layer.status = 'dataReceived';
         
-        // If this is the primary active attr, then refresh the colors.
-        if (Shortlist.get_active_coloring_layers().indexOf(layer_name) > -1) {
+        // If this is the primary active attr, and the colormap is loaded,
+        // then refresh the colors.
+        if (Shortlist.get_active_coloring_layers().indexOf(layer_name) > -1 &&
+            rx.get(rx.bit.initMapColormapLoaded)) {
             Hexagram.refreshColors();
         }
 
