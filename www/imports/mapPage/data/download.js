@@ -119,7 +119,8 @@ function initDownloadSelectTool () {
                 var value = layer_data[nodeId];
                 // Skip undefined values.
                 if(_.isUndefined(value)) continue;
-
+                // Skip selections whose value is 0.
+                if(layers[layerName].selection && !value) continue;
                 // Break out if we've reached our limit.
                 linecount+=1;
                 if(!_.isUndefined(linelimit)
