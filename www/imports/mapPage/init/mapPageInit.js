@@ -88,17 +88,17 @@ function initSnakes () {
 }
 
 // Phase 6b init: when the active layers have been added to the shortlist
-//           and the map has rendered
-//           and layout selector has been populated,
-//           complete initialization.
+//                and layout selector has been populated,
+//                and the map has rendered
+//                complete initialization.
 function areLayoutsPopulated () {
     var R = rx.getState();
     if (R[rx.bit.initAppActiveAttrsInShortlist] &&
         R[rx.bit.initAppLayoutsPopulated] &&
         R[rx.bit.initAppMapRendered]) {
         
-        Perform.log('6b-init:complete initialization');
         unsubFx.areLayoutsPopulated();
+        Perform.log('6b-init:complete initialization');
 
         // Timeout to allow the map to render.
         setTimeout(function () {
@@ -139,12 +139,12 @@ function areLayoutsPopulated () {
 }
 
 // Phase 6a init: when the layout names have been received,
-//           populate the layout selector.
+//                populate the layout selector.
 function areLayoutNamesReceived () {
     if (rx.get(rx.bit.initAppLayoutNamesReceived)) {
 
-        Perform.log('6a-init:layout-names-received');
         unsubFx.areLayoutNamesReceived();
+        Perform.log('6a-init:layout-names-received');
 
         Layout.initList();
         rx.set(rx.act.INIT_APP_LAYOUTS_POPULATED);
@@ -156,8 +156,8 @@ function areLayoutNamesReceived () {
 function isMapRendered () {
     if (rx.get(rx.bit.initAppMapRendered)) {
     
-        Perform.log('5-init:request-secondary-data');
         unsubFx.isMapRendered();
+        Perform.log('5-init:request-secondary-data');
         
         // Timeout to allow the map to render.
         setTimeout(function () {
@@ -184,35 +184,41 @@ function isMapRendered () {
 }
 
 // Phase 4 init: when the map prep is complete and user is authorized,
-//                 render the map.
-//           ...
+//               render the map.
 function isMapPreppedAndUserAuthorized () {
     var R = rx.getState();
     if (R[rx.bit.initAppMapPrepared] &&
         R[rx.bit.initMapAuthorized])  {
         
-        Perform.log('4-init:render-map');
         unsubFx.isMapPreppedAndUserAuthorized();
+        Perform.log('4-init:render-map');
 
-        Hexagram.initMap();
-        rx.set(rx.act.INIT_APP_MAP_RENDERED);
+        // Pause to let other processing complete.
+        setTimeout(function () {
+            Hexagram.initMap();
+            rx.set(rx.act.INIT_APP_MAP_RENDERED);
+        });
     }
 }
 
-// Phase 3 init: when layout assignments & colormap have been received,
-//               google map api loaded and authorization received,
-//               draw the map.
+// Phase 3 init: when layout assignments have been received,
+//               colormap has been received,
+//               active attributes loaded,
+//               google map api loaded,
+//               and DOM loaded,
+//               prepare to draw the map.
 function isReadyToRenderMap () {
     var R = rx.getState();
     if (R[rx.bit.initLayoutPositionsLoaded] &&
         R[rx.bit.initMapColormapLoaded] &&
         R[rx.bit.initMapActiveAttrsLoaded] &&
-        R[rx.bit.initAppGoogleMapApiLoaded]) {
+        R[rx.bit.initAppGoogleMapApiLoaded] &&
+        R[rx.bit.initAppDomLoaded]) {
         
-        Perform.log('3-init:prep-map');
         unsubFx.isReadyToRenderMap();
+        Perform.log('3-init:prep-map');
 
-        // Timeout allows processing to catch up.
+        // Pause to let other processing complete.
         setTimeout(function () {
             Coords.init();
             Hexagons.init();
@@ -227,15 +233,15 @@ function isReadyToRenderMap () {
     }
 }
 
-// Phase 2 init: when layer summary and types are received, & dom loaded
-//             determine the first coloring layers & default first layer.
+// Phase 2 init: when layer summary and types are received,
+//               determine the first coloring layers & default first layer.
 function haveActiveLayerIndex () {
     var R = rx.getState();
     if (R[rx.bit.initMapLayerSummaryLoaded] &&
         R[rx.bit.initMapLayerTypesLoaded]) {
-        
-        Perform.log('2-init:request-active-layers');
+
         unsubFx.haveActiveLayerIndex();
+        Perform.log('2-init:request-active-layers');
         
         // If the first layer was not in the types data received,
         // sort by density to get a first layer.
@@ -283,14 +289,14 @@ function loadGoogleMapApi () {
 function hasDomLoaded () {
     if (rx.get(rx.bit.initAppDomLoaded)) {
     
-        Perform.log('1b-init:init-snakes');
         unsubFx.hasDomLoaded();
-        setTimeout(initSnakes);
+        Perform.log('1b-init:init-snakes');
+        initSnakes();
     }
 }
 
 // Phase 1a init: State has been received,
-//           so request primary data and authorization.
+//                so request primary data and authorization.
 exports.init = function () {
     Perform.log('1a-init:request-primary-data-&-auth');
 
@@ -320,5 +326,6 @@ exports.init = function () {
     // Check if the user is authorized for the project.
     Project.authorize();
     
+    // Load the google maps API.
     loadGoogleMapApi();
 };
