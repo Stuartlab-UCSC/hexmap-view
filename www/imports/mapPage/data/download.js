@@ -97,11 +97,19 @@ function initDownloadSelectTool () {
 
             return extender;
         }
+        function firstLine(layerName){
+            // Put a header unless the layerName is a selection.
+            return (
+                (layers[layerName].selection)
+                    ? ""
+                    : "samples".concat("\t").concat(layerName)
+            )
 
+        }
         function updateTextArea(layer_data, layerName, linelimit){
             // Updates the text_area element with downloadable text.
             // Will write no more lines than linelimit.
-            var textAreaStr = "",
+            var textAreaStr = firstLine(layerName),
                 linecount = 0,
             // The function used to extend the text string:
                 textExtender = textAreaExtender(layerName);
