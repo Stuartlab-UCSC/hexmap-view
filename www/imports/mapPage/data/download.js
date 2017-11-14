@@ -84,7 +84,7 @@ function initDownloadSelectTool () {
             // Returns a function for extending text
             // depending on the datatype of the layer name.
             var extender;
-            if (layers[layerName].selection){
+            if (layers[layerName].dynamic){
                 extender = selectionStringExtender;
             } else if (Util.is_categorical(layerName) ||
                 Util.is_binary(layerName)) {
@@ -100,7 +100,7 @@ function initDownloadSelectTool () {
         function firstLine(layerName){
             // Put a header unless the layerName is a selection.
             return (
-                (layers[layerName].selection)
+                (layers[layerName].dynamic)
                     ? ""
                     : "samples".concat("\t").concat(layerName)
             )
@@ -120,7 +120,7 @@ function initDownloadSelectTool () {
                 // Skip undefined values.
                 if(_.isUndefined(value)) continue;
                 // Skip selections whose value is 0.
-                if(layers[layerName].selection && !value) continue;
+                if(layers[layerName].dynamic && !value) continue;
                 // Break out if we've reached our limit.
                 linecount+=1;
                 if(!_.isUndefined(linelimit)
