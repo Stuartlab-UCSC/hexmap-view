@@ -19,7 +19,7 @@ import '/imports/common/navBar.css';
 
 VERSION = '1.0';
 
-window.addEventListener("load", function(event) {
+document.addEventListener('DOMContentLoaded', function(event) {
 	rx.set(rx.act.INIT_APP_DOM_LOADED)
 });
 

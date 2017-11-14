@@ -63,22 +63,22 @@ function initSnakes () {
     function showHide (snake, snakeName) {
         var $snake = $('.' + snakeName);
         if (snake) {
-            
-            // Show the snake if it is not yet showing.
-            if ($snake.length < 1) {
-                
-                // Add the snake to the anchor.
-                $snake = $('<div/>')
-                      .addClass(snakeName)
-                      .addClass('snake');
-                $('.' + snakeName + 'Anchor').append($snake);
-            }
+            $snake.show();
         } else {
-    
-            // Hide the snake.
-            $snake.remove();
+            $snake.hide();
         }
     }
+    
+    // Add the snakes to the dom.
+    $snake = $('<div/>')
+          .addClass('mapSnake')
+          .addClass('snake');
+    $('body').append($snake);
+    $snake = $('<div/>')
+          .addClass('statsSnake')
+          .addClass('snake');
+    $('body').append($snake);
+
     Meteor.autorun(function () {
         showHide(Session.get('mapSnake'), 'mapSnake');
     });
@@ -188,11 +188,7 @@ function isMapPreppedAndUserAuthorized () {
         unsubFx.isMapPreppedAndUserAuthorized();
         Perform.log('4-init:render-map');
 
-        // Pause to let other processing complete.
-        // Without this, the next init phase dependent on the map being rendered
-        // may execute twice with few or no milliseconds between them.
-        // Presumably the unsubscribe after the flag is found to be true is
-        // happening after a second check where the flag is true.
+        // Pause to let previous processing complete.
         setTimeout(function () {
             Hexagram.initMap();
             rx.set(rx.act.INIT_APP_MAP_RENDERED);
@@ -241,31 +237,35 @@ function haveActiveLayerIndex () {
 
         unsubFx.haveActiveLayerIndex();
         Perform.log('2-init:request-active-layers');
-        
-        // If the first layer was not in the types data received,
-        // sort by density to get a first layer.
-        var first = Session.get('first_layer'),
-            shortlist = Session.get('shortlist');
-        if (!first) {
 
-            // Sort the layers to find the first layer.
-            Sort.findFirstLayerByDensity();
-        }
-    
-        // If there is now a first layer
-        // and the shortlist is empty
-        // and there are static layers,
-        // add the first layer to the shortlist
-        // and make the first_layer the active layer.
-        first = Session.get('first_layer');
-        if (first && shortlist.length < 1 &&
-            ctx.static_layer_names.length > 0) {
-            Session.set('shortlist', [first]);
-            Session.set('active_layers', [first]);
-        }
-    
-        // Load the initial active coloring layers.
-        Layer.loadInitialActiveLayers();
+        // Pause to let other processing complete.
+        setTimeout(function () {
+        
+            // If the first layer was not in the types data received,
+            // sort by density to get a first layer.
+            var first = Session.get('first_layer'),
+                shortlist = Session.get('shortlist');
+            if (!first) {
+
+                // Sort the layers to find the first layer.
+                Sort.findFirstLayerByDensity();
+            }
+        
+            // If there is now a first layer
+            // and the shortlist is empty
+            // and there are static layers,
+            // add the first layer to the shortlist
+            // and make the first_layer the active layer.
+            first = Session.get('first_layer');
+            if (first && shortlist.length < 1 &&
+                ctx.static_layer_names.length > 0) {
+                Session.set('shortlist', [first]);
+                Session.set('active_layers', [first]);
+            }
+        
+            // Load the initial active coloring layers.
+            Layer.loadInitialActiveLayers();
+        });
     }
 }
 
@@ -278,8 +278,12 @@ function loadGoogleMapApi () {
             rx.set(rx.act.INIT_APP_GOOGLE_MAP_API_LOADED);
         }
     });
-    GoogleMaps.load(
+
+    // Pause to let other processing complete, like the snake display.
+    setTimeout(function () {
+        GoogleMaps.load(
         { v: '3', key: 'AIzaSyBb8AJUB4x-xxdUCnjzb-Xbcg0-T1mPw3I' });
+    });
 }
 
 // Phase 1b init: when the DOM has loaded,
