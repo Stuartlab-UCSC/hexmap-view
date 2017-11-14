@@ -3,6 +3,7 @@
  */
 
 import { Meteor } from 'meteor/meteor';
+import auth from '/imports/common/auth.js';
 import CheckLayerBox from '/imports/mapPage/calc/checkLayerBox.js';
 import Colors from '/imports/mapPage/color/colorEdit.js';
 import Coords from '/imports/mapPage/viewport/coords.js';
@@ -15,7 +16,6 @@ import Hexagram from '/imports/mapPage/viewport/hexagram.js';
 import Layer from '/imports/mapPage/longlist/layer.js';
 import Layout from '/imports/mapPage/head/layout.js';
 import Legend from '/imports/mapPage/color/legend.js';
-import NavBar from '/imports/common/navBar.js';
 import OverlayNodes from '/imports/mapPage/calc/overlayNodes.js';
 import OverlayNodeUi from '/imports/mapPage/calc/overlayNodeUi.js';
 import Perform from '/imports/common/perform.js';
@@ -105,10 +105,6 @@ function areLayoutsPopulated () {
             Perform.log('background-functions-init');
             Session.set('shortlist', shortlistSaved);
             Shortlist.complete_initialization();
-
-            // Show the appropriate options on the navigation bar.
-            NavBar.init();
-
             Layout.initList();
             SortUi.init();
 
@@ -120,6 +116,7 @@ function areLayoutsPopulated () {
             Tool.initLabel();
             Download.init();
             Colors.init();
+            
             import InfoWindow from '/imports/mapPage/viewport/infoWindow.js';
             InfoWindow.init();
             SetOper.init();
@@ -161,13 +158,11 @@ function isMapRendered () {
         
         // Timeout to allow the map to render.
         setTimeout(function () {
+
             Data.requestLayoutNames(
                 { rxAction: rx.act.INIT_APP_LAYOUT_NAMES_RECEIVED });
             Data.requestAttributeTags();
             Data.requestMapMeta();
-            
-            // Populate the project list.
-            Project.init();
             
             // Populate the longlist.
             import Longlist from '/imports/mapPage/longlist/longlist.js';
@@ -194,6 +189,10 @@ function isMapPreppedAndUserAuthorized () {
         Perform.log('4-init:render-map');
 
         // Pause to let other processing complete.
+        // Without this, the next init phase dependent on the map being rendered
+        // may execute twice with few or no milliseconds between them.
+        // Presumably the unsubscribe after the flag is found to be true is
+        // happening after a second check where the flag is true.
         setTimeout(function () {
             Hexagram.initMap();
             rx.set(rx.act.INIT_APP_MAP_RENDERED);
@@ -290,7 +289,7 @@ function hasDomLoaded () {
     if (rx.get(rx.bit.initAppDomLoaded)) {
     
         unsubFx.hasDomLoaded();
-        Perform.log('1b-init:init-snakes');
+        Perform.log('1b-init:snakes,dom-loaded');
         initSnakes();
     }
 }
@@ -323,8 +322,11 @@ exports.init = function () {
     unsubFx.areLayoutsPopulated = rx.subscribe(areLayoutsPopulated);
     unsubFx.areLayoutNamesReceived  = rx.subscribe(areLayoutNamesReceived);
 
-    // Check if the user is authorized for the project.
+    // Check if the user is authorized for the project and other credentials.
+    // Meteor is slow on server execute requests so start them early on.
     Project.authorize();
+    auth.getCredentials();
+    Project.init();
     
     // Load the google maps API.
     loadGoogleMapApi();

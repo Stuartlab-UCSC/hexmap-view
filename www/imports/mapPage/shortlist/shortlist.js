@@ -1118,13 +1118,9 @@ exports.init = function () {
     Session.set('shortlistInited', false);
     entriesInited.set(false);
     
-    // Make this independent of the map initialization autorun.
-    setTimeout(function () {
-    
-        // Run this whenever the active list changes to update the hot primary
-        // and secondary icons and change the map colors.
-        Meteor.autorun(when_active_color_layers_change);
-    });
+    // Run this whenever the active list changes to update the hot primary
+    // and secondary icons and change the map colors.
+    Meteor.autorun(when_active_color_layers_change);
     
     // Create the controls that move from entry to entry.
     create_float_controls();

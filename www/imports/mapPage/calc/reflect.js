@@ -1,6 +1,7 @@
 // reflect.js
 // This captures the user input to reflect a set of nodes on another map.
 
+import Auth from '/imports/common/auth.js';
 import DialogHex from '/imports/common/dialogHex.js';
 import LayerNameList from '/imports/mapPage/shortlist/layerNameList.js';
 import Tool from '/imports/mapPage/head/tool.js';
@@ -129,7 +130,7 @@ function criteriaCheck () {
 function preShow () {
 
     // First check for this user having the credentials to do this.
-    var good = Util.credentialCheck('to reflect onto another map');
+    var good = Auth.credentialCheck('to reflect onto another map');
     if (good) {
     
         // Then check for the map having the proper criteria to do this.
@@ -292,10 +293,8 @@ exports.init = function () {
     $button = $('.reflectTrigger');
     $dialog = $('#reflectDialog');
     
-    // Timeout so this is not dependent on the init map autorun.
-    setTimeout(function () {
-        Meteor.autorun(userChange);
-    });
+    Meteor.autorun(userChange);
+
     if (_.isUndefined(Session.get('reflectRanked'))) {
         Session.set('reflectRanked', false);
     }

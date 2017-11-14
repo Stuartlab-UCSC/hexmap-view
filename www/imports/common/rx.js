@@ -4,6 +4,12 @@
 // State actions used with rx.set().
 // Usage:  rx.set(<action>, <opts>);
 // Where <action> is one of the below, <opts> are defined in rxInternal.js.
+/*
+// Example:  rx.set('layout.name.selected', { name: 'RPPA' });
+const actions = [
+    'layout.name.selected',
+];
+*/
 // Example:  rx.set(rx.act.LAYOUT_NAME_SELECTED, { name: 'RPPA' });
 exports.act = {
     INIT_APP_ACTIVE_ATTRS_IN_SHORTLIST: 'INIT_APP_ACTIVE_ATTRS_IN_SHORTLIST',
@@ -27,6 +33,12 @@ exports.act = {
 // Pieces of state to retrieve, used with rx.get().
 // Usage:  rx.get(<state-bit>);
 // Where <state-bit> is one of the below.
+/*
+// Example:  rx.get('layout.name');
+const stateBits = [
+    'layout.name',
+];
+*/
 // Example:  rx.get(rx.bit.persistlayoutName);
 exports.bit = {
     initAppActiveAttrsInShortlist: 'initAppActiveAttrsInShortlist',
