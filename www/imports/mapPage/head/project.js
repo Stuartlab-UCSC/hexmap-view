@@ -2,6 +2,7 @@
 // project.js: A UI to load data files from a directory within the webserver's
 // doc dir
 
+import Auth from '/imports/common/auth.js';
 import React, { Component } from 'react';
 import Perform from '/imports/common/perform.js';
 import { render } from 'react-dom';
@@ -16,6 +17,8 @@ var PLACEHOLDER_TEXT = 'Select a Map...';
 var projects; // project list
 var data; // data for select widget
 var initialized = false;
+var prevListUsername = 'empty';
+var prevAuthUsername = 'empty';
 
 function is_project_on_list (project) {
 
@@ -151,22 +154,32 @@ exports.authorize = function () {
     // Check to see if the user is authorized to view the project
     // every time the user changes.
     Meteor.autorun(function() {
-        var user = Meteor.user();
-        Meteor.call('is_user_authorized_to_view', ctx.project,
-            function (error, results) {
-                if (results) {
-                    rx.set(rx.act.INIT_MAP_AUTHORIZED);
-                    if (!rx.get(rx.bit.initAppMapRendered)) {
-                        Session.set('mapSnake', true);
+        var user = Meteor.user(),
+            a = Auth.isNewUser(user, prevAuthUsername);
+        if (a.isNew) {
+            prevAuthUsername = a.prevUsername;
+            Meteor.call('is_user_authorized_to_view', ctx.project,
+                function (error, results) {
+                    if (results) {
+                        rx.set(rx.act.INIT_MAP_AUTHORIZED);
+                        if (!rx.get(rx.bit.initAppMapRendered)) {
+                            Session.set('mapSnake', true);
+                        }
+                    } else {
+                        
+                        // Build the project list for the user to choose another.
+                        exports.init();
+                        notAuthdMessage();
                     }
-                } else {
-                    
-                    // Build the project list for the user to choose another.
-                    exports.init();
-                    notAuthdMessage();
+                    Perform.log('project.authorized: ' +
+                        rx.get(rx.bit.initMapAuthorized));
+
                 }
-            }
-        );
+            );
+        } else {
+            Perform.log('project.authorized: not new user: ' +
+                rx.get(rx.bit.initMapAuthorized));
+        }
     });
 };
 
@@ -182,21 +195,25 @@ exports.init = function () {
 
     // Re-populate projects whenever the user changes, including log out
     Meteor.autorun(function() {
-        var user = Meteor.user();
-        Perform.log('project-list-get,-user:-' +
-            (user ? user.username : 'none'));
-        
-        Meteor.call('getProjects', function (error, projects_returned) {
-            if (error) {
-                Util.banner('error',
-                    "Unable to retrieve project data from server." +
-                    error);
-                return;
-            }
-        
-            Perform.log('project-list-got');
-            projects = projects_returned;
-            populate();
-        });
+        var user = Meteor.user(),
+            a = Auth.isNewUser(user, prevListUsername);
+        if (a.isNew) {
+            prevListUsername = a.prevUsername;
+            Perform.log('project-list-get,-user:-' +
+                (user ? user.username : 'none'));
+            
+            Meteor.call('getProjects', function (error, projects_returned) {
+                if (error) {
+                    Util.banner('error',
+                        "Unable to retrieve project data from server." +
+                        error);
+                    return;
+                }
+            
+                Perform.log('project-list-got');
+                projects = projects_returned;
+                populate();
+            });
+        }
     });
 };

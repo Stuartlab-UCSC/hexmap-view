@@ -4,6 +4,7 @@
 
 var app = app || {}; 
 
+import Auth from '/imports/common/auth.js';
 import Data from '/imports/mapPage/data/data.js';
 import Filter from '/imports/mapPage/longlist/filter.js';
 import Util from '/imports/common/util.js';
@@ -462,7 +463,7 @@ function getDynamicStats (focus_attr, opts) {
     computingTextDisplay();
     /*
     // First check for this user having the credentials to do this.
-    var good = Util.credentialCheck('to compute dynamic statistics. ' +
+    var good = Auth.credentialCheck('to compute dynamic statistics. ' +
         'Only pre-computed statistics on static attributes are available ' +
         'to you', 'statsSnake');
     Session.set('statsSnake', good);
