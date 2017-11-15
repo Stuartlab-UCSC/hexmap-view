@@ -1,29 +1,14 @@
 
 // https.js: server proxy to handle ssl.
-
-var HEXMAP = process.env.HEXMAP,
-    PROXY_PORT = process.env.HTTPS_PORT,
-    TARGET_PORT = process.env.PORT, // meteor server port
-    SECDIR = '/data/certs/',
-    SERVER_BASE_URL,
-    TARGET,
-    KEY,
-    CERT;
-    
-if (HEXMAP === '/data') {
-    SERVER_BASE_URL = 'tumormap.ucsc.edu';
-    KEY = SECDIR + 'tumormap.key';
-    CERT = SECDIR + 'tumormap.crt';
-} else {
-    SERVER_BASE_URL = 'hexdev.sdsc.edu';
-    KEY = SECDIR + 'hexdev.key';
-    CERT = SECDIR + 'hexdev.crt';
-}
-TARGET = 'HTTP://' + SERVER_BASE_URL + ':' + TARGET_PORT;
+TARGET = process.env.ROOT_URL;
+PROXY_PORT = process.env.HTTPS_PORT;
+TARGET_PORT = process.env.PORT;
+KEY = process.env.KEY;
+CERT = process.env.CERT;
+const PATH_TO_CHAIN = process.env.CHAIN;
 
 const httpProxy = require('http-proxy');
 const fs = require('fs');
-const PATH_TO_CHAIN = SECDIR + 'chain.crt';
 
 var options = {
     ssl: {
