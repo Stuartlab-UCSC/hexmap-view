@@ -1,6 +1,7 @@
 // mainHex.js
 
 import { Meteor } from 'meteor/meteor';
+import auth from '/imports/common/auth.js';
 import Coords from '/imports/mapPage/viewport/coords.js';
 import CreateMap from '/imports/mapPage/calc/createMap.js';
 import Grid from '/imports/densityPage/grid.js';
@@ -56,6 +57,7 @@ function isStateLoaded () {
         unsubFx.isStateLoaded();
         Perform.log('init:state-loaded');
         
+        auth.init();
         if (Session.equals('page', 'mapPage')) {
             mapPageInit.init();
         } else if (Session.equals('page', 'homePage')) {

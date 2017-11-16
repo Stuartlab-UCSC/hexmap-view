@@ -116,9 +116,11 @@ function gotFilename (event) {
     };
 
     reader.onerror = function(read_event) {
+        Session.set('mapSnake', false);
         Util.banner('error', 'Error reading file:' + file.filename);
     };
     reader.onabort = function(read_event) {
+        Session.set('mapSnake', false);
         Util.banner('error', 'Aborted reading file: ' + file.filename);
     };
 

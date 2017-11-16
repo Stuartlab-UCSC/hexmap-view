@@ -3,7 +3,6 @@
  */
 
 import { Meteor } from 'meteor/meteor';
-import auth from '/imports/common/auth.js';
 import CheckLayerBox from '/imports/mapPage/calc/checkLayerBox.js';
 import Colors from '/imports/mapPage/color/colorEdit.js';
 import Coords from '/imports/mapPage/viewport/coords.js';
@@ -29,7 +28,6 @@ import SortUi from '/imports/mapPage/longlist/sortUi.js';
 import Util from '/imports/common/util.js';
 import Utils from '/imports/common/utils.js';
 
-import Project from '/imports/mapPage/head/project.js';
 import State from '/imports/common/state.js';
 import Tool from '/imports/mapPage/head/tool.js';
 import '/imports/mapPage/init/mapPage.html';
@@ -60,9 +58,9 @@ function initSnakes () {
     //                  - an associated session variable of snakeName
     //                  - an associated relative parent anchor with a
     //                    class of snakeName + 'Anchor'
-    function showHide (snake, snakeName) {
+    function showHide (show, snakeName) {
         var $snake = $('.' + snakeName);
-        if (snake) {
+        if (show) {
             $snake.show();
         } else {
             $snake.hide();
@@ -70,7 +68,7 @@ function initSnakes () {
     }
     
     // Add the snakes to the dom.
-    $snake = $('<div/>')
+    var $snake = $('<div/>')
           .addClass('mapSnake')
           .addClass('snake');
     $('body').append($snake);
@@ -98,11 +96,11 @@ function areLayoutsPopulated () {
         R[rx.bit.initAppMapRendered]) {
         
         unsubFx.areLayoutsPopulated();
-        Perform.log('6b-init:complete initialization');
+        Perform.log('6b-init:complete-initialization');
 
         // Timeout to allow the map to render.
         setTimeout(function () {
-            Perform.log('background-functions-init');
+            Perform.log(' 6b-init:after-timeout');
             Session.set('shortlist', shortlistSaved);
             Shortlist.complete_initialization();
             Layout.initList();
@@ -158,6 +156,7 @@ function isMapRendered () {
         
         // Timeout to allow the map to render.
         setTimeout(function () {
+            Perform.log(' 5-init:after-timeout');
 
             Data.requestLayoutNames(
                 { rxAction: rx.act.INIT_APP_LAYOUT_NAMES_RECEIVED });
@@ -190,6 +189,7 @@ function isMapPreppedAndUserAuthorized () {
 
         // Pause to let previous processing complete.
         setTimeout(function () {
+            Perform.log(' 4-init:after-timeout');
             Hexagram.initMap();
             rx.set(rx.act.INIT_APP_MAP_RENDERED);
         });
@@ -215,6 +215,7 @@ function isReadyToRenderMap () {
 
         // Pause to let other processing complete.
         setTimeout(function () {
+            Perform.log(' 3-init:after-timeout');
             Coords.init();
             Hexagons.init();
 
@@ -240,7 +241,8 @@ function haveActiveLayerIndex () {
 
         // Pause to let other processing complete.
         setTimeout(function () {
-        
+            Perform.log(' 2-init:after-timeout');
+
             // If the first layer was not in the types data received,
             // sort by density to get a first layer.
             var first = Session.get('first_layer'),
@@ -301,7 +303,7 @@ function hasDomLoaded () {
 // Phase 1a init: State has been received,
 //                so request primary data and authorization.
 exports.init = function () {
-    Perform.log('1a-init:request-primary-data-&-auth');
+    Perform.log('1a-init:request-primary-data');
 
     // Iniitialize some session vars we don't want carried over
     // from the last session.
@@ -326,12 +328,6 @@ exports.init = function () {
     unsubFx.areLayoutsPopulated = rx.subscribe(areLayoutsPopulated);
     unsubFx.areLayoutNamesReceived  = rx.subscribe(areLayoutNamesReceived);
 
-    // Check if the user is authorized for the project and other credentials.
-    // Meteor is slow on server execute requests so start them early on.
-    Project.authorize();
-    auth.getCredentials();
-    Project.init();
-    
     // Load the google maps API.
     loadGoogleMapApi();
 };
