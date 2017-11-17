@@ -526,6 +526,33 @@ function filter_control_changed (ev) {
     Hexagram.refreshColors();
 }
 
+function ui_and_list_delete (layer_name) {
+
+    // This updates the shortlist variable and UI for remove from shortlist.
+    // Moves via the jqueryUI sortable are handled in the sortable's update
+    // function.
+    var shortlist = Session.get('shortlist'),
+        active = Session.get('active_layers'),
+        root = get_root_from_layer_name(layer_name),
+        index;
+
+    if (shortlist.indexOf(layer_name) < 0) { return; }
+
+    // Remove from the shortlist list
+    shortlist.splice(shortlist.indexOf(layer_name), 1);
+    Session.set('shortlist', shortlist);
+    
+    // Remove from the shortlist UI.
+    root.remove();
+
+    // Remove this layer from active_layers if it was in there
+    index = active.indexOf(layer_name);
+    if (index > -1) {
+        active.splice(index, 1); // Remove this from the active
+        Session.set('active_layers', active);
+    }
+}
+
 function create_shortlist_ui_entry (layer_name) {
 
     // Makes a shortlist DOM entry for one layer.
@@ -633,125 +660,94 @@ function when_active_color_layers_change () {
     }
 }
 
+function primaryButtonClick (ev) {
+    var layer_name = get_layer_name_from_child(ev.target),
+        active = Session.get('active_layers');
+
+    // If top flag is set,
+    // move the layer from the current position to the first
+    //move_entry(layer_name, 1);
+
+    // If this layer is already primary, remove it as primary.
+    // This has a side effect of setting any secondary to primary,
+    // or leaving no active layers.
+    if (is_primary(layer_name)) {
+        active.splice(0, 1);
+
+    // If this layer is secondary,
+    // set it as the primary and only active layer.
+    } else if (is_secondary(layer_name)) {
+        active = [layer_name];
+        
+    // This layer is not currently active, so make it primary
+    // preserving any secondary.
+    } else {
+        active.splice(0, 1, layer_name);
+    }
+    Session.set('active_layers', active);
+}
+
+function secondaryButtonClick (ev) {
+    var active = Session.get('active_layers'),
+        layer_name = get_layer_name_from_child(ev.target);
+
+    // If this layer is already secondary, remove it from secondary
+    if (is_secondary(layer_name)) {
+        active = active.slice(0, 1);
+        
+    // If this layer is primary...
+    } else if (is_primary(layer_name)) {
+        
+        // If there is no secondary, do nothing.
+        // We shouldn't get here because if this is primary and there
+        // is no secondary, then the floating secondry is not displayed.
+        if (active.length < 2) { return; }
+        
+        // There is a secondary,
+        // so make this secondary, and that one primary
+        active = [active[1], active[0]];
+        
+        // If top flag is set, move this to the 2nd position
+        //move_entry(layer_name, 2);
+        
+    // If there is a primary, but not this layer,
+    // replace/add this layer as secondary
+    } else if (active.length > 0) {
+        active = [active[0], layer_name];
+        
+        // If top flag is set, move this to the 2nd position
+        //move_entry(layer_name, 2);
+        
+    // There is no primary.
+    // so make this primary instead of the requested secondary
+    } else {
+        active = [layer_name];
+        
+        // If top flag is set, move this to the 1st position
+        //move_entry(layer_name, 1);
+    }
+
+    // Update the active layers state and refresh the colors
+    Session.set('active_layers', active);
+}
+
+function removeButtonClick (ev) {
+    exports.removeEntry(get_layer_name_from_child(ev.target));
+}
+
 function create_float_controls () {
 
     // This is the floating button control panel that appears when
     // a shortlist entry is hovered upon.
 
     // Handle the click of the primary button
-    $shortlist.on ('click', '.primary', function (ev) {
-        var layer_name = get_layer_name_from_child(ev.target),
-            active = Session.get('active_layers');
-            
-        // If top flag is set,
-        // move the layer from the current position to the first
-        //move_entry(layer_name, 1);
-        
-        // If this layer is already primary, remove it as primary.
-        // This has a side effect of setting any secondary to primary,
-        // or leaving no active layers.
-        if (is_primary(layer_name)) {
-            active.splice(0, 1);
-
-        // If this layer is secondary,
-        // set it as the primary and only active layer.
-        } else if (is_secondary(layer_name)) {
-            active = [layer_name];
-            
-        // This layer is not currently active, so make it primary
-        // preserving any secondary.
-        } else {
-            active.splice(0, 1, layer_name);
-        }
-        Session.set('active_layers', active);
-    });
+    $shortlist.on ('click', '.primary', primaryButtonClick);
 
     // Handle the click of the secondary button
-    $shortlist.find('.secondary').on('click', function (ev) {
-        var active = Session.get('active_layers'),
-            layer_name = get_layer_name_from_child(ev.target);
-            
-        // If this layer is already secondary, remove it from secondary
-        if (is_secondary(layer_name)) {
-            active = active.slice(0, 1);
-            
-        // If this layer is primary...
-        } else if (is_primary(layer_name)) {
-            
-            // If there is no secondary, do nothing.
-            // We shouldn't get here because if this is primary and there
-            // is no secondary, then the floating secondry is not displayed.
-            if (active.length < 2) { return; }
-            
-            // There is a secondary,
-            // so make this secondary, and that one primary
-            active = [active[1], active[0]];
-            
-            // If top flag is set, move this to the 2nd position
-            //move_entry(layer_name, 2);
-            
-        // If there is a primary, but not this layer,
-        // replace/add this layer as secondary
-        } else if (active.length > 0) {
-            active = [active[0], layer_name];
-            
-            // If top flag is set, move this to the 2nd position
-            //move_entry(layer_name, 2);
-                            
-        // There is no primary.
-        // so make this primary instead of the requested secondary
-        } else {
-            active = [layer_name];
-            
-            // If top flag is set, move this to the 1st position
-            //move_entry(layer_name, 1);
-        }
-        
-        // Update the active layers state and refresh the colors
-        Session.set('active_layers', active);
-    });
+    $shortlist.find('.secondary').on('click', secondaryButtonClick);
 
     // Handle the removal from the short list
-    $shortlist.find('.remove').on('click', function(ev) {
-        var layer_name = get_layer_name_from_child(ev.target);
-
-        // If this layer has a delete function, do that
-        if (layers[layer_name].removeFx) {
-            layers[layer_name].removeFx(layer_name);
-        }
-
-        // Handle dynamic layers
-        if (layers[layer_name].dynamic) {
-            delete layers[layer_name];
-            if (layer_name in colormaps) {
-                delete colormaps[layer_name];
-            }
-            Util.removeFromDataTypeList(layer_name);
-        }
-        
-        // Move all of the dynamic controls to a holding place so they
-        // don't get removed from the DOM
-        $dynamic_controls
-            .append($float_controls)
-            .append($shortlist.find('.is_primary'))
-            .append($shortlist.find('.is_secondary'));
-        
-        // Clear any google chart associated with this layer
-        GChart.clear(layer_name);
-        
-        // Clear any filter values and show state for this layer
-        delete Session.keys['shortlist_filter_show_' + layer_name];
-        delete Session.keys['shortlist_filter_value_' + layer_name];
-        
-        // Update the shortlist state variable and UI.
-        exports.ui_and_list_delete(layer_name);
-        
-        // Remove this layer's shortlist entry template
-        delete template[layer_name];
-        
-        // Refresh the map.
-        Hexagram.refreshColors();
-    });
+    $shortlist.find('.remove').on('click', removeButtonClick);
 }
 
 function addInitialEntriesToShortlist (layerNames) {    
@@ -784,11 +780,50 @@ function receivedInitialActiveLayers (layers_added) {
     addInitialEntriesToShortlist(Session.get('shortlist'));
     entriesInited.set(true);
     when_active_color_layers_change();
-    /*
-    console.log('setting shortlistInited to true')
+}
 
-    Session.set('shortlistInited', true);
-    */
+exports.removeEntry = function (layer_name) {
+
+    // Remove an entry and all of its dependents if it is in the global layers.
+    if (layers[layer_name]) {
+    
+        // If this layer has a delete function, do that
+        if (layers[layer_name].removeFx) {
+            layers[layer_name].removeFx(layer_name);
+        }
+
+        // Handle dynamic layers
+        if (layers[layer_name].dynamic) {
+            delete layers[layer_name];
+            if (layer_name in colormaps) {
+                delete colormaps[layer_name];
+            }
+            Util.removeFromDataTypeList(layer_name);
+        }
+
+        // Move all of the dynamic controls to a holding place so they
+        // don't get removed from the DOM
+        $dynamic_controls
+            .append($float_controls)
+            .append($shortlist.find('.is_primary'))
+            .append($shortlist.find('.is_secondary'));
+
+        // Clear any google chart associated with this layer
+        GChart.clear(layer_name);
+
+        // Clear any filter values and show state for this layer
+        delete Session.keys['shortlist_filter_show_' + layer_name];
+        delete Session.keys['shortlist_filter_value_' + layer_name];
+
+        // Update the shortlist state variable and UI.
+        ui_and_list_delete(layer_name);
+
+        // Remove this layer's shortlist entry template
+        delete template[layer_name];
+
+        // Refresh the map.
+        Hexagram.refreshColors();
+    }
 }
 
 exports.get_active_coloring_layers = function () {
@@ -844,33 +879,6 @@ exports.ui_and_list_add = function (layer_name) {
         Session.set('active_layers', [layer_name]);
     }
     Session.set('shortlist', shortlist);
-}
-
-exports.ui_and_list_delete = function (layer_name) {
-
-    // This updates the shortlist variable and UI for remove from shortlist.
-    // Moves via the jqueryUI sortable are handled in the sortable's update
-    // function.
-    var shortlist = Session.get('shortlist'),
-        active = Session.get('active_layers'),
-        root = get_root_from_layer_name(layer_name),
-        index;
-
-    if (shortlist.indexOf(layer_name) < 0) { return; }
-
-    // Remove from the shortlist list
-    shortlist.splice(shortlist.indexOf(layer_name), 1);
-    Session.set('shortlist', shortlist);
-    
-    // Remove from the shortlist UI.
-    root.remove();
-
-    // Remove this layer from active_layers if it was in there
-    index = active.indexOf(layer_name);
-    if (index > -1) {
-        active.splice(index, 1); // Remove this from the active
-        Session.set('active_layers', active);
-    }
 }
 
 exports.update_ui_metadata = function () {

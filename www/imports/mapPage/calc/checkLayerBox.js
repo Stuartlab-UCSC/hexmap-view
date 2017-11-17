@@ -65,7 +65,7 @@ function layers_received (layers) {
     // Find any layers removed and remove them from the shortlist
     _.each(last_layer_names, function (layer_name) {
         if (doc_layer_names.indexOf(layer_name) < 0) {
-            Shortlist.ui_and_list_delete(layer_name);
+            Shortlist.removeEntry(layer_name);
         }
     });
 
