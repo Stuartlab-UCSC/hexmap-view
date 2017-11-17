@@ -4,6 +4,8 @@ import utils from '/imports/common/utils.js';
 import './navBar.html';
 import './navBar.css';
 
+VERSION = '1.0';
+
 Template.navBarT.helpers({
     version: function () {
         if (DEV) {

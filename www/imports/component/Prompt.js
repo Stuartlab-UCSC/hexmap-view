@@ -1,12 +1,12 @@
 
-// prompt.js
+// Prompt.js
 // The UI to prompt the user with a string and an optional text field.
 
 import React, { Component } from 'react';
 import { render } from 'react-dom';
 import PropTypes from 'prop-types';
 
-import Modal from './modal.js';
+import Modal from './Modal.js';
 import utils from '/imports/common/utils.js';
 
 class Prompt extends Component {

@@ -3,7 +3,7 @@
 // TODO pull the colormap editor out of here into its own file.
 // TODO move the color functions from hexagram.js to here.
 
-import DialogHex from '/imports/common/dialogHex.js';
+import DialogHex from '/imports/common/DialogHex.js';
 import hexagons from '/imports/mapPage/viewport/hexagons.js';
 import hexagram from '/imports/mapPage/viewport/hexagram.js';
 import overlayNodes from '/imports/mapPage/calc/overlayNodes.js';

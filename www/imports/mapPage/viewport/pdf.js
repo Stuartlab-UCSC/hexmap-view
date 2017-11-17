@@ -2,7 +2,7 @@
 
 // Handle the PDF request
 
-import DialogHex from '/imports/common/dialogHex.js';
+import DialogHex from '/imports/common/DialogHex.js';
 import utils from '/imports/common/utils.js';
 import './pdf.html';
 

@@ -3,7 +3,7 @@
 
 import ajax from '/imports/mapPage/data/ajax.js';
 import auth from '/imports/common/auth.js';
-import DialogHex from '/imports/common/dialogHex.js';
+import DialogHex from '/imports/common/DialogHex.js';
 import tool from '/imports/mapPage/head/tool.js';
 import util from '/imports/common/util.js';
 import utils from '/imports/common/utils.js';
@@ -287,7 +287,7 @@ function build_dialog_content (username) {
 
     import React, { Component } from 'react';
     import { render } from 'react-dom';
-    import Upload from '/imports/component/upload.js';
+    import Upload from '/imports/component/Upload.js';
 
      // Define the file selector for features file
     feature_upload = render(

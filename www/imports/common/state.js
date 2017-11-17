@@ -1,7 +1,7 @@
 // state.js
 // An object to write and load state
 
-import DialogHex from '/imports/common/dialogHex.js';
+import DialogHex from '/imports/common/DialogHex.js';
 import overlayNodes from '/imports/mapPage/calc/overlayNodes.js';
 import rx from '/imports/common/rx.js';
 import shortlist from '/imports/mapPage/shortlist/shortlist.js';

@@ -3,8 +3,8 @@
 
 import React from 'react';
 import { render } from 'react-dom';
-import Layer from '/imports/mapPage/longlist/layer.js';
-import Select22 from '/imports/component/select2wrap.js';
+import Layer from '/imports/mapPage/longlist/Layer.js';
+import Select22 from '/imports/component/Select22.js';
 import shortlist from '/imports/mapPage/shortlist/shortlist.js';
 import sort from '/imports/mapPage/longlist/sort.js';
 

@@ -4,7 +4,7 @@
 // Makes status on jobs visible and allows status changes by user. Jobs are
 // created elsewhere.
 
-import DialogHex from '/imports/common/dialogHex.js';
+import DialogHex from '/imports/common/DialogHex.js';
 
 import './jobs.html';
 

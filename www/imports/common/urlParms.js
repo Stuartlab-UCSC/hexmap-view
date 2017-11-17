@@ -2,7 +2,7 @@
 // Handle project parameters in the URL.
 // Bookmarks and page-only parms are handled in state.js.
 
-import Layer from '/imports/mapPage/longlist/layer.js';
+import Layer from '/imports/mapPage/longlist/Layer.js';
 import util from '/imports/common/util.js';
 
 var store = {},

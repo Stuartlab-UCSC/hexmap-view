@@ -13,7 +13,7 @@ import utils from '/imports/common/utils.js';
 
 function nodeIdSelectInit () {
     
-    import NodeIdSelect from '/imports/mapPage/shortlist/nodeIdSelect.js';
+    import NodeIdSelect from '/imports/mapPage/shortlist/NodeIdSelect.js';
     
     var containerId = 'nodeIdSelectContainer';
     

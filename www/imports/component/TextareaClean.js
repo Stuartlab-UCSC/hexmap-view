@@ -1,5 +1,5 @@
 
-// textAreaClean.js
+// TextAreaClean.js
 // A textarea to contain text that contains only printable characters.
 
 import React, { Component } from 'react';

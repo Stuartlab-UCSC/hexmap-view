@@ -7,7 +7,7 @@ import React, { Component } from 'react';
 import perform from '/imports/common/perform.js';
 import { render } from 'react-dom';
 import rx from '/imports/common/rx.js';
-import Select22 from '/imports/component/select2wrap.js';
+import Select22 from '/imports/component/Select22.js';
 import util from '/imports/common/util.js';
 import utils from '/imports/common/utils.js';
 

@@ -6,7 +6,7 @@ import ajax from '/imports/mapPage/data/ajax.js';
 import colorEdit from '/imports/mapPage/color/colorEdit.js';
 import coords from '/imports/mapPage/viewport/coords.js';
 import hexagons from '/imports/mapPage/viewport/hexagons.js';
-import Layer from '/imports/mapPage/longlist/layer.js';
+import Layer from '/imports/mapPage/longlist/Layer.js';
 import legend from '/imports/mapPage/color/legend.js';
 import rx from '/imports/common/rx.js';
 import shortlist from '/imports/mapPage/shortlist/shortlist.js';

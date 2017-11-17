@@ -2,8 +2,8 @@
 // This contains the logic for handling the sort attribute function.
 
 import colorEdit from '/imports/mapPage/color/colorEdit.js';
-import DialogHex from '/imports/common/dialogHex.js';
-import LayerNameList from '/imports/mapPage/shortlist/layerNameList.js';
+import DialogHex from '/imports/common/DialogHex.js';
+import LayerNameList from '/imports/mapPage/shortlist/LayerNameList.js';
 import sort from './sort.js';
 import tool from '/imports/mapPage/head/tool.js';
 import util from '/imports/common/util.js';
