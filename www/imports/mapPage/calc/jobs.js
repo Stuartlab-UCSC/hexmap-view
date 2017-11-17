@@ -119,7 +119,7 @@ exports.init: = function () {
     jobQueue.logConsole = true;
 
     // Listen for the menu clicked
-    Tool.add("jobs", function() {
+    tool.add("jobs", function() {
         dialogHex.show();
     }, 'Job Status');
 }

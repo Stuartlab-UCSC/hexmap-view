@@ -2,14 +2,14 @@
 // project.js: A UI to load data files from a directory within the webserver's
 // doc dir
 
-import Auth from '/imports/common/auth.js';
+import auth from '/imports/common/auth.js';
 import React, { Component } from 'react';
-import Perform from '/imports/common/perform.js';
+import perform from '/imports/common/perform.js';
 import { render } from 'react-dom';
 import rx from '/imports/common/rx.js';
-import Select2 from '/imports/component/select2wrap.js';
-import Util from '/imports/common/util.js';
-import Utils from '/imports/common/utils.js';
+import Select22 from '/imports/component/select2wrap.js';
+import util from '/imports/common/util.js';
+import utils from '/imports/common/utils.js';
 
 // Placeholder text when no project is selected
 var PLACEHOLDER_TEXT = 'Select a Map.../';
@@ -59,12 +59,12 @@ function notAuthdMessage () {
     // The user is not authorized to see the current project. Let her know.
     Session.set('mapSnake', false);
 
-    var notFoundMsg = Util.getHumanProject(ctx.project) +
+    var notFoundMsg = util.getHumanProject(ctx.project) +
         " cannot be found.\nPlease select another map.";
     if (!Meteor.user()) {
         notFoundMsg += ' Or sign in.';
     }
-    Util.banner('error', notFoundMsg);
+    util.banner('error', notFoundMsg);
 }
 
 function populate () {
@@ -111,7 +111,7 @@ function populate () {
         value = PLACEHOLDER_TEXT;
     }
     render(
-        <Select2
+        <Select22
 
             // Options for the original non-react select2.
             select2options = {{
@@ -122,14 +122,21 @@ function populate () {
                 matcher: matcher,
             }}
             onChange = {function (event) {
-                Utils.loadProject(event.val);
+                utils.loadProject(event.val);
             }}
             choiceDisplay = {function (dataId) {
                 return dataId.slice(0, -1); // remove trailing '/' for display
             }}
         />, $('#project')[0]);
     
-    Perform.log('project:list-rendered');
+    perform.log('project-list-rendered');
+    
+    // If a protected project was loaded before and the new user is not
+    // authorized to see it, or there is no one logged in, give a message
+    // to the user.
+    if (!is_project_on_list(ctx.project)) {
+        notAuthdMessage();
+     }
 }
 
 function signInClicked(count) {
@@ -163,28 +170,25 @@ exports.authorize = function (userId) {
             } else {
                 notAuthdMessage();
             }
-            Perform.log('project:userId,authorized:' + userId + ',' +
+            perform.log('project:userId,authorized:' + userId + ',' +
                 rx.get(rx.bit.initMapAuthorized));
         }
     );
 
     // Re-populate projects whenever the user changes, including log out.
-    Perform.log('project:list-request,userId:' + userId);
+    perform.log('project:list-request,userId:' + userId);
     
     Meteor.call('getProjects', function (error, projects_returned) {
         if (error) {
-            Util.banner('error',
+            util.banner('error',
                 "Unable to retrieve project data from server." + error);
         } else {
-            Perform.log('project:list-got');
+            perform.log('project:list-got');
             projects = projects_returned;
             populate();
         }
     });
 };
 
-
     // This may be causing password to not allow focus on password error.
     //$('.login').on('click', $('#login-sign-in-link'), signInClicked);
-
-

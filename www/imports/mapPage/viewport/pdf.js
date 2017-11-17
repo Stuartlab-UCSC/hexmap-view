@@ -3,7 +3,7 @@
 // Handle the PDF request
 
 import DialogHex from '/imports/common/dialogHex.js';
-import Utils from '/imports/common/utils.js';
+import utils from '/imports/common/utils.js';
 import './pdf.html';
 
 var title = 'PDF',
@@ -35,7 +35,7 @@ function restoreView () {
     $head.show();
     $legend.show();
     $map.show();
-    Utils.resizeMap();
+    utils.resizeMap();
 }
 
 function mapDisplay () {

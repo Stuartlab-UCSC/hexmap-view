@@ -2,16 +2,17 @@
 
 import { Meteor } from 'meteor/meteor';
 import auth from '/imports/common/auth.js';
-import Coords from '/imports/mapPage/viewport/coords.js';
-import CreateMap from '/imports/mapPage/calc/createMap.js';
+import coords from '/imports/mapPage/viewport/coords.js';
+import createMap from '/imports/mapPage/calc/createMap.js';
 import Grid from '/imports/densityPage/grid.js';
 import mapPageInit from '/imports/mapPage/init/mapPageInit.js';
-import Perform from '/imports/common/perform.js';
+import navBar from '/imports/common/navBar.js';
+import perform from '/imports/common/perform.js';
 import rx from '/imports/common/rx.js';
 import rxInternal from '/imports/common/rxInternal.js';
-import State from '/imports/common/state.js';
-import Tool from '/imports/mapPage/head/tool.js';
-import Utils from '/imports/common/utils.js';
+import state from '/imports/common/state.js';
+import tool from '/imports/mapPage/head/tool.js';
+import utils from '/imports/common/utils.js';
 
 // We need this order to retain the correct cascading effect.
 import '/imports/lib/jquery-ui.css';
@@ -34,17 +35,16 @@ Template.body.helpers({
 
 Template.gridPage.onRendered(function () {
     initGridMapContainer();
-    NavBar.init();
 });
 
 function initGridMapContainer () { // jshint ignore: line
     setTimeout(function () { // The timeout allows the google libs to load
-        $(window).resize(Utils.resizeMap);
-        ctx.gridCenter = Coords.centerToLatLng(ctx.gridCenter);
+        $(window).resize(utils.resizeMap);
+        ctx.gridCenter = coords.centerToLatLng(ctx.gridCenter);
         Grid.init();
         
         // Resize the map to fill the available space
-        Meteor.setTimeout(Utils.resizeMap, 0);
+        Meteor.setTimeout(utils.resizeMap, 0);
     }, 0);
 }
 
@@ -55,9 +55,11 @@ function isStateLoaded () {
         R[rx.bit.initAppStateLoaded]) {
 
         unsubFx.isStateLoaded();
-        Perform.log('init:state-loaded');
+        perform.log('init:state-loaded');
         
         auth.init();
+        navBar.init();
+
         if (Session.equals('page', 'mapPage')) {
             mapPageInit.init();
         } else if (Session.equals('page', 'homePage')) {
@@ -67,9 +69,9 @@ function isStateLoaded () {
 }
 
 Meteor.startup(() => {
-    Perform.init();
+    perform.init();
     rxInternal.init();
     unsubFx.isStateLoaded = rx.subscribe(isStateLoaded);
-    ctx = State.init();
+    ctx = state.init();
     rx.set(rx.act.INIT_APP_CTX_LOADED);
 });

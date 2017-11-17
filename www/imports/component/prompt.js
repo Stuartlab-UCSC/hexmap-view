@@ -7,7 +7,7 @@ import { render } from 'react-dom';
 import PropTypes from 'prop-types';
 
 import Modal from './modal.js';
-import Utils from '/imports/common/utils.js';
+import utils from '/imports/common/utils.js';
 
 class Prompt extends Component {
     constructor (props) {
@@ -129,7 +129,7 @@ var containerId = 'prompt',
     callback;
 
 function closeModal (response) {
-    Utils.destroyReactRoot(containerId);
+    utils.destroyReactRoot(containerId);
     if (callback) {
     
         // Only allow string or undefined responses to be returned.
@@ -152,7 +152,7 @@ exports.show = function (promptStr, opts) {
     // @param      opts.textStr: the text to put in the input box, optional
     // @param     opts.callback: function to call upon modal close, optional
     // @param     opts.severity: one of [error, info, warning], optional
-    var container = Utils.createReactRoot(containerId);
+    var container = utils.createReactRoot(containerId);
     callback = opts ? opts.callback : null;
     render(
         <Prompt

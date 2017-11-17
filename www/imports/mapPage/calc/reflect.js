@@ -1,11 +1,11 @@
 // reflect.js
 // This captures the user input to reflect a set of nodes on another map.
 
-import Auth from '/imports/common/auth.js';
+import auth from '/imports/common/auth.js';
 import DialogHex from '/imports/common/dialogHex.js';
 import LayerNameList from '/imports/mapPage/shortlist/layerNameList.js';
-import Tool from '/imports/mapPage/head/tool.js';
-import Util from '/imports/common/util.js';
+import tool from '/imports/mapPage/head/tool.js';
+import util from '/imports/common/util.js';
 
 import './reflect.html';
 
@@ -57,7 +57,7 @@ function show () {
     });
 
     var $mapAnchor = $('#reflectDialog .mapIdAnchor');
-    Util.createOurSelect2($mapAnchor, {data: mapIdData}, toMapId);
+    util.createOurSelect2($mapAnchor, {data: mapIdData}, toMapId);
 
     $mapAnchor.show();
 
@@ -84,7 +84,7 @@ function show () {
     });
 
     var $dataTypeAnchor = $('#reflectDialog .dataTypeAnchor');
-    Util.createOurSelect2($dataTypeAnchor, {data: dataTypeData}, dataType);
+    util.createOurSelect2($dataTypeAnchor, {data: dataTypeData}, dataType);
 
     $dataTypeAnchor.show();
 
@@ -120,7 +120,7 @@ function criteriaCheck () {
     // Bail with a message if the required data needed is not present.
     if (!(Session.get('reflectCriteria'))) {
         dialogHex.hide();
-        Util.banner('error', 'Sorry, the required data to ' +
+        util.banner('error', 'Sorry, the required data to ' +
         'reflect onto another map is not available for this map.');
         return false;
     }
@@ -130,7 +130,7 @@ function criteriaCheck () {
 function preShow () {
 
     // First check for this user having the credentials to do this.
-    var good = Auth.credentialCheck('to reflect onto another map');
+    var good = auth.credentialCheck('to reflect onto another map');
     if (good) {
     
         // Then check for the map having the proper criteria to do this.
@@ -185,7 +185,7 @@ function mapManager (operation, nodeIds) {
             //Session.get('reflectRanked'),
             function (error) {
                 if (error) {
-                    Util.banner('error', 'Unknown server error.');
+                    util.banner('error', 'Unknown server error.');
                     console.log(error);
                 } else {
                     console.log('Mapmanager: Operation ' +
@@ -193,7 +193,7 @@ function mapManager (operation, nodeIds) {
                 }
             });
         //show a message to user
-        Util.banner('info', 'Your other map will update shortly.');
+        util.banner('info', 'Your other map will update shortly.');
         hide();
         var pathPeices = toMapId.split('/');
         var major = pathPeices[0];
@@ -314,7 +314,7 @@ exports.init = function () {
     });
 
     // Listen for the menu clicked
-    Tool.add("reflectTrigger", function(ev) {
+    tool.add("reflectTrigger", function(ev) {
         if (!$(ev.target).hasClass('disabled')) {
             dialogHex.show();
         }

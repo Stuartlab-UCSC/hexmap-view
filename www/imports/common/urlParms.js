@@ -3,7 +3,7 @@
 // Bookmarks and page-only parms are handled in state.js.
 
 import Layer from '/imports/mapPage/longlist/layer.js';
-import Util from '/imports/common/util.js';
+import util from '/imports/common/util.js';
 
 var store = {},
     xenaAttrsAwaiting = [];
@@ -191,9 +191,9 @@ function queryXena(P) {
                     },
                     error: function (error) {
                         if (error) {
-                            Util.banner('error', error.responseText);
+                            util.banner('error', error.responseText);
                         } else {
-                            Util.banner('error', 'Unknown server error');
+                            util.banner('error', 'Unknown server error');
                         }
                     }
                 });

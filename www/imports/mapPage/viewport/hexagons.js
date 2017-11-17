@@ -1,17 +1,15 @@
 // hexagon.js
 // Handle things to do with hexagons.
 
-import Data from '/imports/mapPage/data/data.js';
-import Colors from '/imports/mapPage/color/colorEdit.js';
-import Coords from '/imports/mapPage/viewport/coords.js';
-import Hexagram from '/imports/mapPage/viewport/hexagram.js';
-import InfoWindow from '/imports/mapPage/viewport/infoWindow.js';
-import Longlist from '/imports/mapPage/longlist/longlist.js';
-import Perform from '/imports/common/perform.js';
+import data from '/imports/mapPage/data/data.js';
+import colorEdit from '/imports/mapPage/color/colorEdit.js';
+import coords from '/imports/mapPage/viewport/coords.js';
+import hexagram from '/imports/mapPage/viewport/hexagram.js';
+import infoWindow from '/imports/mapPage/viewport/infoWindow.js';
 import rx from '/imports/common/rx.js';
-import Tool from '/imports/mapPage/head/tool.js';
-import Util from '/imports/common/util.js';
-import Utils from '/imports/common/utils.js';
+import tool from '/imports/mapPage/head/tool.js';
+import util from '/imports/common/util.js';
+import utils from '/imports/common/utils.js';
 import '/imports/common/navBar.html';
 
 // What's the minimum number of pixels that sideLen must represent at the
@@ -94,7 +92,7 @@ function setZoomOptions(nodeId, xy, opts) {
         // API docs say: pixelCoordinate = worldCoordinate * 2 ^ zoomLevel
         // So this holds the number of pixels that the global length sideLen
         // corresponds to at this zoom level.
-        var weight = (Coords.getSideLen() * Math.pow(2, ctx.zoom) >=
+        var weight = (coords.getSideLen() * Math.pow(2, ctx.zoom) >=
             MIN_BORDER_SIZE)
                 ? HEX_STROKE_WEIGHT
                 : 0;
@@ -107,7 +105,7 @@ function setZoomOptions(nodeId, xy, opts) {
         // This must be an xyCoords mapview.
         // Retain the hexgon size, regardless of zoom.
         var hexLen = XY_HEX_LEN_SEED / Math.pow(2, ctx.zoom);
-        opts.path = Coords.getHexLatLngCoords(xy, hexLen);
+        opts.path = coords.getHexLatLngCoords(xy, hexLen);
     }
 
     // If the hexagon has already been drawn...
@@ -127,16 +125,14 @@ function renderHexagon (row, column, nodeId, opts) {
     // Make a new hexagon representing the hexagon at the given xy object
     // space before transform to xy world space.
     // Returns the Google Maps polygon.
-
-    var xy = Coords.get_xyWorld_from_xyHex(column, row),
+    var xy = coords.get_xyWorld_from_xyHex(column, row),
         mapView = Session.get('mapView'),
         thisSideLen = (mapView === 'honeycomb') ?
-            Coords.getSideLen() : Coords.getSideLen() * 2,
-        coords = Coords.getHexLatLngCoords(xy, thisSideLen)
+            coords.getSideLen() : coords.getSideLen() * 2,
         shapeOpts = {
             map: googlemap,
             //paths: coords,
-            fillColor: Colors.noDataColor(),
+            fillColor: colorEdit.noDataColor(),
             zIndex: 1,
         };
     
@@ -154,7 +150,7 @@ function renderHexagon (row, column, nodeId, opts) {
 
     if (mapView === 'honeycomb') {
         // TODO this duplicates code above
-        shapeOpts.path = Coords.getHexLatLngCoords(xy, Coords.getSideLen());
+        shapeOpts.path = coords.getHexLatLngCoords(xy, coords.getSideLen());
     } else {
         shapeOpts.strokeWeight = 0;
     }
@@ -178,11 +174,11 @@ function renderHexagon (row, column, nodeId, opts) {
     // Set up the click listener to move the global info window to this hexagon
     // and display the hexagon's information
     google.maps.event.addListener(hexagon, "click", function (event) {
-        InfoWindow.show(event, hexagon);
+        infoWindow.show(event, hexagon);
     });
 
     // Listen to mouse events on this hexagon
-    Tool.subscribe_listeners(hexagon);
+    tool.subscribe_listeners(hexagon);
     
     return hexagon;
 } 
@@ -201,11 +197,11 @@ function addHoverListeners (hexagon) {
         // with just a node ID displayed.
         hexagon.mouseover = google.maps.event.addListener(hexagon,
             "mouseover", function (event) {
-                InfoWindow.show(event, hexagon, null, null, true);
+                infoWindow.show(event, hexagon, null, null, true);
             });
         hexagon.mouseout = google.maps.event.addListener(hexagon,
             "mouseout", function (event) {
-                InfoWindow.close(true);
+                infoWindow.close(true);
             });
     }
 }
@@ -224,9 +220,9 @@ function showHoverInfo () {
 }
 
 function initNewLayout () {
-    Coords.findDimensions(max_x, max_y);
+    coords.findDimensions(max_x, max_y);
     exports.create();
-    Hexagram.refreshColors();
+    hexagram.refreshColors();
 }
 
 exports.create = function () {
@@ -326,7 +322,7 @@ exports.getAssignmentsForMapViewChange = function () {
 
     // Download the positions of nodes and fill in the global
     // hexagon assignment grid.
-    Data.requestLayoutAssignments();
+    data.requestLayoutAssignments();
 };
 
 exports.init = function () {

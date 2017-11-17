@@ -2,12 +2,12 @@
 
 // A tool to download an svg file of the current viewport
 
-import Coords from '/imports/mapPage/viewport/coords.js';
-import Download from '/imports/mapPage/data/download.js';
+import coords from '/imports/mapPage/viewport/coords.js';
+import download from '/imports/mapPage/data/download.js';
 import Layer from '/imports/mapPage/longlist/layer.js';
-import Legend from '/imports/mapPage/color/legend.js';
-import Select from '/imports/mapPage/shortlist/select.js';
-import Shortlist from '/imports/mapPage/shortlist/shortlist.js';
+import legend from '/imports/mapPage/color/legend.js';
+import selectNode from '/imports/mapPage/shortlist/select.js';
+import shortlist from '/imports/mapPage/shortlist/shortlist.js';
 
 var xyMapSize = 5120 * 2,
     dims = null,
@@ -19,7 +19,7 @@ function get_xySvgMap (latLng, dims) {
     // to xy map coordinates
 
     // Transform the world coordinates to xy in the range: 1 - 256
-    var xy = Coords.get_xyWorld(latLng),
+    var xy = coords.get_xyWorld(latLng),
 
         // Offset the xy by the minimum xy of the google polygons,
         // then scale it to our big svg map
@@ -59,11 +59,11 @@ function googleToSvg () {
     // Transform google elements to svg format
     var i,
         sPoly,
-        hexagonKeys = Select.findHexagonsInViewport(),
+        hexagonKeys = selectNode.findHexagonsInViewport(),
         dims,
         svg;
         
-    dims = Coords.findPolygonExtents(hexagonKeys, xyMapSize);
+    dims = coords.findPolygonExtents(hexagonKeys, xyMapSize);
 
     // Define the svg element,
     // setting its size to that of the visible polygons area
@@ -98,7 +98,7 @@ function click(event) {
 
     // Download the map.
     var svg = googleToSvg();
-    Download.save('tumormap.svg', svg);
+    download.save('tumormap.svg', svg);
 }
 
 function clickLegend(event) {
@@ -107,17 +107,17 @@ function clickLegend(event) {
 
     // Download the legend.
     var context = new C2S(200,2000),
-        current_layers = Shortlist.get_active_coloring_layers();
+        current_layers = shortlist.get_active_coloring_layers();
     Layer.with_many(current_layers, function(retrieved_layers) {
-        Legend.redraw(retrieved_layers, current_layers, context);
+        legend.redraw(retrieved_layers, current_layers, context);
     });
     var svg = context.getSerializedSvg(); //returns the serialized SVG document
     //svg = context.getSvg(); //inline svg
-    Download.save('tumormapLegend.svg', svg);
+    download.save('tumormapLegend.svg', svg);
 
     // Redraw the legend on the screen since the svg doesn't look good there.
     Layer.with_many(current_layers, function(retrieved_layers) {
-        Legend.redraw(retrieved_layers, current_layers);
+        legend.redraw(retrieved_layers, current_layers);
     });
 }
 

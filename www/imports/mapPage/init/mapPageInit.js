@@ -3,31 +3,31 @@
  */
 
 import { Meteor } from 'meteor/meteor';
-import CheckLayerBox from '/imports/mapPage/calc/checkLayerBox.js';
-import Colors from '/imports/mapPage/color/colorEdit.js';
-import Coords from '/imports/mapPage/viewport/coords.js';
-import CreateMap from '/imports/mapPage/calc/createMap.js';
-import Data from '/imports/mapPage/data/data.js';
-import Download from '/imports/mapPage/data/download.js';
-import GChart from '/imports/mapPage/shortlist/gChart.js';
-import Hexagons from '/imports/mapPage/viewport/hexagons.js';
-import Hexagram from '/imports/mapPage/viewport/hexagram.js';
+import checkLayerBox from '/imports/mapPage/calc/checkLayerBox.js';
+import colorEdit from '/imports/mapPage/color/colorEdit.js';
+import coords from '/imports/mapPage/viewport/coords.js';
+import createMap from '/imports/mapPage/calc/createMap.js';
+import data from '/imports/mapPage/data/data.js';
+import download from '/imports/mapPage/data/download.js';
+import gChart from '/imports/mapPage/shortlist/gChart.js';
+import hexagons from '/imports/mapPage/viewport/hexagons.js';
+import hexagram from '/imports/mapPage/viewport/hexagram.js';
 import Layer from '/imports/mapPage/longlist/layer.js';
-import Layout from '/imports/mapPage/head/layout.js';
-import Legend from '/imports/mapPage/color/legend.js';
-import Perform from '/imports/common/perform.js';
-import Reflect from '/imports/mapPage/calc/reflect.js';
+import layout from '/imports/mapPage/head/layout.js';
+import legend from '/imports/mapPage/color/legend.js';
+import perform from '/imports/common/perform.js';
+import reflect from '/imports/mapPage/calc/reflect.js';
 import rx from '/imports/common/rx.js';
-import Shortlist from '/imports/mapPage/shortlist/shortlist.js';
-import Select from '/imports/mapPage/shortlist/select.js';
-import SetOper from '/imports/mapPage/shortlist/setOper.js';
-import Sort from '/imports/mapPage/longlist/sort.js';
-import SortUi from '/imports/mapPage/longlist/sortUi.js';
-import Util from '/imports/common/util.js';
-import Utils from '/imports/common/utils.js';
+import shortlist from '/imports/mapPage/shortlist/shortlist.js';
+import selectNode from '/imports/mapPage/shortlist/select.js';
+import setOper from '/imports/mapPage/shortlist/setOper.js';
+import sort from '/imports/mapPage/longlist/sort.js';
+import sortUi from '/imports/mapPage/longlist/sortUi.js';
+import state from '/imports/common/state.js';
+import tool from '/imports/mapPage/head/tool.js';
+import util from '/imports/common/util.js';
+import utils from '/imports/common/utils.js';
 
-import State from '/imports/common/state.js';
-import Tool from '/imports/mapPage/head/tool.js';
 import '/imports/mapPage/init/mapPage.html';
 
 import '/imports/mapPage/init/mapPage.css';
@@ -94,35 +94,35 @@ function areLayoutsPopulated () {
         R[rx.bit.initAppMapRendered]) {
         
         unsubFx.areLayoutsPopulated();
-        Perform.log('6b-init:complete-initialization');
+        perform.log('6b-init:complete initialization');
 
         // Timeout to allow the map to render.
         setTimeout(function () {
-            Perform.log(' 6b-init:after-timeout');
+            perform.log(' 6b-init:after-timeout');
             Session.set('shortlist', shortlistSaved);
-            Shortlist.complete_initialization();
-            Layout.initList();
-            SortUi.init();
+            shortlist.complete_initialization();
+            layout.initList();
+            sortUi.init();
 
-            import LazyLoader from '/imports/mapPage/init/lazyLoader.js';
-            LazyLoader.init();
-            Legend.init();
-            CheckLayerBox.init();
-            Reflect.init();
-            Tool.initLabel();
-            Download.init();
-            Colors.init();
+            import lazyLoader from '/imports/mapPage/init/lazyLoader.js';
+            lazyLoader.init();
+            legend.init();
+            checkLayerBox.init();
+            reflect.init();
+            tool.initLabel();
+            download.init();
+            colorEdit.init();
             
-            import InfoWindow from '/imports/mapPage/viewport/infoWindow.js';
-            InfoWindow.init();
-            SetOper.init();
-            CreateMap.init();
-            Select.init();
-            GChart.init();
-            State.initBookmark();
+            import infoWindow from '/imports/mapPage/viewport/infoWindow.js';
+            infoWindow.init();
+            setOper.init();
+            createMap.init();
+            selectNode.init();
+            gChart.init();
+            state.initBookmark();
             if (!DEV) {
-                Perform.log('google-analytics-loading');
-                Util.googleAnalytics();
+                perform.log('google-analytics-loading');
+                util.googleAnalytics();
             }
             Session.set('mapSnake', false);
         });
@@ -135,9 +135,9 @@ function areLayoutNamesReceived () {
     if (rx.get(rx.bit.initAppLayoutNamesReceived)) {
 
         unsubFx.areLayoutNamesReceived();
-        Perform.log('6a-init:layout-names-received');
+        perform.log('6a-init:layout-names-received');
 
-        Layout.initList();
+        layout.initList();
         rx.set(rx.act.INIT_APP_LAYOUTS_POPULATED);
     }
 }
@@ -148,26 +148,26 @@ function isMapRendered () {
     if (rx.get(rx.bit.initAppMapRendered)) {
     
         unsubFx.isMapRendered();
-        Perform.log('5-init:request-secondary-data');
+        perform.log('5-init:request-secondary-data');
         
         // Timeout to allow the map to render.
         setTimeout(function () {
-            Perform.log(' 5-init:after-timeout');
+            perform.log(' 5-init:after-timeout');
 
-            Data.requestLayoutNames(
+            data.requestLayoutNames(
                 { rxAction: rx.act.INIT_APP_LAYOUT_NAMES_RECEIVED });
-            Data.requestAttributeTags();
-            Data.requestMapMeta();
+            data.requestAttributeTags();
+            data.requestMapMeta();
             
             // Populate the longlist.
-            import Longlist from '/imports/mapPage/longlist/longlist.js';
-            Longlist.init();
+            import longlist from '/imports/mapPage/longlist/longlist.js';
+            longlist.init();
             
             // Populate the shortlist with only the active layers by faking
             // the shortlist state var.
             shortlistSaved = Session.get('shortlist');
             Session.set('shortlist', Session.get('active_layers'));
-            Shortlist.init();
+            shortlist.init();
             rx.set(rx.act.INIT_APP_ACTIVE_ATTRS_IN_SHORTLIST);
         });
     }
@@ -181,12 +181,12 @@ function isMapPreppedAndUserAuthorized () {
         R[rx.bit.initMapAuthorized])  {
         
         unsubFx.isMapPreppedAndUserAuthorized();
-        Perform.log('4-init:render-map');
+        perform.log('4-init:render-map');
 
         // Pause to let previous processing complete.
         setTimeout(function () {
-            Perform.log(' 4-init:after-timeout');
-            Hexagram.initMap();
+            perform.log(' 4-init:after-timeout');
+            hexagram.initMap();
             rx.set(rx.act.INIT_APP_MAP_RENDERED);
         });
     }
@@ -207,19 +207,19 @@ function isReadyToRenderMap () {
         R[rx.bit.initAppDomLoaded]) {
         
         unsubFx.isReadyToRenderMap();
-        Perform.log('3-init:prep-map');
+        perform.log('3-init:prep-map');
 
         // Pause to let other processing complete.
         setTimeout(function () {
-            Perform.log(' 3-init:after-timeout');
-            Coords.init();
-            Hexagons.init();
+            perform.log(' 3-init:after-timeout');
+            coords.init();
+            hexagons.init();
 
             // Prepare to draw the map.
-            Utils.resizeMap();
-            $(window).resize(Utils.resizeMap);
+            utils.resizeMap();
+            $(window).resize(utils.resizeMap);
             $('#shortlist_holder').css('top', $('#navBar').height());
-            ctx.center = Coords.centerToLatLng(ctx.center);
+            ctx.center = coords.centerToLatLng(ctx.center);
             rx.set(rx.act.INIT_APP_MAP_PREPARED);
         });
     }
@@ -233,11 +233,11 @@ function haveActiveLayerIndex () {
         R[rx.bit.initMapLayerTypesLoaded]) {
 
         unsubFx.haveActiveLayerIndex();
-        Perform.log('2-init:request-active-layers');
+        perform.log('2-init:request-active-layers');
 
         // Pause to let other processing complete.
         setTimeout(function () {
-            Perform.log(' 2-init:after-timeout');
+            perform.log(' 2-init:after-timeout');
 
             // If the first layer was not in the types data received,
             // sort by density to get a first layer.
@@ -246,7 +246,7 @@ function haveActiveLayerIndex () {
             if (!first) {
 
                 // Sort the layers to find the first layer.
-                Sort.findFirstLayerByDensity();
+                sort.findFirstLayerByDensity();
             }
         
             // If there is now a first layer
@@ -291,7 +291,7 @@ function hasDomLoaded () {
     if (rx.get(rx.bit.initAppDomLoaded)) {
     
         unsubFx.hasDomLoaded();
-        Perform.log('1b-init:snakes,dom-loaded');
+        perform.log('1b-init:snakes,dom-loaded');
         initSnakes();
     }
 }
@@ -299,7 +299,7 @@ function hasDomLoaded () {
 // Phase 1a init: State has been received,
 //                so request primary data and authorization.
 exports.init = function () {
-    Perform.log('1a-init:request-primary-data');
+    perform.log('1a-init:request-primary-data');
 
     // Iniitialize some session vars we don't want carried over
     // from the last session.
@@ -308,11 +308,11 @@ exports.init = function () {
     Session.set('mapMeta', {});
     
     // Request the primary data.
-    Data.requestLayerSummary(
+    data.requestLayerSummary(
         { rxAction: rx.act.INIT_MAP_LAYER_SUMMARY_LOADED });
-    Data.requestDataTypes({ rxAction: rx.act.INIT_MAP_LAYER_TYPES_LOADED });
-    Data.requestLayoutAssignments();
-    Data.requestColormaps({ rxAction: rx.act.INIT_MAP_COLORMAP_LOADED });
+    data.requestDataTypes({ rxAction: rx.act.INIT_MAP_LAYER_TYPES_LOADED });
+    data.requestLayoutAssignments();
+    data.requestColormaps({ rxAction: rx.act.INIT_MAP_COLORMAP_LOADED });
     
     // Subscribe to state changes.
     unsubFx.hasDomLoaded = rx.subscribe(hasDomLoaded);

@@ -2,7 +2,7 @@
  * Talk to the data/compute server.
  */
 
-import Util from '/imports/common/util.js';
+import util from '/imports/common/util.js';
 
 var UPLOAD_MAX_GIGABYTES = 4,
     UPLOAD_MAX_BYTES = 1024 * 1024 * 1024 * UPLOAD_MAX_GIGABYTES,
@@ -61,7 +61,7 @@ function getData(url, successFx, errorFx, ok404, parse) {
             } else if (parse === 'tsv') {
            
                 // Return tsv-parsed data
-                successFx(Util.parseTsv(result));
+                successFx(util.parseTsv(result));
             } else {
            
                 // Return json-parsed data
@@ -174,7 +174,7 @@ exports.upload = function(opts) {
         Session.set('mapSnake', false);
         var msg = 'upload failed because file is larger than the ' +
             UPLOAD_MAX_GIGABYTES + ' GB limit.';
-        Util.banner('error', msg);
+        util.banner('error', msg);
         if (opts.error) {
             opts.error(msg);
         }
@@ -199,7 +199,7 @@ exports.upload = function(opts) {
             var msg = 'Uploading ' + opts.sourceFile +
                 ' to server failed with: ' + error;
             log(url, error.status, msg);
-            Util.banner('error', msg);
+            util.banner('error', msg);
             if (opts.error) {
                 opts.error(msg);
             }

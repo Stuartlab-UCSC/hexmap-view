@@ -4,11 +4,11 @@
 
 import '/imports/lib/jquery-ui.js';
 
-import Colors from '/imports/mapPage/color/colorEdit.js';
-import GChart from '/imports/mapPage/shortlist/gChart.js';
-import Hexagram from '/imports/mapPage/viewport/hexagram.js';
+import colorEdit from '/imports/mapPage/color/colorEdit.js';
+import gChart from '/imports/mapPage/shortlist/gChart.js';
+import hexagram from '/imports/mapPage/viewport/hexagram.js';
 import Layer from '/imports/mapPage/longlist/layer.js';
-import Util from '/imports/common/util.js';
+import util from '/imports/common/util.js';
 
 import './shortlist.html';
 import './shortlist.css';
@@ -80,7 +80,7 @@ function is_hovered (layer_name) {
 
 function is_filter_showing (layer_name) {
     if (!layer_name) { return false; }
-    var show = Util.session('filter_show', 'get', layer_name);
+    var show = util.session('filter_show', 'get', layer_name);
     
     if (_.isUndefined(show)) { return false; }
     return show;
@@ -166,7 +166,7 @@ Template.shortlistEntryT.helpers({
         return Session.get('shortlist');
     },
     range_value_display: function () {
-        return (Util.is_continuous(this.toString())) ? 'initial' : 'none';
+        return (util.is_continuous(this.toString())) ? 'initial' : 'none';
     },
     zero_display: function () {
         return (zeroShow.get(this.toString())) ? 'initial' : 'none';
@@ -187,17 +187,17 @@ Template.shortlistEntryT.helpers({
         return (show && active) ? 'block' : 'none';
     },
     filter_value_display: function () {
-        return (Util.is_continuous(this.toString())) ? 'none' : 'initial';
+        return (util.is_continuous(this.toString())) ? 'none' : 'initial';
     },
     filter_value: function () {
-        return Util.session('filter_value', 'get', this.toString());
+        return util.session('filter_value', 'get', this.toString());
     },
     range: function () {
-        var vals = Util.session('filter_value', 'get', this.toString());
+        var vals = util.session('filter_value', 'get', this.toString());
         return (_.isUndefined(vals)) ? [0,0] : vals;
     },
     slider_display: function () {
-        var show = Util.is_continuous(this.toString());
+        var show = util.is_continuous(this.toString());
         return (show ? 'inline-block' : 'none');
     },
     low: function () {
@@ -220,7 +220,7 @@ Template.shortlistEntryT.helpers({
     },
     save_filter_bottom: function () {
         var layer_name = this;
-        return (Util.is_continuous(layer_name) ? '-0.25em' : '-0.35em');
+        return (util.is_continuous(layer_name) ? '-0.25em' : '-0.35em');
     },
     save_filter_display: function () {
         return is_hovered(this.toString()) ? 'initial' : 'none';
@@ -275,12 +275,12 @@ function create_filter_select_options (layer_name, layer, filter_value) {
     });
 
     // Select the appropriate option on first opening
-    var value = Util.session('filter_value', 'get', layer_name);
+    var value = util.session('filter_value', 'get', layer_name);
     if (_.isNull(value)) {
 
         // There is no value saved, so leave menu set to the first option,
         // and initialize the saved value to the first one.
-        Util.session('filter_value', 'set', layer_name, parseInt(first));
+        util.session('filter_value', 'set', layer_name, parseInt(first));
 
     } else {
 
@@ -289,15 +289,15 @@ function create_filter_select_options (layer_name, layer, filter_value) {
     }
 
     // Update colors to reflect the filter created by the initial selection
-    Hexagram.refreshColors();
+    hexagram.refreshColors();
 
     // Define the event handler for selecting an item
     filter_value.on('change', function (ev) {
-        Util.session(
+        util.session(
             'filter_value', 'set', layer_name, parseInt(ev.target.value));
         
         // Update the colors to reflect the filter updated by this select
-        Hexagram.refreshColors();
+        hexagram.refreshColors();
     });
 }
 
@@ -339,14 +339,14 @@ function create_range_slider (layer_name, root) {
         var low = ui.values[0],
             high = ui.values[1];
         
-        Util.session('filter_value', 'set', layer_name,
+        util.session('filter_value', 'set', layer_name,
             [low * factor, high * factor]);
         slider_vals.set(layer_name, [low * factor, high * factor]);
-        Hexagram.refreshColors();
+        hexagram.refreshColors();
     };
 
     // Create the slider
-    var vals = _.map(Util.session('filter_value', 'get', layer_name),
+    var vals = _.map(util.session('filter_value', 'get', layer_name),
             function (val) {
                 return val / factor;
             }
@@ -371,22 +371,22 @@ function create_shortlist_ui_entry_with_data (layer_name, root) {
     // Add all of the metadata
     Layer.fill_metadata(root.find('.metadata_holder'), layer_name);
 
-    if (Util.is_continuous(layer_name)) {
+    if (util.is_continuous(layer_name)) {
 
         // Create the chart after google chart has a chance to load.
         setTimeout(function () {
-            GChart.create(layer_name, root.find('.chart'), 'histogram');
+            gChart.create(layer_name, root.find('.chart'), 'histogram');
         }, 10);
 
         var min = layers[layer_name].minimum,
             max = layers[layer_name].maximum;
 
         if (_.isUndefined(
-            Util.session('filter_value', 'get', layer_name))) {
+            util.session('filter_value', 'get', layer_name))) {
         
             // Range filter values are not yet saved,
             // so initialize the state and slider to the layer extents.
-            Util.session('filter_value', 'set', layer_name, [min, max]);
+            util.session('filter_value', 'set', layer_name, [min, max]);
             slider_vals.set(layer_name, [min, max]);
         }
 
@@ -413,21 +413,21 @@ function create_shortlist_ui_entry_with_data (layer_name, root) {
 
     } else {
         if (_.isUndefined(
-            Util.session('filter_value', 'get', layer_name))) {
+            util.session('filter_value', 'get', layer_name))) {
         
             // Filter value is not yet saved,
             // so initialize it to the first option.
             var val = 0;
-            if (Util.is_binary(layer_name)) {
+            if (util.is_binary(layer_name)) {
                 val = 1;
             }
                 
-            Util.session('filter_value', 'set', layer_name, val);
+            util.session('filter_value', 'set', layer_name, val);
         }
         
         // Build the barChart after the filter values are sure to be defined
         setTimeout(function () {
-            GChart.create(layer_name, root.find('.chart'), 'barChart');
+            gChart.create(layer_name, root.find('.chart'), 'barChart');
         }, 10);
 
     }
@@ -436,11 +436,11 @@ function create_shortlist_ui_entry_with_data (layer_name, root) {
 function save_filter_clicked (layer_name) {
 
     // Clicking on the save button creates a dynamic layer
-    var value = Util.session('filter_value', 'get', layer_name),
+    var value = util.session('filter_value', 'get', layer_name),
         layer = layers[layer_name],
         nodeIds = [];
     
-    if (Util.is_continuous(layer_name)) {
+    if (util.is_continuous(layer_name)) {
 
         // Get the range values
         nodeIds = _.filter(_.keys(polygons), function (nodeId) {
@@ -486,7 +486,7 @@ function build_filter (layer_name) {
     // what kind of layer we are.
     Layer.with_one (layer_name, function (layer) {
     
-        if (Util.is_continuous(layer_name)) {
+        if (util.is_continuous(layer_name)) {
         
             // Add a range slider
             create_range_slider(layer_name, root);
@@ -513,17 +513,17 @@ function filter_control_changed (ev) {
     layer_name = get_layer_name_from_root(root);
 
     // Set the filter show flag may not yet be defined.
-    if (_.isUndefined(Util.session('filter_show', 'get', layer_name))) {
-        Util.session('filter_show', 'set', layer_name, true);
+    if (_.isUndefined(util.session('filter_show', 'get', layer_name))) {
+        util.session('filter_show', 'set', layer_name, true);
     } else {
-        Util.session('filter_show', 'set', layer_name,
+        util.session('filter_show', 'set', layer_name,
                 !is_filter_showing(layer_name));
     }
 
     build_filter(layer_name);
 
     // Update the colors with the new filtering or lack thereof.
-    Hexagram.refreshColors();
+    hexagram.refreshColors();
 }
 
 function ui_and_list_delete (layer_name) {
@@ -656,7 +656,7 @@ function when_active_color_layers_change () {
     // Finally, refresh the map colors if we have the data,
     // otherwise the colors are refreshed when the data arrives.
     if (active.length > 0 && layers[active[0]].data) {
-        Hexagram.refreshColors();
+        hexagram.refreshColors();
     }
 }
 
@@ -757,10 +757,10 @@ function addInitialEntriesToShortlist (layerNames) {
         $shortlist.append(create_shortlist_ui_entry(layer_name));
     
         // Initialize value display for continuous if it needs it.
-        if (Util.is_continuous(layer_name) &&
-            _.isUndefined(Util.session('filter_value', 'get', layer_name))) {
+        if (util.is_continuous(layer_name) &&
+            _.isUndefined(util.session('filter_value', 'get', layer_name))) {
            
-            Util.session('filter_value', 'set', layer_name,
+            util.session('filter_value', 'set', layer_name,
                 [layers[layer_name].minimum, layers[layer_name].maximum]);
            
         }
@@ -798,7 +798,7 @@ exports.removeEntry = function (layer_name) {
             if (layer_name in colormaps) {
                 delete colormaps[layer_name];
             }
-            Util.removeFromDataTypeList(layer_name);
+            util.removeFromDataTypeList(layer_name);
         }
 
         // Move all of the dynamic controls to a holding place so they
@@ -809,7 +809,7 @@ exports.removeEntry = function (layer_name) {
             .append($shortlist.find('.is_secondary'));
 
         // Clear any google chart associated with this layer
-        GChart.clear(layer_name);
+        gChart.clear(layer_name);
 
         // Clear any filter values and show state for this layer
         delete Session.keys['shortlist_filter_show_' + layer_name];
@@ -822,7 +822,7 @@ exports.removeEntry = function (layer_name) {
         delete template[layer_name];
 
         // Refresh the map.
-        Hexagram.refreshColors();
+        hexagram.refreshColors();
     }
 }
 
@@ -924,7 +924,7 @@ exports.with_filtered_signatures = function (filters, callback) {
                 // that values outside of the filter are set to the
                 // highest or lowest value instead of getting the
                 // noDataColor.
-                if (Util.is_continuous(filters[i].layer_name)){
+                if (util.is_continuous(filters[i].layer_name)){
                     continue;
                 }
                 if(!filters[i].filter_function(
@@ -971,9 +971,9 @@ exports.get_current_filters = function () {
             };
 
             // Define the functions and values to use for filtering
-            var desired = Util.session('filter_value', 'get', layer_name);
+            var desired = util.session('filter_value', 'get', layer_name);
             
-            if (Util.is_continuous(layer_name)) {
+            if (util.is_continuous(layer_name)) {
                  // Use a range for continuous values.
                 filter_function = function(value) {
                      return (value >= desired[0] && value <= desired[1]);
@@ -1003,8 +1003,8 @@ exports.get_slider_range = function (layer_name) {
     // Given the name of a layer, get the slider range from its shortlist UI
     // entry if the filter is active. If not active, return the layer's
     // max and min. Assumes the layer has a shortlist UI entry.
-    if (Util.session('filter_show', 'get', layer_name)) {
-        var range = Util.session('filter_value', 'get', layer_name);
+    if (util.session('filter_show', 'get', layer_name)) {
+        var range = util.session('filter_value', 'get', layer_name);
         if (_.isUndefined(range)) {
             return [layers[layer_name].minimum, layers[layer_name].maximum];
         } else {
@@ -1023,7 +1023,7 @@ exports.get_slider_range = function (layer_name) {
     exports.getContinuousLayerNames = function() {
         var shortlist = Session.get('shortlist');
         var contLayers = shortlist.filter(function(layerName) {
-            return Util.is_continuous(layerName)
+            return util.is_continuous(layerName)
         });
         return contLayers
     }
@@ -1031,7 +1031,7 @@ exports.get_slider_range = function (layer_name) {
     exports.getBinaryLayerNames = function() {
         var shortlist = Session.get('shortlist');
         var binLayers = shortlist.filter(function(layerName) {
-            return Util.is_binary(layerName)
+            return util.is_binary(layerName)
         });
         return binLayers
     }
@@ -1072,7 +1072,7 @@ exports.get_dynamic_entries_for_persistent_state = function () {
                     // Convert the operating colormap colors to an object
                     // with two arrays as:
                     // {cats: ['subclass1', ...], colors: ['#123456', ...]}
-                    layer.colormap = Colors.colormapToState(colormaps[name]);
+                    layer.colormap = colorEdit.colormapToState(colormaps[name]);
                 }
                 entries[name] = layer;
             }

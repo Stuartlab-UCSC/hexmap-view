@@ -32,7 +32,7 @@
  */
 
 import Grid from '/imports/densityPage/grid.js';
-import Util from '/imports/common/util.js';
+import util from '/imports/common/util.js';
 import './coords.html';
 
 var SHOW_COORDS = false; // true = show them, false = not
@@ -76,12 +76,12 @@ function coordsMouseMove (e) {
     } else {
         xy = get_xyHex_from_xyWorld(xyWorld.x, xyWorld.y);
     }
-    $('#xIn').text(Util.round(xy.x, 1));
-    $('#yIn').text(Util.round(xy.y, 1));
-    $('#xWorld').text(Util.round(xyWorld.x, 2));
-    $('#yWorld').text(Util.round(xyWorld.y, 2));
-    $('#lngCoord').text(Util.round(e.latLng.lng()));
-    $('#latCoord').text(Util.round(e.latLng.lat()));
+    $('#xIn').text(util.round(xy.x, 1));
+    $('#yIn').text(util.round(xy.y, 1));
+    $('#xWorld').text(util.round(xyWorld.x, 2));
+    $('#yWorld').text(util.round(xyWorld.y, 2));
+    $('#lngCoord').text(util.round(e.latLng.lng()));
+    $('#latCoord').text(util.round(e.latLng.lat()));
 }
 
 exports.getShowCoords = function () {

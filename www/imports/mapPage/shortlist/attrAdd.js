@@ -7,7 +7,7 @@ import { render } from 'react-dom';
 import DialogHex from '/imports/common/dialogHex.js';
 import Layer from '/imports/mapPage/longlist/layer.js';
 import ReadFile from '/imports/component/readFile.js'
-import Util from '/imports/common/util.js';
+import util from '/imports/common/util.js';
 
 import '/imports/mapPage/shortlist/attrAdd.html';
 
@@ -58,7 +58,7 @@ function handleReadStart() {
 
 function handleReadError(msg) {
     Session.set('mapSnake', false);
-    Util.banner('error', msg);
+    util.banner('error', msg);
 }
 
 function createWindow() {

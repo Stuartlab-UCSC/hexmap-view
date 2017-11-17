@@ -2,7 +2,7 @@
 // select.js: Handle the various ways to select hexagons.
 
 import Layer from '/imports/mapPage/longlist/layer.js';
-import Tool from '/imports/mapPage/head/tool.js';
+import tool from '/imports/mapPage/head/tool.js';
 
 // boundaries of the selectable area
 var SELECTING_CURSOR = 'crosshair',
@@ -211,7 +211,7 @@ function startSelect (event) {
     // Attach the stop listener.
     stopHandle = googlemap.addListener(stopEvent, finishSelect);
 
-    Tool.activity(false);
+    tool.activity(false);
 }
 
 function setUpShapeSelect() {
@@ -324,12 +324,12 @@ function selectImport() {
                 $(this).dialog("close");
                 
                 // Done with the tool
-                Tool.activity(false);
+                tool.activity(false);
             }   
         },
         close: function() {
             // They didn't want to use this tool.
-            Tool.activity(false);
+            tool.activity(false);
         }
     });
 }
@@ -343,7 +343,7 @@ function clicked(ev) {
 
     // Let the tool handler know this is active so another map tool cannot
     // be made active.
-    Tool.activity(true);
+    tool.activity(true);
 
     // Set the selection color depending on the background
     color = (Session.equals('background', 'white')) ? 'black' : 'white';

@@ -3,7 +3,7 @@
 // Authorize users based on roles and project access.
 
 import perform from '/imports/common/perform.js';
-import Util from '/imports/common/util.js';
+import util from '/imports/common/util.js';
 
 function getCredentials (userId) {
 
@@ -34,10 +34,10 @@ exports.credentialCheck = function (credential) {
     // Bail with a message if the user is not logged in or does not have
     // the credentials.
     var returnVal = false;
-    if (!Meteor.user()) {
-        Util.banner('error', 'Please log in ' + credential + '.');
+    if (!Meteor.userId()) {
+        util.banner('error', 'Please log in ' + credential + '.');
     } else if (!(Session.get('jobCredential'))) {
-        Util.banner('error', 'Sorry, you do not have credentials ' +
+        util.banner('error', 'Sorry, you do not have credentials ' +
            credential + '. Please request access from hexmap at ucsc dot edu.');
     } else {
         returnVal = true;

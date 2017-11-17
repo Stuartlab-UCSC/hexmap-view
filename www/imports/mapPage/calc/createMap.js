@@ -1,12 +1,12 @@
 // createMap.js
 // This creates a new map with user uploaded data.
 
-import Ajax from '/imports/mapPage/data/ajax.js';
-import Auth from '/imports/common/auth.js';
+import ajax from '/imports/mapPage/data/ajax.js';
+import auth from '/imports/common/auth.js';
 import DialogHex from '/imports/common/dialogHex.js';
-import Tool from '/imports/mapPage/head/tool.js';
-import Util from '/imports/common/util.js';
-import Utils from '/imports/common/utils.js';
+import tool from '/imports/mapPage/head/tool.js';
+import util from '/imports/common/util.js';
+import utils from '/imports/common/utils.js';
 
 import '/imports/mapPage/calc/createMap.html';
 
@@ -125,7 +125,7 @@ function report_error (msg) {
         "A troubleshooting page will open in a new tab.";
 
     // Show the user the banner message.
-    Util.banner('error', banner_msg);
+    util.banner('error', banner_msg);
 
     // Give the user a data/timestamp so the problem can be tracked down.
     var date = new Date().toString(),
@@ -202,7 +202,7 @@ function create_map () {
             log_it('Map was successfully created and is loading now.');
 
             // Open the new map.
-            Utils.loadProject(getProjectName());
+            utils.loadProject(getProjectName());
         }
     });
 }
@@ -217,7 +217,7 @@ function upload_attributes () {
     if (attribute_upload.refs.fileObj) {
         log_it('Uploading color attributes...\n')
         var startDate = new Date();
-        Ajax.upload({
+        ajax.upload({
             mapId: ui.get('major_project') + '/' + ui.get('minor_project') + '/',
             sourceFile: attribute_upload.refs.fileObj,
             targetFile: attribute_upload.refs.fileObj.name,
@@ -249,7 +249,7 @@ function create_clicked (event) {
     if ($dialogCreateButton.hasClass('ui-state-disabled')) { return; }
     
     if (!feature_upload.refs.fileObj) {
-        Util.banner('error',
+        util.banner('error',
             'a layout input file must be selected to create a map.')
         return;
     }
@@ -260,7 +260,7 @@ function create_clicked (event) {
     
     log_it('Uploading layout input...\n')
     var startDate = new Date();
-    Ajax.upload({
+    ajax.upload({
         mapId: ui.get('major_project') + '/' + ui.get('minor_project') + '/',
         sourceFile: feature_upload.refs.fileObj,
         targetFile: feature_upload.refs.fileObj.name,
@@ -300,7 +300,7 @@ function build_dialog_content (username) {
     // Find a name to use for this user's projects that will be
     // safe to use as a directory name. TODO this should be made unique for
     // the corner case of the safe name duplicates another user's safe name.
-    ui.set('major_project', Util.clean_file_name(username));
+    ui.set('major_project', util.clean_file_name(username));
 
     // Initialize some ui values
     log.set('');
@@ -311,7 +311,7 @@ function build_dialog_content (username) {
         data.push({id: format[0], text: format[1]});
     });
     var $format_anchor = $('#create_map_dialog .format_anchor');
-    Util.createOurSelect2($format_anchor, {data: data},
+    util.createOurSelect2($format_anchor, {data: data},
         default_feature_format);
     $format_anchor.show();
     
@@ -359,13 +359,13 @@ function show () {
     // Show the contents of the dialog, once per menu button click
     
     // First find the username.
-    Util.get_username(function (username) {
+    util.get_username(function (username) {
     
         // User name has been received, set up the widgets.
         if (username) {
             build_dialog_content(username);
         } else {
-            Util.banner('error', 'username could not be found');
+            util.banner('error', 'username could not be found');
         }
     });
 }
@@ -373,7 +373,7 @@ function show () {
 function preShow () {
 
     // Check for this user having the credentials to do this.
-    return Auth.credentialCheck('to create a map');
+    return auth.credentialCheck('to create a map');
 }
 
 function hide() {
@@ -414,7 +414,7 @@ exports.init = function () {
     ui.set('show_advanced', false);
 
     // Listen for the menu clicked
-    Tool.add("createMap", function() {
+    tool.add("createMap", function() {
         dialogHex.show();
     }, 'Create a new map');
     

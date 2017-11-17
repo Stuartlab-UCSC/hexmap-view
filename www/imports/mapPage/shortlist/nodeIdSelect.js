@@ -10,7 +10,7 @@ import NodeIdSearch from '/imports/component/nodeIdSearch.js';
 import Modal from '/imports/component/modal.js';
 import TextareaClean from '/imports/component/textareaClean.js';
 import ReadFile from '/imports/component/readFile.js';
-import Util from '/imports/common/util.js';
+import util from '/imports/common/util.js';
 
 export default class NodeIdSelect extends Component {
 
@@ -36,7 +36,7 @@ export default class NodeIdSelect extends Component {
     // TODO this should render the react prompt rather than go the long way
     // out of react and back in.
     error (msg) {
-        Util.banner('error', msg);
+        util.banner('error', msg);
     }
 
     getCart () {
@@ -56,7 +56,7 @@ export default class NodeIdSelect extends Component {
         
             // Parse the string into an array of arrays
             // where the inner arrays contain one node ID each.
-            var data = Util.parseTsv(str);
+            var data = util.parseTsv(str);
             
             // Flatten the nested arrays into a single array,
             // remove white space from the ends of each element,
