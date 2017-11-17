@@ -53,13 +53,13 @@ exports.requestStats = function (id, opts) {
 exports.requestMapMeta = function (opts) {
 
     // Request the metadata within the map minor data.
-    import Tool from '/imports/mapPage/head/tool.js';
+    import overlayNodes from '/imports/mapPage/calc/overlayNodes.js';
     if (_.isUndefined(opts)) {
         opts = {};
     }
     opts.ok404 = true;
-    opts.successFx = opts.successFx || Tool.receiveMapMetadata;
-    opts.errorFx = opts.errorFx || Tool.requestMapMetadataError;
+    opts.successFx = opts.successFx || overlayNodes.receiveMapMetadata;
+    opts.errorFx = opts.errorFx || overlayNodes.requestMapMetadataError;
     request('mapMeta', opts);
 };
 
