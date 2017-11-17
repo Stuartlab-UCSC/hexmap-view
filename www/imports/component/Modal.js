@@ -24,11 +24,17 @@ export default class Modal extends Component {
         this.handleCancelModal = this.handleCancelModal.bind(this);
     }
     
-    handleCancelModal () {
+    handleCancelModal (event) {
     
         // User clicked on the close button in the upper right
         // or outside of the modal, so close without a response.
         if (this.props.onRequestClose) {
+            
+            // Stop propagation of the event so that that react close event will
+            // not execute twice. This is a work-around for a react bug.
+            event.stopPropagation();
+            
+            // Execute the given close event handler.
             this.props.onRequestClose();
         }
     }
