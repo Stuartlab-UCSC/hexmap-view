@@ -15,8 +15,6 @@ import Hexagram from '/imports/mapPage/viewport/hexagram.js';
 import Layer from '/imports/mapPage/longlist/layer.js';
 import Layout from '/imports/mapPage/head/layout.js';
 import Legend from '/imports/mapPage/color/legend.js';
-import OverlayNodes from '/imports/mapPage/calc/overlayNodes.js';
-import OverlayNodeUi from '/imports/mapPage/calc/overlayNodeUi.js';
 import Perform from '/imports/common/perform.js';
 import Reflect from '/imports/mapPage/calc/reflect.js';
 import rx from '/imports/common/rx.js';
@@ -122,8 +120,6 @@ function areLayoutsPopulated () {
             Select.init();
             GChart.init();
             State.initBookmark();
-            OverlayNodes.init();
-            OverlayNodeUi.init();
             if (!DEV) {
                 Perform.log('google-analytics-loading');
                 Util.googleAnalytics();

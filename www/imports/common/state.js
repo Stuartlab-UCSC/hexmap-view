@@ -10,6 +10,8 @@ import UrlParms from '/imports/common/urlParms.js';
 import Util from '/imports/common/util.js';
 import Utils from '/imports/common/utils.js';
 
+import '/imports/common/navBar.html';
+
 var DEFAULT_PAGE = 'homePage',
     DEFAULT_PROJECT = 'Gliomas/',
     DEFAULT_SORT = {
