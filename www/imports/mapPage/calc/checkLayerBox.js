@@ -3,7 +3,7 @@
 */
 
 import Layer from '/imports/mapPage/longlist/layer.js';
-import Shortlist from '/imports/mapPage/shortlist/shortlist.js';
+import shortlist from '/imports/mapPage/shortlist/shortlist.js';
 
 var LayerPostOffice = new Mongo.Collection('LayerPostOffice');
 var last_layer_names = []; // list of layer names from the last update
@@ -65,7 +65,7 @@ function layers_received (layers) {
     // Find any layers removed and remove them from the shortlist
     _.each(last_layer_names, function (layer_name) {
         if (doc_layer_names.indexOf(layer_name) < 0) {
-            Shortlist.removeEntry(layer_name);
+            shortlist.removeEntry(layer_name);
         }
     });
 

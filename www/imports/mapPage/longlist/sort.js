@@ -4,11 +4,11 @@
 
 var app = app || {}; 
 
-import Auth from '/imports/common/auth.js';
-import Data from '/imports/mapPage/data/data.js';
-import Filter from '/imports/mapPage/longlist/filter.js';
-import Util from '/imports/common/util.js';
-import Shortlist from '/imports/mapPage/shortlist/shortlist.js';
+import auth from '/imports/common/auth.js';
+import data from '/imports/mapPage/data/data.js';
+import filter from '/imports/mapPage/longlist/filter.js';
+import util from '/imports/common/util.js';
+import shortlist from '/imports/mapPage/shortlist/shortlist.js';
 
 var computingText = 'Computing statistics ...',
     firstSort = true;
@@ -180,10 +180,10 @@ function updateSortUi (type, text, focus_attr, opts) {
         Session.set('sort', {text: text, type: type, focus_attr: focus_attr,
             color: 'inherit', background: 'inherit'});
     }
-    Filter.clearAll();
-    import Longlist from '/imports/mapPage/longlist/longlist.js';
-    Longlist.update();
-    Shortlist.update_ui_metadata();
+    filter.clearAll();
+    import longlist from '/imports/mapPage/longlist/longlist.js';
+    longlist.update();
+    shortlist.update_ui_metadata();
 
     // Skip the banner on the first sort
     if (firstSort) {
@@ -191,12 +191,12 @@ function updateSortUi (type, text, focus_attr, opts) {
     } else {
         if (type === 'noStats') {
              if (text.indexOf('credential') < 0) {
-                Util.banner('error', text);
+                util.banner('error', text);
             } else {
-                Util.banner('warn', 'Now sorted by Density of attributes');
+                util.banner('warn', 'Now sorted by Density of attributes');
             }
         } else {
-            Util.banner('info', 'Now sorted by ' + text + elapsed);
+            util.banner('info', 'Now sorted by ' + text + elapsed);
         }
     }
 }
@@ -243,7 +243,7 @@ function updateIgnoreLayout (parsed, focus_attr, lI, pI, apI, apbI) {
             type = p_value;
         }
         if (type === 'p_value') {
-            Util.banner('warn', 'All adjusted p-values were NaN, so '
+            util.banner('warn', 'All adjusted p-values were NaN, so '
                 + 'displaying and sorting by the single test p-value ' +
                 'instead');
         }
@@ -259,7 +259,7 @@ function updateIgnoreLayout (parsed, focus_attr, lI, pI, apI, apbI) {
             type = p_value;
         }
         if (type === 'p_value') {
-            Util.banner('warn', 'All adjusted p-value-bs were NaN, so '
+            util.banner('warn', 'All adjusted p-value-bs were NaN, so '
                 + 'displaying and sorting by the single test p-value ' +
                 'instead');
         }
@@ -463,7 +463,7 @@ function getDynamicStats (focus_attr, opts) {
     computingTextDisplay();
     /*
     // First check for this user having the credentials to do this.
-    var good = Auth.credentialCheck('to compute dynamic statistics. ' +
+    var good = auth.credentialCheck('to compute dynamic statistics. ' +
         'Only pre-computed statistics on static attributes are available ' +
         'to you', 'statsSnake');
     Session.set('statsSnake', good);
@@ -519,7 +519,7 @@ function getPreComputedStats (dataId, focus_attr, opts) {
     }
 
     // Attempt to retrieve the pre-computed stats data
-    Data.requestStats(dataId, {
+    data.requestStats(dataId, {
             successFx: function (parsed) {
                 if (parsed === '404') {
                     error(focus_attr, opts);

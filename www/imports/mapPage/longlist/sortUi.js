@@ -1,12 +1,12 @@
 // sortUi.js
 // This contains the logic for handling the sort attribute function.
 
-import Colors from '/imports/mapPage/color/colorEdit.js';
+import colorEdit from '/imports/mapPage/color/colorEdit.js';
 import DialogHex from '/imports/common/dialogHex.js';
 import LayerNameList from '/imports/mapPage/shortlist/layerNameList.js';
-import Sort from './sort.js';
-import Tool from '/imports/mapPage/head/tool.js';
-import Util from '/imports/common/util.js';
+import sort from './sort.js';
+import tool from '/imports/mapPage/head/tool.js';
+import util from '/imports/common/util.js';
 
 import './sort.html';
 
@@ -58,7 +58,7 @@ import './sort.html';
 
             // Disable base options of focus sort
             disabled = true;
-            color = Colors.disabledColor();
+            color = colorEdit.disabledColor();
         }
         $dialog.find('.based')
             .attr('disabled', disabled)
@@ -74,7 +74,7 @@ import './sort.html';
 
             // Disable correlation options for sample-based
             disabled = true;
-            color = Colors.disabledColor();
+            color = colorEdit.disabledColor();
         }
         $dialog.find('.corr')
             .attr('disabled', disabled)
@@ -147,7 +147,7 @@ import './sort.html';
         if (ui.equals('sortBy', 'density')) {
 
             // Density sort has been requested
-            Sort.find_clumpiness_stats();
+            sort.find_clumpiness_stats();
 
         } else if (ui.equals('sortBy', 'focus')) {
 
@@ -157,11 +157,11 @@ import './sort.html';
                 returnMessage = 'For some reason an attribute is not selected';
 
             } else if (ui.equals('layoutAware', true)) {
-                Sort.get_layout_aware_stats(focusAttr,
+                sort.get_layout_aware_stats(focusAttr,
                     ui.equals('corrNeg', true));
 
             } else { // ignore layout requested
-                Sort.get_layout_ignore_stats(focusAttr, true, true, true);
+                sort.get_layout_ignore_stats(focusAttr, true, true, true);
             }
          } else {
 
@@ -174,13 +174,13 @@ import './sort.html';
                 returnMessage = 'Select two different attributes for differential sort';
 
             } else { // Go get those differential stats
-                returnMessage = Sort.get_diff_stats(focusAttr, focusAttr2);
+                returnMessage = sort.get_diff_stats(focusAttr, focusAttr2);
             }
         }
         if (_.isUndefined(returnMessage)) {
             hide();
         } else {
-            Util.banner('error', returnMessage);
+            util.banner('error', returnMessage);
         }
 	}
 
@@ -203,7 +203,7 @@ exports.init = function () {
         // Initialize the sort functions
 
         // Density sort is the default sort
-        Sort.find_clumpiness_stats();
+        sort.find_clumpiness_stats();
 
         // Initialize the reactive variables
         ui.set({
@@ -261,9 +261,9 @@ exports.init = function () {
         });
  
         // Create a link from the header button
-        Tool.add("statsSort", function(ev) {
+        tool.add("statsSort", function(ev) {
             $('#sort-attributes-button').click();
-            Tool.activity(false);
+            tool.activity(false);
         }, 'Sort attributes by associative statistics');
         
         // initialize the snake.

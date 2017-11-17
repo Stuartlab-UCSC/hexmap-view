@@ -1,16 +1,14 @@
 // layer.js
 // Most of the code to handle the layer data.
 
-import Data from '/imports/mapPage/data/data.js';
-import Colors from '/imports/mapPage/color/colorEdit.js';
-import Hexagram from '/imports/mapPage/viewport/hexagram.js';
-import JPalette from '/imports/mapPage/color/jpalette.js';
-import U from '/imports/common/utils.js';
-import Perform from '/imports/common/perform.js';
+import data from '/imports/mapPage/data/data.js';
+import colorEdit from '/imports/mapPage/color/colorEdit.js';
+import hexagram from '/imports/mapPage/viewport/hexagram.js';
+import jPalette from '/imports/mapPage/color/jpalette.js';
 import Prompt from '/imports/component/prompt.js';
 import rx from '/imports/common/rx.js';
-import Shortlist from '/imports/mapPage/shortlist/shortlist.js';
-import Util from '/imports/common/util.js';
+import shortlist from '/imports/mapPage/shortlist/shortlist.js';
+import util from '/imports/common/util.js';
 
 var selection_prefix = 'Selection';
 
@@ -93,7 +91,7 @@ function load_dynamic_colormap (name, layer) {
     } else if (cats.length > 2 || !hasOnly1and0s) {
         // Generate a colormap.
         var jpColormap = _.map(
-            JPalette.jColormap.get('hexmap')(cats.length + 1).map,
+            jPalette.jColormap.get('hexmap')(cats.length + 1).map,
             function (val, key) {
         
                 // Ignore alpha, taking the default of one.
@@ -225,7 +223,7 @@ function load_dynamic_data (layer_name, callback, dynamicLayers) {
     }
     
     // Add the layer to the appropriate dataType list.
-    Util.addToDataTypeList(layer_name, layer.dataType);
+    util.addToDataTypeList(layer_name, layer.dataType);
     // Leave the dataType in the layer obj, we use it in saving state.
     // If there are string values, or there is a colormap supplied...
     if (layer.hasStringVals || !_.isUndefined(layer.colormap)) {
@@ -287,9 +285,9 @@ function load_static_data (layer_name, callback) {
         
         // If this is the primary active attr, and the colormap is loaded,
         // then refresh the colors.
-        if (Shortlist.get_active_coloring_layers().indexOf(layer_name) > -1 &&
+        if (shortlist.get_active_coloring_layers().indexOf(layer_name) > -1 &&
             rx.get(rx.bit.initMapColormapLoaded)) {
-            Hexagram.refreshColors();
+            hexagram.refreshColors();
         }
 
         // Now the layer has been properly downloaded, but it may not
@@ -297,7 +295,7 @@ function load_static_data (layer_name, callback) {
         exports.with_one(layer_name, callback);
     }
     
-    Data.requestLayer(layer.dataId, { successFx: layerReceived })
+    data.requestLayer(layer.dataId, { successFx: layerReceived })
 }
 
 exports.loadInitialActiveLayers = function () {
@@ -395,7 +393,7 @@ exports.with_one = function (layer_name, callback, dynamicLayers) {
      
         // We've downloaded it already, or generated it locally, but we
         // don't know the magnitude and it needs to be added to the
-        // Shortlist. Compute magnitude and add to the shortlist.
+        // shortlist. Compute magnitude and add to the shortlist.
        
         // Grab the data, which we know is defined.
         var data = layer.data;
@@ -421,22 +419,22 @@ exports.with_one = function (layer_name, callback, dynamicLayers) {
         }
         
         // Save the layer bounds for later for continuous layers.
-        if (Util.is_continuous(layer_name)) {
+        if (util.is_continuous(layer_name)) {
             layer.maximum = maximum;
             layer.minimum = minimum;
-                colormaps[layer_name] = Colors.defaultContinuousColormap()
+                colormaps[layer_name] = colorEdit.defaultContinuousColormap()
         }
         // Keep track of the unsigned magnitude.
         layer.magnitude = Math.max(Math.abs(minimum), maximum);
 
-        if (!Hexagram.have_colormap(layer_name) && Util.is_binary(layer_name)) {
+        if (!hexagram.have_colormap(layer_name) && util.is_binary(layer_name)) {
             // Add an empty colormap for this layer, so that 
             // auto-generated discrete colors will be used.
-		        colormaps[layer_name] = Colors.defaultBinaryColorMap();
+		        colormaps[layer_name] = colorEdit.defaultBinaryColorMap();
         }
      
         // Add this layer to the shortlist.
-        Shortlist.ui_and_list_add(layer_name);
+        shortlist.ui_and_list_add(layer_name);
         
         // Now layer metadata has been filled in. Call the callback.
         callback(layer);
@@ -452,7 +450,7 @@ exports.with_many = function (layer_list, callback, dynamicLayers) {
 
     // Given an array of layer names, call the callback with an array of the
     // corresponding layer objects (objects from signatures to floats).
-    // Conceptually it's like calling Layer.with_one several times in a
+    // Conceptually it's like calling layer.with_one several times in a
     // loop, only because the whole thing is continuation-based we have to
     // phrase it in terms of recursion.
     //
@@ -496,7 +494,7 @@ exports.create_dynamic_category = function (nodeIds, values, new_layer_name) {
     // the gived layer name.
     
     if (nodeIds.length < 1) {
-        Util.banner('error',
+        util.banner('error',
             "No nodes had values, so an attribute will not be created.");
         return;
     }
@@ -534,7 +532,7 @@ exports.create_dynamic_selection = function (nodeIds, new_layer_name) {
     // "selection + #" will be suggested as the layer name.
 
     if (nodeIds.length < 1) {
-        Util.banner('error',
+        util.banner('error',
             "No nodes were selected, so an attribute will not be created.");
         return;
     }

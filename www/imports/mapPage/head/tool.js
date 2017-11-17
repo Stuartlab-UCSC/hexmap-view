@@ -4,14 +4,14 @@
 
 // To add a tool:
 // * Make a $(function() {...}); block to hold your code.
-// * Add a tool with Tool.add with your tool code as the callback.
+// * Add a tool with tool.add with your tool code as the callback.
 // * Add at least one tool listener with add_tool_listener. Give it cleanup code
 //   if necessary to remove temporary UI elements.
-// * Make sure to call Tool.activity with false when your tool's normal
+// * Make sure to call tool.activity with false when your tool's normal
 //   workflow completes, so that the infowindow can use click events again.
 //   (it got set to your tool's name by the code prepended to your callback).
 
-import Util from '/imports/common/util.js';
+import util from '/imports/common/util.js';
 
 import '/imports/mapPage/head/header.html';
 import '/imports/mapPage/calc/reflect.html';

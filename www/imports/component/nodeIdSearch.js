@@ -5,7 +5,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
-import Select2 from './select2wrap.js';
+import Select22 from './select2wrap.js';
 
 export default class NodeIdSearch extends Component {
 
@@ -209,7 +209,7 @@ export default class NodeIdSearch extends Component {
         var self = this;
         
         return (
-            <Select2
+            <Select22
                 select2-loaded = {self.handleLoaded}
                 select2-open = {self.handleDropdownOpen}
                 select2-selecting = {self.handleSelecting}

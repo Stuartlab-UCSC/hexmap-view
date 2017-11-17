@@ -2,8 +2,8 @@
 // overlayNodes.js
 // Drop new nodes onto the map
 
-import Coords from '/imports/mapPage/viewport/coords.js';
-import Hexagons from '/imports/mapPage/viewport/hexagons.js';
+import coords from '/imports/mapPage/viewport/coords.js';
+import hexagons from '/imports/mapPage/viewport/hexagons.js';
 import overlayNodeUi from '/imports/mapPage/calc/overlayNodeUi.js';
 import shortlist from '/imports/mapPage/shortlist/shortlist.js';
 import '/imports/mapPage/viewport/infoWindow.html';
@@ -148,17 +148,13 @@ exports.remove = function () {
             removeInfoWindow(markers[n]);
             google.maps.event.clearInstanceListeners(markers[n]);
             markers[n].setMap(null);
-            Hexagons.removeOne(n);
+            hexagons.removeOne(n);
             
             // Remove any attributes generated for this node.
             var baseName = n + ': ' +
                 Session.get('layouts')[Session.get('layoutIndex')] + ': ',
                 nodeNames = baseName + 'neighbors',
                 values = baseName + 'neighbor values';
-                
-            console.log('nodeNames', nodeNames);
-            console.log('values', values);
-
             shortlist.removeEntry(nodeNames);
             shortlist.removeEntry(values);
         });
@@ -191,7 +187,7 @@ exports.show = function () {
         
             markers[n] = new google.maps.Marker({
                 icon: getIcon(),
-                position: Coords.get_latLng_from_xyHex(
+                position: coords.get_latLng_from_xyHex(
                     nodes[n].x, nodes[n].y),
                 map: googlemap,
                 animation: google.maps.Animation.DROP,
@@ -205,7 +201,7 @@ exports.show = function () {
             addMarkerClickListener(markers[n]);
 
             // Render the overlay hexagon
-            Hexagons.addOne(nodes[n].x, nodes[n].y, n, { overlay: true });
+            hexagons.addOne(nodes[n].x, nodes[n].y, n, { overlay: true });
         });
     }, 500);
 }

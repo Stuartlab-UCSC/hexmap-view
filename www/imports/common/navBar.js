@@ -1,6 +1,6 @@
 // Handle the navigation bar
 
-import Utils from '/imports/common/utils.js';
+import utils from '/imports/common/utils.js';
 import './navBar.html';
 import './navBar.css';
 
@@ -38,10 +38,10 @@ exports.init = function () {
         Session.set('mapView', 'honeycomb');
         Session.set('transparent', false);
         if (Session.equals('page', 'mapPage')) {
-            import Hexagons from '/imports/mapPage/viewport/hexagons.js';
-            Hexagons.getAssignmentsForMapViewChange();
+            import hexagons from '/imports/mapPage/viewport/hexagons.js';
+            hexagons.getAssignmentsForMapViewChange();
         } else {
-            Utils.pageReload('mapPage');
+            utils.pageReload('mapPage');
         }
     });
 };

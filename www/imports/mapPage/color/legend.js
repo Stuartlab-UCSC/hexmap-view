@@ -1,10 +1,10 @@
 // legend.js
 // Handle the legend.
 
-import Hexagram from '/imports/mapPage/viewport/hexagram.js';
+import hexagram from '/imports/mapPage/viewport/hexagram.js';
 import Layer from '/imports/mapPage/longlist/layer.js';
-import Shortlist from '/imports/mapPage/shortlist/shortlist.js';
-import Colors from '/imports/mapPage/color/colorEdit.js';
+import shortlist from '/imports/mapPage/shortlist/shortlist.js';
+import colorEdit from '/imports/mapPage/color/colorEdit.js';
 
 import './legend.css';
 
@@ -97,7 +97,7 @@ exports.redraw = function (retrieved_layers, current_layers, context) {
         colorCount1 = -1;
 
     // Get the vertical color count, the primary active attr.
-    colorCount0 = Colors.findColorCount(current_layers[0]);
+    colorCount0 = colorEdit.findColorCount(current_layers[0]);
     if (colorCount0 > 0) {
 
         // This is either categorical or binary. Find the key height
@@ -135,7 +135,7 @@ exports.redraw = function (retrieved_layers, current_layers, context) {
     }
 
     // Get the horizontal color count, the secondary active attr.
-    colorCount1 = Colors.findColorCount(current_layers[1]);
+    colorCount1 = colorEdit.findColorCount(current_layers[1]);
 
     for (var i = 0; i < KEY_WT; i++) {
 
@@ -166,7 +166,7 @@ exports.redraw = function (retrieved_layers, current_layers, context) {
             
             // Set the pixel color to the right thing for this u, v
             // It's OK to pass undefined names here for layers.
-            context.fillStyle = Hexagram.get_color(current_layers[0], u,
+            context.fillStyle = hexagram.get_color(current_layers[0], u,
                 current_layers[1], v);
             
             // Fill the pixel
@@ -216,7 +216,7 @@ exports.init = function () {
 
     // Resize the legend along with the window
     $(window).resize(function () {
-        current_layers = Shortlist.get_active_coloring_layers();
+        current_layers = shortlist.get_active_coloring_layers();
         Layer.with_many(current_layers, function(retrieved_layers) {
             exports.redraw(retrieved_layers, current_layers);
         });

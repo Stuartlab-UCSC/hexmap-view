@@ -1,14 +1,14 @@
 // grid.js
 // This handles the node density visualizations.
 
-import Ajax from '/imports/mapPage/data/ajax.js';
-import Coords from '/imports/mapPage/viewport/coords.js';
-import Download from '/imports/mapPage/data/download.js';
-import Hexagons from '/imports/mapPage/viewport/hexagons.js';
-import InfoWindow from '/imports/mapPage/viewport/infoWindow.js';
-import Tool from '/imports/mapPage/head/tool.js';
-import Util from '/imports/common/util.js';
-import Utils from '/imports/common/utils.js';
+import ajax from '/imports/mapPage/data/ajax.js';
+import coords from '/imports/mapPage/viewport/coords.js';
+import download from '/imports/mapPage/data/download.js';
+import hexagons from '/imports/mapPage/viewport/hexagons.js';
+import infoWindow from '/imports/mapPage/viewport/infoWindow.js';
+import tool from '/imports/mapPage/head/tool.js';
+import util from '/imports/common/util.js';
+import utils from '/imports/common/utils.js';
 
 // TODO move these up after we're routing pages.
 import '/imports/mapPage/calc/jobs.html';
@@ -93,8 +93,8 @@ function xyPathsToMvc (node, neighbors, pathsIn) {
     _.each(neighbors, function(neighbor) {
         var p0 = hexes[node].xyCenter,
             p1 = hexes[neighbor].xyCenter,
-            path = [Coords.get_LatLng(p0[0], p0[1]),
-                Coords.get_LatLng(p1[0], p1[1])],
+            path = [coords.get_LatLng(p0[0], p0[1]),
+                coords.get_LatLng(p1[0], p1[1])],
             mvc = new google.maps.MVCArray(path);
            
         // Draw this edge
@@ -109,12 +109,12 @@ function drawEdges () {
     status('drawEdges()');
     var id = 'neighbors_' + Session.get('layoutIndex');
 
-    Ajax.get({
+    ajax.get({
         id: id,
         ok404: true,
         success: function(data) {
             if (data === '404') {
-                Util.banner('error', 'no similarity data for this layout.');
+                util.banner('error', 'no similarity data for this layout.');
                 return;
             }
             status('drawEdges() data received');
@@ -150,7 +150,7 @@ function drawEdges () {
             edgesDrawn.set(true);
         },
         error: function(error) {
-            Util.banner('error', 'could not retrieve the similarity data');
+            util.banner('error', 'could not retrieve the similarity data');
             return;
        },
     });
@@ -183,7 +183,7 @@ function viewEdgesMenuClick () {
                 highlight.setPaths([]);
             });
         }
-        Tool.activity(false);
+        tool.activity(false);
     }, 500);
 }
 
@@ -309,11 +309,11 @@ function adjustForZoom () {
 
     _.each(hexes, function (hex) {
         var line = [
-               Coords.get_LatLng(hex.xyCenter[0]-add, hex.xyCenter[1]-add),
-               Coords.get_LatLng(hex.xyCenter[0]+add, hex.xyCenter[1]+add)
+               coords.get_LatLng(hex.xyCenter[0]-add, hex.xyCenter[1]-add),
+               coords.get_LatLng(hex.xyCenter[0]+add, hex.xyCenter[1]+add)
             ],
             xy = {x: hex.xyCenter[0], y: hex.xyCenter[1]},
-            path = Coords.getHexLatLngCoords(xy, hexLen);
+            path = coords.getHexLatLngCoords(xy, hexLen);
 
         hex.polygon.setOptions({ path: path, fillOpacity: opacity});
     });
@@ -339,7 +339,7 @@ function drawPreSquiggleHexagons (points, pointNames) {
 
         // Find the hexagon points
         var xy = {x: xyPoint[0], y: xyPoint[1]};
-        hexOpts.path = Coords.getHexLatLngCoords(xy, hexLen);
+        hexOpts.path = coords.getHexLatLngCoords(xy, hexLen);
 
         // Render the hexagon and its center, and save them in an array
         var hex = {
@@ -351,7 +351,7 @@ function drawPreSquiggleHexagons (points, pointNames) {
             if (Session.equals('viewEdges', true)) {
                 infoHex = hex.signature;
                 hex.xy = {x: xyPoint[0], y: xyPoint[1]};
-                InfoWindow.show(event, hex, gridMap, infoWindowShowing);
+                infoWindow.show(event, hex, gridMap, infoWindowShowing);
             }
         });
         hexes[pointNames[i]] = hex;
@@ -369,7 +369,7 @@ function findNodePoints() {
 
     // Render the points before they were binned into the hexagonal grid.
     status('findNodePoints()');
-    Ajax.get({
+    ajax.get({
         id: 'xyPreSquiggle_' + Session.get('layoutIndex'),
         success: function(data) {
             status('findNodePoints() data received');
@@ -400,8 +400,8 @@ function findNodePoints() {
             // Find the extents of the map so we and normalize it to our
             // standard size.
             dims = findGridExtents(xyMapSize-TINY_BIT, xyPointsRaw);
-            Coords.init();
-            Coords.findDimensions(dims.xMaxIn, dims.yMaxIn);
+            coords.init();
+            coords.findDimensions(dims.xMaxIn, dims.yMaxIn);
 
             // Scale to create object coords of (0, 0) -> (xyMapSize/2, xyMapSize/2)
             // so the map will not wrap around the world east and west. And add
@@ -442,7 +442,7 @@ function createGridMap () {
         mapOptions);
         
     // Attach the blank map type to the map
-    gridMap.mapTypes.set("blank", new Coords.BlankMapType());
+    gridMap.mapTypes.set("blank", new coords.BlankMapType());
 
     // Add a listener for the center changing
     google.maps.event.addListener(gridMap, "center_changed", function(event) {
@@ -512,23 +512,23 @@ exports.init = function () {
     createGridMap();
 
     // Initalize utilities not dependent on the initial UI draw
-    InfoWindow.init (gridMap);
-    Download.init();
+    infoWindow.init (gridMap);
+    download.init();
 
     // Create a link to the methods
-    Tool.add("methods", function(ev) {
+    tool.add("methods", function(ev) {
         if (!$(ev.target).hasClass('disabled')) {
             $('.gridPage').click();
-            Tool.activity(false);
+            tool.activity(false);
         }
     }, 'Map of nodes before final layout');
 
     // Register a callback for the view graph menu click
-    Tool.add("viewEdges", viewEdgesMenuClick, 'Directed graph of node relationships');
+    tool.add("viewEdges", viewEdgesMenuClick, 'Directed graph of node relationships');
 
     // Set some event handlers
     $('#navBar .mapLayout').on('click', function () {
-        Utils.pageReload('mapPage');
-        Hexagons.getAssignments();
+        utils.pageReload('mapPage');
+        hexagons.getAssignments();
     });
 }

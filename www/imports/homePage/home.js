@@ -1,15 +1,15 @@
 // Handle the home page.
 
-import NavBar from '/imports/common/navBar.js';
-import CreateMap from '/imports/mapPage/calc/createMap.js';
-import Util from '/imports/common/util.js';
+import navBar from '/imports/common/navBar.js';
+import createMap from '/imports/mapPage/calc/createMap.js';
+import util from '/imports/common/util.js';
 
 import '/imports/homePage/home.html';
 import '/imports/homePage/home.css';
 
 Template.homePage.onRendered(function () {
-    NavBar.init();
-    CreateMap.init();
+    navBar.init();
+    createMap.init();
 });
 
 Template.homePage.helpers({
@@ -59,5 +59,5 @@ Template.homePage.helpers({
 
 exports.init = function () {
     Blaze.render(Template.homePage, $('body')[0]);
-    Util.googleAnalytics();
+    util.googleAnalytics();
 };

@@ -2,13 +2,13 @@
 // An object to write and load state
 
 import DialogHex from '/imports/common/dialogHex.js';
-import OverlayNodes from '/imports/mapPage/calc/overlayNodes.js';
+import overlayNodes from '/imports/mapPage/calc/overlayNodes.js';
 import rx from '/imports/common/rx.js';
-import Shortlist from '/imports/mapPage/shortlist/shortlist.js';
-import Tool from '/imports/mapPage/head/tool.js';
-import UrlParms from '/imports/common/urlParms.js';
-import Util from '/imports/common/util.js';
-import Utils from '/imports/common/utils.js';
+import shortlist from '/imports/mapPage/shortlist/shortlist.js';
+import tool from '/imports/mapPage/head/tool.js';
+import urlParms from '/imports/common/urlParms.js';
+import util from '/imports/common/util.js';
+import utils from '/imports/common/utils.js';
 
 import '/imports/common/navBar.html';
 
@@ -103,7 +103,7 @@ var State = function() {
     s.storeName = location.host + '-hexMapState';
 
     // Pull out any parameters in the URL
-    s.uParm = UrlParms.getParms();
+    s.uParm = urlParms.getParms();
 
     s.localStorage = {
         // Contains the non-project state we want to save with unique keys
@@ -314,7 +314,7 @@ State.prototype.save = function (newPage) {
 
         // Gather any dynamic attributes
         var dynamic_attrs =
-            Shortlist.get_dynamic_entries_for_persistent_state();
+            shortlist.get_dynamic_entries_for_persistent_state();
 
         if (dynamic_attrs) {
             Session.set('dynamic_attrs', dynamic_attrs);
@@ -374,13 +374,13 @@ State.prototype.load = function (store) {
     // If you ony want it accessible from a URL, use the method in
     // this.loadFromUrl().
     if (s.project.slice(0,13) === 'Youngwook/ori') {
-        Session.set('overlayNodes', OverlayNodes.get('youngwookOriginal'));
+        Session.set('overlayNodes', overlayNodes.get('youngwookOriginal'));
     } else if (s.project.slice(0,13) === 'Youngwook/qua') {
         Session.set('overlayNodes',
-            OverlayNodes.get('youngwookQuantileNormalization'));
+            overlayNodes.get('youngwookQuantileNormalization'));
     } else if (s.project.slice(0,13) === 'Youngwook/exp') {
         Session.set('overlayNodes',
-            OverlayNodes.get('youngwookExponentialNormalization'));
+            overlayNodes.get('youngwookExponentialNormalization'));
     }
     
     rx.set(rx.act.INIT_APP_STATE_LOADED);
@@ -408,11 +408,11 @@ State.prototype.loadFromBookmark = function (bookmark) {
     Meteor.call('findBookmark', bookmark,
         function (error, result) {
             if (error) {
-                Util.banner('error', error);
+                util.banner('error', error);
                 return;
             }                
             if (result === 'Bookmark not found') {
-                Util.banner('error', result);
+                util.banner('error', result);
                 return;
             }
             s.load(result);
@@ -430,7 +430,7 @@ function checkLocalStore () {
     try {
         ("localStorage" in window && window.localStorage !== null); // jshint ignore: line
     } catch (e) {
-        Util.banner('warn', "Browser does not support local storage.");
+        util.banner('warn', "Browser does not support local storage.");
         return false;
     }
     return true;
@@ -461,7 +461,7 @@ exports.initBookmark = function () {
     });
 
     // Listen for the 'create bookmark' menu clicked
-    Tool.add("bookmark", function () { bookmarkDialogHex.show(); },
+    tool.add("bookmark", function () { bookmarkDialogHex.show(); },
         'Access this view later by creating a bookmark');
 };
 
@@ -476,7 +476,7 @@ exports.init = function () {
     // Load state from URL parms.
     if (s.uParm !== null) {
 
-        console.log('NOTE: local session state was ignored in favor of the',
+        console.log('info: local session state was ignored in favor of the',
             'URL parameters');
 
         // Handle a bookmark ID parm in the URL.
@@ -489,7 +489,7 @@ exports.init = function () {
 
             // Handle a map ID / project in the URL query.
             if (s.uParm.p) {
-                var store = UrlParms.load(s.uParm);
+                var store = urlParms.load(s.uParm);
                 s.load(store);
 
             // Handle a page in the URL query.
@@ -515,7 +515,7 @@ exports.init = function () {
         var project = s.project;
         s.setAllDefaults();
         s.project = project;
-        Utils.pageReload('mapPage');
+        utils.pageReload('mapPage');
     })
 
     if (storageSupported) {

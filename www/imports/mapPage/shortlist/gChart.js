@@ -2,7 +2,7 @@
 * gChart.js 
 * For use of google charts
 */
-import Colors from '/imports/mapPage/color/colorEdit.js';
+import colorEdit from '/imports/mapPage/color/colorEdit.js';
 import Layer from '/imports/mapPage/longlist/layer.js';
 
 var load = new ReactiveVar('notLoaded'), // notLoaded, loading, loaded
@@ -33,7 +33,7 @@ function drawBarChart (layer_name, container) {
         // Find the colors from the colormap or the default binary colors
         var colormap = colormaps[layer_name];
         if (!colormap || Object.keys(colormap).length === 0) {
-                colors = [Colors.binaryOffColor(), Colors.binaryOnColor()];
+                colors = [colorEdit.binaryOffColor(), colorEdit.binaryOnColor()];
         } else {
             colors = _.map(colormap, function (cat) {
                 return cat.color.hexString();

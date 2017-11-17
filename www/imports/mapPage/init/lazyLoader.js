@@ -9,7 +9,7 @@
 
 import React from 'react';
 import { render } from 'react-dom';
-import Utils from '/imports/common/utils.js';
+import utils from '/imports/common/utils.js';
 
 function nodeIdSelectInit () {
     
@@ -22,10 +22,10 @@ function nodeIdSelectInit () {
     }
 
     function closeModal () {
-        Utils.destroyReactRoot(containerId);
+        utils.destroyReactRoot(containerId);
     }
 
-    var container = Utils.createReactRoot(containerId);
+    var container = utils.createReactRoot(containerId);
 
     render(
         <NodeIdSelect
@@ -40,7 +40,7 @@ exports.init = function () {
     $('#navBar .nodeIdSelect').on('click', nodeIdSelectInit);
 
     $('#navBar .attrAdd').on('click', function () {
-        import AttrAdd from '/imports/mapPage/shortlist/attrAdd.js';
-        AttrAdd.init();
+        import attrAdd from '/imports/mapPage/shortlist/attrAdd.js';
+        attrAdd.init();
     });
 };

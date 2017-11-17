@@ -1,11 +1,11 @@
 // layout.js
 
-import Data from '/imports/mapPage/data/data.js';
-import Hexagons from '/imports/mapPage/viewport/hexagons.js';
-import Hexagram from '/imports/mapPage/viewport/hexagram.js';
-import Perform from '/imports/common/perform.js';
-import Sort from '/imports/mapPage/longlist/sort.js';
-import Util from '/imports/common/util.js';
+import data from '/imports/mapPage/data/data.js';
+import hexagons from '/imports/mapPage/viewport/hexagons.js';
+import hexagram from '/imports/mapPage/viewport/hexagram.js';
+import perform from '/imports/common/perform.js';
+import sort from '/imports/mapPage/longlist/sort.js';
+import util from '/imports/common/util.js';
 
 exports.findCurrentName = function () {
     var index = Session.get('layoutIndex'),
@@ -58,10 +58,10 @@ exports.layoutNamesReceived = function (parsed) {
         }
         Session.set('layoutIndex', index);
         
-        Perform.log('layouts-rendered');
+        perform.log('layouts-rendered');
         
         // Now request the node locations since we have an index.
-        Data.requestLayoutAssignments();
+        data.requestLayoutAssignments();
     }
 
     // Save the layout list.
@@ -76,7 +76,7 @@ exports.initList = function () {
     });
     
     // Create our selection list.
-    Util.createOurSelect2($("#layout-search"), {data: data},
+    util.createOurSelect2($("#layout-search"), {data: data},
         Session.get('layoutIndex').toString());
 
     // Define the event handler for the selecting in the list.
@@ -84,15 +84,15 @@ exports.initList = function () {
         
         if (!Session.equals('layoutIndex', ev.target.value)) {
             Session.set('layoutIndex', ev.target.value);
-            Hexagram.createMap();
-            Hexagons.getAssignmentsForMapViewChange();
+            hexagram.createMap();
+            hexagons.getAssignmentsForMapViewChange();
             
             // Update density stats to this layout and
             // resort the list to the default of density
-            Sort.find_clumpiness_stats();
+            sort.find_clumpiness_stats();
             Session.set('sort', ctx.defaultSort());
-            import Longlist from '/imports/mapPage/longlist/longlist.js';
-            Longlist.update();
+            import longlist from '/imports/mapPage/longlist/longlist.js';
+            longlist.update();
         }
     });
 };
