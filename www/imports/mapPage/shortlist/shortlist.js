@@ -7,7 +7,7 @@ import '/imports/lib/jquery-ui.js';
 import colorEdit from '/imports/mapPage/color/colorEdit.js';
 import gChart from '/imports/mapPage/shortlist/gChart.js';
 import hexagram from '/imports/mapPage/viewport/hexagram.js';
-import Layer from '/imports/mapPage/longlist/layer.js';
+import Layer from '/imports/mapPage/longlist/Layer.js';
 import util from '/imports/common/util.js';
 
 import './shortlist.html';

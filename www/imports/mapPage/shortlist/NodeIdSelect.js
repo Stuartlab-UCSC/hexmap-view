@@ -1,15 +1,15 @@
 
-// nodeIdSelect.js
+// NodeIdSelect.js
 // The UI to allow the user to select nodes by ID to create a new attribute.
 
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
-import Layer from '/imports/mapPage/longlist/layer.js';
-import NodeIdSearch from '/imports/component/nodeIdSearch.js';
-import Modal from '/imports/component/modal.js';
-import TextareaClean from '/imports/component/textareaClean.js';
-import ReadFile from '/imports/component/readFile.js';
+import Layer from '/imports/mapPage/longlist/Layer.js';
+import NodeIdSearch from '/imports/component/NodeIdSearch.js';
+import Modal from '/imports/component/Modal.js';
+import TextareaClean from '/imports/component/TextareaClean.js';
+import ReadFile from '/imports/component/ReadFile.js';
 import util from '/imports/common/util.js';
 
 export default class NodeIdSelect extends Component {

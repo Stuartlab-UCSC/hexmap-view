@@ -1,11 +1,11 @@
 
-// nodeIdSearch.js
+// NodeIdSearch.js
 // The UI to allow the user to select nodes by ID to create a new attribute.
 
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
-import Select22 from './select2wrap.js';
+import Select22 from './Select22.js';
 
 export default class NodeIdSearch extends Component {
 

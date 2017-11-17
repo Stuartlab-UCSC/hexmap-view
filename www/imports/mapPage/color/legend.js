@@ -2,7 +2,7 @@
 // Handle the legend.
 
 import hexagram from '/imports/mapPage/viewport/hexagram.js';
-import Layer from '/imports/mapPage/longlist/layer.js';
+import Layer from '/imports/mapPage/longlist/Layer.js';
 import shortlist from '/imports/mapPage/shortlist/shortlist.js';
 import colorEdit from '/imports/mapPage/color/colorEdit.js';
 

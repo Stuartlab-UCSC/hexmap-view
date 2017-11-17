@@ -4,9 +4,9 @@
 
 import React, { Component } from 'react';
 import { render } from 'react-dom';
-import DialogHex from '/imports/common/dialogHex.js';
-import Layer from '/imports/mapPage/longlist/layer.js';
-import ReadFile from '/imports/component/readFile.js'
+import DialogHex from '/imports/common/DialogHex.js';
+import Layer from '/imports/mapPage/longlist/Layer.js';
+import ReadFile from '/imports/component/ReadFile.js'
 import util from '/imports/common/util.js';
 
 import '/imports/mapPage/shortlist/attrAdd.html';

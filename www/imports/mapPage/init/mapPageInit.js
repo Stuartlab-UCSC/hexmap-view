@@ -12,7 +12,7 @@ import download from '/imports/mapPage/data/download.js';
 import gChart from '/imports/mapPage/shortlist/gChart.js';
 import hexagons from '/imports/mapPage/viewport/hexagons.js';
 import hexagram from '/imports/mapPage/viewport/hexagram.js';
-import Layer from '/imports/mapPage/longlist/layer.js';
+import Layer from '/imports/mapPage/longlist/Layer.js';
 import layout from '/imports/mapPage/head/layout.js';
 import legend from '/imports/mapPage/color/legend.js';
 import perform from '/imports/common/perform.js';

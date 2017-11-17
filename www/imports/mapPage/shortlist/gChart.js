@@ -3,7 +3,7 @@
 * For use of google charts
 */
 import colorEdit from '/imports/mapPage/color/colorEdit.js';
-import Layer from '/imports/mapPage/longlist/layer.js';
+import Layer from '/imports/mapPage/longlist/Layer.js';
 
 var load = new ReactiveVar('notLoaded'), // notLoaded, loading, loaded
     appReady = new ReactiveVar(false),

@@ -4,7 +4,7 @@
 
 import coords from '/imports/mapPage/viewport/coords.js';
 import download from '/imports/mapPage/data/download.js';
-import Layer from '/imports/mapPage/longlist/layer.js';
+import Layer from '/imports/mapPage/longlist/Layer.js';
 import legend from '/imports/mapPage/color/legend.js';
 import selectNode from '/imports/mapPage/shortlist/select.js';
 import shortlist from '/imports/mapPage/shortlist/shortlist.js';

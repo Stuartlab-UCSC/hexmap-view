@@ -2,8 +2,8 @@
 // This captures the user input to reflect a set of nodes on another map.
 
 import auth from '/imports/common/auth.js';
-import DialogHex from '/imports/common/dialogHex.js';
-import LayerNameList from '/imports/mapPage/shortlist/layerNameList.js';
+import DialogHex from '/imports/common/DialogHex.js';
+import LayerNameList from '/imports/mapPage/shortlist/LayerNameList.js';
 import tool from '/imports/mapPage/head/tool.js';
 import util from '/imports/common/util.js';
 

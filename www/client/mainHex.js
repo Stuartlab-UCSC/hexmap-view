@@ -19,8 +19,6 @@ import '/imports/lib/jquery-ui.css';
 import '/imports/common/colorsFont.css';
 import '/imports/common/navBar.css';
 
-VERSION = '1.0';
-
 document.addEventListener('DOMContentLoaded', function(event) {
 	rx.set(rx.act.INIT_APP_DOM_LOADED)
 });

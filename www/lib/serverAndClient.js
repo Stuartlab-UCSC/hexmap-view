@@ -25,7 +25,6 @@ Meteor.startup( () => {
         googlemap = null; // our main googlemap instance
         colormaps = {};
         polygons = {}; // Global: hold objects of polygons by signature name
-        VERSION = null;  // Application version
 
         // Deny all client-side updates to user documents
         Meteor.users.deny({

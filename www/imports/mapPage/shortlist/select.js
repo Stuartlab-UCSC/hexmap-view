@@ -1,7 +1,7 @@
 
 // select.js: Handle the various ways to select hexagons.
 
-import Layer from '/imports/mapPage/longlist/layer.js';
+import Layer from '/imports/mapPage/longlist/Layer.js';
 import tool from '/imports/mapPage/head/tool.js';
 
 // boundaries of the selectable area

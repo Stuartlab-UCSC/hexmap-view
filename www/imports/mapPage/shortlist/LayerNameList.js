@@ -1,4 +1,4 @@
-// layerNameList.js
+// LayerNameList.js
 // A class for a layer name list
 
 import select2 from '/imports/lib/select2.js';

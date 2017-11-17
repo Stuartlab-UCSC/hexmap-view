@@ -4,7 +4,7 @@
 
 import ajax from '/imports/mapPage/data/ajax.js';
 import auth from '/imports/common/auth.js';
-import DialogHex from '/imports/common/dialogHex.js';
+import DialogHex from '/imports/common/DialogHex.js';
 import layout from '/imports/mapPage/head/layout.js';
 import overlayNodes from './overlayNodes.js';
 import state from '/imports/common/state.js';

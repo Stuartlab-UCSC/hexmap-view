@@ -1,5 +1,5 @@
 
-// modal.js
+// Modal.js
 // Our wrapper around react-model to add our own options of:
 //      - styling
 //      - header

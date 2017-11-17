@@ -2,7 +2,7 @@
 // This contains various utilities used throughout the code.
 
 import dnt from '/imports/lib/dnt.js';
-import Prompt from '/imports/component/prompt.js';
+import Prompt from '/imports/component/Prompt.js';
 import select2 from '/imports/lib/select2.js';
 
 exports.get_username = function (callback) {

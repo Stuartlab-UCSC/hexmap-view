@@ -2,7 +2,7 @@
 * Created by duncan on 6/6/16.
 */
 
-import Layer from '/imports/mapPage/longlist/layer.js';
+import Layer from '/imports/mapPage/longlist/Layer.js';
 import shortlist from '/imports/mapPage/shortlist/shortlist.js';
 
 var LayerPostOffice = new Mongo.Collection('LayerPostOffice');

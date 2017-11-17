@@ -1,11 +1,11 @@
-// layer.js
+// Layer.js
 // Most of the code to handle the layer data.
 
 import data from '/imports/mapPage/data/data.js';
 import colorEdit from '/imports/mapPage/color/colorEdit.js';
 import hexagram from '/imports/mapPage/viewport/hexagram.js';
-import jPalette from '/imports/mapPage/color/jpalette.js';
-import Prompt from '/imports/component/prompt.js';
+import jPalette from '/imports/lib/jPalette.js';
+import Prompt from '/imports/component/Prompt.js';
 import rx from '/imports/common/rx.js';
 import shortlist from '/imports/mapPage/shortlist/shortlist.js';
 import util from '/imports/common/util.js';
@@ -63,6 +63,8 @@ function load_dynamic_colormap (name, layer) {
     // Load the colormap for dynamic categorical or binary attributes.
     var cats = layer.uniqueVals,
         indexedCats;
+    
+    console.log('layer:', layer);
 
     const hasOnly1and0s = (
         cats.length === 2
@@ -196,15 +198,15 @@ function load_dynamic_data (layer_name, callback, dynamicLayers) {
     // if there is data, load the dataType.
     if (layer.n > 0) {
     
+        // Find the count of unique values in the data.
+        layer.uniqueVals = _.keys(
+            _.countBy(layer.data, function (value) {
+                return value;
+            })
+        );
+        
         // if no dataType was suppied or not continuous...
         if (!layer.dataType || layer.dataType !== 'continuous') {
-     
-            // Find the unique values in the data.
-            layer.uniqueVals = _.keys(
-                _.countBy(layer.data, function (value) {
-                    return value;
-                })
-            );
             layer.hasStringVals = _.find(layer.uniqueVals,
                 function (value) {
                     return _.isNaN(Number(value));
