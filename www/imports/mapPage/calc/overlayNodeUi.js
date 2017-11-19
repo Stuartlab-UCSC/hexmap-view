@@ -3,6 +3,7 @@
 // This allows the user to view new node(s) placement overlaid on an existing map.
 
 import Ajax from '/imports/mapPage/data/ajax.js';
+import Auth from '/imports/common/auth.js';
 import DialogHex from '/imports/common/dialogHex.js';
 import Layout from '/imports/mapPage/head/layout.js';
 import OverlayNodes from './overlayNodes.js';
@@ -115,9 +116,11 @@ function gotFilename (event) {
     };
 
     reader.onerror = function(read_event) {
+        Session.set('mapSnake', false);
         Util.banner('error', 'Error reading file:' + file.filename);
     };
     reader.onabort = function(read_event) {
+        Session.set('mapSnake', false);
         Util.banner('error', 'Aborted reading file: ' + file.filename);
     };
 
@@ -173,7 +176,7 @@ function criteriaCheck () {
 function preShow () {
 
     // First check for this user having the credentials to do this.
-    var good = Util.credentialCheck('to place new nodes');
+    var good = Auth.credentialCheck('to place new nodes');
     if (good) {
 
         // Then check for the map having the proper criteria to do this.

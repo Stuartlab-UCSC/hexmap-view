@@ -135,8 +135,4 @@ Meteor.methods({
         return projects;
     },
 
-    //getMinorProjects: function() {
-
-    //}
-    
 });

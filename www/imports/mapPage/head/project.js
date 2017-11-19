@@ -2,6 +2,7 @@
 // project.js: A UI to load data files from a directory within the webserver's
 // doc dir
 
+import Auth from '/imports/common/auth.js';
 import React, { Component } from 'react';
 import Perform from '/imports/common/perform.js';
 import { render } from 'react-dom';
@@ -11,11 +12,12 @@ import Util from '/imports/common/util.js';
 import Utils from '/imports/common/utils.js';
 
 // Placeholder text when no project is selected
-var PLACEHOLDER_TEXT = 'Select a Map...';
+var PLACEHOLDER_TEXT = 'Select a Map.../';
 
 var projects; // project list
 var data; // data for select widget
-var initialized = false;
+var prevListUsername = 'empty';
+var prevAuthUsername = 'empty';
 
 function is_project_on_list (project) {
 
@@ -102,13 +104,19 @@ function populate () {
     });
     
     // Attach the selector.
+    var value;
+    if (is_project_on_list(ctx.project)) {
+         value = ctx.project;
+    } else {
+        value = PLACEHOLDER_TEXT;
+    }
     render(
         <Select2
 
             // Options for the original non-react select2.
             select2options = {{
                 data: data,
-                value: ctx.project,
+                value: value,
                 placeholder: PLACEHOLDER_TEXT,
                 width: '20em',
                 matcher: matcher,
@@ -121,14 +129,7 @@ function populate () {
             }}
         />, $('#project')[0]);
     
-    Perform.log('project-list-rendered');
-    
-    // If a protected project was loaded before and the new user is not
-    // authorized to see it, or there is no one logged in, give a message
-    // to the user.
-    if (!is_project_on_list(ctx.project)) {
-        notAuthdMessage();
-     }
+    Perform.log('project:list-rendered');
 }
 
 function signInClicked(count) {
@@ -146,57 +147,44 @@ function signInClicked(count) {
         }, mSecs);
 }
 
-exports.authorize = function () {
+exports.authorize = function (userId) {
     
     // Check to see if the user is authorized to view the project
     // every time the user changes.
-    Meteor.autorun(function() {
-        var user = Meteor.user();
-        Meteor.call('is_user_authorized_to_view', ctx.project,
-            function (error, results) {
-                if (results) {
-                    rx.set(rx.act.INIT_MAP_AUTHORIZED);
-                    if (!rx.get(rx.bit.initAppMapRendered)) {
-                        Session.set('mapSnake', true);
-                    }
-                } else {
-                    
-                    // Build the project list for the user to choose another.
-                    exports.init();
-                    notAuthdMessage();
+    Meteor.call('is_user_authorized_to_view', ctx.project,
+        function (error, results) {
+            if (results) {
+                rx.set(rx.act.INIT_MAP_AUTHORIZED);
+                /* TODO: what is this for? seems to show snake after place nodes bookmark load.
+                if (!rx.get(rx.bit.initAppMapRendered)) {
+                    Session.set('mapSnake', true);
                 }
+                */
+            } else {
+                notAuthdMessage();
             }
-        );
+            Perform.log('project:userId,authorized:' + userId + ',' +
+                rx.get(rx.bit.initMapAuthorized));
+        }
+    );
+
+    // Re-populate projects whenever the user changes, including log out.
+    Perform.log('project:list-request,userId:' + userId);
+    
+    Meteor.call('getProjects', function (error, projects_returned) {
+        if (error) {
+            Util.banner('error',
+                "Unable to retrieve project data from server." + error);
+        } else {
+            Perform.log('project:list-got');
+            projects = projects_returned;
+            populate();
+        }
     });
 };
 
-exports.init = function () {
 
-    if (initialized) {
-        return;
-    }
-    
-    initialized = true;
     // This may be causing password to not allow focus on password error.
     //$('.login').on('click', $('#login-sign-in-link'), signInClicked);
 
-    // Re-populate projects whenever the user changes, including log out
-    Meteor.autorun(function() {
-        var user = Meteor.user();
-        Perform.log('project-list-get,-user:-' +
-            (user ? user.username : 'none'));
-        
-        Meteor.call('getProjects', function (error, projects_returned) {
-            if (error) {
-                Util.banner('error',
-                    "Unable to retrieve project data from server." +
-                    error);
-                return;
-            }
-        
-            Perform.log('project-list-got');
-            projects = projects_returned;
-            populate();
-        });
-    });
-};
+

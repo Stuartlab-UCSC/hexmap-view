@@ -65,7 +65,15 @@ function load_dynamic_colormap (name, layer) {
     // Load the colormap for dynamic categorical or binary attributes.
     var cats = layer.uniqueVals,
         indexedCats;
-    
+
+    const hasOnly1and0s = (
+        cats.length === 2
+        && (
+            (cats[0] === 0 || cats[0] === 1)
+            && (cats[1] === 0 || cats[1] === 1)
+        )
+    );
+
     if (!_.isUndefined(layer.colormap)) {
     
         // Load the supplied colormap
@@ -78,14 +86,11 @@ function load_dynamic_colormap (name, layer) {
         });
 
         // Save the category index assignment.
-        indexedCats = layer.colormap.cats
+        indexedCats = layer.colormap.cats;
     
     // If there are more that two categories or the categories are not ones
     // or zeros, this gets a generated colormap.
-    } else if (cats.length > 2 ||
-        (cats.length === 2 && !((cats[0] === 0 || cats[0] === 1)
-            && (cats[1] === 0 || cats[1] === 1)))) {
-     
+    } else if (cats.length > 2 || !hasOnly1and0s) {
         // Generate a colormap.
         var jpColormap = _.map(
             JPalette.jColormap.get('hexmap')(cats.length + 1).map,
@@ -280,8 +285,10 @@ function load_static_data (layer_name, callback) {
         layer.data = data;
         layer.status = 'dataReceived';
         
-        // If this is the primary active attr, then refresh the colors.
-        if (Shortlist.get_active_coloring_layers().indexOf(layer_name) > -1) {
+        // If this is the primary active attr, and the colormap is loaded,
+        // then refresh the colors.
+        if (Shortlist.get_active_coloring_layers().indexOf(layer_name) > -1 &&
+            rx.get(rx.bit.initMapColormapLoaded)) {
             Hexagram.refreshColors();
         }
 

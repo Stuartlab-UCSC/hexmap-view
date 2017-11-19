@@ -52,22 +52,6 @@ exports.banner = function (severity, text) {
     console.log(severity + ':', text);
 }
 
-exports.credentialCheck = function (credential) {
-
-    // Bail with a message if the user is not logged in or does not have
-    // the credentials.
-    var returnVal = true;
-    if (!Meteor.user()) {
-        exports.banner('error', 'Please log in ' + credential + '.');
-        returnVal = false;
-    } else if (!(Session.get('jobCredential'))) {
-        exports.banner('error', 'Sorry, you do not have credentials ' +
-           credential + '. Please request access from hexmap at ucsc dot edu.');
-        returnVal = false;
-    }
-    return returnVal;
-}
-
 exports.session = function (prefix, operation, name, val) {
 
     // Perform a get, set, or equals on a session variable which represents

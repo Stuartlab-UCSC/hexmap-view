@@ -9,7 +9,7 @@ import '/imports/homePage/home.css';
 
 Template.homePage.onRendered(function () {
     NavBar.init();
-    CreateMap.init();  // TODO why?
+    CreateMap.init();
 });
 
 Template.homePage.helpers({

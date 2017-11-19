@@ -44,28 +44,4 @@ exports.init = function () {
             Utils.pageReload('mapPage');
         }
     });
-
-
-    // Whenever the user changes, including logout, check to see
-    // if the user has job credentials.
-    setTimeout(function () {
-    
-        // Use a timeout to make this independent of the initMapPage autorun.
-        Meteor.autorun( function () {
-            var user = Meteor.user(); // jshint ignore: line
-            if (user) {
-                Meteor.call('is_user_in_role', ['jobs', 'dev'],
-                    function (error, results) {
-                        if (results) {
-                            Session.set('jobCredential', true);
-                        } else {
-                            Session.set('jobCredential', false);
-                        }
-                    }
-                );
-            } else {
-                Session.set('jobCredential', false);
-            }
-        });
-    });
 };
