@@ -1,0 +1,65 @@
+#!/bin/bash
+
+# Path to your meteor.
+export METEOR_PATH=/usr/local/bin/meteor
+# Path to the root of github repo.
+export HEXMAP=/home/duncan/Desktop/TumorMap/TMdev/hexagram
+
+# For https, set below to "true" and change
+# the environment variables inside the if statement.
+# For HTTP, change the environment varibles in the else statement.
+USING_HTTPS=false
+if [  "$USING_HTTPS" = true ]; then
+    export KEY=
+    export CERT=
+    export CHAIN=
+	export HTTPS_PORT=
+	# The meteor port.
+	export PORT=
+	# Where the https proxy goes.
+	export METEOR_URL=
+	# The exposed URL
+	export ROOT_URL=
+
+else
+    # For http
+	export PORT=3333
+	export ROOT_URL="http://localhost:"$PORT
+fi
+
+# "FORE" or "BACK", "BACK" assumes you have bundled the app
+# with the bin/deploy.sh script.
+export BACK_OR_FOREGROUND=FORE
+
+# Meteor settings.json variables.
+export GOOGLE_API_KEY="AIzaSyBb8AJUB4x-xxdUCnjzb-Xbcg0-T1mPw3I"
+export ADMIN_EMAIL="dmccoll@ucsc.edu"
+export DEV=true
+export IS_CALC_SERVER=true
+export IS_MAIN_SERVER=true
+export HUB_URL="http://localhost:5000"
+# Below paths/require/the/trailing/slash/.
+export FEATURE_SPACE_DIR=/home/duncan/data/featureSpace/
+export LAYOUT_INPUT_DIR=/home/duncan/data/layoutInput/
+export SERVER_DIR=/home/duncan/Desktop/TumorMap/TMdev/hexagram/www/private/
+export VIEW_DIR=/home/duncan/data/view/
+export TEMP_DIR=/home/duncan/tmp
+
+# Calculations.
+export DRLPATH=/home/duncan/hex/compute/calc/DRL_bin
+export PATH=$DRLPATH:$PATH
+export PYTHONPATH=
+export PYENV=/home/duncan/hex/env
+
+#www (View server).
+export MAIL_URL="smtp://localhost"
+
+# Mongo db.
+export MONGO_BIN=/usr/bin/
+export DB_NAME=live
+export DB_PORT=27017
+export MAIN_MONGO_URL=mongodb://localhost:$DB_PORT/$DB_NAME
+export MONGO_URL=$MAIN_MONGO_URL
+
+# Path to node bin.
+export NODE_BIN=/home/duncan/Desktop/TumorMap/TMdev/hexagram/packages/node/bin

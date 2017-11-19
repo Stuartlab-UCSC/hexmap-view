@@ -50,7 +50,6 @@ var mapManagerPortion = JSON.parse(
     )
 );
 
-
 settingsJson["server"]["mapManagerHelper"] = mapManagerPortion;
 
 fs.writeFileSync(
