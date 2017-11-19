@@ -1,17 +1,17 @@
 #!/bin/bash
 # $1: /path/to/the/config/file
 # Assumes you have the www.tar.gz bundled by deploy.sh at the $HEXMAP directory.
+CONFIG_FILE=$1
 
-# Use the configuration file for the machine.
-if [ -z $1 ]; then
-    source $1
-elif [ -f $(pwd)/confing/setup.cf ]; then
-    echo "using the default config file, $(pwd)/config/setup.cf" ];
-    source $(pwd)/confing/setup.cf
+# Attempt to use default configuration if the argument has not been supplied
+if [ -z "$CONFIG_FILE" ] && [ -f "$(pwd)/config/setup.cf" ]; then
+    CONFIG_FILE=$(pwd)/config/setup.cf
 else
     echo "Path to configuration file as first arg necessary."
     exit 1
 fi
+
+echo "Using config file: $CONFIG_FILE"
 
 cd $HEXMAP
 # Untar the new code, the dir inside the tar should be "www"
