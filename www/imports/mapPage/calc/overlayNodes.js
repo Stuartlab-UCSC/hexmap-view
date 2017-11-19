@@ -4,6 +4,8 @@
 
 import Coords from '/imports/mapPage/viewport/coords.js';
 import Hexagons from '/imports/mapPage/viewport/hexagons.js';
+import overlayNodeUi from '/imports/mapPage/calc/overlayNodeUi.js';
+import shortlist from '/imports/mapPage/shortlist/shortlist.js';
 import '/imports/mapPage/viewport/infoWindow.html';
 
 var DEFAULT_MARKER_COLOR = 'ff0000',
@@ -135,7 +137,7 @@ function markerClick(marker) {
 
 exports.remove = function () {
 
-    // Remove any overlay nodes due to menu click.
+    // Remove any overlay nodes due to menu click. And their attributes.
     var nodes = Session.get('overlayNodes');
 
     if (nodes) {
@@ -147,6 +149,18 @@ exports.remove = function () {
             google.maps.event.clearInstanceListeners(markers[n]);
             markers[n].setMap(null);
             Hexagons.removeOne(n);
+            
+            // Remove any attributes generated for this node.
+            var baseName = n + ': ' +
+                Session.get('layouts')[Session.get('layoutIndex')] + ': ',
+                nodeNames = baseName + 'neighbors',
+                values = baseName + 'neighbor values';
+                
+            console.log('nodeNames', nodeNames);
+            console.log('values', values);
+
+            shortlist.removeEntry(nodeNames);
+            shortlist.removeEntry(values);
         });
  
         markers = {};
@@ -196,7 +210,7 @@ exports.show = function () {
     }, 500);
 }
 
-exports.init = function () {
+function init () {
 
     // Called after the map is drawn
     if (initialized) return;
@@ -207,6 +221,20 @@ exports.init = function () {
     scale.set(DEFAULT_MARKER_SCALE);
     exports.show();
     $markerInfoWindow = $('#markerInfoWindow');
+    overlayNodeUi.init();
+}
+
+exports.requestMapMetadataError = function (error) {
+    Session.set('mapMeta', {});
+    init();
+}
+
+exports.receiveMapMetadata = function (mapMeta) {
+    if (mapMeta === '404') {
+        mapMeta = {};
+    }
+    Session.set('mapMeta', mapMeta);
+    init();
 }
 
 exports.get = function (name) {

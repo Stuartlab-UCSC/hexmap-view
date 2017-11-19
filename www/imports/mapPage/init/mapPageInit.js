@@ -15,9 +15,6 @@ import Hexagram from '/imports/mapPage/viewport/hexagram.js';
 import Layer from '/imports/mapPage/longlist/layer.js';
 import Layout from '/imports/mapPage/head/layout.js';
 import Legend from '/imports/mapPage/color/legend.js';
-import NavBar from '/imports/common/navBar.js';
-import OverlayNodes from '/imports/mapPage/calc/overlayNodes.js';
-import OverlayNodeUi from '/imports/mapPage/calc/overlayNodeUi.js';
 import Perform from '/imports/common/perform.js';
 import Reflect from '/imports/mapPage/calc/reflect.js';
 import rx from '/imports/common/rx.js';
@@ -29,7 +26,6 @@ import SortUi from '/imports/mapPage/longlist/sortUi.js';
 import Util from '/imports/common/util.js';
 import Utils from '/imports/common/utils.js';
 
-import Project from '/imports/mapPage/head/project.js';
 import State from '/imports/common/state.js';
 import Tool from '/imports/mapPage/head/tool.js';
 import '/imports/mapPage/init/mapPage.html';
@@ -60,25 +56,25 @@ function initSnakes () {
     //                  - an associated session variable of snakeName
     //                  - an associated relative parent anchor with a
     //                    class of snakeName + 'Anchor'
-    function showHide (snake, snakeName) {
+    function showHide (show, snakeName) {
         var $snake = $('.' + snakeName);
-        if (snake) {
-            
-            // Show the snake if it is not yet showing.
-            if ($snake.length < 1) {
-                
-                // Add the snake to the anchor.
-                $snake = $('<div/>')
-                      .addClass(snakeName)
-                      .addClass('snake');
-                $('.' + snakeName + 'Anchor').append($snake);
-            }
+        if (show) {
+            $snake.show();
         } else {
-    
-            // Hide the snake.
-            $snake.remove();
+            $snake.hide();
         }
     }
+    
+    // Add the snakes to the dom.
+    var $snake = $('<div/>')
+          .addClass('mapSnake')
+          .addClass('snake');
+    $('body').append($snake);
+    $snake = $('<div/>')
+          .addClass('statsSnake')
+          .addClass('snake');
+    $('body').append($snake);
+
     Meteor.autorun(function () {
         showHide(Session.get('mapSnake'), 'mapSnake');
     });
@@ -88,27 +84,23 @@ function initSnakes () {
 }
 
 // Phase 6b init: when the active layers have been added to the shortlist
-//           and the map has rendered
-//           and layout selector has been populated,
-//           complete initialization.
+//                and layout selector has been populated,
+//                and the map has rendered
+//                complete initialization.
 function areLayoutsPopulated () {
     var R = rx.getState();
     if (R[rx.bit.initAppActiveAttrsInShortlist] &&
         R[rx.bit.initAppLayoutsPopulated] &&
         R[rx.bit.initAppMapRendered]) {
         
-        Perform.log('6b-init:complete initialization');
         unsubFx.areLayoutsPopulated();
+        Perform.log('6b-init:complete-initialization');
 
         // Timeout to allow the map to render.
         setTimeout(function () {
-            Perform.log('background-functions-init');
+            Perform.log(' 6b-init:after-timeout');
             Session.set('shortlist', shortlistSaved);
             Shortlist.complete_initialization();
-
-            // Show the appropriate options on the navigation bar.
-            NavBar.init();
-
             Layout.initList();
             SortUi.init();
 
@@ -120,6 +112,7 @@ function areLayoutsPopulated () {
             Tool.initLabel();
             Download.init();
             Colors.init();
+            
             import InfoWindow from '/imports/mapPage/viewport/infoWindow.js';
             InfoWindow.init();
             SetOper.init();
@@ -127,8 +120,6 @@ function areLayoutsPopulated () {
             Select.init();
             GChart.init();
             State.initBookmark();
-            OverlayNodes.init();
-            OverlayNodeUi.init();
             if (!DEV) {
                 Perform.log('google-analytics-loading');
                 Util.googleAnalytics();
@@ -139,12 +130,12 @@ function areLayoutsPopulated () {
 }
 
 // Phase 6a init: when the layout names have been received,
-//           populate the layout selector.
+//                populate the layout selector.
 function areLayoutNamesReceived () {
     if (rx.get(rx.bit.initAppLayoutNamesReceived)) {
 
-        Perform.log('6a-init:layout-names-received');
         unsubFx.areLayoutNamesReceived();
+        Perform.log('6a-init:layout-names-received');
 
         Layout.initList();
         rx.set(rx.act.INIT_APP_LAYOUTS_POPULATED);
@@ -156,18 +147,17 @@ function areLayoutNamesReceived () {
 function isMapRendered () {
     if (rx.get(rx.bit.initAppMapRendered)) {
     
-        Perform.log('5-init:request-secondary-data');
         unsubFx.isMapRendered();
+        Perform.log('5-init:request-secondary-data');
         
         // Timeout to allow the map to render.
         setTimeout(function () {
+            Perform.log(' 5-init:after-timeout');
+
             Data.requestLayoutNames(
                 { rxAction: rx.act.INIT_APP_LAYOUT_NAMES_RECEIVED });
             Data.requestAttributeTags();
             Data.requestMapMeta();
-            
-            // Populate the project list.
-            Project.init();
             
             // Populate the longlist.
             import Longlist from '/imports/mapPage/longlist/longlist.js';
@@ -184,36 +174,44 @@ function isMapRendered () {
 }
 
 // Phase 4 init: when the map prep is complete and user is authorized,
-//                 render the map.
-//           ...
+//               render the map.
 function isMapPreppedAndUserAuthorized () {
     var R = rx.getState();
     if (R[rx.bit.initAppMapPrepared] &&
         R[rx.bit.initMapAuthorized])  {
         
-        Perform.log('4-init:render-map');
         unsubFx.isMapPreppedAndUserAuthorized();
+        Perform.log('4-init:render-map');
 
-        Hexagram.initMap();
-        rx.set(rx.act.INIT_APP_MAP_RENDERED);
+        // Pause to let previous processing complete.
+        setTimeout(function () {
+            Perform.log(' 4-init:after-timeout');
+            Hexagram.initMap();
+            rx.set(rx.act.INIT_APP_MAP_RENDERED);
+        });
     }
 }
 
-// Phase 3 init: when layout assignments & colormap have been received,
-//               google map api loaded and authorization received,
-//               draw the map.
+// Phase 3 init: when layout assignments have been received,
+//               colormap has been received,
+//               active attributes loaded,
+//               google map api loaded,
+//               and DOM loaded,
+//               prepare to draw the map.
 function isReadyToRenderMap () {
     var R = rx.getState();
     if (R[rx.bit.initLayoutPositionsLoaded] &&
         R[rx.bit.initMapColormapLoaded] &&
         R[rx.bit.initMapActiveAttrsLoaded] &&
-        R[rx.bit.initAppGoogleMapApiLoaded]) {
+        R[rx.bit.initAppGoogleMapApiLoaded] &&
+        R[rx.bit.initAppDomLoaded]) {
         
-        Perform.log('3-init:prep-map');
         unsubFx.isReadyToRenderMap();
+        Perform.log('3-init:prep-map');
 
-        // Timeout allows processing to catch up.
+        // Pause to let other processing complete.
         setTimeout(function () {
+            Perform.log(' 3-init:after-timeout');
             Coords.init();
             Hexagons.init();
 
@@ -227,40 +225,45 @@ function isReadyToRenderMap () {
     }
 }
 
-// Phase 2 init: when layer summary and types are received, & dom loaded
-//             determine the first coloring layers & default first layer.
+// Phase 2 init: when layer summary and types are received,
+//               determine the first coloring layers & default first layer.
 function haveActiveLayerIndex () {
     var R = rx.getState();
     if (R[rx.bit.initMapLayerSummaryLoaded] &&
         R[rx.bit.initMapLayerTypesLoaded]) {
-        
-        Perform.log('2-init:request-active-layers');
-        unsubFx.haveActiveLayerIndex();
-        
-        // If the first layer was not in the types data received,
-        // sort by density to get a first layer.
-        var first = Session.get('first_layer'),
-            shortlist = Session.get('shortlist');
-        if (!first) {
 
-            // Sort the layers to find the first layer.
-            Sort.findFirstLayerByDensity();
-        }
-    
-        // If there is now a first layer
-        // and the shortlist is empty
-        // and there are static layers,
-        // add the first layer to the shortlist
-        // and make the first_layer the active layer.
-        first = Session.get('first_layer');
-        if (first && shortlist.length < 1 &&
-            ctx.static_layer_names.length > 0) {
-            Session.set('shortlist', [first]);
-            Session.set('active_layers', [first]);
-        }
-    
-        // Load the initial active coloring layers.
-        Layer.loadInitialActiveLayers();
+        unsubFx.haveActiveLayerIndex();
+        Perform.log('2-init:request-active-layers');
+
+        // Pause to let other processing complete.
+        setTimeout(function () {
+            Perform.log(' 2-init:after-timeout');
+
+            // If the first layer was not in the types data received,
+            // sort by density to get a first layer.
+            var first = Session.get('first_layer'),
+                shortlist = Session.get('shortlist');
+            if (!first) {
+
+                // Sort the layers to find the first layer.
+                Sort.findFirstLayerByDensity();
+            }
+        
+            // If there is now a first layer
+            // and the shortlist is empty
+            // and there are static layers,
+            // add the first layer to the shortlist
+            // and make the first_layer the active layer.
+            first = Session.get('first_layer');
+            if (first && shortlist.length < 1 &&
+                ctx.static_layer_names.length > 0) {
+                Session.set('shortlist', [first]);
+                Session.set('active_layers', [first]);
+            }
+        
+            // Load the initial active coloring layers.
+            Layer.loadInitialActiveLayers();
+        });
     }
 }
 
@@ -273,8 +276,12 @@ function loadGoogleMapApi () {
             rx.set(rx.act.INIT_APP_GOOGLE_MAP_API_LOADED);
         }
     });
-    GoogleMaps.load(
+
+    // Pause to let other processing complete, like the snake display.
+    setTimeout(function () {
+        GoogleMaps.load(
         { v: '3', key: 'AIzaSyBb8AJUB4x-xxdUCnjzb-Xbcg0-T1mPw3I' });
+    });
 }
 
 // Phase 1b init: when the DOM has loaded,
@@ -283,16 +290,16 @@ function loadGoogleMapApi () {
 function hasDomLoaded () {
     if (rx.get(rx.bit.initAppDomLoaded)) {
     
-        Perform.log('1b-init:init-snakes');
         unsubFx.hasDomLoaded();
-        setTimeout(initSnakes);
+        Perform.log('1b-init:snakes,dom-loaded');
+        initSnakes();
     }
 }
 
 // Phase 1a init: State has been received,
-//           so request primary data and authorization.
+//                so request primary data and authorization.
 exports.init = function () {
-    Perform.log('1a-init:request-primary-data-&-auth');
+    Perform.log('1a-init:request-primary-data');
 
     // Iniitialize some session vars we don't want carried over
     // from the last session.
@@ -317,8 +324,6 @@ exports.init = function () {
     unsubFx.areLayoutsPopulated = rx.subscribe(areLayoutsPopulated);
     unsubFx.areLayoutNamesReceived  = rx.subscribe(areLayoutNamesReceived);
 
-    // Check if the user is authorized for the project.
-    Project.authorize();
-    
+    // Load the google maps API.
     loadGoogleMapApi();
 };

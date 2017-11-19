@@ -84,7 +84,7 @@ function initDownloadSelectTool () {
             // Returns a function for extending text
             // depending on the datatype of the layer name.
             var extender;
-            if (layers[layerName].selection){
+            if (layers[layerName].dynamic){
                 extender = selectionStringExtender;
             } else if (Util.is_categorical(layerName) ||
                 Util.is_binary(layerName)) {
@@ -97,11 +97,19 @@ function initDownloadSelectTool () {
 
             return extender;
         }
+        function firstLine(layerName){
+            // Put a header unless the layerName is a selection.
+            return (
+                (layers[layerName].dynamic)
+                    ? ""
+                    : "samples".concat("\t").concat(layerName)
+            )
 
+        }
         function updateTextArea(layer_data, layerName, linelimit){
             // Updates the text_area element with downloadable text.
             // Will write no more lines than linelimit.
-            var textAreaStr = "",
+            var textAreaStr = firstLine(layerName),
                 linecount = 0,
             // The function used to extend the text string:
                 textExtender = textAreaExtender(layerName);
@@ -111,7 +119,8 @@ function initDownloadSelectTool () {
                 var value = layer_data[nodeId];
                 // Skip undefined values.
                 if(_.isUndefined(value)) continue;
-
+                // Skip selections whose value is 0.
+                if(layers[layerName].dynamic && !value) continue;
                 // Break out if we've reached our limit.
                 linecount+=1;
                 if(!_.isUndefined(linelimit)

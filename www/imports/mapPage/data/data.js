@@ -14,14 +14,14 @@ function request (id, opts) {
     // @param successFx: function to call on success
     // @param rxAction; optional state action to take on success
     // @param stateVar; optional state variable to set to true on success
-    Perform.log(id + '.tab_request');
+    Perform.log(id + '.tab_requested');
     if (_.isUndefined(opts)) {
         opts = {};
     }
     var aOpts = {
         id: id,
         success: function (results) {
-            Perform.log(id + '.tab_received');
+            Perform.log(id + '.tab_got');
             if (opts.successFx) {
                 opts.successFx(results, id);
             }
@@ -53,13 +53,13 @@ exports.requestStats = function (id, opts) {
 exports.requestMapMeta = function (opts) {
 
     // Request the metadata within the map minor data.
-    import Tool from '/imports/mapPage/head/tool.js';
+    import overlayNodes from '/imports/mapPage/calc/overlayNodes.js';
     if (_.isUndefined(opts)) {
         opts = {};
     }
     opts.ok404 = true;
-    opts.successFx = opts.successFx || Tool.receiveMapMetadata;
-    opts.errorFx = opts.errorFx || Tool.requestMapMetadataError;
+    opts.successFx = opts.successFx || overlayNodes.receiveMapMetadata;
+    opts.errorFx = opts.errorFx || overlayNodes.requestMapMetadataError;
     request('mapMeta', opts);
 };
 

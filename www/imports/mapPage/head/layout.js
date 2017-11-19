@@ -3,6 +3,7 @@
 import Data from '/imports/mapPage/data/data.js';
 import Hexagons from '/imports/mapPage/viewport/hexagons.js';
 import Hexagram from '/imports/mapPage/viewport/hexagram.js';
+import Perform from '/imports/common/perform.js';
 import Sort from '/imports/mapPage/longlist/sort.js';
 import Util from '/imports/common/util.js';
 
@@ -56,6 +57,8 @@ exports.layoutNamesReceived = function (parsed) {
             index = 0;
         }
         Session.set('layoutIndex', index);
+        
+        Perform.log('layouts-rendered');
         
         // Now request the node locations since we have an index.
         Data.requestLayoutAssignments();

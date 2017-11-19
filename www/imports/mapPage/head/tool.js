@@ -180,15 +180,4 @@ exports.initLabel = function () {
                 exports.activity(false);
         });
     }, 'Add a label to the map', 'mapShow');
-},
-
-exports.requestMapMetadataError = function (error) {
-    Session.set('mapMeta', {});
-}
-
-exports.receiveMapMetadata = function (mapMeta) {
-    if (mapMeta === '404') {
-        mapMeta = {};
-    }
-    Session.set('mapMeta', mapMeta);
 }

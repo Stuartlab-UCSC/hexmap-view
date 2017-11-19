@@ -65,7 +65,7 @@ function layers_received (layers) {
     // Find any layers removed and remove them from the shortlist
     _.each(last_layer_names, function (layer_name) {
         if (doc_layer_names.indexOf(layer_name) < 0) {
-            Shortlist.ui_and_list_delete(layer_name);
+            Shortlist.removeEntry(layer_name);
         }
     });
 
@@ -86,13 +86,10 @@ exports.init = function() {
     
     // Subscribe if we have a user
     // TODO do we need to unsubcribe the old user to free memory?
-    // Make this independent of the init map autorun.
-    setTimeout(function () {
-        Meteor.autorun(function() {
-            var user = Meteor.user();
-            if (user) {
-                Meteor.subscribe('userLayerBox', user.username, mapId);
-            }
-        });
+    Meteor.autorun(function() {
+        var user = Meteor.user();
+        if (user) {
+            Meteor.subscribe('userLayerBox', user.username, mapId);
+        }
     });
 }

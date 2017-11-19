@@ -2,6 +2,7 @@
 // This creates a new map with user uploaded data.
 
 import Ajax from '/imports/mapPage/data/ajax.js';
+import Auth from '/imports/common/auth.js';
 import DialogHex from '/imports/common/dialogHex.js';
 import Tool from '/imports/mapPage/head/tool.js';
 import Util from '/imports/common/util.js';
@@ -372,7 +373,7 @@ function show () {
 function preShow () {
 
     // Check for this user having the credentials to do this.
-    return Util.credentialCheck('to create a map');
+    return Auth.credentialCheck('to create a map');
 }
 
 function hide() {
