@@ -1,6 +1,6 @@
 #!/bin/bash
 # $1: "db", "www", "http", or "https" : The server to start.
-# $2: The path to the configuration file, unneeded
+# $2: The path to the configuration file. If empty uses ./config/setup.cf
 SERVER_TYPE=$1
 CONFIG_FILE=$2
 

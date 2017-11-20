@@ -1,5 +1,5 @@
 #!/bin/bash
-# $1: /path/to/the/config/file
+# $1: /path/to/the/config/file. If empty uses ./config/setup.cf
 # Assumes you have the www.tar.gz bundled by deploy.sh at the $HEXMAP directory.
 CONFIG_FILE=$1
 

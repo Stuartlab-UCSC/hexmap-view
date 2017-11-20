@@ -1,6 +1,5 @@
 #!/bin/bash
-# $1: /path/to/the/config/file, can be ommited if there is a
-# config/setup.ch in the current directory, or if $HEXMAP is defined on your machine.
+# $1: /path/to/the/config/file. If empty uses ./config/setup.cf
 CONFIG_FILE=$1
 
 # Attempt to use default configuration if the argument has not been supplied
