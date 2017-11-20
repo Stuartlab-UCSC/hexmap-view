@@ -161,17 +161,15 @@ exports.authorize = function (userId) {
     Meteor.call('is_user_authorized_to_view', ctx.project,
         function (error, results) {
             if (results) {
-                rx.set(rx.act.INIT_MAP_AUTHORIZED);
-                /* TODO: what is this for? seems to show snake after place nodes bookmark load.
-                if (!rx.get(rx.bit.initAppMapRendered)) {
+                rx.set('init.mapAuthorized');
+                if (rx.get('init.mapRendered')) {
                     Session.set('mapSnake', true);
                 }
-                */
             } else {
                 notAuthdMessage();
             }
             perform.log('project:userId,authorized:' + userId + ',' +
-                rx.get(rx.bit.initMapAuthorized));
+                rx.get('init.mapAuthorized'));
         }
     );
 

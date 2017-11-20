@@ -20,7 +20,7 @@ import '/imports/common/colorsFont.css';
 import '/imports/common/navBar.css';
 
 document.addEventListener('DOMContentLoaded', function(event) {
-	rx.set(rx.act.INIT_APP_DOM_LOADED)
+	rx.set('init.domLoaded')
 });
 
 var unsubFx = {};
@@ -48,10 +48,11 @@ function initGridMapContainer () { // jshint ignore: line
 
 // When the state has been loaded...
 function isStateLoaded () {
+    
     var R = rx.getState();
-    if (R[rx.bit.initAppCtxLoaded] &&
-        R[rx.bit.initAppStateLoaded]) {
-
+    if (R['init.ctxLoaded'] &&
+        R['init.stateLoaded']) {
+        
         unsubFx.isStateLoaded();
         perform.log('init:state-loaded');
         
@@ -71,5 +72,5 @@ Meteor.startup(() => {
     rxInternal.init();
     unsubFx.isStateLoaded = rx.subscribe(isStateLoaded);
     ctx = state.init();
-    rx.set(rx.act.INIT_APP_CTX_LOADED);
+    rx.set('init.ctxLoaded');
 });

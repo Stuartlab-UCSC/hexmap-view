@@ -4,60 +4,58 @@
 import redux from 'redux';
 import rx from './rx.js';
 
-const A = rx.act;
-
 const reducers = {
-    initAppActiveAttrsInShortlist: (state = false, action) => {
-        return (action.type === A.INIT_APP_ACTIVE_ATTRS_IN_SHORTLIST) ?
+    'init.activeAttrsInShortlist': (state = false, action) => {
+        return (action.type === 'init.activeAttrsInShortlist') ?
             true : state;
     },
-    initAppCtxLoaded: (state = false, action) => {
-        return (action.type === A.INIT_APP_CTX_LOADED) ? true : state;
+    'init.ctxLoaded': (state = false, action) => {
+        return (action.type === 'init.ctxLoaded') ? true : state;
     },
-    initAppDomLoaded: (state = false, action) => {
-        return (action.type === A.INIT_APP_DOM_LOADED) ? true : state;
+    'init.domLoaded': (state = false, action) => {
+        return (action.type === 'init.domLoaded') ? true : state;
     },
-    initAppGoogleMapApiLoaded: (state = false, action) => {
-        return (action.type === A.INIT_APP_GOOGLE_MAP_API_LOADED) ?
+    'init.googleMapApiLoaded': (state = false, action) => {
+        return (action.type === 'init.googleMapApiLoaded') ?
             true : state;
     },
-    initAppLayoutNamesReceived: (state = false, action) => {
-        return (action.type === A.INIT_APP_LAYOUT_NAMES_RECEIVED) ?
+    'init.layoutNamesReceived': (state = false, action) => {
+        return (action.type === 'init.layoutNamesReceived') ?
             true : state;
     },
-    initAppLayoutsNamesRequested: (state = false, action) => {
-        return (action.type === A.INIT_APP_LAYOUT_NAMES_REQUESTED) ?
+    'init.layoutNamesRequested': (state = false, action) => {
+        return (action.type === 'init.layoutNamesRequested') ?
             true : state;
     },
-    initAppLayoutsPopulated: (state = false, action) => {
-        return (action.type === A.INIT_APP_LAYOUTS_POPULATED) ? true : state;
+    'init.layoutsPopulated': (state = false, action) => {
+        return (action.type === 'init.layoutsPopulated') ? true : state;
     },
-    initAppMapPrepared: (state = false, action) => {
-        return (action.type === A.INIT_APP_MAP_PREPARED) ? true : state;
+    'init.mapPrepared': (state = false, action) => {
+        return (action.type === 'init.mapPrepared') ? true : state;
     },
-    initAppMapRendered: (state = false, action) => {
-        return (action.type === A.INIT_APP_MAP_RENDERED) ? true : state;
+    'init.mapRendered': (state = false, action) => {
+        return (action.type === 'init.mapRendered') ? true : state;
     },
-    initAppStateLoaded: (state = false, action) => {
-        return (action.type === A.INIT_APP_STATE_LOADED) ? true : state;
+    'init.stateLoaded': (state = false, action) => {
+        return (action.type === 'init.stateLoaded') ? true : state;
     },
-    initLayoutPositionsLoaded: (state = false, action) => {
-        return (action.type === A.INIT_LAYOUT_POSITIONS_LOADED) ? true : state;
+    'init.layoutPositionsLoaded': (state = false, action) => {
+        return (action.type === 'init.layoutPositionsLoaded') ? true : state;
     },
-    initMapActiveAttrsLoaded: (state = false, action) => {
-        return (action.type === A.INIT_MAP_ACTIVE_ATTRS_LOADED) ? true : state;
+    'init.activeAttrsLoaded': (state = false, action) => {
+        return (action.type === 'init.activeAttrsLoaded') ? true : state;
     },
-    initMapAuthorized: (state = false, action) => {
-        return (action.type === A.INIT_MAP_AUTHORIZED) ? true : state;
+    'init.mapAuthorized': (state = false, action) => {
+        return (action.type === 'init.mapAuthorized') ? true : state;
     },
-    initMapColormapLoaded: (state = false, action) => {
-        return (action.type === A.INIT_MAP_COLORMAP_LOADED) ? true : state;
+    'init.colormapLoaded': (state = false, action) => {
+        return (action.type === 'init.colormapLoaded') ? true : state;
     },
-    initMapLayerSummaryLoaded: (state = false, action) => {
-        return (action.type === A.INIT_MAP_LAYER_SUMMARY_LOADED) ? true : state;
+    'init.attrSummaryLoaded': (state = false, action) => {
+        return (action.type === 'init.attrSummaryLoaded') ? true : state;
     },
-    initMapLayerTypesLoaded: (state = false, action) => {
-        return (action.type === A.INIT_MAP_LAYER_TYPES_LOADED) ? true : state;
+    'init.attrTypesLoaded': (state = false, action) => {
+        return (action.type === 'init.attrTypesLoaded') ? true : state;
     },
 };
 
@@ -77,7 +75,7 @@ function makeStateActions () {
 
     // Create all action identifiers and actions for single action bits of state.
     // TODO: This only works for those state bits with only one action.
-    _.each(Object.keys(A), function(id) {
+    _.each(rx.stateActions, function(id) {
         makeAction(id);
     });
 }
@@ -89,6 +87,11 @@ exports.init = function () {
     
     // Combine the reducers, create the store and initialize the constants
     // for callers.
+/*  const store = createStore(
+   reducer, // preloadedState,
++  window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__()
+ );
+ */
     rx.init(redux.createStore(redux.combineReducers(reducers)));
 };
 

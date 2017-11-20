@@ -288,7 +288,7 @@ function load_static_data (layer_name, callback) {
         // If this is the primary active attr, and the colormap is loaded,
         // then refresh the colors.
         if (shortlist.get_active_coloring_layers().indexOf(layer_name) > -1 &&
-            rx.get(rx.bit.initMapColormapLoaded)) {
+            rx.get('init.colormapLoaded')) {
             hexagram.refreshColors();
         }
 
@@ -307,7 +307,7 @@ exports.loadInitialActiveLayers = function () {
     var active = Session.get('active_layers');
     
     function loaded () {
-        rx.set(rx.act.INIT_MAP_ACTIVE_ATTRS_LOADED);
+        rx.set('init.activeAttrsLoaded');
     }
     
     if (active.length < 1) {

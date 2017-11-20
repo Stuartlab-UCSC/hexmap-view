@@ -312,7 +312,7 @@ exports.layoutAssignmentsReceived = function (parsed, id) {
         max_x = Math.max(x, max_x);
         max_y = Math.max(y, max_y);
     }
-    rx.set(rx.act.INIT_LAYOUT_POSITIONS_LOADED);
+    rx.set('init.layoutPositionsLoaded');
     if (Session.equals('initedHexagons', true)) {
         initNewLayout();
     }
@@ -357,7 +357,7 @@ exports.init = function () {
 
     // Get the node positions for the initial view.
     Session.set('initedHexagons', true);
-    if (rx.get(rx.bit.initLayoutPositionsLoaded)) {
+    if (rx.get('init.layoutPositionsLoaded')) {
         initNewLayout();
     }
 };
