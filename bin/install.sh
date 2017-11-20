@@ -12,6 +12,7 @@ else
 fi
 
 echo "Using config file: $CONFIG_FILE"
+source $CONFIG_FILE
 
 cd $HEXMAP
 # Untar the new code, the dir inside the tar should be "www"

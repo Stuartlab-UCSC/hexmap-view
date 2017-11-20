@@ -1,24 +1,25 @@
 #!/bin/bash
 # $1: "db", "www", "http", or "https" : The server to stop.
 # $2: The path to the configuration file, unneeded if in root of git repo, or HEXMAP var is set.
-if [ -z $1 ]; then
-    FILE=pid/$1
+SERVER_TYPE=$1
+CONFIG_FILE=$2
+
+if [ ! -z SERVER_TYPE ]; then
+    PID_FILE=pid/$1
 else
     echo "db, www, http, or https should be the first arg."
     exit 1
 fi
 
-# Source the configuration file for this machine.
-if [ -z $2 ]; then
-    source $2
-elif [ -f $(pwd)/config/setup.cf ]; then
-    echo "using the default config file, $(pwd)/config/setup.cf"
-    source $(pwd)/config/setup.cf
-elif [ -z $HEXMAP ]; then
-    echo "Using preset \$HEXMAP var: $HEXMAP"
+# Attempt to use default configuration if the argument has not been supplied
+if [ -z "$CONFIG_FILE" ] && [ -f "$(pwd)/config/setup.cf" ]; then
+    CONFIG_FILE=$(pwd)/config/setup.cf
 else
-    HEXMAP=$(pwd)
+    echo "Path to configuration file as first arg necessary."
+    exit 1
 fi
+
+source $CONFIG_FILE
 
 cd $HEXMAP
 if [ -e "$FILE" ]; then
