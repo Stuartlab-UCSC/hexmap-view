@@ -89,9 +89,9 @@ function initSnakes () {
 //                complete initialization.
 function areLayoutsPopulated () {
     var R = rx.getState();
-    if (R[rx.bit.initAppActiveAttrsInShortlist] &&
-        R[rx.bit.initAppLayoutsPopulated] &&
-        R[rx.bit.initAppMapRendered]) {
+    if (R['init.activeAttrsInShortlist'] &&
+        R['init.layoutsPopulated'] &&
+        R['init.mapRendered']) {
         
         unsubFx.areLayoutsPopulated();
         perform.log('6b-init:complete initialization');
@@ -132,20 +132,20 @@ function areLayoutsPopulated () {
 // Phase 6a init: when the layout names have been received,
 //                populate the layout selector.
 function areLayoutNamesReceived () {
-    if (rx.get(rx.bit.initAppLayoutNamesReceived)) {
+    if (rx.get('init.layoutNamesReceived')) {
 
         unsubFx.areLayoutNamesReceived();
         perform.log('6a-init:layout-names-received');
 
         layout.initList();
-        rx.set(rx.act.INIT_APP_LAYOUTS_POPULATED);
+        rx.set('init.layoutsPopulated');
     }
 }
 
 // Phase 5 init: when the map has been rendered,
 //               request the secondary data.
 function isMapRendered () {
-    if (rx.get(rx.bit.initAppMapRendered)) {
+    if (rx.get('init.mapRendered')) {
     
         unsubFx.isMapRendered();
         perform.log('5-init:request-secondary-data');
@@ -155,7 +155,7 @@ function isMapRendered () {
             perform.log(' 5-init:after-timeout');
 
             data.requestLayoutNames(
-                { rxAction: rx.act.INIT_APP_LAYOUT_NAMES_RECEIVED });
+                { rxAction: 'init.layoutNamesReceived' });
             data.requestAttributeTags();
             data.requestMapMeta();
             
@@ -168,7 +168,7 @@ function isMapRendered () {
             shortlistSaved = Session.get('shortlist');
             Session.set('shortlist', Session.get('active_layers'));
             shortlist.init();
-            rx.set(rx.act.INIT_APP_ACTIVE_ATTRS_IN_SHORTLIST);
+            rx.set('init.activeAttrsInShortlist');
         });
     }
 }
@@ -177,8 +177,8 @@ function isMapRendered () {
 //               render the map.
 function isMapPreppedAndUserAuthorized () {
     var R = rx.getState();
-    if (R[rx.bit.initAppMapPrepared] &&
-        R[rx.bit.initMapAuthorized])  {
+    if (R['init.mapPrepared'] &&
+        R['init.mapAuthorized'])  {
         
         unsubFx.isMapPreppedAndUserAuthorized();
         perform.log('4-init:render-map');
@@ -187,7 +187,7 @@ function isMapPreppedAndUserAuthorized () {
         setTimeout(function () {
             perform.log(' 4-init:after-timeout');
             hexagram.initMap();
-            rx.set(rx.act.INIT_APP_MAP_RENDERED);
+            rx.set('init.mapRendered');
         });
     }
 }
@@ -200,11 +200,11 @@ function isMapPreppedAndUserAuthorized () {
 //               prepare to draw the map.
 function isReadyToRenderMap () {
     var R = rx.getState();
-    if (R[rx.bit.initLayoutPositionsLoaded] &&
-        R[rx.bit.initMapColormapLoaded] &&
-        R[rx.bit.initMapActiveAttrsLoaded] &&
-        R[rx.bit.initAppGoogleMapApiLoaded] &&
-        R[rx.bit.initAppDomLoaded]) {
+    if (R['init.layoutPositionsLoaded'] &&
+        R['init.colormapLoaded'] &&
+        R['init.activeAttrsLoaded'] &&
+        R['init.googleMapApiLoaded'] &&
+        R['init.domLoaded']) {
         
         unsubFx.isReadyToRenderMap();
         perform.log('3-init:prep-map');
@@ -220,7 +220,7 @@ function isReadyToRenderMap () {
             $(window).resize(utils.resizeMap);
             $('#shortlist_holder').css('top', $('#navBar').height());
             ctx.center = coords.centerToLatLng(ctx.center);
-            rx.set(rx.act.INIT_APP_MAP_PREPARED);
+            rx.set('init.mapPrepared');
         });
     }
 }
@@ -229,8 +229,8 @@ function isReadyToRenderMap () {
 //               determine the first coloring layers & default first layer.
 function haveActiveLayerIndex () {
     var R = rx.getState();
-    if (R[rx.bit.initMapLayerSummaryLoaded] &&
-        R[rx.bit.initMapLayerTypesLoaded]) {
+    if (R['init.attrSummaryLoaded'] &&
+        R['init.attrTypesLoaded']) {
 
         unsubFx.haveActiveLayerIndex();
         perform.log('2-init:request-active-layers');
@@ -273,7 +273,7 @@ function loadGoogleMapApi () {
     Meteor.autorun(function (autorun) {
         if (GoogleMaps.loaded()) {
             autorun.stop();
-            rx.set(rx.act.INIT_APP_GOOGLE_MAP_API_LOADED);
+            rx.set('init.googleMapApiLoaded');
         }
     });
 
@@ -288,7 +288,7 @@ function loadGoogleMapApi () {
 //                load the googlemap api,
 //                and show the loading snake.
 function hasDomLoaded () {
-    if (rx.get(rx.bit.initAppDomLoaded)) {
+    if (rx.get('init.domLoaded')) {
     
         unsubFx.hasDomLoaded();
         perform.log('1b-init:snakes,dom-loaded');
@@ -308,11 +308,10 @@ exports.init = function () {
     Session.set('mapMeta', {});
     
     // Request the primary data.
-    data.requestLayerSummary(
-        { rxAction: rx.act.INIT_MAP_LAYER_SUMMARY_LOADED });
-    data.requestDataTypes({ rxAction: rx.act.INIT_MAP_LAYER_TYPES_LOADED });
+    data.requestLayerSummary({ rxAction: 'init.attrSummaryLoaded' });
+    data.requestDataTypes({ rxAction: 'init.attrTypesLoaded' });
     data.requestLayoutAssignments();
-    data.requestColormaps({ rxAction: rx.act.INIT_MAP_COLORMAP_LOADED });
+    data.requestColormaps({ rxAction: 'init.colormapLoaded' });
     
     // Subscribe to state changes.
     unsubFx.hasDomLoaded = rx.subscribe(hasDomLoaded);

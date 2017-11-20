@@ -1,63 +1,50 @@
 
 // Public API for the redux store.
 
-// State actions used with rx.set().
+// Actions on state. used with rx.set().
 // Usage:  rx.set(<action>, <opts>);
 // Where <action> is one of the below, <opts> are defined in rxInternal.js.
-/*
-// Example:  rx.set('layout.name.selected', { name: 'RPPA' });
-const actions = [
-    'layout.name.selected',
+// Example:  rx.set('layout.nameSelected', { name: 'RPPA' });
+exports.stateActions = [
+    'init.activeAttrsInShortlist',
+    'init.ctxLoaded',
+    'init.domLoaded',
+    'init.googleMapApiLoaded',
+    'init.layoutNamesReceived',
+    'init.layoutNamesRequested',
+    'init.mapPrepared',
+    'init.mapRendered',
+    'init.stateLoaded',
+    'init.layoutPositionsLoaded',
+    'init.activeAttrsLoaded',
+    'init.mapAuthorized',
+    'init.colormapLoaded',
+    'init.attrSummaryLoaded',
+    'init.attrTypesLoaded',
 ];
-*/
-// Example:  rx.set(rx.act.LAYOUT_NAME_SELECTED, { name: 'RPPA' });
-exports.act = {
-    INIT_APP_ACTIVE_ATTRS_IN_SHORTLIST: 'INIT_APP_ACTIVE_ATTRS_IN_SHORTLIST',
-    INIT_APP_CTX_LOADED: 'INIT_APP_CTX_LOADED',
-    INIT_APP_DOM_LOADED: 'INIT_APP_DOM_LOADED',
-    INIT_APP_GOOGLE_MAP_API_LOADED: 'INIT_APP_GOOGLE_MAP_API_LOADED',
-    INIT_APP_LAYOUT_NAMES_RECEIVED: 'INIT_APP_LAYOUT_NAMES_RECEIVED',
-    INIT_APP_LAYOUT_NAMES_REQUESTED: 'INIT_APP_LAYOUT_NAMES_REQUESTED',
-    INIT_APP_LAYOUTS_POPULATED: 'INIT_APP_LAYOUTS_POPULATED',
-    INIT_APP_MAP_PREPARED: 'INIT_APP_MAP_PREPARED',
-    INIT_APP_MAP_RENDERED: 'INIT_APP_MAP_RENDERED',
-    INIT_APP_STATE_LOADED: 'INIT_APP_STATE_LOADED',
-    INIT_LAYOUT_POSITIONS_LOADED: 'INIT_LAYOUT_POSITIONS_LOADED',
-    INIT_MAP_ACTIVE_ATTRS_LOADED: 'INIT_MAP_ACTIVE_ATTRS_LOADED',
-    INIT_MAP_AUTHORIZED: 'INIT_MAP_AUTHORIZED',
-    INIT_MAP_COLORMAP_LOADED: 'INIT_MAP_COLORMAP_LOADED',
-    INIT_MAP_LAYER_SUMMARY_LOADED: 'INIT_MAP_LAYER_SUMMARY_LOADED',
-    INIT_MAP_LAYER_TYPES_LOADED: 'INIT_MAP_LAYER_TYPES_LOADED',
-};
 
 // Pieces of state to retrieve, used with rx.get().
 // Usage:  rx.get(<state-bit>);
 // Where <state-bit> is one of the below.
-/*
 // Example:  rx.get('layout.name');
-const stateBits = [
-    'layout.name',
+const statePieces =  [
+    'init.activeAttrsInShortlist',
+    'init.ctxLoaded',
+    'init.domLoaded',
+    'init.googleMapApiLoaded',
+    'init.layoutNamesReceived',
+    'init.layoutsNamesRequested',
+    'init.layoutsPopulated',
+    'init.mapPrepared',
+    'init.mapRendered',
+    'init.stateLoaded',
+    'init.layoutPositionsLoaded',
+    'init.activeAttrsLoaded',
+    'init.mapAuthorized',
+    'init.colormapLoaded',
+    'init.layerSummaryLoaded',
+    'init.LayerTypesLoaded',
 ];
-*/
-// Example:  rx.get(rx.bit.persistlayoutName);
-exports.bit = {
-    initAppActiveAttrsInShortlist: 'initAppActiveAttrsInShortlist',
-    initAppCtxLoaded: 'initAppCtxLoaded',
-    initAppDomLoaded: 'initAppDomLoaded',
-    initAppGoogleMapApiLoaded: 'initAppGoogleMapApiLoaded',
-    initAppLayoutNamesReceived: 'initAppLayoutNamesReceived',
-    initAppLayoutsNamesRequested: 'initAppLayoutsNamesRequested',
-    initAppLayoutsPopulated: 'initAppLayoutsPopulated',
-    initAppMapPrepared: 'initAppMapPrepared',
-    initAppMapRendered: 'initAppMapRendered',
-    initAppStateLoaded: 'initAppStateLoaded',
-    initLayoutPositionsLoaded: 'initLayoutPositionsLoaded',
-    initMapActiveAttrsLoaded: 'initMapActiveAttrsLoaded',
-    initMapAuthorized: 'initMapAuthorized',
-    initMapColormapLoaded: 'initMapColormapLoaded',
-    initMapLayerSummaryLoaded: 'initMapLayerSummaryLoaded',
-    initMapLayerTypesLoaded: 'initMapLayerTypesLoaded',
-};
 
 // The global redux state.
 var reduxStore = null;
@@ -77,8 +64,6 @@ exports.getState = function () {
     // Retrieve the entire state tree.
     return reduxStore.getState();
 };
-
-
 
 exports.set = function (actionType, optsIn) {
     

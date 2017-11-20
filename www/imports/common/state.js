@@ -383,7 +383,7 @@ State.prototype.load = function (store) {
             overlayNodes.get('youngwookExponentialNormalization'));
     }
     
-    rx.set(rx.act.INIT_APP_STATE_LOADED);
+    rx.set('init.stateLoaded');
 };
 
 State.prototype.loadFromLocalStore = function () {
