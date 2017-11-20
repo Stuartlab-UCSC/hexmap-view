@@ -13,8 +13,12 @@ if [  "$USING_HTTPS" = true ]; then
     export KEY=/data/certs/hexdev.key
     export CERT=/data/certs/hexdev.crt
     export CHAIN=/data/certs/chain.crt
-	export HTTPS_PORT=8229
-	# The meteor port.
+
+    # Port for HTTP redirect
+    export HTTP_PORT=8234
+
+    export HTTPS_PORT=8229
+    # The meteor port.
 	export PORT=8228 
 	# Where the https proxy goes.
 	export METEOR_URL="http://hexdev.sdsc.edu:"$PORT
@@ -28,7 +32,7 @@ fi
 
 # "FORE" or "BACK", "BACK" assumes you have bundled the app
 # with the bin/deploy.sh script.11
-export BACK_OR_FOREGROUND=FORE
+export BACK_OR_FOREGROUND=BACK
 
 # Meteor settings.json variables.
 export GOOGLE_API_KEY="AIzaSyBb8AJUB4x-xxdUCnjzb-Xbcg0-T1mPw3I"
