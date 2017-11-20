@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Path to your meteor.
-export METEOR=/cluster/home/dmccoll/.meteor/meteor
+export METEOR_PATH=/cluster/home/dmccoll/.meteor/meteor
 # Path to the root of github repo
 export HEXMAP=/cluster/home/dmccoll/dev
 
