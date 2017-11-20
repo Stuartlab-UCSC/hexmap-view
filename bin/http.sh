@@ -7,6 +7,6 @@ source $1
 # Start the http server
 touch $HEXMAP/log/http
 mv $HEXMAP/log/http $HEXMAP/log/http.prev
-(nohup $NODE_BIN/node $HEXMAP/bin/start/http.js &> $HEXMAP/log/http \
+(nohup $NODE_BIN/node $HEXMAP/bin/js/http.js &> $HEXMAP/log/http \
    & echo $! > pid/http)
 
