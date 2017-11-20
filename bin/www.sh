@@ -1,5 +1,5 @@
 #!/bin/bash
-# $1: /path/to/the/config/file
+# $1: /path/to/the/config/file. If empty uses ./config/setup.cf
 
 # Source the configuration file for this machine.
 source $1

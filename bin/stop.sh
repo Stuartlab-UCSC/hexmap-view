@@ -1,6 +1,6 @@
 #!/bin/bash
 # $1: "db", "www", "http", or "https" : The server to stop.
-# $2: The path to the configuration file, unneeded if in root of git repo, or HEXMAP var is set.
+# $2: The path to the configuration file. If empty uses ./config/setup.cf
 SERVER_TYPE=$1
 CONFIG_FILE=$2
 
@@ -22,9 +22,9 @@ fi
 source $CONFIG_FILE
 
 cd $HEXMAP
-if [ -e "$FILE" ]; then
-    pkill -F $FILE
-    rm $FILE
+if [ -e "$PID_FILE" ]; then
+    pkill -F $PID_FILE
+    rm $PID_FILE
 else
-    echo "No process to kill, there should be a pid dir in \$HEXMAP: " $HEXMAP
+    echo "No process to kill, there is no PID file at " $HEXMAP/$PID_FILE
 fi
