@@ -1,74 +1,14 @@
-// hexagram.js
+// viewport.js
 // Run the hexagram visualizer client.
 
 import '/imports/lib/color.js';
-import ajax from '/imports/mapPage/data/ajax.js';
 import colorEdit from '/imports/mapPage/color/colorEdit.js';
-import coords from '/imports/mapPage/viewport/coords.js';
 import hexagons from '/imports/mapPage/viewport/hexagons.js';
 import Layer from '/imports/mapPage/longlist/Layer.js';
 import legend from '/imports/mapPage/color/legend.js';
 import rx from '/imports/common/rx.js';
 import shortlist from '/imports/mapPage/shortlist/shortlist.js';
-import sort from '/imports/mapPage/longlist/sort.js';
-import tool from '/imports/mapPage/head/tool.js';
 import util from '/imports/common/util.js';
-
-var userDebug = false; // Turn user debugging on/off
-
-exports.createMap = function  () {
-
-    // Create the google map.
-    var mapOptions = {
-        center: ctx.center,
-        backgroundColor: Session.get('background'),
-        zoom: ctx.zoom,
-        mapTypeId: "blank",
-        // Don't show a map type picker.
-        mapTypeControlOptions: {
-            mapTypeIds: []
-        },
-        minZoom: 2,
-
-        // Or a street view man that lets you walk around various Earth places.
-        streetViewControl: false
-    };
-
-    // Create the actual map
-    GoogleMaps.create({
-        name: 'googlemap',
-        options: mapOptions,
-        element: document.getElementById("visualization"),
-    });
-    googlemap = GoogleMaps.maps.googlemap.instance;
-        
-    // Attach the blank map type to the map
-    googlemap.mapTypes.set("blank", new coords.BlankMap());
-    
-    google.maps.event.addListener(googlemap, "center_changed", function(event) {
-        ctx.center = googlemap.getCenter();
-    });
-    
-    // We also have an event listener that checks when the zoom level changes,
-    // and turns off hex borders if we zoom out far enough, and turns them on
-    // again if we come back.
-    google.maps.event.addListener(googlemap, "zoom_changed", function(event) {
-        // Get the current zoom level (low is out)
-        ctx.zoom = googlemap.getZoom();
-        hexagons.zoomChanged();
-    });
-    
-    // Listen to mouse events on this map
-    tool.subscribe_listeners(googlemap);
-}
-
-exports.initMap = function () {
-
-    // Initialize the google map and create the hexagon assignments
-    exports.createMap();
-    hexagons.create();
-    exports.refreshColors();
-};
 
 exports.have_colormap = function (colormap_name) {
     // Returns true if the given string is the name of a colormap, or false if 
@@ -504,69 +444,6 @@ function mix2Continuos(layerVal1, layerVal2){
     var color = colorify(red, green , blue);
 
     return color
-}
-
-initLayout = function () {
-
-    // Download the layout names and save to the layouts array
-        var id = 'layouts';
-        ajax.get({
-            id: id,
-            ok404: true,
-            success: function (parsed) {
-
-                // This is an array of rows, with one element in each row:
-                // layout name.
-                var layouts = [];
-                for (var i = 0; i < parsed.length; i++) {
-                    var row = parsed[i];
-                    if (row.length === 0) {
-                        // Skip any blank lines
-                        continue;
-                    }
-                    layouts.push(row[0]);
-                }
-                Session.set('layouts', layouts);
-
-                // Transform the layout list into the form wanted by select2
-                var data = _.map(layouts, function (layout, i) {
-                    return { id: i, text: layout }
-                });
-
-                // Create our selection list
-                
-                // Determine the layout index whose map will be displayed.
-                // Layout index takes precedent over layout name.
-                if (Session.equals('layoutIndex', undefined)) {
-                    Session.set('layoutIndex',
-                        (Session.equals('layoutName', undefined) ? 0 :
-                            layouts.indexOf(Session.get('layoutName')))
-                    );
-                }
-                
-                createOurSelect2($("#layout-search"),
-                    {data: data}, Session.get('layoutIndex').toString());
-
-                // Define the event handler for the selecting in the list
-                $("#layout-search").on('change', function (ev) {
-                    Session.set('layoutIndex', ev.target.value);
-                    createMap();
-                    drawLayout(true);
-                    
-                    // Update density stats to this layout and
-                    // resort the list to the default of density
-                    find_clumpiness_stats(Session.get('layoutIndex'));
-                    Session.set('sort', ctx.defaultSort());
-                    import longlist from '/imports/reactCandidates/longlist.js';
-                    longlist.update();
-                    
-                });
-                Session.set('initedLayout', true);
-            },
-            error: function (error) {
-                projectNotFound(id);
-            },
-        });
 }
 
 exports.colormapsReceived = function (parsed, id) {

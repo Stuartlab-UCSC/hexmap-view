@@ -6,7 +6,7 @@ import '/imports/lib/jquery-ui.js';
 
 import colorEdit from '/imports/mapPage/color/colorEdit.js';
 import gChart from '/imports/mapPage/shortlist/gChart.js';
-import hexagram from '/imports/mapPage/viewport/hexagram.js';
+import colorMix from '/imports/mapPage/color/colorMix.js';
 import Layer from '/imports/mapPage/longlist/Layer.js';
 import util from '/imports/common/util.js';
 
@@ -289,7 +289,7 @@ function create_filter_select_options (layer_name, layer, filter_value) {
     }
 
     // Update colors to reflect the filter created by the initial selection
-    hexagram.refreshColors();
+    colorMix.refreshColors();
 
     // Define the event handler for selecting an item
     filter_value.on('change', function (ev) {
@@ -297,7 +297,7 @@ function create_filter_select_options (layer_name, layer, filter_value) {
             'filter_value', 'set', layer_name, parseInt(ev.target.value));
         
         // Update the colors to reflect the filter updated by this select
-        hexagram.refreshColors();
+        colorMix.refreshColors();
     });
 }
 
@@ -342,7 +342,7 @@ function create_range_slider (layer_name, root) {
         util.session('filter_value', 'set', layer_name,
             [low * factor, high * factor]);
         slider_vals.set(layer_name, [low * factor, high * factor]);
-        hexagram.refreshColors();
+        colorMix.refreshColors();
     };
 
     // Create the slider
@@ -523,7 +523,7 @@ function filter_control_changed (ev) {
     build_filter(layer_name);
 
     // Update the colors with the new filtering or lack thereof.
-    hexagram.refreshColors();
+    colorMix.refreshColors();
 }
 
 function ui_and_list_delete (layer_name) {
@@ -656,7 +656,7 @@ function when_active_color_layers_change () {
     // Finally, refresh the map colors if we have the data,
     // otherwise the colors are refreshed when the data arrives.
     if (active.length > 0 && layers[active[0]].data) {
-        hexagram.refreshColors();
+        colorMix.refreshColors();
     }
 }
 
@@ -822,7 +822,7 @@ exports.removeEntry = function (layer_name) {
         delete template[layer_name];
 
         // Refresh the map.
-        hexagram.refreshColors();
+        colorMix.refreshColors();
     }
 }
 

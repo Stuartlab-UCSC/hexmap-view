@@ -3,7 +3,7 @@
 
 import data from '/imports/mapPage/data/data.js';
 import colorEdit from '/imports/mapPage/color/colorEdit.js';
-import hexagram from '/imports/mapPage/viewport/hexagram.js';
+import colorMix from '/imports/mapPage/color/colorMix.js';
 import jPalette from '/imports/lib/jPalette.js';
 import Prompt from '/imports/component/Prompt.js';
 import rx from '/imports/common/rx.js';
@@ -289,7 +289,7 @@ function load_static_data (layer_name, callback) {
         // then refresh the colors.
         if (shortlist.get_active_coloring_layers().indexOf(layer_name) > -1 &&
             rx.get('init.colormapLoaded')) {
-            hexagram.refreshColors();
+            colorMix.refreshColors();
         }
 
         // Now the layer has been properly downloaded, but it may not
@@ -429,7 +429,7 @@ exports.with_one = function (layer_name, callback, dynamicLayers) {
         // Keep track of the unsigned magnitude.
         layer.magnitude = Math.max(Math.abs(minimum), maximum);
 
-        if (!hexagram.have_colormap(layer_name) && util.is_binary(layer_name)) {
+        if (!colorMix.have_colormap(layer_name) && util.is_binary(layer_name)) {
             // Add an empty colormap for this layer, so that 
             // auto-generated discrete colors will be used.
 		        colormaps[layer_name] = colorEdit.defaultBinaryColorMap();
