@@ -9,6 +9,18 @@ const reducers = {
         return (action.type === 'init.activeAttrsInShortlist') ?
             true : state;
     },
+    'init.activeAttrsLoaded': (state = false, action) => {
+        return (action.type === 'init.activeAttrsLoaded') ? true : state;
+    },
+    'init.attrSummaryLoaded': (state = false, action) => {
+        return (action.type === 'init.attrSummaryLoaded') ? true : state;
+    },
+    'init.attrTypesLoaded': (state = false, action) => {
+        return (action.type === 'init.attrTypesLoaded') ? true : state;
+    },
+    'init.colormapLoaded': (state = false, action) => {
+        return (action.type === 'init.colormapLoaded') ? true : state;
+    },
     'init.ctxLoaded': (state = false, action) => {
         return (action.type === 'init.ctxLoaded') ? true : state;
     },
@@ -30,6 +42,12 @@ const reducers = {
     'init.layoutsPopulated': (state = false, action) => {
         return (action.type === 'init.layoutsPopulated') ? true : state;
     },
+    'init.layoutPositionsLoaded': (state = false, action) => {
+        return (action.type === 'init.layoutPositionsLoaded') ? true : state;
+    },
+    'init.mapAuthorized': (state = false, action) => {
+        return (action.type === 'init.mapAuthorized') ? true : state;
+    },
     'init.mapPrepared': (state = false, action) => {
         return (action.type === 'init.mapPrepared') ? true : state;
     },
@@ -38,24 +56,6 @@ const reducers = {
     },
     'init.stateLoaded': (state = false, action) => {
         return (action.type === 'init.stateLoaded') ? true : state;
-    },
-    'init.layoutPositionsLoaded': (state = false, action) => {
-        return (action.type === 'init.layoutPositionsLoaded') ? true : state;
-    },
-    'init.activeAttrsLoaded': (state = false, action) => {
-        return (action.type === 'init.activeAttrsLoaded') ? true : state;
-    },
-    'init.mapAuthorized': (state = false, action) => {
-        return (action.type === 'init.mapAuthorized') ? true : state;
-    },
-    'init.colormapLoaded': (state = false, action) => {
-        return (action.type === 'init.colormapLoaded') ? true : state;
-    },
-    'init.attrSummaryLoaded': (state = false, action) => {
-        return (action.type === 'init.attrSummaryLoaded') ? true : state;
-    },
-    'init.attrTypesLoaded': (state = false, action) => {
-        return (action.type === 'init.attrTypesLoaded') ? true : state;
     },
 };
 
@@ -74,7 +74,7 @@ function makeAction (type, ...argNames) {
 function makeStateActions () {
 
     // Create all action identifiers and actions for single action bits of state.
-    // TODO: This only works for those state bits with only one action.
+    // TODO: Test with more than one action per statePiece.
     _.each(rx.stateActions, function(id) {
         makeAction(id);
     });
@@ -87,12 +87,12 @@ exports.init = function () {
     
     // Combine the reducers, create the store and initialize the constants
     // for callers.
-/*  const store = createStore(
-   reducer, // preloadedState,
-+  window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__()
- );
- */
-    rx.init(redux.createStore(redux.combineReducers(reducers)));
+    /* eslint-disable no-underscore-dangle */
+    rx.init(redux.createStore(
+        redux.combineReducers(reducers), /* preloadedState, */
+        window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__()
+    ));
+    /* eslint-enable */
 };
 
 /*
