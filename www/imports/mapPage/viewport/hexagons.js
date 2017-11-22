@@ -4,7 +4,7 @@
 import data from '/imports/mapPage/data/data.js';
 import colorEdit from '/imports/mapPage/color/colorEdit.js';
 import coords from '/imports/mapPage/viewport/coords.js';
-import hexagram from '/imports/mapPage/viewport/hexagram.js';
+import colorMix from '/imports/mapPage/color/colorMix.js';
 import infoWindow from '/imports/mapPage/viewport/infoWindow.js';
 import rx from '/imports/common/rx.js';
 import tool from '/imports/mapPage/head/tool.js';
@@ -222,7 +222,7 @@ function showHoverInfo () {
 function initNewLayout () {
     coords.findDimensions(max_x, max_y);
     exports.create();
-    hexagram.refreshColors();
+    colorMix.refreshColors();
 }
 
 exports.create = function () {

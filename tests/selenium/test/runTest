@@ -21,6 +21,7 @@ elif [ $1 == 'lint' ]; then
         checkLayerBox.js
         color.js
         colorEdit.js
+        colorMix.js
         coords.js
         createMap.js
         download.js
@@ -29,7 +30,7 @@ elif [ $1 == 'lint' ]; then
         filter.js
         gChart.js
         hexagons.js
-        hexagram.js
+        honeycomb.js
         infoWindow.js
         jobs.js
         jquery-ui.js

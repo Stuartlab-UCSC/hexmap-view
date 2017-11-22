@@ -3,7 +3,7 @@
 
 import coords from '/imports/mapPage/viewport/coords.js';
 import Layer from '/imports/mapPage/longlist/Layer.js';
-import hexagram from '/imports/mapPage/viewport/hexagram.js';
+import colorMix from '/imports/mapPage/color/colorMix.js';
 import tool from '/imports/mapPage/head/tool.js';
 
 import './infoWindow.html';
@@ -127,7 +127,7 @@ function with_infocard(signature, callback, gMap) {
                 // This holds the layer's value for this signature
                 var layer_value = retrieved_layers[i].data[signature];
                 
-                if (hexagram.have_colormap(current_layers[i])) {
+                if (colorMix.have_colormap(current_layers[i])) {
                     // This is a color map
                     
                     // This holds the category object for this category number, or

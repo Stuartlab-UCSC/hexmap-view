@@ -89,8 +89,8 @@ exports.requestLayoutNames = function (opts) {
 };
 
 exports.requestColormaps = function (opts) {
-    import hexagram from '/imports/mapPage/viewport/hexagram.js';
-    opts.successFx = opts.successFx || hexagram.colormapsReceived;
+    import colorMix from '/imports/mapPage/color/colorMix.js';
+    opts.successFx = opts.successFx || colorMix.colormapsReceived;
     request('colormaps', opts);
 };
 

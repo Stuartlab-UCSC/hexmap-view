@@ -1,11 +1,12 @@
 
 // Colormap editor and color constance.
 // TODO pull the colormap editor out of here into its own file.
-// TODO move the color functions from hexagram.js to here.
+// TODO move the color functions from colorMix.js to here.
 
 import DialogHex from '/imports/common/DialogHex.js';
 import hexagons from '/imports/mapPage/viewport/hexagons.js';
-import hexagram from '/imports/mapPage/viewport/hexagram.js';
+import honeycomb from '/imports/mapPage/viewport/honeycomb.js';
+import colorMix from '/imports/mapPage/color/colorMix.js';
 import overlayNodes from '/imports/mapPage/calc/overlayNodes.js';
 import shortlist from '/imports/mapPage/shortlist/shortlist.js';
 import tool from '/imports/mapPage/head/tool.js';
@@ -123,7 +124,7 @@ function updateColormap (aCat) {
         return false;
     });
     colormaps[layer][catI].color = new Color(aCat.operVal);
-    hexagram.refreshColors();
+    colorMix.refreshColors();
 }
 
 function rowClick(ev) {
@@ -530,9 +531,9 @@ exports.init = function () {
 
         // The background change requires a new map to show the
         // background.
-        hexagram.createMap();
+        honeycomb.createMap();
         hexagons.create();
-        hexagram.refreshColors();
+        colorMix.refreshColors();
         overlayNodes.show();
     });
 

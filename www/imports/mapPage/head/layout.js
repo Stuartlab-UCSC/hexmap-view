@@ -2,7 +2,7 @@
 
 import data from '/imports/mapPage/data/data.js';
 import hexagons from '/imports/mapPage/viewport/hexagons.js';
-import hexagram from '/imports/mapPage/viewport/hexagram.js';
+import honeycomb from '/imports/mapPage/viewport/honeycomb.js';
 import perform from '/imports/common/perform.js';
 import sort from '/imports/mapPage/longlist/sort.js';
 import util from '/imports/common/util.js';
@@ -84,7 +84,7 @@ exports.initList = function () {
         
         if (!Session.equals('layoutIndex', ev.target.value)) {
             Session.set('layoutIndex', ev.target.value);
-            hexagram.createMap();
+            honeycomb.createMap();
             hexagons.getAssignmentsForMapViewChange();
             
             // Update density stats to this layout and

@@ -1,7 +1,7 @@
 // setOperUI.js
 // Handle the UI for the set operations.
 
-import hexagram from '/imports/mapPage/viewport/hexagram.js';
+import colorMix from '/imports/mapPage/color/colorMix.js';
 import Layer from '/imports/mapPage/longlist/Layer.js';
 import tool from '/imports/mapPage/head/tool.js';
 import util from '/imports/common/util.js';

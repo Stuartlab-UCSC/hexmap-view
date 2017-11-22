@@ -1,7 +1,7 @@
 // legend.js
 // Handle the legend.
 
-import hexagram from '/imports/mapPage/viewport/hexagram.js';
+import colorMix from '/imports/mapPage/color/colorMix.js';
 import Layer from '/imports/mapPage/longlist/Layer.js';
 import shortlist from '/imports/mapPage/shortlist/shortlist.js';
 import colorEdit from '/imports/mapPage/color/colorEdit.js';
@@ -166,7 +166,7 @@ exports.redraw = function (retrieved_layers, current_layers, context) {
             
             // Set the pixel color to the right thing for this u, v
             // It's OK to pass undefined names here for layers.
-            context.fillStyle = hexagram.get_color(current_layers[0], u,
+            context.fillStyle = colorMix.get_color(current_layers[0], u,
                 current_layers[1], v);
             
             // Fill the pixel

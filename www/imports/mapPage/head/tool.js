@@ -1,6 +1,6 @@
 
 // atools.js: Code to run the tools in the menu bar that use map events.
-// References globals in hexagram.js to actually do the tools' work.
+// References globals in colorMix.js to actually do the tools' work.
 
 // To add a tool:
 // * Make a $(function() {...}); block to hold your code.
