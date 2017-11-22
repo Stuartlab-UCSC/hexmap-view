@@ -4,6 +4,7 @@
 
     // Some global settings available to server and client.
     // Enable performance metric collection.
+    VERSION = '1.0';
     URL_BASE = Meteor.settings.public.URL_BASE;
     VIEW_DIR = Meteor.settings.public.VIEW_DIR;
     LAYOUT_INPUT_DIR = Meteor.settings.public.LAYOUT_INPUT_DIR;
