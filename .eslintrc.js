@@ -4,6 +4,8 @@ module.exports = {
         "ctx": true,
         "DEV": false,
         "GoogleMaps": false,
+        "google": false,
+        "googlemap": true,
         "HUB_URL": false,
         "layers": false,
         "PERFORM": false,

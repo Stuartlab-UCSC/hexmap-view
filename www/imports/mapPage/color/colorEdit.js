@@ -3,17 +3,17 @@
 // TODO pull the colormap editor out of here into its own file.
 // TODO move the color functions from colorMix.js to here.
 
-import DialogHex from '/imports/common/DialogHex.js';
-import hexagons from '/imports/mapPage/viewport/hexagons.js';
-import honeycomb from '/imports/mapPage/viewport/honeycomb.js';
-import colorMix from '/imports/mapPage/color/colorMix.js';
-import overlayNodes from '/imports/mapPage/calc/overlayNodes.js';
-import shortlist from '/imports/mapPage/shortlist/shortlist.js';
-import tool from '/imports/mapPage/head/tool.js';
+import DialogHex from '/imports/common/DialogHex';
+import hexagons from '/imports/mapPage/viewport/hexagons';
+import viewport from '/imports/mapPage/viewport/viewport';
+import colorMix from '/imports/mapPage/color/colorMix';
+import overlayNodes from '/imports/mapPage/calc/overlayNodes';
+import shortlist from '/imports/mapPage/shortlist/shortlist';
+import tool from '/imports/mapPage/head/tool';
 import '/imports/common/navBar.html';
 import './colorEdit.html';
 import './colorEdit.css';
-import util from '/imports/common/util.js';
+import util from '/imports/common/util';
 
 // Some color constants
 var DISABLED_COLOR = '#aaaaaa',
@@ -531,7 +531,7 @@ exports.init = function () {
 
         // The background change requires a new map to show the
         // background.
-        honeycomb.createMap();
+        viewport.create();
         hexagons.create();
         colorMix.refreshColors();
         overlayNodes.show();

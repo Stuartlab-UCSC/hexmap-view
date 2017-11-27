@@ -1,14 +1,13 @@
 // viewport.js
 // Run the hexagram visualizer client.
 
-import '/imports/lib/color.js';
-import colorMix from '/imports/mapPage/color/colorMix.js';
-import coords from '/imports/mapPage/viewport/coords.js';
-import hexagons from '/imports/mapPage/viewport/hexagons.js';
-import rx from '/imports/common/rx.js';
-import tool from '/imports/mapPage/head/tool.js';
+import '/imports/lib/color';
+import colorMix from '/imports/mapPage/color/colorMix';
+import coords from '/imports/mapPage/viewport/coords';
+import hexagons from '/imports/mapPage/viewport/hexagons';
+import tool from '/imports/mapPage/head/tool';
 
-exports.createMap = function  () {
+exports.create = function  () {
 
     // Create the google map.
     var mapOptions = {
@@ -37,14 +36,14 @@ exports.createMap = function  () {
     // Attach the blank map type to the map
     googlemap.mapTypes.set("blank", new coords.BlankMap());
     
-    google.maps.event.addListener(googlemap, "center_changed", function(event) {
+    google.maps.event.addListener(googlemap, "center_changed", function() {
         ctx.center = googlemap.getCenter();
     });
     
     // We also have an event listener that checks when the zoom level changes,
     // and turns off hex borders if we zoom out far enough, and turns them on
     // again if we come back.
-    google.maps.event.addListener(googlemap, "zoom_changed", function(event) {
+    google.maps.event.addListener(googlemap, "zoom_changed", function() {
         // Get the current zoom level (low is out)
         ctx.zoom = googlemap.getZoom();
         hexagons.zoomChanged();
@@ -52,12 +51,12 @@ exports.createMap = function  () {
     
     // Listen to mouse events on this map
     tool.subscribe_listeners(googlemap);
-}
+};
 
-exports.initMap = function () {
+exports.init = function () {
 
     // Initialize the google map and create the hexagon assignments
-    exports.createMap();
+    exports.create();
     hexagons.create();
     colorMix.refreshColors();
 };

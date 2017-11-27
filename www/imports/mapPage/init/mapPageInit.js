@@ -3,30 +3,30 @@
  */
 
 import { Meteor } from 'meteor/meteor';
-import checkLayerBox from '/imports/mapPage/calc/checkLayerBox.js';
-import colorEdit from '/imports/mapPage/color/colorEdit.js';
-import coords from '/imports/mapPage/viewport/coords.js';
-import createMap from '/imports/mapPage/calc/createMap.js';
-import data from '/imports/mapPage/data/data.js';
-import download from '/imports/mapPage/data/download.js';
-import gChart from '/imports/mapPage/shortlist/gChart.js';
-import hexagons from '/imports/mapPage/viewport/hexagons.js';
-import honeycomb from '/imports/mapPage/viewport/honeycomb.js';
-import Layer from '/imports/mapPage/longlist/Layer.js';
-import layout from '/imports/mapPage/head/layout.js';
-import legend from '/imports/mapPage/color/legend.js';
-import perform from '/imports/common/perform.js';
-import reflect from '/imports/mapPage/calc/reflect.js';
-import rx from '/imports/common/rx.js';
-import shortlist from '/imports/mapPage/shortlist/shortlist.js';
-import selectNode from '/imports/mapPage/shortlist/select.js';
-import setOper from '/imports/mapPage/shortlist/setOper.js';
-import sort from '/imports/mapPage/longlist/sort.js';
-import sortUi from '/imports/mapPage/longlist/sortUi.js';
-import state from '/imports/common/state.js';
-import tool from '/imports/mapPage/head/tool.js';
-import util from '/imports/common/util.js';
-import utils from '/imports/common/utils.js';
+import checkLayerBox from '/imports/mapPage/calc/checkLayerBox';
+import colorEdit from '/imports/mapPage/color/colorEdit';
+import coords from '/imports/mapPage/viewport/coords';
+import createMap from '/imports/mapPage/calc/createMap';
+import data from '/imports/mapPage/data/data';
+import download from '/imports/mapPage/data/download';
+import gChart from '/imports/mapPage/shortlist/gChart';
+import hexagons from '/imports/mapPage/viewport/hexagons';
+import viewport from '/imports/mapPage/viewport/viewport';
+import Layer from '/imports/mapPage/longlist/Layer';
+import layout from '/imports/mapPage/head/layout';
+import legend from '/imports/mapPage/color/legend';
+import perform from '/imports/common/perform';
+import reflect from '/imports/mapPage/calc/reflect';
+import rx from '/imports/common/rx';
+import shortlist from '/imports/mapPage/shortlist/shortlist';
+import selectNode from '/imports/mapPage/shortlist/select';
+import setOper from '/imports/mapPage/shortlist/setOper';
+import sort from '/imports/mapPage/longlist/sort';
+import sortUi from '/imports/mapPage/longlist/sortUi';
+import state from '/imports/common/state';
+import tool from '/imports/mapPage/head/tool';
+import util from '/imports/common/util';
+import utils from '/imports/common/utils';
 
 import '/imports/mapPage/init/mapPage.html';
 
@@ -104,7 +104,7 @@ function areLayoutsPopulated () {
             layout.initList();
             sortUi.init();
 
-            import lazyLoader from '/imports/mapPage/init/lazyLoader.js';
+            import lazyLoader from '/imports/mapPage/init/lazyLoader';
             lazyLoader.init();
             legend.init();
             checkLayerBox.init();
@@ -113,7 +113,7 @@ function areLayoutsPopulated () {
             download.init();
             colorEdit.init();
             
-            import infoWindow from '/imports/mapPage/viewport/infoWindow.js';
+            import infoWindow from '/imports/mapPage/viewport/infoWindow';
             infoWindow.init();
             setOper.init();
             createMap.init();
@@ -160,7 +160,7 @@ function isMapRendered () {
             data.requestMapMeta();
             
             // Populate the longlist.
-            import longlist from '/imports/mapPage/longlist/longlist.js';
+            import longlist from '/imports/mapPage/longlist/longlist';
             longlist.init();
             
             // Populate the shortlist with only the active layers by faking
@@ -186,7 +186,7 @@ function isMapPreppedAndUserAuthorized () {
         // Pause to let previous processing complete.
         setTimeout(function () {
             perform.log(' 4-init:after-timeout');
-            honeycomb.initMap();
+            viewport.init();
             rx.set('init.mapRendered');
         });
     }
