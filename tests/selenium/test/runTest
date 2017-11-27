@@ -30,7 +30,7 @@ elif [ $1 == 'lint' ]; then
         filter.js
         gChart.js
         hexagons.js
-        honeycomb.js
+        viewport.js
         infoWindow.js
         jobs.js
         jquery-ui.js

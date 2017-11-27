@@ -1,11 +1,11 @@
 // layout.js
 
-import data from '/imports/mapPage/data/data.js';
-import hexagons from '/imports/mapPage/viewport/hexagons.js';
-import honeycomb from '/imports/mapPage/viewport/honeycomb.js';
-import perform from '/imports/common/perform.js';
-import sort from '/imports/mapPage/longlist/sort.js';
-import util from '/imports/common/util.js';
+import data from '/imports/mapPage/data/data';
+import hexagons from '/imports/mapPage/viewport/hexagons';
+import viewport from '/imports/mapPage/viewport/viewport';
+import perform from '/imports/common/perform';
+import sort from '/imports/mapPage/longlist/sort';
+import util from '/imports/common/util';
 
 exports.findCurrentName = function () {
     var index = Session.get('layoutIndex'),
@@ -84,7 +84,7 @@ exports.initList = function () {
         
         if (!Session.equals('layoutIndex', ev.target.value)) {
             Session.set('layoutIndex', ev.target.value);
-            honeycomb.createMap();
+            viewport.create();
             hexagons.getAssignmentsForMapViewChange();
             
             // Update density stats to this layout and
