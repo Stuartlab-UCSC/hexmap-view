@@ -74,6 +74,12 @@ exports.report_calc_result = function (result_in, calcCtx) {
     // Report an error or successful result to http or the client,
     // after running the post-calc function if there is one.
     
+    if (_.isUndefined(calcCtx)) {
+        console.log('undefined calcCtx,',
+            'probably from a job submitted before the latest restart.');
+        return;
+    }
+    
     var result = _.clone(result_in);
     if (!result) {
         result = {
@@ -428,7 +434,7 @@ Meteor.startup(function () {
     } else {
     
         // This will never work; a server must be 'main', 'calc' or both.
-        console.log('Error: this server is not defined as a main server',
+        console.log('Error: this server is not defined as a view server',
             'or a calc server.');
         return;
     }
