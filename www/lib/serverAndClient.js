@@ -51,7 +51,6 @@ Meteor.startup( () => {
         SERVER_DIR = Meteor.settings.server.SERVER_DIR;
         TEMP_DIR = Meteor.settings.server.TEMP_DIR;
         IS_MAIN_SERVER = Meteor.settings.server.jobs.IS_MAIN_SERVER;
-        IS_CALC_SERVER = Meteor.settings.server.jobs.IS_CALC_SERVER;
         MAIN_MONGO_URL = Meteor.settings.server.jobs.MAIN_MONGO_URL;
         ADMIN_EMAIL = Meteor.settings.public.ADMIN_EMAIL;
         
