@@ -11,7 +11,6 @@
     },
     "server": {
         "jobs": {
-            "IS_CALC_SERVER": false,
             "IS_MAIN_SERVER": true
         },
         "SERVER_DIR": "/cluster/home/swat/dev/www/programs/server/assets/app/",

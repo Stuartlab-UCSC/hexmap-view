@@ -26,6 +26,7 @@ if [ $TYPE == 'www' ]; then
 
     # If the python environment is present then open it up.
     if [ -e $PYENV/bin/activate ]; then
+        echo 'entering virtualenv:' $PYENV
         source $PYENV/bin/activate
     fi
     export MONGO_URL=mongodb://localhost:$DB_PORT/$DB_NAME

@@ -10,7 +10,6 @@
     },
     "server": {
         "jobs": {
-            "IS_CALC_SERVER": false,
             "IS_MAIN_SERVER": true
         },
         "SERVER_DIR": "/data/www/programs/server/assets/app/",
