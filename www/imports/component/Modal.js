@@ -31,7 +31,9 @@ export default class Modal extends Component {
         if (this.props.onRequestClose) {
             
             // Stop propagation of the event so that that react close event will
-            // not execute twice. This is a work-around for a react bug.
+            // not execute twice when a modal is closed by clicking the close
+            // button. This is a work-around for a react bug.
+            // TODO only works sometimes.
             event.stopPropagation();
             
             // Execute the given close event handler.

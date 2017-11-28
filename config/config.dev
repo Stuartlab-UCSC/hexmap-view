@@ -7,6 +7,5 @@ DB_PORT=28223
 export HTTP_PORT=8221
 export HTTPS_PORT=8222
 export PORT=8223
-# There is no hexdev virtual env yet.
-#export PYENV=/hive/groups/hexmap/dev/envHexmap
+export PYENV=/hive/groups/hexmap/dev/envHexdev
 export ROOT_URL=https://hexdev.sdsc.edu:$HTTPS_PORT
