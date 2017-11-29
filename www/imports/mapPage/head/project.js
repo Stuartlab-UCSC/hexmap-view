@@ -2,14 +2,14 @@
 // project.js: A UI to load data files from a directory within the webserver's
 // doc dir
 
-import auth from '/imports/common/auth.js';
+import auth from '/imports/common/auth';
 import React, { Component } from 'react';
-import perform from '/imports/common/perform.js';
+import perform from '/imports/common/perform';
 import { render } from 'react-dom';
-import rx from '/imports/common/rx.js';
-import Select22 from '/imports/component/Select22.js';
-import util from '/imports/common/util.js';
-import utils from '/imports/common/utils.js';
+import rx from '/imports/common/rx';
+import Select22 from '/imports/component/Select22';
+import util from '/imports/common/util';
+import utils from '/imports/common/utils';
 
 // Placeholder text when no project is selected
 var PLACEHOLDER_TEXT = 'Select a Map.../';
@@ -57,7 +57,7 @@ function matcher (term, text, opt) {
 function notAuthdMessage () {
 
     // The user is not authorized to see the current project. Let her know.
-    Session.set('mapSnake', false);
+    rx.set('project.listLoading.done');
 
     var notFoundMsg = util.getHumanProject(ctx.project) +
         " cannot be found.\nPlease select another map.";
@@ -130,13 +130,6 @@ function populate () {
         />, $('#project')[0]);
     
     perform.log('project-list-rendered');
-    
-    // If a protected project was loaded before and the new user is not
-    // authorized to see it, or there is no one logged in, give a message
-    // to the user.
-    if (!is_project_on_list(ctx.project)) {
-        notAuthdMessage();
-     }
 }
 
 function signInClicked(count) {
@@ -163,7 +156,7 @@ exports.authorize = function (userId) {
             if (results) {
                 rx.set('init.mapAuthorized');
                 if (rx.get('init.mapRendered')) {
-                    Session.set('mapSnake', true);
+                    rx.set('project.listLoading.now');
                 }
             } else {
                 notAuthdMessage();
