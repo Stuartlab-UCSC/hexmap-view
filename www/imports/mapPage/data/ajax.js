@@ -2,7 +2,8 @@
  * Talk to the data/compute server.
  */
 
-import util from '/imports/common/util.js';
+import rx from '/imports/common/rx';
+import util from '/imports/common/util';
 
 var UPLOAD_MAX_GIGABYTES = 4,
     UPLOAD_MAX_BYTES = 1024 * 1024 * 1024 * UPLOAD_MAX_GIGABYTES,
@@ -171,7 +172,6 @@ exports.upload = function(opts) {
     fd.append('file', opts.sourceFile);
 
     if (opts.sourceFile.size > UPLOAD_MAX_BYTES) {
-        Session.set('mapSnake', false);
         var msg = 'upload failed because file is larger than the ' +
             UPLOAD_MAX_GIGABYTES + ' GB limit.';
         util.banner('error', msg);
@@ -180,6 +180,7 @@ exports.upload = function(opts) {
         }
         return;
     }
+    rx.set('uploading.now');
 
     var dataId = 'featureSpace/' + opts.mapId + opts.targetFile;
     var url = HUB_URL + '/upload/' + dataId;
@@ -194,6 +195,7 @@ exports.upload = function(opts) {
         retryLimit : retryLimit,
         success: function (result) {
             opts.success(result, dataId);
+            rx.set('uploading.done');
         },
         error: function (error) {
             var msg = 'Uploading ' + opts.sourceFile +
@@ -203,6 +205,7 @@ exports.upload = function(opts) {
             if (opts.error) {
                 opts.error(msg);
             }
+            rx.set('uploading.done');
         },
 
         // Custom XMLHttpRequest

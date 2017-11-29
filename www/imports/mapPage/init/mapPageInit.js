@@ -22,6 +22,7 @@ import shortlist from '/imports/mapPage/shortlist/shortlist';
 import selectNode from '/imports/mapPage/shortlist/select';
 import setOper from '/imports/mapPage/shortlist/setOper';
 import sort from '/imports/mapPage/longlist/sort';
+import snake from '/imports/common/snake.js';
 import sortUi from '/imports/mapPage/longlist/sortUi';
 import state from '/imports/common/state';
 import tool from '/imports/mapPage/head/tool';
@@ -29,7 +30,6 @@ import util from '/imports/common/util';
 import utils from '/imports/common/utils';
 
 import '/imports/mapPage/init/mapPage.html';
-
 import '/imports/mapPage/init/mapPage.css';
 import '/imports/mapPage/head/header.css';
 
@@ -46,42 +46,6 @@ Template.headerT.helpers({
         return Session.get('nodeCount');
     },
 });
-
-function initSnakes () {
-        
-    // Manage the visibility of a progress snake given
-    // relative-positioned parent anchor with a class of
-    // snakeName = 'Anchor'.
-    // @param snakeName snake ID with:
-    //                  - an associated session variable of snakeName
-    //                  - an associated relative parent anchor with a
-    //                    class of snakeName + 'Anchor'
-    function showHide (show, snakeName) {
-        var $snake = $('.' + snakeName);
-        if (show) {
-            $snake.show();
-        } else {
-            $snake.hide();
-        }
-    }
-    
-    // Add the snakes to the dom.
-    var $snake = $('<div/>')
-          .addClass('mapSnake')
-          .addClass('snake');
-    $('body').append($snake);
-    $snake = $('<div/>')
-          .addClass('statsSnake')
-          .addClass('snake');
-    $('body').append($snake);
-
-    Meteor.autorun(function () {
-        showHide(Session.get('mapSnake'), 'mapSnake');
-    });
-    Meteor.autorun(function () {
-        showHide(Session.get('statsSnake'), 'statsSnake');
-    });
-}
 
 // Phase 6b init: when the active layers have been added to the shortlist
 //                and layout selector has been populated,
@@ -124,7 +88,7 @@ function areLayoutsPopulated () {
                 perform.log('google-analytics-loading');
                 util.googleAnalytics();
             }
-            Session.set('mapSnake', false);
+            rx.set('init.done');
         });
     }
 }
@@ -292,7 +256,7 @@ function hasDomLoaded () {
     
         unsubFx.hasDomLoaded();
         perform.log('1b-init:snakes,dom-loaded');
-        initSnakes();
+        snake.init();
     }
 }
 
@@ -304,7 +268,6 @@ exports.init = function () {
     // Iniitialize some session vars we don't want carried over
     // from the last session.
     Session.set('initedHexagons', false);
-    Session.set('mapSnake', true);
     Session.set('mapMeta', {});
     
     // Request the primary data.

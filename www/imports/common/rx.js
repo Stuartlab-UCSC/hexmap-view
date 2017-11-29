@@ -6,6 +6,10 @@
 // Where <action> is one of the below, <opts> are defined in rxInternal.js.
 // Example:  rx.set('layout.nameSelected', { name: 'RPPA' });
 exports.stateActions = [
+    'createMap.running.done',
+    'createMap.running.now',
+    'init.running',
+    'init.done',
     'init.activeAttrsInShortlist',
     'init.activeAttrsLoaded',
     'init.attrSummaryLoaded',
@@ -22,6 +26,12 @@ exports.stateActions = [
     'init.mapPrepared',
     'init.mapRendered',
     'init.stateLoaded',
+    'placeNode.running.done',
+    'placeNode.running.now',
+    'project.listLoading.done',
+    'project.listLoading.now',
+    'uploading.done',
+    'uploading.now',
 ];
 
 // Pieces of state to retrieve, used with rx.get().
@@ -29,6 +39,8 @@ exports.stateActions = [
 // Where <state-bit> is one of the below.
 // Example:  rx.get('layout.name');
 const statePieces =  [ // eslint-disable-line
+    'createMap.running',
+    'init',
     'init.activeAttrsInShortlist',
     'init.activeAttrsLoaded',
     'init.attrSummaryLoaded',
@@ -45,6 +57,9 @@ const statePieces =  [ // eslint-disable-line
     'init.mapPrepared',
     'init.mapRendered',
     'init.stateLoaded',
+    'placeNode.running',
+    'project.listLoading',
+    'uploading',
 ];
 
 // The global redux state.
@@ -77,6 +92,12 @@ exports.set = function (stateAction, optsIn) {
     var opts = optsIn  || {};
     opts.type = stateAction;
     return reduxStore.dispatch(opts);
+};
+
+exports.dispatch = function (stateAction) {
+
+    // Dispatch an action.
+    return reduxStore.dispatch(stateAction);
 };
 
 exports.subscribe = function (callback) {

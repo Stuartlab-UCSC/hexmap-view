@@ -1,6 +1,7 @@
 
 // Various utilities.
 import { unmountComponentAtNode } from 'react-dom';
+import rx from '/imports/common/rx';
 
 exports.unprintableAsciiCode = function (code, allowCR) {
     
@@ -70,7 +71,7 @@ exports.resizeMap = function () {
 };
 
 function queryFreeReload () {
-    Session.set('mapSnake', true);
+    rx.set('init.running');
     if (window.location.search.length > 0) {
         window.location.search = '';
     } else {

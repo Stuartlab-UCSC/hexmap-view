@@ -1,12 +1,13 @@
 // createMap.js
 // This creates a new map with user uploaded data.
 
-import ajax from '/imports/mapPage/data/ajax.js';
-import auth from '/imports/common/auth.js';
-import DialogHex from '/imports/common/DialogHex.js';
-import tool from '/imports/mapPage/head/tool.js';
-import util from '/imports/common/util.js';
-import utils from '/imports/common/utils.js';
+import ajax from '/imports/mapPage/data/ajax';
+import auth from '/imports/common/auth';
+import DialogHex from '/imports/common/DialogHex';
+import rx from '/imports/common/rx';
+import tool from '/imports/mapPage/head/tool';
+import util from '/imports/common/util';
+import utils from '/imports/common/utils';
 
 import '/imports/mapPage/calc/createMap.html';
 
@@ -196,7 +197,7 @@ function create_map () {
         if (error) {
             report_error('Error: ' + error);
             $dialogCreateButton.removeClass('ui-state-disabled');
-            Session.set('mapSnake', false);
+            rx.set('createMap.running.done')
 
         } else {
             log_it('Map was successfully created and is loading now.');
@@ -245,6 +246,8 @@ function upload_attributes () {
 
 function create_clicked (event) {
     
+    rx.set('createMap.running.now');
+
     // Upload the feature file.
     if ($dialogCreateButton.hasClass('ui-state-disabled')) { return; }
     
@@ -255,7 +258,6 @@ function create_clicked (event) {
     }
     
     // Show the progress snake and disable the create button.
-    Session.set('mapSnake', true);
     $dialogCreateButton.addClass('ui-state-disabled');
     
     log_it('Uploading layout input...\n')

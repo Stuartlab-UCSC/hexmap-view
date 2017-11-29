@@ -4,10 +4,10 @@
 
 import React, { Component } from 'react';
 import { render } from 'react-dom';
-import DialogHex from '/imports/common/DialogHex.js';
-import Layer from '/imports/mapPage/longlist/Layer.js';
-import ReadFile from '/imports/component/ReadFile.js'
-import util from '/imports/common/util.js';
+import DialogHex from '/imports/common/DialogHex';
+import Layer from '/imports/mapPage/longlist/Layer';
+import ReadFile from '/imports/component/ReadFile'
+import util from '/imports/common/util';
 
 import '/imports/mapPage/shortlist/attrAdd.html';
 
@@ -46,18 +46,18 @@ addAsLayers = function (data) {
     Layer.with_many(attrNames, function() {}, dynLayers);
 
     // Remove the busy snake.
-    Session.set('mapSnake', false);
+    rx.set('attrAdd:adding.done');
 
     // Destroy this dialogHex.
     destroy();
 };
 
 function handleReadStart() {
-    Session.set('mapSnake', true);
+    rx.set('attrAdd:adding.now');
 }
 
 function handleReadError(msg) {
-    Session.set('mapSnake', false);
+    rx.set('attrAdd:adding.done');
     util.banner('error', msg);
 }
 

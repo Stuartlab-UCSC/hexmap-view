@@ -5,6 +5,26 @@ import redux from 'redux';
 import rx from './rx.js';
 
 const reducers = {
+    'createMap.running': (state = false, action) => {
+        switch (action.type) {
+        case 'createMap.running.now':
+            return true;
+        case 'createMap.running.done':
+            return false;
+        default:
+            return state;
+        }
+    },
+    'init': (state = false, action) => {
+        switch (action.type) {
+        case 'init.running':
+            return true;
+        case 'init.done':
+            return false;
+        default:
+            return state;
+        }
+    },
     'init.activeAttrsInShortlist': (state = false, action) => {
         return (action.type === 'init.activeAttrsInShortlist') ?
             true : state;
@@ -57,6 +77,36 @@ const reducers = {
     'init.stateLoaded': (state = false, action) => {
         return (action.type === 'init.stateLoaded') ? true : state;
     },
+    'placeNode.running': (state = false, action) => {
+        switch (action.type) {
+        case 'placeNode.running.now':
+            return true;
+        case 'placeNode.running.done':
+            return false;
+        default:
+            return state;
+        }
+    },
+    'project.listLoading': (state = false, action) => {
+        switch (action.type) {
+        case 'project.listLoading.now':
+            return true;
+        case 'project.listLoading.done':
+            return false;
+        default:
+            return state;
+        }
+    },
+    'uploading': (state = false, action) => {
+        switch (action.type) {
+        case 'uploading.now':
+            return true;
+        case 'uploading.done':
+            return false;
+        default:
+            return state;
+        }
+    },
 };
 
 // Create one action.
@@ -94,25 +144,3 @@ exports.init = function () {
     ));
     /* eslint-enable */
 };
-
-/*
-// A helper function for creating a reducer from actions.
-// May be good for those state items with multiple actions.
-function createReducer(initialState, handlers) {
-  return function reducer(state = initialState, action) {
-    if (handlers.hasOwnProperty(action.type)) {
-      return handlers[action.type](state, action)
-    } else {
-      return state
-    }
-  }
-}
-// example:
-export const todos = createReducer([], {
-  [ActionTypes.ADD_TODO](state, action) {
-    let text = action.text.trim()
-    return [ ...state, text ]
-  }
-})
-*/
-

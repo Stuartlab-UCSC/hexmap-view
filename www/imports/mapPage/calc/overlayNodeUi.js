@@ -2,14 +2,15 @@
 
 // This allows the user to view new node(s) placement overlaid on an existing map.
 
-import ajax from '/imports/mapPage/data/ajax.js';
-import auth from '/imports/common/auth.js';
-import DialogHex from '/imports/common/DialogHex.js';
-import layout from '/imports/mapPage/head/layout.js';
-import overlayNodes from './overlayNodes.js';
-import state from '/imports/common/state.js';
-import tool from '/imports/mapPage/head/tool.js';
-import util from '/imports/common/util.js';
+import ajax from '/imports/mapPage/data/ajax';
+import auth from '/imports/common/auth';
+import DialogHex from '/imports/common/DialogHex';
+import layout from '/imports/mapPage/head/layout';
+import overlayNodes from './overlayNodes';
+import rx from '/imports/common/rx';
+import state from '/imports/common/state';
+import tool from '/imports/mapPage/head/tool';
+import util from '/imports/common/util';
 
 import './overlayNode.html';
 
@@ -92,7 +93,7 @@ function doIt (tsv) {
             showNewNodes(result);
         },
         function (error) {
-            Session.set('mapSnake', false);
+            rx.set('placeNode.running.done');
             util.banner('error', 'when adding a new node: ' + error);
         },
     );
@@ -104,7 +105,7 @@ function doIt (tsv) {
 function gotFilename (event) {
 
     // When a file is selected, read it in
-    Session.set('mapSnake', true);
+    rx.set('placeNode.running.now');
 
     // Make a FileReader to read the file
     var reader = new FileReader();
@@ -116,11 +117,11 @@ function gotFilename (event) {
     };
 
     reader.onerror = function(read_event) {
-        Session.set('mapSnake', false);
+        rx.set('placeNode.running.done');
         util.banner('error', 'Error reading file:' + file.filename);
     };
     reader.onabort = function(read_event) {
-        Session.set('mapSnake', false);
+        rx.set('placeNode.running.done');
         util.banner('error', 'Aborted reading file: ' + file.filename);
     };
 
@@ -131,7 +132,7 @@ function gotFilename (event) {
     } catch (error) {
 
         // The user most likely didn't pick a file.
-        Session.set('mapSnake', false);
+        rx.set('placeNode.running.done');
         util.banner('error', 'you need to select a file.');
     }
 }

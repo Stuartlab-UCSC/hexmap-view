@@ -1,9 +1,10 @@
 // util.js
 // This contains various utilities used throughout the code.
 
-import dnt from '/imports/lib/dnt.js';
-import Prompt from '/imports/component/Prompt.js';
-import select2 from '/imports/lib/select2.js';
+import dnt from '/imports/lib/dnt';
+import Prompt from '/imports/component/Prompt';
+import rx from '/imports/common/rx';
+import select2 from '/imports/lib/select2';
 
 exports.get_username = function (callback) {
     
@@ -136,7 +137,7 @@ exports.projectNotFound = function (dataId) {
 
         ctx.projectNotFoundNotified = true;
     
-        Session.set('mapSnake', false);
+        rx.set('project.listLoading.done');
     
         // Alert the user that essential data is missing for this project.
          exports.banner('error', '"' + exports.getHumanProject(ctx.project) +
