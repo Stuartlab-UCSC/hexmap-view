@@ -15,6 +15,7 @@ Template.homePage.onRendered(function () {
 Template.homePage.helpers({
     projects: function () {
         return [
+            { id: 'PancanAtlas/SampleMap', png: 'pancanAtlas.png' },
             { id: 'Pancan12/SampleMap', png: 'pancan12.png' },
             { id: 'Pancan12/GeneMap', png: 'pancan12gene.png' },
             { id: 'Gliomas', png: 'gliomas-paper.png' },
