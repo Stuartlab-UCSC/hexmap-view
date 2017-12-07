@@ -18,7 +18,6 @@ elif [ $1 == 'lint' ]; then
     DONT_LINT_FILES=(
         attrAdd.js
         canvas2svg.js
-        checkLayerBox.js
         color.js
         colorEdit.js
         colorMix.js
