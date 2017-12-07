@@ -3,7 +3,6 @@
  */
 
 import { Meteor } from 'meteor/meteor';
-import checkLayerBox from '/imports/mapPage/calc/checkLayerBox';
 import colorEdit from '/imports/mapPage/color/colorEdit';
 import coords from '/imports/mapPage/viewport/coords';
 import createMap from '/imports/mapPage/calc/createMap';
@@ -71,7 +70,6 @@ function areLayoutsPopulated () {
             import lazyLoader from '/imports/mapPage/init/lazyLoader';
             lazyLoader.init();
             legend.init();
-            checkLayerBox.init();
             reflect.init();
             tool.initLabel();
             download.init();

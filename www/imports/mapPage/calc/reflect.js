@@ -6,11 +6,11 @@ import DialogHex from '/imports/common/DialogHex.js';
 import LayerNameList from '/imports/mapPage/shortlist/LayerNameList.js';
 import tool from '/imports/mapPage/head/tool.js';
 import util from '/imports/common/util.js';
+import Prompt from '/imports/component/Prompt';
+import React from 'react';
 
 import './reflect.html';
 
-var ManagerAddressBook = new Mongo.Collection('ManagerAddressBook');
-var ManagerFileCabinet = new Mongo.Collection('ManagerFileCabinet');
 //'use strict';
 
 var title = 'Reflect on Another Map',
@@ -88,7 +88,7 @@ function show () {
 
     $dataTypeAnchor.show();
 
-    $link = $("<a href='' target='_blank' class='ui-button-text'> Reflect </a>");
+    $link = $("<a target='_blank' class='ui-button-text'> Reflect </a>");
     var $button = $(".ui-dialog button");
     var $span = $("button").find("span");
     $span.detach();
@@ -132,7 +132,6 @@ function preShow () {
     // First check for this user having the credentials to do this.
     var good = auth.credentialCheck('to reflect onto another map');
     if (good) {
-    
         // Then check for the map having the proper criteria to do this.
         // Does this map have the pre-computed data needed to do this?
         good = criteriaCheck();
@@ -140,87 +139,15 @@ function preShow () {
     return good;
 }
 
-function get_reflection_count(operation,dataType,toMapId,nodeIds) {
-    //grab the available nodes from database
-    var available_nodes = ManagerFileCabinet.findOne({operation: operation,
-                                                      datatype:dataType,
-                                                      toMapId: toMapId
-                                                       }).available_nodes;
-    //make object for easy 'in' operation
-    //nodes must be of type string for this to work ...?
 
-    //console.log(available_nodes);
-    //console.log(nodeIds);
-    var in_count=0;
-    try {
-        _.each(nodeIds,function(node){
-            if (available_nodes.indexOf(node) !== -1 ){
-                 in_count+=1;
-            }
-        });
-    } catch (e) {
-    
-        // If there are no available nodes, that will be reported later.
-        jQuery.noop();
-    }
-
-    return in_count;
-}
-function mapManager (operation, nodeIds) {
-
-    var userId = Meteor.user().username;
-    var rankCategories = Session.get('reflectRanked')
-    //console.log("reflect MapMan nodeIds:",nodeIds,dataType);
-    //only perform reflection if there if there is some intersect of
-    // reflection nodes and selected nodes
-    if (get_reflection_count(operation, dataType, toMapId, nodeIds) !== 0) {
-        Meteor.call("mapManager", operation,
-            dataType,
-            userId,
-            ctx.project,
-            toMapId,
-            nodeIds,
-            rankCategories,
-            selectionSelected,
-            //Session.get('reflectRanked'),
-            function (error) {
-                if (error) {
-                    util.banner('error', 'Unknown server error.');
-                    console.log(error);
-                } else {
-                    console.log('Mapmanager: Operation ' +
-                        operation + ' success');
-                }
-            });
-        //show a message to user
-        util.banner('info', 'Your other map will update shortly.');
-        hide();
-        var pathPeices = toMapId.split('/');
-        var major = pathPeices[0];
-        var minor = pathPeices[1];
-
-        var url = URL_BASE + '/?p=' + major + '.' + minor;
-        $link.attr("href", url);
-
-        return get_reflection_count(operation, dataType, toMapId, nodeIds);
-    }
+function linkAddress(toMapId, dataType, url) {
+    let mapUpUrl  = `${URL_BASE}/?p=${toMapId}&layout=${dataType}`
+                + `&hub=${HUB_URL}${url}&compute=addAttr`
+    return mapUpUrl
 }
 
-function tell_user_about_subset(have_data_count, request_count) {
 
-    // Tell the user that not all of the nodes had data.
-    var message = have_data_count.toString() +
-                        ' of ' +
-                        request_count.toString() +
-                        ' requested nodes have data to reflect.\n' +
-                        'Reflection computed with only those nodes.';
-    if (have_data_count === 0){
-        message += ' Therefore reflection was not computed.';
-    }
-    alert(message);
-}
-
-function mapIt () {
+function executeReflection () {
     // Gather the user input and call the map manager.
     selectionSelected = selectionList.selected;
     
@@ -234,66 +161,96 @@ function mapIt () {
         }
     );
 
-    // Request the map manager to reflect using these nodes,
-    // and receive a count of nodes that had data.
-    var have_data_count = mapManager('reflection', nodeIds);
-   
-    // If some of the nodes don't have data, let the user know.
-    if (have_data_count < nodeIds.length) {
-        tell_user_about_subset(have_data_count, nodeIds.length);
-    }
+    const userId = Meteor.user().username,
+        rankCategories = Session.get('reflectRanked');
+
+    let parms = {
+        dataType : dataType,
+        userId : userId,
+        toMapId : toMapId,
+        mapId : ctx.project,
+        nodeIds : nodeIds,
+        rankCategories: rankCategories,
+        selectionSelected : selectionSelected
+    };
+
+    const fetchInitPost  = {
+        method: "POST",
+        headers: new Headers({"Content-Type": "application/json"}),
+        body: JSON.stringify(parms)
+    };
+
+    const url = HUB_URL + "/reflect";
+    const log = (it) => {console.log(it); return it};
+    const buildReflectUrl = (data) => {return linkAddress(toMapId, dataType, data.url)};
+    const msg = `The reflection of ${selectionSelected} is viewable on ${toMapId}`
+    const makeButton = (url) => {
+        const button =
+            <button style={{float : "right"}}>
+                <a href={url} target = {"_blank"} >
+                    GO
+                </a>
+            </button>
+        return button
+    };
+    const showPrompt = (button) => {
+        Prompt.show(msg,
+            {buttonInput: button,
+            severity: "info"
+            }
+        )
+    };
+    fetch(url, fetchInitPost)
+        .then(parseJson)
+        .then(buildReflectUrl)
+        .then(makeButton)
+        .then(showPrompt);
+
+    hide();
+
 }
+
+
+function metaDataUrl(){
+    const [majorId, minorId] = ctx.project.split("/");
+    const url  = HUB_URL + "/reflect/metaData/majorId/" +
+                 majorId + "/minorId/" + minorId;
+    return url
+}
+
+const parseJson = (response) => {return response.json()};
 
 function getReflectionInfo() {
     // grab array for possible maps to reflect to
-    var addressEntry = ManagerAddressBook.findOne();
-    //console.log(addressEntry);
-    if (addressEntry) {
-        toMapIds = addressEntry.toMapIds;
-        dataTypes = addressEntry.datatypes;
-    }
+    const url = metaDataUrl();
 
-    if (addressEntry && toMapIds && toMapIds.length > 0) {
-        // We have map IDs, so initialize the selected target map
-        // and enable the trigger to open the reflection dialog
+    const fillMenu = (data) => {
+        toMapIds = data.toMapIds;
+        dataTypes = data.dataTypes;
         toMapId = toMapIds[0];
-        dataType= dataTypes[0];
-        Session.set('reflectCriteria', true);
-    } else {
-        Session.set('reflectCriteria', false);
-    }
-}
+        dataType = dataTypes[0];
+    };
 
-function userChange () {
-    // When the user changes, either logs on or off, subscribe to ...
-    var user = Meteor.user();
+    const setReady = () => {
+        Session.set('reflectCriteria', true)
+    };
 
-    // Initialize the reflection criteria found flag.
-    Session.set('reflectCriteria', false);
-    
-    if (user) {
+    const setUnavailable = () => {
+        console.log("reflection unavailable");
+        Session.set('reflectCriteria', false)
+    };
 
-        //subscribes to fill in available datatypes and target map ids
-        // and which node Ids are available in any given refleciton
-        if (!subscribedToMaps) {
-            Meteor.subscribe('reflectionToMapIds',
-                              ctx.project,
-                              getReflectionInfo
-                             );
-            Meteor.subscribe('ManagerFileCabinet',ctx.project);
-            subscribedToMaps = true;
-        }
-    }
-    // Save the map ID for cleaning up when it changes
-    mapId = ctx.project;
+    fetch(url).then(parseJson)
+        .then(fillMenu)
+        .then(setReady)
+        .catch(setUnavailable);
+
 }
 
 exports.init = function () {
 
     $button = $('.reflectTrigger');
     $dialog = $('#reflectDialog');
-    
-    Meteor.autorun(userChange);
 
     if (_.isUndefined(Session.get('reflectRanked'))) {
         Session.set('reflectRanked', false);
@@ -302,7 +259,7 @@ exports.init = function () {
     // Define the dialog options & create an instance of DialogHex
     var opts = {
         title: title,
-        buttons: [{ text: 'Reflect', click: mapIt }],
+        buttons: [{ text: 'Reflect', click: executeReflection }],
     };
     dialogHex = DialogHex.create({
         $el: $dialog,
@@ -319,4 +276,6 @@ exports.init = function () {
             dialogHex.show();
         }
     }, 'Reflect nodes onto another map');
+
+    getReflectionInfo();
 }
