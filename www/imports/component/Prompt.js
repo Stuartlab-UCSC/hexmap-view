@@ -81,6 +81,8 @@ class Prompt extends Component {
                 }}>
                     OK
                 </button>;
+        } else if (this.props.buttonInput) {
+            input = this.props.buttonInput
         }
         
         return (
@@ -121,6 +123,8 @@ Prompt.propTypes = {
 
     // Pass-thru to the React-modal to destroy the container.
     parentSelector: PropTypes.func,
+
+    buttonInput: PropTypes.node,
 };
 
 Prompt.defaultProps = {
@@ -152,8 +156,13 @@ exports.show = function (promptStr, opts) {
     // @param      opts.textStr: the text to put in the input box, optional
     // @param     opts.callback: function to call upon modal close, optional
     // @param     opts.severity: one of [error, info, warning], optional
+    // @param     opts.buttonInput: inserts a button into the prompt without 
+    //                              having a textStr.
+
     var container = utils.createReactRoot(containerId);
     callback = opts ? opts.callback : null;
+    buttonInput = opts ? opts.buttonInput : null;
+    
     render(
         <Prompt
             promptStr = {promptStr}
@@ -161,5 +170,6 @@ exports.show = function (promptStr, opts) {
             parentSelector = {getParentSelector}
             severity = {opts.severity}
             closeModal = {closeModal}
+            buttonInput = {buttonInput}
          />, container);
 };
