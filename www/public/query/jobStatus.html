@@ -1,17 +1,14 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
     <title>Future: Job Status &#8212; Hex Map API</title>
-    
     <link rel="stylesheet" href="_static/agogo.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="_static/custom.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
@@ -29,7 +26,7 @@
     <link rel="search" title="Search" href="search.html" />
     <link rel="prev" title="Future: Create a map" href="createMap.html" /> 
   </head>
-  <body role="document">
+  <body>
     <div class="header-wrapper" role="banner">
       <div class="header">
         <div class="headertitle"><a
@@ -53,26 +50,28 @@
             
   <div class="section" id="future-job-status">
 <h1>Future: Job Status<a class="headerlink" href="#future-job-status" title="Permalink to this headline">¶</a></h1>
-<p><a class="reference external" href="https:/">https:/</a>/&lt;compute_server&gt;/jobstatus/jobid/&lt;jobId&gt;</p>
+<p><a class="reference external" href="https:/">https:/</a>/&lt;compute_server&gt;/jobStatus/jobId/&lt;jobId&gt;</p>
 <p>HTTP GET</p>
 <p>data-type: json</p>
 <p>This API checks the status of a compute job.</p>
 <div class="section" id="example-url">
 <h2>Example URL<a class="headerlink" href="#example-url" title="Permalink to this headline">¶</a></h2>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">tumormap</span><span class="o">.</span><span class="n">ucsc</span><span class="o">.</span><span class="n">edu</span><span class="o">/</span><span class="n">jobstatus</span><span class="o">/</span><span class="n">jobid</span><span class="o">/</span><span class="mi">34672</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">tumormap</span><span class="o">.</span><span class="n">ucsc</span><span class="o">.</span><span class="n">edu</span><span class="o">/</span><span class="n">jobStatus</span><span class="o">/</span><span class="n">jobId</span><span class="o">/</span><span class="mi">34672</span>
 </pre></div>
 </div>
-<p>Where &#8216;34672&#8217; is the job ID which is returned from a web API call of the form:</p>
+<p>Where ‘34672’ is the job ID which is returned from a web API call of the form:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">tumormap</span><span class="o">.</span><span class="n">ucsc</span><span class="o">.</span><span class="n">edu</span><span class="o">/</span><span class="n">query</span><span class="o">/&lt;</span><span class="n">operation</span><span class="o">&gt;</span>
 </pre></div>
 </div>
 </div>
 <div class="section" id="response-success">
 <h2>Response success<a class="headerlink" href="#response-success" title="Permalink to this headline">¶</a></h2>
-<p>This is returned as HTTP 200 with the content as a JSON string containing:</p>
+<p>This is returned as HTTP 200 with the content something like:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span>
-   <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;Request received&quot;</span><span class="p">,</span>
-   <span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://tumormap.ucsc.edu/?p=CKCC/V3&quot;</span>
+   <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;Success&quot;</span><span class="p">,</span>
+   <span class="s2">&quot;result&quot;</span><span class="p">:</span> <span class="p">{</span>
+       <span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://tumormap.ucsc.edu/&quot;</span>
+   <span class="p">}</span>
 <span class="p">}</span>
 </pre></div>
 </div>
@@ -82,22 +81,42 @@
 </ul>
 <blockquote>
 <div><ul class="simple">
-<li>Request received</li>
+<li>InJobQueue</li>
+<li>Running</li>
 <li>Success</li>
 <li>Error</li>
 </ul>
 </div></blockquote>
 <ul class="simple">
-<li><strong>url</strong> : returned upon successful completion and otherwise has a value
-of &#8216;undefined&#8217;.</li>
+<li><strong>result</strong> : Only Success and Error may have an optional result. This
+property is only present if there is a result. The form of the result depends
+on the status as follows:</li>
 </ul>
+<blockquote>
+<div><ul class="simple">
+<li>Success: the calculation result</li>
+<li>Error: the error message, with an optional stack trace as in this example:</li>
+</ul>
+</div></blockquote>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span>
+   <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;Error&quot;</span><span class="p">,</span>
+   <span class="s2">&quot;result&quot;</span><span class="p">:</span> <span class="p">{</span>
+       <span class="s2">&quot;error&quot;</span> <span class="p">:</span> <span class="o">&lt;</span><span class="n">errorMessage</span><span class="o">&gt;</span><span class="p">,</span>
+       <span class="s2">&quot;stackTrace&quot;</span> <span class="p">:</span> <span class="o">&lt;</span><span class="n">stackTrace</span><span class="o">&gt;</span>
+   <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
 </div>
 <div class="section" id="response-error">
 <h2>Response error<a class="headerlink" href="#response-error" title="Permalink to this headline">¶</a></h2>
-<p>Response errors are returned with some code other than HTTP 200 with the content
-containing a more specific message as a JSON string in the form:</p>
+<p>Response errors are returned when the job status could not be obtained for some
+reason. This response will have some code other than HTTP 200 with the content
+containing a printable string and an optional stack trace. If there is no
+stackTrace that property will not be in the response:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span>
-   <span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="s2">&quot;Some message.&quot;</span>
+   <span class="s2">&quot;error&quot;</span> <span class="p">:</span> <span class="o">&lt;</span><span class="n">errorMessage</span><span class="o">&gt;</span><span class="p">,</span>
+   <span class="s2">&quot;stackTrace&quot;</span> <span class="p">:</span> <span class="o">&lt;</span><span class="n">trace</span><span class="o">&gt;</span>
 <span class="p">}</span>
 </pre></div>
 </div>
@@ -153,7 +172,7 @@ containing a more specific message as a JSON string in the form:</p>
           
     <div class="footer" role="contentinfo">
         &#169; Copyright 2016, UCSC Tumor Map development team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.5.
     </div>
         </div>
         <div class="clearer"></div>
