@@ -1,17 +1,14 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
     <title>Future: Create a map &#8212; Hex Map API</title>
-    
     <link rel="stylesheet" href="_static/agogo.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="_static/custom.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
@@ -30,7 +27,7 @@
     <link rel="next" title="Future: Job Status" href="jobStatus.html" />
     <link rel="prev" title="Future: Add new coloring attributes" href="addAttribute.html" /> 
   </head>
-  <body role="document">
+  <body>
     <div class="header-wrapper" role="banner">
       <div class="header">
         <div class="headertitle"><a
@@ -150,27 +147,28 @@ value to a color. New attributes and categories will be added to this colormap.<
 <h2>Response success<a class="headerlink" href="#response-success" title="Permalink to this headline">¶</a></h2>
 <p>This is returned as HTTP 200 with the content as a JSON string containing:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span>
-   <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;Request received&quot;</span><span class="p">,</span>
+   <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;InJobQueue&quot;</span><span class="p">,</span>
    <span class="s2">&quot;jobId&quot;</span><span class="p">:</span> <span class="s2">&quot;5563fdf09484a241d066022bf91a9e96d6ae1976c4d7502d384cc2a87001067a&quot;</span>
 <span class="p">}</span>
 </pre></div>
 </div>
 <p>Where:</p>
 <ul class="simple">
-<li><strong>status</strong> : always &#8220;Request received&#8221;</li>
+<li><strong>status</strong> : always “InJobQueue”</li>
 <li><strong>jobId</strong> : an identifer that may be used to query the status of the job via
 <a class="reference internal" href="jobStatus.html"><span class="doc">Future: Job Status</span></a>.</li>
 </ul>
 <p>When the map build is complete, if an email address was provided, an email
-message will be sent with the URL of the new map in the case of success, or a
-failure message.</p>
+message will be sent with the URL of the new map.</p>
 </div>
 <div class="section" id="response-error">
 <h2>Response error<a class="headerlink" href="#response-error" title="Permalink to this headline">¶</a></h2>
 <p>Response errors are returned with some code other than HTTP 200 with the content
-containing a more specific message as a JSON string in the form:</p>
+containing a printable string and an optional stack trace. If there is no
+stackTrace that property will not be in the response:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span>
-   <span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="s2">&quot;Some message.&quot;</span>
+   <span class="s2">&quot;error&quot;</span> <span class="p">:</span> <span class="o">&lt;</span><span class="n">errorMessage</span><span class="o">&gt;</span><span class="p">,</span>
+   <span class="s2">&quot;stackTrace&quot;</span> <span class="p">:</span> <span class="o">&lt;</span><span class="n">trace</span><span class="o">&gt;</span>
 <span class="p">}</span>
 </pre></div>
 </div>
@@ -229,7 +227,7 @@ containing a more specific message as a JSON string in the form:</p>
           
     <div class="footer" role="contentinfo">
         &#169; Copyright 2016, UCSC Tumor Map development team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.5.
     </div>
         </div>
         <div class="clearer"></div>
