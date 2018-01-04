@@ -50,10 +50,6 @@ Template.navBarT.helpers({
         return (page && page === 'mapPage' && mapView &&
             mapView === 'xyCoords') ? 'selected' : '';
     },
-    mapViewDensitySelected: function () {
-        var page = Session.get('page');
-        return (page && page === 'gridPage') ? 'selected' : '';
-    },
     transparentSelected: function () {
         return (Session.get('transparent')) ? 'selected' : '';
     },
