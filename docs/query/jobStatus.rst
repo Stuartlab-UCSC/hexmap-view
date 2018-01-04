@@ -1,7 +1,7 @@
 Future: Job Status
 ==================
 
-https://<compute_server>/jobStatus/jobId/<jobId>
+https://hexcalc.ucsc.edu:5000/jobStatus/jobId/<jobId>
 
 HTTP GET
 
@@ -13,11 +13,11 @@ Example URL
 -----------
 ::
 
- https://tumormap.ucsc.edu/jobStatus/jobId/34672
+ https://hexcalc.ucsc.edu:5000/jobStatus/jobId/123
 
-Where '34672' is the job ID which is returned from a web API call of the form::
+Where '123' is the job ID which is returned from a web API call of the form::
 
- https://tumormap.ucsc.edu/query/<operation>
+ https://hexcalc.ucsc.edu:5000/query/<operation>
 
 Response success
 ----------------
@@ -26,9 +26,7 @@ This is returned as HTTP 200 with the content something like::
 
  {
     "status": "Success",
-    "result": {
-        "url": "https://tumormap.ucsc.edu/"
-    }
+    "result": "some result"
  }
 
 Where:
