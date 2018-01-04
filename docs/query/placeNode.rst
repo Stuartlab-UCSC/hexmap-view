@@ -1,7 +1,7 @@
-Place new nodes
-===============
+Future: Place new nodes
+=======================
 
-https://<compute_server>/query/**overlayNodes**
+https://hexcalc.ucsc.edu:5000/query/**placeNode**
 
 HTTP POST with content-type: application/json
 
@@ -53,19 +53,6 @@ Content Example
         },
         ...
     ],
-    "nodes": { // deprecated in favor of the above "nodes" form.
-        "MySample1": {
-            "ALK": 0.897645,
-            "TP53": 0.904140,
-            ...
-        },
-        "MySample2": {
-            "ALK": 0.897645,
-            "TP53": 0.904140,
-            ...
-        },
-        ...
-    }
  }
     
 Where:
@@ -82,93 +69,101 @@ Where:
 * **neighborCount** : optional; defaults to 6; number of nearest neighbors to
   consider in placing each node
 * **nodes** : contains an array of node objects with the node ID, feature names
-  and values as properties of each node; the second form of nodes shown in the
-  example is deprecated because it uses data as keys.
+  and values as properties of each node
 
 Response success
 ----------------
 
-This is returned as HTTP 200 with the content as a JSON string in the form::
+This is returned as HTTP 200 with the content as a JSON string containing
+something like::
 
  {
-    "placedNodes": [
-        {
-            "id": "MySample1",
-            "url": "https://tumormap.ucsc.edu/?bookmark=5563fdf09484a241d066022bf91a9e96d6ae1976c4d7502d384cc2a87001067a",
-            "neighborIDs": [
-                "node1",
-                "node2",
-                ...
-            ],
-            "neighborScores": [
-                0.352,
-                0.742,
-                ...
-            ]
-        },
-        {
-            "id": "MySample2",
-            "url": "https://tumormap.ucsc.edu/?bookmark=5563fdf09484a241d066022bf91a9e96d6ae1976c4d7502d384cc2a87001067a",
-            "neighborIDs": [
-                "node3",
-                "node4",
-                ...
-            ],
-            "neighborScores": [
-                0.275,
-                0.965,
-                ...
-            ]
-        },
-        ...
-    ],
-    "nodes": { // deprecated in favor of the above "placedNodes" form.
-        "MySample1": {
-            "url": "https://tumormap.ucsc.edu/?bookmark=5563fdf09484a241d066022bf91a9e96d6ae1976c4d7502d384cc2a87001067a",
-            "neighbors": {
-                    "node1": 0.352,
-                    "node2": 0.742,
-                    ...
-                }
-            }
-        },
-        "MySample2": {
-            "url": "https://tumormap.ucsc.edu/?bookmark=6734q4968942764875074tnu08934iobdm5edfgb44d7502d384cc2a87001067a",
-            "neighbors": {
-                "node1": 0.275,
-                "node2": 0.965,
-                ...
-            }
-        },
-        ...
-    }
+    "jobId": "123",
+    "jobStatusUrl": "https://hexCalc.sdsc.edu/5000/jobStatus/jobId/123",
+    "status": "InJobQueue"
  }
 
 Where:
 
-* **placedNodes** : contains the scores of the most similar neighbor nodes for
-  each placed node.
-* **nodes** : this property as shown in the example is deprecated because it
-  uses data as keys. It will be included in the response until all callers have
-  moved to the new form.
-* **url**: view the new nodes overlaying the map with this for each node:
-    * a marker pointing out the node
-    * a new attribute of '<requested-node>: neighbors' that shows the nearest neighbors in yellow
-    * a new attribute of '<requested-node>: neighbor values' that shows the similarity score for each neighbor
-* **neighbors** : contains the scores of the most similar neighbors.
+* **jobId** : a unique job identifer
+* **jobStatusUrl** : a URL that may be used to check the status of the calculation
+  and get the result
+* **status** : usually "InJobQueue"
 
-
-Note that if the optional input parameter of 'individualViewUrls' is true, only
-one node will be at each URL. Otherwise the URLs returned for each node will be
-identical and contain all nodes.
 
 Response error
 --------------
 
 Response errors are returned with some code other than HTTP 200 with the content
-containing a more specific message as a JSON string in the form::
+containing a more specific message and an optional stack trace as a JSON string
+in the form::
 
  {
     "error": "Some message."
+    "stackTrace" "an optional stack trace"
  }
+
+Getting the results
+-------------------
+
+The results of the calculation may be retrieved with the URL supplied in the
+successful response. Statuses that may be returned are described at
+:doc:`jobStatus`
+
+When the job has completed successfully, the response to the get status request
+will be "Success" and the result object will contain something like::
+
+ {
+    "status": "Success",
+    "result": {
+        "nodes": [
+            {
+                "id": "MySample1",
+                "url": "https://tumormap.ucsc.edu/?bookmark=55631067a",
+                "neighborIDs": [
+                    "node1",
+                    "node2",
+                    ...
+                ],
+                "neighborScores": [
+                    0.352,
+                    0.742,
+                    ...
+                ]
+            },
+            {
+                "id": "MySample2",
+                "url": "https://tumormap.ucsc.edu/?bookmark=55631067a",
+                "neighborIDs": [
+                    "node3",
+                    "node4",
+                    ...
+                ],
+                "neighborScores": [
+                    0.275,
+                    0.965,
+                    ...
+                ]
+            },
+            ...
+        ]
+    }
+ }
+
+Where:
+
+* **status** : "Success"
+* **nodes** : an array of results for each of your nodes
+* **id** : your node ID
+* **neighborIDs** : a list of the most similar neighbors to your node
+* **neighborScores** : a list of scores corresponding to the neighborIDs list
+* **url**: view the new nodes overlaying the map with this for each node:
+    * a marker pointing out the node
+    * a new coloring attribute that shows the nearest neighbors in yellow
+    * a new coloring attribute that shows the similarity score for each neighbor
+
+Note that if the optional input parameter of 'individualViewUrls' is true, only
+one node will be at each URL. Otherwise the URLs returned for each node will be
+identical and contain all nodes.
+
 

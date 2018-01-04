@@ -1,7 +1,7 @@
 Future: Create a map
 ====================
 
-https://<compute_server>/query/**createMap**
+https://hexcalc.ucsc.edu:5000/query/**createMap**
 
 HTTP POST with content-type: application/json
 
@@ -106,34 +106,30 @@ Where:
 Response success
 ----------------
 
-This is returned as HTTP 200 with the content as a JSON string containing::
+This is returned as HTTP 200 with the content as a JSON string containing
+something like::
 
  {
-    "status": "InJobQueue",
-    "jobId": "5563fdf09484a241d066022bf91a9e96d6ae1976c4d7502d384cc2a87001067a"
+    "jobId": "123",
+    "jobStatusUrl": "https://hexcalc.ucsc.edu/5000/jobStatus/jobId/123",
+    "status": "InJobQueue"
  }
 
 Where:
 
-* **status** : always "InJobQueue"
 * **jobId** : an identifer that may be used to query the status of the job via
   :doc:`jobStatus`.
-
-When the map build is complete, if an email address was provided, an email
-message will be sent with the URL of the new map.
+* **jobStatusUrl** : a URL that may be used to check the status
+* **status** : always "InJobQueue"
 
 Response error
 --------------
 
 Response errors are returned with some code other than HTTP 200 with the content
-containing a printable string and an optional stack trace. If there is no
-stackTrace that property will not be in the response::
+containing a more specific message and an optional stack trace as a JSON string
+in the form::
 
  {
-    "error" : <errorMessage>,
-    "stackTrace" : <trace>
+    "error": "Some message."
+    "stackTrace" "an optional stack trace"
  }
-
-
-No email will be sent in the case of an error while receiving the request.
-

@@ -1,7 +1,7 @@
 Add new coloring attributes via Xena
 ====================================
 
-https://<compute_server>/?...
+https://tumormap.ucsc.edu/?...
 
 HTTP GET
 
