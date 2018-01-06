@@ -134,10 +134,7 @@ exports.getHumanProject = function (project) {
 
 exports.projectNotFound = function (dataId) {
     if (!ctx.projectNotFoundNotified) {
-
         ctx.projectNotFoundNotified = true;
-    
-        rx.set('project.listLoading.done');
     
         // Alert the user that essential data is missing for this project.
          exports.banner('error', '"' + exports.getHumanProject(ctx.project) +
