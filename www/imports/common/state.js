@@ -408,7 +408,7 @@ State.prototype.loadFromBookmark = function (bookmark) {
     Meteor.call('findBookmark', bookmark,
         function (error, result) {
             if (error) {
-                util.banner('error', error);
+                util.banner('error', error.string());
                 return;
             }                
             if (result === 'Bookmark not found') {
