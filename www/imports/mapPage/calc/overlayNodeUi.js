@@ -16,7 +16,8 @@ import './overlayNode.html';
 
 var title = 'Place New Nodes',
     dialogHex,
-    $dialog;
+    $dialog,
+    overlayNodeEl;
 
 Template.navBarT.helpers({
     overlayNodeRemove: function () {
@@ -28,20 +29,42 @@ function validateNodeData (data) {
 
     if (_.isUndefined(data) || _.isNull(data)) {
         util.banner('error',
-            'Nodes are undefined, please upload a file of the requested format.');
+            'Nodes are undefined, please upload a file of the requested ' +
+                'format.');
         return false;
     }
     if (data.length < 1) {
-        util.banner('error',
-            'Error: the file is empty.');
+        util.banner('error', 'Error: the file is empty.');
         return false;
     }
     return true;
 }
 
 function showNewNodes (result) {
+    util.banner('info', 'Your nodes are about to drop onto the map');
     nodeNames = Object.keys(result.nodes);
     state.bookmarkReload(result.nodes[nodeNames[0]].url);
+}
+
+function httpError (result) {
+    rx.set('placeNode.running.done');
+    util.banner('error', 'when calculating position of a new node: ' +
+        result.error, result.stackTrace);
+}
+
+function getJobStatus (jobId, jobStatusUrl) {
+
+    // Check status of the job and display when complete.
+    ajax.getJobStatus(jobId, jobStatusUrl,
+        function (result) {
+            if (result['status'] === 'Success') {
+                showNewNodes(result.result);
+            } else {
+                httpError(result);
+            }
+        },
+        httpError,
+    )
 }
 
 function doIt (tsv) {
@@ -54,7 +77,8 @@ function doIt (tsv) {
         return;
     }
 
-    //util.banner('info', 'Nodes will appear when location calculations are complete.');
+    util.banner('info', 'Nodes will appear when location calculations are ' +
+        'complete.');
 
     // Convert the node data into an object
 
@@ -87,14 +111,24 @@ function doIt (tsv) {
         opts.email = Meteor.user().username;
     }
 
-    ajax.query('overlayNodes', opts,
+    // Handle both versions of the api for dev.
+    route = 'placeNode';
+    if (overlayNodeEl.checked) {
+        route = 'overlayNodes';
+    }
+    
+    ajax.query(route, opts,
         function (result) {
-            util.banner('info', 'Your nodes are about to drop onto the map');
-            showNewNodes(result);
+            if (route === 'overlayNodes') {
+                showNewNodes(result);
+                return;
+            }
+            getJobStatus(result.jobId, result.jobStatusUrl);
         },
-        function (error) {
+        function (result) {
             rx.set('placeNode.running.done');
-            util.banner('error', 'when adding a new node: ' + error);
+            util.banner('error', 'when adding a new node: ' + result.error,
+                result.stackTrace);
         },
     );
 
@@ -220,4 +254,11 @@ exports.init = function () {
 
     // Add a handler for the remove menu option
     $('#navBar .overlayNodeRemove').on('click', overlayNodes.remove);
+    
+    // Hide the API version selector if we're not in development mode.
+    overlayNodeEl = document.getElementById('useOverlayNodeApi');
+    overlayNodeEl.checked = false;
+    if (!DEV) {
+        overlayNodeEl.style.display = "none";
+    }
 }

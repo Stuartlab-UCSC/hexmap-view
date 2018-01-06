@@ -7,7 +7,9 @@ import util from '/imports/common/util';
 
 var UPLOAD_MAX_GIGABYTES = 4,
     UPLOAD_MAX_BYTES = 1024 * 1024 * 1024 * UPLOAD_MAX_GIGABYTES,
-    retryLimit = 3;
+    retryLimit = 3,
+    jobStatusPollInterval = 1, // second
+    jobs = [];
 
 function log (url, code, userMsg) {
     console.log('ajax error on:', url, '\n    ', code + ':', userMsg);
@@ -99,6 +101,72 @@ function getData(url, successFx, errorFx, ok404, parse) {
         }
     });
 }
+
+exports.getJobStatus = function (jobId, jobStatusUrl, successFx, errorFx) {
+    
+    // Get a job's status. Job completion statuses are 'success' and 'error'.
+    // If there is a job completion status or the job is not found, call the
+    // provided successFx or errorFx.
+    // For other status values, continue to poll the status until a completion
+    // status is returned or an error occurs.
+    // TODO should there be a time out on jobs so the polling does not go on
+    // forever on an error condition.
+    
+    function jobDone () {
+    
+        // Remove the completed job from the jobs list.
+        var i = jobs.indexOf(jobId);
+        jobs = jobs.slice(0, i) + jobs.slice(i + 1);
+    }
+    
+    function getStatus () {
+    
+        console.log('getStatus():time:', Date.now());
+    
+        // If the job is still in the running...
+        if (jobs.indexOf(jobId) > -1) {
+        
+            // Ask the server for the status.
+            $.ajax({
+                type: 'GET',
+                url: jobStatusUrl,
+                tryCount : 0,
+                retryLimit : retryLimit,
+                success: function (result) {
+
+                    console.log('getStatus():donesuccess:result.status', result.status);
+
+                    if (result.status === 'Success') {
+                        jobDone();
+                        successFx(result);
+                   
+                    } else if (result.status === 'Error') {
+                        // TODO format the return error as it should be
+                        jobDone();
+                        errorFx(result);
+                    } else {
+        
+                        // Keep polling.
+                        setTimeout(getStatus, jobStatusPollInterval * 1000);
+                    }
+                },
+                error: function (error) {
+                    jobDone();
+                    
+                    console.log('getStatus():statusError', error);
+                    
+                    errorFx(error);
+                },
+            });
+        }
+    }
+    
+    // Add the job to the outstanding jobs list.
+    jobs.push(jobId);
+    
+    // Make the first status request.
+    getStatus();
+};
     
 exports.query = function (operation, opts, successFx, errorFx) {
     /*
@@ -111,7 +179,8 @@ exports.query = function (operation, opts, successFx, errorFx) {
      *         error:   the error message via the error callback,
      *                  optional
      */
-    var url = HUB_URL + '/query/' + operation;
+    var response,
+        url = HUB_URL + '/query/' + operation;
     $.ajax({
         type: 'POST',
         url: url,
@@ -130,7 +199,7 @@ exports.query = function (operation, opts, successFx, errorFx) {
             var msg = 'unknown server error';
             try {
                 if (error.responseText.length > 0) {
-                    msg = JSON.parse(error.responseText).error;
+                    response = JSON.parse(error.responseText);
                 }
             } catch (e) {
                 msg = 'unknown server error';
@@ -141,10 +210,11 @@ exports.query = function (operation, opts, successFx, errorFx) {
                 console.log('ajax json error: ', e);
                 console.log('ajax error: ', error);
                 console.log('ajax error msg: ', msg);
+                response = '';
             }
-            log(url, error.status, msg);
+            log(url, error.status, response);
             if (errorFx) {
-                errorFx(msg);
+                errorFx(response);
             }
         },
     });

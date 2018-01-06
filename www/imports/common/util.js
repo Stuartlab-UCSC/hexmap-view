@@ -30,7 +30,7 @@ exports.clean_file_name = function (dirty) {
     return dirty.replace(/[^A-Za-z0-9_\-\.]/g, "_");
 }
 
-exports.banner = function (severity, text) {
+exports.banner = function (severity, text, stackTrace) {
 
     // Display a message, either as a timed banner when 'severity' is one of
     // 'warn' or 'info', otherwise a dialog that requires the user to
@@ -51,6 +51,9 @@ exports.banner = function (severity, text) {
     }
     // Also inform the browser console of this issue.
     console.log(severity + ':', text);
+    if (stackTrace) {
+        console.log('Server Error', stackTrace);
+    }
 }
 
 exports.session = function (prefix, operation, name, val) {
