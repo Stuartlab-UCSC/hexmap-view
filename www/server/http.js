@@ -148,7 +148,14 @@ function receiveQuery (operation, req, res) {
         console.log('received query:', operation);
 
         if (operation === 'createBookmark') {
-            data = JSON.parse(json_data);
+            try {
+                data = JSON.parse(json_data);
+            } catch (e) {
+                msg = 'server error decoding JSON: ' + e;
+                console.log(msg + ', JSON string:' + json_data);
+                Http.respond(500, res, {error: msg });
+                return;
+            }
            
             // Create the bookmark, letting it return the http response
             DbMethods.createBookmarkFiber(json_data, res)
