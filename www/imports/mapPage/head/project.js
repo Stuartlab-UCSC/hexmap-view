@@ -175,8 +175,8 @@ exports.authorize = function (userId) {
                 "Unable to retrieve project data from server." + error);
         } else {
             perform.log('project:list-got');
-            rx.set('projectList.received');
             projects = projects_returned;
+            rx.set('projectList.received');
         }
     });
     
