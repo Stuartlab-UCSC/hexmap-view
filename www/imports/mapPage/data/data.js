@@ -111,6 +111,9 @@ exports.requestLayerSummary = function (opts) {
 };
 
 exports.requestLayoutAssignments = function (opts) {
+
+    console.log('data.requestLayoutAssignments()')
+    
     import hexagons from '/imports/mapPage/viewport/hexagons.js';
     var index = Session.get('layoutIndex');
     
@@ -134,7 +137,14 @@ exports.requestLayoutAssignments = function (opts) {
     if (_.isUndefined(opts)) {
         opts = {};
     }
+
+    console.log('data.requestLayoutAssignments()2')
+    
     opts.successFx = opts.successFx || hexagons.layoutAssignmentsReceived;
     request((Session.get('mapView') === 'honeycomb' ? 'assignments' :
         'xyPreSquiggle_') + index, opts);
+    
+    console.log('data.requestLayoutAssignments()3')
+
+
 };
