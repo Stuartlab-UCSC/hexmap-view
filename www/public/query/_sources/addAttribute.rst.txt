@@ -1,5 +1,5 @@
-Future: Add new coloring attributes
-===================================
+Add new coloring attributes
+===========================
 
 https://hexcalc.ucsc.edu:5000/query/**addAttribute**
 
