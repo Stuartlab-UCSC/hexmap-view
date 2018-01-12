@@ -2,8 +2,6 @@
 Licenses
 ========
 
-(TODO: this page is to move to the user documentation)
-
 StatsModels, Statistics in Python
 ---------------------------------
 

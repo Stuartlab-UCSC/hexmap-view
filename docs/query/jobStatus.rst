@@ -1,5 +1,5 @@
-Future: Job Status
-==================
+Job Status
+==========
 
 https://hexcalc.ucsc.edu:5000/jobStatus/jobId/<jobId>
 

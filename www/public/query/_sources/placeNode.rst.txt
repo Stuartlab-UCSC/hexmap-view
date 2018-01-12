@@ -1,5 +1,5 @@
-Future: Place new nodes
-=======================
+Place new nodes
+===============
 
 https://hexcalc.ucsc.edu:5000/query/**placeNode**
 

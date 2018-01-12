@@ -95,10 +95,11 @@ columns in the **Feature data** matrix. The resulting nxn matrix of Spearman
 correlations is the **Full similarity** matrix. The **Full similarity** matrix is
 then sparsified by taking the 6 highest Spearman correlations for each sample, this
 sparsification is the **Sparse similarity** input format. **XY positions** are then
-produced by applying the `openOrd layout algorithm <https://www.researchgate.net/publication/253087985_OpenOrd_An_Open-Source_Toolbox_for_Large_Graph_Layout>`_
+produced by applying the `openOrd layout algorithm
+<https://www.researchgate.net/publication/253087985_OpenOrd_An_Open-Source_Toolbox_for_Large_Graph_Layout>`_
 to the **Sparse similarity** representation.
 
-**XY positions** are further modified by the hexagonal binning process. The hexagonal
+The **XY positions** are further modified by the hexagonal binning process. The hexagonal
 binning process first lays a hexagonal tiling over the x-y plane, then assigns each point
 in the xy space to the nearest hexagon. If a point is assigned to a hexagon that is
 already occupied, then a breadth-first search on the hexagon tilling is used to find
