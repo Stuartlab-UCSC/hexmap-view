@@ -20,7 +20,6 @@
 //
 // TODO do we want the user to be able to cancel the calc ?
 
-var CreateMap = require('./createMap');
 var MapManager = require('./mapManager');
 var PythonCall = require('./pythonCall');
 var DbMethods = require('./dbMethods');
@@ -60,7 +59,6 @@ function passPostChecks (req, res) {
 // A look-up table indexed by call_name and referencing the feature post-calc
 // function, if there is one, that will be executed on the local/remote? server.
 var post_calc = {
-    layout: CreateMap.post_calc,
     reflection: MapManager.reflection_post_calc,
 };
 
@@ -165,10 +163,6 @@ function receiveQuery (operation, req, res) {
         }
     });
 }
-
-WebApp.connectHandlers.use('/calc/layout', function (req, res, next) {
-    receiveDeprecated('/calc/layout', req, res, next);
-});
 
 WebApp.connectHandlers.use('/calc/reflection', function (req, res, next) {
     receiveDeprecated('/calc/reflection', req, res, next);

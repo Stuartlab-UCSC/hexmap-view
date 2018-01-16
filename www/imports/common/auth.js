@@ -25,7 +25,6 @@ function getCredentials (userId) {
     } else {
         Session.set('jobCredential', false);
         perform.log('auth:no-credentials-for-no-userId');
-        
     }
 }
 
@@ -36,9 +35,11 @@ exports.credentialCheck = function (credential) {
     var returnVal = false;
     if (!Meteor.userId()) {
         util.banner('error', 'Please log in ' + credential + '.');
+    /*
     } else if (!(Session.get('jobCredential'))) {
         util.banner('error', 'Sorry, you do not have credentials ' +
            credential + '. Please request access from hexmap at ucsc dot edu.');
+    */
     } else {
         returnVal = true;
     }

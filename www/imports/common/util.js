@@ -18,6 +18,11 @@ exports.get_username = function (callback) {
     });
 }
 
+exports.isValidFileName = function (name) {
+    var index = name.search(/[^A-Za-z0-9_\-\.]/g);
+    return (index < 0);
+}
+
 exports.clean_file_name = function (dirty) {
     
     // Make a directory or file name out of some string
@@ -30,7 +35,7 @@ exports.clean_file_name = function (dirty) {
     return dirty.replace(/[^A-Za-z0-9_\-\.]/g, "_");
 }
 
-exports.banner = function (severity, text, stackTrace) {
+exports.banner = function (severity, text, stackTrace, link) {
 
     // Display a message, either as a timed banner when 'severity' is one of
     // 'warn' or 'info', otherwise a dialog that requires the user to
@@ -45,7 +50,7 @@ exports.banner = function (severity, text, stackTrace) {
             .show();
         $("#banner").delay(5000).fadeOut(1500);
     } else if (severity === 'error') {
-        Prompt.show(text, { severity: 'error' });
+        Prompt.show(text, { severity: 'error', link: link });
     } else {
         console.log('invalid user message severity');
     }
@@ -141,8 +146,8 @@ exports.projectNotFound = function (dataId) {
     
         // Alert the user that essential data is missing for this project.
          exports.banner('error', '"' + exports.getHumanProject(ctx.project) +
-            '" does not seem to be a valid project.\nPlease select ' +
-            'another.\n(' + dataId + ')');
+            '" does not seem to be a valid project. Please select ' +
+            'another. (' + dataId + ')');
     }
 }
 

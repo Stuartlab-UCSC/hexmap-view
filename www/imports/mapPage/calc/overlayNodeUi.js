@@ -60,7 +60,7 @@ function getJobStatus (jobId, jobStatusUrl) {
             if (result['status'] === 'Success') {
                 showNewNodes(result.result);
             } else {
-                httpError(result);
+                httpError(result.result);
             }
         },
         httpError,
@@ -106,6 +106,7 @@ function doIt (tsv) {
         map: util.getHumanProject(ctx.project),
         layout: layout.findCurrentName(),
         nodes: data,
+        doNotEmail: true,
     };
     if (Meteor.user()) {
         opts.email = Meteor.user().username;

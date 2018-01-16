@@ -65,7 +65,8 @@ class Prompt extends Component {
     render () {
         var self = this,
             input = null,
-            button = null;
+            button = null,
+            link = null;
         
         // Build the text box and buttons in the button box.
         if (this.state.textStr) {
@@ -83,6 +84,16 @@ class Prompt extends Component {
                 </button>;
         }
         
+        if (this.props.link) {
+            link =
+                <a
+                    href = {this.props.link}
+                    target = '_blank'
+                >
+                    here
+                </a>;
+        }
+        
         return (
             <Modal
                 onAfterOpen = {this.handleOpenModal}
@@ -94,8 +105,10 @@ class Prompt extends Component {
                 body = {
                     <div>
                         <div
-                            className = 'modalLabel'>
+                            className = 'modalLabel'
+                        >
                             {this.props.promptStr}
+                            {link}
                         </div>
                         {input}
                     </div>
@@ -109,6 +122,9 @@ Prompt.propTypes = {
 
     // The text to display as a prompt.
     promptStr: PropTypes.string.isRequired,
+    
+    // An http link to display just after the prompt string.
+    link: PropTypes.string,
     
     // The default text to display in the optional text input.
     textStr: PropTypes.string,
@@ -149,6 +165,7 @@ exports.show = function (promptStr, opts) {
     
     // Create and render this modal.
     // @param         promptStr: the prompt string
+    // @param         opts.link: http link to appear after the prompt, optional
     // @param      opts.textStr: the text to put in the input box, optional
     // @param     opts.callback: function to call upon modal close, optional
     // @param     opts.severity: one of [error, info, warning], optional
@@ -157,7 +174,9 @@ exports.show = function (promptStr, opts) {
     render(
         <Prompt
             promptStr = {promptStr}
+            className = 'prompt'
             textStr = {opts.textStr}
+            link = {opts.link}
             parentSelector = {getParentSelector}
             severity = {opts.severity}
             closeModal = {closeModal}
