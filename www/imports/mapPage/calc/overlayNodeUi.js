@@ -16,8 +16,7 @@ import './overlayNode.html';
 
 var title = 'Place New Nodes',
     dialogHex,
-    $dialog,
-    overlayNodeEl;
+    $dialog;
 
 Template.navBarT.helpers({
     overlayNodeRemove: function () {
@@ -112,18 +111,9 @@ function doIt (tsv) {
         opts.email = Meteor.user().username;
     }
 
-    // Handle both versions of the api for dev.
-    route = 'placeNode';
-    if (overlayNodeEl.checked) {
-        route = 'overlayNodes';
-    }
-    
-    ajax.query(route, opts,
+    // Add this job to the calc server.
+    ajax.query('placeNode', opts,
         function (result) {
-            if (route === 'overlayNodes') {
-                showNewNodes(result);
-                return;
-            }
             getJobStatus(result.jobId, result.jobStatusUrl);
         },
         function (result) {
@@ -255,11 +245,4 @@ exports.init = function () {
 
     // Add a handler for the remove menu option
     $('#navBar .overlayNodeRemove').on('click', overlayNodes.remove);
-    
-    // Hide the API version selector if we're not in development mode.
-    overlayNodeEl = document.getElementById('useOverlayNodeApi');
-    overlayNodeEl.checked = false;
-    if (!DEV) {
-        overlayNodeEl.style.display = "none";
-    }
 }
