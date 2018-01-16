@@ -1,6 +1,5 @@
 // Handle the navigation bar
 
-import utils from '/imports/common/utils.js';
 import './navBar.html';
 import './navBar.css';
 

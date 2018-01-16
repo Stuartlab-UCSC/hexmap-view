@@ -12,6 +12,7 @@ import utils from '/imports/common/utils';
 import '/imports/mapPage/calc/createMap.html';
 
 var title = 'Create a Map',
+        initial_log = 'log messages',
     dialogHex, // instance of the class DialogHex
     $dialog, // our dialog DOM element
     $dialogCreateButton,
@@ -23,13 +24,6 @@ var title = 'Create a Map',
     log = new ReactiveVar(),
     show_advanced = 'Advanced ...',
     hide_advanced = 'Hide advanced',
-    formats = [
-        ['clusterData', 'Feature data'],
-        ['fullSimilarity', 'Full similarity matrix'],
-        ['sparseSimilarity', 'Sparse similarity matrix'],
-        ['xyPositions', 'XY positions'],
-    ],
-    default_feature_format = 'clusterData',
     advanced_label = new ReactiveVar();
  
 Template.create_map_t.helpers({
@@ -65,7 +59,7 @@ Template.create_map_t.helpers({
                 $log.scrollTop($log[0].scrollHeight);
             }
         }, 0); // Give some time for the log message to show up
-        return text;
+            return text ? text : initial_log;
     },
     advanced_label: function () {
         return ui.get('show_advanced') ?
@@ -85,19 +79,20 @@ function log_it (msg_in, startDate, loaded, total, replace_last) {
     var msg = msg_in,
         msgs = log.get();
 
-    if (!msg) {
+    if (!msg && startDate) {
 
         // This must be an upload progress messsage
         var endDate = new Date(),
-            elapsed =
-                Math.ceil((endDate.getTime() -
-                startDate.getTime()) / 100 / 60) / 10,
-            elapsed_str
-                = elapsed.toString().replace(/\B(?=(\d{3})+\b)/g, ","),
-            size_str
-                = total.toString().replace(/\B(?=(\d{3})+\b)/g, ","),
-            start_str
-                = loaded.toString().replace(/\B(?=(\d{3})+\b)/g, ",");
+            elapsed,
+            elapsed_str,
+            size_str,
+            start_str;
+        elapsed = Math.ceil((endDate.getTime() -
+            startDate.getTime()) / 100 / 60) / 10,
+        elapsed_str = elapsed.toString().replace(/\B(?=(\d{3})+\b)/g, ","),
+        size_str = total.toString().replace(/\B(?=(\d{3})+\b)/g, ","),
+        start_str = loaded.toString().replace(/\B(?=(\d{3})+\b)/g, ",");
+        
         msg = 'Uploaded ' + start_str +
             ' of ' + size_str +
             ' bytes in ' + elapsed_str + ' minutes...';
@@ -107,46 +102,50 @@ function log_it (msg_in, startDate, loaded, total, replace_last) {
 
         // We want to replace the last message logged so remove it.
         msgs = msgs.slice(0, msgs.lastIndexOf('\n'));
+        log.set(msgs + msg)
+    } else {
+        log.set(msgs + '\n' + msg);
     }
-
-    if (msgs.length > 1) {
-        msg = '\n' + msg;
-    }
-    log.set(msgs + msg);
 }
 
-function report_error (msg) {
+function report_error (result) {
 
     // Send the error message to the console.
-    console.log(msg);
-
-    // Make a message to display to the user in case they have pop-ups
-    // disabled.
-    var banner_msg = "Unable to create map due to an internal error. \n" +
-        "A troubleshooting page will open in a new tab.";
-
-    // Show the user the banner message.
-    util.banner('error', banner_msg);
-
+    rx.set('createMap.running.done');
+    $dialogCreateButton.removeClass('ui-state-disabled');
+    
     // Give the user a data/timestamp so the problem can be tracked down.
     var date = new Date().toString(),
         i = date.indexOf('GMT');
     date = date.slice(0, i);
     
-    // Display on create map log
-    log_it('\nPlease let hexmap at ucsc dot edu know you ' +
-        'had a map creation problem on ' + date);
-
-    // Pop open the trouble shooting help page.
-    window.open(URL_BASE + "/help/createMapTrouble.html");
+    // Display on the log
+    var msg = result.error;
+    log_it(msg);
+    
+    // Give an error message.
+    msg += '. More information is ';
+    var link = 'https://tumormap.ucsc.edu/help/createMapTrouble.html';
+    util.banner('error', msg, result.stackTrace, link);
 }
 
 function getProjectName () {
     return ui.get('major_project') + '/' + ui.get('minor_project') + '/';
 }
 
-function view_dir () {
-    return VIEW_DIR + getProjectName();
+function getJobStatus (jobId, jobStatusUrl) {
+
+    // Check status of the job and display when complete.
+    ajax.getJobStatus(jobId, jobStatusUrl,
+        function (result) {
+            if (result.status === 'Success') {
+                utils.loadProject(getProjectName());
+            } else {
+                report_error(result.result);
+            }
+        },
+        report_error
+    )
 }
 
 function create_map () {
@@ -154,62 +153,45 @@ function create_map () {
     // Send the create map request to the server.
     log_it('Requesting map creation...');
          
-    var opts = [
-        '--layoutInputFile', feature_data_id,
-        '--layoutInputFormat', ui.get('feature_format'),
-        '--layoutName', 'layout',
-        '--outputDirectory', view_dir(),
-    ];
-    
+    opts = {
+        map: ui.get('major_project') + '/' + ui.get('minor_project'),
+        layoutInputDataId: feature_data_id,
+        layoutInputName: 'layout',
+        outputDirectory: 'view/' + getProjectName(),
+        noLayoutIndependentStats: true,
+        noLayoutAwareStats: true,
+        email: Meteor.user().username,
+        doNotEmail: true,
+    }
     if (attribute_data_id) {
-        opts.push('--colorAttributeFile');
-        opts.push(attribute_data_id);
+        opts.colorAttributeFile = attribute_data_id
     }
-    
-    if (ui.get('tete_method')) {
-        opts.push('--layoutMethod');
-        opts.push('t-ETE');
+    if (ui.get('zeroReplace')) {
+        opts.zeroReplace = ui.get('zeroReplace')
     }
-    
+    /* future:
     if (ui.get('display_default').length > 0) {
-        opts.push('--firstAttribute');
-        opts.push(ui.get('display_default'));
+        opts.firstAttribute = ui.get('display_default')
     }
+    if (ui.get('precompute_stats')) {
+        opts.noLayoutIndependentStats = false;
+        opts.noLayoutAwareStats = false;
+    }
+    */
     
-    if (!ui.get('precompute_stats')) {
-        opts.push('--noLayoutIndependentStats');
-        opts.push('--noLayoutAwareStats');
-    }
-    
-    if (ui.get('zeroReplace') && (ui.equals('layout_input', 'similarity') ||
-        ui.equals('layout_input', 'coordinates'))) {
-        opts.push('--zeroReplace');
-    }
-
     if (DEV) {
-        log_it('\nCompute request options: ' + opts);
-        console.log('\nCompute request options: ' + opts);
+        console.log('\nCompute request options: ', opts);
     }
-
-    //return;
     
-    Meteor.call('create_map', opts, function (error) {
-        if (error) {
-            report_error('Error: ' + error);
-            $dialogCreateButton.removeClass('ui-state-disabled');
-            rx.set('createMap.running.done')
-
-        } else {
-            log_it('Map was successfully created and is loading now.');
-
-            // Open the new map.
-            utils.loadProject(getProjectName());
-        }
-    });
-}
-
-function get_data_id (id) {
-    return VIEW_DIR.slice(0, VIEW_DIR.length - 5) + id;
+    ajax.query('createMap', opts,
+        function (result) {
+            log_it('Map is in the job queue.');
+            getJobStatus(result.jobId, result.jobStatusUrl);
+        },
+        function (error) {
+            report_error(error);
+        },
+    );
 }
 
 function upload_attributes () {
@@ -223,18 +205,14 @@ function upload_attributes () {
             sourceFile: attribute_upload.refs.fileObj,
             targetFile: attribute_upload.refs.fileObj.name,
             success: function (results, dataId) {
-                //attribute_data_id = dataId;
-
-                // TODO temporary until we implement relative paths in the
-                // createMap_www.js in the compute server.
-                attribute_data_id = get_data_id(dataId);
-
+                attribute_data_id = dataId;
                 log_it('Color attributes upload complete.')
                 create_map();
             },
-            error: function (msg) {
-                log_it(msg)
-            },
+            error: function (error) {
+                log_it(error.error)
+                report_error(error)
+          },
             progress: function (loaded, total) {
                 log_it(null, startDate, loaded, total, true);
             },
@@ -246,12 +224,19 @@ function upload_attributes () {
 
 function create_clicked (event) {
     
-    rx.set('createMap.running.now');
-
-    // Upload the feature file.
+    // Upload the feature file when the create button is clicked.
     if ($dialogCreateButton.hasClass('ui-state-disabled')) { return; }
     
+    if (!util.isValidFileName(ui.get('minor_project'))) {
+        util.banner('error', 'map name may only contain the characters:' +
+            ' a-z, A-Z, 0-9, dash (-), dot (.), underscore (_)');
+        return;
+    }
+    
+    rx.set('createMap.running.now');
+
     if (!feature_upload.refs.fileObj) {
+        rx.set('createMap.running.done');
         util.banner('error',
             'a layout input file must be selected to create a map.')
         return;
@@ -260,7 +245,7 @@ function create_clicked (event) {
     // Show the progress snake and disable the create button.
     $dialogCreateButton.addClass('ui-state-disabled');
     
-    log_it('Uploading layout input...\n')
+    log_it('Uploading layout input...\n\n')
     var startDate = new Date();
     ajax.upload({
         mapId: ui.get('major_project') + '/' + ui.get('minor_project') + '/',
@@ -268,17 +253,13 @@ function create_clicked (event) {
         targetFile: feature_upload.refs.fileObj.name,
         success: function (results, dataId) {
             feature_data_id = dataId;
-
-            // TODO temporary until we implement relative paths in the
-            // createMap_www.js in the compute server.
-            feature_data_id = get_data_id(dataId);
-
             log_it('Layout input upload complete.')
             upload_attributes();
         },
-        error: function (msg) {
-            log_it(msg)
-        },
+        error: function (error) {
+            log_it(error.error)
+            report_error(error)
+         },
         progress: function (loaded, total) {
             log_it(null, startDate, loaded, total, true);
         },
@@ -305,17 +286,7 @@ function build_dialog_content (username) {
     ui.set('major_project', util.clean_file_name(username));
 
     // Initialize some ui values
-    log.set('');
-    
-    // Create the feature format list
-    var data = [];
-    formats.forEach(function (format){
-        data.push({id: format[0], text: format[1]});
-    });
-    var $format_anchor = $('#create_map_dialog .format_anchor');
-    util.createOurSelect2($format_anchor, {data: data},
-        default_feature_format);
-    $format_anchor.show();
+        log.set(initial_log);
     
     // Remove focus from question marks.
     $('#create_map_dialog .blur').blur();
@@ -324,9 +295,6 @@ function build_dialog_content (username) {
     $('#create_map_dialog .minor_project').on('change', function (ev) {
          ui.set('minor_project', ev.target.value);
    });
-    $format_anchor.on('change', function (ev) {
-        ui.set('feature_format', ev.target.value);
-    });
     $('#drl').on('change', function (ev) {
         ui.set('tete_method', ev.target.checked);
     });
@@ -367,6 +335,7 @@ function show () {
         if (username) {
             build_dialog_content(username);
         } else {
+            rx.set('createMap.running.done');
             util.banner('error', 'username could not be found');
         }
     });
@@ -407,7 +376,6 @@ exports.init = function () {
     });
 
     // Initialize some UI variables
-    ui.set('feature_format', default_feature_format);
     ui.set('tete_method', false);
     ui.set('display_default', '');
     ui.set('minor_project', 'map');
@@ -419,7 +387,6 @@ exports.init = function () {
     tool.add("createMap", function() {
         dialogHex.show();
     }, 'Create a new map');
-    
     
     // Also open the dialog if the home page thumbnail-like is clicked
     $('.createMapHome .createMap')
