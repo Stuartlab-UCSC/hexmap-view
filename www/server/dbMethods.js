@@ -35,6 +35,7 @@ function findBookmark (id, future) {
         
     } catch (error) {
         console.log('findBookmark() failed with:', error.toString());
+        console.trace();
         future.throw(error.toString());
     }
 }

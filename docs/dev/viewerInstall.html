@@ -1,17 +1,14 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
     <title>View Server Install &#8212; Tumor Map Developer Documentation</title>
-    
     <link rel="stylesheet" href="_static/agogo.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="_static/custom.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
@@ -30,7 +27,7 @@
     <link rel="next" title="This Document" href="docs.html" />
     <link rel="prev" title="Compute Server Install" href="computeInstall.html" /> 
   </head>
-  <body role="document">
+  <body>
     <div class="header-wrapper" role="banner">
       <div class="header">
         <div class="headertitle"><a
@@ -106,7 +103,7 @@ sh meteor.install
 </pre></div>
 </div>
 <p>This may take a while because meteor will download any packages needed.</p>
-<p>This should be the result of &#8216;meteor list&#8217;:</p>
+<p>This should be the result of ‘meteor list’:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span>accounts-password       1.3.0* Password support for accounts
 accounts-ui             1.1.9  Simple templates to add login widgets to an app
 alanning:roles          1.2.15* Authorization package for Meteor
@@ -136,16 +133,16 @@ tracker                 1.1.0* Dependency tracker to allow reactive callbacks
 vsivsi:job-collection   1.4.0* A persistent and reactive job queue for Meteor, supporting distributed workers that can run anywhere
 </pre></div>
 </div>
-<p>Install any missing packages with &#8216;meteor add &lt;pkg&gt;&#8217;.</p>
+<p>Install any missing packages with ‘meteor add &lt;pkg&gt;’.</p>
 </div>
 <div class="section" id="set-environment-variable">
 <h2>Set Environment Variable<a class="headerlink" href="#set-environment-variable" title="Permalink to this headline">¶</a></h2>
-<p>Set the environment variable HEXMAP to the &#8216;hexagram&#8217; directory from your clone
+<p>Set the environment variable HEXMAP to the ‘hexagram’ directory from your clone
 of the repository.</p>
 </div>
 <div class="section" id="set-path">
 <h2>Set Path<a class="headerlink" href="#set-path" title="Permalink to this headline">¶</a></h2>
-<p>Include this in your path so you can find meteor&#8217;s version of node and npm if
+<p>Include this in your path so you can find meteor’s version of node and npm if
 you want to run those commands outside of meteor:</p>
 <p>~/.meteor/packages/meteor-tool/&lt;version&gt;/&lt;platform&gt;/dev_bundle/bin</p>
 <p>Include the bin directory under drl-graph-layout in your path.</p>
@@ -166,7 +163,7 @@ meteor npm install
 <p>$HEXMAP/run-production
 $HEXMAP/config/config.prod
 $HEXMAP/config/settingsA.prod.json</p>
-<p>Create directories for your data where we&#8217;ll call your data root &#8216;DATA&#8217;:</p>
+<p>Create directories for your data where we’ll call your data root ‘DATA’:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">mkdir</span> <span class="n">DATA</span>
 <span class="n">cd</span> <span class="n">DATA</span>
 <span class="n">mkdir</span> <span class="n">featureSpace</span> <span class="n">layoutInput</span> <span class="n">view</span>
@@ -183,7 +180,7 @@ run db
 run www
 </pre></div>
 </div>
-<p>Each server has a log file with an extension of: &#8216;.log&#8217;.</p>
+<p>Each server has a log file with an extension of: ‘.log’.</p>
 </div>
 <div class="section" id="sphinx">
 <h2>Sphinx<a class="headerlink" href="#sphinx" title="Permalink to this headline">¶</a></h2>
@@ -192,8 +189,8 @@ be installed according to <a class="reference external" href="http://www.sphinx-
 </div>
 <div class="section" id="references">
 <h2>References<a class="headerlink" href="#references" title="Permalink to this headline">¶</a></h2>
-<p>[1] S. Martin, W. M. Brown, R. Klavans, K. Boyack, &#8220;Dr. L: Distributed Recursive
-(Graph) Layout,&#8221; in preparation for Journal of Graph Algorithms and
+<p>[1] S. Martin, W. M. Brown, R. Klavans, K. Boyack, “Dr. L: Distributed Recursive
+(Graph) Layout,” in preparation for Journal of Graph Algorithms and
 Applications.</p>
 </div>
 </div>
@@ -213,7 +210,6 @@ Applications.</p>
 <li class="toctree-l1"><a class="reference internal" href="computeInstall.html">Compute Server Install</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">View Server Install</a></li>
 <li class="toctree-l1"><a class="reference internal" href="docs.html">This Document</a></li>
-<li class="toctree-l1"><a class="reference internal" href="licenses.html">Licenses</a></li>
 </ul>
 
           <div role="search">
@@ -251,8 +247,8 @@ Applications.</p>
         <div class="right">
           
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2016, UCSC Tumor Map development team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+        &#169; Copyright 2018, UCSC Tumor Map developers.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.5.
     </div>
         </div>
         <div class="clearer"></div>

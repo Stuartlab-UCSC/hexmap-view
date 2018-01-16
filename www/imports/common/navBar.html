@@ -2,7 +2,7 @@
     <div id='navBar'>
         <img src="/cyber-slug.svg" class="cyber-slug"/>
         <ul>
-            <li class='home mapShow gridShow homeShow'>
+            <li class='home mapShow homeShow'>
                 <a href='/?pg=homePage' style='color:inherit'>
                 Home
                 </a>
@@ -43,9 +43,9 @@
                                     SVG Legend
                                 </a>
                             </li>
-                            <li class='xyPreSquiggleAnchor mapShow gridShow' >
+                            <li class='xyPreSquiggleAnchor mapShow' >
                             </li>
-                            <li class='xyAssignmentAnchor mapShow gridShow' >
+                            <li class='xyAssignmentAnchor mapShow' >
                             </li>
                             <!--
                             <li class='input_files homeShow mapShow'>
@@ -69,7 +69,7 @@
                             -->
                         </ul>
                     </li>
-                    <li class='resetDefaults mapShow gridShow'>
+                    <li class='resetDefaults mapShow'>
                         Reset to Defaults
                     </li>
                 </ul>
@@ -116,32 +116,24 @@
                 </ul>
             </li>
 
-            <li>
+            <li class='mapShow'>
                 View
                 <img src='/icons/caret-down.png' style='height:8px'>
                 <ul class='view'>
                     <li class='mapLayout mapView {{ mapViewLayoutSelected }}'>
                         Hexagonal Grid
                     </li>
-                    <li class='xyCoordView mapView mapShow {{ mapViewXySelected}}'>
+                    <li class='xyCoordView mapView {{ mapViewXySelected}}'>
                         Cartesian Plane
-                    </li>
-                    <li class='gridPage mapView gridShow {{ mapViewDensitySelected }}'>
-                        <a href='/?pg=gridPage' style='color:inherit'>
-                        Node Density
-                        </a>
                     </li>
                     <li class='mapShow'>
                         <hr>
                     </li>
-                    <li class='transparent gridShow {{ transparentSelected }}' style='display:none'>
+                    <li class='transparent {{ transparentSelected }}' style='display:none'>
                         Transparent
                     </li>
-                    <li class='showHoverInfo mapShow'>
+                    <li class='showHoverInfo'>
                         Show Node Hover
-                    </li>
-                    <li class='viewEdges gridShow'>
-                        {{viewEdges}} Edges
                     </li>
                 </ul>
             </li>

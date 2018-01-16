@@ -57,8 +57,6 @@ function matcher (term, text, opt) {
 function notAuthdMessage () {
 
     // The user is not authorized to see the current project. Let her know.
-    rx.set('project.listLoading.done');
-
     var notFoundMsg = util.getHumanProject(ctx.project) +
         " cannot be found.\nPlease select another map.";
     if (!Meteor.user()) {
@@ -88,48 +86,53 @@ function populate () {
     //         ]
     //     },
     // ]
-    var selector;
+    if (rx.get('projectList.received') && rx.get('init.domLoaded') &&
+        rx.get('init.mapRendered')) {
+        rx.set('projectList.received.done');
+        var selector;
     
-    data = _.map(projects, function (minors, major) {
-        var data = {text: major};
-        if (minors.length) {
-            data.children = _.map(minors, function (minor) {
-                var id = major + '/' + minor + '/';
-                return { id: id, text: minor };
-            });
+        data = _.map(projects, function (minors, major) {
+            var data = {text: major};
+            if (minors.length) {
+                data.children = _.map(minors, function (minor) {
+                    var id = major + '/' + minor + '/';
+                    return { id: id, text: minor };
+                });
+            } else {
+                data.id = major + '/';
+            }
+            return data;
+        });
+    
+        // Attach the selector.
+        var value;
+        if (is_project_on_list(ctx.project)) {
+             value = ctx.project;
         } else {
-            data.id = major + '/';
+            value = PLACEHOLDER_TEXT;
         }
-        return data;
-    });
-    
-    // Attach the selector.
-    var value;
-    if (is_project_on_list(ctx.project)) {
-         value = ctx.project;
-    } else {
-        value = PLACEHOLDER_TEXT;
-    }
-    render(
-        <Select22
+        render(
+            <Select22
 
-            // Options for the original non-react select2.
-            select2options = {{
-                data: data,
-                value: value,
-                placeholder: PLACEHOLDER_TEXT,
-                width: '20em',
-                matcher: matcher,
-            }}
-            onChange = {function (event) {
-                utils.loadProject(event.val);
-            }}
-            choiceDisplay = {function (dataId) {
-                return dataId.slice(0, -1); // remove trailing '/' for display
-            }}
-        />, $('#project')[0]);
+                // Options for the original non-react select2.
+                select2options = {{
+                    data: data,
+                    value: value,
+                    placeholder: PLACEHOLDER_TEXT,
+                    width: '20em',
+                    matcher: matcher,
+                }}
+                onChange = {function (event) {
+                    utils.loadProject(event.val);
+                }}
+                choiceDisplay = {function (dataId) {
+                    return dataId.slice(0, -1); // remove trailing '/' for display
+                }}
+            />, $('#project')[0]);
     
-    perform.log('project-list-rendered');
+        perform.log('project-list-rendered');
+        rx.set('projectList.changing.done');
+    }
 }
 
 function signInClicked(count) {
@@ -155,9 +158,6 @@ exports.authorize = function (userId) {
         function (error, results) {
             if (results) {
                 rx.set('init.mapAuthorized');
-                if (rx.get('init.mapRendered')) {
-                    rx.set('project.listLoading.now');
-                }
             } else {
                 notAuthdMessage();
             }
@@ -168,7 +168,7 @@ exports.authorize = function (userId) {
 
     // Re-populate projects whenever the user changes, including log out.
     perform.log('project:list-request,userId:' + userId);
-    
+    rx.set('projectList.changing');
     Meteor.call('getProjects', function (error, projects_returned) {
         if (error) {
             util.banner('error',
@@ -176,9 +176,12 @@ exports.authorize = function (userId) {
         } else {
             perform.log('project:list-got');
             projects = projects_returned;
-            populate();
+            rx.set('projectList.received');
         }
     });
+    
+    // Subscribe to state changes effecting the project list.
+    rx.subscribe(populate);
 };
 
     // This may be causing password to not allow focus on password error.

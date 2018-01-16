@@ -50,10 +50,6 @@ Template.navBarT.helpers({
         return (page && page === 'mapPage' && mapView &&
             mapView === 'xyCoords') ? 'selected' : '';
     },
-    mapViewDensitySelected: function () {
-        var page = Session.get('page');
-        return (page && page === 'gridPage') ? 'selected' : '';
-    },
     transparentSelected: function () {
         return (Session.get('transparent')) ? 'selected' : '';
     },
@@ -320,6 +316,8 @@ exports.layoutAssignmentsReceived = function (parsed, id) {
 
 exports.getAssignmentsForMapViewChange = function () {
 
+    console.log('hexagons.getAssignmentsForMapViewChange()');
+
     // Download the positions of nodes and fill in the global
     // hexagon assignment grid.
     data.requestLayoutAssignments();
@@ -341,6 +339,15 @@ exports.init = function () {
     }
 
     // Set some event handlers
+    $('#navBar li.mapLayout').on('click', function () {
+        Session.set('mapView', 'honeycomb');
+        Session.set('transparent', false);
+        
+        console.log('honeycomb button captured')
+        
+        exports.getAssignmentsForMapViewChange();
+    });
+
     $('#navBar li.xyCoordView').on('click', function () {
         Session.set('mapView', 'xyCoords');
         Session.set('transparent', true);
