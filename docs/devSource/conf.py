@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # Tumor Map documentation build configuration file, created by
-# sphinx-quickstart on Sun Feb 14 16:29:25 2016.
+# sphinx-quickstart on Sun Feb 14 16:29:25 2018.
 #
 # This file is execfile()d with the current directory set to its
 # containing dir.
@@ -44,7 +44,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'UCSC Tumor Map'
-copyright = u'2016, UCSC Tumor Map development team'
+copyright = u'2018, UCSC Tumor Map developers'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -228,7 +228,7 @@ latex_elements = {
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
   ('index', 'TumorMap.tex', u'Tumor Map Documentation',
-   u'Tumor Map development team', 'manual'),
+   u'Tumor Map developers', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -258,7 +258,7 @@ latex_documents = [
 # (source start file, name, description, authors, manual section).
 man_pages = [
     ('index', 'tumormap', u'Tumor Map Documentation',
-     [u'Tumor Map development team'], 1)
+     [u'Tumor Map developers'], 1)
 ]
 
 # If true, show URL addresses after external links.
@@ -272,7 +272,7 @@ man_pages = [
 #  dir menu entry, description, category)
 texinfo_documents = [
   ('index', 'TumorMap', u'Tumor Map Documentation',
-   u'Tumor Map development team', 'Tumor Map', 'One line description of project.',
+   u'Tumor Map developers', 'Tumor Map', 'One line description of project.',
    'Miscellaneous'),
 ]
 

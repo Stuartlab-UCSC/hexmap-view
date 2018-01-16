@@ -25,7 +25,7 @@ class Snake extends Component {
                 'createMap.running',
                 'init',
                 'placeNode.running',
-                'projectList.loading',
+                'projectList.changing',
                 'uploading',
             ],
         
