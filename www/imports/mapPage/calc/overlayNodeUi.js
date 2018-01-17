@@ -28,20 +28,42 @@ function validateNodeData (data) {
 
     if (_.isUndefined(data) || _.isNull(data)) {
         util.banner('error',
-            'Nodes are undefined, please upload a file of the requested format.');
+            'Nodes are undefined, please upload a file of the requested ' +
+                'format.');
         return false;
     }
     if (data.length < 1) {
-        util.banner('error',
-            'Error: the file is empty.');
+        util.banner('error', 'Error: the file is empty.');
         return false;
     }
     return true;
 }
 
 function showNewNodes (result) {
+    util.banner('info', 'Your nodes are about to drop onto the map');
     nodeNames = Object.keys(result.nodes);
     state.bookmarkReload(result.nodes[nodeNames[0]].url);
+}
+
+function httpError (result) {
+    rx.set('placeNode.running.done');
+    util.banner('error', 'when calculating position of a new node: ' +
+        result.error, result.stackTrace);
+}
+
+function getJobStatus (jobId, jobStatusUrl) {
+
+    // Check status of the job and display when complete.
+    ajax.getJobStatus(jobId, jobStatusUrl,
+        function (result) {
+            if (result['status'] === 'Success') {
+                showNewNodes(result.result);
+            } else {
+                httpError(result.result);
+            }
+        },
+        httpError,
+    )
 }
 
 function doIt (tsv) {
@@ -54,7 +76,8 @@ function doIt (tsv) {
         return;
     }
 
-    //util.banner('info', 'Nodes will appear when location calculations are complete.');
+    util.banner('info', 'Nodes will appear when location calculations are ' +
+        'complete.');
 
     // Convert the node data into an object
 
@@ -82,19 +105,21 @@ function doIt (tsv) {
         map: util.getHumanProject(ctx.project),
         layout: layout.findCurrentName(),
         nodes: data,
+        doNotEmail: true,
     };
     if (Meteor.user()) {
         opts.email = Meteor.user().username;
     }
 
-    ajax.query('overlayNodes', opts,
+    // Add this job to the calc server.
+    ajax.query('placeNode', opts,
         function (result) {
-            util.banner('info', 'Your nodes are about to drop onto the map');
-            showNewNodes(result);
+            getJobStatus(result.jobId, result.jobStatusUrl);
         },
-        function (error) {
+        function (result) {
             rx.set('placeNode.running.done');
-            util.banner('error', 'when adding a new node: ' + error);
+            util.banner('error', 'when adding a new node: ' + result.error,
+                result.stackTrace);
         },
     );
 

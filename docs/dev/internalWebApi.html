@@ -1,17 +1,14 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
     <title>Internal Web API &#8212; Tumor Map Developer Documentation</title>
-    
     <link rel="stylesheet" href="_static/agogo.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="_static/custom.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
@@ -30,7 +27,7 @@
     <link rel="next" title="Source Code: Compute Server" href="computeSource.html" />
     <link rel="prev" title="Developer Docs" href="index.html" /> 
   </head>
-  <body role="document">
+  <body>
     <div class="header-wrapper" role="banner">
       <div class="header">
         <div class="headertitle"><a
@@ -60,26 +57,27 @@
 </div>
 <p>These are APIs that we may not necessarily want to advertise to the public.</p>
 <p>Public web APIs are described at <a class="reference external" href="https://tumormap.ucsc.edu/query/index.html">https://tumormap.ucsc.edu/query/index.html</a></p>
+<div class="section" id="create-bookmark">
+<h2>Create Bookmark<a class="headerlink" href="#create-bookmark" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="https:/">https:/</a>/&lt;view-server&gt;/bookmark/&lt;state&gt;</p>
+<p>POST with content-type returned: application/json</p>
+<p>This API creates a bookmark on a view server with the given client state data.</p>
+</div>
+<div class="section" id="createmapapi">
+<h2><a class="reference internal" href="createMapApi.html"><span class="doc">Create map</span></a><a class="headerlink" href="#createmapapi" title="Permalink to this headline">¶</a></h2>
+</div>
 <div class="section" id="get-data">
 <h2>Get Data<a class="headerlink" href="#get-data" title="Permalink to this headline">¶</a></h2>
 <p><a class="reference external" href="https:/">https:/</a>/&lt;compute-server&gt;/data/&lt;data-ID&gt;</p>
 <p>GET with content-type returned: application/json</p>
 <p>This is a general data retrieval API usable for any data within a
-map&#8217;s view data. Used by the viewer to retrieve view data.</p>
+map’s view data. Used by the viewer to retrieve view data.</p>
 <p>Example: retrieve the attribute metadata for the Pancan12 SampleMap:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">tumormap</span><span class="o">.</span><span class="n">ucsc</span><span class="o">.</span><span class="n">edu</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">view</span><span class="o">/</span><span class="n">Pancan12</span><span class="o">/</span><span class="n">SampleMap</span><span class="o">/</span><span class="n">layers</span><span class="o">.</span><span class="n">tab</span>
 </pre></div>
 </div>
 <p>Returns json or tsv, depending on the file and in the same format as
 persistent store.</p>
-<p>More to be documented.</p>
-</div>
-<div class="section" id="create-bookmark">
-<h2>Create Bookmark<a class="headerlink" href="#create-bookmark" title="Permalink to this headline">¶</a></h2>
-<p><a class="reference external" href="https:/">https:/</a>/&lt;view-server&gt;/bookmark/&lt;state&gt;</p>
-<p>POST with content-type returned: application/json</p>
-<p>This API creates a bookmark on a view server with the given client state data.</p>
-<p>More to be documented.</p>
 </div>
 <div class="section" id="get-available-maps-future">
 <h2>Get available maps (future)<a class="headerlink" href="#get-available-maps-future" title="Permalink to this headline">¶</a></h2>
@@ -87,14 +85,12 @@ persistent store.</p>
 <p>GET with content-type returned: application/json</p>
 <p>Retrieve the map names available on this view server for which the user is
 authorized.</p>
-<p>TBD</p>
 </div>
 <div class="section" id="dynamic-statistics-future">
 <h2>Dynamic Statistics (future)<a class="headerlink" href="#dynamic-statistics-future" title="Permalink to this headline">¶</a></h2>
 <p><a class="reference external" href="https:/">https:/</a>/&lt;compute-server&gt;/query/TBD</p>
 <p>POST with content-type returned: application/json</p>
 <p>Compute the statististics for a dynamically added attribute.</p>
-<p>TBD</p>
 </div>
 </div>
 
@@ -113,7 +109,6 @@ authorized.</p>
 <li class="toctree-l1"><a class="reference internal" href="computeInstall.html">Compute Server Install</a></li>
 <li class="toctree-l1"><a class="reference internal" href="viewerInstall.html">View Server Install</a></li>
 <li class="toctree-l1"><a class="reference internal" href="docs.html">This Document</a></li>
-<li class="toctree-l1"><a class="reference internal" href="licenses.html">Licenses</a></li>
 </ul>
 
           <div role="search">
@@ -151,8 +146,8 @@ authorized.</p>
         <div class="right">
           
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2016, UCSC Tumor Map development team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+        &#169; Copyright 2018, UCSC Tumor Map developers.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.5.
     </div>
         </div>
         <div class="clearer"></div>

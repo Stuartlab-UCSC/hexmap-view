@@ -28,8 +28,10 @@ exports.stateActions = [
     'init.stateLoaded',
     'placeNode.running.done',
     'placeNode.running.now',
-    'project.listLoading.done',
-    'project.listLoading.now',
+    'projectList.changing',
+    'projectList.changing.done',
+    'projectList.received',
+    'projectList.received.done',
     'uploading.done',
     'uploading.now',
 ];
@@ -58,7 +60,8 @@ const statePieces =  [ // eslint-disable-line
     'init.mapRendered',
     'init.stateLoaded',
     'placeNode.running',
-    'project.listLoading',
+    'projectList.changing',
+    'projectList.received',
     'uploading',
 ];
 
