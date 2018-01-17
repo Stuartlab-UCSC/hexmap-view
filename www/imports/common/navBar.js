@@ -1,6 +1,5 @@
 // Handle the navigation bar
 
-import utils from '/imports/common/utils.js';
 import './navBar.html';
 import './navBar.css';
 
@@ -33,15 +32,4 @@ exports.init = function () {
         $('body').find('.gridShow').show();
         $('body').css('overflow-y', 'hidden');
     }
-    
-    $('#navBar li.mapLayout').on('click', function () {
-        Session.set('mapView', 'honeycomb');
-        Session.set('transparent', false);
-        if (Session.equals('page', 'mapPage')) {
-            import hexagons from '/imports/mapPage/viewport/hexagons.js';
-            hexagons.getAssignmentsForMapViewChange();
-        } else {
-            utils.pageReload('mapPage');
-        }
-    });
 };

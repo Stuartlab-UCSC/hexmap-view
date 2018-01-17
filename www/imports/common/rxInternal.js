@@ -87,11 +87,21 @@ const reducers = {
             return state;
         }
     },
-    'project.listLoading': (state = false, action) => {
+    'projectList.changing': (state = false, action) => {
         switch (action.type) {
-        case 'project.listLoading.now':
+        case 'projectList.changing':
             return true;
-        case 'project.listLoading.done':
+        case 'projectList.changing.done':
+            return false;
+        default:
+            return state;
+        }
+    },
+    'projectList.received': (state = false, action) => {
+        switch (action.type) {
+        case 'projectList.received':
+            return true;
+        case 'projectList.received.done':
             return false;
         default:
             return state;

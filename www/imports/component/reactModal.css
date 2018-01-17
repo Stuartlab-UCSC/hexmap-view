@@ -63,6 +63,11 @@
     width: 25em;
 }
 
+.promptModal .modalLabel {
+    min-width: 10em;
+    max-width: 20em;
+}
+
 .nodeIdSelectModal .readFile {
     margin-top: 0.6em;
     margin-left: 0.5em;
