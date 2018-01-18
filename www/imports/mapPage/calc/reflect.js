@@ -139,21 +139,19 @@ function preShow () {
     return good;
 }
 
-
-function linkAddress(toMapId, dataType, url) {
-    let mapUpUrl  = `${URL_BASE}/?p=${toMapId}&layout=${dataType}`
-                + `&hub=${HUB_URL}${url}&compute=addAttr`
-    return mapUpUrl
-}
-
-
 function executeReflection () {
+    // Uses outer scope variables:
+    //  selectionList.selected
+    //  layers[selectionList.selected].data
+    //  Session.get('reflectRanked');
+
     // Gather the user input and call the map manager.
     selectionSelected = selectionList.selected;
     
     // Bail if no selection is selected
     if (_.isUndefined(selectionSelected)) { return; }
 
+    // Build the nodeId list to send over.
     var nodeIds = [];
     _.each(layers[selectionList.selected].data,
         function (val, key) {
@@ -181,44 +179,93 @@ function executeReflection () {
     };
 
     const url = HUB_URL + "/reflect";
-    const log = (it) => {console.log(it); return it};
-    const buildReflectUrl = (data) => {return linkAddress(toMapId, dataType, data.url)};
-    const msg = `The reflection of ${selectionSelected} is viewable on ${toMapId}`
-    const makeButton = (url) => {
-        const button =
-            <button style={{float : "right"}}>
-                <a href={url} target = {"_blank"} >
-                    GO
-                </a>
-            </button>
-        return button
-    };
-    const showPrompt = (button) => {
-        Prompt.show(msg,
-            {buttonInput: button,
-            severity: "info"
-            }
-        )
-    };
+
+    let jobStatusUrl;
+
+    // Get the job status url and then kick off the polling.
+    // When "Success" comes back from the response in the json.status
+    // open up a prompt with a link to the reflected map.
     fetch(url, fetchInitPost)
         .then(parseJson)
-        .then(buildReflectUrl)
-        .then(makeButton)
-        .then(showPrompt);
+        .then((jresp)=> runPolling(jresp.jobStatusUrl, openRoutePrompt))
+
+    // Below are helper functions for the above cause.
+    function runPolling(url, onSuccess, seconds, generator){
+        // Poll the jobStatus of the reflection URL
+        // Doubles the number of seconds between each poll.
+
+        const DEFAULT_TIME = 3500;
+        let timeout = seconds * 1000 || DEFAULT_TIME;
+
+        console.log("polling")
+
+        if(!generator){
+            generator = pollForReflectionStatus(url);
+        }
+
+        let p = generator.next();
+
+        setTimeout(
+            ()=>
+                p.value.then(function(jresp) {
+                    if(jresp.status !== "Success"){
+                        runPolling(url, onSuccess, 2 * seconds, generator);
+                    } else {
+                        onSuccess(jresp)
+                    }
+                }),
+            timeout
+        );
+    }
+
+    function *pollForReflectionStatus(url){
+        while(true){
+            yield fetch(url).then(parseJson);
+        }
+    }
+
+    const openRoutePrompt = (jresp) => {
+        // Opens a prompt heaving a link to view the completed reflection.
+        const result = jresp.result;
+        const reflectUrl = buildReflectUrl(result);
+        const button = makeButton(reflectUrl);
+        showPrompt(button);
+    };
+
+    const msg = `The reflection of ${selectionSelected} is viewable on ${toMapId}`
+
+    const showPrompt = (button) => {
+        if (button) {
+            Prompt.show(msg,
+                {buttonInput: button,
+                    severity: "info"
+                }
+            )
+        }
+    };
+
+    const makeButton = (url) => {
+        const button =
+        <button style={{float : "right"}}>
+        <a href={url} target = {"_blank"} >
+            GO
+            </a>
+            </button>
+        if (url) return button;
+    };
+
+    const buildReflectUrl = (data) => { if (data) return linkAddress(toMapId, dataType, data.url)};
 
     hide();
-
 }
 
-
-function metaDataUrl(){
-    const [majorId, minorId] = ctx.project.split("/");
-    const url  = HUB_URL + "/reflect/metaData/majorId/" +
-                 majorId + "/minorId/" + minorId;
-    return url
+function linkAddress(toMapId, dataType, url) {
+    // Builds the link that opens a new map window with the completed reflection.
+    const mapUpUrl  =
+                    `${URL_BASE}/?p=${toMapId}&layout=${dataType}`
+                    + `&hub=${HUB_URL}${url}&compute=addAttr`;
+    return mapUpUrl
 }
-
-const parseJson = (response) => {return response.json()};
 
 function getReflectionInfo() {
     // grab array for possible maps to reflect to
@@ -232,7 +279,7 @@ function getReflectionInfo() {
     };
 
     const setReady = () => {
-        Session.set('reflectCriteria', true)
+        Session.set('reflectCriteria', true);
     };
 
     const setUnavailable = () => {
@@ -246,6 +293,15 @@ function getReflectionInfo() {
         .catch(setUnavailable);
 
 }
+
+function metaDataUrl(){
+    const [majorId, minorId] = ctx.project.split("/");
+    const url  = HUB_URL + "/reflect/metaData/majorId/" +
+        majorId + "/minorId/" + minorId;
+    return url
+}
+
+const parseJson = (response) => {return response.json()};
 
 exports.init = function () {
 
