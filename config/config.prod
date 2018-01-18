@@ -1,6 +1,6 @@
 #!/bin/bash
 
-DB_NAME=$PORT   # Name of the mongo database
+DB_NAME=admin   # Name of the mongo database
 DB_PORT=27017   # Port on which the database listens
 
 # Needed by the www server.
@@ -9,4 +9,3 @@ export HTTPS_PORT=443  # Https proxy port if using https, otherwise the same as 
 export PORT=8443       # Port on which the meteor server listens
 export PYENV=/hive/groups/hexmap/prod/envHexmap
 export ROOT_URL=https://tumormap.ucsc.edu:$HTTPS_PORT # User's view of the URL
-
