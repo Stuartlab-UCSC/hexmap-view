@@ -1,0 +1,68 @@
+#!/bin/bash
+
+# Path to your meteor.
+export METEOR_PATH=/cluster/home/dmccoll/.meteor/meteor
+# Path to the root of github repo
+export HEXMAP=/cluster/home/dmccoll/dev
+
+# For https, set below to "true" and change 
+# the environment variables inside the if statement.
+USING_HTTPS=true
+if [  "$USING_HTTPS" = true ]; then
+    # Paths to https certs.
+    export KEY=/data/certs/hexdev.key
+    export CERT=/data/certs/hexdev.crt
+    export CHAIN=/data/certs/chain.crt
+
+    # Port for HTTP redirect
+    export HTTP_PORT=8234
+
+    export HTTPS_PORT=8229
+    # The meteor port.
+	export PORT=8228 
+	# Where the https proxy goes.
+	export METEOR_URL="http://hexdev.sdsc.edu:"$PORT
+	# The exposed URL
+	export ROOT_URL="https://hexdev.sdsc.edu:"$HTTPS_PORT
+
+else
+	export PORT=
+	export ROOT_URL=
+fi
+
+# "FORE" or "BACK", "BACK" assumes you have bundled the app
+# with the bin/deploy.sh script.11
+export BACK_OR_FOREGROUND=BACK
+
+# Meteor settings.json variables.
+export GOOGLE_API_KEY="AIzaSyBb8AJUB4x-xxdUCnjzb-Xbcg0-T1mPw3I"
+export ADMIN_EMAIL="dmccoll@ucsc.edu"
+export DEV=true
+export IS_CALC_SERVER=true
+export IS_MAIN_SERVER=true
+export HUB_URL="https://hexdev.sdsc.edu:8332"
+# Below paths/require/the/trailing/slash/.
+export FEATURE_SPACE_DIR=/hive/groups/hexmap/dev/data/featureSpace/
+export LAYOUT_INPUT_DIR=/hive/groups/hexmap/dev/data/layoutInput/
+export SERVER_DIR=/cluster/home/swat/dev/www/programs/server/assets/app/
+export VIEW_DIR=/hive/groups/hexmap/dev/data/view/
+export TEMP_DIR=/cluster/home/dmccoll/tmp/
+
+# Calculations.
+export DRLPATH=${HEXMAP}/packages/drl/bin
+export PATH=$DRLPATH:$PATH
+export PYENV=/cluster/home/dmccoll/compute-env
+
+#www (View server).
+export MAIL_URL="smtp://localhost"
+
+# Mongo db.
+export MONGO_BIN=/cluster/home/dmccoll/dev/packages/mongodb/bin
+export DB_NAME=devlive
+export DB_PORT=28017
+export MAIN_MONGO_URL=mongodb://localhost:$DB_PORT/$DB_NAME
+export MONGO_URL=$MAIN_MONGO_URL
+
+export NODE_BIN=$HEXMAP/packages/node/bin
+
+
