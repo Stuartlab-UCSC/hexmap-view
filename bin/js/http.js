@@ -1,28 +1,20 @@
-
 // http.js: server proxy to forward http requests to https.
+const http = require("http");
 
-var HEXMAP = process.env.HEXMAP,
-    LISTEN_PORT = process.env.HTTP_PORT,
-    HTTPS_PORT = process.env.HTTPS_PORT,
-    SERVER_BASE_URL,
-    TARGET;
-if (HEXMAP === '/data') {
-    SERVER_BASE_URL = 'tumormap.ucsc.edu';
-} else {
-    SERVER_BASE_URL = 'hexdev.sdsc.edu';
-}
-TARGET = 'https://' + SERVER_BASE_URL + ':' + HTTPS_PORT;
-
-var http = require("http");
-var server = http.createServer(function (req, res) {
-    res.writeHead(301, {"Location": TARGET.concat(req.url)});
-    res.end();
-});
+const TARGET = process.env.ROOT_URL,
+    LISTEN_PORT = process.env.HTTP_PORT;
 
 function timestamp () {
+
+    // This returns a timestamp of the form: Jan 26 2017 11:20:48:295
     var now = new Date();
     return now.toString().slice(4, -15) + ':' + now.getMilliseconds()
 }
+
+var server = http.createServer(function (req, res) {
+    res.writeHead(301, {"Location": TARGET.concat(req.url)});
+    res.end();
+}).listen(LISTEN_PORT);
 
 // Listen for the `error` event. 
 server.on('error', function (err, req, res) {
@@ -37,5 +29,4 @@ server.on('error', function (err, req, res) {
     }
 });
 
-server.listen(LISTEN_PORT);
 console.log(timestamp(), 'http server starting on', LISTEN_PORT, 'forwarding to', TARGET);
