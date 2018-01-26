@@ -117,6 +117,21 @@ const reducers = {
             return state;
         }
     },
+/*
+    'userRoles': (state = [], action) => {
+        switch (action.type) {
+        case 'userRoles.empty':
+            return [];
+        case 'userRoles.load':
+        
+            console.log('userRoles:action:', action);
+            
+            return action.value;
+        default:
+            return state;
+        }
+    },
+*/
 };
 
 // Create one action.
