@@ -2,22 +2,22 @@
 <template name="homePage">
 {{> navBarT}}
 <div id='homePage'>
-<div style='padding-top:0.5em'>
+<div style='padding-top:0.5em;vertical-align:top'>
 <a href="http://genomics.ucsc.edu" target='_blank'>
     <img class='ucscgi_clear' src='ucscgi_clear.png' style='height:60px;margin-top:-6px'>
 </a>
 <a href="" class='mapPage mapTitle' url='pancan12.png'>
     Tumor Map
 </a>
-</div>
-<div style='font-size:0.8em;padding-top:0;padding-left:26em;padding-right:26em;padding-bottom:0.5em'>
-    The method is described in the paper by Newton, et al.
-    <br><a
-        href = 'http://cancerres.aacrjournals.org/content/77/21/e111?utm_source=170580&utm_medium=clinical1&utm_campaign=compresfocus'
-        target='_blank'
-     >
-        Cancer Research 2017
-    </a>
+    <div style='font-size:0.8em;vertical-align:top;display:inline-block;padding-top:1.7em;padding-left:2em'>
+        Method described at
+        <a
+            href = 'http://cancerres.aacrjournals.org/content/77/21/e111?utm_source=170580&utm_medium=clinical1&utm_campaign=compresfocus'
+            target='_blank'
+         >
+            Newton, et al., Cancer Research 2017
+        </a>
+    </div>
 </div>
 <div class='allProjects'>
 
@@ -38,7 +38,7 @@
     {{ /each }}
 
     <div class='createMapHome project' style='display:none:font-size:0.8em'>
-        <div class='thumbnail_like'>
+        <div class='thumbnail'>
             <div style='padding-top:0.5em;text-align:center'>
                 Create a Map
             </div>

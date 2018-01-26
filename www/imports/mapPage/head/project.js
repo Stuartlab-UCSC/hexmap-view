@@ -58,12 +58,11 @@ function matcher (term, text, opt) {
 function notAuthdMessage () {
 
     // The user is not authorized to see the current project. Let her know.
-    var notFoundMsg = util.getHumanProject(ctx.project) +
-        " cannot be found.\nPlease select another map.";
+    var more = undefined;
     if (!Meteor.user()) {
-        notFoundMsg += ' Or sign in.';
+        more = ' or sign in'
     }
-    util.banner('error', notFoundMsg);
+    util.mapNotFoundNotify(util.getHumanProject(ctx.project), more);
     rx.set('init.done');
 }
 

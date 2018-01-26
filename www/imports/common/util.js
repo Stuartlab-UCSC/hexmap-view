@@ -140,14 +140,22 @@ exports.getHumanProject = function (project) {
     return project.slice(0, -1);
 }
 
+exports.mapNotFoundNotify = function (name, more) {
+    var msg = 'Map "' + name + '" not found.\nPlease select another';
+    if (more) {
+        msg += more;
+    }
+    msg += '.'
+    exports.banner('error', msg);
+}
+
 exports.projectNotFound = function (dataId) {
     if (!ctx.projectNotFoundNotified) {
         ctx.projectNotFoundNotified = true;
     
         // Alert the user that essential data is missing for this project.
-         exports.banner('error', '"' + exports.getHumanProject(ctx.project) +
-            '" does not seem to be a valid project. Please select ' +
-            'another. (' + dataId + ')');
+        exports.mapNotFound(
+            exports.getHumanProject(ctx.project), ' (' + dataId + ')');
     }
 }
 
