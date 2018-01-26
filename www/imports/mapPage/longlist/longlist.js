@@ -4,6 +4,7 @@
 import React from 'react';
 import { render } from 'react-dom';
 import Layer from '/imports/mapPage/longlist/Layer.js';
+import rx from '/imports/common/rx.js';
 import Select22 from '/imports/component/Select22.js';
 import shortlist from '/imports/mapPage/shortlist/shortlist.js';
 import sort from '/imports/mapPage/longlist/sort.js';
@@ -215,7 +216,7 @@ exports.layerSummaryLoaded = function (parsed) {
     // Initialize the display layers resulting from filtering to all layers.
     Session.set('displayLayers', Session.get('sortedLayers'));
 
-    Session.set('layerSummaryLoaded', true);
+    rx.set('init.attrSummaryLoaded');
 };
 
 exports.layerTypesReceived = function (parsed) {

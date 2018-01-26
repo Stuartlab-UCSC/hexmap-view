@@ -106,6 +106,9 @@ exports.requestDataTypes = function (opts) {
 
 exports.requestLayerSummary = function (opts) {
     import longlist from '/imports/mapPage/longlist/longlist.js';
+    if (!opts) {
+        opts = {};
+    }
     opts.successFx = opts.successFx || longlist.layerSummaryLoaded;
     request('layers', opts);
 };
