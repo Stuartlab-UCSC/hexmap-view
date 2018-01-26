@@ -26,6 +26,23 @@ function getCredentials (userId) {
         Session.set('jobCredential', false);
         perform.log('auth:no-credentials-for-no-userId');
     }
+    /* future
+    rx.set('userRoles.empty');
+    if (userId) {
+        perform.log('auth:credentials-request:userId:' + userId);
+        Meteor.call('get_roles', userId,
+            function (error, results) {
+                if (results) {
+                    rx.set('userRoles.load', results);
+                }
+                perform.log('auth:credentials-got:userId,has-roles?:' +
+                    userId + ',' + rx.get('userRoles');
+            }
+        );
+    } else {
+        perform.log('auth:no-credentials-because-no-userId');
+    }
+    */
 }
 
 exports.credentialCheck = function (credential) {
@@ -48,7 +65,7 @@ exports.credentialCheck = function (credential) {
 
 exports.init = function () {
 
-    // Listen for a change of user.
+    // Listen for a change of user including logout.
     Meteor.autorun(function () {
         var userId = Meteor.userId();
         perform.log('auth:user-change-check:userId:' + userId);
