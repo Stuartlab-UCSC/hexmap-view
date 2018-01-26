@@ -271,7 +271,7 @@ exports.init = function () {
     Session.set('mapMeta', {});
     
     // Request the primary data.
-    data.requestLayerSummary({ rxAction: 'init.attrSummaryLoaded' });
+    data.requestLayerSummary();
     data.requestDataTypes({ rxAction: 'init.attrTypesLoaded' });
     data.requestLayoutAssignments();
     data.requestColormaps({ rxAction: 'init.colormapLoaded' });
