@@ -15,10 +15,8 @@ const reducers = {
             return state;
         }
     },
-    'init': (state = false, action) => {
+    'init': (state = true, action) => {
         switch (action.type) {
-        case 'init.running':
-            return true;
         case 'init.done':
             return false;
         default:
@@ -89,7 +87,7 @@ const reducers = {
     },
     'projectList.changing': (state = false, action) => {
         switch (action.type) {
-        case 'projectList.changing':
+        case 'projectList.changing.now':
             return true;
         case 'projectList.changing.done':
             return false;
@@ -97,11 +95,11 @@ const reducers = {
             return state;
         }
     },
-    'projectList.received': (state = false, action) => {
+    'projectList.receiving': (state = false, action) => {
         switch (action.type) {
-        case 'projectList.received':
+        case 'projectList.receiving.now':
             return true;
-        case 'projectList.received.done':
+        case 'projectList.receiving.done':
             return false;
         default:
             return state;
