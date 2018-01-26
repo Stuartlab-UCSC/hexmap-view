@@ -71,7 +71,6 @@ exports.resizeMap = function () {
 };
 
 function queryFreeReload () {
-    rx.set('init.running');
     if (window.location.search.length > 0) {
         window.location.search = '';
     } else {

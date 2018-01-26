@@ -361,7 +361,6 @@ State.prototype.load = function (store) {
         }
     });
 
-
     if (Session.equals('page', undefined)) {
         Session.set('page', DEFAULT_PAGE);
     }
@@ -373,7 +372,8 @@ State.prototype.load = function (store) {
     // Use this method if we want the project in the drop-down lise
     // If you ony want it accessible from a URL, use the method in
     // this.loadFromUrl().
-    if (s.project.slice(0,13) === 'Youngwook/ori') {
+    if (s.project.slice(0,13) === 'Youngwook/ori' ||
+        s.project.slice(0,13) === 'Youngwook.ori') {
         Session.set('overlayNodes', overlayNodes.get('youngwookOriginal'));
     } else if (s.project.slice(0,13) === 'Youngwook/qua') {
         Session.set('overlayNodes',

@@ -18,6 +18,7 @@ var projects; // project list
 var data; // data for select widget
 var prevListUsername = 'empty';
 var prevAuthUsername = 'empty';
+var unsubscribe = {};
 
 function is_project_on_list (project) {
 
@@ -63,6 +64,7 @@ function notAuthdMessage () {
         notFoundMsg += ' Or sign in.';
     }
     util.banner('error', notFoundMsg);
+    rx.set('init.done');
 }
 
 function populate () {
@@ -86,9 +88,9 @@ function populate () {
     //         ]
     //     },
     // ]
-    if (rx.get('projectList.received') && rx.get('init.domLoaded') &&
-        rx.get('init.mapRendered')) {
-        rx.set('projectList.received.done');
+    if (!rx.get('projectList.receiving') && rx.get('init.domLoaded')) {
+
+        unsubscribe.populate();
         var selector;
     
         data = _.map(projects, function (minors, major) {
@@ -168,7 +170,12 @@ exports.authorize = function (userId) {
 
     // Re-populate projects whenever the user changes, including log out.
     perform.log('project:list-request,userId:' + userId);
-    rx.set('projectList.changing');
+    
+    // Subscribe to state changes effecting the project list.
+    rx.set('projectList.changing.now');
+    rx.set('projectList.receiving.now');
+    unsubscribe.populate = rx.subscribe(populate);
+
     Meteor.call('getProjects', function (error, projects_returned) {
         if (error) {
             util.banner('error',
@@ -176,13 +183,7 @@ exports.authorize = function (userId) {
         } else {
             perform.log('project:list-got');
             projects = projects_returned;
-            rx.set('projectList.received');
+            rx.set('projectList.receiving.done');
         }
     });
-    
-    // Subscribe to state changes effecting the project list.
-    rx.subscribe(populate);
 };
-
-    // This may be causing password to not allow focus on password error.
-    //$('.login').on('click', $('#login-sign-in-link'), signInClicked);
