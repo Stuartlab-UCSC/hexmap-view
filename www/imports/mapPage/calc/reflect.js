@@ -8,7 +8,7 @@ import tool from '/imports/mapPage/head/tool.js';
 import util from '/imports/common/util.js';
 import Prompt from '/imports/component/Prompt';
 import React from 'react';
-
+import { pollJobStatus, parseJson} from '/imports/common/pollJobStatus'
 import './reflect.html';
 
 //'use strict';
@@ -18,13 +18,11 @@ var title = 'Reflect on Another Map',
     $link,
     $button,
     $dialog,
-    mapId,
     toMapId,
     toMapIds,
     dataType,
     dataTypes,
     selectionList,
-    subscribedToMaps = false,
     selectionSelected = ''; // option selected from the selection list
 
 Template.reflectT.helpers({
@@ -121,7 +119,7 @@ function criteriaCheck () {
     if (!(Session.get('reflectCriteria'))) {
         dialogHex.hide();
         util.banner('error', 'Sorry, the required data to ' +
-        'reflect onto another map is not available for this map.');
+        'reflect is not available for this map.');
         return false;
     }
     return true;
@@ -162,79 +160,52 @@ function executeReflection () {
     const userId = Meteor.user().username,
         rankCategories = Session.get('reflectRanked');
 
-    let parms = {
+    let reflectionParms = {
         dataType : dataType,
         userId : userId,
         toMapId : toMapId,
         mapId : ctx.project,
         nodeIds : nodeIds,
         rankCategories: rankCategories,
-        selectionSelected : selectionSelected
+        dynamicAttrName : selectionSelected,
+        email : Meteor.user().username,
     };
 
-    const fetchInitPost  = {
+    const reflectionPost  = {
         method: "POST",
         headers: new Headers({"Content-Type": "application/json"}),
-        body: JSON.stringify(parms)
+        body: JSON.stringify(reflectionParms)
     };
 
     const url = HUB_URL + "/reflect";
 
-    let jobStatusUrl;
-
     // Get the job status url and then kick off the polling.
     // When "Success" comes back from the response in the json.status
     // open up a prompt with a link to the reflected map.
-    fetch(url, fetchInitPost)
+    fetch(url, reflectionPost)
         .then(parseJson)
-        .then((jresp)=> runPolling(jresp.jobStatusUrl, openRoutePrompt))
-
-    // Below are helper functions for the above cause.
-    function runPolling(url, onSuccess, seconds, generator){
-        // Poll the jobStatus of the reflection URL
-        // Doubles the number of seconds between each poll.
-
-        const DEFAULT_TIME = 3500;
-        let timeout = seconds * 1000 || DEFAULT_TIME;
-
-        console.log("polling")
-
-        if(!generator){
-            generator = pollForReflectionStatus(url);
-        }
-
-        let p = generator.next();
-
-        setTimeout(
-            ()=>
-                p.value.then(function(jresp) {
-                    if(jresp.status !== "Success"){
-                        runPolling(url, onSuccess, 2 * seconds, generator);
-                    } else {
-                        onSuccess(jresp)
-                    }
-                }),
-            timeout
-        );
-    }
-
-    function *pollForReflectionStatus(url){
-        while(true){
-            yield fetch(url).then(parseJson);
-        }
-    }
+        .then((jresp)=> pollJobStatus(jresp.jobStatusUrl, openRoutePrompt));
 
     const openRoutePrompt = (jresp) => {
-        // Opens a prompt heaving a link to view the completed reflection.
+        // Opens a prompt with a link to view the completed reflection.
         const result = jresp.result;
         const reflectUrl = buildReflectUrl(result);
         const button = makeButton(reflectUrl);
-        showPrompt(button);
+        let msg = ` The reflection of ${selectionSelected} is viewable on ${toMapId}.`;
+
+        // If some of the data requested was missing notify the user via prompt msg.
+        let extra="";
+        const notAllDataThere = (result.nNodes < nodeIds.length );
+        if (notAllDataThere) {
+            extra = `Only ${result.nNodes} from the ${nodeIds.length}
+                     nodes in ${selectionSelected} were available to calculate the 
+                     reflected attribute.`
+        }
+        msg = extra + msg;
+        showPrompt(button, msg);
     };
-
-    const msg = `The reflection of ${selectionSelected} is viewable on ${toMapId}`
-
-    const showPrompt = (button) => {
+    
+    const showPrompt = (button, msg) => {
         if (button) {
             Prompt.show(msg,
                 {buttonInput: button,
@@ -254,17 +225,19 @@ function executeReflection () {
         if (url) return button;
     };
 
-    const buildReflectUrl = (data) => { if (data) return linkAddress(toMapId, dataType, data.url)};
+    const buildReflectUrl =
+        (data) => { if (data) return buildLink(toMapId, dataType, data.url)};
+
+    function buildLink(toMapId, dataType, url) {
+        // Uses "xena url api" to build a link that will open the new reflection
+        // in the correct map.
+        const mapUpUrl  =
+            `${URL_BASE}/?p=${toMapId}&layout=${dataType}`
+            + `&hub=${HUB_URL}${url}&compute=addAttr`;
+        return mapUpUrl
+    }
 
     hide();
-}
-
-function linkAddress(toMapId, dataType, url) {
-    // Builds the link that opens a new map window with the completed reflection.
-    const mapUpUrl  =
-                    `${URL_BASE}/?p=${toMapId}&layout=${dataType}`
-                    + `&hub=${HUB_URL}${url}&compute=addAttr`;
-    return mapUpUrl
 }
 
 function getReflectionInfo() {
@@ -300,8 +273,6 @@ function metaDataUrl(){
         majorId + "/minorId/" + minorId;
     return url
 }
-
-const parseJson = (response) => {return response.json()};
 
 exports.init = function () {
 
