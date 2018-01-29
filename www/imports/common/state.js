@@ -397,10 +397,6 @@ State.prototype.loadFromLocalStore = function () {
 State.prototype.loadFromBookmark = function (bookmark) {
 
     // Load state from the given bookmark
-
-    // First we need to see if we should ignore the url query which
-    // was previously included and we want to leave it in the url so the
-    // user can fix what's there
     var s = this,
         store = JSON.parse(window.localStorage.getItem(s.storeName));
 
