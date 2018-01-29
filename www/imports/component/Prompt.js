@@ -69,7 +69,7 @@ class Prompt extends Component {
             link = null;
         
         // Build the text box and buttons in the button box.
-        if (this.state.textStr) {
+        if (typeof this.state.textStr !== 'undefined') {
             input =
                 <input
                     type = 'text'

@@ -56,7 +56,7 @@ exports.banner = function (severity, text, stackTrace, link) {
     }
     // Also inform the browser console of this issue.
     console.log(severity + ':', text);
-    if (stackTrace) {
+    if (!_.isUndefined(stackTrace)) {
         console.log('Server Error', stackTrace);
     }
 }
