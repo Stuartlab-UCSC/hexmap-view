@@ -154,7 +154,7 @@ exports.projectNotFound = function (dataId) {
         ctx.projectNotFoundNotified = true;
     
         // Alert the user that essential data is missing for this project.
-        exports.mapNotFound(
+        exports.mapNotFoundNotify(
             exports.getHumanProject(ctx.project), ' (' + dataId + ')');
     }
 }
