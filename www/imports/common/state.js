@@ -255,6 +255,13 @@ State.prototype.jsonify = function (newPage) {
 
     // Now we set the newPage
     if (newPage) { Session.set('page', newPage); }
+    
+    // Gather any dynamic attributes
+    var dynamic_attrs =
+        shortlist.get_dynamic_entries_for_persistent_state();
+    if (dynamic_attrs) {
+        Session.set('dynamic_attrs', dynamic_attrs);
+    }
 
     // Walk though our list of unique keys and save those
     _.each(s.localStorage.unique_keys, function (key) {
@@ -310,15 +317,6 @@ State.prototype.save = function (newPage) {
         s.lastProject = s.project;
         s.setProjectDefaults();
 
-    } else if ('project' in s) {
-
-        // Gather any dynamic attributes
-        var dynamic_attrs =
-            shortlist.get_dynamic_entries_for_persistent_state();
-
-        if (dynamic_attrs) {
-            Session.set('dynamic_attrs', dynamic_attrs);
-        }
     }
 
     jsonState = s.jsonify(newPage);
