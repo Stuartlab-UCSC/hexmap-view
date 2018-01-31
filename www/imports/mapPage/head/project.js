@@ -63,7 +63,6 @@ function notAuthdMessage () {
         more = ' or sign in'
     }
     util.mapNotFoundNotify(util.getHumanProject(ctx.project), more);
-    rx.set('init.done');
 }
 
 function populate () {
