@@ -146,6 +146,7 @@ exports.mapNotFoundNotify = function (name, more) {
         msg += more;
     }
     msg += '.'
+    rx.set('init.done');
     exports.banner('error', msg);
 }
 
