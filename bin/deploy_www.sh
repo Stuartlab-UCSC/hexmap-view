@@ -9,8 +9,8 @@ cd $HEXMAP/www
 meteor npm install --production
 meteor build $HEXMAP/deploy --architecture os.linux.x86_64
 echo Built the deploy bundle in $HEXMAP/deploy.
-echo
-echo ENTER YOUR PASSWORD BEFORE TIME OUT
-echo
 cd $HEXMAP/deploy
 scp www.tar.gz kolossus:dev
+echo
+echo If the scp session timed out, do this:
+echo "scp deploy/www.tar.gz kolossus:dev"
