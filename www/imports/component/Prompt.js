@@ -66,7 +66,8 @@ class Prompt extends Component {
         var self = this,
             input = null,
             button = null,
-            link = null;
+            link = null,
+            linkText;
         
         // Build the text box and buttons in the button box.
         if (typeof this.state.textStr !== 'undefined') {
@@ -84,13 +85,18 @@ class Prompt extends Component {
                 </button>;
         }
         
+        if (this.props.linkText) {
+            linkText = this.props.linkText;
+        } else {
+            linkText = this.props.link;
+        }
         if (this.props.link) {
             link =
                 <a
                     href = {this.props.link}
                     target = '_blank'
                 >
-                    here
+                    {linkText}
                 </a>;
         }
         
@@ -126,10 +132,13 @@ Prompt.propTypes = {
     // An http link to display just after the prompt string.
     link: PropTypes.string,
     
-    // The default text to display in the optional text input.
-    textStr: PropTypes.string,
+    // The text to display for the link.
+    linkText: PropTypes.string,
     
-    // The type of prompt to control color and more.
+    // The default text to display in the text input.
+    textStr: PropTypes.string,
+
+    // The type of prompt to control color and more
     severity: PropTypes.oneOf(['info', 'warn', 'error']),
  
     // Function to call when this modal closes.
@@ -166,9 +175,11 @@ exports.show = function (promptStr, opts) {
     // Create and render this modal.
     // @param         promptStr: the prompt string
     // @param         opts.link: http link to appear after the prompt, optional
+    // @param     opts.linkText: text to appear instead of actual link, optional
     // @param      opts.textStr: the text to put in the input box, optional
     // @param     opts.callback: function to call upon modal close, optional
-    // @param     opts.severity: one of [error, info, warning], optional
+    // @param     opts.severity: one of [error, info, warning], optional;
+    //                           default is no color in prompt
     var container = utils.createReactRoot(containerId);
     callback = opts ? opts.callback : null;
     render(
@@ -177,6 +188,7 @@ exports.show = function (promptStr, opts) {
             className = 'prompt'
             textStr = {opts.textStr}
             link = {opts.link}
+            linkText = {opts.linkText}
             parentSelector = {getParentSelector}
             severity = {opts.severity}
             closeModal = {closeModal}
