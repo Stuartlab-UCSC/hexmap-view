@@ -35,7 +35,7 @@ exports.clean_file_name = function (dirty) {
     return dirty.replace(/[^A-Za-z0-9_\-\.]/g, "_");
 }
 
-exports.banner = function (severity, text, stackTrace, link) {
+exports.banner = function (severity, text, stackTrace, link, linkText) {
 
     // Display a message, either as a timed banner when 'severity' is one of
     // 'warn' or 'info', otherwise a dialog that requires the user to
@@ -50,7 +50,11 @@ exports.banner = function (severity, text, stackTrace, link) {
             .show();
         $("#banner").delay(5000).fadeOut(1500);
     } else if (severity === 'error') {
-        Prompt.show(text, { severity: 'error', link: link });
+        opts = { severity: 'error', link: link, linkText: 'here' };
+        if (linkText) {
+            opts.linkText = linkText;
+        }
+        Prompt.show(text, opts);
     } else {
         console.log('invalid user message severity');
     }
@@ -59,6 +63,23 @@ exports.banner = function (severity, text, stackTrace, link) {
     if (!_.isUndefined(stackTrace)) {
         console.log('Server Error', stackTrace);
     }
+}
+
+exports.reportJobSuccess = function (result) {
+    if (result && 'result' in result && 'url' in result.result) {
+        Prompt.show('Your job has completed with these results: ',
+            {
+                link: result.result.url,
+                severity: 'info',
+            }
+        );
+    }
+}
+
+exports.reportJobSubmitted = function () {
+    Prompt.show('Your job has been submitted to the job queue.',
+        { severity: 'info' }
+    );
 }
 
 exports.session = function (prefix, operation, name, val) {

@@ -4,6 +4,7 @@
 import ajax from '/imports/mapPage/data/ajax';
 import auth from '/imports/common/auth';
 import DialogHex from '/imports/common/DialogHex';
+import prompt from '/imports/component/Prompt';
 import rx from '/imports/common/rx';
 import tool from '/imports/mapPage/head/tool';
 import util from '/imports/common/util';
@@ -139,7 +140,7 @@ function getJobStatus (jobId, jobStatusUrl) {
     ajax.getJobStatus(jobId, jobStatusUrl,
         function (result) {
             if (result.status === 'Success') {
-                utils.loadProject(getProjectName());
+                util.reportJobSuccess(result)
             } else {
                 report_error(result.result);
             }
@@ -151,8 +152,7 @@ function getJobStatus (jobId, jobStatusUrl) {
 function create_map () {
 
     // Send the create map request to the server.
-    log_it('Requesting map creation...');
-         
+    
     opts = {
         map: ui.get('major_project') + '/' + ui.get('minor_project'),
         layoutInputDataId: feature_data_id,
@@ -192,6 +192,10 @@ function create_map () {
             report_error(error);
         },
     );
+    
+    util.reportJobSubmitted();
+    hide();
+    rx.set('createMap.running.done');
 }
 
 function upload_attributes () {
