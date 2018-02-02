@@ -65,15 +65,24 @@ exports.banner = function (severity, text, stackTrace, link, linkText) {
     }
 }
 
-exports.reportJobSuccess = function (result) {
-    if (result && 'result' in result && 'url' in result.result) {
-        Prompt.show('Your job has completed with these results: ',
-            {
-                link: result.result.url,
-                severity: 'info',
-            }
-        );
+exports.reportJobSuccess = function (resultOrUrl) {
+
+    // Report a job success from either a url or from resultOrUrl.result.url.
+    var url = ''
+    if (typeof resultOrUrl === 'string') {
+        url = resultOrUrl;
+    } else if (resultOrUrl &&
+        'result' in resultOrUrl &&
+        'url' in resultOrUrl.result) {
+        url = resultOrUrl.result.url;
     }
+    Prompt.show('Your job has completed with these results: ',
+        {
+            link: url,
+            severity: 'info',
+            labelClass: 'jobUrl',
+        }
+    );
 }
 
 exports.reportJobSubmitted = function () {

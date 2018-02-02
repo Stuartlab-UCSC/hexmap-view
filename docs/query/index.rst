@@ -10,4 +10,5 @@ Web API
    addAttributeXena
    jobStatus
    placeNode
+   overlayNode
 

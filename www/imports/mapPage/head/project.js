@@ -111,26 +111,31 @@ function populate () {
         } else {
             value = PLACEHOLDER_TEXT;
         }
-        render(
-            <Select22
+        if ($('#project').length < 1) {
+            prompt.show('Please reload this page as the map list had a ' +
+                'transient error.', { severity: 'error' });
+        } else {
+            render(
+                <Select22
 
-                // Options for the original non-react select2.
-                select2options = {{
-                    data: data,
-                    value: value,
-                    placeholder: PLACEHOLDER_TEXT,
-                    width: '20em',
-                    matcher: matcher,
-                }}
-                onChange = {function (event) {
-                    utils.loadProject(event.val);
-                }}
-                choiceDisplay = {function (dataId) {
-                    return dataId.slice(0, -1); // remove trailing '/' for display
-                }}
-            />, $('#project')[0]);
-    
-        perform.log('project-list-rendered');
+                    // Options for the original non-react select2.
+                    select2options = {{
+                        data: data,
+                        value: value,
+                        placeholder: PLACEHOLDER_TEXT,
+                        width: '20em',
+                        matcher: matcher,
+                    }}
+                    onChange = {function (event) {
+                        utils.loadProject(event.val);
+                    }}
+                    choiceDisplay = {function (dataId) {
+                        return dataId.slice(0, -1); // remove trailing '/' for display
+                    }}
+                />, $('#project')[0]);
+        
+            perform.log('project-list-rendered');
+        }
         rx.set('projectList.changing.done');
     }
 }
