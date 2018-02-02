@@ -67,7 +67,9 @@ class Prompt extends Component {
             input = null,
             button = null,
             link = null,
-            linkText;
+            linkText,
+            labelClass = '';
+        
         
         // Build the text box and buttons in the button box.
         if (typeof this.state.textStr !== 'undefined') {
@@ -100,6 +102,10 @@ class Prompt extends Component {
                 </a>;
         }
         
+        if (this.props.labelClass !== undefined) {
+            labelClass = this.props.labelClass;
+        }
+        
         return (
             <Modal
                 onAfterOpen = {this.handleOpenModal}
@@ -111,7 +117,7 @@ class Prompt extends Component {
                 body = {
                     <div>
                         <div
-                            className = 'modalLabel'
+                            className = {'modalLabel ' + labelClass}
                         >
                             {this.props.promptStr}
                             {link}
@@ -129,6 +135,9 @@ Prompt.propTypes = {
     // The text to display as a prompt.
     promptStr: PropTypes.string.isRequired,
     
+    // A class to apply to the label.
+    labelClass: PropTypes.string,
+    
     // An http link to display just after the prompt string.
     link: PropTypes.string,
     
@@ -138,7 +147,7 @@ Prompt.propTypes = {
     // The default text to display in the text input.
     textStr: PropTypes.string,
 
-    // The type of prompt to control color and more
+    // The type of prompt to control color and more.
     severity: PropTypes.oneOf(['info', 'warn', 'error']),
  
     // Function to call when this modal closes.
@@ -180,12 +189,14 @@ exports.show = function (promptStr, opts) {
     // @param     opts.callback: function to call upon modal close, optional
     // @param     opts.severity: one of [error, info, warning], optional;
     //                           default is no color in prompt
+    // @param    opts.labelClass: a class to apply to the prompt label, optional
     var container = utils.createReactRoot(containerId);
     callback = opts ? opts.callback : null;
     render(
         <Prompt
             promptStr = {promptStr}
             className = 'prompt'
+            labelClass = {opts.labelClass}
             textStr = {opts.textStr}
             link = {opts.link}
             linkText = {opts.linkText}

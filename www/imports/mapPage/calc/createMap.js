@@ -161,7 +161,6 @@ function create_map () {
         noLayoutIndependentStats: true,
         noLayoutAwareStats: true,
         email: Meteor.user().username,
-        doNotEmail: true,
     }
     if (attribute_data_id) {
         opts.colorAttributeFile = attribute_data_id
