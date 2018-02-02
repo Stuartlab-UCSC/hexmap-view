@@ -5,6 +5,7 @@
 import auth from '/imports/common/auth';
 import React, { Component } from 'react';
 import perform from '/imports/common/perform';
+import prompt from '/imports/component/Prompt';
 import { render } from 'react-dom';
 import rx from '/imports/common/rx';
 import Select22 from '/imports/component/Select22';
@@ -112,7 +113,7 @@ function populate () {
             value = PLACEHOLDER_TEXT;
         }
         if ($('#project').length < 1) {
-            prompt.show('Please reload this page as the map list had a ' +
+            prompt.show('Please reload this page; the map list had a ' +
                 'transient error.', { severity: 'error' });
         } else {
             render(
@@ -138,21 +139,6 @@ function populate () {
         }
         rx.set('projectList.changing.done');
     }
-}
-
-function signInClicked(count) {
-
-    // Set focus to the login-email input text box
-    if (_.isUndefined(count)) { count = 0; }
-    var reps = 20,
-        mSecs = 100;
-    Meteor.setTimeout(function () {
-            if ($('#login-email').length > 0) {
-                $('#login-email').focus();
-            } else if (count < reps ) {
-                signInClicked(count + 1);
-            }
-        }, mSecs);
 }
 
 exports.authorize = function (userId) {

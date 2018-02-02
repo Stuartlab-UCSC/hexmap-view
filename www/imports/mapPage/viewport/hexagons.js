@@ -31,8 +31,6 @@ var opacity;
 // The hover info flag
 var hoverInfoShowing = false;
 
-var backgroundAutorun;
-
 // Save the xy extents.
 var max_x,
     max_y;

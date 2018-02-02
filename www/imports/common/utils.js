@@ -1,7 +1,6 @@
 
 // Various utilities.
 import { unmountComponentAtNode } from 'react-dom';
-import rx from '/imports/common/rx';
 
 exports.unprintableAsciiCode = function (code, allowCR) {
     

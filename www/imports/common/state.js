@@ -115,7 +115,6 @@ var State = function() {
             'pdfMap',
             'project',
             'transparent',
-            'viewEdges',
             'reflectRanked',
         ],
 
@@ -125,8 +124,6 @@ var State = function() {
             'center',
             'dynamic_attrs',
             'first_layer',
-            'gridCenter',
-            'gridZoom',
             'layoutIndex',
             'overlayNodes',
             'shortlist',
@@ -174,12 +171,6 @@ State.prototype.setProjectDefaults = function () {
     Session.set('first_layer', undefined);
     delete Session.keys.first_layer;
 
-    // grid map center
-    s.gridCenter = null;
-
-    // grid map zoom level
-    s.gridZoom = 3;
-
     // List of layouts available
     Session.set('layouts', undefined);
     delete Session.keys.layouts;
@@ -225,7 +216,7 @@ State.prototype.setAllDefaults = function () {
     // Main map background color
     Session.set('background', 'black');
 
-    // View on hexagonal grid or xy coordinates.
+    // View on hexagonal grid (honeycomb) or xy coords.
     Session.set('mapView', 'honeycomb');
 
     // Include legend in pdf
@@ -242,9 +233,6 @@ State.prototype.setAllDefaults = function () {
 
     // Display of hexagon opacity.
     Session.set('transparent', false);
-
-    // Display of directed graph
-    Session.set('viewEdges', false);
 };
 
 State.prototype.jsonify = function (newPage) {
@@ -274,8 +262,6 @@ State.prototype.jsonify = function (newPage) {
         } else if (!_.isUndefined(s[key]) && !_.isNull(s[key])) {
             if (key === 'center') {
                 s.center = centerToArray(s.center);
-            } else if (key === 'gridCenter') {
-                s.gridCenter = centerToArray(s.gridCenter);
             }
             store[key] = s[key];
         // This var has no value to store
