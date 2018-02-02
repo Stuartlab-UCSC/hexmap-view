@@ -479,7 +479,6 @@ function create_layer_selectors(value,layer_object) {
     // Create a link to the methods
     tool.add("methods", function(ev) {
         if (!$(ev.target).hasClass('disabled')) {
-            $('.gridPage').click();    // TODO  ???
             tool.activity(false);
         }
     }, 'Map of nodes before final layout');
