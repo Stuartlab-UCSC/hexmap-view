@@ -295,9 +295,7 @@ exports.init = function () {
     
     Meteor.autorun(userChange);
 
-    if (_.isUndefined(Session.get('reflectRanked'))) {
-        Session.set('reflectRanked', false);
-    }
+    Session.set('reflectRanked', false);
 
     // Define the dialog options & create an instance of DialogHex
     var opts = {

@@ -111,11 +111,8 @@ var State = function() {
             'background',
             'mapView',
             'page',
-            'pdfLegend',
-            'pdfMap',
             'project',
             'transparent',
-            'reflectRanked',
         ],
 
         // Contains the project state we want to save with unique keys
@@ -123,7 +120,6 @@ var State = function() {
             'active_layers',
             'center',
             'dynamic_attrs',
-            'first_layer',
             'layoutIndex',
             'overlayNodes',
             'shortlist',
@@ -167,10 +163,6 @@ State.prototype.setProjectDefaults = function () {
     Session.set('dynamic_attrs', undefined);
     delete Session.keys.dynamic_attrs;
 
-    // first in shortlist
-    Session.set('first_layer', undefined);
-    delete Session.keys.first_layer;
-
     // List of layouts available
     Session.set('layouts', undefined);
     delete Session.keys.layouts;
@@ -178,10 +170,6 @@ State.prototype.setProjectDefaults = function () {
     // Index of active layout.
     Session.set('layoutIndex', undefined);
     delete Session.keys.layoutIndex;
-
-    // Generate ranked attribute
-    Session.set('reflectRanked', undefined);
-    delete Session.keys.reflectRanked
 
     // overlay nodes to include
     Session.set('overlayNodes', undefined);
@@ -218,12 +206,6 @@ State.prototype.setAllDefaults = function () {
 
     // View on hexagonal grid (honeycomb) or xy coords.
     Session.set('mapView', 'honeycomb');
-
-    // Include legend in pdf
-    Session.set('pdfLegend', false);
-
-    // Include map in pdf
-    Session.set('pdfMap', true);
 
     // The project data to load
     s.project = DEFAULT_PROJECT;

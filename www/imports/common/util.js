@@ -105,8 +105,6 @@ exports.session = function (prefix, operation, name, val) {
         key = 'shortlist_filter_show_' + name;
     } else if (prefix === 'filter_value') {
         key = 'shortlist_filter_value_' + name;
-    } else if (prefix === 'filter_built') {
-        key = 'shortlist_filter_built_' + name;
     } else {
         exports.banner('error', 'Illegal prefix on session(): ' + prefix);
         console.trace();
