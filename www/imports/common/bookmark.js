@@ -4,6 +4,7 @@
 import DialogHex from '/imports/common/DialogHex';
 import tool from '/imports/mapPage/head/tool';
 import util from '/imports/common/util';
+import '/imports/common/navBar.html';
 
 var bookmarkMessage = new ReactiveVar(),
     bookmarkColor = new ReactiveVar('black'),
