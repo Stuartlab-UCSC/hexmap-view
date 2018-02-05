@@ -18,10 +18,6 @@ import '/imports/lib/jquery-ui.css';
 import '/imports/common/colorsFont.css';
 import '/imports/common/navBar.css';
 
-document.addEventListener('DOMContentLoaded', function(event) {
-	rx.set('init.domLoaded')
-});
-
 var unsubFx = {};
 
 Template.body.helpers({
