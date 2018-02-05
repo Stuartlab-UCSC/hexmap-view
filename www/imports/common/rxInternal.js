@@ -42,12 +42,12 @@ const reducers = {
     'init.ctxLoaded': (state = false, action) => {
         return (action.type === 'init.ctxLoaded') ? true : state;
     },
-    'init.domLoaded': (state = false, action) => {
-        return (action.type === 'init.domLoaded') ? true : state;
-    },
     'init.googleMapApiLoaded': (state = false, action) => {
         return (action.type === 'init.googleMapApiLoaded') ?
             true : state;
+    },
+    'init.headerLoaded': (state = false, action) => {
+        return (action.type === 'init.headerLoaded') ? true : state;
     },
     'init.layoutNamesReceived': (state = false, action) => {
         return (action.type === 'init.layoutNamesReceived') ?

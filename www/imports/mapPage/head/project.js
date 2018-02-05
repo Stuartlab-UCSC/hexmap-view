@@ -87,8 +87,8 @@ function populate () {
     //         ]
     //     },
     // ]
-    if (!rx.get('projectList.receiving') && rx.get('init.domLoaded')) {
 
+    if (!rx.get('projectList.receiving') && rx.get('init.headerLoaded')) {
         unsubscribe.populate();
         var selector;
     
@@ -112,31 +112,26 @@ function populate () {
         } else {
             value = PLACEHOLDER_TEXT;
         }
-        if ($('#project').length < 1) {
-            prompt.show('Please reload this page; the map list had a ' +
-                'transient error.', { severity: 'error' });
-        } else {
-            render(
-                <Select22
+        render(
+            <Select22
 
-                    // Options for the original non-react select2.
-                    select2options = {{
-                        data: data,
-                        value: value,
-                        placeholder: PLACEHOLDER_TEXT,
-                        width: '20em',
-                        matcher: matcher,
-                    }}
-                    onChange = {function (event) {
-                        utils.loadProject(event.val);
-                    }}
-                    choiceDisplay = {function (dataId) {
-                        return dataId.slice(0, -1); // remove trailing '/' for display
-                    }}
-                />, $('#project')[0]);
+                // Options for the original non-react select2.
+                select2options = {{
+                    data: data,
+                    value: value,
+                    placeholder: PLACEHOLDER_TEXT,
+                    width: '20em',
+                    matcher: matcher,
+                }}
+                onChange = {function (event) {
+                    utils.loadProject(event.val);
+                }}
+                choiceDisplay = {function (dataId) {
+                    return dataId.slice(0, -1); // remove trailing '/' for display
+                }}
+            />, $('#project')[0]);
         
-            perform.log('project-list-rendered');
-        }
+        perform.log('project-list-rendered');
         rx.set('projectList.changing.done');
     }
 }
