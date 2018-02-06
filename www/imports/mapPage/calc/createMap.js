@@ -163,7 +163,7 @@ function create_map () {
         email: Meteor.user().username,
     }
     if (attribute_data_id) {
-        opts.colorAttributeFile = attribute_data_id
+        opts.colorAttributeDataId = attribute_data_id
     }
     if (ui.get('zeroReplace')) {
         opts.zeroReplace = ui.get('zeroReplace')
