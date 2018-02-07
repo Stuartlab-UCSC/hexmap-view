@@ -15,7 +15,8 @@ Template.homePage.onRendered(function () {
 Template.homePage.helpers({
     projects: function () {
         return [
-            { id: 'PancanAtlas/SampleMap', png: 'pancanAtlas.png' },
+            { id: 'PancanAtlas/SampleMap', png: 'pancanAtlas.png',
+                href: 'PancanAtlas/SampleMap&layout=Euclidean%20iCluster' },
             { id: 'Pancan12/SampleMap', png: 'pancan12.png' },
             { id: 'Pancan12/GeneMap', png: 'pancan12gene.png' },
             { id: 'Gliomas', png: 'gliomas-paper.png' },
@@ -29,6 +30,13 @@ Template.homePage.helpers({
     },
     id: function () {
         return this.id;
+    },
+    href: function () {
+        if (this.href) {
+            return this.href;
+        } else {
+            return this.id;
+        }
     },
     label: function () {
         if (this.label) {
