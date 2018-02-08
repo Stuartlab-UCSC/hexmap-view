@@ -66,10 +66,13 @@ class Prompt extends Component {
         var self = this,
             input = null,
             button = null,
-            link = null;
+            link = null,
+            linkText,
+            labelClass = '';
+        
         
         // Build the text box and buttons in the button box.
-        if (this.state.textStr) {
+        if (typeof this.state.textStr !== 'undefined') {
             input =
                 <input
                     type = 'text'
@@ -86,14 +89,23 @@ class Prompt extends Component {
             input = this.props.buttonInput
         }
         
+        if (this.props.linkText) {
+            linkText = this.props.linkText;
+        } else {
+            linkText = this.props.link;
+        }
         if (this.props.link) {
             link =
                 <a
                     href = {this.props.link}
                     target = '_blank'
                 >
-                    here
+                    {linkText}
                 </a>;
+        }
+        
+        if (this.props.labelClass !== undefined) {
+            labelClass = this.props.labelClass;
         }
         
         return (
@@ -107,7 +119,7 @@ class Prompt extends Component {
                 body = {
                     <div>
                         <div
-                            className = 'modalLabel'
+                            className = {'modalLabel ' + labelClass}
                         >
                             {this.props.promptStr}
                             {link}
@@ -125,12 +137,18 @@ Prompt.propTypes = {
     // The text to display as a prompt.
     promptStr: PropTypes.string.isRequired,
     
+    // A class to apply to the label.
+    labelClass: PropTypes.string,
+    
     // An http link to display just after the prompt string.
     link: PropTypes.string,
     
-    // The default text to display in the optional text input.
-    textStr: PropTypes.string,
+    // The text to display for the link.
+    linkText: PropTypes.string,
     
+    // The default text to display in the text input.
+    textStr: PropTypes.string,
+
     // The type of prompt to control color and more.
     severity: PropTypes.oneOf(['info', 'warn', 'error']),
  
@@ -170,12 +188,12 @@ exports.show = function (promptStr, opts) {
     // Create and render this modal.
     // @param         promptStr: the prompt string
     // @param         opts.link: http link to appear after the prompt, optional
+    // @param     opts.linkText: text to appear instead of actual link, optional
     // @param      opts.textStr: the text to put in the input box, optional
     // @param     opts.callback: function to call upon modal close, optional
-    // @param     opts.severity: one of [error, info, warning], optional
+    // @param     opts.severity: one of [error, info, warning], optional;
     // @param     opts.buttonInput: inserts a button into the prompt without 
-    //                              having a textStr.
-
+    // @param    opts.labelClass: a class to apply to the prompt label, optional
     var container = utils.createReactRoot(containerId);
     callback = opts ? opts.callback : null;
     buttonInput = opts ? opts.buttonInput : null;
@@ -184,8 +202,10 @@ exports.show = function (promptStr, opts) {
         <Prompt
             promptStr = {promptStr}
             className = 'prompt'
+            labelClass = {opts.labelClass}
             textStr = {opts.textStr}
             link = {opts.link}
+            linkText = {opts.linkText}
             parentSelector = {getParentSelector}
             severity = {opts.severity}
             closeModal = {closeModal}

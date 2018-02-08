@@ -63,7 +63,6 @@ exports.init = function () {
     //return;
     
     // Initialize the main snake.
-    rx.set('init.running');
     render(
         <Snake
             store = {rx}

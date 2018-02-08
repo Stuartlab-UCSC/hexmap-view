@@ -1,14 +1,13 @@
 // state.js
 // An object to write and load state
 
-import DialogHex from '/imports/common/DialogHex.js';
-import overlayNodes from '/imports/mapPage/calc/overlayNodes.js';
-import rx from '/imports/common/rx.js';
-import shortlist from '/imports/mapPage/shortlist/shortlist.js';
-import tool from '/imports/mapPage/head/tool.js';
-import urlParms from '/imports/common/urlParms.js';
-import util from '/imports/common/util.js';
-import utils from '/imports/common/utils.js';
+import overlayNodes from '/imports/mapPage/calc/overlayNodes';
+import rx from '/imports/common/rx';
+import shortlist from '/imports/mapPage/shortlist/shortlist';
+import urlParms from '/imports/common/urlParms';
+import util from '/imports/common/util';
+import utils from '/imports/common/utils';
+import bookmark from '/imports/common/bookmark';
 
 import '/imports/common/navBar.html';
 
@@ -21,43 +20,7 @@ var DEFAULT_PAGE = 'homePage',
         color: 'inherit',
         background: 'inherit',
     },
-    storageSupported,
-    bookmarkMessage = new ReactiveVar(),
-    bookmarkColor = new ReactiveVar('black'),
-    bookmarkDialogHex;
-
-Template.bookmarkT.helpers ({
-    message: function () {
-        return bookmarkMessage.get();
-    },
-    color: function () {
-        return bookmarkColor.get();
-    },
-});
-
-function createBookmark () {
-
-    // Create a bookmark of the current view for later retrieval.
-    bookmarkMessage.set('Creating bookmark...');
-    bookmarkColor.set('black');
-    var $bookmarkMessage = $('#bookmarkDialog .message');
-
-    Meteor.call('createBookmark', ctx.jsonify(), function (error, result) {
-        if (error) {
-            bookmarkMessage.set('Sorry, bookmark could not be created due' +
-                ' to error: ' + error);
-            bookmarkColor.set('red');
-        } else {
-            bookmarkMessage.set(result);
-            
-            // Wait for the message to be applied to the input element
-            // before selecting the entire string
-            Meteor.setTimeout(function () {
-                $bookmarkMessage[0].setSelectionRange(0, result.length)
-            },0);
-        }
-    });
-};
+    storageSupported;
 
 function centerToArray (centerIn) {
 
@@ -111,12 +74,8 @@ var State = function() {
             'background',
             'mapView',
             'page',
-            'pdfLegend',
-            'pdfMap',
             'project',
             'transparent',
-            'viewEdges',
-            'reflectRanked',
         ],
 
         // Contains the project state we want to save with unique keys
@@ -124,9 +83,6 @@ var State = function() {
             'active_layers',
             'center',
             'dynamic_attrs',
-            'first_layer',
-            'gridCenter',
-            'gridZoom',
             'layoutIndex',
             'overlayNodes',
             'shortlist',
@@ -170,16 +126,6 @@ State.prototype.setProjectDefaults = function () {
     Session.set('dynamic_attrs', undefined);
     delete Session.keys.dynamic_attrs;
 
-    // first in shortlist
-    Session.set('first_layer', undefined);
-    delete Session.keys.first_layer;
-
-    // grid map center
-    s.gridCenter = null;
-
-    // grid map zoom level
-    s.gridZoom = 3;
-
     // List of layouts available
     Session.set('layouts', undefined);
     delete Session.keys.layouts;
@@ -187,10 +133,6 @@ State.prototype.setProjectDefaults = function () {
     // Index of active layout.
     Session.set('layoutIndex', undefined);
     delete Session.keys.layoutIndex;
-
-    // Generate ranked attribute
-    Session.set('reflectRanked', undefined);
-    delete Session.keys.reflectRanked
 
     // overlay nodes to include
     Session.set('overlayNodes', undefined);
@@ -225,14 +167,8 @@ State.prototype.setAllDefaults = function () {
     // Main map background color
     Session.set('background', 'black');
 
-    // View on hexagonal grid or xy coordinates.
+    // View on hexagonal grid (honeycomb) or xy coords.
     Session.set('mapView', 'honeycomb');
-
-    // Include legend in pdf
-    Session.set('pdfLegend', false);
-
-    // Include map in pdf
-    Session.set('pdfMap', true);
 
     // The project data to load
     s.project = DEFAULT_PROJECT;
@@ -242,9 +178,6 @@ State.prototype.setAllDefaults = function () {
 
     // Display of hexagon opacity.
     Session.set('transparent', false);
-
-    // Display of directed graph
-    Session.set('viewEdges', false);
 };
 
 State.prototype.jsonify = function (newPage) {
@@ -255,6 +188,13 @@ State.prototype.jsonify = function (newPage) {
 
     // Now we set the newPage
     if (newPage) { Session.set('page', newPage); }
+    
+    // Gather any dynamic attributes
+    var dynamic_attrs =
+        shortlist.get_dynamic_entries_for_persistent_state();
+    if (dynamic_attrs) {
+        Session.set('dynamic_attrs', dynamic_attrs);
+    }
 
     // Walk though our list of unique keys and save those
     _.each(s.localStorage.unique_keys, function (key) {
@@ -267,8 +207,6 @@ State.prototype.jsonify = function (newPage) {
         } else if (!_.isUndefined(s[key]) && !_.isNull(s[key])) {
             if (key === 'center') {
                 s.center = centerToArray(s.center);
-            } else if (key === 'gridCenter') {
-                s.gridCenter = centerToArray(s.gridCenter);
             }
             store[key] = s[key];
         // This var has no value to store
@@ -310,15 +248,6 @@ State.prototype.save = function (newPage) {
         s.lastProject = s.project;
         s.setProjectDefaults();
 
-    } else if ('project' in s) {
-
-        // Gather any dynamic attributes
-        var dynamic_attrs =
-            shortlist.get_dynamic_entries_for_persistent_state();
-
-        if (dynamic_attrs) {
-            Session.set('dynamic_attrs', dynamic_attrs);
-        }
     }
 
     jsonState = s.jsonify(newPage);
@@ -361,19 +290,19 @@ State.prototype.load = function (store) {
         }
     });
 
-
     if (Session.equals('page', undefined)) {
         Session.set('page', DEFAULT_PAGE);
     }
 
     s.lastProject = s.project;
 
-    // TODO a special hack until we get bookmarks going: load
+    // A special hack since before we had bookmarks going: load
     // the hard-coded overlay node data specific to this project
     // Use this method if we want the project in the drop-down lise
     // If you ony want it accessible from a URL, use the method in
     // this.loadFromUrl().
-    if (s.project.slice(0,13) === 'Youngwook/ori') {
+    if (s.project.slice(0,13) === 'Youngwook/ori' ||
+        s.project.slice(0,13) === 'Youngwook.ori') {
         Session.set('overlayNodes', overlayNodes.get('youngwookOriginal'));
     } else if (s.project.slice(0,13) === 'Youngwook/qua') {
         Session.set('overlayNodes',
@@ -394,33 +323,6 @@ State.prototype.loadFromLocalStore = function () {
     s.load(store);
 };
 
-State.prototype.loadFromBookmark = function (bookmark) {
-
-    // Load state from the given bookmark
-
-    // First we need to see if we should ignore the url query which
-    // was previously included and we want to leave it in the url so the
-    // user can fix what's there
-    var s = this,
-        store = JSON.parse(window.localStorage.getItem(s.storeName));
-
-    // Load the bookmarked state.
-    Meteor.call('findBookmark', bookmark,
-        function (error, result) {
-            if (error) {
-                util.banner('error', error.string());
-                return;
-            }                
-            if (result === 'Bookmark not found') {
-                util.banner('error', result);
-                return;
-            }
-            s.load(result);
-            s.projectNotFoundNotified = false;
-        }
-    );
-};
-
 function checkLocalStore () {
 
     // Check to see if browser supports HTML5 Store
@@ -435,35 +337,6 @@ function checkLocalStore () {
     }
     return true;
 }
-
-function closeBookmark () {
-    bookmarkDialogHex.hide()
-};
-
-exports.bookmarkReload = function (bookmark) {
-    if (bookmark.slice(0,9) === 'localhost') {
-        bookmark = 'http://' + bookmark;
-    }
-    window.location.assign(bookmark);
-}
-
-exports.initBookmark = function () {
-
-    // Create an instance of DialogHex
-    bookmarkDialogHex = DialogHex.create({
-        $el: $('#bookmarkDialog'),
-        opts: {
-            title: 'Bookmark',
-            position: { my: "left", at: "left+20", of: window },
-            close: closeBookmark,
-        },
-        showFx: createBookmark,
-    });
-
-    // Listen for the 'create bookmark' menu clicked
-    tool.add("bookmark", function () { bookmarkDialogHex.show(); },
-        'Access this view later by creating a bookmark');
-};
 
 exports.init = function () {
     storageSupported = checkLocalStore();
@@ -481,7 +354,7 @@ exports.init = function () {
 
         // Handle a bookmark ID parm in the URL.
         if (s.uParm.bookmark) {
-            s.loadFromBookmark(s.uParm.bookmark);
+            bookmark.load(s.uParm.bookmark, s);
             // Other parms in the url are ignored
 
         // Handle other parms in the URL.
