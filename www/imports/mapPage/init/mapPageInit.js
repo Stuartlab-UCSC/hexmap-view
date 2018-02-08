@@ -4,7 +4,6 @@
 
 import { Meteor } from 'meteor/meteor';
 import bookmark from '/imports/common/bookmark';
-import checkLayerBox from '/imports/mapPage/calc/checkLayerBox';
 import colorEdit from '/imports/mapPage/color/colorEdit';
 import coords from '/imports/mapPage/viewport/coords';
 import createMap from '/imports/mapPage/calc/createMap';
