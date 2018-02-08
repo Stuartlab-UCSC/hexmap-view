@@ -3,6 +3,8 @@
  */
 
 import { Meteor } from 'meteor/meteor';
+import bookmark from '/imports/common/bookmark';
+import checkLayerBox from '/imports/mapPage/calc/checkLayerBox';
 import colorEdit from '/imports/mapPage/color/colorEdit';
 import coords from '/imports/mapPage/viewport/coords';
 import createMap from '/imports/mapPage/calc/createMap';
@@ -23,7 +25,6 @@ import setOper from '/imports/mapPage/shortlist/setOper';
 import sort from '/imports/mapPage/longlist/sort';
 import snake from '/imports/common/snake.js';
 import sortUi from '/imports/mapPage/longlist/sortUi';
-import state from '/imports/common/state';
 import tool from '/imports/mapPage/head/tool';
 import util from '/imports/common/util';
 import utils from '/imports/common/utils';
@@ -45,6 +46,9 @@ Template.headerT.helpers({
         return Session.get('nodeCount');
     },
 });
+Template.mapPage.rendered = function () {
+    rx.set('init.headerLoaded');
+};
 
 // Phase 6b init: when the active layers have been added to the shortlist
 //                and layout selector has been populated,
@@ -81,7 +85,7 @@ function areLayoutsPopulated () {
             createMap.init();
             selectNode.init();
             gChart.init();
-            state.initBookmark();
+            bookmark.init();
             if (!DEV) {
                 perform.log('google-analytics-loading');
                 util.googleAnalytics();
@@ -166,7 +170,7 @@ function isReadyToRenderMap () {
         R['init.colormapLoaded'] &&
         R['init.activeAttrsLoaded'] &&
         R['init.googleMapApiLoaded'] &&
-        R['init.domLoaded']) {
+        R['init.headerLoaded']) {
         
         unsubFx.isReadyToRenderMap();
         perform.log('3-init:prep-map');
@@ -250,7 +254,7 @@ function loadGoogleMapApi () {
 //                load the googlemap api,
 //                and show the loading snake.
 function hasDomLoaded () {
-    if (rx.get('init.domLoaded')) {
+    if (rx.get('init.headerLoaded')) {
     
         unsubFx.hasDomLoaded();
         perform.log('1b-init:snakes,dom-loaded');
@@ -269,7 +273,7 @@ exports.init = function () {
     Session.set('mapMeta', {});
     
     // Request the primary data.
-    data.requestLayerSummary({ rxAction: 'init.attrSummaryLoaded' });
+    data.requestLayerSummary();
     data.requestDataTypes({ rxAction: 'init.attrTypesLoaded' });
     data.requestLayoutAssignments();
     data.requestColormaps({ rxAction: 'init.colormapLoaded' });

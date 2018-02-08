@@ -63,9 +63,6 @@ function load_dynamic_colormap (name, layer) {
     // Load the colormap for dynamic categorical or binary attributes.
     var cats = layer.uniqueVals,
         indexedCats;
-    
-    console.log('layer:', layer);
-
     const hasOnly1and0s = (
         cats.length === 2
         && (

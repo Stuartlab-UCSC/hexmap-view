@@ -4,7 +4,6 @@ import { Meteor } from 'meteor/meteor';
 import auth from '/imports/common/auth.js';
 import coords from '/imports/mapPage/viewport/coords.js';
 import createMap from '/imports/mapPage/calc/createMap.js';
-import Grid from '/imports/densityPage/grid.js';
 import mapPageInit from '/imports/mapPage/init/mapPageInit.js';
 import navBar from '/imports/common/navBar.js';
 import perform from '/imports/common/perform.js';
@@ -19,10 +18,6 @@ import '/imports/lib/jquery-ui.css';
 import '/imports/common/colorsFont.css';
 import '/imports/common/navBar.css';
 
-document.addEventListener('DOMContentLoaded', function(event) {
-	rx.set('init.domLoaded')
-});
-
 var unsubFx = {};
 
 Template.body.helpers({
@@ -30,21 +25,6 @@ Template.body.helpers({
         return Session.get('page');
     },
 });
-
-Template.gridPage.onRendered(function () {
-    initGridMapContainer();
-});
-
-function initGridMapContainer () { // jshint ignore: line
-    setTimeout(function () { // The timeout allows the google libs to load
-        $(window).resize(utils.resizeMap);
-        ctx.gridCenter = coords.centerToLatLng(ctx.gridCenter);
-        Grid.init();
-        
-        // Resize the map to fill the available space
-        Meteor.setTimeout(utils.resizeMap, 0);
-    }, 0);
-}
 
 // When the state has been loaded...
 function isStateLoaded () {

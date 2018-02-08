@@ -90,7 +90,6 @@ exports.initList = function () {
             // Update density stats to this layout and
             // resort the list to the default of density
             sort.find_clumpiness_stats();
-            Session.set('sort', ctx.defaultSort());
             import longlist from '/imports/mapPage/longlist/longlist.js';
             longlist.update();
         }

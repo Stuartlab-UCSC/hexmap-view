@@ -279,9 +279,7 @@ exports.init = function () {
     $button = $('.reflectTrigger');
     $dialog = $('#reflectDialog');
 
-    if (_.isUndefined(Session.get('reflectRanked'))) {
-        Session.set('reflectRanked', false);
-    }
+    Session.set('reflectRanked', false);
 
     // Define the dialog options & create an instance of DialogHex
     var opts = {

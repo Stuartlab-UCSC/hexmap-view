@@ -5,6 +5,7 @@
 import auth from '/imports/common/auth';
 import React, { Component } from 'react';
 import perform from '/imports/common/perform';
+import prompt from '/imports/component/Prompt';
 import { render } from 'react-dom';
 import rx from '/imports/common/rx';
 import Select22 from '/imports/component/Select22';
@@ -18,6 +19,7 @@ var projects; // project list
 var data; // data for select widget
 var prevListUsername = 'empty';
 var prevAuthUsername = 'empty';
+var unsubscribe = {};
 
 function is_project_on_list (project) {
 
@@ -57,12 +59,11 @@ function matcher (term, text, opt) {
 function notAuthdMessage () {
 
     // The user is not authorized to see the current project. Let her know.
-    var notFoundMsg = util.getHumanProject(ctx.project) +
-        " cannot be found.\nPlease select another map.";
+    var more = undefined;
     if (!Meteor.user()) {
-        notFoundMsg += ' Or sign in.';
+        more = ' or sign in'
     }
-    util.banner('error', notFoundMsg);
+    util.mapNotFoundNotify(util.getHumanProject(ctx.project), more);
 }
 
 function populate () {
@@ -86,9 +87,9 @@ function populate () {
     //         ]
     //     },
     // ]
-    if (rx.get('projectList.received') && rx.get('init.domLoaded') &&
-        rx.get('init.mapRendered')) {
-        rx.set('projectList.received.done');
+
+    if (!rx.get('projectList.receiving') && rx.get('init.headerLoaded')) {
+        unsubscribe.populate();
         var selector;
     
         data = _.map(projects, function (minors, major) {
@@ -129,25 +130,10 @@ function populate () {
                     return dataId.slice(0, -1); // remove trailing '/' for display
                 }}
             />, $('#project')[0]);
-    
+        
         perform.log('project-list-rendered');
         rx.set('projectList.changing.done');
     }
-}
-
-function signInClicked(count) {
-
-    // Set focus to the login-email input text box
-    if (_.isUndefined(count)) { count = 0; }
-    var reps = 20,
-        mSecs = 100;
-    Meteor.setTimeout(function () {
-            if ($('#login-email').length > 0) {
-                $('#login-email').focus();
-            } else if (count < reps ) {
-                signInClicked(count + 1);
-            }
-        }, mSecs);
 }
 
 exports.authorize = function (userId) {
@@ -168,7 +154,12 @@ exports.authorize = function (userId) {
 
     // Re-populate projects whenever the user changes, including log out.
     perform.log('project:list-request,userId:' + userId);
-    rx.set('projectList.changing');
+    
+    // Subscribe to state changes effecting the project list.
+    rx.set('projectList.changing.now');
+    rx.set('projectList.receiving.now');
+    unsubscribe.populate = rx.subscribe(populate);
+
     Meteor.call('getProjects', function (error, projects_returned) {
         if (error) {
             util.banner('error',
@@ -176,13 +167,7 @@ exports.authorize = function (userId) {
         } else {
             perform.log('project:list-got');
             projects = projects_returned;
-            rx.set('projectList.received');
+            rx.set('projectList.receiving.done');
         }
     });
-    
-    // Subscribe to state changes effecting the project list.
-    rx.subscribe(populate);
 };
-
-    // This may be causing password to not allow focus on password error.
-    //$('.login').on('click', $('#login-sign-in-link'), signInClicked);

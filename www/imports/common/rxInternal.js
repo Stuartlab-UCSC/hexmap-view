@@ -15,10 +15,8 @@ const reducers = {
             return state;
         }
     },
-    'init': (state = false, action) => {
+    'init': (state = true, action) => {
         switch (action.type) {
-        case 'init.running':
-            return true;
         case 'init.done':
             return false;
         default:
@@ -44,12 +42,12 @@ const reducers = {
     'init.ctxLoaded': (state = false, action) => {
         return (action.type === 'init.ctxLoaded') ? true : state;
     },
-    'init.domLoaded': (state = false, action) => {
-        return (action.type === 'init.domLoaded') ? true : state;
-    },
     'init.googleMapApiLoaded': (state = false, action) => {
         return (action.type === 'init.googleMapApiLoaded') ?
             true : state;
+    },
+    'init.headerLoaded': (state = false, action) => {
+        return (action.type === 'init.headerLoaded') ? true : state;
     },
     'init.layoutNamesReceived': (state = false, action) => {
         return (action.type === 'init.layoutNamesReceived') ?
@@ -89,7 +87,7 @@ const reducers = {
     },
     'projectList.changing': (state = false, action) => {
         switch (action.type) {
-        case 'projectList.changing':
+        case 'projectList.changing.now':
             return true;
         case 'projectList.changing.done':
             return false;
@@ -97,11 +95,11 @@ const reducers = {
             return state;
         }
     },
-    'projectList.received': (state = false, action) => {
+    'projectList.receiving': (state = false, action) => {
         switch (action.type) {
-        case 'projectList.received':
+        case 'projectList.receiving.now':
             return true;
-        case 'projectList.received.done':
+        case 'projectList.receiving.done':
             return false;
         default:
             return state;
@@ -117,6 +115,21 @@ const reducers = {
             return state;
         }
     },
+/*
+    'userRoles': (state = [], action) => {
+        switch (action.type) {
+        case 'userRoles.empty':
+            return [];
+        case 'userRoles.load':
+        
+            console.log('userRoles:action:', action);
+            
+            return action.value;
+        default:
+            return state;
+        }
+    },
+*/
 };
 
 // Create one action.
