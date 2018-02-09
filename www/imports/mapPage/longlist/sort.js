@@ -4,9 +4,10 @@
 
 var app = app || {}; 
 
-import auth from '/imports/common/auth.js';
+
 import data from '/imports/mapPage/data/data.js';
 import filter from '/imports/mapPage/longlist/filter.js';
+import { pollJobStatus, parseJson} from '/imports/common/pollJobStatus';
 import util from '/imports/common/util.js';
 import shortlist from '/imports/mapPage/shortlist/shortlist.js';
 
@@ -440,7 +441,6 @@ function receive_data (parsed, focus_attr, opts) {
     }
 }
 
-
 function gatherSelectionData (dynamicDataIn) {
 
     // Gather the data for user-selection attributes
@@ -459,6 +459,17 @@ function gatherSelectionData (dynamicDataIn) {
 }
 
 function getDynamicStats (focus_attr, opts) {
+    function typeOfRequest(opts){
+        let calcRequested;
+        if (opts.hasOwnProperty('layout')) {
+            calcRequested = "layoutAware";
+        } else if (Object.keys(opts.dynamicData).length > 1) {
+            calcRequested = "differential";
+        } else {
+            calcRequested = "layoutIndependent"
+        }
+        return calcRequested;
+    }
 
     computingTextDisplay();
     /*
@@ -487,23 +498,56 @@ function getDynamicStats (focus_attr, opts) {
     opts.dynamicData = gatherSelectionData(opts.dynamicData);
 
     opts.startDate = new Date();
-    Meteor.call('pythonCall', 'statsDynamic', opts,
-        function (error, result) {
-            if (error) {
-                var text = error;
-            
-                // If this is a Meteor.Error, the error prop has the text
-                if (error.error) {
-                    text = error.error;
-                }
-                updateSortUi('noStats', text);
-            } else {
-                console.log('getDynamicStats: python call success');
-                receive_data(result.data, focus_attr, opts);
-            }
-        }
-    );
-};
+    
+    const datatypeMapping = {
+        "binary": "bin",
+        "continuous": "cont",
+        "categorical": "cat"
+    };
+
+    let parms = {
+        mapName : ctx.project,
+        focusAttr: opts.dynamicData,
+        email : Meteor.user().username,
+    };
+
+    let url, dType;
+    switch (typeOfRequest(opts)) {
+        case "layoutAware":
+            url = HUB_URL + "/oneByAll/leesLCalculation";
+            parms["layoutIndex"] = opts.layout;
+            break;
+        case "layoutIndependent":
+            url = HUB_URL + "/oneByAll/statCalculation";
+            dType = datatypeMapping[layers[focus_attr].dataType];
+            parms["focusAttrDatatype"] = dType;
+            break;
+        case "differential":
+            url = HUB_URL + "/oneByAll/statCalculation";
+            dType = "bin";
+            parms["focusAttrDatatype"] = dType;
+            break;
+        default:
+            throw "unrecognized stat-sort request case."
+    }
+
+    const postForStatJobRequest  = {
+        method: "POST",
+        headers: new Headers({"Content-Type": "application/json"}),
+        body: JSON.stringify(parms),
+    };
+
+    console.log(url, parms);
+    fetch(url, postForStatJobRequest)
+        .then(parseJson)
+        .then(
+            (resp)=>pollJobStatus(
+                resp.jobStatusUrl,
+                (resp)=>{receive_data(resp.result, focus_attr, opts)},
+                5
+            )
+        )
+}
 
 function getPreComputedStats (dataId, focus_attr, opts) {
 
