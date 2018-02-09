@@ -20,7 +20,6 @@
 //
 // TODO do we want the user to be able to cancel the calc ?
 
-var MapManager = require('./mapManager');
 var PythonCall = require('./pythonCall');
 var DbMethods = require('./dbMethods');
 var Http = require('./http');
@@ -56,11 +55,6 @@ function passPostChecks (req, res) {
     return true;
 }
 
-// A look-up table indexed by call_name and referencing the feature post-calc
-// function, if there is one, that will be executed on the local/remote? server.
-var post_calc = {
-    reflection: MapManager.reflection_post_calc,
-};
 
 function process_python_call (json_data, res, call_name) {
 
