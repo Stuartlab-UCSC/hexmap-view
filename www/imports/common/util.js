@@ -86,7 +86,8 @@ exports.reportJobSuccess = function (resultOrUrl) {
 }
 
 exports.reportJobSubmitted = function () {
-    Prompt.show('Your job has been submitted to the job queue.',
+    Prompt.show('Your job has been submitted to the job queue. ' +
+        'You will get a message when it is complete.',
         { severity: 'info' }
     );
 }
