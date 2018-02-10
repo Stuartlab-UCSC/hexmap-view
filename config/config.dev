@@ -1,4 +1,5 @@
 #!/bin/bash
+# For the dev server using the dev hexcalc data server.
 
 DB_NAME=8111
 DB_PORT=28223
@@ -7,5 +8,5 @@ DB_PORT=28223
 export HTTP_PORT=8221
 export HTTPS_PORT=8222
 export PORT=8223
-export PYENV=/hive/groups/hexmap/dev/envKolossus
+export PYENV=/hive/groups/hexmap/dev/envHexdev
 export ROOT_URL=https://hexdev.sdsc.edu:$HTTPS_PORT
