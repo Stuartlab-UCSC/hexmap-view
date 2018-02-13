@@ -192,6 +192,7 @@ exports.show = function (promptStr, opts) {
     // @param      opts.textStr: the text to put in the input box, optional
     // @param     opts.callback: function to call upon modal close, optional
     // @param     opts.severity: one of [error, info, warning], optional;
+    //                           default is no color in prompt
     // @param     opts.buttonInput: inserts a button into the prompt without 
     // @param    opts.labelClass: a class to apply to the prompt label, optional
     var container = utils.createReactRoot(containerId);
