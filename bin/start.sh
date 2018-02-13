@@ -22,4 +22,6 @@ elif [ "$SERVER_TYPE" == "https" ]; then
     ./bin/https.sh $CONFIG_FILE
 elif [ "$SERVER_TYPE" == "db" ]; then
     ./bin/db.sh $CONFIG_FILE
+else
+    echo "First arg should be one of ['www', 'http', 'https', 'db']"
 fi
