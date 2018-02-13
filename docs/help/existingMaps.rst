@@ -2,6 +2,19 @@
 Public Maps
 ===========
 
+.. _pancanatlas/samplemap:
+
+PancanAtlas
+-----------
+
+As its concluding project, The Cancer Genome Atlas (TCGA) Research Network will
+complete the most comprehensive cross-cancer analysis to date: The Pan-Cancer
+Atlas (PanCanAtlas). This project aims to answer big, overarching questions
+about cancer by examining the full set of tumors characterized in the robust
+TCGA dataset.
+
+https://www.cancer.gov/about-nci/organization/ccg/blog/2017/tcga-pancan-atlas
+
 .. _pancan12/samplemap:
 .. _pancan12/genemap:
 

@@ -1,4 +1,4 @@
-// dialogHex.js
+// DialogHex.js
 // Our wrapper around jquery-ui's dialog.
 // A jquery element is passed in which is used as the trigger to open the
 // dialog. Jquery-UI dialog options passed in are applied after our default

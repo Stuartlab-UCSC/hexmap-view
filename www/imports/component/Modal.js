@@ -1,5 +1,5 @@
 
-// modal.js
+// Modal.js
 // Our wrapper around react-model to add our own options of:
 //      - styling
 //      - header
@@ -24,11 +24,19 @@ export default class Modal extends Component {
         this.handleCancelModal = this.handleCancelModal.bind(this);
     }
     
-    handleCancelModal () {
+    handleCancelModal (event) {
     
         // User clicked on the close button in the upper right
         // or outside of the modal, so close without a response.
         if (this.props.onRequestClose) {
+            
+            // Stop propagation of the event so that that react close event will
+            // not execute twice when a modal is closed by clicking the close
+            // button. This is a work-around for a react bug.
+            // TODO only works sometimes.
+            event.stopPropagation();
+            
+            // Execute the given close event handler.
             this.props.onRequestClose();
         }
     }

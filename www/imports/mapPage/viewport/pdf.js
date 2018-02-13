@@ -2,8 +2,8 @@
 
 // Handle the PDF request
 
-import DialogHex from '/imports/common/dialogHex.js';
-import Utils from '/imports/common/utils.js';
+import DialogHex from '/imports/common/DialogHex.js';
+import utils from '/imports/common/utils.js';
 import './pdf.html';
 
 var title = 'PDF',
@@ -35,7 +35,7 @@ function restoreView () {
     $head.show();
     $legend.show();
     $map.show();
-    Utils.resizeMap();
+    utils.resizeMap();
 }
 
 function mapDisplay () {
@@ -70,7 +70,7 @@ function watchPrint () {
 
 function show () {
 
-    $head = $('#navBar, .header');
+    $head = $('#navBar, .header, .shortlist');
     $map = $('#visualization');
     $legend = $('.key');
 
@@ -102,12 +102,8 @@ exports.init = function () {
     var $button = $('#pdfDownload');
 
     // Initialize our reactive dict
-    if (_.isUndefined(Session.get('pdfMap'))) {
-        Session.set('pdfMap', true);
-    }
-    if (_.isUndefined(Session.get('pdfLegend'))) {
-        Session.set('pdfLegend', false);
-    }
+    Session.set('pdfMap', true);
+    Session.set('pdfLegend', false);
 
     // Define the dialog options & create an instance of DialogHex
     var opts = { title: title };

@@ -1,0 +1,30 @@
+
+.snake {
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    border-radius:24px;
+    border-bottom-width: 7px;
+    z-index: 1000;
+    -webkit-animation: sweep 1s infinite linear;
+    animation: sweep 1s infinite linear;
+    border-bottom-style: solid;
+    border-bottom-color: #4CAF49; /* a lighter bootstrap message color */
+}
+@-webkit-keyframes sweep { to { -webkit-transform: rotate(360deg); } }
+@keyframes sweep { to { transform: rotate(360deg); } }
+
+.mapSnake {
+    position: fixed;
+    top: 200px;
+    left: 41%;
+    width: 64px;
+    height: 64px;
+    border-radius:64px;
+    border-bottom-width: 12px;
+}
+
+.statsSnake {
+    top: 4px;
+    left: -34px;
+}

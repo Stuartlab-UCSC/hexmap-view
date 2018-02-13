@@ -2,20 +2,29 @@
 <template name="homePage">
 {{> navBarT}}
 <div id='homePage'>
-<div style='padding-top:0.5em'>
+<div style='padding-top:0.5em;vertical-align:top'>
 <a href="http://genomics.ucsc.edu" target='_blank'>
     <img class='ucscgi_clear' src='ucscgi_clear.png' style='height:60px;margin-top:-6px'>
 </a>
 <a href="" class='mapPage mapTitle' url='pancan12.png'>
     Tumor Map
 </a>
+    <div style='font-size:0.8em;vertical-align:top;display:inline-block;padding-top:1.7em;padding-left:2em'>
+        Method described at
+        <a
+            href = 'http://cancerres.aacrjournals.org/content/77/21/e111?utm_source=170580&utm_medium=clinical1&utm_campaign=compresfocus'
+            target='_blank'
+         >
+            Newton, et al., Cancer Research 2017
+        </a>
+    </div>
 </div>
 <div class='allProjects'>
 
     {{ #each projects }}
         <div class='project'>
             <div class='thumbnail' data-project='{{ id }}'>
-                <a href='/?p={{id}}'>
+                <a href='/?p={{ href }}'>
                     <div style='padding-top:0.5em;'>{{ label }}</div>
                     <img src='{{ png }}' height='250px' style='padding-top:1em'>
                 </a>
@@ -29,7 +38,7 @@
     {{ /each }}
 
     <div class='createMapHome project' style='display:none:font-size:0.8em'>
-        <div class='thumbnail_like'>
+        <div class='thumbnail'>
             <div style='padding-top:0.5em;text-align:center'>
                 Create a Map
             </div>
@@ -108,6 +117,19 @@
             <a href='https://www.soe.ucsc.edu/people/jstuart' target='_blank'>Joshua Stuart</a><br>
         </p>
     </div>
+    <div class='home_section'>
+        <h3>
+            Reference
+        </h3>
+
+        <p style=font-size:0.8em>
+            TumorMap: Exploring the Molecular Similarities of Cancer Samples in
+            an Interactive Portal, Newton, et al
+            <a href = "http://cancerres.aacrjournals.org/content/77/21/e111?utm_source=170580&utm_medium=clinical1&utm_campaign=compresfocus" target='_blank'>
+                Cancer Res November 1 2017 (77) (21) e111-e114; DOI: 10.1158/0008-5472.CAN-17-0580
+            </a>
+        </p>
+    </div>
 </div>
 <div style='display:inline-block;width:48%'>
     <div class='home_section'>
@@ -152,7 +174,7 @@
             Our Mission
         </h3>
         <p>
-            We provide a visualization of  tumor samples that share common molecular
+            We provide a visualization of tumor samples that share common molecular
             profiles, allowing multiple platforms and data types to be combined to
             view sample relationships in multiple omic spaces.  We want this tool to
             help you by revealing patterns, answering questions and generating new

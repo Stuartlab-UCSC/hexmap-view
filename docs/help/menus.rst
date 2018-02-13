@@ -118,9 +118,9 @@ Views of the Map
 
 There are two views of the map available under the **View** menu:
 
-**Map Layout** : the primary view which allows display of attribute values via colors
+**Hexagonal Grid** : the primary view which allows better viewing of attribute colors.
 
-**Node Density** : shows positions of the nodes in the preliminary projection on
+**Cartesian Plane** : shows positions of the nodes in the projection on
 the X-Y plane, before they are snapped to a hexagonal grid
 
 Once in **Node Density** view, there is an additional option in the **View**

@@ -1,18 +1,19 @@
 
 // Colormap editor and color constance.
 // TODO pull the colormap editor out of here into its own file.
-// TODO move the color functions from hexagram.js to here.
+// TODO move the color functions from colorMix.js to here.
 
-import DialogHex from '/imports/common/dialogHex.js';
-import Hexagons from '/imports/mapPage/viewport/hexagons.js';
-import Hexagram from '/imports/mapPage/viewport/hexagram.js';
-import OverlayNodes from '/imports/mapPage/calc/overlayNodes.js';
-import Shortlist from '/imports/mapPage/shortlist/shortlist.js';
-import Tool from '/imports/mapPage/head/tool.js';
+import DialogHex from '/imports/common/DialogHex';
+import hexagons from '/imports/mapPage/viewport/hexagons';
+import viewport from '/imports/mapPage/viewport/viewport';
+import colorMix from '/imports/mapPage/color/colorMix';
+import overlayNodes from '/imports/mapPage/calc/overlayNodes';
+import shortlist from '/imports/mapPage/shortlist/shortlist';
+import tool from '/imports/mapPage/head/tool';
 import '/imports/common/navBar.html';
 import './colorEdit.html';
 import './colorEdit.css';
-import Util from '/imports/common/util.js';
+import util from '/imports/common/util';
 
 // Some color constants
 var DISABLED_COLOR = '#aaaaaa',
@@ -123,7 +124,7 @@ function updateColormap (aCat) {
         return false;
     });
     colormaps[layer][catI].color = new Color(aCat.operVal);
-    Hexagram.refreshColors();
+    colorMix.refreshColors();
 }
 
 function rowClick(ev) {
@@ -216,7 +217,7 @@ function makeTsv($link) {
     // Only add layers in the string that have been loaded into the
     // shortlist.
     Object.keys(colormaps).forEach(function (layer) {
-            if (Shortlist.inShortList(layer)) {
+            if (shortlist.inShortList(layer)) {
         tsv += layer;
         _.each(colormaps[layer], function (cat, catIndex) {
         
@@ -270,7 +271,7 @@ exports.colormapsToColorArray = function () {
                 _.map(colormaps, exports.colormapToColorArray),
         function (entry) {
                     return (entry.cats.length > 0 &&
-                            Shortlist.inShortList(entry.name)
+                            shortlist.inShortList(entry.name)
                     );
         }
     );
@@ -483,7 +484,7 @@ exports.findColorCount = function (layer_name) {
     // undefined layer_names are assigned a count of zero.
     var nColors = 0;
 
-    if (Util.is_cat_or_bin(layer_name)) {
+    if (util.is_cat_or_bin(layer_name)) {
         var colormap = colormaps[layer_name];
         if (colormap.length > 0) {
 
@@ -504,11 +505,11 @@ exports.init = function () {
                 // Continuous/binary layers in the shortlist whose
                 // colors have not been changed must have their colors updated
                 // with the new background.
-                var contLayers = Shortlist.getContinuousLayerNames()
+                var contLayers = shortlist.getContinuousLayerNames()
                     .filter(function(layerName) {
                         return !continuosColorChanged(layerName)
                 });
-                var binLayers = Shortlist.getBinaryLayerNames()
+                var binLayers = shortlist.getBinaryLayerNames()
                     .filter(function(layerName) {
                         return !binaryColorChanged(layerName)
                 });
@@ -530,10 +531,10 @@ exports.init = function () {
 
         // The background change requires a new map to show the
         // background.
-        Hexagram.createMap();
-        Hexagons.create();
-        Hexagram.refreshColors();
-        OverlayNodes.show();
+        viewport.create();
+        hexagons.create();
+        colorMix.refreshColors();
+        overlayNodes.show();
     });
 
     // Prepare to display a dialog
@@ -561,9 +562,9 @@ exports.init = function () {
     });
 
     // Create a link from the navBar
-    Tool.add("colormap", function () {
+    tool.add("colormap", function () {
         dialogHex.show();
-        Tool.activity(false);
+        tool.activity(false);
     }, 'Change colors of attributes', 'mapShow');
 }
 

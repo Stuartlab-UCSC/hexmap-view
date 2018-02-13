@@ -1,9 +1,10 @@
 // util.js
 // This contains various utilities used throughout the code.
 
-import dnt from '/imports/lib/dnt.js';
-import Prompt from '/imports/component/prompt.js';
-import Select2 from '/imports/lib/select2.js';
+import dnt from '/imports/lib/dnt';
+import Prompt from '/imports/component/Prompt';
+import rx from '/imports/common/rx';
+import select2 from '/imports/lib/select2';
 
 exports.get_username = function (callback) {
     
@@ -15,6 +16,11 @@ exports.get_username = function (callback) {
             callback(results);
         }
     });
+}
+
+exports.isValidFileName = function (name) {
+    var index = name.search(/[^A-Za-z0-9_\-\.]/g);
+    return (index < 0);
 }
 
 exports.clean_file_name = function (dirty) {
@@ -29,7 +35,7 @@ exports.clean_file_name = function (dirty) {
     return dirty.replace(/[^A-Za-z0-9_\-\.]/g, "_");
 }
 
-exports.banner = function (severity, text) {
+exports.banner = function (severity, text, stackTrace, link, linkText) {
 
     // Display a message, either as a timed banner when 'severity' is one of
     // 'warn' or 'info', otherwise a dialog that requires the user to
@@ -44,12 +50,45 @@ exports.banner = function (severity, text) {
             .show();
         $("#banner").delay(5000).fadeOut(1500);
     } else if (severity === 'error') {
-        Prompt.show(text, { severity: 'error' });
+        opts = { severity: 'error', link: link, linkText: 'here' };
+        if (linkText) {
+            opts.linkText = linkText;
+        }
+        Prompt.show(text, opts);
     } else {
         console.log('invalid user message severity');
     }
     // Also inform the browser console of this issue.
     console.log(severity + ':', text);
+    if (!_.isUndefined(stackTrace)) {
+        console.log('Server Error', stackTrace);
+    }
+}
+
+exports.reportJobSuccess = function (resultOrUrl) {
+
+    // Report a job success from either a url or from resultOrUrl.result.url.
+    var url = ''
+    if (typeof resultOrUrl === 'string') {
+        url = resultOrUrl;
+    } else if (resultOrUrl &&
+        'result' in resultOrUrl &&
+        'url' in resultOrUrl.result) {
+        url = resultOrUrl.result.url;
+    }
+    Prompt.show('Your job has completed with these results: ',
+        {
+            link: url,
+            severity: 'info',
+            labelClass: 'jobUrl',
+        }
+    );
+}
+
+exports.reportJobSubmitted = function () {
+    Prompt.show('Your job has been submitted to the job queue.',
+        { severity: 'info' }
+    );
 }
 
 exports.session = function (prefix, operation, name, val) {
@@ -66,8 +105,6 @@ exports.session = function (prefix, operation, name, val) {
         key = 'shortlist_filter_show_' + name;
     } else if (prefix === 'filter_value') {
         key = 'shortlist_filter_value_' + name;
-    } else if (prefix === 'filter_built') {
-        key = 'shortlist_filter_built_' + name;
     } else {
         exports.banner('error', 'Illegal prefix on session(): ' + prefix);
         console.trace();
@@ -131,17 +168,23 @@ exports.getHumanProject = function (project) {
     return project.slice(0, -1);
 }
 
+exports.mapNotFoundNotify = function (name, more) {
+    var msg = 'Map "' + name + '" not found.\nPlease select another';
+    if (more) {
+        msg += more;
+    }
+    msg += '.'
+    rx.set('init.done');
+    exports.banner('error', msg);
+}
+
 exports.projectNotFound = function (dataId) {
     if (!ctx.projectNotFoundNotified) {
-
         ctx.projectNotFoundNotified = true;
     
-        Session.set('mapSnake', false);
-    
         // Alert the user that essential data is missing for this project.
-         exports.banner('error', '"' + exports.getHumanProject(ctx.project) +
-            '" does not seem to be a valid project.\nPlease select ' +
-            'another.\n(' + dataId + ')');
+        exports.mapNotFoundNotify(
+            exports.getHumanProject(ctx.project), ' (' + dataId + ')');
     }
 }
 

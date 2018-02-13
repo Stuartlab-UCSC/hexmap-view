@@ -2,14 +2,15 @@
 
 // This allows the user to view new node(s) placement overlaid on an existing map.
 
-import Ajax from '/imports/mapPage/data/ajax.js';
-import Auth from '/imports/common/auth.js';
-import DialogHex from '/imports/common/dialogHex.js';
-import Layout from '/imports/mapPage/head/layout.js';
-import OverlayNodes from './overlayNodes.js';
-import State from '/imports/common/state.js';
-import Tool from '/imports/mapPage/head/tool.js';
-import Util from '/imports/common/util.js';
+import ajax from '/imports/mapPage/data/ajax';
+import auth from '/imports/common/auth';
+import DialogHex from '/imports/common/DialogHex';
+import layout from '/imports/mapPage/head/layout';
+import overlayNodes from './overlayNodes';
+import rx from '/imports/common/rx';
+import state from '/imports/common/state';
+import tool from '/imports/mapPage/head/tool';
+import util from '/imports/common/util';
 
 import './overlayNode.html';
 
@@ -26,34 +27,54 @@ Template.navBarT.helpers({
 function validateNodeData (data) {
 
     if (_.isUndefined(data) || _.isNull(data)) {
-        Util.banner('error',
-            'Nodes are undefined, please upload a file of the requested format.');
+        util.banner('error',
+            'Nodes are undefined, please upload a file of the requested ' +
+                'format.');
         return false;
     }
     if (data.length < 1) {
-        Util.banner('error',
-            'Error: the file is empty.');
+        util.banner('error', 'Error: the file is empty.');
         return false;
     }
     return true;
 }
 
-function showNewNodes (result) {
-    nodeNames = Object.keys(result.nodes);
-    State.bookmarkReload(result.nodes[nodeNames[0]].url);
+function httpError (result) {
+    rx.set('placeNode.running.done');
+    util.banner('error', 'when calculating position of a new node: ' +
+        result.error, result.stackTrace);
+}
+
+function getJobStatus (jobId, jobStatusUrl) {
+
+    // Check status of the job and display when complete.
+    ajax.getJobStatus(jobId, jobStatusUrl,
+        function (result) {
+            if (result['status'] === 'Success') {
+                var nodes = result.result.nodes;
+                var nodeNames = Object.keys(nodes);
+                var url = nodes[Object.keys(nodes)[0]].url;
+                 util.reportJobSuccess(url);
+            } else {
+                httpError(result.result);
+            }
+        },
+        httpError,
+    )
 }
 
 function doIt (tsv) {
 
     // Build the rest of the data needed to locate these nodes on the map,
     // then call the computation utility.
-    var nodeData = Util.parseTsv(tsv);
+    var nodeData = util.parseTsv(tsv);
     var valid = validateNodeData(nodeData);
     if (!valid) {
         return;
     }
 
-    //Util.banner('info', 'Nodes will appear when location calculations are complete.');
+    util.banner('info', 'Nodes will appear when location calculations are ' +
+        'complete.');
 
     // Convert the node data into an object
 
@@ -78,33 +99,34 @@ function doIt (tsv) {
 
     // Build the rest of the options to pass to the computation utility.
     var opts = {
-        map: Util.getHumanProject(ctx.project),
-        layout: Layout.findCurrentName(),
+        map: util.getHumanProject(ctx.project),
+        layout: layout.findCurrentName(),
         nodes: data,
     };
     if (Meteor.user()) {
         opts.email = Meteor.user().username;
     }
 
-    Ajax.query('overlayNodes', opts,
+    // Add this job to the calc server.
+    ajax.query('placeNode', opts,
         function (result) {
-            Util.banner('info', 'Your nodes are about to drop onto the map');
-            showNewNodes(result);
+            getJobStatus(result.jobId, result.jobStatusUrl);
         },
-        function (error) {
-            Session.set('mapSnake', false);
-            Util.banner('error', 'when adding a new node: ' + error);
+        function (result) {
+            util.banner('error', 'when adding a new node: ' + result.error,
+                result.stackTrace);
         },
     );
 
-    // Hide this dialog
     hide();
+    rx.set('placeNode.running.done');
+    util.reportJobSubmitted();
 }
 
 function gotFilename (event) {
 
     // When a file is selected, read it in
-    Session.set('mapSnake', true);
+    rx.set('placeNode.running.now');
 
     // Make a FileReader to read the file
     var reader = new FileReader();
@@ -116,12 +138,12 @@ function gotFilename (event) {
     };
 
     reader.onerror = function(read_event) {
-        Session.set('mapSnake', false);
-        Util.banner('error', 'Error reading file:' + file.filename);
+        rx.set('placeNode.running.done');
+        util.banner('error', 'Error reading file:' + file.filename);
     };
     reader.onabort = function(read_event) {
-        Session.set('mapSnake', false);
-        Util.banner('error', 'Aborted reading file: ' + file.filename);
+        rx.set('placeNode.running.done');
+        util.banner('error', 'Aborted reading file: ' + file.filename);
     };
 
     try {
@@ -131,8 +153,8 @@ function gotFilename (event) {
     } catch (error) {
 
         // The user most likely didn't pick a file.
-        Session.set('mapSnake', false);
-        Util.banner('error', 'you need to select a file.');
+        rx.set('placeNode.running.done');
+        util.banner('error', 'you need to select a file.');
     }
 }
 
@@ -141,7 +163,7 @@ function show () {
     // Show the contents of the dialog, once per trigger button click
 
     // Deselect the tool because we don't need to listen to map events.
-    Tool.activity(false);
+    tool.activity(false);
 
     // Attach event listeners
     $dialog.find('.file').change(gotFilename);
@@ -154,18 +176,18 @@ function criteriaCheck () {
         meta = Session.get('mapMeta');
     // If there is cluster data, we've
     // met the data criteria to run placeNode.
-    var layout = Layout.findCurrentName();
+    var name = layout.findCurrentName();
     if (meta.layouts &&
-        meta.layouts[layout] &&
-        meta.layouts[layout].clusterData) {
+        meta.layouts[name] &&
+        meta.layouts[name].clusterData) {
         placeNodeCriteria = true;
     }
     if (!placeNodeCriteria) {
-        Util.banner('error', 'Sorry, the required data to ' +
+        util.banner('error', 'Sorry, the required data to ' +
         'place new nodes is not available for this map.');
         return false;
     } else if (! Session.equals('mapView', 'honeycomb')) {
-        Util.banner('error', 'Sorry, nodes may only be placed in the ' +
+        util.banner('error', 'Sorry, nodes may only be placed in the ' +
             '"Hexagonal Grid" view. (Selectable under the "View menu".)');
         return false;
     } else {
@@ -176,7 +198,7 @@ function criteriaCheck () {
 function preShow () {
 
     // First check for this user having the credentials to do this.
-    var good = Auth.credentialCheck('to place new nodes');
+    var good = auth.credentialCheck('to place new nodes');
     if (good) {
 
         // Then check for the map having the proper criteria to do this.
@@ -215,8 +237,8 @@ exports.init = function () {
     });
 
     // Create a link from the menu
-    Tool.add('overlayNode', createWindow, title);
+    tool.add('overlayNode', createWindow, title);
 
     // Add a handler for the remove menu option
-    $('#navBar .overlayNodeRemove').on('click', OverlayNodes.remove);
+    $('#navBar .overlayNodeRemove').on('click', overlayNodes.remove);
 }

@@ -1,20 +1,20 @@
 // download.js
 
-import Pdf from '/imports/mapPage/viewport/pdf.js';
-import Svg from '/imports/mapPage/viewport/svg.js';
-import Tool from '/imports/mapPage/head/tool.js';
-import Util from '/imports/common/util.js';
+import pdf from '/imports/mapPage/viewport/pdf.js';
+import svg from '/imports/mapPage/viewport/svg.js';
+import tool from '/imports/mapPage/head/tool.js';
+import util from '/imports/common/util.js';
 
 import '/imports/mapPage/viewport/pdf.html';
-import Colors from '/imports/mapPage/color/colorEdit.js';
-import Shortlist from '/imports/mapPage/shortlist/shortlist.js';
+import colorEdit from '/imports/mapPage/color/colorEdit.js';
+import shortlist from '/imports/mapPage/shortlist/shortlist.js';
 
 function initDownloadSelectTool () {
 
     // And a tool for exporting selections as lists of hexes
     // TODO this doesn't need to be modal, only tools mousing on the screen
     // need to be modal
-    Tool.add("hexagonNames", function() {
+    tool.add("hexagonNames", function() {
         // Make the export form
         var export_form = $("<form/>").attr("title", "Attribute Download");
         
@@ -27,9 +27,15 @@ function initDownloadSelectTool () {
         var select_box = $("<select/>").width(WIDTH+6);
 
         // Populate the select box with all entries in the shortlist.
-        var activeLayers = Shortlist.getAllLayerNames();
+        var activeLayers = shortlist.getAllLayerNames();
+        
+        console.log('activeLayers', activeLayers)
+        
         activeLayers.map(
             function(layerName) {
+            
+                console.log('layerName', layerName)
+                
                 select_box
                     .append($("<option/>")
                         .text(layerName).attr("value", layerName));
@@ -71,7 +77,7 @@ function initDownloadSelectTool () {
         function catOrBinStringExtender(textAreaStr, nodeId, value, layerName){
             // Used to fill the text box when the layer is categorical or
             // binary.
-            var categoryString = Colors.getCategoryString(
+            var categoryString = colorEdit.getCategoryString(
                 layerName,
                 value
             );
@@ -86,10 +92,10 @@ function initDownloadSelectTool () {
             var extender;
             if (layers[layerName].dynamic){
                 extender = selectionStringExtender;
-            } else if (Util.is_categorical(layerName) ||
-                Util.is_binary(layerName)) {
+            } else if (util.is_categorical(layerName) ||
+                util.is_binary(layerName)) {
                 extender = catOrBinStringExtender
-            } else if (Util.is_continuous(layerName) ) {
+            } else if (util.is_continuous(layerName) ) {
                 extender = contStringExtender
             } else {
                 throw "DataType for downloading not found."
@@ -203,7 +209,7 @@ function initDownloadSelectTool () {
             width: '20em',
             close: function() {
                 // They didn't want to use this tool.
-                Tool.activity(false);
+                tool.activity(false);
             }
         });
     }, 'Export the selection as a list of hexagon IDs', 'mapShow');
@@ -230,8 +236,8 @@ exports.save = function (filename, data) {
 
 exports.init = function () {
     initDownloadSelectTool();
-    Svg.init();
-    Pdf.init();
+    svg.init();
+    pdf.init();
 
     // Add the link to the menu for XY coordinate download.
     var link = $('<a href=' + getDataUrl('xyPreSquiggle_') +

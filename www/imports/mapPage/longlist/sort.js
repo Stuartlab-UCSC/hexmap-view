@@ -4,11 +4,12 @@
 
 var app = app || {}; 
 
-import Auth from '/imports/common/auth.js';
-import Data from '/imports/mapPage/data/data.js';
-import Filter from '/imports/mapPage/longlist/filter.js';
-import Util from '/imports/common/util.js';
-import Shortlist from '/imports/mapPage/shortlist/shortlist.js';
+
+import data from '/imports/mapPage/data/data.js';
+import filter from '/imports/mapPage/longlist/filter.js';
+import { pollJobStatus, parseJson} from '/imports/common/pollJobStatus';
+import util from '/imports/common/util.js';
+import shortlist from '/imports/mapPage/shortlist/shortlist.js';
 
 var computingText = 'Computing statistics ...',
     firstSort = true;
@@ -180,10 +181,10 @@ function updateSortUi (type, text, focus_attr, opts) {
         Session.set('sort', {text: text, type: type, focus_attr: focus_attr,
             color: 'inherit', background: 'inherit'});
     }
-    Filter.clearAll();
-    import Longlist from '/imports/mapPage/longlist/longlist.js';
-    Longlist.update();
-    Shortlist.update_ui_metadata();
+    filter.clearAll();
+    import longlist from '/imports/mapPage/longlist/longlist.js';
+    longlist.update();
+    shortlist.update_ui_metadata();
 
     // Skip the banner on the first sort
     if (firstSort) {
@@ -191,12 +192,12 @@ function updateSortUi (type, text, focus_attr, opts) {
     } else {
         if (type === 'noStats') {
              if (text.indexOf('credential') < 0) {
-                Util.banner('error', text);
+                util.banner('error', text);
             } else {
-                Util.banner('warn', 'Now sorted by Density of attributes');
+                util.banner('warn', 'Now sorted by Density of attributes');
             }
         } else {
-            Util.banner('info', 'Now sorted by ' + text + elapsed);
+            util.banner('info', 'Now sorted by ' + text + elapsed);
         }
     }
 }
@@ -243,7 +244,7 @@ function updateIgnoreLayout (parsed, focus_attr, lI, pI, apI, apbI) {
             type = p_value;
         }
         if (type === 'p_value') {
-            Util.banner('warn', 'All adjusted p-values were NaN, so '
+            util.banner('warn', 'All adjusted p-values were NaN, so '
                 + 'displaying and sorting by the single test p-value ' +
                 'instead');
         }
@@ -259,7 +260,7 @@ function updateIgnoreLayout (parsed, focus_attr, lI, pI, apI, apbI) {
             type = p_value;
         }
         if (type === 'p_value') {
-            Util.banner('warn', 'All adjusted p-value-bs were NaN, so '
+            util.banner('warn', 'All adjusted p-value-bs were NaN, so '
                 + 'displaying and sorting by the single test p-value ' +
                 'instead');
         }
@@ -440,7 +441,6 @@ function receive_data (parsed, focus_attr, opts) {
     }
 }
 
-
 function gatherSelectionData (dynamicDataIn) {
 
     // Gather the data for user-selection attributes
@@ -459,11 +459,22 @@ function gatherSelectionData (dynamicDataIn) {
 }
 
 function getDynamicStats (focus_attr, opts) {
+    function typeOfRequest(opts){
+        let calcRequested;
+        if (opts.hasOwnProperty('layout')) {
+            calcRequested = "layoutAware";
+        } else if (Object.keys(opts.dynamicData).length > 1) {
+            calcRequested = "differential";
+        } else {
+            calcRequested = "layoutIndependent"
+        }
+        return calcRequested;
+    }
 
     computingTextDisplay();
     /*
     // First check for this user having the credentials to do this.
-    var good = Auth.credentialCheck('to compute dynamic statistics. ' +
+    var good = auth.credentialCheck('to compute dynamic statistics. ' +
         'Only pre-computed statistics on static attributes are available ' +
         'to you', 'statsSnake');
     Session.set('statsSnake', good);
@@ -487,23 +498,56 @@ function getDynamicStats (focus_attr, opts) {
     opts.dynamicData = gatherSelectionData(opts.dynamicData);
 
     opts.startDate = new Date();
-    Meteor.call('pythonCall', 'statsDynamic', opts,
-        function (error, result) {
-            if (error) {
-                var text = error;
-            
-                // If this is a Meteor.Error, the error prop has the text
-                if (error.error) {
-                    text = error.error;
-                }
-                updateSortUi('noStats', text);
-            } else {
-                console.log('getDynamicStats: python call success');
-                receive_data(result.data, focus_attr, opts);
-            }
-        }
-    );
-};
+    
+    const datatypeMapping = {
+        "binary": "bin",
+        "continuous": "cont",
+        "categorical": "cat"
+    };
+
+    let parms = {
+        mapName : ctx.project,
+        focusAttr: opts.dynamicData,
+        email : Meteor.user().username,
+    };
+
+    let url, dType;
+    switch (typeOfRequest(opts)) {
+        case "layoutAware":
+            url = HUB_URL + "/oneByAll/leesLCalculation";
+            parms["layoutIndex"] = opts.layout;
+            break;
+        case "layoutIndependent":
+            url = HUB_URL + "/oneByAll/statCalculation";
+            dType = datatypeMapping[layers[focus_attr].dataType];
+            parms["focusAttrDatatype"] = dType;
+            break;
+        case "differential":
+            url = HUB_URL + "/oneByAll/statCalculation";
+            dType = "bin";
+            parms["focusAttrDatatype"] = dType;
+            break;
+        default:
+            throw "unrecognized stat-sort request case."
+    }
+
+    const postForStatJobRequest  = {
+        method: "POST",
+        headers: new Headers({"Content-Type": "application/json"}),
+        body: JSON.stringify(parms),
+    };
+
+    console.log(url, parms);
+    fetch(url, postForStatJobRequest)
+        .then(parseJson)
+        .then(
+            (resp)=>pollJobStatus(
+                resp.jobStatusUrl,
+                (resp)=>{receive_data(resp.result, focus_attr, opts)},
+                5
+            )
+        )
+}
 
 function getPreComputedStats (dataId, focus_attr, opts) {
 
@@ -519,7 +563,7 @@ function getPreComputedStats (dataId, focus_attr, opts) {
     }
 
     // Attempt to retrieve the pre-computed stats data
-    Data.requestStats(dataId, {
+    data.requestStats(dataId, {
             successFx: function (parsed) {
                 if (parsed === '404') {
                     error(focus_attr, opts);
@@ -543,6 +587,7 @@ exports.findFirstLayerByDensity = function () {
 
     // Use the first layer of the default density sort as our
     // 'first layer' which effects the default short list display
+    exports.find_clumpiness_stats();
     var layer_array = Session.get('sortedLayers');
     layer_array.sort(finalCompare);
     Session.set('first_layer', layer_array[0]);
