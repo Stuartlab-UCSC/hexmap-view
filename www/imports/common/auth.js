@@ -3,62 +3,37 @@
 // Authorize users based on roles and project access.
 
 import perform from '/imports/common/perform.js';
+import rx from '/imports/common/rx.js';
 import util from '/imports/common/util.js';
 
-function getCredentials (userId) {
+function getUserRoles () {
 
     // Whenever the user changes, including logout, check to see
-    // what sort of credentials the user has.
-    if (userId) {
-        perform.log('auth:credentials-request:userId:' + userId);
-        Meteor.call('is_user_in_role', ['jobs', 'dev'],
-            function (error, results) {
-                if (results) {
-                    Session.set('jobCredential', true);
-                } else {
-                    Session.set('jobCredential', false);
-                }
-                perform.log('auth:credentials-got:userId,has-creds?:' +
-                    userId + ',' + Session.get('jobCredential'));
+    // what sort of credentials she has.
+    rx.set('user.roles.empty');
+    perform.log('auth:credentials-request');
+    Meteor.call('getUserAuthorizationRoles', function (error, results) {
+        if (results) {
+            rx.set('user.roles.load', { roles: results });
+            
+            // Authorize the project if we are on the map page.
+            if (Session.equals('page', 'mapPage')) {
+                import project from '/imports/mapPage/head/project.js';
+                project.authorize();
             }
-        );
-    } else {
-        Session.set('jobCredential', false);
-        perform.log('auth:no-credentials-for-no-userId');
-    }
-    /* future
-    rx.set('userRoles.empty');
-    if (userId) {
-        perform.log('auth:credentials-request:userId:' + userId);
-        Meteor.call('get_roles', userId,
-            function (error, results) {
-                if (results) {
-                    rx.set('userRoles.load', results);
-                }
-                perform.log('auth:credentials-got:userId,has-roles?:' +
-                    userId + ',' + rx.get('userRoles');
-            }
-        );
-    } else {
-        perform.log('auth:no-credentials-because-no-userId');
-    }
-    */
+        }
+        perform.log('auth:credentials-got:has-roles?:' +
+            rx.get('user.roles'));
+    });
 }
 
 exports.credentialCheck = function (credential) {
 
-    // Bail with a message if the user is not logged in or does not have
-    // the credentials.
-    var returnVal = false;
+    // Bail with a message if the user is not logged in.
+    var returnVal = true;
     if (!Meteor.userId()) {
         util.banner('error', 'Please log in ' + credential + '.');
-    /*
-    } else if (!(Session.get('jobCredential'))) {
-        util.banner('error', 'Sorry, you do not have credentials ' +
-           credential + '. Please request access from hexmap at ucsc dot edu.');
-    */
-    } else {
-        returnVal = true;
+        returnVal = false;
     }
     return returnVal;
 };
@@ -69,11 +44,8 @@ exports.init = function () {
     Meteor.autorun(function () {
         var userId = Meteor.userId();
         perform.log('auth:user-change-check:userId:' + userId);
-            
-        getCredentials(userId);
-        if (Session.equals('page', 'mapPage')) {
-            import project from '/imports/mapPage/head/project.js';
-            project.authorize(userId);
-        }
+        
+        // Get the user's roles.
+        getUserRoles();
     });
 };

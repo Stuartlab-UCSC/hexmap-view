@@ -143,7 +143,7 @@ function isMapRendered () {
 function isMapPreppedAndUserAuthorized () {
     var R = rx.getState();
     if (R['init.mapPrepared'] &&
-        R['init.mapAuthorized'])  {
+        R['user.mapAuthorized'])  {
         
         unsubFx.isMapPreppedAndUserAuthorized();
         perform.log('4-init:render-map');

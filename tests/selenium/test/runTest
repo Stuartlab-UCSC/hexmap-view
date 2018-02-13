@@ -20,6 +20,7 @@ elif [ $1 == 'lint' ]; then
         canvas2svg.js
         color.js
         colorEdit.js
+        colormap.js
         colorMix.js
         coords.js
         createMap.js
@@ -52,6 +53,7 @@ elif [ $1 == 'lint' ]; then
         sort.js
         sortUi.js
         state.js
+        state.test.js
         svg.js
         tool.js
         urlParms.js

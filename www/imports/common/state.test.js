@@ -1,4 +1,6 @@
 
+// This code is for future use and checked in to save it.
+
 //add = require('./add');
 import overlayNodes from '/imports/mapPage/calc/overlayNodes';
 import rx from '/imports/common/rx';

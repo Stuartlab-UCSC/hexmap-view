@@ -22,7 +22,6 @@ exports.stateActions = [
     'init.layoutNamesRequested',
     'init.layoutPositionsLoaded',
     'init.layoutsPopulated',
-    'init.mapAuthorized',
     'init.mapPrepared',
     'init.mapRendered',
     'init.stateLoaded',
@@ -34,6 +33,10 @@ exports.stateActions = [
     'projectList.receiving.now',
     'uploading.done',
     'uploading.now',
+    'user.mapAuthorized.yes',
+    'user.mapAuthorized.not',
+    'user.roles.empty',
+    'user.roles.load',
 ];
 
 // Pieces of state to retrieve, used with rx.get().
@@ -55,7 +58,6 @@ const statePieces =  [ // eslint-disable-line
     'init.layoutNamesRequested',
     'init.layoutPositionsLoaded',
     'init.layoutsPopulated',
-    'init.mapAuthorized',
     'init.mapPrepared',
     'init.mapRendered',
     'init.stateLoaded',
@@ -63,6 +65,8 @@ const statePieces =  [ // eslint-disable-line
     'projectList.changing',
     'projectList.receiving',
     'uploading',
+    'user.mapAuthorized',
+    'user.roles',
 ];
 
 // The global redux state.
