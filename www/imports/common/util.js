@@ -171,8 +171,8 @@ exports.getHumanProject = function (project) {
 
 exports.mapNotFoundNotify = function (name, more) {
     var msg = 'Map "' + name + '" not found.\nPlease select another';
-    if (more) {
-        msg += more;
+    if (Meteor.user() === null) {
+        msg += ' or sign in'
     }
     msg += '.'
     rx.set('init.done');

@@ -1,5 +1,5 @@
-// colormap.js
-// Run the hexagram visualizer client.
+// This code is for future use and checked in to save it.
+
 
 import '/imports/lib/color.js';
 import colorEdit from '/imports/mapPage/color/colorEdit.js';
