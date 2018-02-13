@@ -1,9 +1,9 @@
 // filter.js: Filter the attributes displayed in the longlist by data type and
 // tags.
 
-import DialogHex from '/imports/common/dialogHex.js';
-import Tool from '/imports/mapPage/head/tool.js';
-import Util from '/imports/common/util.js';
+import DialogHex from '/imports/common/DialogHex.js';
+import tool from '/imports/mapPage/head/tool.js';
+import util from '/imports/common/util.js';
 
 import '/imports/mapPage/head/header.html';
 import './filter.html';
@@ -240,7 +240,7 @@ function whenDisplayOrSortedLayersChange () {
     if (!display || !sorted) { return; }
 
     if (display.length < 1 && Session.equals('mapSnake', false)) {
-        Util.banner('warn', 'No attributes to display, relax some filters');
+        util.banner('warn', 'No attributes to display, relax some filters');
         $passFilters.addClass('red');
     } else {
         $passFilters.removeClass('red');
@@ -316,9 +316,9 @@ function init () {
     });
 
     // Create a link from the navBar
-    Tool.add("filterAttributes", function(ev) {
+    tool.add("filterAttributes", function(ev) {
         $button.click();
-        Tool.activity(false);
+        tool.activity(false);
     }, 'Filter attributes');
 };
 exports.clearAll = function () {

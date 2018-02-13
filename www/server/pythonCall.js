@@ -74,6 +74,12 @@ exports.report_calc_result = function (result_in, calcCtx) {
     // Report an error or successful result to http or the client,
     // after running the post-calc function if there is one.
     
+    if (_.isUndefined(calcCtx)) {
+        console.log('undefined calcCtx,',
+            'probably from a job submitted before the latest restart.');
+        return;
+    }
+    
     var result = _.clone(result_in);
     if (!result) {
         result = {
@@ -387,52 +393,31 @@ Meteor.methods({
 Meteor.startup(function () {
 
     // Define and start up the job queue.
+    jobQueue = new JobCollection('jobQueue');
     
-    if (IS_MAIN_SERVER) {
-    
-        // Define the job queue on the main server
-        jobQueue = new JobCollection('jobQueue');
-        
-        // Define permissions
-        jobQueue.allow({
+    // Define permissions
+    jobQueue.allow({
 
-            // Grant full permission to any authenticated user
-            admin: function (userId, method, params) { // jshint ignore: line
-                if (userId && Roles.userIsInRole(userId, ['jobs', 'dev'])) {
-                    return true;
-                }
-                return false;
-            },
-        });
-
-        // Publish this collection
-        Meteor.publish('myJobs', function (userId) {
-            if (this.userId === userId) {
-                var cursor = jobQueue.find({ type: jobType(),
-                    'data.userId': userId });
-                return cursor;
-            } else {
-                return [];
+        // Grant full permission to any authenticated user
+        admin: function (userId, method, params) { // jshint ignore: line
+            if (userId && Roles.userIsInRole(userId, ['jobs', 'dev'])) {
+                return true;
             }
-        });
-     
-    } else if (IS_CALC_SERVER) {
-    
-        // Define the job queue for remote access
-        // This server is a calc server, but not the main server hosting
-        // the database, so set up remote access to the database.
-        var mongo_url = MAIN_MONGO_URL;
-        var database = new MongoInternals.RemoteCollectionDriver(mongo_url);
-        jobQueue = new JobCollection('jobQueue', { _driver: database });
-     
-    } else {
-    
-        // This will never work; a server must be 'main', 'calc' or both.
-        console.log('Error: this server is not defined as a main server',
-            'or a calc server.');
-        return;
-    }
-    
+            return false;
+        },
+    });
+
+    // Publish this collection
+    Meteor.publish('myJobs', function (userId) {
+        if (this.userId === userId) {
+            var cursor = jobQueue.find({ type: jobType(),
+                'data.userId': userId });
+            return cursor;
+        } else {
+            return [];
+        }
+    });
+
     // DEBUG
     //jobQueue.setLogStream(process.stdout);
             
@@ -449,19 +434,14 @@ Meteor.startup(function () {
             pollInterval: false, // Don't poll
         }, execute_job);
 
-    if (IS_CALC_SERVER) {
-        
-        // For any documents of type 'calc',
-        // when a document is added, tell the queue to seek new work.
-        jobQueue
-            .find({ type: jobType()})
-            .observe({ added: function () { q.trigger(); } });
-    }
-    if (IS_MAIN_SERVER) {
+    // For any documents of type 'calc',
+    // when a document is added, tell the queue to seek new work.
+    jobQueue
+        .find({ type: jobType()})
+        .observe({ added: function () { q.trigger(); } });
 
-        // For any documents of type 'calc', when a document is changed...
-        jobQueue
-            .find({ type: jobType()})
-            .observe({ changed: PythonCall.status_changed });
-        }
+    // For any documents of type 'calc', when a document is changed...
+    jobQueue
+        .find({ type: jobType()})
+        .observe({ changed: PythonCall.status_changed });
 });

@@ -1,10 +1,10 @@
 // infoWindow.js
 // Handle the google maps infoWindow objects.
 
-import Coords from '/imports/mapPage/viewport/coords.js';
-import Layer from '/imports/mapPage/longlist/layer.js';
-import Hexagram from '/imports/mapPage/viewport/hexagram.js';
-import Tool from '/imports/mapPage/head/tool.js';
+import coords from '/imports/mapPage/viewport/coords.js';
+import Layer from '/imports/mapPage/longlist/Layer.js';
+import colorMix from '/imports/mapPage/color/colorMix.js';
+import tool from '/imports/mapPage/head/tool.js';
 
 import './infoWindow.html';
 
@@ -116,7 +116,7 @@ function with_infocard(signature, callback, gMap) {
         infocard.append(add_signature(signature).addClass("info-name"));
 
         if (!justNodeId) {
-            if (Coords.getShowCoords()) {
+            if (coords.getShowCoords()) {
                 // Display the honeycomb coordinates
                 infocard.append(row('xyHex',
                     polygons[signature].xHex.toString() + ', ' +
@@ -127,7 +127,7 @@ function with_infocard(signature, callback, gMap) {
                 // This holds the layer's value for this signature
                 var layer_value = retrieved_layers[i].data[signature];
                 
-                if (Hexagram.have_colormap(current_layers[i])) {
+                if (colorMix.have_colormap(current_layers[i])) {
                     // This is a color map
                     
                     // This holds the category object for this category number, or
@@ -211,7 +211,7 @@ exports.show = function (event, hexagon, gMap, callback1, justNodeId_in) {
 
     if (!info_window) return;
 
-    if (Tool.activity()) {
+    if (tool.activity()) {
         // The user is using a tool currently, so we cannot use
         // their clicks for the info window.
         return;
@@ -224,7 +224,7 @@ exports.show = function (event, hexagon, gMap, callback1, justNodeId_in) {
     justNodeId = justNodeId_in;
 
     // Place the window point in the center of this hexagon.
-    info_window.setPosition(Coords.get_LatLng(hexagon.xy.x, hexagon.xy.y));
+    info_window.setPosition(coords.get_LatLng(hexagon.xy.x, hexagon.xy.y));
     
     // Record that this signature is selected now
     selected_signature = hexagon.signature;
@@ -238,7 +238,7 @@ exports.init = function (gMap) {
     // Make the global info window
     info_window = new google.maps.InfoWindow({
         content: "No Signature Selected",
-        position: Coords.get_LatLng(0, 0)
+        position: coords.get_LatLng(0, 0)
     });
 
     // Attach a listener for the ESC key to close the info_window

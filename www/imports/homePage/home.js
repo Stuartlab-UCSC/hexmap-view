@@ -1,20 +1,22 @@
 // Handle the home page.
 
-import NavBar from '/imports/common/navBar.js';
-import CreateMap from '/imports/mapPage/calc/createMap.js';
-import Util from '/imports/common/util.js';
+import navBar from '/imports/common/navBar.js';
+import createMap from '/imports/mapPage/calc/createMap.js';
+import util from '/imports/common/util.js';
 
 import '/imports/homePage/home.html';
 import '/imports/homePage/home.css';
 
 Template.homePage.onRendered(function () {
-    NavBar.init();
-    CreateMap.init();
+    navBar.init();
+    createMap.init();
 });
 
 Template.homePage.helpers({
     projects: function () {
         return [
+            { id: 'PancanAtlas/SampleMap', png: 'pancanAtlas.png',
+                href: 'PancanAtlas/SampleMap&layout=Euclidean%20iCluster' },
             { id: 'Pancan12/SampleMap', png: 'pancan12.png' },
             { id: 'Pancan12/GeneMap', png: 'pancan12gene.png' },
             { id: 'Gliomas', png: 'gliomas-paper.png' },
@@ -28,6 +30,13 @@ Template.homePage.helpers({
     },
     id: function () {
         return this.id;
+    },
+    href: function () {
+        if (this.href) {
+            return this.href;
+        } else {
+            return this.id;
+        }
     },
     label: function () {
         if (this.label) {
@@ -59,5 +68,5 @@ Template.homePage.helpers({
 
 exports.init = function () {
     Blaze.render(Template.homePage, $('body')[0]);
-    Util.googleAnalytics();
+    util.googleAnalytics();
 };

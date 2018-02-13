@@ -11,6 +11,7 @@ Contents:
    shortlist
    advancedControls
    existingMaps
+   licenses
 
 Indices and tables
 ==================

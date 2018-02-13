@@ -1,10 +1,10 @@
 // setOperUI.js
 // Handle the UI for the set operations.
 
-import Hexagram from '/imports/mapPage/viewport/hexagram.js';
-import Layer from '/imports/mapPage/longlist/layer.js';
-import Tool from '/imports/mapPage/head/tool.js';
-import Util from '/imports/common/util.js';
+import colorMix from '/imports/mapPage/color/colorMix.js';
+import Layer from '/imports/mapPage/longlist/Layer.js';
+import tool from '/imports/mapPage/head/tool.js';
+import util from '/imports/common/util.js';
 
 import './setOper.html';
 import './setOper.css';
@@ -397,7 +397,7 @@ function update_layer_selectors () {
     var shortlist = Session.get('shortlist');
     for (var i = 0; i < drop_downs.length; i++){
         for (var j = 0; j < shortlist.length; j++) {
-            if (!Util.is_continuous(shortlist[j])) {
+            if (!util.is_continuous(shortlist[j])) {
                 var option = document.createElement("option");
                 option.text = shortlist[j];
                 option.value = j+1;
@@ -477,10 +477,9 @@ function define_layer_selection_handlers () {
 function create_layer_selectors(value,layer_object) {
 
     // Create a link to the methods
-    Tool.add("methods", function(ev) {
+    tool.add("methods", function(ev) {
         if (!$(ev.target).hasClass('disabled')) {
-            $('.gridPage').click();    // TODO  ???
-            Tool.activity(false);
+            tool.activity(false);
         }
     }, 'Map of nodes before final layout');
 
@@ -555,9 +554,9 @@ exports.init = function () {
     });
 
     // Create a link from the navBar
-    Tool.add("setOperations", function(ev) {
+    tool.add("setOperations", function(ev) {
         $('#set-operation').click();
-        Tool.activity(false);
+        tool.activity(false);
     }, 'Calculate set operation');
     
     $('#set-operations-list').on('change', exports.update_drop_down);

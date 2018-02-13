@@ -4,61 +4,132 @@
 import redux from 'redux';
 import rx from './rx.js';
 
-const A = rx.act;
-
 const reducers = {
-    initAppActiveAttrsInShortlist: (state = false, action) => {
-        return (action.type === A.INIT_APP_ACTIVE_ATTRS_IN_SHORTLIST) ?
+    'createMap.running': (state = false, action) => {
+        switch (action.type) {
+        case 'createMap.running.now':
+            return true;
+        case 'createMap.running.done':
+            return false;
+        default:
+            return state;
+        }
+    },
+    'init': (state = true, action) => {
+        switch (action.type) {
+        case 'init.done':
+            return false;
+        default:
+            return state;
+        }
+    },
+    'init.activeAttrsInShortlist': (state = false, action) => {
+        return (action.type === 'init.activeAttrsInShortlist') ?
             true : state;
     },
-    initAppCtxLoaded: (state = false, action) => {
-        return (action.type === A.INIT_APP_CTX_LOADED) ? true : state;
+    'init.activeAttrsLoaded': (state = false, action) => {
+        return (action.type === 'init.activeAttrsLoaded') ? true : state;
     },
-    initAppDomLoaded: (state = false, action) => {
-        return (action.type === A.INIT_APP_DOM_LOADED) ? true : state;
+    'init.attrSummaryLoaded': (state = false, action) => {
+        return (action.type === 'init.attrSummaryLoaded') ? true : state;
     },
-    initAppGoogleMapApiLoaded: (state = false, action) => {
-        return (action.type === A.INIT_APP_GOOGLE_MAP_API_LOADED) ?
+    'init.attrTypesLoaded': (state = false, action) => {
+        return (action.type === 'init.attrTypesLoaded') ? true : state;
+    },
+    'init.colormapLoaded': (state = false, action) => {
+        return (action.type === 'init.colormapLoaded') ? true : state;
+    },
+    'init.ctxLoaded': (state = false, action) => {
+        return (action.type === 'init.ctxLoaded') ? true : state;
+    },
+    'init.googleMapApiLoaded': (state = false, action) => {
+        return (action.type === 'init.googleMapApiLoaded') ?
             true : state;
     },
-    initAppLayoutNamesReceived: (state = false, action) => {
-        return (action.type === A.INIT_APP_LAYOUT_NAMES_RECEIVED) ?
+    'init.headerLoaded': (state = false, action) => {
+        return (action.type === 'init.headerLoaded') ? true : state;
+    },
+    'init.layoutNamesReceived': (state = false, action) => {
+        return (action.type === 'init.layoutNamesReceived') ?
             true : state;
     },
-    initAppLayoutsNamesRequested: (state = false, action) => {
-        return (action.type === A.INIT_APP_LAYOUT_NAMES_REQUESTED) ?
+    'init.layoutNamesRequested': (state = false, action) => {
+        return (action.type === 'init.layoutNamesRequested') ?
             true : state;
     },
-    initAppLayoutsPopulated: (state = false, action) => {
-        return (action.type === A.INIT_APP_LAYOUTS_POPULATED) ? true : state;
+    'init.layoutsPopulated': (state = false, action) => {
+        return (action.type === 'init.layoutsPopulated') ? true : state;
     },
-    initAppMapPrepared: (state = false, action) => {
-        return (action.type === A.INIT_APP_MAP_PREPARED) ? true : state;
+    'init.layoutPositionsLoaded': (state = false, action) => {
+        return (action.type === 'init.layoutPositionsLoaded') ? true : state;
     },
-    initAppMapRendered: (state = false, action) => {
-        return (action.type === A.INIT_APP_MAP_RENDERED) ? true : state;
+    'init.mapAuthorized': (state = false, action) => {
+        return (action.type === 'init.mapAuthorized') ? true : state;
     },
-    initAppStateLoaded: (state = false, action) => {
-        return (action.type === A.INIT_APP_STATE_LOADED) ? true : state;
+    'init.mapPrepared': (state = false, action) => {
+        return (action.type === 'init.mapPrepared') ? true : state;
     },
-    initLayoutPositionsLoaded: (state = false, action) => {
-        return (action.type === A.INIT_LAYOUT_POSITIONS_LOADED) ? true : state;
+    'init.mapRendered': (state = false, action) => {
+        return (action.type === 'init.mapRendered') ? true : state;
     },
-    initMapActiveAttrsLoaded: (state = false, action) => {
-        return (action.type === A.INIT_MAP_ACTIVE_ATTRS_LOADED) ? true : state;
+    'init.stateLoaded': (state = false, action) => {
+        return (action.type === 'init.stateLoaded') ? true : state;
     },
-    initMapAuthorized: (state = false, action) => {
-        return (action.type === A.INIT_MAP_AUTHORIZED) ? true : state;
+    'placeNode.running': (state = false, action) => {
+        switch (action.type) {
+        case 'placeNode.running.now':
+            return true;
+        case 'placeNode.running.done':
+            return false;
+        default:
+            return state;
+        }
     },
-    initMapColormapLoaded: (state = false, action) => {
-        return (action.type === A.INIT_MAP_COLORMAP_LOADED) ? true : state;
+    'projectList.changing': (state = false, action) => {
+        switch (action.type) {
+        case 'projectList.changing.now':
+            return true;
+        case 'projectList.changing.done':
+            return false;
+        default:
+            return state;
+        }
     },
-    initMapLayerSummaryLoaded: (state = false, action) => {
-        return (action.type === A.INIT_MAP_LAYER_SUMMARY_LOADED) ? true : state;
+    'projectList.receiving': (state = false, action) => {
+        switch (action.type) {
+        case 'projectList.receiving.now':
+            return true;
+        case 'projectList.receiving.done':
+            return false;
+        default:
+            return state;
+        }
     },
-    initMapLayerTypesLoaded: (state = false, action) => {
-        return (action.type === A.INIT_MAP_LAYER_TYPES_LOADED) ? true : state;
+    'uploading': (state = false, action) => {
+        switch (action.type) {
+        case 'uploading.now':
+            return true;
+        case 'uploading.done':
+            return false;
+        default:
+            return state;
+        }
     },
+/*
+    'userRoles': (state = [], action) => {
+        switch (action.type) {
+        case 'userRoles.empty':
+            return [];
+        case 'userRoles.load':
+        
+            console.log('userRoles:action:', action);
+            
+            return action.value;
+        default:
+            return state;
+        }
+    },
+*/
 };
 
 // Create one action.
@@ -76,8 +147,8 @@ function makeAction (type, ...argNames) {
 function makeStateActions () {
 
     // Create all action identifiers and actions for single action bits of state.
-    // TODO: This only works for those state bits with only one action.
-    _.each(Object.keys(A), function(id) {
+    // TODO: Test with more than one action per statePiece.
+    _.each(rx.stateActions, function(id) {
         makeAction(id);
     });
 }
@@ -89,27 +160,10 @@ exports.init = function () {
     
     // Combine the reducers, create the store and initialize the constants
     // for callers.
-    rx.init(redux.createStore(redux.combineReducers(reducers)));
+    /* eslint-disable no-underscore-dangle */
+    rx.init(redux.createStore(
+        redux.combineReducers(reducers), /* preloadedState, */
+        window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__()
+    ));
+    /* eslint-enable */
 };
-
-/*
-// A helper function for creating a reducer from actions.
-// May be good for those state items with multiple actions.
-function createReducer(initialState, handlers) {
-  return function reducer(state = initialState, action) {
-    if (handlers.hasOwnProperty(action.type)) {
-      return handlers[action.type](state, action)
-    } else {
-      return state
-    }
-  }
-}
-// example:
-export const todos = createReducer([], {
-  [ActionTypes.ADD_TODO](state, action) {
-    let text = action.text.trim()
-    return [ ...state, text ]
-  }
-})
-*/
-

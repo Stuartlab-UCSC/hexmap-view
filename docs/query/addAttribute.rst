@@ -1,7 +1,7 @@
-Future: Add new coloring attributes
-===================================
+Add new coloring attributes
+===========================
 
-https://<compute_server>/query/**addAttribute**
+https://hexcalc.ucsc.edu:5000/query/**addAttribute**
 
 HTTP POST with content-type: application/json
 
@@ -62,7 +62,7 @@ Response success
 This is returned as HTTP 200 with the content as a JSON string in the form::
 
  {
-    "url": "https://tumormap.ucsc.edu/?bookmark=5563fdf09484a241d066022bf91a9e96d6ae1976c4d7502d384cc2a87001067a",
+    "url": "https://tumormap.ucsc.edu/?bookmark=64qwg",
  }
 
 Where:

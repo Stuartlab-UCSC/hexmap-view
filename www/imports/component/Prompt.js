@@ -1,13 +1,13 @@
 
-// prompt.js
+// Prompt.js
 // The UI to prompt the user with a string and an optional text field.
 
 import React, { Component } from 'react';
 import { render } from 'react-dom';
 import PropTypes from 'prop-types';
 
-import Modal from './modal.js';
-import Utils from '/imports/common/utils.js';
+import Modal from './Modal.js';
+import utils from '/imports/common/utils.js';
 
 class Prompt extends Component {
     constructor (props) {
@@ -65,10 +65,14 @@ class Prompt extends Component {
     render () {
         var self = this,
             input = null,
-            button = null;
+            button = null,
+            link = null,
+            linkText,
+            labelClass = '';
+        
         
         // Build the text box and buttons in the button box.
-        if (this.state.textStr) {
+        if (typeof this.state.textStr !== 'undefined') {
             input =
                 <input
                     type = 'text'
@@ -81,6 +85,27 @@ class Prompt extends Component {
                 }}>
                     OK
                 </button>;
+        } else if (this.props.buttonInput) {
+            input = this.props.buttonInput
+        }
+        
+        if (this.props.linkText) {
+            linkText = this.props.linkText;
+        } else {
+            linkText = this.props.link;
+        }
+        if (this.props.link) {
+            link =
+                <a
+                    href = {this.props.link}
+                    target = '_blank'
+                >
+                    {linkText}
+                </a>;
+        }
+        
+        if (this.props.labelClass !== undefined) {
+            labelClass = this.props.labelClass;
         }
         
         return (
@@ -94,8 +119,10 @@ class Prompt extends Component {
                 body = {
                     <div>
                         <div
-                            className = 'modalLabel'>
+                            className = {'modalLabel ' + labelClass}
+                        >
                             {this.props.promptStr}
+                            {link}
                         </div>
                         {input}
                     </div>
@@ -110,9 +137,18 @@ Prompt.propTypes = {
     // The text to display as a prompt.
     promptStr: PropTypes.string.isRequired,
     
-    // The default text to display in the optional text input.
-    textStr: PropTypes.string,
+    // A class to apply to the label.
+    labelClass: PropTypes.string,
     
+    // An http link to display just after the prompt string.
+    link: PropTypes.string,
+    
+    // The text to display for the link.
+    linkText: PropTypes.string,
+    
+    // The default text to display in the text input.
+    textStr: PropTypes.string,
+
     // The type of prompt to control color and more.
     severity: PropTypes.oneOf(['info', 'warn', 'error']),
  
@@ -121,6 +157,8 @@ Prompt.propTypes = {
 
     // Pass-thru to the React-modal to destroy the container.
     parentSelector: PropTypes.func,
+
+    buttonInput: PropTypes.node,
 };
 
 Prompt.defaultProps = {
@@ -129,7 +167,7 @@ var containerId = 'prompt',
     callback;
 
 function closeModal (response) {
-    Utils.destroyReactRoot(containerId);
+    utils.destroyReactRoot(containerId);
     if (callback) {
     
         // Only allow string or undefined responses to be returned.
@@ -149,17 +187,28 @@ exports.show = function (promptStr, opts) {
     
     // Create and render this modal.
     // @param         promptStr: the prompt string
+    // @param         opts.link: http link to appear after the prompt, optional
+    // @param     opts.linkText: text to appear instead of actual link, optional
     // @param      opts.textStr: the text to put in the input box, optional
     // @param     opts.callback: function to call upon modal close, optional
-    // @param     opts.severity: one of [error, info, warning], optional
-    var container = Utils.createReactRoot(containerId);
+    // @param     opts.severity: one of [error, info, warning], optional;
+    // @param     opts.buttonInput: inserts a button into the prompt without 
+    // @param    opts.labelClass: a class to apply to the prompt label, optional
+    var container = utils.createReactRoot(containerId);
     callback = opts ? opts.callback : null;
+    buttonInput = opts ? opts.buttonInput : null;
+    
     render(
         <Prompt
             promptStr = {promptStr}
+            className = 'prompt'
+            labelClass = {opts.labelClass}
             textStr = {opts.textStr}
+            link = {opts.link}
+            linkText = {opts.linkText}
             parentSelector = {getParentSelector}
             severity = {opts.severity}
             closeModal = {closeModal}
+            buttonInput = {buttonInput}
          />, container);
 };

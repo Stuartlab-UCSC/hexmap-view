@@ -2,14 +2,40 @@
  * Talk to the data/compute server.
  */
 
-import Util from '/imports/common/util.js';
+import rx from '/imports/common/rx';
+import util from '/imports/common/util';
 
 var UPLOAD_MAX_GIGABYTES = 4,
     UPLOAD_MAX_BYTES = 1024 * 1024 * 1024 * UPLOAD_MAX_GIGABYTES,
-    retryLimit = 3;
+    retryLimit = 3,
+    jobStatusPollInterval = 1, // second
+    job = [];
 
-function log (url, code, userMsg) {
-    console.log('ajax error on:', url, '\n    ', code + ':', userMsg);
+function log (url, httpCode, norm) {
+    console.log('ajax error on url:', url,
+        '\n  code:', httpCode,
+        '\n  error:', norm.error,
+        '\n  stacktrace:', norm.stackTrace);
+}
+
+function normalizeErrorResponse (error, url) {
+    
+    // Standardize the error returned to the caller.
+    var norm = {};
+
+    if (error.responseJSON) {
+        norm = error.responseJSON;
+    } else if (error.responseText) {
+        norm.error = error.responseText;
+    } else if (error.statusText) {
+        norm.error = error.statusText;
+    } else {
+        norm.error = 'Unknown error';
+    }
+
+    log(url, error.status, norm);
+
+    return norm;
 }
 
 function getData(url, successFx, errorFx, ok404, parse) {
@@ -48,8 +74,6 @@ function getData(url, successFx, errorFx, ok404, parse) {
         retryLimit : retryLimit,
 
         success:  function (result) {
-        
-            //console.log('\nurl result', url, result);
            
             if (result === '404' && ok404) {
                 handle404(url, successFx, errorFx, ok404, parse);
@@ -61,43 +85,87 @@ function getData(url, successFx, errorFx, ok404, parse) {
             } else if (parse === 'tsv') {
            
                 // Return tsv-parsed data
-                successFx(Util.parseTsv(result));
+                successFx(util.parseTsv(result));
             } else {
            
                 // Return json-parsed data
                 successFx(JSON.parse(result));
             }
         },
-        error: function (error) {
-            var msg,
-                msg404 = ' GET ' + url + ' 404 (NOT FOUND) is OK here.';
+        error: function (errorIn) {
+            var msg404 = ' GET ' + url + ' 404 (NOT FOUND) is OK here.',
+                error = normalizeErrorResponse(errorIn, url);
            
             // Special handling where the caller has said a 404 is OK.
-            if (error.status.toString() === '404' && ok404) {
+            if (ok404 && errorIn && 'status' in errorIn &&
+                errorIn.status.toString() === '404') {
                 console.log(msg404);
                 handle404(url, successFx, errorFx, ok404, parse);
            
             // Handle the usual case.
             } else {
-                if (error.statusText) {
-                    msg = error.statusText;
-                } else if (error.responseJSON) {
-                    if (error.responseJSON.error) {
-                        msg = error.responseJSON.error;
-                    } else {
-                        msg = error.responseJSON;
-                    }
-                } else {
-                    msg = 'Unknown error retrieving ' + url;
-                }
-                log(url, error.status, msg);
                 if (errorFx) {
-                    errorFx(msg);
+                    errorFx(error);
                 }
             }
         }
     });
 }
+
+exports.getJobStatus = function (jobId, jobStatusUrl, successFx, errorFx) {
+    
+    // Get a job's status. Job completion statuses are 'success' and 'error'.
+    // If there is a job completion status or the job is not found, call the
+    // provided successFx or errorFx.
+    // For other status values, continue to poll the status until a completion
+    // status is returned or an error occurs.
+    
+    function jobDone () {
+    
+        // Remove the completed job from the jobs list.
+        var index = job.indexOf(jobId);
+        if (index !== -1) {
+            job.splice(index, 1);
+        }
+    }
+    
+    function getStatus () {
+    
+        // If the job is still in the running...
+        if (job.indexOf(jobId) > -1) {
+        
+            // Ask the server for the status.
+            var url = jobStatusUrl;
+            $.ajax({
+                type: 'GET',
+                url: url,
+                tryCount : 0,
+                retryLimit : retryLimit,
+                success: function (result) {
+                    if (result.status === 'Success' ||
+                        result.status === 'Error') {
+                        jobDone();
+                        successFx(result);
+                    } else {
+        
+                        // Keep polling.
+                        setTimeout(getStatus, jobStatusPollInterval * 1000);
+                    }
+                },
+                error: function (error) {
+                    jobDone();
+                    errorFx(normalizeErrorResponse(error, url));
+                },
+            });
+        }
+    }
+    
+    // Add the job to the outstanding jobs list.
+    job.push(jobId);
+    
+    // Make the first status request.
+    getStatus();
+};
     
 exports.query = function (operation, opts, successFx, errorFx) {
     /*
@@ -110,6 +178,7 @@ exports.query = function (operation, opts, successFx, errorFx) {
      *         error:   the error message via the error callback,
      *                  optional
      */
+    
     var url = HUB_URL + '/query/' + operation;
     $.ajax({
         type: 'POST',
@@ -117,33 +186,13 @@ exports.query = function (operation, opts, successFx, errorFx) {
         tryCount : 0,
         retryLimit : retryLimit,
         contentType: "application/json", // sending json
-        // TODO: from the jquery docs:
-        // Note: For cross-domain requests, setting the content type to
-        // anything other than application/x-www-form-urlencoded,
-        // multipart/form-data, or text/plain will trigger the browser to send
-        // a preflight OPTIONS request to the server.
         dataType: 'json', // expects json returned
         data: JSON.stringify(opts),
         success: successFx,
-        error: function (error) {
-            var msg = 'unknown server error';
-            try {
-                if (error.responseText.length > 0) {
-                    msg = JSON.parse(error.responseText).error;
-                }
-            } catch (e) {
-                msg = 'unknown server error';
-           
-                // Sometimes the conversion from json causes an exception,
-                // so capture what we can here to debug on client
-                console.log('ajax error.responseText: ', error.responseText);
-                console.log('ajax json error: ', e);
-                console.log('ajax error: ', error);
-                console.log('ajax error msg: ', msg);
-            }
-            log(url, error.status, msg);
+        error: function (errorIn) {
+            var error = normalizeErrorResponse(errorIn, url);
             if (errorFx) {
-                errorFx(msg);
+                errorFx(error);
             }
         },
     });
@@ -171,15 +220,15 @@ exports.upload = function(opts) {
     fd.append('file', opts.sourceFile);
 
     if (opts.sourceFile.size > UPLOAD_MAX_BYTES) {
-        Session.set('mapSnake', false);
         var msg = 'upload failed because file is larger than the ' +
             UPLOAD_MAX_GIGABYTES + ' GB limit.';
-        Util.banner('error', msg);
+        util.banner('error', msg);
         if (opts.error) {
             opts.error(msg);
         }
         return;
     }
+    rx.set('uploading.now');
 
     var dataId = 'featureSpace/' + opts.mapId + opts.targetFile;
     var url = HUB_URL + '/upload/' + dataId;
@@ -194,15 +243,16 @@ exports.upload = function(opts) {
         retryLimit : retryLimit,
         success: function (result) {
             opts.success(result, dataId);
+            rx.set('uploading.done');
         },
-        error: function (error) {
-            var msg = 'Uploading ' + opts.sourceFile +
-                ' to server failed with: ' + error;
-            log(url, error.status, msg);
-            Util.banner('error', msg);
+        error: function (errorIn) {
+            var error = normalizeErrorResponse(errorIn, url);
+            error.error = 'Uploading ' + opts.sourceFile.name +
+                ' failed with: ' + error.error;
             if (opts.error) {
-                opts.error(msg);
+                opts.error(error);
             }
+            rx.set('uploading.done');
         },
 
         // Custom XMLHttpRequest
@@ -269,7 +319,6 @@ exports.get = function(opts) {
         parse = 'tsv';
     }
 
-    //getData(HUB_URL + '/data/view/' + mapPath + opts.id +
     getData(
         HUB_URL + (opts.ok404 ? '/dataOk404/view/' : '/data/view/') +
             mapPath + opts.id,

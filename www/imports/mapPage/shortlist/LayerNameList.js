@@ -1,9 +1,9 @@
-// layerNameList.js
+// LayerNameList.js
 // A class for a layer name list
 
-import Select2 from '/imports/lib/select2.js';
-import Colors from '/imports/mapPage/color/colorEdit.js';
-import Util from '/imports/common/util.js';
+import select2 from '/imports/lib/select2.js';
+import colorEdit from '/imports/mapPage/color/colorEdit.js';
+import util from '/imports/common/util.js';
 
 import './layerNameList.html';
 
@@ -108,7 +108,7 @@ LayerNameList = function ($anchor, $label, selected, firstList) {
                 }
 
                 // Create the select2 list
-                Util.createOurSelect2(self.$el, {data: data},
+                util.createOurSelect2(self.$el, {data: data},
                     self.selected);
             }, 0);
         }
@@ -139,7 +139,7 @@ LayerNameList = function ($anchor, $label, selected, firstList) {
             }
         }
 
-            var color = this.enabled ? 'inherit' : Colors.disabledColor();
+            var color = this.enabled ? 'inherit' : colorEdit.disabledColor();
 
         // Disable any list message up front
         this.message.set('');

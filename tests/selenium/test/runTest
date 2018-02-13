@@ -18,28 +18,28 @@ elif [ $1 == 'lint' ]; then
     DONT_LINT_FILES=(
         attrAdd.js
         canvas2svg.js
-        checkLayerBox.js
         color.js
         colorEdit.js
+        colorMix.js
         coords.js
         createMap.js
         download.js
         grid.js
-        dialogHex.js
+        DialogHex.js
         filter.js
         gChart.js
         hexagons.js
-        hexagram.js
+        viewport.js
         infoWindow.js
         jobs.js
         jquery-ui.js
-        layer.js
-        layerNameList.js
+        Layer.js
+        LayerNameList.js
         legend.js
         longList.js
         mapLabel.js
         mapLabel.min.js
-        nodeIdSelect.js
+        NodeIdSelect.js
         overlayNodeUi.js
         overlayNodes.js
         pdf.js

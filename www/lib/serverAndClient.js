@@ -4,6 +4,7 @@
 
     // Some global settings available to server and client.
     // Enable performance metric collection.
+    VERSION = '1.0';
     URL_BASE = Meteor.settings.public.URL_BASE;
     VIEW_DIR = Meteor.settings.public.VIEW_DIR;
     LAYOUT_INPUT_DIR = Meteor.settings.public.LAYOUT_INPUT_DIR;
@@ -25,7 +26,6 @@ Meteor.startup( () => {
         googlemap = null; // our main googlemap instance
         colormaps = {};
         polygons = {}; // Global: hold objects of polygons by signature name
-        VERSION = null;  // Application version
 
         // Deny all client-side updates to user documents
         Meteor.users.deny({
@@ -51,8 +51,6 @@ Meteor.startup( () => {
         SERVER_DIR = Meteor.settings.server.SERVER_DIR;
         TEMP_DIR = Meteor.settings.server.TEMP_DIR;
         IS_MAIN_SERVER = Meteor.settings.server.jobs.IS_MAIN_SERVER;
-        IS_CALC_SERVER = Meteor.settings.server.jobs.IS_CALC_SERVER;
-        MAIN_MONGO_URL = Meteor.settings.server.jobs.MAIN_MONGO_URL;
         ADMIN_EMAIL = Meteor.settings.public.ADMIN_EMAIL;
         
         Accounts.emailTemplates.from = ADMIN_EMAIL;

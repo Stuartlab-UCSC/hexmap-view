@@ -1,11 +1,11 @@
 
-// textAreaClean.js
+// TextAreaClean.js
 // A textarea to contain text that contains only printable characters.
 
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
-import U from '/imports/common/utils.js';
+import utils from '/imports/common/utils.js';
 
 export default class TextareaClean extends Component {
 
@@ -41,7 +41,7 @@ export default class TextareaClean extends Component {
         
             // Drop unprintables from the updated text. we need to look at the
             // entire text because we don't know what changed.
-            U.dropUnprintables(val);
+            utils.dropUnprintables(val);
         }
        
         // Let the parent know.
@@ -54,7 +54,7 @@ export default class TextareaClean extends Component {
         // This does not capture cutting or pasting in the textarea.
         
         // If this is an unprintable character...
-        if (U.unprintableAsciiCode(event.which, true)) {
+        if (utils.unprintableAsciiCode(event.which, true)) {
         
             // Prevent the display from being updated with the bad value.
             event.preventDefault();

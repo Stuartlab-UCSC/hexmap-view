@@ -1,17 +1,14 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
     <title>Statistics and Sorting Tool &#8212; Tumor Map Help</title>
-    
     <link rel="stylesheet" href="_static/agogo.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="_static/custom.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
@@ -30,7 +27,7 @@
     <link rel="next" title="Set Operations Tool" href="setOper.html" />
     <link rel="prev" title="Advanced Controls" href="advancedControls.html" /> 
   </head>
-  <body role="document">
+  <body>
     <div class="header-wrapper" role="banner">
       <div class="header">
         <div class="headertitle"><a
@@ -68,8 +65,8 @@ button in the main window header: <a class="reference internal" href="https://tu
 <p><strong>Focus Attribute</strong> :
 Selecting this option allows users to sort attibutes by their relation to a
 single (or <em>focus</em>) attribute. For instance, choosing a <em>focus attribute</em> of
-TP53 mutations will sort all attributes in the &#8220;Select Attributes&#8221; drop down
-relative to each attribute&#8217;s association with the TP53 mutations attribute. A
+TP53 mutations will sort all attributes in the “Select Attributes” drop down
+relative to each attribute’s association with the TP53 mutations attribute. A
 use case displaying this functionality can be seen at
 <a class="reference internal" href="case5topDiff.html"><span class="doc">What is the top differentiating attribute for squamous-like bladder cancer?</span></a>
 See the <a class="reference internal" href="#technical-overview">Technical Overview</a> below for details on ranking metrics.</p>
@@ -170,7 +167,7 @@ appears there. Further descriptions of the results displayed are at
 <tr class="row-even"><td><strong>Binary</strong></td>
 <td>Fisher Exact</td>
 <td>Chi Square</td>
-<td>Welch&#8217;s t-test</td>
+<td>Welch’s t-test</td>
 </tr>
 <tr class="row-odd"><td><strong>Categorical</strong></td>
 <td><ul class="first last simple">
@@ -212,7 +209,7 @@ appears there. Further descriptions of the results displayed are at
 <tr class="row-even"><td><em>Statistical Test</em></td>
 <td>Fisher Exact</td>
 <td>Chi Square</td>
-<td>Welch&#8217;s t-test</td>
+<td>Welch’s t-test</td>
 </tr>
 </tbody>
 </table>
@@ -220,12 +217,12 @@ appears there. Further descriptions of the results displayed are at
 <div class="section" id="layout-dependent-spatial-correlation-analysis">
 <span id="layoutdependenttech"></span><h3>Layout Dependent: Spatial Correlation Analysis<a class="headerlink" href="#layout-dependent-spatial-correlation-analysis" title="Permalink to this headline">¶</a></h3>
 <p>Layout Dependent metrics measure the relationship between map placement and attribute values.</p>
-<p>Layout Dependent metrics are implementations of Sang-ll Lee&#8217;s work, exhausting detail can be found in this <a class="reference external" href="https://link.springer.com/article/10.1007/s101090100064">paper</a></p>
+<p>Layout Dependent metrics are implementations of Sang-ll Lee’s work, exhausting detail can be found in this <a class="reference external" href="https://link.springer.com/article/10.1007/s101090100064">paper</a></p>
 <p>A similarity matrix representing proximity of samples on the map (i.e. a <em>spatial weight matrix</em>) needs to be constructed to calculate the metrics for density and bivariate spatial association. We have chosen the inverse eucledian distance of samples on the x-y plane for the spatial weight matrix.</p>
 </div>
 <div class="section" id="focus-attribute-bivariate-spatial-association">
 <h3>Focus Attribute (Bivariate Spatial Association)<a class="headerlink" href="#focus-attribute-bivariate-spatial-association" title="Permalink to this headline">¶</a></h3>
-<p>Lee&#8217;s L Bivariate Spatial Association metric is used to determine the strength of the relationship between two attributes considering placement on the map.</p>
+<p>Lee’s L Bivariate Spatial Association metric is used to determine the strength of the relationship between two attributes considering placement on the map.</p>
 <p>Currently this operation is only permitted on binary attributes.</p>
 <dl class="docutils">
 <dt>Preprocessing includes:</dt>
@@ -234,14 +231,14 @@ appears there. Further descriptions of the results displayed are at
 <p class="last">Setting all missing values to 0</p>
 </dd>
 </dl>
-<p>The equation for Lee&#8217;s L:</p>
+<p>The equation for Lee’s L:</p>
 <a class="reference internal image-reference" href="_images/leesL.png"><img alt="_images/leesL.png" src="_images/leesL.png" style="width: 200px;" /></a>
 <dl class="docutils">
 <dt>Where:</dt>
 <dd><p class="first"><em>a</em> is a z-scored attribute vector</p>
 <p><em>b</em> is another z-scored attribute vector</p>
 <p><em>V</em> is the spatial weight matrix</p>
-<p class="last"><em>e</em> is a vector filled with 1&#8217;s the same length as <strong>a</strong> and <strong>b</strong></p>
+<p class="last"><em>e</em> is a vector filled with 1’s the same length as <strong>a</strong> and <strong>b</strong></p>
 </dd>
 </dl>
 </div>
@@ -249,13 +246,13 @@ appears there. Further descriptions of the results displayed are at
 <span id="densitytech"></span><h3>Density (Spatial Smoothing Scalar)<a class="headerlink" href="#density-spatial-smoothing-scalar" title="Permalink to this headline">¶</a></h3>
 <p>The spatial smoothing scalar is used to describe the strength of the dependence between map placement and a single attribute.</p>
 <p>For each attributes calculation, missing values are excluded from the spatial weight matrix.</p>
-<p>For continuous and binary variables, Lee&#8217;s spatial smoothing scalar is used:</p>
+<p>For continuous and binary variables, Lee’s spatial smoothing scalar is used:</p>
 <a class="reference internal image-reference" href="_images/SSS.png"><img alt="_images/SSS.png" src="_images/SSS.png" style="width: 200px;" /></a>
 <dl class="docutils">
 <dt>Where:</dt>
 <dd><p class="first"><em>a</em> is a z-scored attribute vector</p>
 <p><em>V</em> is the spatial weight matrix</p>
-<p class="last"><em>e</em> is a vector filled with 1&#8217;s the same length as <strong>a</strong> and <strong>b</strong></p>
+<p class="last"><em>e</em> is a vector filled with 1’s the same length as <strong>a</strong> and <strong>b</strong></p>
 </dd>
 </dl>
 <p>For categorical variables we modify the spatial smoothing scalar:</p>
@@ -297,6 +294,7 @@ appears there. Further descriptions of the results displayed are at
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="existingMaps.html">Public Maps</a></li>
+<li class="toctree-l1"><a class="reference internal" href="licenses.html">Licenses</a></li>
 </ul>
 
           <div role="search">
@@ -334,8 +332,8 @@ appears there. Further descriptions of the results displayed are at
         <div class="right">
           
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2016, UCSC Tumor Map development team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+        &#169; Copyright 2018, UCSC Tumor Map developers.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.5.
     </div>
         </div>
         <div class="clearer"></div>

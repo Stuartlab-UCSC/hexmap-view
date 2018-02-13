@@ -20,8 +20,6 @@
 //
 // TODO do we want the user to be able to cancel the calc ?
 
-var CreateMap = require('./createMap');
-var MapManager = require('./mapManager');
 var PythonCall = require('./pythonCall');
 var DbMethods = require('./dbMethods');
 var Http = require('./http');
@@ -57,17 +55,6 @@ function passPostChecks (req, res) {
     return true;
 }
 
-// A look-up table indexed by call_name and referencing the feature http handler
-var pre_calc = {
-    // non yet
-};
-
-// A look-up table indexed by call_name and referencing the feature post-calc
-// function, if there is one, that will be executed on the local/remote? server.
-var post_calc = {
-    layout: CreateMap.post_calc,
-    reflection: MapManager.reflection_post_calc,
-};
 
 function process_python_call (json_data, res, call_name) {
 
@@ -104,21 +91,8 @@ function process_python_call (json_data, res, call_name) {
         data = data_or_file;
     }
     
-    // If there is an http handler for this calc call and this is not a remote
-    // calc server, call it.
-    if (pre_calc[call_name] && !IS_CALC_SERVER) {
-        if (!pre_calc[call_name] (data, res)) { return; }
-    }
-    
     // Save the http_response so downstream calls know where to respond.
     var context = { http_response: res };
-    
-    // Save the post_calc_handler if there is one
-    // and this is not a remote calc server.
-    if (post_calc[call_name] && !IS_CALC_SERVER) {
-        context.post_calc = post_calc[call_name];
-    }
-
     // Call the python function,
     // letting one of its callees send the http response.
     PythonCall.call(call_name, data, context);
@@ -166,7 +140,14 @@ function receiveQuery (operation, req, res) {
         console.log('received query:', operation);
 
         if (operation === 'createBookmark') {
-            data = JSON.parse(json_data);
+            try {
+                data = JSON.parse(json_data);
+            } catch (e) {
+                msg = 'server error decoding JSON: ' + e;
+                console.log(msg + ', JSON string:' + json_data);
+                Http.respond(500, res, {error: msg });
+                return;
+            }
            
             // Create the bookmark, letting it return the http response
             DbMethods.createBookmarkFiber(json_data, res)
@@ -176,10 +157,6 @@ function receiveQuery (operation, req, res) {
         }
     });
 }
-
-WebApp.connectHandlers.use('/calc/layout', function (req, res, next) {
-    receiveDeprecated('/calc/layout', req, res, next);
-});
 
 WebApp.connectHandlers.use('/calc/reflection', function (req, res, next) {
     receiveDeprecated('/calc/reflection', req, res, next);

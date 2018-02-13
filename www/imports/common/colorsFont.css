@@ -87,12 +87,15 @@ body,
 
 #banner.info,
 #banner.stay,
+.modal.promptModal.info,
 #jobDialog .status.ui-widget-content.completed {
     color: #2E662C;
     background: #D8EECE;
 }
 
-#banner.warn {
+#banner.warn,
+.modal.promptModal.warn,
+.modal.promptModal.warning {
     color: #775B2A;
     background: #F9F5D9;
 }

@@ -1,73 +1,14 @@
-// hexagram.js
+// viewport.js
 // Run the hexagram visualizer client.
 
 import '/imports/lib/color.js';
-import Colors from '/imports/mapPage/color/colorEdit.js';
-import Coords from '/imports/mapPage/viewport/coords.js';
-import Hexagons from '/imports/mapPage/viewport/hexagons.js';
-import Layer from '/imports/mapPage/longlist/layer.js';
-import Legend from '/imports/mapPage/color/legend.js';
+import colorEdit from '/imports/mapPage/color/colorEdit.js';
+import hexagons from '/imports/mapPage/viewport/hexagons.js';
+import Layer from '/imports/mapPage/longlist/Layer.js';
+import legend from '/imports/mapPage/color/legend.js';
 import rx from '/imports/common/rx.js';
-import Shortlist from '/imports/mapPage/shortlist/shortlist.js';
-import Sort from '/imports/mapPage/longlist/sort.js';
-import Tool from '/imports/mapPage/head/tool.js';
-import Util from '/imports/common/util.js';
-
-var userDebug = false; // Turn user debugging on/off
-
-exports.createMap = function  () {
-
-    // Create the google map.
-    var mapOptions = {
-        center: ctx.center,
-        backgroundColor: Session.get('background'),
-        zoom: ctx.zoom,
-        mapTypeId: "blank",
-        // Don't show a map type picker.
-        mapTypeControlOptions: {
-            mapTypeIds: []
-        },
-        minZoom: 2,
-
-        // Or a street view man that lets you walk around various Earth places.
-        streetViewControl: false
-    };
-
-    // Create the actual map
-    GoogleMaps.create({
-        name: 'googlemap',
-        options: mapOptions,
-        element: document.getElementById("visualization"),
-    });
-    googlemap = GoogleMaps.maps.googlemap.instance;
-        
-    // Attach the blank map type to the map
-    googlemap.mapTypes.set("blank", new Coords.BlankMap());
-    
-    google.maps.event.addListener(googlemap, "center_changed", function(event) {
-        ctx.center = googlemap.getCenter();
-    });
-    
-    // We also have an event listener that checks when the zoom level changes,
-    // and turns off hex borders if we zoom out far enough, and turns them on
-    // again if we come back.
-    google.maps.event.addListener(googlemap, "zoom_changed", function(event) {
-        // Get the current zoom level (low is out)
-        ctx.zoom = googlemap.getZoom();
-        Hexagons.zoomChanged();
-    });
-    
-    // Listen to mouse events on this map
-    Tool.subscribe_listeners(googlemap);
-}
-
-exports.initMap = function () {
-
-    // Initialize the google map and create the hexagon assignments
-    exports.createMap();
-    Hexagons.create();
-    exports.refreshColors();
-};
+import shortlist from '/imports/mapPage/shortlist/shortlist.js';
+import util from '/imports/common/util.js';
 
 exports.have_colormap = function (colormap_name) {
     // Returns true if the given string is the name of a colormap, or false if 
@@ -114,15 +55,15 @@ exports.refreshColors = function () {
     
     // This holds a list of the string names of the currently selected layers,
     // in order.
-    var current_layers = Shortlist.get_active_coloring_layers();
+    var current_layers = shortlist.get_active_coloring_layers();
     
     // This holds all the current filters
-    var filters = Shortlist.get_current_filters();
+    var filters = shortlist.get_current_filters();
  
     // Special case of no layers at all.
     if (_.isUndefined(layers) || Object.keys(layers) < 1) {
         for(var signature in polygons) {
-            Hexagons.setOneColor(polygons[signature], Colors.noAttrsColor());
+            hexagons.setOneColor(polygons[signature], colorEdit.noAttrsColor());
         }
         return;
     }
@@ -142,7 +83,7 @@ exports.refreshColors = function () {
         var at_least_one_layer = retrieved_layers.length >= 1;
         var two_layers = retrieved_layers.length >= 2;
         for(var i = 0; i < current_layers.length; i++) {
-            var range = Shortlist.get_slider_range(current_layers[i]);
+            var range = shortlist.get_slider_range(current_layers[i]);
             layer_limits.push(range);
         }
         
@@ -150,11 +91,11 @@ exports.refreshColors = function () {
         // Turn all the hexes the filtered-out color, pre-emptively
         // TODO redrawing would be faster to not change colors twice
         for(var signature in polygons) {
-            Hexagons.setOneColor(polygons[signature], Colors.noDataColor());
+            hexagons.setOneColor(polygons[signature], colorEdit.noDataColor());
         }
         
         // Go get the list of filter-passing hexes.
-        Shortlist.with_filtered_signatures(filters, function(signatures) {
+        shortlist.with_filtered_signatures(filters, function(signatures) {
             for(var i = 0; i < signatures.length; i++) {
                 // For each hex assign the filter
                 // This holds its signature label
@@ -162,7 +103,7 @@ exports.refreshColors = function () {
                 
                 // This holds the color we are calculating for this hexagon.
                 // Start with the no data color.
-                var computed_color = Colors.noDataColor();
+                var computed_color = colorEdit.noDataColor();
                 
                 if(at_least_one_layer) {
                     // We need to compute colors given the layers we found.
@@ -172,7 +113,7 @@ exports.refreshColors = function () {
                     // !(NaN == NaN)
                     var u = retrieved_layers[0].data[label];
                     
-                    if(Util.is_continuous(current_layers[0])) {
+                    if(util.is_continuous(current_layers[0])) {
                         // Take into account the slider values and re-scale the 
                         // layer value to express its position between them.
                         u = get_range_position(u, layer_limits[0][0], 
@@ -183,7 +124,7 @@ exports.refreshColors = function () {
                         // There's a second layer, so use the v axis.
                         var v = retrieved_layers[1].data[label];
                         
-                        if(Util.is_continuous(current_layers[1])) {
+                        if(util.is_continuous(current_layers[1])) {
                             // Take into account the slider values and re-scale
                             // the layer value to express its position between
                             // them.
@@ -207,16 +148,16 @@ exports.refreshColors = function () {
                 }
                 
                 // Set the color by the composed layers.
-                Hexagons.setOneColor(polygons[label], computed_color);
+                hexagons.setOneColor(polygons[label], computed_color);
             }
         });
 
-        Legend.redraw(retrieved_layers, current_layers);
+        legend.redraw(retrieved_layers, current_layers);
     });
     
     // Make sure to also redraw the info window, which may be open.
-    import InfoWindow from '/imports/mapPage/viewport/infoWindow.js';
-    InfoWindow.redraw();
+    import infoWindow from '/imports/mapPage/viewport/infoWindow.js';
+    infoWindow.redraw();
 }
 
 exports.get_color = function (layerName1, layerVal1, layerName2, layerVal2) {
@@ -233,13 +174,13 @@ exports.get_color = function (layerName1, layerVal1, layerName2, layerVal2) {
 
     var oneBinaryLayer = (
         onlyOneLayer &&
-        Util.is_binary(layerName1)
+        util.is_binary(layerName1)
     );
 
     var oneContinuousLayer = (
         onlyOneLayer &&
         !oneBinaryLayer &&
-        Util.is_continuous(layerName1)
+        util.is_continuous(layerName1)
     );
 
     var oneCategoricalLayer = (
@@ -250,34 +191,34 @@ exports.get_color = function (layerName1, layerVal1, layerName2, layerVal2) {
 
     var bothContinuous = (
         !onlyOneLayer &&
-        Util.is_continuous(layerName1) &&
-        Util.is_continuous(layerName2)
+        util.is_continuous(layerName1) &&
+        util.is_continuous(layerName2)
     );
 
     var continuousAndCatOrBin =(
         !onlyOneLayer &&
-        Util.is_cat_or_bin(layerName2) &&
-        Util.is_continuous(layerName1)
+        util.is_cat_or_bin(layerName2) &&
+        util.is_continuous(layerName1)
     );
 
     var catOrBinAndContinous = (
         !onlyOneLayer &&
         !continuousAndCatOrBin &&
-        Util.is_cat_or_bin(layerName1) &&
-        Util.is_continuous(layerName2)
+        util.is_cat_or_bin(layerName1) &&
+        util.is_continuous(layerName2)
     );
 
     var catAndCatOrBin=(
         !onlyOneLayer &&
-        Util.is_categorical(layerName1) &&
-        Util.is_cat_or_bin(layerName2) ||
-        Util.is_categorical(layerName2) &&
-        Util.is_cat_or_bin(layerName1)
+        util.is_categorical(layerName1) &&
+        util.is_cat_or_bin(layerName2) ||
+        util.is_categorical(layerName2) &&
+        util.is_cat_or_bin(layerName1)
     );
 
 
     var bothLayersBinary = (
-        Util.is_binary(layerName1) && Util.is_binary(layerName2)
+        util.is_binary(layerName1) && util.is_binary(layerName2)
     );
 
     var any_missing_values =(
@@ -295,14 +236,14 @@ exports.get_color = function (layerName1, layerVal1, layerName2, layerVal2) {
         color = exports.get_color(layerName2, layerVal2, layerName1, layerVal1);
 
     } else if (any_missing_values) {
-        color = Colors.noDataColor();
+        color = colorEdit.noDataColor();
 
     } else if(oneBinaryLayer) {
         // User's choice from color map or default.
         if(layerVal1 === on) { // layerVal1 is 1
-            color =  Colors.binaryOnColor(layerName1);
+            color =  colorEdit.binaryOnColor(layerName1);
         } else if (layerVal1 === off) { // layerVal1 is 0
-            color = Colors.binaryOffColor(layerName1);
+            color = colorEdit.binaryOffColor(layerName1);
         } else {
             throw "There was an error making the color of the binary layer"
         }
@@ -313,18 +254,18 @@ exports.get_color = function (layerName1, layerVal1, layerName2, layerVal2) {
         if(layerVal1 === on) {
             if(layerVal2 === on) {
                 // Both are on
-                return Colors.defaultBinBothOn();
+                return colorEdit.defaultBinBothOn();
             } else if (layerVal2 === off) {
                 // Only the first is on
-                return Colors.defaultBinaryOn();
+                return colorEdit.defaultBinaryOn();
             }
         } else if (layerVal1 === off) {
             if(layerVal2 === on) {
                 // Only the second is on
-                return Colors.defaultSecondBinOn();
+                return colorEdit.defaultSecondBinOn();
             } else if (layerVal2 === off) {
                 // Neither is on
-                return Colors.defaultBinaryOff();
+                return colorEdit.defaultBinaryOff();
             }
         }
 
@@ -340,7 +281,7 @@ exports.get_color = function (layerName1, layerVal1, layerName2, layerVal2) {
         // We want 100 to be included (since that's full brightness), but we
         // want to skip 0 (since no color can be seen at 0), so we add 5 to
         // the second layer's value.
-        var colorCountL2 = Colors.findColorCount(layerName2);
+        var colorCountL2 = colorEdit.findColorCount(layerName2);
         hsv_value = (layerVal2 + 1) / colorCountL2 * 100;
         base_color.value(hsv_value);
         color = base_color.hexString()
@@ -433,8 +374,8 @@ function colorify(red, green, blue){
 function mixOneContinuous(layerName, layerValue){
     var ignoreValue = -1;
     var ignoreColor = 0;
-    var highColor = Colors.continuousHighColor(layerName);
-    var lowColor = Colors.continuousLowColor(layerName);
+    var highColor = colorEdit.continuousHighColor(layerName);
+    var lowColor = colorEdit.continuousLowColor(layerName);
     var highColorParsed = parseColorPortions(highColor);
     var lowColorParsed = parseColorPortions(lowColor);
 
@@ -466,10 +407,10 @@ function mixOneContinuous(layerName, layerValue){
 
 function mix2Continuos(layerVal1, layerVal2){
     // Ignore color map entries.
-    var highColor1 = Colors.defaultContHigh();
-    var lowColor1 = Colors.defaultContLow();
-    var lowColor1HighColor2 = Colors.defaultCont2High1Low();
-    var bothHighColor = Colors.defaultContBothHigh();
+    var highColor1 = colorEdit.defaultContHigh();
+    var lowColor1 = colorEdit.defaultContLow();
+    var lowColor1HighColor2 = colorEdit.defaultCont2High1Low();
+    var bothHighColor = colorEdit.defaultContBothHigh();
 
     var high1Parsed = parseColorPortions(highColor1);
     var low1Parsed = parseColorPortions(lowColor1);
@@ -503,69 +444,6 @@ function mix2Continuos(layerVal1, layerVal2){
     var color = colorify(red, green , blue);
 
     return color
-}
-
-initLayout = function () {
-
-    // Download the layout names and save to the layouts array
-        var id = 'layouts';
-        Ajax.get({
-            id: id,
-            ok404: true,
-            success: function (parsed) {
-
-                // This is an array of rows, with one element in each row:
-                // layout name.
-                var layouts = [];
-                for (var i = 0; i < parsed.length; i++) {
-                    var row = parsed[i];
-                    if (row.length === 0) {
-                        // Skip any blank lines
-                        continue;
-                    }
-                    layouts.push(row[0]);
-                }
-                Session.set('layouts', layouts);
-
-                // Transform the layout list into the form wanted by select2
-                var data = _.map(layouts, function (layout, i) {
-                    return { id: i, text: layout }
-                });
-
-                // Create our selection list
-                
-                // Determine the layout index whose map will be displayed.
-                // Layout index takes precedent over layout name.
-                if (Session.equals('layoutIndex', undefined)) {
-                    Session.set('layoutIndex',
-                        (Session.equals('layoutName', undefined) ? 0 :
-                            layouts.indexOf(Session.get('layoutName')))
-                    );
-                }
-                
-                createOurSelect2($("#layout-search"),
-                    {data: data}, Session.get('layoutIndex').toString());
-
-                // Define the event handler for the selecting in the list
-                $("#layout-search").on('change', function (ev) {
-                    Session.set('layoutIndex', ev.target.value);
-                    createMap();
-                    drawLayout(true);
-                    
-                    // Update density stats to this layout and
-                    // resort the list to the default of density
-                    find_clumpiness_stats(Session.get('layoutIndex'));
-                    Session.set('sort', ctx.defaultSort());
-                    import Longlist from '/imports/reactCandidates/longlist.js';
-                    Longlist.update();
-                    
-                });
-                Session.set('initedLayout', true);
-            },
-            error: function (error) {
-                projectNotFound(id);
-            },
-        });
 }
 
 exports.colormapsReceived = function (parsed, id) {
@@ -603,5 +481,5 @@ exports.colormapsReceived = function (parsed, id) {
         // Store the finished color map in the global object
         colormaps[layer_name] = colormap;
     }
-    rx.set(rx.act.INIT_MAP_COLORMAP_LOADED)
+    rx.set('init.colormapLoaded');
 }

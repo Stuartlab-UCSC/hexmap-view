@@ -1,5 +1,5 @@
 
-// upload.js
+// Upload.js
 
 import React, { Component } from 'react';
 

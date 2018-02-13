@@ -13,4 +13,3 @@ Developer Docs
    computeInstall
    viewerInstall
    docs
-   licenses

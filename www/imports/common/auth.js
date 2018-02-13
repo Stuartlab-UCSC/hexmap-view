@@ -3,7 +3,7 @@
 // Authorize users based on roles and project access.
 
 import perform from '/imports/common/perform.js';
-import Util from '/imports/common/util.js';
+import util from '/imports/common/util.js';
 
 function getCredentials (userId) {
 
@@ -25,8 +25,24 @@ function getCredentials (userId) {
     } else {
         Session.set('jobCredential', false);
         perform.log('auth:no-credentials-for-no-userId');
-        
     }
+    /* future
+    rx.set('userRoles.empty');
+    if (userId) {
+        perform.log('auth:credentials-request:userId:' + userId);
+        Meteor.call('get_roles', userId,
+            function (error, results) {
+                if (results) {
+                    rx.set('userRoles.load', results);
+                }
+                perform.log('auth:credentials-got:userId,has-roles?:' +
+                    userId + ',' + rx.get('userRoles');
+            }
+        );
+    } else {
+        perform.log('auth:no-credentials-because-no-userId');
+    }
+    */
 }
 
 exports.credentialCheck = function (credential) {
@@ -34,11 +50,13 @@ exports.credentialCheck = function (credential) {
     // Bail with a message if the user is not logged in or does not have
     // the credentials.
     var returnVal = false;
-    if (!Meteor.user()) {
-        Util.banner('error', 'Please log in ' + credential + '.');
+    if (!Meteor.userId()) {
+        util.banner('error', 'Please log in ' + credential + '.');
+    /*
     } else if (!(Session.get('jobCredential'))) {
-        Util.banner('error', 'Sorry, you do not have credentials ' +
+        util.banner('error', 'Sorry, you do not have credentials ' +
            credential + '. Please request access from hexmap at ucsc dot edu.');
+    */
     } else {
         returnVal = true;
     }
@@ -47,7 +65,7 @@ exports.credentialCheck = function (credential) {
 
 exports.init = function () {
 
-    // Listen for a change of user.
+    // Listen for a change of user including logout.
     Meteor.autorun(function () {
         var userId = Meteor.userId();
         perform.log('auth:user-change-check:userId:' + userId);

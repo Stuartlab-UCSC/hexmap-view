@@ -31,8 +31,7 @@
  *        xyWorld  to  xyIn     get_xyWorld_from_xyIn
  */
 
-import Grid from '/imports/densityPage/grid.js';
-import Util from '/imports/common/util.js';
+import util from '/imports/common/util.js';
 import './coords.html';
 
 var SHOW_COORDS = false; // true = show them, false = not
@@ -70,18 +69,13 @@ function findScale (maxX, maxY) {
 
 function coordsMouseMove (e) {
     var xyWorld = exports.get_xyWorld(e.latLng),
-        xy;
-    if (Session.equals('page', 'gridPage')) {
-        xy = get_xyIn_from_xyWorld(xyWorld.x, xyWorld.y);
-    } else {
-        xy = get_xyHex_from_xyWorld(xyWorld.x, xyWorld.y);
-    }
-    $('#xIn').text(Util.round(xy.x, 1));
-    $('#yIn').text(Util.round(xy.y, 1));
-    $('#xWorld').text(Util.round(xyWorld.x, 2));
-    $('#yWorld').text(Util.round(xyWorld.y, 2));
-    $('#lngCoord').text(Util.round(e.latLng.lng()));
-    $('#latCoord').text(Util.round(e.latLng.lat()));
+        xy= get_xyHex_from_xyWorld(xyWorld.x, xyWorld.y);
+    $('#xIn').text(util.round(xy.x, 1));
+    $('#yIn').text(util.round(xy.y, 1));
+    $('#xWorld').text(util.round(xyWorld.x, 2));
+    $('#yWorld').text(util.round(xyWorld.y, 2));
+    $('#lngCoord').text(util.round(e.latLng.lng()));
+    $('#latCoord').text(util.round(e.latLng.lat()));
 }
 
 exports.getShowCoords = function () {
@@ -127,9 +121,7 @@ function initMapType () {
         var div = ownerDocument.createElement("div");
         div.style.width = this.tileSize.width + "px";
         div.style.height = this.tileSize.height + "px";
-        div.style.backgroundColor = (Session.equals('page', 'gridPage'))
-            ? 'white'
-            : Session.get('background');
+        div.style.backgroundColor = Session.get('background');
         
         return div;
     }
@@ -315,16 +307,8 @@ exports.init = function () {
 
     $('#coords').show();
 
-    var map,
-        $el;
-
-    if (Session.equals('page', 'gridPage')) {
-        map = Grid.getGridMap();
-        $el = $('#gridMap');
-    } else {
-        map = googlemap;
+    var map = googlemap,
         $el = $('#visualization');
-    }
 
     // Set up the handler of mousemove on the map
     google.maps.event.addListener(map, 'mousemove', coordsMouseMove);

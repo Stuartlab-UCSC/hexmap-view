@@ -1,11 +1,11 @@
 
-// readFile.js
+// ReadFile.js
 // Reads a local file into this web app.
 
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import U from '/imports/common/utils.js';
-import Util from '/imports/common/util.js';
+import utils from '/imports/common/utils.js';
+import util from '/imports/common/util.js';
 
 export default class ReadFile extends Component {
 
@@ -18,11 +18,11 @@ export default class ReadFile extends Component {
         }
         var data = result;
         if (this.props.parseTsv) {
-            data = Util.parseTsv(result);
+            data = util.parseTsv(result);
         }
 
         // Validate strings for printable characters
-        if (U.allPrintableCharsInArray(data)) {
+        if (utils.allPrintableCharsInArray(data)) {
             // Return the result to the parent.
             this.props.onSuccess(data);
         } else {

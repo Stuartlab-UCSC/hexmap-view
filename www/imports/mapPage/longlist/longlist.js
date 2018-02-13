@@ -3,10 +3,11 @@
 
 import React from 'react';
 import { render } from 'react-dom';
-import Layer from '/imports/mapPage/longlist/layer.js';
-import Select2 from '/imports/component/select2wrap.js';
-import Shortlist from '/imports/mapPage/shortlist/shortlist.js';
-import Sort from '/imports/mapPage/longlist/sort.js';
+import Layer from '/imports/mapPage/longlist/Layer.js';
+import rx from '/imports/common/rx.js';
+import Select22 from '/imports/component/Select22.js';
+import shortlist from '/imports/mapPage/shortlist/shortlist.js';
+import sort from '/imports/mapPage/longlist/sort.js';
 
 // How many layer results should we display at once?
 var SEARCH_PAGE_SIZE = 10,
@@ -40,7 +41,7 @@ exports.update = function() {
     // order.
     
     // Re-sort the sorted list that we maintain
-    Sort.sort_layers();
+    sort.sort_layers();
 
     // Close the select if it was open, forcing the data to refresh when it
     // opens again.
@@ -53,7 +54,7 @@ function handleSelecting (event) {
     var layer_name = event.val;
     
     // User chose this layer. Add it to the global shortlist.
-    Shortlist.ui_and_list_add(layer_name);
+    shortlist.ui_and_list_add(layer_name);
     
     // Don't actually change the selection.
     // This keeps the dropdown open when we click.
@@ -215,7 +216,7 @@ exports.layerSummaryLoaded = function (parsed) {
     // Initialize the display layers resulting from filtering to all layers.
     Session.set('displayLayers', Session.get('sortedLayers'));
 
-    Session.set('layerSummaryLoaded', true);
+    rx.set('init.attrSummaryLoaded');
 };
 
 exports.layerTypesReceived = function (parsed) {
@@ -245,7 +246,7 @@ exports.init = function () {
 
     // Set up the layer search.
     render(
-        <Select2
+        <Select22
             // Options for the original non-react select2.
             select2options = {{
                 data: {id: '', text: ''},

@@ -2,10 +2,10 @@
  * Retrieve data.
  */
 
-import Ajax from '/imports/mapPage/data/ajax.js';
-import Perform from '/imports/common/perform.js';
+import ajax from '/imports/mapPage/data/ajax.js';
+import perform from '/imports/common/perform.js';
 import rx from '/imports/common/rx.js';
-import Util from '/imports/common/util.js';
+import util from '/imports/common/util.js';
 
 function request (id, opts) {
 
@@ -14,14 +14,14 @@ function request (id, opts) {
     // @param successFx: function to call on success
     // @param rxAction; optional state action to take on success
     // @param stateVar; optional state variable to set to true on success
-    Perform.log(id + '.tab_requested');
+    perform.log(id + '.tab_requested');
     if (_.isUndefined(opts)) {
         opts = {};
     }
     var aOpts = {
         id: id,
         success: function (results) {
-            Perform.log(id + '.tab_got');
+            perform.log(id + '.tab_got');
             if (opts.successFx) {
                 opts.successFx(results, id);
             }
@@ -35,14 +35,14 @@ function request (id, opts) {
             if (opts.errorFx) {
                 opts.errorFx(error);
             } else {
-                Util.projectNotFound(id);
+                util.projectNotFound(id);
             }
         },
     };
     if (opts.ok404) {
         aOpts.ok404 = true;
     }
-    Ajax.get(aOpts);
+    ajax.get(aOpts);
 }
 
 exports.requestStats = function (id, opts) {
@@ -64,33 +64,33 @@ exports.requestMapMeta = function (opts) {
 };
 
 exports.requestAttributeTags = function (opts) {
-    import Filter from '/imports/mapPage/longlist/filter.js';
+    import filter from '/imports/mapPage/longlist/filter.js';
     if (_.isUndefined(opts)) {
         opts = {};
     }
     opts.ok404 = true;
-    opts.successFx = opts.successFx || Filter.receiveLayerTags;
-    opts.errorFx = opts.errorFx || Filter.requestLayerTagsError;
+    opts.successFx = opts.successFx || filter.receiveLayerTags;
+    opts.errorFx = opts.errorFx || filter.requestLayerTagsError;
     request('attribute_tags', opts);
 };
 
 exports.requestLayoutNames = function (opts) {
-    import Layout from '/imports/mapPage/head/layout.js';
+    import layout from '/imports/mapPage/head/layout.js';
 
     // This may have been requested already if a layout name was supplied,
     // but no layout index.
-    if (rx.get(rx.INIT_APP_LAYOUT_NAMES_REQUESTED)) {
+    if (rx.get('init.layoutNamesRequested')) {
         return;
     }
-    rx.set(rx.act.INIT_APP_LAYOUT_NAMES_REQUESTED);
-    opts.successFx = opts.successFx || Layout.layoutNamesReceived;
+    rx.set('init.layoutNamesRequested');
+    opts.successFx = opts.successFx || layout.layoutNamesReceived;
     opts.ok404 = true;
     request('layouts', opts);
 };
 
 exports.requestColormaps = function (opts) {
-    import Hexagram from '/imports/mapPage/viewport/hexagram.js';
-    opts.successFx = opts.successFx || Hexagram.colormapsReceived;
+    import colorMix from '/imports/mapPage/color/colorMix.js';
+    opts.successFx = opts.successFx || colorMix.colormapsReceived;
     request('colormaps', opts);
 };
 
@@ -99,19 +99,22 @@ exports.requestLayer = function (id, opts) {
 };
 
 exports.requestDataTypes = function (opts) {
-    import Longlist from '/imports/mapPage/longlist/longlist.js';
-    opts.successFx = opts.successFx || Longlist.layerTypesReceived;
+    import longlist from '/imports/mapPage/longlist/longlist.js';
+    opts.successFx = opts.successFx || longlist.layerTypesReceived;
     request('Layer_Data_Types', opts);
 };
 
 exports.requestLayerSummary = function (opts) {
-    import Longlist from '/imports/mapPage/longlist/longlist.js';
-    opts.successFx = opts.successFx || Longlist.layerSummaryLoaded;
+    import longlist from '/imports/mapPage/longlist/longlist.js';
+    if (!opts) {
+        opts = {};
+    }
+    opts.successFx = opts.successFx || longlist.layerSummaryLoaded;
     request('layers', opts);
 };
 
 exports.requestLayoutAssignments = function (opts) {
-    import Hexagons from '/imports/mapPage/viewport/hexagons.js';
+    import hexagons from '/imports/mapPage/viewport/hexagons.js';
     var index = Session.get('layoutIndex');
     
     // If no layout index was supplied ...
@@ -123,7 +126,7 @@ exports.requestLayoutAssignments = function (opts) {
             // A layout name was supplied, so we need to get the layout list
             // before we know the layout index to download layout node placement
             exports.requestLayoutNames(
-                { rxAction: rx.act.INIT_APP_LAYOUT_NAMES_RECEIVED });
+                { rxAction: 'init.layoutNamesReceived' });
             return;
         } else {
             // Default to the first layout.
@@ -134,7 +137,7 @@ exports.requestLayoutAssignments = function (opts) {
     if (_.isUndefined(opts)) {
         opts = {};
     }
-    opts.successFx = opts.successFx || Hexagons.layoutAssignmentsReceived;
+    opts.successFx = opts.successFx || hexagons.layoutAssignmentsReceived;
     request((Session.get('mapView') === 'honeycomb' ? 'assignments' :
         'xyPreSquiggle_') + index, opts);
 };
