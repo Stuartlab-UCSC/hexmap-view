@@ -23,12 +23,6 @@ fi
 # Run the server by type using one of the above configs
 
 if [ $TYPE == 'www' ]; then
-
-    # If the python environment is present then open it up.
-    if [ -e $PYENV/bin/activate ]; then
-        echo 'entering virtualenv:' $PYENV
-        source $PYENV/bin/activate
-    fi
     export MONGO_URL=mongodb://localhost:$DB_PORT/$DB_NAME
     cat $BIN/../config/settingsA.$CONFIG.json $BIN/../config/settingsB.json > $BIN/../config/settings.json
     if [ $CONFIG == 'prod' ] || [ $CONFIG == 'dev' ]; then # this one runs in the background

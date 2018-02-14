@@ -65,7 +65,7 @@ function receiveQuery (operation, req, res) {
             }
            
             // Create the bookmark, letting it return the http response
-            bookmarke.createBookmarkFiber(json_data, res)
+            bookmark.createBookmarkFiber(json_data, res)
         } else {
             exports.respond(500, res,
                 {error: 'no handler for this query operation: ' + operation});
