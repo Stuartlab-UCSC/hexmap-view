@@ -25,7 +25,7 @@ fi
 if [ $TYPE == 'www' ]; then
     export MONGO_URL=mongodb://localhost:$DB_PORT/$DB_NAME
     cat $BIN/../config/settingsA.$CONFIG.json $BIN/../config/settingsB.json > $BIN/../config/settings.json
-    if [ $CONFIG == 'prod' ] || [ $CONFIG == 'dev' ]; then # this one runs in the background
+    if [ $CONFIG == 'prod' ] || [ $CONFIG == 'prodStage' ] || [ $CONFIG == 'dev' ]; then # this one runs in the background
         export METEOR_SETTINGS=$(cat $BIN/../config/settings.json)
         #export HTTP_FORWARDED_COUNT=1
         export MAIL_URL="smtp://localhost"
