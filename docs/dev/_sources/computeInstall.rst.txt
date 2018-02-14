@@ -1,23 +1,10 @@
 Compute Server Install
 ======================
 
-Install python and libraries
-----------------------------
+Install python
+--------------
 
-python v2.7
-
- | colormath==2.1.1
- | Flask
- | Flask-Cors
- | numexpr==2.6.4
- | numpy==1.10.4
- | pandas==0.17.1
- | requests
- | scikit-learn==0.17.1
- | scipy==0.17.1
- | statsmodels==0.6.1
- | tables==3.4.2
- | uwsgi
+See compute/build/README to install python and a python environment.
 
 Note that if you do not have libssl-dev installed, uwsgi will not have the https
 options available.

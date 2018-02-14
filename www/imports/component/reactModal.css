@@ -68,6 +68,10 @@
     max-width: 20em;
 }
 
+.promptModal .modalLabel.jobUrl {
+    max-width: 45em;
+}
+
 .nodeIdSelectModal .readFile {
     margin-top: 0.6em;
     margin-left: 0.5em;

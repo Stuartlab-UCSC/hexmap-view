@@ -133,36 +133,21 @@ function getAllUsernames () {
     });
 }
 
-function showRolesWithUsersAndProject () {
+function getAllUsers () {
 
-    // Show all roles with users and projects in each
+    // Find all of the users.
+    return Meteor.users.find({}, {fields: {username: 1, _id: 1}}).fetch();
+}
+
+function showRolesWithUsers() {
+
+    // Show all roles with users in each.
     var roleObjs = Roles.getAllRoles().fetch();
     var roles = _.map(roleObjs, function(role) {
         return role.name;
     });
-    var projects = getDataDirs();
-    var roleProjects = {};
     
-    // Find the projects for each role
-    _.each(projects, function (project) {
-        var role = getProjectRole(project);
-        if (!role) {
-        
-            // Make a fake role so we print those projects with no role
-            role = 'none, only dev, viewAll and personal map owners may view';
-            if (roles.indexOf(role) < 0) {
-                roles.push(role);
-            }
-        }
-        if (roleProjects[role]) {
-            roleProjects[role].push(project);
-        } else {
-            roleProjects[role] = [project];
-        }
-    });
-
-    // Print for each role, its users and projects
-    console.log('\nRoles, users, projects: ---------------------------');
+    console.log('\nRoles with users: ---------------------------');
     var noRoleUsers = getAllUsernames();
     _.each(roles, function (role) {
         var users = Roles.getUsersInRole(role).fetch();
@@ -173,13 +158,23 @@ function showRolesWithUsersAndProject () {
             }
             return user.username;
         });
-        console.log('Role:', role, '\n  Usernames:', usernames, '\n  Projects:',
-            roleProjects[role]);
+        console.log('Role:', role, '\n  Usernames:', usernames);
     });
-    console.log('Users without a role:', noRoleUsers);
+    
 }
 
-showRolesWithUsersAndProject();
+function showUsersWithRoles () {
+
+    // Print for each user with her roles.
+    console.log('\nUsers with roles: ---------------------------');
+    _.each(getAllUsers(), function (user) {
+        var roles = Roles.getRolesForUser(user._id);
+        console.log('User:', user.username, '\n  Roles:', roles);
+    });
+}
+
+showRolesWithUsers();
+showUsersWithRoles();
 
 function showUsers () {
 
@@ -227,12 +222,6 @@ function removeUser(username) {
     Meteor.users.remove(user);
 }
 
-// More possible queries
-/*
-showProjectsWithRoles: Show all projects with the role in each
-userRequestRole: A UI for a user to request to join a role
-*/
-
 Accounts.onCreateUser(function (options, user) {
 
      // Add a field of 'username' that meteor recognizes as unique
@@ -250,40 +239,18 @@ Accounts.onCreateUser(function (options, user) {
     return user;
 });
 
-is_user_authorized_to_view = function (role, major) {
-
-    // Determine if a user is authorized based on this role.
-    // user and role are single strings, no arrays.
-    // Logs a message when user is not authorized.
-    var user = Meteor.user(),
-        PUBLIC = 'public',
-        ALL_ACCESS = ['dev', 'viewAll'];
-    
-    // Public projects with are viewable by anyone
-    if (role === PUBLIC) { return true; }
-    
-    // When not logged in, only public projects may be seen.
-    if (!user) { return false; }
-    
-    // A user can view her personal maps
-    var user_major = clean_file_name(user.username);
-    if (user_major === major) { return true; }
-    
-    // Authorize anything if the user is in the dev role.
-    if (Roles.userIsInRole(user, ALL_ACCESS)) { return true; }
-    
-    // No role at this point means no authorization.
-    // Only ALL_ACCESS can access this.
-    if (!role) { return false; }
-    
-    // Authorize if the user is in the given role
-    if (Roles.userIsInRole(user, role)) { return true; }
-
-    // Not authorized
-    return false;
-};
-
 Meteor.methods({
+
+    getUserAuthorizationRoles: function () {
+    
+        // Get the current user's authorization roles.
+        var user = Meteor.user();
+        if (user === null) {
+            return [];
+        } else {
+            return Roles.getRolesForUser(user._id);
+        }
+    },
 
     get_username: function () {
     
@@ -293,18 +260,5 @@ Meteor.methods({
         } else {
             return undefined;
         }
-    },
-    
-    is_user_in_role: function (role) {
-    
-        // Is the user in this particular role
-        return Roles.userIsInRole(Meteor.user(), role);
-    },
-    
-    is_user_authorized_to_view: function (mapId) {
-    
-        // Is the user authorized to view this map?
-        var major = mapId.split('/')[0];
-        return is_user_authorized_to_view(getProjectRole(major), major);
     },
 });

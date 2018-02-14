@@ -18,9 +18,9 @@ elif [ $1 == 'lint' ]; then
     DONT_LINT_FILES=(
         attrAdd.js
         canvas2svg.js
-        checkLayerBox.js
         color.js
         colorEdit.js
+        colormap.js
         colorMix.js
         coords.js
         createMap.js
@@ -53,6 +53,7 @@ elif [ $1 == 'lint' ]; then
         sort.js
         sortUi.js
         state.js
+        state.test.js
         svg.js
         tool.js
         urlParms.js
