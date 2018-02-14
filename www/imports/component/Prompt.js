@@ -111,6 +111,8 @@ class Prompt extends Component {
             labelClass = this.props.labelClass;
         }
         
+        console.log('this.title', this.title)
+        
         return (
             <Modal
                 onAfterOpen = {this.handleOpenModal}

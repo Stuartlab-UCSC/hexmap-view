@@ -119,8 +119,8 @@ exports.getUserMapAuthorization = function (successFx, errorFx) {
         url = HUB_URL + '/projectAuth/projectId/' + ctx.project;
     
     // If there is a signed in user, get the email and roles.
-    if (user) {
-        url += '/email/' + user.username + '/roles/' + rx.get('user.roles');
+    if (user) { url += '/email/' + user.username + '/roles/' +
+        rx.get('user.roles').join('+');
     }
     $.ajax({
         type: 'GET',
