@@ -116,10 +116,10 @@ exports.getUserMapAuthorization = function (successFx, errorFx) {
 
     // Ask the data server if this user is authorized to view the current map.
     var user = Meteor.user(),
-        url = HUB_URL + '/projectAuth/projectId/' + ctx.project;
+        url = HUB_URL + '/mapAuth/mapId/' + ctx.project;
     
     // If there is a signed in user, get the email and roles.
-    if (user) { url += '/email/' + user.username + '/roles/' +
+    if (user) { url += 'email/' + user.username + '/role/' +
         rx.get('user.roles').join('+');
     }
     $.ajax({
@@ -138,14 +138,14 @@ exports.getProjectList = function (successFx, errorFx) {
     // @app.route('/projectList/email/<string:userEmail>/roles/<string:userRoles>',
 
     var user = Meteor.user(),
-        url = HUB_URL + '/projectList';
+        url = HUB_URL + '/mapList';
     
     // If there is a signed in user, get the email and roles.
     if (user) {
         url += '/email/' + user.username;
         var roles = rx.get('user.roles');
         if (roles.length > 0) {
-            url += '/roles/' + roles.join('+');
+            url += '/role/' + roles.join('+');
         }
     }
     $.ajax({
