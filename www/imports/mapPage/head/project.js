@@ -2,9 +2,11 @@
 // project.js: A UI to load data files from a directory within the webserver's
 // doc dir
 
+import ajax from '/imports/mapPage/data/ajax';
 import auth from '/imports/common/auth';
 import React, { Component } from 'react';
 import perform from '/imports/common/perform';
+import prompt from '/imports/component/Prompt';
 import { render } from 'react-dom';
 import rx from '/imports/common/rx';
 import Select22 from '/imports/component/Select22';
@@ -18,6 +20,7 @@ var projects; // project list
 var data; // data for select widget
 var prevListUsername = 'empty';
 var prevAuthUsername = 'empty';
+var unsubscribe = {};
 
 function is_project_on_list (project) {
 
@@ -54,17 +57,6 @@ function matcher (term, text, opt) {
     return false;
 }
 
-function notAuthdMessage () {
-
-    // The user is not authorized to see the current project. Let her know.
-    var notFoundMsg = util.getHumanProject(ctx.project) +
-        " cannot be found.\nPlease select another map.";
-    if (!Meteor.user()) {
-        notFoundMsg += ' Or sign in.';
-    }
-    util.banner('error', notFoundMsg);
-}
-
 function populate () {
 
     // Populate the project list.
@@ -86,9 +78,9 @@ function populate () {
     //         ]
     //     },
     // ]
-    if (rx.get('projectList.received') && rx.get('init.domLoaded') &&
-        rx.get('init.mapRendered')) {
-        rx.set('projectList.received.done');
+
+    if (!rx.get('projectList.receiving') && rx.get('init.headerLoaded')) {
+        unsubscribe.populate();
         var selector;
     
         data = _.map(projects, function (minors, major) {
@@ -129,60 +121,49 @@ function populate () {
                     return dataId.slice(0, -1); // remove trailing '/' for display
                 }}
             />, $('#project')[0]);
-    
+        
         perform.log('project-list-rendered');
         rx.set('projectList.changing.done');
     }
 }
 
-function signInClicked(count) {
-
-    // Set focus to the login-email input text box
-    if (_.isUndefined(count)) { count = 0; }
-    var reps = 20,
-        mSecs = 100;
-    Meteor.setTimeout(function () {
-            if ($('#login-email').length > 0) {
-                $('#login-email').focus();
-            } else if (count < reps ) {
-                signInClicked(count + 1);
-            }
-        }, mSecs);
-}
-
-exports.authorize = function (userId) {
+exports.authorize = function () {
     
     // Check to see if the user is authorized to view the project
     // every time the user changes.
-    Meteor.call('is_user_authorized_to_view', ctx.project,
-        function (error, results) {
-            if (results) {
-                rx.set('init.mapAuthorized');
+    rx.set('user.mapAuthorized.not');
+    ajax.getUserMapAuthorization(
+        function (results) {
+            if (results.authorized === true) {
+                rx.set('user.mapAuthorized.yes');
             } else {
-                notAuthdMessage();
+                util.mapNotFoundNotify(util.getHumanProject(ctx.project));
             }
-            perform.log('project:userId,authorized:' + userId + ',' +
-                rx.get('init.mapAuthorized'));
+            perform.log('project:authorized:' + rx.get('user.mapAuthorized'));
+        },
+        function (error) {
+            util.mapNotFoundNotify(util.getHumanProject(ctx.project));
         }
     );
 
     // Re-populate projects whenever the user changes, including log out.
-    perform.log('project:list-request,userId:' + userId);
-    rx.set('projectList.changing');
-    Meteor.call('getProjects', function (error, projects_returned) {
-        if (error) {
-            util.banner('error',
-                "Unable to retrieve project data from server." + error);
-        } else {
-            perform.log('project:list-got');
-            projects = projects_returned;
-            rx.set('projectList.received');
-        }
-    });
+    perform.log('project:list-request');
     
     // Subscribe to state changes effecting the project list.
-    rx.subscribe(populate);
+    rx.set('projectList.changing.now');
+    rx.set('projectList.receiving.now');
+    unsubscribe.populate = rx.subscribe(populate);
+    
+    // Retrieve the project list.
+    ajax.getProjectList(
+        function (results) {
+            perform.log('project:list-got');
+            projects = results;
+            rx.set('projectList.receiving.done');
+        },
+        function (error) {
+            util.banner('error',
+                "Unable to retrieve project data from server." + error);
+        }
+    );
 };
-
-    // This may be causing password to not allow focus on password error.
-    //$('.login').on('click', $('#login-sign-in-link'), signInClicked);

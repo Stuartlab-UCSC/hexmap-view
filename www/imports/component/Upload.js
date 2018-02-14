@@ -13,13 +13,17 @@ export default class Upload extends Component {
 
     render () {
         return (
-            <input
-                ref = 'file' // eslint-disable-line
-                type = 'file'
-                name = 'file'
-                className = 'readFile'
-                onChange = {this.saveFile.bind(this)}
-            />
+            <form
+                method = 'POST'
+                encType = 'multipart/form-data'>
+                <input
+                    ref = 'file' // eslint-disable-line
+                    type = 'file'
+                    name = 'file'
+                    className = 'readFile'
+                    onChange = {this.saveFile.bind(this)}
+                />
+            </form>
         );
     }
 }

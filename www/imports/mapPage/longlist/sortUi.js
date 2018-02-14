@@ -202,9 +202,6 @@ exports.init = function () {
 
         // Initialize the sort functions
 
-        // Density sort is the default sort
-        sort.find_clumpiness_stats();
-
         // Initialize the reactive variables
         ui.set({
             'sortBy': 'focus',  // Sort by focus attribute rather than differential or density

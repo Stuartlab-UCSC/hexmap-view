@@ -39,12 +39,6 @@ function validateNodeData (data) {
     return true;
 }
 
-function showNewNodes (result) {
-    util.banner('info', 'Your nodes are about to drop onto the map');
-    nodeNames = Object.keys(result.nodes);
-    state.bookmarkReload(result.nodes[nodeNames[0]].url);
-}
-
 function httpError (result) {
     rx.set('placeNode.running.done');
     util.banner('error', 'when calculating position of a new node: ' +
@@ -57,7 +51,10 @@ function getJobStatus (jobId, jobStatusUrl) {
     ajax.getJobStatus(jobId, jobStatusUrl,
         function (result) {
             if (result['status'] === 'Success') {
-                showNewNodes(result.result);
+                var nodes = result.result.nodes;
+                var nodeNames = Object.keys(nodes);
+                var url = nodes[Object.keys(nodes)[0]].url;
+                 util.reportJobSuccess(url);
             } else {
                 httpError(result.result);
             }
@@ -105,7 +102,6 @@ function doIt (tsv) {
         map: util.getHumanProject(ctx.project),
         layout: layout.findCurrentName(),
         nodes: data,
-        doNotEmail: true,
     };
     if (Meteor.user()) {
         opts.email = Meteor.user().username;
@@ -117,14 +113,14 @@ function doIt (tsv) {
             getJobStatus(result.jobId, result.jobStatusUrl);
         },
         function (result) {
-            rx.set('placeNode.running.done');
             util.banner('error', 'when adding a new node: ' + result.error,
                 result.stackTrace);
         },
     );
 
-    // Hide this dialog
     hide();
+    rx.set('placeNode.running.done');
+    util.reportJobSubmitted();
 }
 
 function gotFilename (event) {
