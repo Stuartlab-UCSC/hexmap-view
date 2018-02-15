@@ -24,7 +24,7 @@ if [  "$USING_HTTPS" = true ]; then
 else
     # For http
 	export PORT=3333
-	export ROOT_URL="http://localhost:"$PORT
+	export URL_BASE="http://localhost:"$PORT
 fi
 
 # "FORE" or "BACK", "BACK" assumes you have bundled the app
