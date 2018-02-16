@@ -255,7 +255,7 @@ function getReflectionInfo() {
         Session.set('reflectCriteria', true);
     };
 
-    const setUnavailable = () => {
+    const setUnavailable = (error) => {
         console.log("reflection unavailable");
         Session.set('reflectCriteria', false)
     };
@@ -264,13 +264,11 @@ function getReflectionInfo() {
         .then(fillMenu)
         .then(setReady)
         .catch(setUnavailable);
-
 }
 
 function metaDataUrl(){
-    const [majorId, minorId] = ctx.project.split("/");
-    const url  = HUB_URL + "/reflect/metaData/majorId/" +
-        majorId + "/minorId/" + minorId;
+    const mapId = ctx.project;
+    const url  = HUB_URL + "/reflect/metaData/mapId/" + mapId;
     return url
 }
 
