@@ -1,11 +1,10 @@
-// dbMethods.js
-// Misc database methods that are not enough code to stand in their own file.
+// bookmark.js
+// Bookmark server methods.
 
 var crypto = Npm.require('crypto');
 var Future = Npm.require('fibers/future');
 var Fiber = Npm.require('fibers');
 var Http = require('./http');
-var DbMethods = require('./dbMethods');
 
 var Bookmarks = new Mongo.Collection('bookmarks');
 

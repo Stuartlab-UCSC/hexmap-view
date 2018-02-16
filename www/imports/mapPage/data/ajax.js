@@ -38,7 +38,7 @@ function normalizeErrorResponse (error, url) {
     return norm;
 }
 
-function getData(url, successFx, errorFx, ok404, parse) {
+function getData (url, successFx, errorFx, ok404, parse) {
 
     // Retrieve view data for the current project.
     // For the case where 404 not found is OK we handle the 404 in the success
@@ -111,6 +111,52 @@ function getData(url, successFx, errorFx, ok404, parse) {
         }
     });
 }
+
+exports.getUserMapAuthorization = function (successFx, errorFx) {
+
+    // Ask the data server if this user is authorized to view the current map.
+    var user = Meteor.user(),
+        url = HUB_URL + '/mapAuth/mapId/' + ctx.project;
+    
+    // If there is a signed in user, get the email and roles.
+    if (user) { url += 'email/' + user.username + '/role/' +
+        rx.get('user.roles').join('+');
+    }
+    $.ajax({
+        type: 'GET',
+        url: url,
+        tryCount : 0,
+        retryLimit : retryLimit,
+        success: successFx,
+        error: errorFx,
+    });
+};
+
+exports.getProjectList = function (successFx, errorFx) {
+
+    // Ask the data server if this user is authorized to view the current map.
+    // @app.route('/projectList/email/<string:userEmail>/roles/<string:userRoles>',
+
+    var user = Meteor.user(),
+        url = HUB_URL + '/mapList';
+    
+    // If there is a signed in user, get the email and roles.
+    if (user) {
+        url += '/email/' + user.username;
+        var roles = rx.get('user.roles');
+        if (roles.length > 0) {
+            url += '/role/' + roles.join('+');
+        }
+    }
+    $.ajax({
+        type: 'GET',
+        url: url,
+        tryCount : 0,
+        retryLimit : retryLimit,
+        success: successFx,
+        error: errorFx,
+    });
+};
 
 exports.getJobStatus = function (jobId, jobStatusUrl, successFx, errorFx) {
     

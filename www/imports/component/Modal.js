@@ -7,6 +7,8 @@
 //          - close button
 //      - body
 //      - button box
+// If you want something more simple with just a prompt string, an optional text
+// field and an optional OK button, use Prompts.js instead.
 
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
