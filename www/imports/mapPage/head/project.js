@@ -2,6 +2,7 @@
 // project.js: A UI to load data files from a directory within the webserver's
 // doc dir
 
+import ajax from '/imports/mapPage/data/ajax';
 import auth from '/imports/common/auth';
 import React, { Component } from 'react';
 import perform from '/imports/common/perform';
@@ -54,16 +55,6 @@ function matcher (term, text, opt) {
         return true;
     }
     return false;
-}
-
-function notAuthdMessage () {
-
-    // The user is not authorized to see the current project. Let her know.
-    var more = undefined;
-    if (!Meteor.user()) {
-        more = ' or sign in'
-    }
-    util.mapNotFoundNotify(util.getHumanProject(ctx.project), more);
 }
 
 function populate () {
@@ -136,38 +127,43 @@ function populate () {
     }
 }
 
-exports.authorize = function (userId) {
+exports.authorize = function () {
     
     // Check to see if the user is authorized to view the project
     // every time the user changes.
-    Meteor.call('is_user_authorized_to_view', ctx.project,
-        function (error, results) {
-            if (results) {
-                rx.set('init.mapAuthorized');
+    rx.set('user.mapAuthorized.not');
+    ajax.getUserMapAuthorization(
+        function (results) {
+            if (results.authorized === true) {
+                rx.set('user.mapAuthorized.yes');
             } else {
-                notAuthdMessage();
+                util.mapNotFoundNotify(util.getHumanProject(ctx.project));
             }
-            perform.log('project:userId,authorized:' + userId + ',' +
-                rx.get('init.mapAuthorized'));
+            perform.log('project:authorized:' + rx.get('user.mapAuthorized'));
+        },
+        function (error) {
+            util.mapNotFoundNotify(util.getHumanProject(ctx.project));
         }
     );
 
     // Re-populate projects whenever the user changes, including log out.
-    perform.log('project:list-request,userId:' + userId);
+    perform.log('project:list-request');
     
     // Subscribe to state changes effecting the project list.
     rx.set('projectList.changing.now');
     rx.set('projectList.receiving.now');
     unsubscribe.populate = rx.subscribe(populate);
-
-    Meteor.call('getProjects', function (error, projects_returned) {
-        if (error) {
+    
+    // Retrieve the project list.
+    ajax.getProjectList(
+        function (results) {
+            perform.log('project:list-got');
+            projects = results;
+            rx.set('projectList.receiving.done');
+        },
+        function (error) {
             util.banner('error',
                 "Unable to retrieve project data from server." + error);
-        } else {
-            perform.log('project:list-got');
-            projects = projects_returned;
-            rx.set('projectList.receiving.done');
         }
-    });
+    );
 };

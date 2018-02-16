@@ -1,6 +1,9 @@
 
 // Prompt.js
-// The UI to prompt the user with a string and an optional text field.
+// The UI to prompt the user with a string, an optional text field and an
+// optional OK button.
+// If you want something more sophisticated than a text the above elements, use
+// Modal.js instead.
 
 import React, { Component } from 'react';
 import { render } from 'react-dom';
@@ -107,6 +110,8 @@ class Prompt extends Component {
         if (this.props.labelClass !== undefined) {
             labelClass = this.props.labelClass;
         }
+        
+        console.log('this.title', this.title)
         
         return (
             <Modal
