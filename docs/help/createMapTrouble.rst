@@ -17,11 +17,8 @@ Common problems
 
 1. The file is not in TSV (tab-separated value) format.
 
-2. The file selected in **Layout input** does not match the format selected in
-**Layout input format**. Layout formats are described at :doc:`createMap`.
-
-3. String identifiers anywhere except first row and first column (unless using
+2. String identifiers anywhere except first row and first column (unless using
 Sparse Similarity format). Layout formats are described at :doc:`createMap`.
 
-4. Missing values in your **feature data**. Either correct the values or when in
+3. Missing values in your **feature data**. Either correct the values or when in
 the **Create Map** window, check **Missing values: Replace with zero**.
