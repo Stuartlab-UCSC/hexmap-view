@@ -66,10 +66,10 @@ function show () {
 
     // Create the layer name selector.
     selectionList = LayerNameList.create(
-                                $('#reflectDialog .layerNameListAnchor'),
-                                $('#reflectDialog .selectionListLabel'),
-                                selectionSelected);
-       
+        $('#reflectDialog .layerNameListAnchor'),
+        $('#reflectDialog .selectionListLabel'),
+        selectionSelected);
+
     // Only include binary data types, which also includes node selections.
     selectionList.enable(true, {binary: true});
 
@@ -119,7 +119,7 @@ function criteriaCheck () {
     if (!(Session.get('reflectCriteria'))) {
         dialogHex.hide();
         util.banner('error', 'Sorry, the required data to ' +
-        'reflect is not available for this map.');
+            'reflect is not available for this map.');
         return false;
     }
     return true;
@@ -255,7 +255,7 @@ function getReflectionInfo() {
         Session.set('reflectCriteria', true);
     };
 
-    const setUnavailable = () => {
+    const setUnavailable = (error) => {
         console.log("reflection unavailable");
         Session.set('reflectCriteria', false)
     };
@@ -264,13 +264,11 @@ function getReflectionInfo() {
         .then(fillMenu)
         .then(setReady)
         .catch(setUnavailable);
-
 }
 
 function metaDataUrl(){
-    const [majorId, minorId] = ctx.project.split("/");
-    const url  = HUB_URL + "/reflect/metaData/majorId/" +
-        majorId + "/minorId/" + minorId;
+    const mapId = ctx.project;
+    const url  = HUB_URL + "/reflect/metaData/mapId/" + mapId;
     return url
 }
 
