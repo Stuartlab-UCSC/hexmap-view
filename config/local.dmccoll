@@ -1,0 +1,51 @@
+#!/bin/bash
+# For https, set below to "true" and change
+# the environment variables inside the if statement.
+# For HTTP, change the environment varibles in the else statement.
+USING_HTTPS=false
+if [  "$USING_HTTPS" = true ]; then
+    export KEY=
+    export CERT=
+    export CHAIN=
+    # Port for HTTP redirect
+    export HTTP_PORT=
+    # Port HTTPS uses.
+    export HTTPS_PORT=
+	# The port the meteor app uses.
+	export PORT=
+    # The URL to which the https proxy redirects.
+	export METEOR_URL=
+	# The URL exposed to the user.
+	export URL_BASE=
+
+else
+    # For http
+	export PORT=3333
+	export URL_BASE="http://localhost:"$PORT
+fi
+
+# "FORE" or "BACK", "BACK" assumes you have bundled the app
+# with the bin/deploy.sh script.
+export BACK_OR_FOREGROUND=FORE
+if [  "$BACK_OR_FOREGROUND" = FORE ]; then
+    # Path to your meteor.
+    export METEOR_PATH=/usr/local/bin/meteor
+    export SERVER_DIR=/home/duncan/Desktop/TumorMap/TMdev/hexagram/www/private/
+fi
+
+# Meteor settings.json variables.
+export ADMIN_EMAIL="dmccoll@ucsc.edu"
+export DEV=true
+export HUB_URL="http://localhost:5000"
+# Below paths/require/the/trailing/slash/.
+export VIEW_DIR=/home/duncan/data/view/
+
+# Mongo db.
+export DB_NAME=live
+export DB_PORT=27017
+export MONGO_BIN=/usr/bin/
+export MONGO_URL=mongodb://localhost:$DB_PORT/$DB_NAME
+
+# Path to node bin.
+export NODE_BIN=/home/duncan/Desktop/TumorMap/TMdev/hexagram/packages/node/bin
+export ROOT_URL=$URL_BASE

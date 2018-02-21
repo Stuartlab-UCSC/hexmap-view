@@ -1,7 +1,7 @@
 // http.js: server proxy to forward http requests to https.
 const http = require("http");
 
-const TARGET = process.env.ROOT_URL,
+const TARGET = process.env.URL_BASE,
     LISTEN_PORT = process.env.HTTP_PORT;
 
 function timestamp () {

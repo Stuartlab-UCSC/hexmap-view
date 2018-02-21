@@ -1,0 +1,50 @@
+#!/bin/bash
+# For https, set below to "true" and change
+# the environment variables inside the if statement.
+# For HTTP, change the environment varibles in the else statement.
+USING_HTTPS=false
+if [  "$USING_HTTPS" = true ]; then
+    export KEY=
+    export CERT=
+    export CHAIN=
+    # Port for HTTP redirect
+    export HTTP_PORT=
+    # Port HTTPS uses.
+    export HTTPS_PORT=
+	# The port the meteor app uses.
+	export PORT=
+    # The URL to which the https proxy redirects.
+	export METEOR_URL=
+	# The URL exposed to the user.
+	export URL_BASE=
+
+else
+    # For http
+	export PORT=3333
+	export URL_BASE=http://localhost:$PORT
+fi
+
+# "FORE" or "BACK", "BACK" assumes you have bundled the app
+# with the bin/deploy.sh script.
+export BACK_OR_FOREGROUND=FORE
+if [  "$BACK_OR_FOREGROUND" = FORE ]; then
+    # Path to your meteor.
+    export METEOR_PATH=/Users/swat/.meteor/meteor
+export SERVER_DIR=$HEXMAP/www/private/
+fi
+
+# Meteor settings.json variables.
+export ADMIN_EMAIL=swat@soe.ucsc.edu
+export DEV=true
+export HUB_URL=http://localhost:5000
+# Below paths/require/the/trailing/slash/.
+export VIEW_DIR=/Users/swat/data/view/
+
+# Mongo db.
+export DB_NAME=live
+export DB_PORT=27017
+export MONGO_BIN=/Users/swat/.meteor/packages/meteor-tool/1.5.2_2/mt-os.osx.x86_64/dev_bundle/mongodb/bin
+export MONGO_URL=mongodb://localhost:$DB_PORT/$DB_NAME
+
+export NODE_BIN=/Users/swat/packages/node-v6.10.3/bin
+export ROOT_URL=$URL_BASE

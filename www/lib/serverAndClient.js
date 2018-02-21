@@ -7,9 +7,6 @@
     VERSION = '1.0';
     URL_BASE = Meteor.settings.public.URL_BASE;
     VIEW_DIR = Meteor.settings.public.VIEW_DIR;
-    LAYOUT_INPUT_DIR = Meteor.settings.public.LAYOUT_INPUT_DIR;
-    FEATURE_SPACE_DIR = Meteor.settings.public.FEATURE_SPACE_DIR;
-    GOOGLE_API_KEY = Meteor.settings.public.GOOGLE_API_KEY;
     HUB_URL = Meteor.settings.public.HUB_URL;
 
     if (Meteor.settings.public.DEV) {//no booleans with strict JSON
@@ -49,8 +46,6 @@ Meteor.startup( () => {
 
         // From the settings.json file.
         SERVER_DIR = Meteor.settings.server.SERVER_DIR;
-        TEMP_DIR = Meteor.settings.server.TEMP_DIR;
-        IS_MAIN_SERVER = Meteor.settings.server.jobs.IS_MAIN_SERVER;
         ADMIN_EMAIL = Meteor.settings.public.ADMIN_EMAIL;
         
         Accounts.emailTemplates.from = ADMIN_EMAIL;

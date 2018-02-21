@@ -1,0 +1,45 @@
+#!/bin/bash
+
+# Install an instance of the hex viewer from an existing bundle.
+# The env vars HEXMAP and HEX_VIEWER_CONFIG must be defined before calling this.
+
+TAR_FILE=$1
+DEFAULT_TAR_FILE=/cluster/home/swat/dev/www.tar.gz
+
+$HEXMAP/bin/checkConfig.sh
+if [ "$?" == 1 ]; then
+    exit 1
+fi
+source $HEX_VIEWER_CONFIG
+
+if [ "$HEXMAP" == "/Users/swat/dev/hexagram" ]; then
+    echo "sorry, cannot install into your local dev environment"
+    exit 1
+fi
+
+if [ -z ${TAR_FILE} ]; then
+    TAR_FILE=$DEFAULT_TAR_FILE
+fi
+
+cd $HEXMAP
+# Untar the new code.
+echo untarring...
+tar xf $TAR_FILE
+
+# Install all the needed node packages
+echo npm installing...
+cd $HEXMAP/bundle/programs/server
+$NODE_BIN/npm install > $HEXMAP/log/npmInstall
+
+echo stopping www
+cd $HEXMAP
+stop www
+
+echo removing old www files...
+rm -rf www
+
+echo moving new files to www
+mv bundle www
+
+echo starting www
+start www

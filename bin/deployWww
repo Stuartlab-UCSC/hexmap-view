@@ -1,0 +1,24 @@
+#!/bin/bash
+# Build and transfer the deployment bundle to an installation.
+# The env vars HEXMAP and HEX_VIEWER_CONFIG must be defined before calling this.
+
+$HEXMAP/bin/checkConfig.sh
+if [ "$?" == 1 ]; then
+    exit 1
+fi
+source $HEX_VIEWER_CONFIG
+
+if [ "$HEXMAP" == "/data" ]; then
+    echo "sorry, cannot deploy from a deployed build"
+    exit 1
+fi
+
+# Build a www server with compression and other production enhancements.
+cd $HEXMAP/www
+$METEOR_PATH npm install --production
+$METEOR_PATH build $HEXMAP/deploy --architecture os.linux.x86_64
+cd $HEXMAP
+scp deploy/www.tar.gz kolossus:dev
+echo
+echo If the scp session timed out, do:
+echo "scp deploy/www.tar.gz kolossus:dev"

@@ -1,7 +1,0 @@
-#!/bin/bash
-ACTION=$1
-SERVER=$2
-OPTION=$3
-CONFIG=prod
-HEXMAP=/data
-$HEXMAP/bin/run_server $ACTION $CONFIG $HEXMAP $SERVER $OPTION
