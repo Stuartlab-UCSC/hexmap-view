@@ -1,8 +1,7 @@
 #!/bin/bash
-# $1: /path/to/the/config/file
+# Start the database.
 
-# Source the configuration file for this machine.
-source $1
+source $HEX_VIEWER_CONFIG
 
 # Start a server
 touch $HEXMAP/log/db

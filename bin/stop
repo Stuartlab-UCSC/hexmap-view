@@ -1,0 +1,19 @@
+#!/bin/bash
+# $1: "db", "www", "http", or "https" : The server to stop.
+# The env vars HEXMAP and HEX_VIEWER_CONFIG must be defined before calling this.
+
+SERVER_TYPE=$1
+$HEXMAP/bin/checkConfig.sh
+if [ "$?" == 1 ]; then
+    exit 1
+fi
+source $HEX_VIEWER_CONFIG
+PID_FILE=$HEXMAP/pid/$SERVER_TYPE
+
+cd $HEXMAP
+if [ -e "$PID_FILE" ]; then
+    pkill -F $PID_FILE
+    rm $PID_FILE
+else
+    echo "No process to kill, there is no PID file at " $PID_FILE
+fi
