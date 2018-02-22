@@ -3,7 +3,8 @@ Create a Map
 ============
 
 You can create a map with your own data by selecting *Create map* from the *File*
-menu, then supplying at least a layout feature file and specifying its format.
+menu, then supplying at least a layout feature file in one of the four following
+formats.
 
 See `Technical Overview`_ section below for an explanation of the pipeline used to
 create a map.
@@ -21,10 +22,10 @@ input formats where similarities and XY locations will be calculated for you.
 This contains a full matrix with node IDs across the top and feature IDs in the
 first column, like::
 
- feature   node1   node2   node3   ...
- feature1  val     val     val
- feature2  val     val     val
- feature2  val     val     val
+ feature   TCGA-01-01  TCGA-01-02  TCGA-01-03  ...
+ TP53      0.6423      0.76543     0.2345
+ NAS1      0.2345      0.6423      0.76543
+ BRCA1     0.76543     0.2345      0.6423
  ...
 
 **Full similarity** : This contains similarity scores between all node pairs
@@ -32,10 +33,10 @@ as a full matrix which will be used to calculate xy positions.
 This has node IDs across the top and in the first column with
 similarity scores as the values, like::
 
- nodes   node1   node2   node3   ...
- node1   val     val     val
- node2   val     val     val
- node3   val     val     val
+ nodes       TCGA-01-01  TCGA-01-02  TCGA-01-03  ...
+ TCGA-01-01  0.76543     0.6423      0.9524
+ TCGA-01-02  0.9524      0.76543     0.6423
+ TCGA-01-03  0.6423      0.9524      0.76543
  ...
 
 **Sparse similarity** :This contains similarity scores between the top neighbor
@@ -43,17 +44,17 @@ nodes of each node as a sparse matrix which will be used to calculate xy positio
 This has node IDs in the first two columns with the the
 similarity scores in the third column, like::
 
- node1   node2   val
- node1   node3   val
- node1   node5   val
+ TCGA-01-01  TCGA-01-02  0.9524
+ TCGA-01-01  TCGA-01-03  0.76543
+ TCGA-01-02  TCGA-01-01  0.6423
  ...
 
 **XY positions** : This is the most processed of the layout input formats,
 containing the x and y coordinates in two-dimensional space of each node, like::
 
- node1   x-val   y-val
- node2   x-val   y-val
- node3   x-val   y-val
+ TCGA-01-01  73.6  63.6
+ TCGA-01-02  63.6  23.8
+ TCGA-01-03  23.8  73.6
  ...
 
 .. _attribute-format:
@@ -67,10 +68,10 @@ Attributes are properties of nodes used to color the map. The attribute file
 must be in TSV (tab-separated values) format with the
 attributes IDs across the top and node IDs in the first column, like::
 
- ID      attr1   attr2   attr3   ...
- node1   val     val     val
- node2   val     val     val
- node3   val     val     val
+ node        age  disease stage  ...
+ TCGA-01-01  81   BRCA    IV
+ TCGA-01-02  96   COAD    III
+ TCGA-01-03  52   GBM     II
  ...
 
 Missing values: Replace with zero
