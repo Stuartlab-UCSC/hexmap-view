@@ -63,9 +63,6 @@ const reducers = {
     'init.layoutPositionsLoaded': (state = false, action) => {
         return (action.type === 'init.layoutPositionsLoaded') ? true : state;
     },
-    'init.mapAuthorized': (state = false, action) => {
-        return (action.type === 'init.mapAuthorized') ? true : state;
-    },
     'init.mapPrepared': (state = false, action) => {
         return (action.type === 'init.mapPrepared') ? true : state;
     },
@@ -115,21 +112,26 @@ const reducers = {
             return state;
         }
     },
-/*
-    'userRoles': (state = [], action) => {
+    'user.mapAuthorized': (state = false, action) => {
         switch (action.type) {
-        case 'userRoles.empty':
-            return [];
-        case 'userRoles.load':
-        
-            console.log('userRoles:action:', action);
-            
-            return action.value;
+        case 'user.mapAuthorized.yes':
+            return true;
+        case 'user.mapAuthorized.not':
+            return false;
         default:
             return state;
         }
     },
-*/
+    'user.roles': (state = [], action) => {
+        switch (action.type) {
+        case 'user.roles.empty':
+            return [];
+        case 'user.roles.load':
+            return action.roles;
+        default:
+            return state;
+        }
+    },
 };
 
 // Create one action.

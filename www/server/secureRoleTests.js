@@ -140,20 +140,6 @@ function runUnitTests () {
         failures += 1;
     }
     
-    // Read the roles file in a public data directory
-    var project = 'mcrchopra/first';
-    var metaJson = project + '/meta.json';
-    var roles = readFromJsonBaseFile(metaJson).roles;
-    
-    // Verify role read
-    var found = _.find(roles, function (role) {
-        return role === 'public';
-    });
-    if (!found) {
-        console.log("FAILED: cannot find role 'public' in", metaJson);
-        failures += 1;
-    }
-    
     if (failures < 1) console.log('All user tests were successful!');
 }
 
