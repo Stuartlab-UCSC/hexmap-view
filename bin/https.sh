@@ -1,8 +1,7 @@
 #!/bin/bash
-# $1: /path/to/the/config/file
+# Start the http server.
 
-# Source the configuration file for this machine.
-source $1
+source $HEX_VIEWER_CONFIG
 
 touch $HEXMAP/log/https
 mv $HEXMAP/log/https $HEXMAP/log/https.prev

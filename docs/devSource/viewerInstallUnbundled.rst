@@ -1,38 +1,7 @@
-View Server Install
-===================
+View Server Install: development
+================================
 
 Get an SSL certificate if you plan to use https.
-
-
-Install python and libraries
-----------------------------
-
-python v2.7
-
- | colormath==2.1.1
- | numpy==1.10.4
- | pandas==0.17.1
- | scikit-learn==0.17.1
- | scipy==0.17.1
- | statsmodels==0.6.1
-
-
-Install DrL
------------
-
-DrL graph layout [1]
-
-To install in most unices. Other platforms may be installed as indicated in the
-drl-graph-layout/readme.txt::
-
- wget https://bitbucket.org/adam_novak/drl-graph-layout/get/c41341de8058.zip
- #alternatively:
-     curl https://bitbucket.org/adam_novak/drl-graph-layout/get/c41341de8058.zip > c41341de8058.zip
- unzip c41341de8058.zip
- cd adam*/src
- cp Configuration.gnu Configuration.mk
- make
- ls ../bin
 
 
 Install meteor
@@ -46,7 +15,7 @@ Install the specific meteor release::
    (set the definition of RELEASE as RELEASE=$METEOR_VERSION)
  sh meteor.install
 
-This will also install a copy of node.
+This will also install a copy of node and mongo.
 
 
 Install meteor packages
@@ -58,7 +27,7 @@ Check to see what packages are currently installed::
 
 This may take a while because meteor will download any packages needed.
 
-This should be the result of 'meteor list'::
+The result should look something like::
 
  accounts-password       1.3.0* Password support for accounts
  accounts-ui             1.1.9  Simple templates to add login widgets to an app
@@ -88,14 +57,15 @@ This should be the result of 'meteor list'::
  tracker                 1.1.0* Dependency tracker to allow reactive callbacks
  vsivsi:job-collection   1.4.0* A persistent and reactive job queue for Meteor, supporting distributed workers that can run anywhere
 
-Install any missing packages with 'meteor add <pkg>'.
-
 
 Set Environment Variable
 ------------------------
 
-Set the environment variable HEXMAP to the 'hexagram' directory from your clone
-of the repository.
+Set the environment variables as follows:
+
+* HEXMAP the 'hexagram' directory from your clone of the repository.
+* HEX_VIEWER_CONFIG to the full path of your server configuration, similar to
+  hexagram/config/dev-hexmap.swat
 
 
 Set Path
@@ -105,8 +75,6 @@ Include this in your path so you can find meteor's version of node and npm if
 you want to run those commands outside of meteor:
 
 ~/.meteor/packages/meteor-tool/<version>/<platform>/dev_bundle/bin
-
-Include the bin directory under drl-graph-layout in your path.
 
 
 Install server

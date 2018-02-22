@@ -11,5 +11,6 @@ Developer Docs
    viewerSource
    repository
    computeInstall
-   viewerInstall
+   viewerInstallUnbundled
+   viewerInstallBundled
    docs
