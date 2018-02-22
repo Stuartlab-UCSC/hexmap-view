@@ -12,7 +12,7 @@ if [ "$?" == 1 ]; then
 fi
 source $HEX_VIEWER_CONFIG
 
-if [ "$HEXMAP" == "/Users/swat/dev/hexagram" ]; then
+if [ "$BACK_OR_FOREGROUND" == "FORE" ]; then
     echo "sorry, cannot install into your local dev environment"
     exit 1
 fi
