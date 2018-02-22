@@ -1,0 +1,10 @@
+#!/bin/bash
+# $1: "db", "www", "http", or "https" : The server to start.
+# The env vars HEXMAP and HEX_VIEWER_CONFIG must be defined before calling this.
+
+SERVER_TYPE=$1
+$HEXMAP/bin/checkConfig.sh
+if [ "$?" == 1 ]; then
+    exit 1
+fi
+$HEXMAP/bin/$SERVER_TYPE.sh

@@ -1,7 +1,0 @@
-#!/bin/bash
-# tar the server support files, not www.
-rm -rf \
-    bin \
-    config \
-    http*
-tar -xf /cluster/home/swat/dev/support.tar

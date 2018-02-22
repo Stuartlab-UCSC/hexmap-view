@@ -1,8 +1,6 @@
 #!/bin/bash
-# $1: /path/to/the/config/file. If empty uses ./config/setup.cf
 
-# Source the configuration file for this machine.
-source $1
+source $HEX_VIEWER_CONFIG
 
 # Build settings.json.
 ${NODE_BIN}/node ${HEXMAP}/bin/js/buildSettings.js
@@ -11,16 +9,9 @@ if [ $? != 0 ]; then
     exit
 fi
 
-# Start up the python environment.
-if [ ! -z $PYENV ]; then
-    source $PYENV/bin/activate
-else
-    echo "Must set \$PYENV, the python environment path."
-    exit
-fi
-
 # Run the view server.
 cd $HEXMAP/www
+export MAIL_URL="smtp://localhost"
 if [ $BACK_OR_FOREGROUND == "FORE" ]; then
     $METEOR_PATH run --port $PORT --settings $HEXMAP/config/settings.json
 else
