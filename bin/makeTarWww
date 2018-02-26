@@ -1,0 +1,34 @@
+#!/bin/bash
+# Create a tarball copy of the app.
+
+TAR_FILE=$1
+DEFAULT_TAR_FILE=/Users/swat/dev/hexagram/appCopy.tgz
+
+$HEXMAP/bin/checkConfig.sh
+if [ "$?" == 1 ]; then
+    exit 1
+fi
+source $HEX_VIEWER_CONFIG
+
+if [ "$BUNDLED" == true ]; then
+    echo "sorry, cannot make an unbundled tar here. do that with deployWww"
+    exit 1
+fi
+
+if [ -z ${TAR_FILE} ]; then
+    TAR_FILE=$DEFAULT_TAR_FILE
+fi
+
+echo removing www/.meteor/local...
+cd $HEXMAP/www
+rm -rf .meteor/local
+
+echo creating tar file...
+tar czf $TAR_FILE .meteor client imports lib package.json public server
+
+cd $HEXMAP
+scp $TAR_FILE kolossus:dev
+echo
+echo If the scp session timed out, do:
+echo "scp $TAR_FILE kolossus:dev"
+

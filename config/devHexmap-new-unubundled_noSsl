@@ -15,7 +15,7 @@ if [  "$USING_HTTPS" = true ]; then
     # Port HTTPS uses.
     export HTTPS_PORT=8222
     # The port the meteor app uses.
-    export PORT=8223
+    export PORT=8223/Users/swat/dev/hexagram
     # The URL to which the https proxy redirects.
     export METEOR_URL=http://hexdev.sdsc.edu:$PORT
     # The URL exposed to the user.
@@ -32,7 +32,8 @@ fi
 export BACK_OR_FOREGROUND=BACK
 
 # Bundled deployment or unbundled?
-export BUNDLED=true
+export BUNDLED=false
+#export BUNDLED=true
 if [  "$BUNDLED" == false ]; then
     # Path to your meteor.
     export METEOR_PATH=$HOME/.meteor/meteor
