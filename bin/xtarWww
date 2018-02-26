@@ -1,0 +1,39 @@
+#!/bin/bash
+# Untar a copy of the unbundle app to another unbundle instance.
+
+TAR_FILE=$1
+DEFAULT_TAR_FILE=/cluster/home/swat/dev/appCopy.tgz
+
+$HEXMAP/bin/checkConfig.sh
+if [ "$?" == 1 ]; then
+    exit 1
+fi
+source $HEX_VIEWER_CONFIG
+
+if [ "$BUNDLE" == true ]; then
+    echo "sorry, cannot untar a bundled build with this, use installWww for that"
+    exit 1
+fi
+
+if [ -z ${TAR_FILE} ]; then
+    TAR_FILE=$DEFAULT_TAR_FILE
+fi
+
+echo removing old files...
+cd $HEXMAP
+rm -rf www
+mkdir www
+cd www
+
+echo untarring...
+tar zxf $TAR_FILE
+
+echo meteor npm installing...
+meteor npm install #> $HEXMAP/log/npmInstall
+
+echo stopping www
+cd $HEXMAP
+stop www
+
+echo starting www
+start www
