@@ -45,7 +45,6 @@ Meteor.startup( () => {
         //BrowserPolicy.content.allowContentTypeSniffing();
 
         // From the settings.json file.
-        SERVER_DIR = Meteor.settings.server.SERVER_DIR;
         ADMIN_EMAIL = Meteor.settings.public.ADMIN_EMAIL;
         
         Accounts.emailTemplates.from = ADMIN_EMAIL;

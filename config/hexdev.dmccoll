@@ -26,10 +26,12 @@ else
 	export URL_BASE=
 fi
 
-# "FORE" or "BACK", "BACK" assumes you have bundled the app
-# with the bin/deploy.sh script.11
+# Run in background, BACK, or foreground, FORE.
 export BACK_OR_FOREGROUND=BACK
-if [  "$BACK_OR_FOREGROUND" = FORE ]; then
+
+# Bundled deployment or unbundled?
+export BUNDLED=true
+if [  "$BUNDLED" == false ]; then
     # Path to your meteor.
     export METEOR_PATH=/cluster/home/dmccoll/.meteor/meteor
     export SERVER_DIR=/cluster/home/dmccoll/dev/www/programs/server/assets/app/

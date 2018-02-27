@@ -2,38 +2,38 @@
 # For https, set below to "true" and change
 # the environment variables inside the if statement.
 # For HTTP, change the environment varibles in the else statement.
-USING_HTTPS=true
+USING_HTTPS=false
+#USING_HTTPS=true
 if [  "$USING_HTTPS" == true ]; then
     # Paths to https certs.
-    export KEY=/data/certs-hexmap-new/hexmap-new.key
-    export CERT=/data/certs-hexmap-new/hexmap-new.crt
-    export CHAIN=/data/certs-hexmap-new/chain.crt
-    #export KEY=/data/certs/tumormap.key
-    #export CERT=/data/certs/tumormap.crt
-    #export CHAIN=/data/certs/chain.crt
+    export KEY=/data/certs/hexdev.key
+    export CERT=/data/certs/hexdev.crt
+    export CHAIN=/data/certs/chain.crt
 
     # Port for HTTP redirect
     export HTTP_PORT=8221
     # Port HTTPS uses.
     export HTTPS_PORT=8222
     # The port the meteor app uses.
-    export PORT=8223
+    export PORT=8223/Users/swat/dev/hexagram
     # The URL to which the https proxy redirects.
-    export METEOR_URL=http://hexmap-new.sdsc.edu:$PORT
+    export METEOR_URL=http://hexdev.sdsc.edu:$PORT
     # The URL exposed to the user.
-    export URL_BASE=https://hexmap-new.sdsc.edu:$HTTPS_PORT
+    export URL_BASE=https://hexdev.sdsc.edu:$HTTPS_PORT
 
 else
     # For http
     export PORT=8222
     export URL_BASE=http://hexmap-new.sdsc.edu:$PORT
+    #export URL_BASE=https://hexmap-new.sdsc.edu:$PORT
 fi
 
 # Run in background, BACK, or foreground, FORE.
 export BACK_OR_FOREGROUND=BACK
 
 # Bundled deployment or unbundled?
-export BUNDLED=true
+export BUNDLED=false
+#export BUNDLED=true
 if [  "$BUNDLED" == false ]; then
     # Path to your meteor.
     export METEOR_PATH=$HOME/.meteor/meteor

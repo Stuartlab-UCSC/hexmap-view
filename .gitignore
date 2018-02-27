@@ -8,6 +8,7 @@ run
 *.save
 *.pyc
 *.tar
+*.tgz
 *.log
 _build
 settings.json
