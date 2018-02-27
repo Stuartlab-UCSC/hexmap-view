@@ -4,7 +4,7 @@
 # For HTTP, change the environment varibles in the else statement.
 USING_HTTPS=false
 #USING_HTTPS=true
-if [  "$USING_HTTPS" = true ]; then
+if [  "$USING_HTTPS" == true ]; then
     # Paths to https certs.
     export KEY=/data/certs/hexdev.key
     export CERT=/data/certs/hexdev.crt
@@ -17,7 +17,7 @@ if [  "$USING_HTTPS" = true ]; then
     # The port the meteor app uses.
     export PORT=8223
     # The URL to which the https proxy redirects.
-    export METEOR_URL=http://hexdev.sdsc.edu:$PORT
+    export METEOR_URL=https://hexdev.sdsc.edu:$PORT
     # The URL exposed to the user.
     export URL_BASE=https://hexdev.sdsc.edu:$HTTPS_PORT
 
