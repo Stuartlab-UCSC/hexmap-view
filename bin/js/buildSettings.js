@@ -18,11 +18,14 @@ var settingsJson = {
         "HUB_URL": HUB_URL,
         "VIEW_DIR": VIEW_DIR,
         "ADMIN_EMAIL": ADMIN_EMAIL,
-    },
-    "server": {
-        "SERVER_DIR": SERVER_DIR,
     }
 };
+if (SERVER_DIR !== undefined) {
+    // Only required if running unbundled.
+    settingsJson.server = {
+        "SERVER_DIR": SERVER_DIR,
+    }
+}
 
 var fs = require('fs');
 

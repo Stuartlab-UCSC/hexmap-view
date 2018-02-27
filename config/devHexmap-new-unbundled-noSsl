@@ -4,7 +4,7 @@
 # For HTTP, change the environment varibles in the else statement.
 USING_HTTPS=false
 #USING_HTTPS=true
-if [  "$USING_HTTPS" = true ]; then
+if [  "$USING_HTTPS" == true ]; then
     # Paths to https certs.
     export KEY=/data/certs/hexdev.key
     export CERT=/data/certs/hexdev.crt
