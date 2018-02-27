@@ -2,7 +2,7 @@
 // perform.js
 // Capture performance metrics.
 
-PERFORM = false; // eslint-disable-line
+PERFORM = true; // eslint-disable-line
 var header = false; // true = log header
 
 var startTime = 1506190000000;
