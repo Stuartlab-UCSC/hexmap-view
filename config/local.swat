@@ -24,13 +24,15 @@ else
 	export URL_BASE=http://localhost:$PORT
 fi
 
-# "FORE" or "BACK", "BACK" assumes you have bundled the app
-# with the bin/deploy.sh script.
+# Run in background, BACK, or foreground, FORE.
 export BACK_OR_FOREGROUND=FORE
-if [  "$BACK_OR_FOREGROUND" = FORE ]; then
+
+# Bundled deployment or unbundled?
+export BUNDLED=false
+if [  "$BUNDLED" == false ]; then
     # Path to your meteor.
     export METEOR_PATH=/Users/swat/.meteor/meteor
-export SERVER_DIR=$HEXMAP/www/private/
+    export SERVER_DIR=$HEXMAP/www/private/
 fi
 
 # Meteor settings.json variables.

@@ -1,6 +1,5 @@
 #!/bin/bash
 # Deploy the scripts and config, but not www.
-# The env vars HEXMAP and HEX_VIEWER_CONFIG must be defined before calling this.
 
 $HEXMAP/bin/checkConfig.sh
 if [ "$?" == 1 ]; then
@@ -8,8 +7,8 @@ if [ "$?" == 1 ]; then
 fi
 source $HEX_VIEWER_CONFIG
 
-if [ "$BACK_OR_FOREGROUND" == "BACK" ]; then
-    echo "sorry, cannot deploy from a deployed build"
+if [ "$BUNDLE" == true ]; then
+    echo "sorry, cannot deploy from a bundled build"
     exit 1
 fi
 
