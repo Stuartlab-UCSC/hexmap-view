@@ -8,24 +8,17 @@ if [  "$USING_HTTPS" == true ]; then
     export KEY=/data/certs-hexmap-new/hexmap-new.key
     export CERT=/data/certs-hexmap-new/hexmap-new.crt
     export CHAIN=/data/certs-hexmap-new/chain.crt
-    #export KEY=/data/certs/tumormap.key
-    #export CERT=/data/certs/tumormap.crt
-    #export CHAIN=/data/certs/chain.crt
 
     # Port for HTTP redirect
     export HTTP_PORT=8080
-    #export HTTP_PORT=80
     # Port HTTPS uses.
     export HTTPS_PORT=8444
-    #export HTTPS_PORT=443
     # The port the meteor app uses.
     export PORT=8443
     # The URL to which the https proxy redirects.
     export METEOR_URL=http://hexmap-new.sdsc.edu:$PORT
-    #export METEOR_URL=http://tumormap.ucsc.edu:$PORT
     # The URL exposed to the user.
     export URL_BASE=https://hexmap-new.sdsc.edu:$HTTPS_PORT
-    #export URL_BASE=https://tumormap.ucsc.edu:$HTTPS_PORT
 
 else
     # For http
@@ -47,11 +40,9 @@ fi
 # Meteor settings.json variables.
 export ADMIN_EMAIL=hexmap@ucsc.edu
 export DEV=false
-export HUB_URL=https://hexcalc.ucsc.edu:8442 # 8442 is dev data server
-#export HUB_URL=https://hexcalc.ucsc.edu:8332
+export HUB_URL=https://hexcalc.ucsc.edu:8332
 # Below paths/require/the/trailing/slash/.
-export VIEW_DIR=/hive/groups/hexmap/dev/data/view/
-#export VIEW_DIR=/hive/groups/hexmap/prod/data/view/
+export VIEW_DIR=/hive/groups/hexmap/prod/data/view/
 
 # Mongo db.
 DB_NAME=admin
