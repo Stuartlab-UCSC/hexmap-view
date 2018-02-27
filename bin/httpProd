@@ -1,0 +1,8 @@
+#!/bin/bash
+# Start the http and https servers on production.
+
+export HEXMAP=/data
+export HEX_VIEWER_CONFIG=$HEXMAP/config/prod
+
+start http
+start https
