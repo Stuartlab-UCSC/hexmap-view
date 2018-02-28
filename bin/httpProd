@@ -4,5 +4,5 @@
 export HEXMAP=/data
 export HEX_VIEWER_CONFIG=$HEXMAP/config/prod
 
-start http
-start https
+$HEXMAP/bin/start http
+$HEXMAP/bin/start https
