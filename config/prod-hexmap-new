@@ -4,21 +4,29 @@
 # For HTTP, change the environment varibles in the else statement.
 USING_HTTPS=true
 if [  "$USING_HTTPS" == true ]; then
+
     # Paths to https certs.
     export KEY=/data/certs-hexmap-new/hexmap-new.key
     export CERT=/data/certs-hexmap-new/hexmap-new.crt
     export CHAIN=/data/certs-hexmap-new/chain.crt
+    #export KEY=/data/certs/tumormap.key
+    #export CERT=/data/certs/tumormap.crt
+    #export CHAIN=/data/certs/chain.crt
 
     # Port for HTTP redirect
-    export HTTP_PORT=8080
+    export HTTP_PORT=80
     # Port HTTPS uses.
-    export HTTPS_PORT=8444
+    export HTTPS_PORT=443
     # The port the meteor app uses.
     export PORT=8443
     # The URL to which the https proxy redirects.
+
     export METEOR_URL=http://hexmap-new.sdsc.edu:$PORT
     # The URL exposed to the user.
     export URL_BASE=https://hexmap-new.sdsc.edu:$HTTPS_PORT
+    #export METEOR_URL=http://tumormap.ucsc.edu:$PORT
+    # The URL exposed to the user.
+    #export URL_BASE=https://tumormap.ucsc.edu:$HTTPS_PORT
 
 else
     # For http
