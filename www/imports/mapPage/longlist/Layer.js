@@ -301,17 +301,24 @@ exports.loadInitialActiveLayers = function () {
 
     // Load the active layers that will be used to show the initial colors.
     
-    var active = Session.get('active_layers');
+    var active = Session.get('active_layers'),
+        loadedCount = 0;
     
     function loaded () {
-        rx.set('init.activeAttrsLoaded');
+        loadedCount += 1;
+        if (loadedCount === active.length) {
+            rx.set('init.activeAttrsLoaded');
+        }
     }
-    
+
     if (active.length < 1) {
         loaded();
-    } else {
-        exports.with_many(active, loaded, Session.get('dynamic_attrs'));
     }
+    _.each(active, function (layerName) {
+        
+        // For some reason with_many() does not work during initialization.
+        exports.with_one(layerName, loaded, Session.get('dynamic_attrs'));
+    });
 }
 
 exports.make_unique_name = function (layer_name) {
