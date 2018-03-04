@@ -1,5 +1,5 @@
-Compute Server Install
-======================
+Data Server Install
+===================
 
 Install python
 --------------
@@ -28,13 +28,21 @@ drl-graph-layout/readme.txt::
  ls ../bin
 
 
+ Install the data server
+ -----------------------
+
+The compute server code repository is at: https://github.com/ucscHexmap/compute
+
+The most current code is in the dev branch.
+
+
 Start server
 ------------
 
-Start these servers::
+Start these servers where '$compute' is the installation directory::
 
- cd ... /compute
+ cd $compute
  run
 
-The server has a log file with an extension of: '.log'.
+The log file is at $compute/www.log
 

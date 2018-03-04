@@ -24,8 +24,8 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="View Server Install: production" href="viewerInstallBundled.html" />
-    <link rel="prev" title="Compute Server Install" href="computeInstall.html" /> 
+    <link rel="next" title="View Server Install: production" href="viewerInstallBundle.html" />
+    <link rel="prev" title="Data Server Install" href="computeInstall.html" /> 
   </head>
   <body>
     <div class="header-wrapper" role="banner">
@@ -33,9 +33,9 @@
         <div class="headertitle"><a
           href="index.html">Tumor Map Developer Documentation</a></div>
         <div class="rel" role="navigation" aria-label="related navigation">
-          <a href="computeInstall.html" title="Compute Server Install"
+          <a href="computeInstall.html" title="Data Server Install"
              accesskey="P">previous</a> |
-          <a href="viewerInstallBundled.html" title="View Server Install: production"
+          <a href="viewerInstallBundle.html" title="View Server Install: production"
              accesskey="N">next</a> |
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a>
@@ -53,7 +53,6 @@
             
   <div class="section" id="view-server-install-development">
 <h1>View Server Install: development<a class="headerlink" href="#view-server-install-development" title="Permalink to this headline">¶</a></h1>
-<p>Get an SSL certificate if you plan to use https.</p>
 <div class="section" id="install-meteor">
 <h2>Install meteor<a class="headerlink" href="#install-meteor" title="Permalink to this headline">¶</a></h2>
 <p>Install the specific meteor release:</p>
@@ -64,81 +63,33 @@ vi meteor.install
 sh meteor.install
 </pre></div>
 </div>
-<p>This will also install a copy of node and mongo.</p>
+<p>This also installs meteor’s version of node and mongo.</p>
 </div>
-<div class="section" id="install-meteor-packages">
-<h2>Install meteor packages<a class="headerlink" href="#install-meteor-packages" title="Permalink to this headline">¶</a></h2>
-<p>Check to see what packages are currently installed:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">meteor</span> <span class="nb">list</span>
-</pre></div>
+<div class="section" id="get-code-from-repository">
+<h2>Get code from repository<a class="headerlink" href="#get-code-from-repository" title="Permalink to this headline">¶</a></h2>
+<p>The view server code repository is at: <a class="reference external" href="https://github.com/ucscHexmap/hexagram">https://github.com/ucscHexmap/hexagram</a></p>
+<p>The most current code is in the dev branch.</p>
 </div>
-<p>This may take a while because meteor will download any packages needed.</p>
-<p>The result should look something like:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span>accounts-password       1.3.0* Password support for accounts
-accounts-ui             1.1.9  Simple templates to add login widgets to an app
-alanning:roles          1.2.15* Authorization package for Meteor
-blaze-html-templates    1.0.5* Compile HTML templates into reactive UI with Meteor Blaze
-browser-policy-content  1.0.11* Configure content security policies
-check                   1.2.3* Check whether a value matches a pattern
-dburles:google-maps     1.1.5  Google Maps Javascript API v3
-ecmascript              0.6.3* Compiler plugin that supports ES2015+ in all .js files
-ejson                   1.0.12* Extended and Extensible JSON library
-es5-shim                4.6.15  Shims and polyfills to improve ECMAScript 5 support
-force-ssl               1.0.12* Require this application to use HTTPS
-http                    1.2.9_1* Make HTTP calls to remote servers
-jquery                  1.11.9* Manipulate the DOM using CSS selectors
-meteor-base             1.0.4* Packages that every Meteor app needs
-mobile-experience       1.0.4  Packages for a great mobile user experience
-modules                 0.7.9* CommonJS module system
-mongo                   1.1.12_1* Adaptor for using MongoDB and Minimongo over DDP
-nourharidy:ssl          0.2.2  Sexy SSL support for Meteor
-random                  1.0.10  Random number generator and utilities
-reactive-dict           1.1.8* Reactive dictionary
-reactive-var            1.0.10* Reactive variable
-session                 1.1.6* Session variable
-shell-server            0.2.1* Server-side component of the `meteor shell` command.
-standard-minifier-css   1.2.1* Standard css minifier used with Meteor apps by default.
-standard-minifier-js    1.2.0_1* Standard javascript minifiers used with Meteor apps by default.
-tracker                 1.1.0* Dependency tracker to allow reactive callbacks
-vsivsi:job-collection   1.4.0* A persistent and reactive job queue for Meteor, supporting distributed workers that can run anywhere
-</pre></div>
-</div>
-</div>
-<div class="section" id="set-environment-variable">
-<h2>Set Environment Variable<a class="headerlink" href="#set-environment-variable" title="Permalink to this headline">¶</a></h2>
-<p>Set the environment variables as follows:</p>
+<div class="section" id="set-environment-variables">
+<h2>Set Environment Variables<a class="headerlink" href="#set-environment-variables" title="Permalink to this headline">¶</a></h2>
+<p>Set the environment variables as:</p>
 <ul class="simple">
 <li>HEXMAP the ‘hexagram’ directory from your clone of the repository.</li>
 <li>HEX_VIEWER_CONFIG to the full path of your server configuration, similar to
 hexagram/config/dev-hexmap.swat</li>
 </ul>
 </div>
-<div class="section" id="set-path">
-<h2>Set Path<a class="headerlink" href="#set-path" title="Permalink to this headline">¶</a></h2>
-<p>Include this in your path so you can find meteor’s version of node and npm if
-you want to run those commands outside of meteor:</p>
-<p>~/.meteor/packages/meteor-tool/&lt;version&gt;/&lt;platform&gt;/dev_bundle/bin</p>
-</div>
 <div class="section" id="install-server">
 <h2>Install server<a class="headerlink" href="#install-server" title="Permalink to this headline">¶</a></h2>
-<p>If you want to use HTTPS, install a node module needed for the http proxies:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span>cd $HEXMAP
-npm install http-proxy
-</pre></div>
-</div>
 <p>Install the node modules needed for meteor:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span>cd $HEXMAP/www
 meteor npm install
 </pre></div>
 </div>
-<p>Edit these start-up scripts to match your environment:</p>
-<p>$HEXMAP/run-production
-$HEXMAP/config/config.prod
-$HEXMAP/config/settingsA.prod.json</p>
-<p>Create directories for your data where we’ll call your data root ‘DATA’:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">mkdir</span> <span class="n">DATA</span>
-<span class="n">cd</span> <span class="n">DATA</span>
-<span class="n">mkdir</span> <span class="n">featureSpace</span> <span class="n">layoutInput</span> <span class="n">view</span>
+<p>Create directories for your data where we’ll refer to your data root as ‘$DATA’</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>mkdir $DATA
+cd $DATA
+mkdir featureSpace layoutInput view
 </pre></div>
 </div>
 </div>
@@ -146,18 +97,18 @@ $HEXMAP/config/settingsA.prod.json</p>
 <h2>Start server<a class="headerlink" href="#start-server" title="Permalink to this headline">¶</a></h2>
 <p>Start these servers:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span>cd $HEXMAP
-run http
-run https
-run db
-run www
+start http
+start https
+start db
+start www
 </pre></div>
 </div>
-<p>Each server has a log file with an extension of: ‘.log’.</p>
+<p>Log files are in $HEXMAP/log.</p>
 </div>
 <div class="section" id="sphinx">
 <h2>Sphinx<a class="headerlink" href="#sphinx" title="Permalink to this headline">¶</a></h2>
-<p>Sphinx is used to build this document. To modify any documents, Sphinx needs to
-be installed according to <a class="reference external" href="http://www.sphinx-doc.org/en/stable/install.html">http://www.sphinx-doc.org/en/stable/install.html</a></p>
+<p>Use Sphinx to build this document.
+<a class="reference external" href="http://www.sphinx-doc.org/en/stable/install.html">http://www.sphinx-doc.org/en/stable/install.html</a></p>
 </div>
 <div class="section" id="references">
 <h2>References<a class="headerlink" href="#references" title="Permalink to this headline">¶</a></h2>
@@ -176,12 +127,9 @@ Applications.</p>
           <h3>Table Of Contents</h3>
           <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="internalWebApi.html">Internal Web API</a></li>
-<li class="toctree-l1"><a class="reference internal" href="computeSource.html">Source Code: Compute Server</a></li>
-<li class="toctree-l1"><a class="reference internal" href="viewerSource.html">Source Code: View Server</a></li>
-<li class="toctree-l1"><a class="reference internal" href="repository.html">Code Repository &amp; git</a></li>
-<li class="toctree-l1"><a class="reference internal" href="computeInstall.html">Compute Server Install</a></li>
+<li class="toctree-l1"><a class="reference internal" href="computeInstall.html">Data Server Install</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">View Server Install: development</a></li>
-<li class="toctree-l1"><a class="reference internal" href="viewerInstallBundled.html">View Server Install: production</a></li>
+<li class="toctree-l1"><a class="reference internal" href="viewerInstallBundle.html">View Server Install: production</a></li>
 <li class="toctree-l1"><a class="reference internal" href="docs.html">This Document</a></li>
 </ul>
 
@@ -203,16 +151,16 @@ Applications.</p>
       <div class="footer">
         <div class="left">
           <div role="navigation" aria-label="related navigaton">
-            <a href="computeInstall.html" title="Compute Server Install"
+            <a href="computeInstall.html" title="Data Server Install"
               >previous</a> |
-            <a href="viewerInstallBundled.html" title="View Server Install: production"
+            <a href="viewerInstallBundle.html" title="View Server Install: production"
               >next</a> |
             <a href="genindex.html" title="General Index"
               >index</a>
           </div>
           <div role="note" aria-label="source link">
               <br/>
-              <a href="_sources/viewerInstallUnbundled.rst.txt"
+              <a href="_sources/viewerInstallDev.rst.txt"
                 rel="nofollow">Show Source</a>
           </div>
         </div>

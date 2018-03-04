@@ -1,19 +1,19 @@
 View Server Install: production
 ===============================
 
-This assumes you already have an unbundled development installation.
+This assumes you already have a development installation.
 
-Get an SSL certificate if you plan to use https.
-
+We start with the *target* machine.
 
 Environment Variables
 ---------------------
 
-Set the environment variables as:
+Set the environment variables on the production machine as:
 
 HEXMAP: the 'hexagram' directory from your clone of the repository
 
-HEX_VIEWER_CONFIG: the full path of your server configuration, similar to examples in $HEXMAP/config
+HEX_VIEWER_CONFIG: the full path of your server configuration, similar to
+examples in $HEXMAP/config
 
 
 Install node
@@ -32,18 +32,18 @@ Install mongodb v3.2.6 in $HEXMAP/packages/mongodb
 https://docs.mongodb.com/manual/administration/install-community/
 
 
-PATH modifications
-------------------
+PATH environment variable
+-------------------------
 
-Set your path to include the new bin directories::
+Include this in your PATH::
 
- export PATH=$HEXMAP/packages/node/bin:$HEXMAP/packages/mongodb/bin:$PATH
+ $HEXMAP/packages/node/bin:$HEXMAP/packages/mongodb/bin:$PATH
 
 
 Install an HTTP Proxy
 ---------------------
 
-If you want to use HTTPS, install a node module needed for the http proxies::
+Install a node module needed for the http proxies::
 
  cd $HEXMAP
  npm install http-proxy
@@ -52,21 +52,18 @@ If you want to use HTTPS, install a node module needed for the http proxies::
 Install the servers
 -------------------
 
-Here we use these names to refer to the two installations:
-
-*dev* : the development installation that builds the installation *bundle*
-  
-*target* : the target installation for the bundle, for staging or production
+Here we use *dev* to refer to a development installation that builds the
+*bundle* to install on a *target*.
 
 On dev copy the run scripts to the target::
 
  cd $HEXMAP
- scp -r bin <bundled-host>:target
+ scp -r bin <target-host>:<target-$hexmap/bin>
 
 On dev build the bundle and copy it to the target where:
 
 * $METEOR_PATH is the path to your meteor binaries on dev
-* <architecture> is the targetHost's archtecture such as "os.linux.x86_64"
+* <architecture> is the target's archtecture such as "os.linux.x86_64"
 
 ::
 
