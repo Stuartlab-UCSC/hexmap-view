@@ -3,7 +3,7 @@ This Document
 
 Important places:
 
-* These pages: file://ROOT/hexagram/docs/dev/index.html where ROOT is the full path to your hexagram directory
+* These pages: file://...hexagram/docs/dev/index.html
 * Source files: hexagram/docs/devSource
 
 To edit this documentation:

@@ -1,40 +1,7 @@
-Code Repository & git
-=====================
+Git Quick Start
+===============
 
-The compute server code repository is at: https://github.com/ucscHexmap/compute
-
-The most current code is in the dev branch.
-
-The view server code repository is at: https://github.com/ucscHexmap/hexagram
-
-The most current code is in the dev branch.
-
-Repository branches
-...................
-There are two main branches, "master" and "dev". Master is used to hold the
-latest production version so should be kept clean. Nothing is ever comitted
-directly into the master branch. It gets updated by the repository meister when
-there is a new release by merging from the dev branch.
-
-.. _youMayUse:
-
-You may use
-personal or project branches off of dev however working directly on the dev
-branch is fine. Working directly on dev will allow the rest of us to use your
-changes as soon as you push them to the remote repository. Otherwise you will
-need to do a merge for others to easily use your work.
-
-.. _aGitQuickStart:
-
-A git quick start
-.................
-Git comes pre-installed on most systems. Otherwise see https://github.com to
-install it.
-
-https://www.sourcetreeapp.com has a great UI on macOS for dealing with most of git. It
-does all of the commands below and is especially good for viewing diffs.
-However it is good to understand the sequence of events and commands behind it,
-and sometimes the UI is slow to update.
+This assumes you hav git installed.
 
 These commands are everything you need from the point of checking out the dev
 branch through committing your files and merging to dev if you've branched off
