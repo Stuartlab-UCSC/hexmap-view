@@ -165,6 +165,13 @@ function isMapPreppedAndUserAuthorized () {
 //               prepare to draw the map.
 function isReadyToRenderMap () {
     var R = rx.getState();
+    /*
+    console.log("R['init.layoutPositionsLoaded']:", R['init.layoutPositionsLoaded'])
+    console.log("R['init.colormapLoaded']:", R['init.colormapLoaded'])
+    console.log("R['init.activeAttrsLoaded']:", R['init.activeAttrsLoaded'])
+    console.log("R['init.googleMapApiLoaded']:", R['init.googleMapApiLoaded'])
+    console.log("R['init.headerLoaded']:", R['init.headerLoaded'])
+    */
     if (R['init.layoutPositionsLoaded'] &&
         R['init.colormapLoaded'] &&
         R['init.activeAttrsLoaded'] &&
