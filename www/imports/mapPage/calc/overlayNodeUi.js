@@ -7,6 +7,7 @@ import auth from '/imports/common/auth';
 import DialogHex from '/imports/common/DialogHex';
 import layout from '/imports/mapPage/head/layout';
 import overlayNodes from './overlayNodes';
+import ReadFile from '/imports/component/ReadFile';
 import rx from '/imports/common/rx';
 import state from '/imports/common/state';
 import tool from '/imports/mapPage/head/tool';
@@ -23,21 +24,6 @@ Template.navBarT.helpers({
         return Session.get('overlayNodes') ? 'block' : 'none';
     },
 });
-
-function validateNodeData (data) {
-
-    if (_.isUndefined(data) || _.isNull(data)) {
-        util.banner('error',
-            'Nodes are undefined, please upload a file of the requested ' +
-                'format.');
-        return false;
-    }
-    if (data.length < 1) {
-        util.banner('error', 'Error: the file is empty.');
-        return false;
-    }
-    return true;
-}
 
 function httpError (result) {
     rx.set('placeNode.running.done');
@@ -63,18 +49,10 @@ function getJobStatus (jobId, jobStatusUrl) {
     )
 }
 
-function doIt (tsv) {
+function doIt (nodeData) {
 
     // Build the rest of the data needed to locate these nodes on the map,
     // then call the computation utility.
-    var nodeData = util.parseTsv(tsv);
-    var valid = validateNodeData(nodeData);
-    if (!valid) {
-        return;
-    }
-
-    util.banner('info', 'Nodes will appear when location calculations are ' +
-        'complete.');
 
     // Convert the node data into an object
 
@@ -123,50 +101,10 @@ function doIt (tsv) {
     util.reportJobSubmitted();
 }
 
-function gotFilename (event) {
-
-    // When a file is selected, read it in
-    rx.set('placeNode.running.now');
-
-    // Make a FileReader to read the file
-    var reader = new FileReader();
-
-    reader.onload = function(read_event) {
-
-        // When we read with readAsText, we get a string.
-        doIt(reader.result);
-    };
-
-    reader.onerror = function(read_event) {
-        rx.set('placeNode.running.done');
-        util.banner('error', 'Error reading file:' + file.filename);
-    };
-    reader.onabort = function(read_event) {
-        rx.set('placeNode.running.done');
-        util.banner('error', 'Aborted reading file: ' + file.filename);
-    };
-
-    try {
-    
-        // Read the file.
-        reader.readAsText(event.target.files[0]);
-    } catch (error) {
-
-        // The user most likely didn't pick a file.
-        rx.set('placeNode.running.done');
-        util.banner('error', 'you need to select a file.');
-    }
-}
-
 function show () {
-
-    // Show the contents of the dialog, once per trigger button click
 
     // Deselect the tool because we don't need to listen to map events.
     tool.activity(false);
-
-    // Attach event listeners
-    $dialog.find('.file').change(gotFilename);
 }
 
 function criteriaCheck () {
@@ -204,6 +142,21 @@ function preShow () {
         // Then check for the map having the proper criteria to do this.
         // Does this map and layout have the data needed to place nodes?
         good = criteriaCheck();
+    }
+    
+    if (good) {
+    
+        // Attach the file reader
+        ReadFile.show('placeNodeReadFileWrap',
+            {
+                parseTsv: true,
+                onSuccess: doIt,
+                onError: function (error) {
+                    rx.set('placeNode.running.done');
+                    util.banner('error', error);
+                }
+            }
+        )
     }
     return good;
 }

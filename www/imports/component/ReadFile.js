@@ -3,30 +3,37 @@
 // Reads a local file into this web app.
 
 import React, { Component } from 'react';
+import { render } from 'react-dom';
 import PropTypes from 'prop-types';
+
 import utils from '/imports/common/utils.js';
 import util from '/imports/common/util.js';
 
-export default class ReadFile extends Component {
+var readFile;
 
+export class ReadFile extends Component {
+    constructor (props) {
+        super(props);
+        this.state = props;
+    }
     validate (result) {
     
         // Validate the data received and tsv-parse it if requested.
         if (_.isUndefined(result) || _.isNull(result) || result.length < 1) {
-            this.props.onError('no data received ' +
+            this.state.onError('no data received ' +
             'Please upload a file of the requested format.');
         }
         var data = result;
-        if (this.props.parseTsv) {
+        if (this.state.parseTsv) {
             data = util.parseTsv(result);
         }
 
         // Validate strings for printable characters
         if (utils.allPrintableCharsInArray(data)) {
             // Return the result to the parent.
-            this.props.onSuccess(data);
+            this.state.onSuccess(data);
         } else {
-            this.props.onError('file contains unprintable characters');
+            this.state.onError('file contains unprintable characters');
         }
     }
 
@@ -34,8 +41,8 @@ export default class ReadFile extends Component {
         var self = this;
 
         // When a file is selected, read it in.
-        if (this.props.onStart) {
-            this.props.onStart();
+        if (this.state.onStart) {
+            this.state.onStart();
         }
 
         // Make a FileReader to read the file
@@ -48,17 +55,17 @@ export default class ReadFile extends Component {
         };
 
         reader.onerror = function() {
-            self.props.onError('Could not read file.');
+            self.state.onError('Could not read file.');
         };
         reader.onabort = function() {
-            self.props.onError('aborted reading file.');
+            self.state.onError('aborted reading file.');
         };
 
         try {
             // Kick of the file read.
             reader.readAsText(event.target.files[0]);
         } catch (error) {
-            this.props.onError('you need to select a file.');
+            this.state.onError('you need to select a file.');
         }
     }
 
@@ -91,3 +98,33 @@ ReadFile.propTypes = {
 ReadFile.defaultProps = {
     // none
 };
+
+var containerId = 'readFileWrap';
+
+function getParentSelector() {
+    return document.querySelector('#' + containerId);
+}
+
+exports.show = function (wrapId, opts) {
+    
+    // Create and render a ReadFile instance from a non-react widget.
+    // See ReadFile.propTypes for options.
+    
+    document.querySelector('#' + wrapId)
+        .append(document.querySelector('#' + containerId));
+    
+    if (!readFile) {
+    
+        // Create the instance to be used throughout the app.
+        //readfile = render(
+        readFile =render(
+            <ReadFile
+                onSuccess = {opts.onSuccess}
+                onError = {opts.onError}
+             />, utils.createReactRoot(containerId));
+    }
+    
+    // Set the new state of the component.
+    readFile.setState(opts);
+};
+
