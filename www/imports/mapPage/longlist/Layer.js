@@ -312,7 +312,7 @@ exports.loadInitialActiveLayers = function () {
     }
 
     if (active.length < 1) {
-        loaded();
+        rx.set('init.activeAttrsLoaded');
     }
     _.each(active, function (layerName) {
         
