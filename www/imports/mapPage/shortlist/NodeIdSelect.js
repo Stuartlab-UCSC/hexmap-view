@@ -9,7 +9,7 @@ import Layer from '/imports/mapPage/longlist/Layer.js';
 import NodeIdSearch from '/imports/component/NodeIdSearch.js';
 import Modal from '/imports/component/Modal.js';
 import TextareaClean from '/imports/component/TextareaClean.js';
-import ReadFile from '/imports/component/ReadFile.js';
+import { ReadFile } from '/imports/component/ReadFile.js';
 import util from '/imports/common/util.js';
 
 export default class NodeIdSelect extends Component {
@@ -19,18 +19,24 @@ export default class NodeIdSelect extends Component {
         this.cartPlaceholder = 'enter node IDs one per line';
         this.state = {
             cartText: '',
+            isOpen: props.isOpen,
         };
         
         // Build the list of node IDs.
         this.allIds = Object.keys(polygons).sort();
         
         // Save our selves.
+        this.closeHandler = this.closeHandler.bind(this);
         this.addToCart = this.addToCart.bind(this);
         this.updateCart = this.updateCart.bind(this);
         this.getCart = this.getCart.bind(this);
         this.handleReadSuccess = this.handleReadSuccess.bind(this);
         this.handleButtonClick = this.handleButtonClick.bind(this);
         this.error = this.error.bind(this);
+    }
+    
+    closeHandler () {
+        this.setState({ isOpen: false });
     }
     
     // TODO this should render the react prompt rather than go the long way
@@ -127,7 +133,13 @@ export default class NodeIdSelect extends Component {
     }
     
     render () {
-        var self = this,        
+    
+        // Only show when isOpen state = true.
+        if (!this.state.isOpen) {
+            return null;
+        }
+        
+        var self = this,
             body =
                 <div>
                     <NodeIdSearch
@@ -168,10 +180,9 @@ export default class NodeIdSelect extends Component {
 
         return (
             <Modal
-                isOpen = {this.props.isOpen}
-                onRequestClose = {self.props.closeModal}
+                isOpen = {this.state.isOpen}
+                onRequestClose = {self.closeHandler}
                 className = 'nodeIdSelectModal'
-                parentSelector = {self.props.parentSelector}
                 body = {body}
                 buttons = {button}
             />
@@ -186,9 +197,6 @@ NodeIdSelect.propTypes = {
     
     // Visibility of this component, passed thru to ReactModal.
     isOpen: PropTypes.bool,
-
-    // Dom container used to destroy the modal. Pass-thru to React-modal.
-    parentSelector: PropTypes.func,
 };
 
 NodeIdSelect.defaultProps = {

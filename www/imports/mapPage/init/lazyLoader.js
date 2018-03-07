@@ -15,29 +15,21 @@ import { render } from 'react-dom';
 
 import utils from '/imports/common/utils';
 
+var nodeIdSelect;
+
 function createNodeIdSelect () {
     
-    // Create the instance of NodeIdSelect.
-    import NodeIdSelect from '/imports/mapPage/shortlist/NodeIdSelect.js';
-    var containerId = 'nodeIdSelectContainer';
-    
-    // The parent selector is used to properly close the modal.
-    function getParentSelector() {
-        return document.querySelector('#' + containerId);
+    // Create and render the instance of NodeIdSelect.
+    if (nodeIdSelect) {
+        nodeIdSelect.setState({ isOpen: true });
+    } else {
+        import NodeIdSelect from '/imports/mapPage/shortlist/NodeIdSelect.js';
+        nodeIdSelect = render(
+            <NodeIdSelect
+                isOpen = {true}
+             />, utils.createReactRoot('nodeIdSelectContainer')
+        );
     }
-
-    // Remove the react component and its container from the DOM.
-    function closeModal () {
-        utils.destroyReactRoot(containerId);
-    }
-
-    // Render the react component.
-    render(
-        <NodeIdSelect
-            isOpen = {true}
-            closeModal = {closeModal}
-            parentSelector = {getParentSelector}
-         />, utils.createReactRoot(containerId));
 }
 
 exports.init = function () {

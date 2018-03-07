@@ -6,7 +6,7 @@ import React, { Component } from 'react';
 import { render } from 'react-dom';
 import DialogHex from '/imports/common/DialogHex';
 import Layer from '/imports/mapPage/longlist/Layer';
-import ReadFile from '/imports/component/ReadFile'
+import { ReadFile } from '/imports/component/ReadFile'
 import rx from '/imports/common/rx';
 import util from '/imports/common/util';
 

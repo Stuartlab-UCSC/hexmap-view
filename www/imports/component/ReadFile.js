@@ -12,10 +12,12 @@ import util from '/imports/common/util.js';
 var readFile;
 
 export class ReadFile extends Component {
+
     constructor (props) {
         super(props);
         this.state = props;
     }
+
     validate (result) {
     
         // Validate the data received and tsv-parse it if requested.
@@ -100,10 +102,6 @@ ReadFile.defaultProps = {
 };
 
 var containerId = 'readFileWrap';
-
-function getParentSelector() {
-    return document.querySelector('#' + containerId);
-}
 
 exports.show = function (wrapId, opts) {
     
