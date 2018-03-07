@@ -126,6 +126,20 @@ exports.session = function (prefix, operation, name, val) {
     }
 }
 
+exports.getDataType = function (layerName){
+    let dataType;
+    if (exports.is_binary(layerName)){
+        dataType = "binary"
+    } else if (exports.is_continuous(layerName)){
+        dataType = "continuous"
+    } else if (exports.is_categorical(layerName)){
+        dataType = "categorical"
+    } else {
+        throw "Unrecognized dataType"
+    }
+    return dataType
+}
+
 exports.is_continuous = function (layer_name) {
     return (ctx.cont_layers.indexOf(layer_name.toString()) > -1);
 }
