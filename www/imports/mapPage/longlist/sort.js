@@ -5,14 +5,15 @@
 var app = app || {}; 
 
 
-import data from '/imports/mapPage/data/data.js';
-import filter from '/imports/mapPage/longlist/filter.js';
+import auth from '/imports/common/auth';
+import data from '/imports/mapPage/data/data';
+import filter from '/imports/mapPage/longlist/filter';
+import rx from '/imports/common/rx';
 import { pollJobStatus, parseJson} from '/imports/common/pollJobStatus';
-import util from '/imports/common/util.js';
-import shortlist from '/imports/mapPage/shortlist/shortlist.js';
+import shortlist from '/imports/mapPage/shortlist/shortlist';
+import userMsg from '/imports/common/userMsg';
 
-var computingText = 'Computing statistics ...',
-    firstSort = true;
+var computingText = 'Computing statistics ...';
 
 function finalCompare(a, b) {
 
@@ -186,18 +187,15 @@ function updateSortUi (type, text, focus_attr, opts) {
     longlist.update();
     shortlist.update_ui_metadata();
 
-    // Skip the banner on the first sort
-    if (firstSort) {
-        firstSort = false;
-    } else {
+    // Skip the banner on initialization.
+    
+    if (!rx.get('init')) {
         if (type === 'noStats') {
-             if (text.indexOf('credential') < 0) {
-                util.banner('error', text);
-            } else {
-                util.banner('warn', 'Now sorted by Density of attributes');
+            if (text.indexOf('credential') < 0) {
+                userMsg.warn('Now sorted by Density of attributes');
             }
         } else {
-            util.banner('info', 'Now sorted by ' + text + elapsed);
+            userMsg.info('Now sorted by ' + text + elapsed);
         }
     }
 }
@@ -244,7 +242,7 @@ function updateIgnoreLayout (parsed, focus_attr, lI, pI, apI, apbI) {
             type = p_value;
         }
         if (type === 'p_value') {
-            util.banner('warn', 'All adjusted p-values were NaN, so '
+            userMsg.warn('All adjusted p-values were NaN, so '
                 + 'displaying and sorting by the single test p-value ' +
                 'instead');
         }
@@ -260,7 +258,7 @@ function updateIgnoreLayout (parsed, focus_attr, lI, pI, apI, apbI) {
             type = p_value;
         }
         if (type === 'p_value') {
-            util.banner('warn', 'All adjusted p-value-bs were NaN, so '
+            userMsg.warn('All adjusted p-value-bs were NaN, so '
                 + 'displaying and sorting by the single test p-value ' +
                 'instead');
         }
@@ -459,6 +457,15 @@ function gatherSelectionData (dynamicDataIn) {
 }
 
 function getDynamicStats (focus_attr, opts) {
+    // First check for this user having the credentials to do this.
+    var good = auth.credentialCheck('to compute dynamic statistics. ' +
+        'Otherwise only pre-computed statistics are available', 'statsSnake');
+    Session.set('statsSnake', good);
+    if (!good) {
+        updateSortUi('noStats', 'credential');
+        return;
+    }
+
     function typeOfRequest(opts){
         let calcRequested;
         if (opts.hasOwnProperty('layout')) {
@@ -472,18 +479,7 @@ function getDynamicStats (focus_attr, opts) {
     }
 
     computingTextDisplay();
-    /*
-    // First check for this user having the credentials to do this.
-    var good = auth.credentialCheck('to compute dynamic statistics. ' +
-        'Only pre-computed statistics on static attributes are available ' +
-        'to you', 'statsSnake');
-    Session.set('statsSnake', good);
-    if (!good) {
-        updateSortUi('noStats', 'credential');
-        return;
-    }
-    */
-
+    
     // This is a dynamically-generated attribute or a request because
     // the stats were not precomputed
 
@@ -537,7 +533,6 @@ function getDynamicStats (focus_attr, opts) {
         body: JSON.stringify(parms),
     };
 
-    console.log(url, parms);
     fetch(url, postForStatJobRequest)
         .then(parseJson)
         .then(
@@ -581,6 +576,7 @@ function computingTextDisplay () {
     Session.set('sort', {
         text: computingText, color: '#2E662C', background: '#D8EECE'});
     Session.set('statsSnake', true);
+    userMsg.jobSubmitted();
 }
 
 exports.findFirstLayerByDensity = function () {

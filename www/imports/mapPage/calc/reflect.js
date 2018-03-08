@@ -6,9 +6,10 @@ import DialogHex from '/imports/common/DialogHex.js';
 import LayerNameList from '/imports/mapPage/shortlist/LayerNameList.js';
 import tool from '/imports/mapPage/head/tool.js';
 import util from '/imports/common/util.js';
-import Prompt from '/imports/component/Prompt';
 import React from 'react';
 import { pollJobStatus, parseJson} from '/imports/common/pollJobStatus'
+import userMsg from '/imports/common/userMsg';
+
 import './reflect.html';
 
 //'use strict';
@@ -118,7 +119,7 @@ function criteriaCheck () {
     // Bail with a message if the required data needed is not present.
     if (!(Session.get('reflectCriteria'))) {
         dialogHex.hide();
-        util.banner('error', 'Sorry, the required data to ' +
+        userMsg.error('Sorry, the required data to ' +
             'reflect is not available for this map.');
         return false;
     }
@@ -190,7 +191,6 @@ function executeReflection () {
         // Opens a prompt with a link to view the completed reflection.
         const result = jresp.result;
         const reflectUrl = buildReflectUrl(result);
-        const button = makeButton(reflectUrl);
         let msg = ` The reflection of ${selectionSelected} is viewable on ${toMapId}.`;
 
         // If some of the data requested was missing notify the user via prompt msg.
@@ -202,27 +202,7 @@ function executeReflection () {
                      reflected attribute.`
         }
         msg = extra + msg;
-        showPrompt(button, msg);
-    };
-    
-    const showPrompt = (button, msg) => {
-        if (button) {
-            Prompt.show(msg,
-                {buttonInput: button,
-                    severity: "info"
-                }
-            )
-        }
-    };
-
-    const makeButton = (url) => {
-        const button =
-        <button style={{float : "right"}}>
-        <a href={url} target = {"_blank"} >
-            GO
-            </a>
-            </button>
-        if (url) return button;
+        userMsg.info(msg, { link: reflectUrl });
     };
 
     const buildReflectUrl =

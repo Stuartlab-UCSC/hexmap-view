@@ -6,7 +6,6 @@ import ajax from '/imports/mapPage/data/ajax';
 import auth from '/imports/common/auth';
 import React, { Component } from 'react';
 import perform from '/imports/common/perform';
-import prompt from '/imports/component/Prompt';
 import { render } from 'react-dom';
 import rx from '/imports/common/rx';
 import Select22 from '/imports/component/Select22';
@@ -162,7 +161,7 @@ exports.authorize = function () {
             rx.set('projectList.receiving.done');
         },
         function (error) {
-            util.banner('error',
+            userMsg.error(
                 "Unable to retrieve project data from server." + error);
         }
     );

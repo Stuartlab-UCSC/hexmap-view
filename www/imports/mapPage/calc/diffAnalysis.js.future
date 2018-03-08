@@ -77,7 +77,7 @@ function receive_data(result, attr, attr2, opts) {
 
 function runIt(attr, attr2) {
 
-    Util.banner('info', computingText);
+    userMsg.info(computingText);
 
     // Prepare the parameters for the server call
     var opts = {
@@ -99,13 +99,13 @@ function runIt(attr, attr2) {
     Meteor.call('pythonCall', 'diffAnalysis', opts,
         function (error, result) {
             if (error) {
-                Util.banner('error', error);
+                userMsg.error(error);
             } else if (typeof result === 'string' 
                 && result.slice(0,5).toLowerCase() === 'error') {
-                Util.banner('error', result);
+                userMsg.error(result);
             } else if (typeof result === 'string' 
                 && result.slice(0,4).toLowerCase() === 'info') {
-                Util.banner('info', result);
+                userMsg.info(result);
             } else {
                 receive_data(result, attr, attr2, opts);
             }
@@ -134,7 +134,7 @@ function runIt(attr, attr2) {
         runIt(attr, attr2);
         hide();
     } else {
-        Util.banner('error', returnMessage);
+        userMsg.error(returnMessage);
     }
 }
 

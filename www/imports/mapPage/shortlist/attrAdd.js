@@ -8,7 +8,7 @@ import DialogHex from '/imports/common/DialogHex';
 import Layer from '/imports/mapPage/longlist/Layer';
 import { ReadFile } from '/imports/component/ReadFile'
 import rx from '/imports/common/rx';
-import util from '/imports/common/util';
+import userMsg from '/imports/common/userMsg';
 
 import '/imports/mapPage/shortlist/attrAdd.html';
 
@@ -59,7 +59,7 @@ function handleReadStart() {
 
 function handleReadError(msg) {
     rx.set('attrAdd:adding.done');
-    util.banner('error', msg);
+    userMsg.error(msg);
 }
 
 function createWindow() {

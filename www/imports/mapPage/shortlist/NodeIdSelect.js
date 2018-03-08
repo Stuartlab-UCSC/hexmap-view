@@ -10,6 +10,7 @@ import NodeIdSearch from '/imports/component/NodeIdSearch.js';
 import Modal from '/imports/component/Modal.js';
 import TextareaClean from '/imports/component/TextareaClean.js';
 import { ReadFile } from '/imports/component/ReadFile.js';
+import userMsg from '/imports/common/userMsg';
 import util from '/imports/common/util.js';
 
 export default class NodeIdSelect extends Component {
@@ -37,12 +38,14 @@ export default class NodeIdSelect extends Component {
     
     closeHandler () {
         this.setState({ isOpen: false });
+        
+        if (this.props.closeModal) {
+            this.props.closeModal();
+        }
     }
     
-    // TODO this should render the react prompt rather than go the long way
-    // out of react and back in.
     error (msg) {
-        util.banner('error', msg);
+        userMsg.error(msg);
     }
 
     getCart () {
@@ -117,9 +120,7 @@ export default class NodeIdSelect extends Component {
         // Create the attribute.
         Layer.create_dynamic_selection(cart);
         
-        if (this.props.closeModal) {
-            this.props.closeModal();
-        }
+        this.closeHandler();
     }
 
     handleReadSuccess (data) {

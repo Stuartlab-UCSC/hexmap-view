@@ -20,8 +20,13 @@ export default class Modal extends Component {
     constructor (props) {
         super(props);
         this.state = {
-            isOpen: props.isOpen,
+            isOpen: true,
+            onRequestClose: props.onRequestClose,
+            closeTimeoutMS: props.closeTimeoutMS,
         };
+        if (props.isOpen !== undefined) {
+            this.state.isOpen = props.isOpen;
+        }
         
         this.handleCancelModal = this.handleCancelModal.bind(this);
     }
@@ -29,17 +34,21 @@ export default class Modal extends Component {
     handleCancelModal (event) {
     
         // User clicked on the close button in the upper right
-        // or outside of the modal, so close without a response.
-        if (this.props.onRequestClose) {
-            
-            // Stop propagation of the event so that that react close event will
-            // not execute twice when a modal is closed by clicking the close
-            // button. This is a work-around for a react bug.
-            // TODO only works sometimes.
-            event.stopPropagation();
-            
+        // or outside the modal.
+        
+        // Stop propagation of the event so that that react close event will
+        // not execute twice when a modal is closed by clicking the close
+        // button. This is a work-around for a react bug.
+        // Only works sometimes.
+        event.stopPropagation();
+
+        // Close immediately rather than waiting like we do for fading away.
+        this.setState({ closeTimeoutMS: 0 });
+        
+        // Close without a response.
+        if (this.state.onRequestClose) {
             // Execute the given close event handler.
-            this.props.onRequestClose();
+            this.state.onRequestClose();
         }
     }
     
@@ -49,11 +58,13 @@ export default class Modal extends Component {
         return (
             <ReactModal
                 isOpen = {self.state.isOpen}
+                closeTimeoutMS = {this.state.closeTimeoutMS}
                 contentLabel = 'useless'
-                onAfterOpen = {this.props.onAfterOpen}
-                onRequestClose = {self.props.onRequestClose}
+                onAfterOpen = {self.props.onAfterOpen}
+                onRequestClose = {self.state.onRequestClose}
                 className = {this.props.className + ' modal'}
                 parentSelector = {self.props.parentSelector}
+                appElement = {document.querySelector('.appRoot')}
             >
                 <div className = 'modalHeader'>
                     <span>
@@ -95,7 +106,7 @@ Modal.propTypes = {
     // Visibility of this component, passed thru to ReactModal.
     isOpen: PropTypes.bool,
     
-    // Function to retrieve the DOM container element.
+    // Function to retrieve containerId to destroy the react component within.
     // Pass-thru to the React-modal.
     parentSelector: PropTypes.func,
     
@@ -106,6 +117,10 @@ Modal.propTypes = {
     // Function to call after the modal opens.
     // Pass-thru to react-modal.
     onAfterOpen: PropTypes.func,
+    
+    // Take this long from the point of requesting a close
+    // to the modal actually closing.
+    closeTimeoutMS: PropTypes.number,
 };
 
 Modal.defaultProps = {

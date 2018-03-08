@@ -2,59 +2,59 @@
 // Prompt.js
 // The UI to prompt the user with a string, an optional text field and an
 // optional OK button.
-// If you want something more sophisticated than a text the above elements, use
+// If you want something more complex than the above elements, use
 // Modal.js instead.
 
 import React, { Component } from 'react';
-import { render } from 'react-dom';
+//import { render } from 'react-dom';
 import PropTypes from 'prop-types';
 
 import Modal from './Modal.js';
-import utils from '/imports/common/utils.js';
 
-class Prompt extends Component {
+export default class Prompt extends Component {
     constructor (props) {
+        
         super(props);
-        this.state = {};
-        if (this.props.textStr) {
-            this.state.textStr = this.props.textStr;
-        }
-        if (this.props.severity === 'error') {
-            this.title = 'Error';
-        }
+        this.state = props;
         this.modalClass = 'promptModal';
-
-        this.handleOpenModal = this.handleOpenModal.bind(this);
+        
         this.handleCloseModal = this.handleCloseModal.bind(this);
         this.handleTextKeyPress = this.handleTextKeyPress.bind(this);
         this.handleTextChange = this.handleTextChange.bind(this);
         this.handleButtonClick = this.handleButtonClick.bind(this);
+        this.componentWillUpdate = this.componentWillUpdate.bind(this);
+        this.componentDidUpdate = this.componentDidUpdate.bind(this);
     }
     
-    handleOpenModal() {
-        
-        // Set the text value here to force the cursor to the end.
-        if (this.state.textStr) {
-            this.$text.val(this.state.textStr).focus();
-        }
+    getParentSelector () {
+        this.parentSelector = document.querySelector('#' + this.state.wrapId);
     }
-
+        
     handleCloseModal (response) {
-        if (this.props.closeModal) {
-            this.props.closeModal(response);
+        
+        // Only allow string or undefined responses to be returned.
+        clearTimeout(this.fadeAwayTimer);
+        this.setState({ isOpen: false });
+
+        if (this.state.closeHandler) {
+            if (_.isUndefined(response) || typeof response !== 'string') {
+                this.state.closeHandler(this.state.wrapId);
+            } else {
+                this.state.closeHandler(this.state.wrapId, response);
+            }
         }
     }
     
     handleButtonClick () {
-        if (this.state.textStr) {
-            this.handleCloseModal(this.state.textStr.trim());
+        if (this.state.textInputStr) {
+            this.handleCloseModal(this.state.textInputStr.trim());
         } else {
             this.handleCloseModal();
         }
     }
   
     handleTextKeyPress (event) {
-    
+
         // Allow a return key press to trigger the button.
         if (event.which === 13 || event.keyCode === 13) {
             this.handleButtonClick();
@@ -62,20 +62,77 @@ class Prompt extends Component {
     }
     
     handleTextChange (event) {
-        this.setState({ textStr: event.target.value });
+        this.setState({ textInputStr: event.target.value });
     }
+    
+    componentDidUpdate () {
+        var self = this;
         
-    render () {
-        var self = this,
-            input = null,
-            button = null,
-            link = null,
-            linkText,
-            labelClass = '';
+        // Set the text value here to force the cursor to the end.
+        if (this.state.textInputStr) {
+            setTimeout(function () {
+                if (self.$text) {
+                    self.$text.val(self.state.textInputStr).focus();
+                }
+            }, 300);
+        }
+    
+        // (re)set the timer to fade away.
+        if (this.fadeAwayTimer) {
+            clearTimeout(this.fadeAwayTimer);
+            this.fadeAwayTimer = setTimeout(function () {
+                self.handleCloseModal();
+            }, 3000);
+        }
+    }
+    
+    componentWillUpdate (nextProps, nextState) {
+
+        // Set the actual fadeAway based on caller-specified fadeAway & severity
+        if (nextState.fadeAway !== this.state.fadeAway) {
+            this.fadeAwayTimer = nextState.fadeAway;
+        } else {
+            this.fadeAwayTimer = (
         
+                // Fade away on info and warn messages, unless they contain
+                // inputs or links.
+                (nextState.severity === 'info' ||
+                nextState.severity === 'warn') &&
+                !nextState.textInputStr &&
+                !nextState.link
+            );
+        }
+    }
+
+    renderLink (promptStr) {
         
-        // Build the text box and buttons in the button box.
-        if (typeof this.state.textStr !== 'undefined') {
+        // Build the link and maybe set the text displayed over it.
+        var link = null,
+            linkStr = null;
+        
+        if (this.state.link) {
+            linkStr = (this.state.linkStr) ?
+                this.state.linkStr : this.state.link;
+        
+            promptStr += ' ';
+            link = (
+                <a
+                    href = {this.state.link}
+                    target = '_blank'
+                >
+                    {linkStr}
+                </a>
+            );
+        }
+        return { link, promptStr };
+    }
+
+    renderTextInput (self) {
+    
+        // Build the text box and its OK button..
+        var button = null,
+            input = null;
+        if (this.state.textInputStr) {
             input =
                 <input
                     type = 'text'
@@ -83,50 +140,56 @@ class Prompt extends Component {
                     onChange = {self.handleTextChange}
                     ref={(input) => { this.$text = $(input); }}
                 />,
-                button = <button onClick = {function () {
-                    self.handleButtonClick();
+                button = <button onClick = {function (event) {
+                    self.handleButtonClick(event);
                 }}>
                     OK
-                </button>;
-        } else if (this.props.buttonInput) {
-            input = this.props.buttonInput
+                </button>
+            ;
+        }
+        return { input, button };
+    }
+    
+    render () {
+
+        // Only show when isOpen state is true.
+        if (!this.state.isOpen) {
+            return null;
+        }
+
+        // Log a console message if requested.
+        if (this.state.logStr) {
+            console.log(this.state.logStr);
         }
         
-        if (this.props.linkText) {
-            linkText = this.props.linkText;
-        } else {
-            linkText = this.props.link;
-        }
-        if (this.props.link) {
-            link =
-                <a
-                    href = {this.props.link}
-                    target = '_blank'
-                >
-                    {linkText}
-                </a>;
-        }
+        var self = this,
+            promptStr = this.state.promptStr,
+            linkPromptStr = this.renderLink(promptStr),
+            link = linkPromptStr.link,
+            inputButton = this.renderTextInput(self),
+            input = inputButton.input,
+            button = inputButton.button,
+            contentClass = (this.state.contentClass) ?
+                this.state.contentClass : '',
+            title = (this.state.severity === 'error') ? 'Error': null;
         
-        if (this.props.labelClass !== undefined) {
-            labelClass = this.props.labelClass;
-        }
-        
-        console.log('this.title', this.title)
-        
+        promptStr = linkPromptStr.promptStr;
+    
         return (
             <Modal
-                onAfterOpen = {this.handleOpenModal}
+                isOpen = {this.state.isOpen}
                 onRequestClose = {self.handleCloseModal}
-                overlayClassName = 'prompt'
-                className = {this.modalClass + ' ' + this.props.severity}
-                parentSelector = {self.props.parentSelector}
-                title = {this.title}
+                closeTimeoutMS = {(self.fadeAwayTimer) ? 1000 : 0}
+                parentSelector = {this.parentSelector}
+                overlayClassName = 'promptOverlay'
+                className = {this.modalClass + ' ' + this.state.severity}
+                title = {title}
                 body = {
                     <div>
                         <div
-                            className = {'modalLabel ' + labelClass}
+                            className = {'modalLabel ' + contentClass}
                         >
-                            {this.props.promptStr}
+                            {promptStr}
                             {link}
                         </div>
                         {input}
@@ -137,84 +200,36 @@ class Prompt extends Component {
         );
     }
 }
+
 Prompt.propTypes = {
 
     // The text to display as a prompt.
     promptStr: PropTypes.string.isRequired,
-    
-    // A class to apply to the label.
-    labelClass: PropTypes.string,
-    
-    // An http link to display just after the prompt string.
-    link: PropTypes.string,
-    
-    // The text to display for the link.
-    linkText: PropTypes.string,
-    
-    // The default text to display in the text input.
-    textStr: PropTypes.string,
 
     // The type of prompt to control color and more.
     severity: PropTypes.oneOf(['info', 'warn', 'error']),
  
-    // Function to call when this modal closes.
-    closeModal: PropTypes.func,
+    // An http link to display just after the prompt string.
+    link: PropTypes.string,
+    
+    // The text to display for the link.
+    linkStr: PropTypes.string,
+    
+    // The default text to display in the text input box.
+    textInputStr: PropTypes.string,
 
-    // Pass-thru to the React-modal to destroy the container.
-    parentSelector: PropTypes.func,
+    // Fade away the modal after so many seconds of display. The default
+    // is false, except for info and warning messages, the default is true.
+    fadeAway: PropTypes.bool,
+    
+    // A class to attach to the prompt content.
+    contentClass: PropTypes.string,
 
-    buttonInput: PropTypes.node,
+    // Function to call upon modal close.
+    closeHandler: PropTypes.func,
 };
 
 Prompt.defaultProps = {
+    // none
 };
-var containerId = 'prompt',
-    callback;
 
-function closeModal (response) {
-    utils.destroyReactRoot(containerId);
-    if (callback) {
-    
-        // Only allow string or undefined responses to be returned.
-        if (_.isUndefined(response) || typeof response !== 'string') {
-            callback();
-        } else {
-            callback(response);
-        }
-    }
-}
-
-function getParentSelector() {
-    return document.querySelector('#' + containerId);
-}
-
-exports.show = function (promptStr, opts) {
-    
-    // Create and render this modal.
-    // @param         promptStr: the prompt string
-    // @param         opts.link: http link to appear after the prompt, optional
-    // @param     opts.linkText: text to appear instead of actual link, optional
-    // @param      opts.textStr: the text to put in the input box, optional
-    // @param     opts.callback: function to call upon modal close, optional
-    // @param     opts.severity: one of [error, info, warning], optional;
-    //                           default is no color in prompt
-    // @param     opts.buttonInput: inserts a button into the prompt without 
-    // @param    opts.labelClass: a class to apply to the prompt label, optional
-    var container = utils.createReactRoot(containerId);
-    callback = opts ? opts.callback : null;
-    buttonInput = opts ? opts.buttonInput : null;
-    
-    render(
-        <Prompt
-            promptStr = {promptStr}
-            className = 'prompt'
-            labelClass = {opts.labelClass}
-            textStr = {opts.textStr}
-            link = {opts.link}
-            linkText = {opts.linkText}
-            parentSelector = {getParentSelector}
-            severity = {opts.severity}
-            closeModal = {closeModal}
-            buttonInput = {buttonInput}
-         />, container);
-};

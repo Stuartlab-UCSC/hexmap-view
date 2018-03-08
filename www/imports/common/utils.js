@@ -52,10 +52,14 @@ exports.createReactRoot = function (containerId) {
     return document.querySelector('#' + containerId);
 };
 
-exports.destroyReactRoot = function (containerId) {
-    var id = document.querySelector('#' + containerId);
-    unmountComponentAtNode(id);
-    $(id).remove();
+exports.destroyReactContainer = function (containerId) {
+    var wrap = document.querySelector('#' + containerId);
+    try {
+        unmountComponentAtNode(wrap);
+    } catch (error) {
+        // nothing to do
+    }
+    wrap.parentNode.removeChild(wrap);
 };
 
 exports.resizeMap = function () {

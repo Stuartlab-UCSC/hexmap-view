@@ -1,10 +1,10 @@
 
 .ReactModal__Overlay {
-    z-index: 2000;
+    z-index: 1;
 }
 
 .ReactModal__Overlay.prompt {
-    z-index: 2002;
+    z-index: 2001;
 }
 
 .ReactModal__Content {
@@ -68,8 +68,12 @@
     max-width: 20em;
 }
 
-.promptModal .modalLabel.jobUrl {
+.promptModal .modalLabel.wider {
     max-width: 45em;
+}
+
+.promptModal .modalLabel.selectionNamer {
+    max-width: 50em;
 }
 
 .nodeIdSelectModal .readFile {
@@ -89,5 +93,14 @@
 .nodeIdDropdown li span.selected {
     color: green;
     font-weight: bold;
+}
+
+.ReactModal__Overlay--before-close {
+  opacity: 0;
+  transition: opacity 1000ms ease-out;
+}
+
+.ReactModal__Overlay {
+    background-color: rgba(255, 255, 255, 0) !important;
 }
 

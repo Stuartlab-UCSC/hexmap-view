@@ -3,7 +3,7 @@
 // Bookmarks and page-only parms are handled in state.js.
 
 import Layer from '/imports/mapPage/longlist/Layer.js';
-import util from '/imports/common/util.js';
+import userMsg from '/imports/common/userMsg';
 
 exports.getParms = function () {
 
@@ -198,9 +198,9 @@ function addAttrToShortlist(newLayer) {
 
 function ajaxError(error) {
     if (error) {
-        util.banner('error', error);
+        userMsg.error(error);
     } else {
-        util.banner('error', 'Unknown server error');
+        userMsg.error('Unknown server error');
     }
 }
 

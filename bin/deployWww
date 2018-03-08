@@ -17,7 +17,7 @@ cd $HEXMAP/www
 $METEOR_PATH npm install --production
 $METEOR_PATH build $HEXMAP/deploy --architecture os.linux.x86_64
 cd $HEXMAP
-scp deploy/www.tar.gz kolossus:dev
+scp deploy/www.tar.gz hexmap-new:dev
 echo
 echo If the scp session timed out, do:
-echo "scp deploy/www.tar.gz kolossus:dev"
+echo "scp deploy/www.tar.gz hexmap-new:dev"

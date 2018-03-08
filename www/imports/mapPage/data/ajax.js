@@ -3,6 +3,7 @@
  */
 
 import rx from '/imports/common/rx';
+import userMsg from '/imports/common/userMsg';
 import util from '/imports/common/util';
 
 var UPLOAD_MAX_GIGABYTES = 4,
@@ -272,7 +273,7 @@ exports.upload = function(opts) {
     if (opts.sourceFile.size > UPLOAD_MAX_BYTES) {
         var msg = 'upload failed because file is larger than the ' +
             UPLOAD_MAX_GIGABYTES + ' GB limit.';
-        util.banner('error', msg);
+        userMsg.error(msg);
         if (opts.error) {
             opts.error(msg);
         }

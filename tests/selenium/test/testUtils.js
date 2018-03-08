@@ -51,8 +51,8 @@ exports.failed = function (expected, actual, line, filename, callerLine,
     */
 };
 
-exports.verifyPromptModal = function (promptStr, textStr, driver, callerLine,
-        callerFile) {
+exports.verifyPromptModal = function (promptStr, textInputStr, driver,
+        callerLine, callerFile) {
     
     // Verify a prompt modal exists and has the given prompt string
     // and input text string.
@@ -78,8 +78,8 @@ exports.verifyPromptModal = function (promptStr, textStr, driver, callerLine,
         .then(_ => driver.findElement(By.css(textCss))
             .getAttribute('value'))
         .then(function (val) {
-            if (val !== textStr) {
-                U.failed(textStr, val, __line, __file, callerLine,
+            if (val !== textInputStr) {
+                U.failed(textInputStr, val, __line, __file, callerLine,
                     callerFile, driver);
             }
         })

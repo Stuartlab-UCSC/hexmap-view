@@ -1,14 +1,14 @@
 // Layer.js
 // Most of the code to handle the layer data.
 
-import data from '/imports/mapPage/data/data.js';
-import colorEdit from '/imports/mapPage/color/colorEdit.js';
-import colorMix from '/imports/mapPage/color/colorMix.js';
-import jPalette from '/imports/lib/jPalette.js';
-import Prompt from '/imports/component/Prompt.js';
-import rx from '/imports/common/rx.js';
-import shortlist from '/imports/mapPage/shortlist/shortlist.js';
-import util from '/imports/common/util.js';
+import data from '/imports/mapPage/data/data';
+import colorEdit from '/imports/mapPage/color/colorEdit';
+import colorMix from '/imports/mapPage/color/colorMix';
+import jPalette from '/imports/lib/jPalette';
+import rx from '/imports/common/rx';
+import shortlist from '/imports/mapPage/shortlist/shortlist';
+import userMsg from '/imports/common/userMsg';
+import util from '/imports/common/util';
 
 var selection_prefix = 'Selection';
 
@@ -18,7 +18,11 @@ function ask_user_to_name_layer (name, dup_name, callback) {
     var promptString = (dup_name) ?
                         '"' + dup_name + '" is in use, how about this one?'
                         : 'Please name this new attribute';
-    Prompt.show(promptString, { textStr: name, callback: callback });
+    userMsg.show(promptString, {
+        textInputStr: name,
+        contentClass: 'selectionNamer',
+        callback: callback
+    });
 }
 
 function let_user_name_layer (layer_name, callback) {
@@ -500,7 +504,7 @@ exports.create_dynamic_category = function (nodeIds, values, new_layer_name) {
     // the gived layer name.
     
     if (nodeIds.length < 1) {
-        util.banner('error',
+        userMsg.error(
             "No nodes had values, so an attribute will not be created.");
         return;
     }
@@ -538,7 +542,7 @@ exports.create_dynamic_selection = function (nodeIds, new_layer_name) {
     // "selection + #" will be suggested as the layer name.
 
     if (nodeIds.length < 1) {
-        util.banner('error',
+        userMsg.error(
             "No nodes were selected, so an attribute will not be created.");
         return;
     }

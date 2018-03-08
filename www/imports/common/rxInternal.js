@@ -149,7 +149,6 @@ function makeAction (type, ...argNames) {
 function makeStateActions () {
 
     // Create all action identifiers and actions for single action bits of state.
-    // TODO: Test with more than one action per statePiece.
     _.each(rx.stateActions, function(id) {
         makeAction(id);
     });
