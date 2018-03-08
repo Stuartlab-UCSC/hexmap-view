@@ -11,6 +11,7 @@ import ReadFile from '/imports/component/ReadFile';
 import rx from '/imports/common/rx';
 import state from '/imports/common/state';
 import tool from '/imports/mapPage/head/tool';
+import userMsg from '/imports/common/userMsg';
 import util from '/imports/common/util';
 
 import './overlayNode.html';
@@ -26,23 +27,23 @@ Template.navBarT.helpers({
 });
 
 function httpError (result) {
+    userMsg.jobError(result,
+        { prefix: 'While calculating position of a new node: ' });
     rx.set('placeNode.running.done');
-    util.banner('error', 'when calculating position of a new node: ' +
-        result.error, result.stackTrace);
 }
 
 function getJobStatus (jobId, jobStatusUrl) {
 
     // Check status of the job and display when complete.
     ajax.getJobStatus(jobId, jobStatusUrl,
-        function (result) {
-            if (result['status'] === 'Success') {
-                var nodes = result.result.nodes;
+        function (job) {
+            if (job.status === 'Success') {
+                var nodes = job.result.nodes;
                 var nodeNames = Object.keys(nodes);
-                var url = nodes[Object.keys(nodes)[0]].url;
-                 util.reportJobSuccess(url);
+                job.result.url = nodes[Object.keys(nodes)[0]].url;
+                userMsg.jobSuccess(job.result, { prefix: 'Node placement ' });
             } else {
-                httpError(result.result);
+                httpError(job.result);
             }
         },
         httpError,
@@ -91,14 +92,12 @@ function doIt (nodeData) {
             getJobStatus(result.jobId, result.jobStatusUrl);
         },
         function (result) {
-            util.banner('error', 'when adding a new node: ' + result.error,
-                result.stackTrace);
+            userMsg.jobError(result, { prefix: 'When adding a new node.' });
         },
     );
-
+    userMsg.jobSubmitted();
     hide();
     rx.set('placeNode.running.done');
-    util.reportJobSubmitted();
 }
 
 function show () {
@@ -121,11 +120,11 @@ function criteriaCheck () {
         placeNodeCriteria = true;
     }
     if (!placeNodeCriteria) {
-        util.banner('error', 'Sorry, the required data to ' +
+        userMsg.error('Sorry, the required data to ' +
         'place new nodes is not available for this map.');
         return false;
     } else if (! Session.equals('mapView', 'honeycomb')) {
-        util.banner('error', 'Sorry, nodes may only be placed in the ' +
+        userMsg.error('Sorry, nodes may only be placed in the ' +
             '"Hexagonal Grid" view. (Selectable under the "View menu".)');
         return false;
     } else {
@@ -153,7 +152,7 @@ function preShow () {
                 onSuccess: doIt,
                 onError: function (error) {
                     rx.set('placeNode.running.done');
-                    util.banner('error', error);
+                    userMsg.error(error);
                 }
             }
         )

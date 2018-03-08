@@ -94,8 +94,7 @@ body,
 }
 
 #banner.warn,
-.modal.promptModal.warn,
-.modal.promptModal.warning {
+.modal.promptModal.warn {
     color: #775B2A;
     background: #F9F5D9;
 }

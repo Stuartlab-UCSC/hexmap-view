@@ -4,9 +4,9 @@
 import ajax from '/imports/mapPage/data/ajax';
 import auth from '/imports/common/auth';
 import DialogHex from '/imports/common/DialogHex';
-import prompt from '/imports/component/Prompt';
 import rx from '/imports/common/rx';
 import tool from '/imports/mapPage/head/tool';
+import userMsg from '/imports/common/userMsg';
 import util from '/imports/common/util';
 import utils from '/imports/common/utils';
 
@@ -120,14 +120,16 @@ function report_error (result) {
         i = date.indexOf('GMT');
     date = date.slice(0, i);
     
-    // Display on the log
+    // Display on the user-visible log.
     var msg = result.error;
     log_it(msg);
     
     // Give an error message.
-    msg += '. More information is ';
-    var link = 'https://tumormap.ucsc.edu/help/createMapTrouble.html';
-    util.banner('error', msg, result.stackTrace, link);
+    userMsg.jobError(result, {
+        prefix: 'While creating your map: ',
+        link: 'https://tumormap.ucsc.edu/help/createMapTrouble.html',
+        linkStr: 'More information.',
+    });
 }
 
 function getProjectName () {
@@ -138,11 +140,14 @@ function getJobStatus (jobId, jobStatusUrl) {
 
     // Check status of the job and display when complete.
     ajax.getJobStatus(jobId, jobStatusUrl,
-        function (result) {
-            if (result.status === 'Success') {
-                util.reportJobSuccess(result)
+        function (job) {
+            if (job.status === 'Success') {
+                userMsg.jobSuccess(job.result, {
+                    prefix: 'Success: map created.',
+                    contentClass: ' ',
+                });
             } else {
-                report_error(result.result);
+                report_error(job.result);
             }
         },
         report_error
@@ -192,7 +197,7 @@ function create_map () {
         },
     );
     
-    util.reportJobSubmitted();
+    userMsg.jobSubmitted();
     hide();
     rx.set('createMap.running.done');
 }
@@ -212,9 +217,9 @@ function upload_attributes () {
                 log_it('Color attributes upload complete.')
                 create_map();
             },
-            error: function (error) {
-                log_it(error.error)
-                report_error(error)
+            error: function (result) {
+                log_it(result.error)
+                report_error(result)
           },
             progress: function (loaded, total) {
                 log_it(null, startDate, loaded, total, true);
@@ -231,7 +236,7 @@ function create_clicked (event) {
     if ($dialogCreateButton.hasClass('ui-state-disabled')) { return; }
     
     if (!util.isValidFileName(ui.get('minor_project'))) {
-        util.banner('error', 'map name may only contain the characters:' +
+        userMsg.error('map name may only contain the characters:' +
             ' a-z, A-Z, 0-9, dash (-), dot (.), underscore (_)');
         return;
     }
@@ -240,7 +245,7 @@ function create_clicked (event) {
 
     if (!feature_upload.refs.fileObj) {
         rx.set('createMap.running.done');
-        util.banner('error',
+        userMsg.error(
             'a layout input file must be selected to create a map.')
         return;
     }
@@ -259,9 +264,9 @@ function create_clicked (event) {
             log_it('Layout input upload complete.')
             upload_attributes();
         },
-        error: function (error) {
-            log_it(error.error)
-            report_error(error)
+        error: function (result) {
+            log_it(result.error)
+            report_error(result)
          },
         progress: function (loaded, total) {
             log_it(null, startDate, loaded, total, true);
@@ -339,7 +344,7 @@ function show () {
             build_dialog_content(username);
         } else {
             rx.set('createMap.running.done');
-            util.banner('error', 'username could not be found');
+            userMsg.error('username could not be found');
         }
     });
 }

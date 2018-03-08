@@ -5,7 +5,7 @@ import overlayNodes from '/imports/mapPage/calc/overlayNodes';
 import rx from '/imports/common/rx';
 import shortlist from '/imports/mapPage/shortlist/shortlist';
 import urlParms from '/imports/common/urlParms';
-import util from '/imports/common/util';
+import userMsg from '/imports/common/userMsg';
 import utils from '/imports/common/utils';
 import bookmark from '/imports/common/bookmark';
 
@@ -332,7 +332,7 @@ function checkLocalStore () {
     try {
         ("localStorage" in window && window.localStorage !== null); // jshint ignore: line
     } catch (e) {
-        util.banner('warn', "Browser does not support local storage.");
+        userMsg.warn("Browser does not support local storage.");
         return false;
     }
     return true;

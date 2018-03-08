@@ -3,7 +3,7 @@
 
 import DialogHex from '/imports/common/DialogHex.js';
 import tool from '/imports/mapPage/head/tool.js';
-import util from '/imports/common/util.js';
+import userMsg from '/imports/common/userMsg';
 
 import '/imports/mapPage/head/header.html';
 import './filter.html';
@@ -240,7 +240,7 @@ function whenDisplayOrSortedLayersChange () {
     if (!display || !sorted) { return; }
 
     if (display.length < 1 && Session.equals('mapSnake', false)) {
-        util.banner('warn', 'No attributes to display, relax some filters');
+        userMsg.warn('No attributes to display, relax some filters');
         $passFilters.addClass('red');
     } else {
         $passFilters.removeClass('red');

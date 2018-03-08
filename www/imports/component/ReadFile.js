@@ -114,8 +114,7 @@ exports.show = function (wrapId, opts) {
     if (!readFile) {
     
         // Create the instance to be used throughout the app.
-        //readfile = render(
-        readFile =render(
+        readFile = render(
             <ReadFile
                 onSuccess = {opts.onSuccess}
                 onError = {opts.onError}

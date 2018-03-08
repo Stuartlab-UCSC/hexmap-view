@@ -4,7 +4,7 @@
 
 import perform from '/imports/common/perform.js';
 import rx from '/imports/common/rx.js';
-import util from '/imports/common/util.js';
+import userMsg from '/imports/common/userMsg';
 
 function getUserRoles () {
 
@@ -32,7 +32,7 @@ exports.credentialCheck = function (credential) {
     // Bail with a message if the user is not logged in.
     var returnVal = true;
     if (!Meteor.userId()) {
-        util.banner('error', 'Please log in ' + credential + '.');
+        userMsg.error('Please log in or create an account ' + credential + '.');
         returnVal = false;
     }
     return returnVal;

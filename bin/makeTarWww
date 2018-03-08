@@ -27,8 +27,8 @@ echo creating tar file...
 tar czf $TAR_FILE .meteor client imports lib package.json public server
 
 cd $HEXMAP
-scp $TAR_FILE kolossus:dev
+scp $TAR_FILE hexmap-new:dev
 echo
 echo If the scp session timed out, do:
-echo "scp $TAR_FILE kolossus:dev"
+echo "scp $TAR_FILE hexmap-new:dev"
 

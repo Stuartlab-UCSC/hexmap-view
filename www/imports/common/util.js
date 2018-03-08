@@ -2,9 +2,9 @@
 // This contains various utilities used throughout the code.
 
 import dnt from '/imports/lib/dnt';
-import Prompt from '/imports/component/Prompt';
 import rx from '/imports/common/rx';
 import select2 from '/imports/lib/select2';
+import userMsg from '/imports/common/userMsg';
 
 exports.get_username = function (callback) {
     
@@ -35,63 +35,6 @@ exports.clean_file_name = function (dirty) {
     return dirty.replace(/[^A-Za-z0-9_\-\.]/g, "_");
 }
 
-exports.banner = function (severity, text, stackTrace, link, linkText) {
-
-    // Display a message, either as a timed banner when 'severity' is one of
-    // 'warn' or 'info', otherwise a dialog that requires the user to
-    // dismiss the message.
-    if (severity === 'warn' || severity === 'warning' || severity === 'info') {
-    
-        // Display a temporary message to the user on a banner.
-        $("#banner")
-            .removeClass('info warn error stay')
-            .addClass(severity)
-            .text(text)
-            .show();
-        $("#banner").delay(5000).fadeOut(1500);
-    } else if (severity === 'error') {
-        opts = { severity: 'error', link: link, linkText: 'here' };
-        if (linkText) {
-            opts.linkText = linkText;
-        }
-        Prompt.show(text, opts);
-    } else {
-        console.log('invalid user message severity');
-    }
-    // Also inform the browser console of this issue.
-    console.log(severity + ':', text);
-    if (!_.isUndefined(stackTrace)) {
-        console.log('Server Error', stackTrace);
-    }
-}
-
-exports.reportJobSuccess = function (resultOrUrl) {
-
-    // Report a job success from either a url or from resultOrUrl.result.url.
-    var url = ''
-    if (typeof resultOrUrl === 'string') {
-        url = resultOrUrl;
-    } else if (resultOrUrl &&
-        'result' in resultOrUrl &&
-        'url' in resultOrUrl.result) {
-        url = resultOrUrl.result.url;
-    }
-    Prompt.show('Your job has completed with these results: ',
-        {
-            link: url,
-            severity: 'info',
-            labelClass: 'jobUrl',
-        }
-    );
-}
-
-exports.reportJobSubmitted = function () {
-    Prompt.show('Your job has been submitted to the job queue. ' +
-        'You will get a message when it is complete.',
-        { severity: 'info' }
-    );
-}
-
 exports.session = function (prefix, operation, name, val) {
 
     // Perform a get, set, or equals on a session variable which represents
@@ -107,7 +50,7 @@ exports.session = function (prefix, operation, name, val) {
     } else if (prefix === 'filter_value') {
         key = 'shortlist_filter_value_' + name;
     } else {
-        exports.banner('error', 'Illegal prefix on session(): ' + prefix);
+        userMsg.error('Illegal prefix on session(): ' + prefix);
         console.trace();
     }
 
@@ -121,7 +64,7 @@ exports.session = function (prefix, operation, name, val) {
         Session.set(key, val);
 
     } else {
-        exports.banner('error', 'Illegal operation on session()');
+        userMsg.error('Illegal operation on session()');
         console.trace();
     }
 }
@@ -176,7 +119,7 @@ exports.mapNotFoundNotify = function (name, more) {
     }
     msg += '.'
     rx.set('init.done');
-    exports.banner('error', msg);
+    userMsg.error(msg);
 }
 
 exports.projectNotFound = function (dataId) {

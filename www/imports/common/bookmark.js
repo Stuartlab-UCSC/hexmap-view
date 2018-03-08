@@ -3,7 +3,7 @@
 
 import DialogHex from '/imports/common/DialogHex';
 import tool from '/imports/mapPage/head/tool';
-import util from '/imports/common/util';
+import userMsg from '/imports/common/userMsg';
 import '/imports/common/navBar.html';
 
 var bookmarkMessage = new ReactiveVar(),
@@ -50,11 +50,11 @@ exports.load = function (bookmark, ctx) {
     Meteor.call('findBookmark', bookmark,
         function (error, result) {
             if (error) {
-                util.banner('error', error.string());
+                userMsg.error(error.string());
                 return;
             }                
             if (result === 'Bookmark not found') {
-                util.banner('error', result);
+                userMsg.error(result);
                 return;
             }
             ctx.load(result);

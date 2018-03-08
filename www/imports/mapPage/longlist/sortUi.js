@@ -6,7 +6,7 @@ import DialogHex from '/imports/common/DialogHex.js';
 import LayerNameList from '/imports/mapPage/shortlist/LayerNameList.js';
 import sort from './sort.js';
 import tool from '/imports/mapPage/head/tool.js';
-import util from '/imports/common/util.js';
+import userMsg from '/imports/common/userMsg';
 
 import './sort.html';
 
@@ -180,7 +180,7 @@ import './sort.html';
         if (_.isUndefined(returnMessage)) {
             hide();
         } else {
-            util.banner('error', returnMessage);
+            userMsg.error(returnMessage);
         }
 	}
 
