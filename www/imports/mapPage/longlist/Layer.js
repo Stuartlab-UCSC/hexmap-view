@@ -141,7 +141,7 @@ function load_dynamic_colormap (name, layer) {
     }
 }
 
-function find_dynamic_data_type (layer) {
+function find_dynamic_data_type(layer) {
 
     // Find the data type for a dynamic attribute.
     
@@ -396,6 +396,7 @@ exports.with_one = function (layer_name, callback, dynamicLayers) {
         if (dynamicLayers && layer_name in dynamicLayers) {
             load_dynamic_data(layer_name, callback, dynamicLayers);
         } else {
+            layer.dataType =  util.getDataType(layer_name)
             load_static_data(layer_name, callback);
         }
 
