@@ -500,10 +500,12 @@ function getDynamicStats (focus_attr, opts) {
         "continuous": "cont",
         "categorical": "cat"
     };
+    let focusAttr = {};
+    focusAttr[focus_attr] = opts.dynamicData[focus_attr];
 
     let parms = {
-        mapName : ctx.project,
-        focusAttr: opts.dynamicData,
+        map : ctx.project,
+        focusAttr: focusAttr,
         email : Meteor.user().username,
     };
 
@@ -554,6 +556,9 @@ function getPreComputedStats (dataId, focus_attr, opts) {
     function error (focus_attr, opts) {
         // If precomputed stats are not there, compute them now.
         computingTextDisplay();
+        d ={};
+        d[focus_attr] = layers[focus_attr].data;
+        opts.dynamicData = d
         getDynamicStats(focus_attr, opts);
     }
 

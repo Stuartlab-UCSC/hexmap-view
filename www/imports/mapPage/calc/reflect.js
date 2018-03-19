@@ -164,8 +164,7 @@ function executeReflection () {
     let reflectionParms = {
         dataType : dataType,
         userId : userId,
-        toMapId : toMapId,
-        mapId : ctx.project,
+        map : ctx.project,
         nodeIds : nodeIds,
         rankCategories: rankCategories,
         dynamicAttrName : selectionSelected,
