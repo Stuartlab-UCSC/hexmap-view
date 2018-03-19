@@ -1,0 +1,10 @@
+#!/bin/bash
+# Start the http server on production, run by root.
+
+export HEXMAP=/data
+export HEX_VIEWER_CONFIG=$HEXMAP/config/prod
+
+echo Attempting to stop HTTP server
+$HEXMAP/bin/stop http
+echo Starting HTTP server
+$HEXMAP/bin/start http
