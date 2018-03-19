@@ -1,0 +1,10 @@
+#!/bin/bash
+# Start the https server on production run by root.
+
+export HEXMAP=/data
+export HEX_VIEWER_CONFIG=$HEXMAP/config/prod
+
+echo Attempting to stop HTTPS server
+$HEXMAP/bin/stop https
+echo Starting HTTPS server
+$HEXMAP/bin/start https
