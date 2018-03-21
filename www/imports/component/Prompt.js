@@ -34,13 +34,14 @@ export default class Prompt extends Component {
         
         // Only allow string or undefined responses to be returned.
         clearTimeout(this.fadeAwayTimer);
-        this.setState({ isOpen: false });
-
+        
         if (this.state.closeHandler) {
+            let closeHandler = this.state.closeHandler;
+            this.setState({ closeHandler: null });
             if (_.isUndefined(response) || typeof response !== 'string') {
-                this.state.closeHandler(this.state.wrapId);
+                closeHandler(this.state.wrapId);
             } else {
-                this.state.closeHandler(this.state.wrapId, response);
+                closeHandler(this.state.wrapId, response);
             }
         }
     }
@@ -140,11 +141,11 @@ export default class Prompt extends Component {
                     onChange = {self.handleTextChange}
                     ref={(input) => { this.$text = $(input); }}
                 />,
-                button = <button onClick = {function (event) {
-                    self.handleButtonClick(event);
-                }}>
-                    OK
-                </button>
+            button = <button onClick = {function (event) {
+                self.handleButtonClick(event);
+            }}>
+                OK
+            </button>
             ;
         }
         return { input, button };

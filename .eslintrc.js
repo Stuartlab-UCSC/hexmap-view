@@ -1,4 +1,5 @@
 module.exports = {
+    // Use false for those vars that are const.
     "globals": {
         "_": false,
         "ctx": true,
@@ -11,11 +12,13 @@ module.exports = {
         "PERFORM": false,
         "polygons": false,
         "rx": true,
+	"URL_BASE": false,
         "VERSION": false,
         "VIEW_DIR": false,
     },
     "env": {
         "browser": true,
+        "node": true,
         "es6": true,
         "jquery": true,
         "meteor": true,
@@ -23,13 +26,14 @@ module.exports = {
     },
     "extends": [
         "eslint:recommended",
-         "plugin:react/recommended",
+        "plugin:react/recommended",
         "plugin:node/recommended",
     ],
     "parser": "babel-eslint",
     "parserOptions": {
         "allowImportExportEverywhere": true,
-       "ecmaFeatures": {
+        "ecmaVersion": 2018,
+        "ecmaFeatures": {
             "experimentalObjectRestSpread": true,
             "jsx": true
         },
@@ -54,7 +58,7 @@ module.exports = {
             "exports",
         ],
         "node/no-unsupported-features": ["error", {
-            "version": 6,
+            "version": 8,
             "ignores": ["modules"]
         }],
         "semi": [
