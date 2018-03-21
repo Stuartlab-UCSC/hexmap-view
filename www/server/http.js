@@ -2,9 +2,9 @@
 // http.js
 // Handle incoming HTTP requests.
 
-var bookmark = require('./bookmark');
+import bookmark from './bookmark';
 
-exports.respond = function (statusCode, res, data_in) {
+function respond (statusCode, res, data_in) {
 
     // This responds to an http request after converting data to json.
     // TODO authenticate request for known users ?
@@ -12,7 +12,7 @@ exports.respond = function (statusCode, res, data_in) {
     res.setHeader('Content-Type', 'application/json');
     res.writeHead(statusCode);
     res.end(data + '\n');
-};
+}
 
 function passPostChecks (req, res) {
 
@@ -21,60 +21,81 @@ function passPostChecks (req, res) {
 
     // Only POST methods are understood
     if (req.method !== 'POST') {
-        exports.respond(405, res, 'Only the POST method is understood here');
+        respond(405, res, 'Only the POST method is understood here');
         return false;
     }
     
     // Only json content type is understood
     if (req.headers['content-type'] !== 'application/json') {
-        exports.respond(400, res,
+        respond(400, res,
             'Only content-type of application/json is understood here');
         return false;
     }
-
     return true;
+}
+
+async function updateBookmarkDatabase (jsonState, email, res) {
+    try {
+        let result = await bookmark.create(jsonState, email);
+        respond(200, res, result);
+    } catch (error) {
+        respond(500, res, { error: error });
+    }
+}
+
+function createBookmark (jsonData, req, res) {
+    var data,
+        jsonState = jsonData,
+        email = null;
+    
+    // Validate the json.
+    try {
+        data = JSON.parse(jsonData);
+    } catch (e) {
+        var msg = 'server error decoding JSON: ' + e;
+        console.log(msg + ', JSON string:' + jsonData);
+        respond(500, res, {error: msg });
+        return;
+    }
+
+    // Extract the email if there is one.
+    if (data.hasOwnProperty('email')) {
+        email = data.email;
+        delete data.email;
+        jsonState = JSON.stringify(data);
+    }
+
+    updateBookmarkDatabase(jsonState, email, res);
 }
 
 function receiveQuery (operation, req, res) {
 
     // Receive a query for an operation and process it
     
-    var json_data = '';
-    
     if (!passPostChecks(req, res)) { return; }
+    
+    var jsonData = '';
     
     req.setEncoding('utf8');
     
     // Continue to receive chunks of this request
     req.on('data', function (chunk) {
-        json_data += chunk;
+        jsonData += chunk;
     });
     
     // Process the data in this request
     req.on('end', function () {
-        console.log('received query:', operation);
-
         if (operation === 'createBookmark') {
-            try {
-                data = JSON.parse(json_data);
-            } catch (e) {
-                msg = 'server error decoding JSON: ' + e;
-                console.log(msg + ', JSON string:' + json_data);
-                exports.respond(500, res, {error: msg });
-                return;
-            }
-           
-            // Create the bookmark, letting it return the http response
-            bookmark.createBookmarkFiber(json_data, res)
+            createBookmark(jsonData, req, res);
         } else {
-            exports.respond(500, res,
+            respond(500, res,
                 {error: 'no handler for this query operation: ' + operation});
         }
     });
 }
 
-WebApp.connectHandlers.use('/test', function (req, res, next) {
-    exports.respond(200, res, 'just testing');
+WebApp.connectHandlers.use('/test', function (req, res) {
+    respond(200, res, 'just testing');
 });
 
 WebApp.connectHandlers.use('/query/createBookmark', function (req, res, next) {

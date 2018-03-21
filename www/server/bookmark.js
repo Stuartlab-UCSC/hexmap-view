@@ -1,109 +1,96 @@
 // bookmark.js
 // Bookmark server methods.
 
-var crypto = Npm.require('crypto');
-var Future = Npm.require('fibers/future');
-var Fiber = Npm.require('fibers');
-var Http = require('./http');
+var CryptoJS = Npm.require('crypto-js');
 
 var Bookmarks = new Mongo.Collection('bookmarks');
 
-humanToday = function () {
-     var date = new Date();
-     return date.getFullYear() + '-' + date.getMonth() + '-' + date.getDate();
+function humanToday () {
+    var date = new Date(),
+        intMonth = parseInt(date.getMonth()) + 1,
+        strMonth = (intMonth < 10) ?
+            '0' + intMonth.toString() : intMonth.toString();
+    return date.getFullYear() + '-' + strMonth + '-' + date.getDate();
 }
 
-function findBookmark (id, future) {
-    try {
-        var bookmark = Bookmarks.findOne(id.toString()),
-            user = Meteor.user();
-        
-        if (!bookmark) {
-            future.return('Bookmark not found');
-            return;
-        }
-        
-        // TODO update the lastAccess date
-        Bookmarks.update(id, {
-            $set: {
-                username: user ? user.username : undefined,
-                lastAccess: humanToday(),
-            },
-        });
-        future.return(JSON.parse(bookmark.jsonState));
-        
-    } catch (error) {
-        console.log('findBookmark() failed with:', error.toString());
-        console.trace();
-        future.throw(error.toString());
-    }
+function createId (jsonState) {
+
+    // Generate a bookmark ID and URL.
+    var id = CryptoJS.SHA256(jsonState).toString();
+    return {
+        id: id,
+        url: URL_BASE + '/?bookmark=' + id,
+    };
 }
 
-function createBookmarkInner (state, username) {
-    var hash = crypto.createHash('sha256');
-    hash.update(state);
-    var id = hash.digest('hex');
+exports.create = function (jsonState, username) {
 
-    // TODO don't create a duplicate bookmark by another user
+    // Create or update a bookmark.
+    var key = createId(jsonState),
+        dbUsername = username,
+        bookmark = Bookmarks.findOne(key.id.toString());
     
-    // Insert the new bookmark ID into the bookmark collection
-    var upsertReturn = Bookmarks.upsert({ _id: id },
+    // If this bookmark already exists, update the user list.
+    if (bookmark) {
+
+        // Convert the db username and the given username to a single array
+        // of unique elements.
+        dbUsername = _.uniq([].concat(bookmark.username, username)
+            .filter(Boolean));
+    }
+
+    // Insert/update the state into the bookmark collection.
+    Bookmarks.upsert({ _id: key.id },
         {$set: {
-            jsonState: state,
-            username: username,
+            jsonState: jsonState,
+            username: dbUsername,
             lastAccess: humanToday(),
         }},
     );
-    var url = URL_BASE + '/?bookmark=' + id;
-    console.log('info: new bookmark created: url:', url);
-    return url
-}
-
-function createBookmark (state, future) {
-
-    // Save state in a bookmark, returning the URL in the future return
-    try {
-        var user = Meteor.user();
-        var url = createBookmarkInner(state, user ? user.username : undefined);
-        future.return(url);
-        
-    } catch (e) {
-        console.log('saveBookmark() failed with:', e.toString());
-        future.throw(e.toString());
-    }
-}
-
-exports.createBookmarkFiber = function (state, res) {
     
-    // Save state in a bookmark, returning the URL in the future return
-    new Fiber(function () {
+    return { bookmark: key.url };
+};
+
+Meteor.methods({
+    findBookmark: function (id) {
         try {
-            var url = createBookmarkInner(state, 'query/createBookmark');
-            Http.respond(200, res, { bookmark: url });
+            var bookmark = Bookmarks.findOne(id.toString()),
+                user = Meteor.user();
+            
+            if (!bookmark) {
+                return 'Bookmark not found';
+            }
+            
+            // TODO update the lastAccess date
+            Bookmarks.update(id, {
+                $set: {
+                    username: user ? user.username : undefined,
+                    lastAccess: humanToday(),
+                },
+            });
+            return JSON.parse(bookmark.jsonState);
+            
+        } catch (error) {
+            
+            console.log('findBookmark() failed with:', error.toString());
+            console.trace();
+            throw new Meteor.Error('Could not find bookmark', error.toString());
+        }
+    },
+
+    createBookmark: function (jsonState) {
+    
+        // Save state in a bookmark, returning the URL.
+        try {
+            var user = Meteor.user(),
+                result = exports.create(
+                    jsonState, user ? user.username : undefined);
+            return result.bookmark;
             
         } catch (e) {
             console.log('saveBookmark() failed with:', e.toString());
-            
-            Http.respond(500, res, { error: e.toString() });
+            console.trace();
+            throw new Meteor.Error('Could not create bookmark', e.toString());
         }
-    }).run();
-}
-
-Meteor.methods({
-
-    findBookmark: function (id) {
-    
-        // Find a bookmark and return it's contents
-        this.unblock();
-        var future = new Future();
-        findBookmark(id, future);
-        return future.wait();
-    },
-    
-    createBookmark: function (state) {
-        this.unblock();
-        var future = new Future();
-        createBookmark(state, future);
-        return future.wait();
-    },
+    }
 });

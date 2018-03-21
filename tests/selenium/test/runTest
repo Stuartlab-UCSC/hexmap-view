@@ -78,7 +78,9 @@ elif [ $1 == 'lint' ]; then
     }
 
     echo linting...
+    recurse $HEXMAP/www/client
     recurse $HEXMAP/www/imports
+    recurse $HEXMAP/www/server
 else
     node $1
 fi
