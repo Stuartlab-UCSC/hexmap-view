@@ -138,8 +138,14 @@ function getProjectName () {
 
 function getJobStatus (jobId, jobStatusUrl) {
 
-    // Check status of the job and display when complete.
+    // Check status of the job and continue to check within ajax.getJobStatus()
+    // until the job status is either 'Success', or 'Error', or the job status
+    // check itself fails.
     ajax.getJobStatus(jobId, jobStatusUrl,
+    
+        // Handle the successful case of checking the job status. This function
+        // is called when the check is successful and the job status is
+        // 'Success' or 'Error'.
         function (job) {
             if (job.status === 'Success') {
                 userMsg.jobSuccess(job.result, {
@@ -150,6 +156,9 @@ function getJobStatus (jobId, jobStatusUrl) {
                 report_error(job.result);
             }
         },
+        
+        // Handle the error case of checking the job status. This is called when
+        // the check itself fails, unrelated to the status of the job.
         report_error
     )
 }
