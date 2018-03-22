@@ -235,7 +235,6 @@ function getReflectionInfo() {
     };
 
     const setUnavailable = (error) => {
-        console.log("reflection unavailable");
         Session.set('reflectCriteria', false)
     };
 
