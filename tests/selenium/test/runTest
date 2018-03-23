@@ -23,7 +23,6 @@ elif [ $1 == 'lint' ]; then
         colormap.js
         colorMix.js
         coords.js
-        createMap.js
         download.js
         grid.js
         DialogHex.js
