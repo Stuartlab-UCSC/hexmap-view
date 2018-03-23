@@ -8,26 +8,30 @@ import rx from '/imports/common/rx';
 import tool from '/imports/mapPage/head/tool';
 import userMsg from '/imports/common/userMsg';
 import util from '/imports/common/util';
-import utils from '/imports/common/utils';
 
 import '/imports/mapPage/calc/createMap.html';
 
 var title = 'Create a Map',
-        initial_log = 'log messages',
+    initial_log = 'log messages',
     dialogHex, // instance of the class DialogHex
     $dialog, // our dialog DOM element
     $dialogCreateButton,
     feature_upload, // the feature upload react component
     feature_data_id, // the data ID to be passed to the computation code
     attribute_upload, // the feature file selector
-    attribute_data_id // // the data ID to be passed to the computation code
+    attribute_data_id, // // the data ID to be passed to the computation code
     ui = new ReactiveDict(),
     log = new ReactiveVar(),
     show_advanced = 'Advanced ...',
-    hide_advanced = 'Hide advanced',
-    advanced_label = new ReactiveVar();
+    hide_advanced = 'Hide advanced';
  
 Template.create_map_t.helpers({
+    layoutInputUrl: function () {
+        return ui.get('layoutInputUrl');
+    },
+    colorAttributeUrl: function () {
+        return ui.get('colorAttributeUrl');
+    },
     major_project: function () {
         return ui.get('major_project');
     },
@@ -60,7 +64,7 @@ Template.create_map_t.helpers({
                 $log.scrollTop($log[0].scrollHeight);
             }
         }, 0); // Give some time for the log message to show up
-            return text ? text : initial_log;
+        return text ? text : initial_log;
     },
     advanced_label: function () {
         return ui.get('show_advanced') ?
@@ -97,13 +101,17 @@ function log_it (msg_in, startDate, loaded, total, replace_last) {
         msg = 'Uploaded ' + start_str +
             ' of ' + size_str +
             ' bytes in ' + elapsed_str + ' minutes...';
+        replace_last = true;
     }
     
     if (replace_last) {
 
-        // We want to replace the last message logged so remove it.
-        msgs = msgs.slice(0, msgs.lastIndexOf('\n'));
-        log.set(msgs + msg)
+        // We want to replace the last message logged so remove it,
+        // assuming the last '\n' is just before the last message.
+        var i = msgs.lastIndexOf('\n');
+        var tmp = msgs;
+        msgs = tmp.slice(0, i+1);
+        log.set(msgs + msg);
     } else {
         log.set(msgs + '\n' + msg);
     }
@@ -160,27 +168,31 @@ function getJobStatus (jobId, jobStatusUrl) {
         // Handle the error case of checking the job status. This is called when
         // the check itself fails, unrelated to the status of the job.
         report_error
-    )
+    );
 }
 
 function create_map () {
 
     // Send the create map request to the server.
     
-    opts = {
+    var opts = {
         map: ui.get('major_project') + '/' + ui.get('minor_project'),
         layoutInputDataId: feature_data_id,
+        layoutInputUrl: ui.get('layoutInputUrl'),
         layoutInputName: 'layout',
         outputDirectory: 'view/' + getProjectName(),
         noLayoutIndependentStats: true,
         noLayoutAwareStats: true,
         email: Meteor.user().username,
-    }
+    };
     if (attribute_data_id) {
-        opts.colorAttributeDataId = attribute_data_id
+        opts.colorAttributeDataId = attribute_data_id;
+    }
+    if (ui.get('colorAttributeUrl')) {
+        opts.colorAttributeUrl = ui.get('colorAttributeUrl');
     }
     if (ui.get('zeroReplace')) {
-        opts.zeroReplace = ui.get('zeroReplace')
+        opts.zeroReplace = ui.get('zeroReplace');
     }
     /* future:
     if (ui.get('display_default').length > 0) {
@@ -215,7 +227,7 @@ function upload_attributes () {
 
     // Upload the user's attribute file
     if (attribute_upload.refs.fileObj) {
-        log_it('Uploading color attributes...\n')
+        log_it('Uploading color attributes...\n');
         var startDate = new Date();
         ajax.upload({
             mapId: ui.get('major_project') + '/' + ui.get('minor_project') + '/',
@@ -223,13 +235,13 @@ function upload_attributes () {
             targetFile: attribute_upload.refs.fileObj.name,
             success: function (results, dataId) {
                 attribute_data_id = dataId;
-                log_it('Color attributes upload complete.')
+                log_it('Color attributes upload complete.');
                 create_map();
             },
             error: function (result) {
-                log_it(result.error)
-                report_error(result)
-          },
+                log_it(result.error);
+                report_error(result);
+            },
             progress: function (loaded, total) {
                 log_it(null, startDate, loaded, total, true);
             },
@@ -239,7 +251,7 @@ function upload_attributes () {
     }
 }
 
-function create_clicked (event) {
+function create_clicked () {
     
     // Upload the feature file when the create button is clicked.
     if ($dialogCreateButton.hasClass('ui-state-disabled')) { return; }
@@ -252,44 +264,46 @@ function create_clicked (event) {
     
     rx.set('createMap.running.now');
 
-    if (!feature_upload.refs.fileObj) {
+    if (feature_upload.refs.fileObj) {
+    
+        // Show the progress snake and disable the create button.
+        $dialogCreateButton.addClass('ui-state-disabled');
+    
+        log_it('Uploading layout input...\n');
+        var startDate = new Date();
+        ajax.upload({
+            mapId: ui.get('major_project') + '/' + ui.get('minor_project') + '/',
+            sourceFile: feature_upload.refs.fileObj,
+            targetFile: feature_upload.refs.fileObj.name,
+            success: function (results, dataId) {
+                feature_data_id = dataId;
+                log_it('Layout input upload complete.');
+                upload_attributes();
+            },
+            error: function (result) {
+                log_it(result.error);
+                report_error(result);
+            },
+            progress: function (loaded, total) {
+                log_it(null, startDate, loaded, total, true);
+            },
+        });
+    } else if (ui.get('layoutInputUrl')) {
+        upload_attributes();
+    } else {
         rx.set('createMap.running.done');
         userMsg.error(
-            'a layout input file must be selected to create a map.')
-        return;
+            'a layout input file must be selected to create a map.');
     }
-    
-    // Show the progress snake and disable the create button.
-    $dialogCreateButton.addClass('ui-state-disabled');
-    
-    log_it('Uploading layout input...\n\n')
-    var startDate = new Date();
-    ajax.upload({
-        mapId: ui.get('major_project') + '/' + ui.get('minor_project') + '/',
-        sourceFile: feature_upload.refs.fileObj,
-        targetFile: feature_upload.refs.fileObj.name,
-        success: function (results, dataId) {
-            feature_data_id = dataId;
-            log_it('Layout input upload complete.')
-            upload_attributes();
-        },
-        error: function (result) {
-            log_it(result.error)
-            report_error(result)
-         },
-        progress: function (loaded, total) {
-            log_it(null, startDate, loaded, total, true);
-        },
-    });
 }
 
 function build_dialog_content (username) {
 
-    import React, { Component } from 'react';
+    import React from 'react';
     import { render } from 'react-dom';
     import Upload from '/imports/component/Upload.js';
 
-     // Define the file selector for features file
+    // Define the file selector for features file
     feature_upload = render(
         <Upload />, $dialog.find('.feature_upload_anchor')[0]);
 
@@ -303,15 +317,21 @@ function build_dialog_content (username) {
     ui.set('major_project', util.clean_file_name(username));
 
     // Initialize some ui values
-        log.set(initial_log);
+    log.set(initial_log);
     
     // Remove focus from question marks.
     $('#create_map_dialog .blur').blur();
     
     // Define some event handlers
+    $('#create_map_dialog .layoutInputUrl').on('change', function (ev) {
+        ui.set('layoutInputUrl', ev.target.value);
+    });
+    $('#create_map_dialog .colorAttributeUrl').on('change', function (ev) {
+        ui.set('colorAttributeUrl', ev.target.value);
+    });
     $('#create_map_dialog .minor_project').on('change', function (ev) {
-         ui.set('minor_project', ev.target.value);
-   });
+        ui.set('minor_project', ev.target.value);
+    });
     $('#drl').on('change', function (ev) {
         ui.set('tete_method', ev.target.checked);
     });
@@ -409,6 +429,6 @@ exports.init = function () {
     $('.createMapHome .createMap')
         .button()
         .on('click', function () {
-        $button.click();
-    });
-}
+            $button.click();
+        });
+};
