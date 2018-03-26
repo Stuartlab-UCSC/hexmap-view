@@ -110,6 +110,9 @@ function populate () {
                     data: data,
                     value: value,
                     placeholder: PLACEHOLDER_TEXT,
+                    formatResult: function (r) {
+                        return "<div title ='" + r.text + "'>" + r.text + "</div>";
+                    },
                     width: '20em',
                     matcher: matcher,
                 }}
