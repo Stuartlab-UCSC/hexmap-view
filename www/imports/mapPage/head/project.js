@@ -56,6 +56,20 @@ function matcher (term, text, opt) {
     return false;
 }
 
+function formatResult (row, container) {
+
+    // Format a row in the result list.
+    var style = '';
+    if (row.hasOwnProperty('id') &&  // this is a leaf node
+        row.id.indexOf('/') === row.id.lastIndexOf('/')) {
+        
+            // With only one slash this project is not part of a group but we
+            // want to give it the importance of a group so we make it bold.
+            style = "style='font-weight:bold'";
+    }
+    return "<div title='" + row.text + "'" + style + ">" + row.text + "</div>";
+}
+
 function populate () {
 
     // Populate the project list.
@@ -110,9 +124,7 @@ function populate () {
                     data: data,
                     value: value,
                     placeholder: PLACEHOLDER_TEXT,
-                    formatResult: function (r) {
-                        return "<div title ='" + r.text + "'>" + r.text + "</div>";
-                    },
+                    formatResult: formatResult,
                     width: '20em',
                     matcher: matcher,
                 }}
