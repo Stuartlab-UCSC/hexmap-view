@@ -19,7 +19,8 @@ examples in $HEXMAP/config
 Install node
 ------------
 
-Install node in $HEXMAP/packages/node
+Find the version of node to use with the meteor version being used and install
+than in $HEXMAP/packages/node
 
 https://nodejs.org/en/download/
 
@@ -27,7 +28,8 @@ https://nodejs.org/en/download/
 Install mongodb
 ---------------
 
-Install mongodb v3.2.6 in $HEXMAP/packages/mongodb
+Find the version of mongodb to use with the meteor version being used and install
+than in $HEXMAP/packages/mongodb
 
 https://docs.mongodb.com/manual/administration/install-community/
 
