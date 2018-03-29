@@ -9,6 +9,7 @@ import perform from '/imports/common/perform';
 import { render } from 'react-dom';
 import rx from '/imports/common/rx';
 import Select22 from '/imports/component/Select22';
+import userMsg from '/imports/common/userMsg';
 import util from '/imports/common/util';
 import utils from '/imports/common/utils';
 
@@ -177,7 +178,7 @@ exports.authorize = function () {
         },
         function (error) {
             userMsg.error(
-                "Unable to retrieve project data from server." + error);
+                "Unable to retrieve project data from server.");
         }
     );
 };
