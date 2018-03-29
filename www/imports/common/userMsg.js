@@ -52,11 +52,13 @@ exports.show = function (promptStr, opts) {
     opts.promptStr = promptStr;
     opts.isOpen = true;
     opts.closeHandler = closeHandler;
+    appElement = utils.createReactRoot(opts.wrapId);
 
     var prompt = render(
         <Prompt
             promptStr = {promptStr}
-         />, utils.createReactRoot(opts.wrapId)
+            appElement = {appElement}
+         />, appElement
     );
 
     // Set state to the options.
