@@ -42,6 +42,9 @@ function normalizeErrorResponse (error, url) {
 function getData (url, successFx, errorFx, ok404, parse) {
 
     // Retrieve view data for the current project.
+    // TODO: the data server should be returning a 204 rather than 404.
+    //       error 204 would not make an http error display on the console
+    //       and would make this logic more simple.
     // For the case where 404 not found is OK we handle the 404 in the success
     // block as well as the error block. This is because our current data
     // server knows how to handle these and returns the 404 as success.

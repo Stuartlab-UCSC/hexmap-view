@@ -1,10 +1,10 @@
 
 .ReactModal__Overlay {
-    z-index: 1;
+    z-index: 2001;
 }
 
 .ReactModal__Overlay.prompt {
-    z-index: 2001;
+    z-index: 2002;
 }
 
 .ReactModal__Content {

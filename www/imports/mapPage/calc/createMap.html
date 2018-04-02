@@ -6,10 +6,12 @@
                     <img class='context-help' src='/icons/question.png'>
                 </a>
             </h3>
-            <div class='feature_upload_anchor'>
+            <div class='feature_upload_anchor' title='data ID of a layout input file'>
             </div>
-            <div style='display:none'>
-                Format: <span class='format_anchor' style='width:15em'></span>
+            <div>
+                <span>Or URL:</span>
+                <input class='layoutInputUrl' type='text' value='{{ layoutInputUrl }}' style='width:18em'
+                    title='URL of layout input data'>
             </div>
         </div>
         <div>
@@ -19,7 +21,12 @@
                     <img class='context-help' src='/icons/question.png'>
                 </a>
             </h3>
-            <div class='attribute_upload_anchor'></div>
+            <div class='attribute_upload_anchor' title='data ID of color attribute file'></div>
+            <div>
+                <span>Or URL:</span>
+                <input class='colorAttributeUrl' type='text' value='{{ colorAttributeUrl }}' style='width:18em'
+                    title='URL of color attribute data'>
+            </div>
             <div style='display:none'>
                 Display default:
                 <input class='default_attribute' value='{{ default_attribute }}' style='width:12.5em'>

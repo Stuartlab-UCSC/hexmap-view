@@ -9,6 +9,7 @@ import perform from '/imports/common/perform';
 import { render } from 'react-dom';
 import rx from '/imports/common/rx';
 import Select22 from '/imports/component/Select22';
+import userMsg from '/imports/common/userMsg';
 import util from '/imports/common/util';
 import utils from '/imports/common/utils';
 
@@ -54,6 +55,20 @@ function matcher (term, text, opt) {
         return true;
     }
     return false;
+}
+
+function formatResult (row, container) {
+
+    // Format a row in the result list.
+    var style = '';
+    if (row.hasOwnProperty('id') &&  // this is a leaf node
+        row.id.indexOf('/') === row.id.lastIndexOf('/')) {
+        
+            // With only one slash this project is not part of a group but we
+            // want to give it the importance of a group so we make it bold.
+            style = "style='font-weight:bold'";
+    }
+    return "<div title='" + row.text + "'" + style + ">" + row.text + "</div>";
 }
 
 function populate () {
@@ -110,6 +125,7 @@ function populate () {
                     data: data,
                     value: value,
                     placeholder: PLACEHOLDER_TEXT,
+                    formatResult: formatResult,
                     width: '20em',
                     matcher: matcher,
                 }}
@@ -162,7 +178,7 @@ exports.authorize = function () {
         },
         function (error) {
             userMsg.error(
-                "Unable to retrieve project data from server." + error);
+                "Unable to retrieve project data from server.");
         }
     );
 };
