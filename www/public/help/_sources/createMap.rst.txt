@@ -50,8 +50,10 @@ similarity scores in the third column, like::
  ...
 
 **XY positions** : This is the most processed of the layout input formats,
-containing the x and y coordinates in two-dimensional space of each node, like::
+containing the x and y coordinates in two-dimensional space of each node, like
+the below where the header line is optional::
 
+ #ID    x       y
  TCGA-01-01  73.6  63.6
  TCGA-01-02  63.6  23.8
  TCGA-01-03  23.8  73.6

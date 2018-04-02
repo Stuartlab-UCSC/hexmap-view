@@ -12,5 +12,6 @@ Advanced Controls
    createAttribute
    placeNode
    createMap
+   createMapTrouble
    dataTypes
    attrInfo

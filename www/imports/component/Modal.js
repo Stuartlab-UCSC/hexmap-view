@@ -64,7 +64,7 @@ export default class Modal extends Component {
                 onRequestClose = {self.state.onRequestClose}
                 className = {this.props.className + ' modal'}
                 parentSelector = {self.props.parentSelector}
-                appElement = {document.querySelector('.appRoot')}
+                ariaHideApp = {false}
             >
                 <div className = 'modalHeader'>
                     <span>
