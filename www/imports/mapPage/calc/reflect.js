@@ -163,12 +163,15 @@ function executeReflection () {
 
     let reflectionParms = {
         dataType : dataType,
+        layout: dataType,
         userId : userId,
         map : ctx.project,
+        toMap : toMapId,
         nodeIds : nodeIds,
         rankCategories: rankCategories,
         dynamicAttrName : selectionSelected,
-        email : Meteor.user().username,
+        viewerUrl : URL_BASE,
+        email: Meteor.user().username,
     };
 
     const reflectionPost  = {
@@ -187,34 +190,23 @@ function executeReflection () {
         .then((jresp)=> pollJobStatus(jresp.jobStatusUrl, openRoutePrompt));
 
     const openRoutePrompt = (jresp) => {
-        // Opens a prompt with a link to view the completed reflection.
+        // Open a prompt with a link to view the completed reflection.
         const result = jresp.result;
-        const reflectUrl = buildReflectUrl(result);
-        let msg = ` The reflection of ${selectionSelected} is viewable on ${toMapId}.`;
+        const reflectUrl = result.url;
+        let msg = ` The reflection of ${selectionSelected} is viewable on
+                    ${toMapId}.`;
 
-        // If some of the data requested was missing notify the user via prompt msg.
+        // Notify the user if data is any data was missing from request.
         let extra="";
         const notAllDataThere = (result.nNodes < nodeIds.length );
         if (notAllDataThere) {
             extra = `Only ${result.nNodes} from the ${nodeIds.length}
-                     nodes in ${selectionSelected} were available to calculate the 
-                     reflected attribute.`
+                     nodes in ${selectionSelected} were available to calculate
+                     the reflected attribute.`
         }
         msg = extra + msg;
-        userMsg.info(msg, { link: reflectUrl });
+        userMsg.info(msg, {link: reflectUrl});
     };
-
-    const buildReflectUrl =
-        (data) => { if (data) return buildLink(toMapId, dataType, data.url)};
-
-    function buildLink(toMapId, dataType, url) {
-        // Uses "xena url api" to build a link that will open the new reflection
-        // in the correct map.
-        const mapUpUrl  =
-            `${URL_BASE}/?p=${toMapId}&layout=${dataType}`
-            + `&hub=${HUB_URL}${url}&compute=addAttr`;
-        return mapUpUrl
-    }
 
     hide();
 }
@@ -235,7 +227,6 @@ function getReflectionInfo() {
     };
 
     const setUnavailable = (error) => {
-        console.log("reflection unavailable");
         Session.set('reflectCriteria', false)
     };
 
