@@ -505,8 +505,9 @@ function getDynamicStats (focus_attr, opts) {
 
     let parms = {
         map : ctx.project,
-        focusAttr: focusAttr,
+        focusAttr : focusAttr,
         email : Meteor.user().username,
+        doNotEmail : true,
     };
 
     let url, dType;
