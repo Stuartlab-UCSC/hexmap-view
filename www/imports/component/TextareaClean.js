@@ -15,6 +15,7 @@ export default class TextareaClean extends Component {
         this.state = { value: this.props.value };
 
         // Save our selves.
+        this.componentDidMount = this.componentDidMount.bind(this);
         this.handleKeyPress = this.handleKeyPress.bind(this);
         this.handleChange = this.handleChange.bind(this);
     }
@@ -108,5 +109,3 @@ TextareaClean.defaultProps = {
     cols: '20',
     noFocus: false,
 };
-
-  

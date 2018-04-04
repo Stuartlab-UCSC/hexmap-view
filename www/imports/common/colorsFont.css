@@ -2,7 +2,6 @@
 /* FONTS */
 body,
 body .ui-widget {
-    /*font-family: sans-serif */
     font-family: Verdana, Arial, sans-serif;
 }
 
@@ -85,23 +84,22 @@ body,
 #EDD4D5      pink, error bg
 */
 
-#banner.info,
-#banner.stay,
-.modal.promptModal.info,
-#jobDialog .status.ui-widget-content.completed {
+button {
+    background: #eeeeee;
+}
+
+.notify-message.info,
+.defaultButton {
     color: #2E662C;
     background: #D8EECE;
 }
 
-#banner.warn,
-.modal.promptModal.warn {
+.notify-message.warn {
     color: #775B2A;
     background: #F9F5D9;
 }
 
-#banner.error,
-.modal.promptModal.error,
-#jobDialog .status.ui-widget-content.failed {
+.notify-message.error {
     color: #993031;
     background: #EDD4D5;
 }

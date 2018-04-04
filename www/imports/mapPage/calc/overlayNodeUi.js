@@ -27,8 +27,7 @@ Template.navBarT.helpers({
 });
 
 function httpError (result) {
-    userMsg.jobError(result,
-        { prefix: 'While calculating position of a new node: ' });
+    userMsg.jobError(result, 'While calculating position of a new node:');
     rx.set('placeNode.running.done');
 }
 
@@ -41,7 +40,7 @@ function getJobStatus (jobId, jobStatusUrl) {
                 var nodes = job.result.nodes;
                 var nodeNames = Object.keys(nodes);
                 job.result.url = nodes[Object.keys(nodes)[0]].url;
-                userMsg.jobSuccess(job.result, { prefix: 'Node placement ' });
+                userMsg.jobSuccess(job.result, 'New nodes placed:');
             } else {
                 httpError(job.result);
             }
@@ -92,7 +91,7 @@ function doIt (nodeData) {
             getJobStatus(result.jobId, result.jobStatusUrl);
         },
         function (result) {
-            userMsg.jobError(result, { prefix: 'When adding a new node.' });
+            userMsg.jobError(result, 'When adding a new node.');
         },
     );
     userMsg.jobSubmitted();
@@ -125,7 +124,7 @@ function criteriaCheck () {
         return false;
     } else if (! Session.equals('mapView', 'honeycomb')) {
         userMsg.error('Sorry, nodes may only be placed in the ' +
-            '"Hexagonal Grid" view. (Selectable under the "View menu".)');
+            '"Hexagonal Grid" view. Selectable under the "View menu".');
         return false;
     } else {
         return true;

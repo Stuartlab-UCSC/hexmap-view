@@ -133,10 +133,9 @@ function report_error (result) {
     log_it(msg);
     
     // Give an error message.
-    userMsg.jobError(result, {
-        prefix: 'While creating your map: ',
+    userMsg.jobError(result, 'While creating your map:', {
         link: 'https://tumormap.ucsc.edu/help/createMapTrouble.html',
-        linkStr: 'More information.',
+        linkStr: 'More information.'
     });
 }
 
@@ -156,10 +155,7 @@ function getJobStatus (jobId, jobStatusUrl) {
         // 'Success' or 'Error'.
         function (job) {
             if (job.status === 'Success') {
-                userMsg.jobSuccess(job.result, {
-                    prefix: 'Success: map created.',
-                    contentClass: ' ',
-                });
+                userMsg.jobSuccess(job.result, 'Map created:');
             } else {
                 report_error(job.result);
             }
@@ -257,8 +253,8 @@ function create_clicked () {
     if ($dialogCreateButton.hasClass('ui-state-disabled')) { return; }
     
     if (!util.isValidFileName(ui.get('minor_project'))) {
-        userMsg.error('map name may only contain the characters:' +
-            ' a-z, A-Z, 0-9, dash (-), dot (.), underscore (_)');
+        userMsg.error('The map name may only contain the characters:' +
+            ' a-z, A-Z, 0-9, dash (-), dot (.), underscore (_).');
         return;
     }
     
@@ -293,7 +289,7 @@ function create_clicked () {
     } else {
         rx.set('createMap.running.done');
         userMsg.error(
-            'a layout input file must be selected to create a map.');
+            'A layout input file or URL is required to create a map.');
     }
 }
 
@@ -373,7 +369,7 @@ function show () {
             build_dialog_content(username);
         } else {
             rx.set('createMap.running.done');
-            userMsg.error('username could not be found');
+            userMsg.error('Username could not be found.');
         }
     });
 }

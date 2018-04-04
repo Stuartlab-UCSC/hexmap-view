@@ -5,22 +5,34 @@ import data from '/imports/mapPage/data/data';
 import colorEdit from '/imports/mapPage/color/colorEdit';
 import colorMix from '/imports/mapPage/color/colorMix';
 import jPalette from '/imports/lib/jPalette';
+import Namer from '/imports/component/Namer';
 import rx from '/imports/common/rx';
 import shortlist from '/imports/mapPage/shortlist/shortlist';
 import userMsg from '/imports/common/userMsg';
 import util from '/imports/common/util';
 
-var selection_prefix = 'Selection';
+var selection_prefix = 'Selection',
+    selectionNamer;
 
 function ask_user_to_name_layer (name, dup_name, callback) {
 
     // Give the user a chance to name the layer
-    var promptString = (dup_name) ?
-                        '"' + dup_name + '" is in use, how about this one?'
-                        : 'Please name this new attribute';
-    userMsg.show(promptString, {
+    var promptStr = (dup_name) ?
+                        '"' + dup_name + '" is in use, how about this one?' :
+                        'Name your new attribute.';
+    if (!selectionNamer) {
+        import React from 'react';
+        import { render } from 'react-dom';
+        selectionNamer = render(
+            <Namer
+                promptStr = {promptStr}
+            />, document.getElementById('selectionNamerWrap')
+        );
+    }
+    selectionNamer.setState({
+        promptStr: promptStr,
+        isOpen: true,
         textInputStr: name,
-        contentClass: 'selectionNamer',
         callback: callback
     });
 }

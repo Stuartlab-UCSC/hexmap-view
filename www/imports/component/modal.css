@@ -1,10 +1,10 @@
 
+
+/************* react-modal overrides ******************************************/
+
 .ReactModal__Overlay {
     z-index: 2001;
-}
-
-.ReactModal__Overlay.prompt {
-    z-index: 2002;
+    background-color: rgba(255, 255, 255, 0.3) !important;
 }
 
 .ReactModal__Content {
@@ -18,7 +18,7 @@
     transform: translate(-50%, -50%);
 }
 
-/************* Our Modals *****************************************************/
+/************* All of our Modals **********************************************/
 
 .modalHeader {
     border: none;
@@ -56,25 +56,7 @@
     margin-right: 0.4em;
 }
 
-/******************  Our Specific Modals ******************/
-
-.promptModal input {
-    display: block;
-    width: 25em;
-}
-
-.promptModal .modalLabel {
-    min-width: 10em;
-    max-width: 20em;
-}
-
-.promptModal .modalLabel.wider {
-    max-width: 45em;
-}
-
-.promptModal .modalLabel.selectionNamer {
-    max-width: 50em;
-}
+/****************** Our Specific Modals ******************/
 
 .nodeIdSelectModal .readFile {
     margin-top: 0.6em;
@@ -83,7 +65,7 @@
 
 .nodeIdSelectModal .cartLabel {
     margin-top: 1.3em;
-    margin-bottom: 0;
+    margin-bottom: 0.3em;
 }
 
 .nodeIdSelectModal textarea {
@@ -94,13 +76,3 @@
     color: green;
     font-weight: bold;
 }
-
-.ReactModal__Overlay--before-close {
-  opacity: 0;
-  transition: opacity 1000ms ease-out;
-}
-
-.ReactModal__Overlay {
-    background-color: rgba(255, 255, 255, 0) !important;
-}
-

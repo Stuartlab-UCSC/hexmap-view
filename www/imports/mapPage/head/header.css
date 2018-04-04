@@ -25,19 +25,6 @@
     line-height: 2.7em;
 }
 
-#banner {
-    position: absolute;
-    bottom: -2.2em;
-    height: 2.2em;
-    line-height: 2.3em;
-    width: 100%;
-    vertical-align: middle;
-    font-weight: bold;
-    text-align: center;
-    z-index: 4;
-    display: none;
-}
-
 /* ***** select2 widgets of: map IDs, layers, layout, node IDs... ***** */
 
 #s2id_search {
@@ -79,12 +66,6 @@
     margin-bottom: 0.3em;
     margin-right: 0.3em;
     border: 1px solid #aaaaaa;
-}
-
-#diffAnalysisButton {
-    height: 28px;
-    width: 28px;
-    padding: 1px;
 }
 
 .headerButton.filter,
