@@ -27,7 +27,7 @@ function createNodeIdSelect () {
         nodeIdSelect = render(
             <NodeIdSelect
                 isOpen = {true}
-             />, utils.createReactRoot('nodeIdSelectContainer')
+            />, utils.createReactRoot('nodeIdSelectContainer')
         );
     }
 }

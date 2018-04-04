@@ -4,13 +4,12 @@
 // Meteor server code to test role package security
 // Note this only tests the Roles package and not our functions in secure.js
 
-// Unit tests are here since mocha is broken
-function runUnitTests () {
+function runUnitTests () { // eslint-disable-line no-unused-vars
 
     var failures = 0;
 
     // Clear all users
-    var count = Meteor.users.remove({});
+    var count = Meteor.users.remove({}); // eslint-disable-line no-unused-vars
     //console.log('deleteAllUsers: number of users removed:', count);
     
     // Verify all users are removed
@@ -22,15 +21,15 @@ function runUnitTests () {
     
 
     // Clear all roles
-    var roles = Roles.getAllRoles().fetch(),
-        count = roles.length;
+    var roles = Roles.getAllRoles().fetch();
+    count = roles.length;
     _.each(roles, function (role) {
         Roles.deleteRole(role.name);
     });
     //console.log('deleteAllRoles: number of roles removed:', count);
 
     // Add users
-    var users = [
+    users = [
         {
             username: 'aDeveloper@a.a',
             emails: [
@@ -49,10 +48,10 @@ function runUnitTests () {
                 {address: 'c@a.a'},
             ]
         },
-    ]
+    ];
     var ids = [],
         i = 0;
-    for (user in users) {
+    for (let user in users) {
         ids[i] = Meteor.users.insert(user);
         console.log('rc on insert of user:', ids[i]);
         //failures += 1;
@@ -77,7 +76,7 @@ function runUnitTests () {
     Roles.createRole('public');
     
     // Verify role added
-    var roles = Roles.getAllRoles ().fetch();
+    roles = Roles.getAllRoles ().fetch();
     var found = _.find(roles, function (role) {
         return role.name === 'public';
     });
@@ -92,8 +91,8 @@ function runUnitTests () {
     Roles.addUsersToRoles(usersAdded[2], Roles.GLOBAL_GROUP);
 
     // Verify roles added
-    var roles = ['aDeveloper', 'CKCC', Roles.GLOBAL_GROUP, ],
-        rolesAdded = Roles.getAllRoles().fetch();
+    var rolesAdded = Roles.getAllRoles().fetch();
+    roles = ['aDeveloper', 'CKCC', Roles.GLOBAL_GROUP, ],
     _.each(roles, function(role) {
         var found = _.find(rolesAdded, function (added) {
             return added.name === role;

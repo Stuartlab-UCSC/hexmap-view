@@ -252,7 +252,7 @@ function loadGoogleMapApi () {
     // Pause to let other processing complete, like the snake display.
     setTimeout(function () {
         GoogleMaps.load(
-        { v: '3', key: 'AIzaSyBb8AJUB4x-xxdUCnjzb-Xbcg0-T1mPw3I' });
+            { v: '3', key: 'AIzaSyBb8AJUB4x-xxdUCnjzb-Xbcg0-T1mPw3I' });
     });
 }
 

@@ -66,6 +66,6 @@ exports.init = function () {
     render(
         <Snake
             store = {rx}
-         />, utils.createReactRoot('snakeContainer')
+        />, utils.createReactRoot('snakeContainer')
     );
 };

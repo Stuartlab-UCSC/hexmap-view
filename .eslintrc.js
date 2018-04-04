@@ -1,8 +1,10 @@
 module.exports = {
-    // Use false for those vars that are const.
+
+    // Use false for immutable vars and true for mutable.
     "globals": {
         "_": false,
         "ctx": true,
+        "ADMIN_EMAIL": false,
         "DEV": false,
         "GoogleMaps": false,
         "google": false,
@@ -11,7 +13,8 @@ module.exports = {
         "layers": false,
         "PERFORM": false,
         "polygons": false,
-        "rx": true,
+        "Roles": false, // this shouldn't need to be here
+        "sendMail": false, // where is this defined?
 	"URL_BASE": false,
         "VERSION": false,
         "VIEW_DIR": false,

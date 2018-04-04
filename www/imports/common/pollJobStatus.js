@@ -5,10 +5,10 @@
 
 export function pollJobStatus(
     url=undefined,
-    onSuccess=(response)=>{console.log(response)},
+    onSuccess=(response)=>{console.log(response);},
     seconds=2,
     generator=undefined,
-    secondsFunction=(seconds)=>{return seconds}
+    secondsFunction=(seconds)=>{return seconds;}
 ){
     /*
     Polls a jobStatus url until the "status" key of the json response
@@ -54,11 +54,12 @@ export function pollJobStatus(
                         generator
                     );
                 } else if (hadSuccess){
-                    onSuccess(jresp)
+                    onSuccess(jresp);
                 } else if (hadError){
-                    throw jresp.result.error
+                    throw jresp.result.error;
                 } else {
-                    throw "unrecognized server response status when polling: " + status
+                    throw "unrecognized server response status when polling: "
+                        + status;
                 }
             }),
         timeout
@@ -72,5 +73,5 @@ function *pollGenerator(url){
 }
 
 export function parseJson(resp){
-    return resp.json()
+    return resp.json();
 }
