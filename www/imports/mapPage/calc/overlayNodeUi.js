@@ -94,7 +94,10 @@ function doIt (nodeData) {
             userMsg.jobError(result, 'When adding a new node.');
         },
     );
-    userMsg.jobSubmitted();
+    userMsg.jobSubmitted([
+        'Place node request submitted.',
+        'Results will return when complete.',
+    ]);
     hide();
     rx.set('placeNode.running.done');
 }

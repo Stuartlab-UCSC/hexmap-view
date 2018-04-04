@@ -185,6 +185,12 @@ function executeReflection () {
     // Get the job status url and then kick off the polling.
     // When "Success" comes back from the response in the json.status
     // open up a prompt with a link to the reflected map.
+    userMsg.jobSubmitted([
+        'Reflection request submitted.',
+        'Results will return when complete.',
+    ]);
+
+
     fetch(url, reflectionPost)
         .then(parseJson)
         .then((jresp)=> pollJobStatus(jresp.jobStatusUrl, openRoutePrompt));
@@ -228,7 +234,7 @@ function getReflectionInfo() {
     const setUnavailable = (error) => {
         Session.set('reflectCriteria', false)
     };
-
+    
     fetch(url).then(parseJson)
         .then(fillMenu)
         .then(setReady)

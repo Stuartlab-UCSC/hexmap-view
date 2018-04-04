@@ -314,8 +314,6 @@ exports.layoutAssignmentsReceived = function (parsed, id) {
 
 exports.getAssignmentsForMapViewChange = function () {
 
-    console.log('hexagons.getAssignmentsForMapViewChange()');
-
     // Download the positions of nodes and fill in the global
     // hexagon assignment grid.
     data.requestLayoutAssignments();
@@ -340,9 +338,6 @@ exports.init = function () {
     $('#navBar li.mapLayout').on('click', function () {
         Session.set('mapView', 'honeycomb');
         Session.set('transparent', false);
-        
-        console.log('honeycomb button captured')
-        
         exports.getAssignmentsForMapViewChange();
     });
 

@@ -213,8 +213,11 @@ function create_map () {
             report_error(error);
         },
     );
-    
-    userMsg.jobSubmitted();
+
+    userMsg.jobSubmitted([
+        'Create map request submitted.',
+        'Results will return when complete.',
+    ]);
     hide();
     rx.set('createMap.running.done');
 }

@@ -561,7 +561,10 @@ function getPreComputedStats (dataId, focus_attr, opts) {
 function computingTextDisplay () {
     Session.set('sort', {
         text: computingText, color: '#2E662C', background: '#D8EECE'});
-    userMsg.jobSubmitted();
+    userMsg.jobSubmitted([
+        'Statistics compute request submitted.',
+        'Results will return when complete.',
+    ]);
 }
 
 exports.findFirstLayerByDensity = function () {

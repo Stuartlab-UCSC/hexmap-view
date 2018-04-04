@@ -45,6 +45,17 @@
     width: 4em;
 }
 
+#navBar .devMessage {
+    display: none;
+}
+
+#navBar .devMessage.dev {
+    width: 21em;
+    display: inline;
+    font-size: 0.8em;
+    margin: 0.3em
+}
+
 #navBar .cyber-slug {
     height: 2.3em;
     padding-left: 0.4em;

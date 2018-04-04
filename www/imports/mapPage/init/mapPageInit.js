@@ -265,6 +265,10 @@ function hasDomLoaded () {
         unsubFx.hasDomLoaded();
         perform.log('1b-init:snakes,dom-loaded');
         snake.init();
+        
+        if (DEV) {
+            document.querySelector('#navBar .devMessage').classList.add('dev');
+        }
     }
 }
 

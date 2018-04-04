@@ -34,6 +34,10 @@ body,
     background-color: #2B5E91;
 }
 
+#navBar .devMessage {
+    background-color: red;
+}
+
 #menus,
 #helpMenu {
     background-color: transparent;
