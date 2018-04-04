@@ -18,9 +18,12 @@ export default class Notify extends Component {
         this.componentDidUpdate = this.componentDidUpdate.bind(this);
         this.timerToHide = this.timerToHide.bind(this);
         this.closeMessage = this.closeMessage.bind(this);
+        this.renderMessage = this.renderMessage.bind(this);
     }
 
     componentWillUnmount() {
+    
+        // The list will unmount.
         this.wasMounted = false;
     }
 
@@ -52,7 +55,10 @@ export default class Notify extends Component {
     }
 
     closeMessage(key) {
-        if (!this.wasMounted) {
+        
+        // We don't need to close the message if the list was unmounted or
+        // if the message has already been removed.
+        if (!this.wasMounted || Object.keys(this.state).indexOf(key) < 0) {
             return;
         }
         
@@ -104,16 +110,20 @@ export default class Notify extends Component {
         );
     }
 
-    renderMessage(self, key) {
-        const { severity, msg, link, linkText } = this.state[key],
+    renderMessage(key) {
+        const selfKey = key,
+            self = this,
+            { severity, msg, link, linkText } = this.state[key],
         
             // The title gets set only for errors.
             title = severity === 'error' ?
                 <p className = 'notify-title'> Error </p> : null;
 
         return (
-            <div key={key} className={`notify-message ${severity}`}
-                onClick={() => self.closeMessage(key)}>
+            <div
+                key={key}
+                className={`notify-message ${severity}`}
+                onClick={() => self.closeMessage(selfKey)}>
                 {title}
                 {this.renderText(msg)}
                 {this.renderLink(link, linkText)}
@@ -124,7 +134,7 @@ export default class Notify extends Component {
     render() {
         const { state } = this;
         const keys      = Object.keys(state);
-        const el        = keys.map((key) => this.renderMessage(self, key));
+        const el        = keys.map((key) => this.renderMessage(key));
 
         return <div className="notify-list">{el}</div>;
     }
