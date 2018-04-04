@@ -18,5 +18,8 @@
     "react-modal": "^3.3.1",
     "redux": "^3.7.2",
     "shallow-equal-fuzzy": "0.0.2"
+  },
+  "devDependencies": {
+    "assert": "^1.4.1"
   }
 }

@@ -27,6 +27,10 @@ fi
 # Run in background, BACK, or foreground, FORE.
 export BACK_OR_FOREGROUND=FORE
 
+# Build with the bundle visualizer, only works with BACK_OR_FOREGROUND=FORE.
+# Set the app background to white and reload so you can see the black text.
+#export BUNDLE_VIZ=true
+
 # Bundled deployment or unbundled?
 export BUNDLED=false
 if [  "$BUNDLED" == false ]; then
