@@ -84,7 +84,7 @@ function sendEnrollmentEmail(username) {
     sendMail(ADMIN_EMAIL, msg, msg);
 }
 
-function createUsers(users) {
+function createUsers(users) { // eslint-disable-line no-unused-vars
     _.each(users, function (user) {
         try {
             var id = Accounts.createUser({
@@ -100,7 +100,8 @@ function createUsers(users) {
             sendEnrollmentEmail(user.email);
            
         } catch (error) {
-            console.log('attempting to add user to role since createUser failed:' , user.email, error);
+            console.log(`attempting to add user to role since createUser
+                failed:` , user.email, error);
             addUsersToRoles([user.email] , user.roles);
         }
     });
@@ -118,6 +119,7 @@ function addUsersToRoles (usernames, roles) {
     }
 }
 
+// eslint-disable-next-line no-unused-vars
 function removeUsersFromRoles(usernames, roles) {
 
     var users = usernamesToUsers(usernames);
@@ -158,7 +160,7 @@ function showRolesWithUsers() {
             }
             return user.username;
         });
-        console.log('Role:', role, '\n  Usernames:', usernames);
+        console.log(role, ': Users:', usernames);
     });
     
 }
@@ -169,27 +171,27 @@ function showUsersWithRoles () {
     console.log('\nUsers with roles: ---------------------------');
     _.each(getAllUsers(), function (user) {
         var roles = Roles.getRolesForUser(user._id);
-        console.log('User:', user.username, '\n  Roles:', roles);
+        console.log(user.username, ': Roles:', roles);
     });
 }
 
 showRolesWithUsers();
 showUsersWithRoles();
 
-function showUsers () {
+function showUsers () { // eslint-disable-line no-unused-vars
 
     // Show all users with their properties
     var users = Meteor.users.find().fetch();
     console.log('all users:\n', users);
 }
 
-function showUsernames () {
+function showUsernames () { // eslint-disable-line no-unused-vars
 
     // Show all usernames
     console.log('all usernames:\n', getAllUsernames());
 }
 
-function removeRoles (role) {
+function removeRoles (role) { // eslint-disable-line no-unused-vars
 
     // Drop all users from the roles and remove the roles.
     if (!role) { return; }
@@ -205,7 +207,7 @@ function removeRoles (role) {
     });
 }
 
-function createRole(newRoleName) {
+function createRole(newRoleName) { // eslint-disable-line no-unused-vars
     
     // Create a role unless it already exists
     var roles = Roles.getAllRoles().fetch();
@@ -217,14 +219,14 @@ function createRole(newRoleName) {
     }
 }
 
-function removeUser(username) {
+function removeUser(username) { // eslint-disable-line no-unused-vars
     var user = usernamesToUsers(username);
     Meteor.users.remove(user);
 }
 
 Accounts.onCreateUser(function (options, user) {
 
-     // Add a field of 'username' that meteor recognizes as unique
+    // Add a field of 'username' that meteor recognizes as unique
     user.username = user.emails[0].address;
     
     // Send the admin an email.

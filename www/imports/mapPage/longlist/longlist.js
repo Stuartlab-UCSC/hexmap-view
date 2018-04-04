@@ -84,7 +84,7 @@ function query (query) {
         // and the search term in the layer name
         if (displayLayers.indexOf(sortedLayers[i]) > -1
             && sortedLayers[i].toLowerCase().indexOf(
-            query.term.toLowerCase()) > -1) {
+                query.term.toLowerCase()) > -1) {
             
             // Query search term is in this layer's name. Add a select2
             // record to our results. Don't specify text: our custom

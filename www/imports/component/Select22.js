@@ -134,7 +134,7 @@ export default class Select2 extends Component {
         
         var results = $('#select2-drop .select2-results');
         results.css('max-height',
-                    $(window).height() - results.offset().top - 15);
+            $(window).height() - results.offset().top - 15);
     }
 
     destroySelect2 () {

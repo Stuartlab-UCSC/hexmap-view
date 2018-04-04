@@ -6,7 +6,7 @@
  * @author Julien Descamps
  * https://github.com/jsrdescamps/jpalette
  */
-  /**
+/**
    * Create an instance of Color.
    *
    * @memberof jPalette

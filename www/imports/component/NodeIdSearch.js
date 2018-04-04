@@ -159,7 +159,7 @@ export default class NodeIdSearch extends Component {
         for (var i = start_position; i < allIds.length; i++) {
         
             var check = allIds[i].toLowerCase()
-                    .indexOf(query.term.toLowerCase());
+                .indexOf(query.term.toLowerCase());
 
             // Is the search term in this node ID?
             if (check > -1) {

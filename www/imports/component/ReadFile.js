@@ -118,7 +118,7 @@ exports.show = function (wrapId, opts) {
             <ReadFile
                 onSuccess = {opts.onSuccess}
                 onError = {opts.onError}
-             />, utils.createReactRoot(containerId));
+            />, utils.createReactRoot(containerId));
     }
     
     // Set the new state of the component.
