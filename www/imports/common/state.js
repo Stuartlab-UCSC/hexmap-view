@@ -344,7 +344,7 @@ exports.init = function () {
     s.setAllDefaults();
 
     // Initialize some flags
-    s.projectNotFoundNotified = false;
+    s.mapNotFoundNotified = false;
 
     // Load state from URL parms.
     if (s.uParm !== null) {

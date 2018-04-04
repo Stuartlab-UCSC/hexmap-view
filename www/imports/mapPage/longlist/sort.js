@@ -152,21 +152,6 @@ function clearStats() {
 
 function updateSortUi (type, text, focus_attr, opts) {
 
-    // Hide the snake.
-    Session.set('statsSnake', false);
-
-    // If we were computing dynamic stats,
-    // include the elapsed time in the banner
-    var elapsed = '';
-    if (opts && opts.hasOwnProperty('startDate')
-        && $("#banner").text() === computingText) {
-        var endDate = new Date;
-        elapsed = ' (' +
-            Math.ceil(
-            (endDate.getTime() - opts.startDate.getTime()) / 1000) +
-            ' secs)';
-    }
-
     // Set the sort properties and update the UI to sort them
     if (type === 'default') {
         Session.set('sort', ctx.defaultSort());
@@ -187,15 +172,13 @@ function updateSortUi (type, text, focus_attr, opts) {
     longlist.update();
     shortlist.update_ui_metadata();
 
-    // Skip the banner on initialization.
-    
     if (!rx.get('init')) {
         if (type === 'noStats') {
             if (text.indexOf('credential') < 0) {
-                userMsg.warn('Now sorted by Density of attributes');
+                userMsg.warn('Now sorted by Density of attributes.');
             }
         } else {
-            userMsg.info('Now sorted by ' + text + elapsed);
+            userMsg.info('Now sorted by ' + text);
         }
     }
 }
@@ -237,7 +220,6 @@ function updateIgnoreLayout (parsed, focus_attr, lI, pI, apI, apbI) {
         });
 
         // If there are no real values, treat this like a p-value sort
-        //isOldFormat =_.isUndefined(hasAny);
         if (_.isUndefined(hasAny)) {
             type = p_value;
         }
@@ -459,8 +441,7 @@ function gatherSelectionData (dynamicDataIn) {
 function getDynamicStats (focus_attr, opts) {
     // First check for this user having the credentials to do this.
     var good = auth.credentialCheck('to compute dynamic statistics. ' +
-        'Otherwise only pre-computed statistics are available', 'statsSnake');
-    Session.set('statsSnake', good);
+        'Otherwise only pre-computed statistics are available');
     if (!good) {
         updateSortUi('noStats', 'credential');
         return;
@@ -556,7 +537,6 @@ function getPreComputedStats (dataId, focus_attr, opts) {
     
     function error (focus_attr, opts) {
         // If precomputed stats are not there, compute them now.
-        computingTextDisplay();
         d ={};
         d[focus_attr] = layers[focus_attr].data;
         opts.dynamicData = d
@@ -581,7 +561,6 @@ function getPreComputedStats (dataId, focus_attr, opts) {
 function computingTextDisplay () {
     Session.set('sort', {
         text: computingText, color: '#2E662C', background: '#D8EECE'});
-    Session.set('statsSnake', true);
     userMsg.jobSubmitted();
 }
 

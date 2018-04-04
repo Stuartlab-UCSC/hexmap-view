@@ -274,7 +274,7 @@ exports.upload = function(opts) {
     fd.append('file', opts.sourceFile);
 
     if (opts.sourceFile.size > UPLOAD_MAX_BYTES) {
-        var msg = 'upload failed because file is larger than the ' +
+        var msg = 'Upload failed because file is larger than the ' +
             UPLOAD_MAX_GIGABYTES + ' GB limit.';
         userMsg.error(msg);
         if (opts.error) {

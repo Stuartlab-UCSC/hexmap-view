@@ -262,7 +262,4 @@ exports.init = function () {
             $('#sort-attributes-button').click();
             tool.activity(false);
         }, 'Sort attributes by associative statistics');
-        
-        // initialize the snake.
-        Session.set('statsSnake', false);
     }

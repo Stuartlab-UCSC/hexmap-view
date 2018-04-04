@@ -6,136 +6,133 @@
 
 import React from 'react';
 import { render } from 'react-dom';
-import Prompt from '/imports/component/Prompt';
-import utils from '/imports/common/utils';
+import Notify from '/imports/component/Notify';
+import '/imports/component/notify.css';
 
-var seq = 0,
-    wrapPrefix = 'prompt',
-    callback = {}; // a list of callbacks for all prompts
+var userMsgList,
+    TIME = 10000,  // milliseconds before message fades away
+    key = 0; // the identifier for a message in the message list.
 
-function closeHandler (wrapId, result) {
+exports.show = function (msg, opts) {
 
-    // Destroy and free memory for this component.
-    utils.destroyReactContainer(wrapId);
-    
-    // Let the caller know the result.
-    if (callback[wrapId]) {
-        callback[wrapId](result);
-        delete callback[wrapId];
-    }
-}
-
-exports.show = function (promptStr, opts) {
-
+    // Create a user message.
     // You probably want to use one of the convenience functions below to
-    // display your prompt. However, this describes the options.
-    // Create a Prompt instance which will be destroyed on close.
-    // The only required parm is opts.promptStr.
-    // @param         promptStr: the prompt string to show in the modal
-    // @param     opts.severity: one of [error, info, warning], optional;
-    //                           default is no color in prompt
-    // @param         opts.link: http link to appear after the prompt, optional
-    // @param     opts.linkText: text to appear instead of actual link, optional
-    // @param opts.textInputStr: the text to put in the input box, optional
-    // @param     opts.fadeAway: True means the modal fades after so many
-    //                           seconds: default for info and warning is
-    //                           true; default for other severities is false
-    // @param opts.contentClass: a class to attach to the prompt content
+    // display your message. However, this describes the options.
+    // The only required parm is opts.msg.
+    // @param msg: text to replace the usual message, optional; either a string
+    //             or an array of strings, one per paragraph
+    // @param opts.severity: one of [error, info, warn], optional;
+    //                       default is info
+    // @param opts.link: http link to appear after the message, optional
+    // @param opts.linkText: text to appear instead of actual link, optional
     // @param opts.callback: function to call upon modal close, optional
-
-    seq += 1;
-    opts.wrapId = wrapPrefix + seq;
-    if (opts.callback) {
-        callback[opts.wrapId] = opts.callback;
-        delete opts.callback;
+    key += 1;
+    opts = opts || {},
+    opts.key = key;
+    opts.msg = msg;
+    
+    // Only info and warning messages without links automatically disappear.
+    if (opts.link || opts.severity === 'error') {
+        opts.time = 0;
+    } else {
+        opts.time = TIME;
     }
-    opts.promptStr = promptStr;
-    opts.isOpen = true;
-    opts.closeHandler = closeHandler;
 
-    var prompt = render(
-        <Prompt
-            promptStr = {promptStr}
-         />, utils.createReactRoot(opts.wrapId)
-    );
-
-    // Set state to the options.
-    prompt.setState(opts);
+    let state = {};
+    state[key] = opts;
+    userMsgList.setState(state);
+    
+    // Log a console message if requested.
+    if (opts.logStr) {
+        console.log(opts.logStr);
+        delete opts.logStr;
+    }
 };
 
+exports.info = function (msg, opts) {
 
-function adjustPromptStr (promptStr, prefix, suffix) {
-    if (prefix) {
-        promptStr = prefix + ' ' + promptStr;
-    }
-    if (suffix) {
-        promptStr += ' ' + suffix;
-    }
-    return promptStr;
-}
-
-exports.info = function (promptStr, opts) {
+    // Show an informational message.
+    // See exports.show() for parameter descriptions.
     opts = opts || {};
     opts.severity = 'info';
-    exports.show(promptStr, opts);
+    exports.show(msg, opts);
 };
 
-exports.warn = function (promptStr, opts) {
+exports.warn = function (msg, opts) {
+
+    // Show a warning message.
+    // See exports.show() for parameter descriptions.
     opts = opts || {};
     opts.severity = 'warn';
-    exports.show(promptStr, opts);
+    exports.show(msg, opts);
 };
 
-exports.error = function (promptStr, opts) {
+exports.error = function (msg, opts) {
+
+    // Show an error message.
+    // See exports.show() for parameter descriptions.
     opts = opts || {};
     opts.severity = 'error';
-    exports.show(promptStr, opts);
+    exports.show(msg, opts);
 };
 
-exports.jobSuccess = function (result, opts) {
+exports.jobSubmitted = function (msg, opts) {
+
+    // Report a job submitted.
+    // @param msg: text of the message; optional; omit to use standard message;
+    //             either a string or an array of strings, one per paragraph
+    // See exports.show() for opts descriptions.
+    opts = opts || {};
+    opts.severity = 'info';
+    if (!msg) {
+        msg = [
+            'Request submitted.',
+            'Results will return when complete.',
+        ];
+    }
+    exports.show(msg, opts);
+};
+
+exports.jobSuccess = function (result, msg, opts) {
 
     // Report a job success given a result from an http request.
-    // @param  result: result object returned from the data server
-    // @param  opts.prefix: text to prepend to the user message, optional
-    // @param  opts.suffix: text to append to the user message, optional
-
-    var promptStr = 'results: ';
+    // @param result: result object returned from the data server
+    // See exports.show() for other parameter descriptions.
     opts = opts || {};
-    opts.link = result.url;
     opts.severity = 'info';
-    opts.fadeAway = false;
-    if (!opts.contentClass) {
-        opts.contentClass = 'wider';
-    }
-    exports.show(adjustPromptStr(promptStr, opts.prefix, opts.suffix), opts);
+    opts.link = result.url;
+    exports.show(msg, opts);
 };
 
-exports.jobError = function (result, opts) {
+exports.jobError = function (result, msg, opts) {
 
     // Report a job error given an error result from an http request.
-    // @param  result: result object returned from the data server
-    // @param  opts.prefix: text to prepend to the user message, optional
-    // @param  opts.suffix: text to append to the user message, optional
-    // @param  opts.link: http link to appear after the prompt, optional
-    // @param  opts.linkStr: text to appear instead of actual link, optional
-    
+    // @param result: result object returned from the data server
+    // @param msg: text to prepend to the result.error string, optional,
+    //             either a string or an array of strings, one per paragraph
+    // See exports.show() for opts descriptions.
     opts = opts || {};
     opts.severity = 'error';
+    opts.link = result.url;
     opts.logStr = (result.stackTrace) ?
-        'Server Error ' + result.stackTrace : null,
+        'Server Error ' + result.stackTrace : null;
     
-    exports.show(adjustPromptStr(result.error, opts.prefix, opts.suffix), opts);
+    // Transform any string into an array.
+    if (!msg) {
+        msg = [];
+    } else if (typeof msg === 'string') {
+        msg = [msg];
+    }
+    msg.push(result.error);
+    exports.show(msg, opts);
 };
 
-exports.jobSubmitted = function (opts) {
-    // Report a job submitted.
-    // @param  opts.prefix: text to prepend to the user message, optional
-    // @param  opts.suffix: text to append to the user message, optional
+exports.init = function () {
 
-    var promptStr = 'Request submitted. ' +
-        'Results will return when complete.';
-    opts = opts || {};
-    opts.severity = 'info';
-    
-    exports.show(adjustPromptStr(promptStr, opts.prefix, opts.suffix), opts);
+    // Create user message list.
+    userMsgList = render(
+        <Notify>
+        </Notify>, document.querySelector('#userMsgListWrap'));
 };
+
+

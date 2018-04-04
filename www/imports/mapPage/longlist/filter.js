@@ -237,9 +237,10 @@ function whenCheckboxesChange () {
 function whenDisplayOrSortedLayersChange () {
     var display = Session.get('displayLayers'),
         sorted = Session.get('sortedLayers');
-    if (!display || !sorted) { return; }
 
-    if (display.length < 1 && Session.equals('mapSnake', false)) {
+    if (display === undefined || sorted === undefined) { return; }
+
+    if (display.length < 1) {
         userMsg.warn('No attributes to display, relax some filters');
         $passFilters.addClass('red');
     } else {

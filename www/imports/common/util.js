@@ -126,23 +126,18 @@ exports.getHumanProject = function (project) {
     return project.slice(0, -1);
 }
 
-exports.mapNotFoundNotify = function (name, more) {
-    var msg = 'Map "' + name + '" not found.\nPlease select another';
-    if (Meteor.user() === null) {
-        msg += ' or sign in'
-    }
-    msg += '.'
-    rx.set('init.done');
-    userMsg.error(msg);
-}
+exports.mapNotFoundNotify = function (more) {
+    if (!ctx.mapNotFoundNotified) {
+        ctx.mapNotFoundNotified = true;
 
-exports.projectNotFound = function (dataId) {
-    if (!ctx.projectNotFoundNotified) {
-        ctx.projectNotFoundNotified = true;
-    
-        // Alert the user that essential data is missing for this project.
-        exports.mapNotFoundNotify(
-            exports.getHumanProject(ctx.project), ' (' + dataId + ')');
+        var name = exports.getHumanProject(ctx.project),
+            msg = 'Map "' + name + '" not found.\nPlease select another';
+        if (Meteor.user() === null) {
+            msg += ' or sign in'
+        }
+        msg += '. ' + more;
+        rx.set('init.done');
+        userMsg.error(msg);
     }
 }
 

@@ -113,7 +113,7 @@ export default class NodeIdSelect extends Component {
         // Create the new attribute.
         if (cart.length < 1) {
             this.error(
-               'there are no valid node IDs so an attribute cannot be created');
+               'There are no valid node IDs so an attribute cannot be created.');
             return;
         }
         
@@ -173,9 +173,10 @@ export default class NodeIdSelect extends Component {
                     />
                 </div>,
             button =
-                <button onClick = {function () {
-                    self.handleButtonClick();
-                }}>
+                <button
+                    onClick = {self.handleButtonClick}
+                    className = 'defaultButton'
+                    >
                     OK
                 </button>;
 

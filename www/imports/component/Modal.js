@@ -1,20 +1,21 @@
 
 // Modal.js
 // Our wrapper around react-model to add our own options of:
-//      - styling
 //      - header
 //          - title
 //          - close button
 //      - body
 //      - button box
-// If you want something more simple with just a prompt string, an optional text
-// field and an optional OK button, use Prompts.js instead.
+//      - styling
+// If you want something with just a message, use userMsg.js instead.
+// if you want something with just a prompt string and text input,
+// use Namer.js instead.
 
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
 import ReactModal from 'react-modal';
-import './reactModal.css';
+import './modal.css';
 
 export default class Modal extends Component {
     constructor (props) {

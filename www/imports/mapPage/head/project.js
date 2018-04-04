@@ -152,12 +152,12 @@ exports.authorize = function () {
             if (results.authorized === true) {
                 rx.set('user.mapAuthorized.yes');
             } else {
-                util.mapNotFoundNotify(util.getHumanProject(ctx.project));
+                util.mapNotFoundNotify();
             }
             perform.log('project:authorized:' + rx.get('user.mapAuthorized'));
         },
         function (error) {
-            util.mapNotFoundNotify(util.getHumanProject(ctx.project));
+            util.mapNotFoundNotify();
         }
     );
 
@@ -177,8 +177,7 @@ exports.authorize = function () {
             rx.set('projectList.receiving.done');
         },
         function (error) {
-            userMsg.error(
-                "Unable to retrieve project data from server.");
+            userMsg.error("Unable to retrieve map list from server.");
         }
     );
 };

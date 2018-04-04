@@ -192,7 +192,6 @@ function executeReflection () {
     const openRoutePrompt = (jresp) => {
         // Open a prompt with a link to view the completed reflection.
         const result = jresp.result;
-        const reflectUrl = result.url;
         let msg = ` The reflection of ${selectionSelected} is viewable on
                     ${toMapId}.`;
 
@@ -205,7 +204,7 @@ function executeReflection () {
                      the reflected attribute.`
         }
         msg = extra + msg;
-        userMsg.info(msg, {link: reflectUrl});
+        userMsg.jobSuccess(result, msg);
     };
 
     hide();

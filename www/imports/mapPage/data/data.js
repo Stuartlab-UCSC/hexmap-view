@@ -35,7 +35,7 @@ function request (id, opts) {
             if (opts.errorFx) {
                 opts.errorFx(error);
             } else {
-                util.projectNotFound(id);
+                util.mapNotFoundNotify(('(' + id + ')'));
             }
         },
     };
