@@ -18,9 +18,9 @@ CategoricalLegend.propTypes = {
     /** Background color of the legend. */
     background: PropTypes.string.isRequired,
     /** Initial width of the legend. */
-    width: PropTypes.number.isRequired,
+    width: PropTypes.number,
     /** Initial height of the legend. */
-    height: PropTypes.number.isRequired,
+    height: PropTypes.number,
     /** onClick function has string in categories array for arg. */
     onCategoryClick: PropTypes.func
 };

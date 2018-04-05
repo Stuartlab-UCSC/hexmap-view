@@ -161,7 +161,6 @@ exports.refreshColors = function () {
 };
 
 exports.getColors = function(layerName, colormaps){
-    console.log( layerName)
     const colors = colormaps ? colormaps[layerName].map(cmap=>cmap.color.hexString()) : undefined
     return colors
 };

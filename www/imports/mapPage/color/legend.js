@@ -76,7 +76,7 @@ function horizontalBandLabels (colormap, context) {
 }
 
 exports.redraw = function (retrieved_layers, current_layers, context) {
-    console.log(current_layers);
+    const maxHt = $(window).height() - 350;
     const ONE_DISCRETE = retrieved_layers.length == 1 && (is_categorical(current_layers[0]) || is_binary(current_layers[0]))
     if (ONE_DISCRETE) {
         let title,colors,categories,background;
@@ -85,8 +85,6 @@ exports.redraw = function (retrieved_layers, current_layers, context) {
                 colors= colorMix.getColors(title, colormaps),
                 categories = ["Absent", "Present"],
                 background = Session.get('background');
-            console.log(colors);
-
         } else { //its categorical.
              title = current_layers[0],
                 colors= colorMix.getColors(title, colormaps),
@@ -95,10 +93,11 @@ exports.redraw = function (retrieved_layers, current_layers, context) {
         }
         render(
             <CategoricalLegend
-            title={current_layers[0]}
-            colors={colors}
-            categories={categories}
-            background={background} />,
+                title={current_layers[0]}
+                colors={colors}
+                categories={categories}
+                height={colors.length>8 ? maxHt : undefined}
+                background={background} />,
             document.querySelector('#DiscreteLegendWrap')
         )
 
@@ -106,9 +105,8 @@ exports.redraw = function (retrieved_layers, current_layers, context) {
         $(".key").hide();
         return
     } else {
-        render(null, document.querySelector('#CategoricalLegend'))
+        render(null, document.querySelector('#DiscreteLegendWrap'))
     }
-    console.log(retrieved_layers);
     // current_layers is an array of zero to two layer names
     // retrieved_layers are the current_layers' layer objects with data
 
@@ -124,7 +122,7 @@ exports.redraw = function (retrieved_layers, current_layers, context) {
     $(".key").show();
 
     var keyOffsetTop = $('.key').offset().top,
-        windowHt = $(window).height(),
+    windowHt = $(window).height()
 
         // Set the max key height to be N pixels from the bottom of window
         max_key_ht = windowHt - keyOffsetTop - 160,
