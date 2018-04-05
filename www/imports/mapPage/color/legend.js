@@ -1,10 +1,14 @@
 // legend.js
 // Handle the legend.
 
+import React from 'react';
+import { render } from 'react-dom';
 import colorMix from '/imports/mapPage/color/colorMix.js';
 import Layer from '/imports/mapPage/longlist/Layer.js';
 import shortlist from '/imports/mapPage/shortlist/shortlist.js';
 import colorEdit from '/imports/mapPage/color/colorEdit.js';
+import {is_categorical, is_binary} from '/imports/common/util'
+import CategoricalLegend from './categoricalLegend'
 
 import './legend.css';
 
@@ -72,7 +76,39 @@ function horizontalBandLabels (colormap, context) {
 }
 
 exports.redraw = function (retrieved_layers, current_layers, context) {
+    console.log(current_layers);
+    const ONE_DISCRETE = retrieved_layers.length == 1 && (is_categorical(current_layers[0]) || is_binary(current_layers[0]))
+    if (ONE_DISCRETE) {
+        let title,colors,categories,background;
+        if (is_binary(current_layers[0])){
+             title = current_layers[0],
+                colors= colorMix.getColors(title, colormaps),
+                categories = ["Absent", "Present"],
+                background = Session.get('background');
+            console.log(colors);
 
+        } else { //its categorical.
+             title = current_layers[0],
+                colors= colorMix.getColors(title, colormaps),
+                categories = colorMix.getCategories(title, colormaps),
+                background = Session.get('background');
+        }
+        render(
+            <CategoricalLegend
+            title={current_layers[0]}
+            colors={colors}
+            categories={categories}
+            background={background} />,
+            document.querySelector('#DiscreteLegendWrap')
+        )
+
+
+        $(".key").hide();
+        return
+    } else {
+        render(null, document.querySelector('#CategoricalLegend'))
+    }
+    console.log(retrieved_layers);
     // current_layers is an array of zero to two layer names
     // retrieved_layers are the current_layers' layer objects with data
 

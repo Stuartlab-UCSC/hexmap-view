@@ -158,7 +158,18 @@ exports.refreshColors = function () {
     // Make sure to also redraw the info window, which may be open.
     import infoWindow from '/imports/mapPage/viewport/infoWindow.js';
     infoWindow.redraw();
-}
+};
+
+exports.getColors = function(layerName, colormaps){
+    console.log( layerName)
+    const colors = colormaps ? colormaps[layerName].map(cmap=>cmap.color.hexString()) : undefined
+    return colors
+};
+
+exports.getCategories = function(layerName, colormaps){
+    const categories = colormaps ? colormaps[layerName].map(cmap=>cmap.name) : undefined
+    return categories
+};
 
 exports.get_color = function (layerName1, layerVal1, layerName2, layerVal2) {
     // Either layer value may be undefined (or both), in which case the no-data color
