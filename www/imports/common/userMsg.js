@@ -42,10 +42,12 @@ exports.show = function (msg, opts) {
     state[key] = opts;
     userMsgList.setState(state);
     
-    // Log a console message if requested.
+    // Log a console message if requested or if it's an error.
     if (opts.logStr) {
         console.log(opts.logStr);
         delete opts.logStr;
+    } else if (opts.severity === 'error') {
+        console.error('trace for user error message:', msg, ':');
     }
 };
 

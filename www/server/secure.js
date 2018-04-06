@@ -177,9 +177,9 @@ function showUsersWithRoles () {
 
 console.log(
 ////////////////////////////////////////////////////
-`\nIgnore above warning about bcrypt. It is only for
-passwords and the above library is very large.
-We'd rather have faster load times.`
+    `\nIgnore above warning about bcrypt. It is only for
+    passwords and the above library is very large.
+    We'd rather have faster load times.`
 );
 
 showRolesWithUsers();

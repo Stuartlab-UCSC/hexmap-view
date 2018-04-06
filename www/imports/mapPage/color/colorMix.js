@@ -53,6 +53,11 @@ exports.refreshColors = function () {
     // layers.
     // Instead of calling this, you probably want to call refreshColors().
     
+    // Don't do multiple refreshes during initialization.
+    if (!rx.get('init.mapRendered')) {
+        return;
+    }
+    
     // This holds a list of the string names of the currently selected layers,
     // in order.
     var current_layers = shortlist.get_active_coloring_layers();

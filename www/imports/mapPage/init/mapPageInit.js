@@ -52,12 +52,14 @@ Template.mapPage.rendered = function () {
 // Phase 6b init: when the active layers have been added to the shortlist
 //                and layout selector has been populated,
 //                and the map has rendered
+//                and the layer summary loaded
 //                complete initialization.
 function areLayoutsPopulated () {
     var R = rx.getState();
     if (R['init.activeAttrsInShortlist'] &&
         R['init.layoutsPopulated'] &&
-        R['init.mapRendered']) {
+        R['init.mapRendered'] &&
+        R['init.attrSummaryLoaded']) {
         
         unsubFx.areLayoutsPopulated();
         perform.log('6b-init:complete initialization');
@@ -197,44 +199,74 @@ function isReadyToRenderMap () {
     }
 }
 
-// Phase 2 init: when layer summary and types are received,
-//               determine the first coloring layers & default first layer.
-function haveActiveLayerIndex () {
+// Phase 2b init: when the layer summary is received,
+//                we may want to find an initial coloring layer.
+function haveLayerSummary () {
     var R = rx.getState();
     if (R['init.attrSummaryLoaded'] &&
         R['init.attrTypesLoaded']) {
+    
+        unsubFx.haveLayerSummary();
+        perform.log('2b-init:find-first-layer-by-density');
 
-        unsubFx.haveActiveLayerIndex();
-        perform.log('2-init:request-active-layers');
+        // We don't need to find a first attr if we already have active attrs.
+        if (Session.get('active_layers').length > 0) {
+            return;
+        }
 
         // Pause to let other processing complete.
         setTimeout(function () {
-            perform.log(' 2-init:after-timeout');
+            perform.log(' 2b-init:after-timeout');
 
-            // If the first layer was not in the types data received,
-            // sort by density to get a first layer.
-            var first = Session.get('first_layer'),
-                shortlist = Session.get('shortlist');
-            if (!first) {
-
-                // Sort the layers to find the first layer.
-                sort.findFirstLayerByDensity();
-            }
+            // With no active layers yet, we'll sort by density
+            // to get an active layer.
+            sort.findFirstLayerByDensity();
         
             // If there is now a first layer
-            // and the shortlist is empty
             // and there are static layers,
             // add the first layer to the shortlist
             // and make the first_layer the active layer.
-            first = Session.get('first_layer');
-            if (first && shortlist.length < 1 &&
+            let first = Session.get('first_layer');
+            if (first &&
                 ctx.static_layer_names.length > 0) {
                 Session.set('shortlist', [first]);
                 Session.set('active_layers', [first]);
+                Layer.loadInitialActiveLayers();
             }
+        });
+    }
+}
+
+// Phase 2a init: when data types are received,
+//                look for initial color layer.
+function haveDataTypes () {
+    var R = rx.getState();
+    if (R['init.attrTypesLoaded']) {
+
+        unsubFx.haveDataTypes();
+        perform.log('2a-init:get-active-attr-values');
         
-            // Load the initial active coloring layers.
-            Layer.loadInitialActiveLayers();
+        // Pause to let other processing complete.
+        setTimeout(function () {
+            perform.log(' 2-init:after-timeout');
+            
+            let active_layers = Session.get('active_layers');
+            let shortlist = Session.get('shortlist');
+            let first = Session.get('first_layer');
+
+            // Request the initial coloring layers if we know them.
+            if (active_layers.length > 0) {
+                Layer.loadInitialActiveLayers();
+                
+            } else if (shortlist.length > 0) {
+                Session.set('active_layers', [shortlist[0]]);
+                Layer.loadInitialActiveLayers();
+                
+            } else if (first) {
+                Session.set('shortlist', [first]);
+                Session.set('active_layers', [first]);
+                Layer.loadInitialActiveLayers();
+            }
         });
     }
 }
@@ -290,8 +322,9 @@ exports.init = function () {
     
     // Subscribe to state changes.
     unsubFx.hasDomLoaded = rx.subscribe(hasDomLoaded);
+    unsubFx.haveLayerSummary = rx.subscribe(haveLayerSummary);
     unsubFx.isReadyToRenderMap = rx.subscribe(isReadyToRenderMap);
-    unsubFx.haveActiveLayerIndex = rx.subscribe(haveActiveLayerIndex);
+    unsubFx.haveDataTypes = rx.subscribe(haveDataTypes);
     unsubFx.isMapPreppedAndUserAuthorized =
         rx.subscribe(isMapPreppedAndUserAuthorized);
     unsubFx.isMapRendered = rx.subscribe(isMapRendered);
