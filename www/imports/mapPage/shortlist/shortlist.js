@@ -779,7 +779,6 @@ function receivedInitialActiveLayers (layers_added) {
     
     addInitialEntriesToShortlist(Session.get('shortlist'));
     entriesInited.set(true);
-    when_active_color_layers_change();
 }
 
 exports.removeEntry = function (layer_name) {

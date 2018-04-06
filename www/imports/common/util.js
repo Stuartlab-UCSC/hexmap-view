@@ -143,6 +143,10 @@ exports.mapNotFoundNotify = function (more) {
 
 exports.parseTsv = function (data) {
 
+    if (data.length < 1) {
+        return [];
+    }
+
     // Separate the data into an array of rows
     var rows = data.split('\n'),
 

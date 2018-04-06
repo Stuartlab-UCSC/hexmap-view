@@ -5,7 +5,6 @@ import data from '/imports/mapPage/data/data';
 import colorEdit from '/imports/mapPage/color/colorEdit';
 import colorMix from '/imports/mapPage/color/colorMix';
 import jPalette from '/imports/lib/jPalette';
-import Namer from '/imports/component/Namer';
 import rx from '/imports/common/rx';
 import shortlist from '/imports/mapPage/shortlist/shortlist';
 import userMsg from '/imports/common/userMsg';
@@ -23,6 +22,7 @@ function ask_user_to_name_layer (name, dup_name, callback) {
     if (!selectionNamer) {
         import React from 'react';
         import { render } from 'react-dom';
+        import Namer from '/imports/component/Namer';
         selectionNamer = render(
             <Namer
                 promptStr = {promptStr}
@@ -265,7 +265,7 @@ function load_dynamic_data (layer_name, callback, dynamicLayers) {
     exports.with_one(layer_name, callback);
 }
 
-function load_static_data (layer_name, callback) {
+function load_static_data (layer_name, callback, byAttrId) {
 
     // Download a static layer, then load into global layers and colormaps.
     // Go get it.
@@ -277,7 +277,7 @@ function load_static_data (layer_name, callback) {
     }
     layer.status = 'dataRequested';
 
-    function layerReceived (layer_parsed, id) {
+    function layerReceived (layer_parsed) {
         var data = {};
 
         for (var j = 0; j < layer_parsed.length; j++) {
@@ -310,7 +310,28 @@ function load_static_data (layer_name, callback) {
         exports.with_one(layer_name, callback);
     }
     
-    data.requestLayer(layer.dataId, { successFx: layerReceived })
+    if (byAttrId) {
+    
+        // Get the attr values by ID (name).
+        let url = 'http://127.0.0.1:5000' + '/attr/attrId/' + layer_name +
+            '/mapId/' + ctx.project;
+        fetch(url)
+            .then(function(response) {
+                if (response.ok) {
+                    return response.text();
+                }
+                throw new Error(response.statusText);
+            })
+            .then(util.parseTsv)
+            .then(layerReceived)
+            .catch(function(error) {
+                util.mapNotFoundNotify(
+                    '(attrsByName:' + layer_name + '::'  + error.stack + ')');
+            });
+            
+    } else { // get by attr index
+        data.requestLayer(layer.dataId, { successFx: layerReceived })
+    }
 }
 
 exports.loadInitialActiveLayers = function () {
@@ -327,13 +348,10 @@ exports.loadInitialActiveLayers = function () {
         }
     }
 
-    if (active.length < 1) {
-        rx.set('init.activeAttrsLoaded');
-    }
     _.each(active, function (layerName) {
         
-        // For some reason with_many() does not work during initialization.
-        exports.with_one(layerName, loaded, Session.get('dynamic_attrs'));
+        // with_one() works better than with_many() during initialization.
+        exports.with_one(layerName, loaded, Session.get('dynamic_attrs'), true);
     });
 }
 
@@ -372,12 +390,13 @@ exports.make_unique_name = function (layer_name) {
     return name;
 }
 
-exports.with_one = function (layer_name, callback, dynamicLayers) {
+exports.with_one = function (layer_name, callback, dynamicLayers, byAttrId) {
     // This is how you get layers, and allows for layers to be downloaded
     // dynamically.
-    // @param layer_name name of the layer of interest
-    // @param callback called with the layer object
-    // @param dynamicLayers dynamic layer info
+    // @param layer_name: name of the layer of interest
+    // @param callback: called with the layer object
+    // @param dynamicLayers: dynamic layer info, optional
+    // @param byAttrId: true means get by attrId rather than index, optional
     //
     // Note: if the layer is already in the shortlist there is no need
     // to call with_one, and we can reference the global layers array
@@ -386,9 +405,9 @@ exports.with_one = function (layer_name, callback, dynamicLayers) {
     // First get what we have stored for the layer
     var layer = layers[layer_name];
     if (layer === undefined) {
-        if (dynamicLayers && layer_name in dynamicLayers) {
+        if (byAttrId || (dynamicLayers && layer_name in dynamicLayers)) {
 
-            // Dynamic layers are added to the global list here.
+            // Initial and dynamic layers are added to the global list here.
             layers[layer_name] = {};
             layer = layers[layer_name];
         } else {
@@ -409,7 +428,7 @@ exports.with_one = function (layer_name, callback, dynamicLayers) {
             load_dynamic_data(layer_name, callback, dynamicLayers);
         } else {
             layer.dataType =  util.getDataType(layer_name)
-            load_static_data(layer_name, callback);
+            load_static_data(layer_name, callback, byAttrId);
         }
 
     } else if (layer.magnitude === undefined) {
