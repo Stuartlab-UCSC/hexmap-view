@@ -21,7 +21,8 @@ var DISABLED_COLOR = '#aaaaaa',
     BINARY_ON_LIGHT_BG = '#ff0000',
     BINARY_OFF_DARK_BG = '#404040',
     BINARY_OFF_LIGHT_BG = '#c0c0c0',
-    COLOR_BINARY_BOTH_ON = '#00FF00',   // 2 binary attrs, both on
+    COLOR_BINARY_BOTH_ON_DARK_BG = '#00FF00',   // 2 binary attrs, both on
+    COLOR_BINARY_BOTH_ON_LIGHT_BG = '#AA00AA',   // 2 binary attrs, both on
     COLOR_BINARY_SECOND_ON = '#0000ff', // first off, second on.
     CONTINUOUS_LOW_DARK_BG = BINARY_OFF_DARK_BG,
     CONTINUOUS_HIGH_DARK_BG = BINARY_ON_DARK_BG,
@@ -418,7 +419,8 @@ exports.defaultBinaryOn = function () {
 }
 
 exports.defaultBinBothOn = function () {
-    return COLOR_BINARY_BOTH_ON;
+    return (Session.equals('background', 'white')) ?
+        COLOR_BINARY_BOTH_ON_LIGHT_BG : COLOR_BINARY_BOTH_ON_DARK_BG;
 }
 
 exports.defaultSecondBinOn = function () {
