@@ -126,7 +126,7 @@ exports.getHumanProject = function (project) {
     return project.slice(0, -1);
 }
 
-exports.mapNotFoundNotify = function (more) {
+exports.mapNotFoundNotify = function (more, stackTrace) {
     if (!ctx.mapNotFoundNotified) {
         ctx.mapNotFoundNotified = true;
 
@@ -137,7 +137,7 @@ exports.mapNotFoundNotify = function (more) {
         }
         msg += '. ' + more;
         rx.set('init.done');
-        userMsg.error(msg);
+        userMsg.error(msg, {logStr: stackTrace});
     }
 }
 
