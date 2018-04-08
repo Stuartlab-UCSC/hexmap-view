@@ -313,7 +313,7 @@ function load_static_data (layer_name, callback, byAttrId) {
     if (byAttrId) {
     
         // Get the attr values by ID (name).
-        let url = 'http://127.0.0.1:5000' + '/attr/attrId/' + layer_name +
+        let url = HUB_URL + '/attr/attrId/' + layer_name +
             '/mapId/' + ctx.project;
         fetch(url)
             .then(function(response) {
@@ -326,7 +326,7 @@ function load_static_data (layer_name, callback, byAttrId) {
             .then(layerReceived)
             .catch(function(error) {
                 util.mapNotFoundNotify(
-                    '(attrsByName:' + layer_name + '::'  + error.stack + ')');
+                    '(attrsByName: ' + layer_name + ')', error.stack);
             });
             
     } else { // get by attr index

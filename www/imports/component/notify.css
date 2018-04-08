@@ -18,6 +18,7 @@
 .notify-message > p {
     padding: 0.2em 0;
     margin: 0;
+    word-wrap: break-word;
 }
 
 .notify-title {
@@ -26,7 +27,7 @@
 
 .notify-link {
     word-wrap: break-word;
-    overflow-wrap : break-word;
+    word-break: break-all;
 }
 
 button {
