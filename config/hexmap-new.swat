@@ -42,7 +42,7 @@ export ADMIN_EMAIL=swat@soe.ucsc.edu
 export DEV=true
 export HUB_URL=https://hexcalc.ucsc.edu:8442
 # Below paths/require/the/trailing/slash/.
-export VIEW_DIR=$HEXMAP/data/view/
+export VIEW_DIR=$HEXMAP/../data/view/
 
 # Mongo db.
 DB_NAME=8111
