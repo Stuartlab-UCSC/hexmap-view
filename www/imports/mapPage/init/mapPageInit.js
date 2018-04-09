@@ -5,6 +5,7 @@
 import { Meteor } from 'meteor/meteor';
 import bookmark from '/imports/common/bookmark';
 import colorEdit from '/imports/mapPage/color/colorEdit';
+import colorMix from '/imports/mapPage/color/colorMix';
 import coords from '/imports/mapPage/viewport/coords';
 import createMap from '/imports/mapPage/calc/createMap';
 import data from '/imports/mapPage/data/data';
@@ -117,6 +118,11 @@ function isMapRendered () {
         unsubFx.isMapRendered();
         perform.log('5-init:request-secondary-data');
         
+        // If there are no layers, refresh to get 'no layer color'.
+        if (!Session.get('first_layer')) {
+            colorMix.refreshColors();
+        }
+        
         // Timeout to allow the map to render.
         setTimeout(function () {
             perform.log(' 5-init:after-timeout');
@@ -204,34 +210,35 @@ function isReadyToRenderMap () {
 function haveLayerSummary () {
     var R = rx.getState();
     if (R['init.attrSummaryLoaded'] &&
-        R['init.attrTypesLoaded']) {
+        R['init.layerDataTypesProcessed']) {
     
         unsubFx.haveLayerSummary();
         perform.log('2b-init:find-first-layer-by-density');
-
-        // We don't need to find a first attr if we already have active attrs.
-        if (Session.get('active_layers').length > 0) {
-            return;
-        }
 
         // Pause to let other processing complete.
         setTimeout(function () {
             perform.log(' 2b-init:after-timeout');
 
-            // With no active layers yet, we'll sort by density
-            // to get an active layer.
-            sort.findFirstLayerByDensity();
-        
-            // If there is now a first layer
-            // and there are static layers,
-            // add the first layer to the shortlist
-            // and make the first_layer the active layer.
+            // Do the initial sort.
             let first = Session.get('first_layer');
-            if (first &&
-                ctx.static_layer_names.length > 0) {
+            sort.initialDensitySort();
+        
+            // If there was no first layer until the density sort
+            // and there are static layers,
+            // set the first attr to the first attr in the sort,
+            // set the shortlist to the newly-found first layer,
+            // set the active layers to the first layer,
+            // and load the first layer data.
+            if (!first && ctx.static_layer_names.length > 0) {
+                first = Session.get('sortedLayers')[0];
+                Session.set('first_layer', first);
                 Session.set('shortlist', [first]);
                 Session.set('active_layers', [first]);
                 Layer.loadInitialActiveLayers();
+            } else {
+            
+                // No layers at all, so say they are loaded to proceed.
+                rx.set('init.activeAttrsLoaded');
             }
         });
     }
@@ -256,17 +263,21 @@ function haveDataTypes () {
 
             // Request the initial coloring layers if we know them.
             if (active_layers.length > 0) {
+                Session.set('first_layer', active_layers[0]);
                 Layer.loadInitialActiveLayers();
                 
             } else if (shortlist.length > 0) {
                 Session.set('active_layers', [shortlist[0]]);
+                Session.set('first_layer', [shortlist[0]]);
                 Layer.loadInitialActiveLayers();
                 
             } else if (first) {
                 Session.set('shortlist', [first]);
                 Session.set('active_layers', [first]);
+                rx.setState
                 Layer.loadInitialActiveLayers();
             }
+            rx.set('init.layerDataTypesProcessed')
         });
     }
 }
