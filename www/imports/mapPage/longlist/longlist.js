@@ -178,17 +178,14 @@ exports.layerSummaryLoaded = function (parsed) {
         var n = parseFloat(parsed[i][2]);
         
         // Add this to the global layers object.
-        layers[layer_name] = {
+        if (!layers.hasOwnProperty(layer_name)) {
+            layers[layer_name] = {};
+        }
+        layers[layer_name].n = n;
+        layers[layer_name].clumpiness_array = layer_clumpiness;
         
-            // The url from which to download this layers primary data.
-            url: ctx.project + parsed[i][1],
-            
-            n: n,
-            clumpiness_array: layer_clumpiness,
-            
-            // Clumpiness gets filled in with the appropriate value out
-            // of the array, so out having a current layout index.
-        };
+        // Clumpiness gets filled in with the appropriate value out
+        // of the array, so out having a current layout index.
         
         // Add this layer's data ID.
         // Remove any '.tab' extension because the Data object

@@ -272,10 +272,10 @@ function load_static_data (layer_name, callback, byAttrId) {
         
     // Don't request this data more than once.
     var layer = layers[layer_name];
-    if (layer.status === 'dataRequested') {
+    if (layer.status !== undefined) {
         return;
     }
-    layer.status = 'dataRequested';
+    layers[layer_name].status = 'dataRequested';
 
     function layerReceived (layer_parsed) {
         var data = {};
@@ -295,8 +295,8 @@ function load_static_data (layer_name, callback, byAttrId) {
         }
 
         // Save the layer data in the global layers object.
-        layer.data = data;
-        layer.status = 'dataReceived';
+        layers[layer_name].data = data
+        layers[layer_name].status = 'dataReceived';
         
         // If this is the primary active attr, and the colormap is loaded,
         // then refresh the colors.
@@ -345,6 +345,7 @@ exports.loadInitialActiveLayers = function () {
         loadedCount += 1;
         if (loadedCount === active.length) {
             rx.set('init.activeAttrsLoaded');
+            rx.set('init.layerDataTypesProcessed')
         }
     }
 

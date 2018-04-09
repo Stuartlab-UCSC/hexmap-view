@@ -255,7 +255,7 @@ function haveDataTypes () {
         
         // Pause to let other processing complete.
         setTimeout(function () {
-            perform.log(' 2-init:after-timeout');
+            perform.log(' 2a-init:after-timeout');
             
             let active_layers = Session.get('active_layers');
             let shortlist = Session.get('shortlist');
@@ -274,10 +274,10 @@ function haveDataTypes () {
             } else if (first) {
                 Session.set('shortlist', [first]);
                 Session.set('active_layers', [first]);
-                rx.setState
                 Layer.loadInitialActiveLayers();
+            } else {
+                rx.set('init.layerDataTypesProcessed');
             }
-            rx.set('init.layerDataTypesProcessed')
         });
     }
 }
