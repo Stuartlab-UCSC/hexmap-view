@@ -567,14 +567,12 @@ function computingTextDisplay () {
     ]);
 }
 
-exports.findFirstLayerByDensity = function () {
+exports.initialDensitySort = function () {
 
-    // Use the first layer of the default density sort as our
-    // 'first layer' which effects the default short list display
+    // Perform the initial density sort.
     exports.find_clumpiness_stats();
     var layer_array = Session.get('sortedLayers');
     layer_array.sort(finalCompare);
-    Session.set('first_layer', layer_array[0]);
 }
 
 exports.sort_layers = function  () {

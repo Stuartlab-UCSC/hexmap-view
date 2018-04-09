@@ -24,8 +24,7 @@ const reducers = {
         }
     },
     'init.activeAttrsInShortlist': (state = false, action) => {
-        return (action.type === 'init.activeAttrsInShortlist') ?
-            true : state;
+        return (action.type === 'init.activeAttrsInShortlist') ? true : state;
     },
     'init.activeAttrsLoaded': (state = false, action) => {
         return (action.type === 'init.activeAttrsLoaded') ? true : state;
@@ -43,19 +42,19 @@ const reducers = {
         return (action.type === 'init.ctxLoaded') ? true : state;
     },
     'init.googleMapApiLoaded': (state = false, action) => {
-        return (action.type === 'init.googleMapApiLoaded') ?
-            true : state;
+        return (action.type === 'init.googleMapApiLoaded') ? true : state;
     },
     'init.headerLoaded': (state = false, action) => {
         return (action.type === 'init.headerLoaded') ? true : state;
     },
+    'init.layerDataTypesProcessed': (state = false, action) => {
+        return (action.type === 'init.layerDataTypesProcessed') ? true : state;
+    },
     'init.layoutNamesReceived': (state = false, action) => {
-        return (action.type === 'init.layoutNamesReceived') ?
-            true : state;
+        return (action.type === 'init.layoutNamesReceived') ? true : state;
     },
     'init.layoutNamesRequested': (state = false, action) => {
-        return (action.type === 'init.layoutNamesRequested') ?
-            true : state;
+        return (action.type === 'init.layoutNamesRequested') ? true : state;
     },
     'init.layoutsPopulated': (state = false, action) => {
         return (action.type === 'init.layoutsPopulated') ? true : state;
