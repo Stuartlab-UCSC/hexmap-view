@@ -1,7 +1,7 @@
 Future: Show attributes & nodes on map
 ======================================
 
-https://hexcalc.ucsc.edu/**showAttrNode**
+https://hexcalc.ucsc.edu:8332/**showAttrNode**
 
 HTTP POST with content-type: application/json
 
