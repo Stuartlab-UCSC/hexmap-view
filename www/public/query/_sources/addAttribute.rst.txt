@@ -72,8 +72,7 @@ Where:
 Response error
 --------------
 
-Response errors are returned with some code other than HTTP 200 with the content
-containing a more specific message as a JSON string in the form::
+Response errors have some HTTP code other than 200, with JSON content, such as::
 
  {
     "error": "Some message."
