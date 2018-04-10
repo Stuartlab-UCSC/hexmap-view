@@ -151,9 +151,8 @@ identical and contain all nodes.</p>
 </div>
 <div class="section" id="response-error">
 <h2>Response error<a class="headerlink" href="#response-error" title="Permalink to this headline">¶</a></h2>
-<p>Response errors are returned with some code other than HTTP 200 with the content
-containing a more specific message and an optional stack trace as a JSON string
-in the form:</p>
+<p>Response errors have some HTTP code other than 200, with JSON content that may
+contain a stack trace, such as:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span>
    <span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="s2">&quot;Some message.&quot;</span>
    <span class="s2">&quot;stackTrace&quot;</span> <span class="s2">&quot;an optional stack trace&quot;</span>
@@ -173,11 +172,11 @@ in the form:</p>
           <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="addAttribute.html">Add new coloring attributes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="addAttributeXena.html">Add new coloring attributes via Xena</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mapList.html">Get map list</a></li>
 <li class="toctree-l1"><a class="reference internal" href="jobStatus.html">Job Status</a></li>
 <li class="toctree-l1"><a class="reference internal" href="placeNode.html">Place new nodes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="attrList.html">Future: Get attribute list</a></li>
 <li class="toctree-l1"><a class="reference internal" href="layoutList.html">Future: Get layout list</a></li>
-<li class="toctree-l1"><a class="reference internal" href="mapList.html">Future: Get map list</a></li>
 <li class="toctree-l1"><a class="reference internal" href="showAttrAndNode.html">Future: Show attributes &amp; nodes on map</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Overlay nodes (deprecated)</a></li>
 </ul>

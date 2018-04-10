@@ -25,7 +25,7 @@
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Place new nodes" href="placeNode.html" />
-    <link rel="prev" title="Add new coloring attributes via Xena" href="addAttributeXena.html" /> 
+    <link rel="prev" title="Get map list" href="mapList.html" /> 
   </head>
   <body>
     <div class="header-wrapper" role="banner">
@@ -33,7 +33,7 @@
         <div class="headertitle"><a
           href="index.html">TumorMap API</a></div>
         <div class="rel" role="navigation" aria-label="related navigation">
-          <a href="addAttributeXena.html" title="Add new coloring attributes via Xena"
+          <a href="mapList.html" title="Get map list"
              accesskey="P">previous</a> |
           <a href="placeNode.html" title="Place new nodes"
              accesskey="N">next</a> |
@@ -111,10 +111,8 @@ on the status as follows:</li>
 </div>
 <div class="section" id="response-error">
 <h2>Response error<a class="headerlink" href="#response-error" title="Permalink to this headline">¶</a></h2>
-<p>Response errors are returned when the job status could not be obtained for some
-reason. This response will have some code other than HTTP 200 with the content
-containing a printable string and an optional stack trace. If there is no
-stackTrace that property will not be in the response:</p>
+<p>Response errors have some HTTP code other than 200, with JSON content that may
+contain a stack trace, such as:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span>
    <span class="s2">&quot;error&quot;</span> <span class="p">:</span> <span class="o">&lt;</span><span class="n">errorMessage</span><span class="o">&gt;</span><span class="p">,</span>
    <span class="s2">&quot;stackTrace&quot;</span> <span class="p">:</span> <span class="o">&lt;</span><span class="n">trace</span><span class="o">&gt;</span>
@@ -134,11 +132,11 @@ stackTrace that property will not be in the response:</p>
           <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="addAttribute.html">Add new coloring attributes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="addAttributeXena.html">Add new coloring attributes via Xena</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mapList.html">Get map list</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Job Status</a></li>
 <li class="toctree-l1"><a class="reference internal" href="placeNode.html">Place new nodes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="attrList.html">Future: Get attribute list</a></li>
 <li class="toctree-l1"><a class="reference internal" href="layoutList.html">Future: Get layout list</a></li>
-<li class="toctree-l1"><a class="reference internal" href="mapList.html">Future: Get map list</a></li>
 <li class="toctree-l1"><a class="reference internal" href="showAttrAndNode.html">Future: Show attributes &amp; nodes on map</a></li>
 <li class="toctree-l1"><a class="reference internal" href="overlayNode.html">Overlay nodes (deprecated)</a></li>
 </ul>
@@ -161,7 +159,7 @@ stackTrace that property will not be in the response:</p>
       <div class="footer">
         <div class="left">
           <div role="navigation" aria-label="related navigaton">
-            <a href="addAttributeXena.html" title="Add new coloring attributes via Xena"
+            <a href="mapList.html" title="Get map list"
               >previous</a> |
             <a href="placeNode.html" title="Place new nodes"
               >next</a> |

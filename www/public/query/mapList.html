@@ -5,7 +5,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Future: Get map list &#8212; TumorMap API</title>
+    <title>Get map list &#8212; TumorMap API</title>
     <link rel="stylesheet" href="_static/agogo.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="_static/custom.css" type="text/css" />
@@ -24,8 +24,8 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Future: Show attributes &amp; nodes on map" href="showAttrAndNode.html" />
-    <link rel="prev" title="Future: Get layout list" href="layoutList.html" /> 
+    <link rel="next" title="Job Status" href="jobStatus.html" />
+    <link rel="prev" title="Add new coloring attributes via Xena" href="addAttributeXena.html" /> 
   </head>
   <body>
     <div class="header-wrapper" role="banner">
@@ -33,9 +33,9 @@
         <div class="headertitle"><a
           href="index.html">TumorMap API</a></div>
         <div class="rel" role="navigation" aria-label="related navigation">
-          <a href="layoutList.html" title="Future: Get layout list"
+          <a href="addAttributeXena.html" title="Add new coloring attributes via Xena"
              accesskey="P">previous</a> |
-          <a href="showAttrAndNode.html" title="Future: Show attributes &amp; nodes on map"
+          <a href="jobStatus.html" title="Job Status"
              accesskey="N">next</a> |
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a>
@@ -51,8 +51,8 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="future-get-map-list">
-<h1>Future: Get map list<a class="headerlink" href="#future-get-map-list" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="get-map-list">
+<h1>Get map list<a class="headerlink" href="#get-map-list" title="Permalink to this headline">¶</a></h1>
 <p><a class="reference external" href="https://hexcalc.ucsc.edu/">https://hexcalc.ucsc.edu/</a><strong>mapList</strong></p>
 <p>HTTP GET</p>
 <p>data-type: json</p>
@@ -66,28 +66,27 @@
 <div class="section" id="response-success">
 <h2>Response success<a class="headerlink" href="#response-success" title="Permalink to this headline">¶</a></h2>
 <p>This is returned as HTTP 200 with the content in JSON. A map may have a
-single- or two-tier name. For example the maps, Gliomas, PancanAtlas/SampleMap,
-and PancanAtlas/Genemap would be represented as:</p>
+single- or two-tier name. For example the three maps, Gliomas,
+PancanAtlas/SampleMap, and PancanAtlas/Genemap would be represented as:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span>
-   <span class="s2">&quot;mapList&quot;</span> <span class="p">:</span> <span class="p">{</span>
-       <span class="s2">&quot;Gliomas&quot;</span><span class="p">:</span> <span class="p">[],</span>
-       <span class="s2">&quot;PancanAtlas&quot;</span><span class="p">:</span> <span class="p">[</span>
-           <span class="s2">&quot;SampleMap&quot;</span><span class="p">,</span>
-           <span class="s2">&quot;GeneMap&quot;</span><span class="p">,</span>
-           <span class="o">...</span>
-       <span class="p">],</span>
+   <span class="s2">&quot;Gliomas&quot;</span><span class="p">:</span> <span class="p">[],</span>
+   <span class="s2">&quot;PancanAtlas&quot;</span><span class="p">:</span> <span class="p">[</span>
+       <span class="s2">&quot;SampleMap&quot;</span><span class="p">,</span>
+       <span class="s2">&quot;GeneMap&quot;</span><span class="p">,</span>
        <span class="o">...</span>
-   <span class="p">}</span>
+   <span class="p">],</span>
+   <span class="o">...</span>
 <span class="p">}</span>
 </pre></div>
 </div>
 </div>
 <div class="section" id="response-error">
 <h2>Response error<a class="headerlink" href="#response-error" title="Permalink to this headline">¶</a></h2>
-<p>Response errors are returned with some code other than HTTP 200 with the content
-containing a more specific message as a JSON string in the form:</p>
+<p>Response errors have some HTTP code other than 200, with JSON content that may
+contain a stack trace, such as:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span>
    <span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="s2">&quot;Some message.&quot;</span>
+   <span class="s2">&quot;stackTrace&quot;</span> <span class="s2">&quot;an optional stack trace&quot;</span>
 <span class="p">}</span>
 </pre></div>
 </div>
@@ -104,11 +103,11 @@ containing a more specific message as a JSON string in the form:</p>
           <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="addAttribute.html">Add new coloring attributes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="addAttributeXena.html">Add new coloring attributes via Xena</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Get map list</a></li>
 <li class="toctree-l1"><a class="reference internal" href="jobStatus.html">Job Status</a></li>
 <li class="toctree-l1"><a class="reference internal" href="placeNode.html">Place new nodes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="attrList.html">Future: Get attribute list</a></li>
 <li class="toctree-l1"><a class="reference internal" href="layoutList.html">Future: Get layout list</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Future: Get map list</a></li>
 <li class="toctree-l1"><a class="reference internal" href="showAttrAndNode.html">Future: Show attributes &amp; nodes on map</a></li>
 <li class="toctree-l1"><a class="reference internal" href="overlayNode.html">Overlay nodes (deprecated)</a></li>
 </ul>
@@ -131,9 +130,9 @@ containing a more specific message as a JSON string in the form:</p>
       <div class="footer">
         <div class="left">
           <div role="navigation" aria-label="related navigaton">
-            <a href="layoutList.html" title="Future: Get layout list"
+            <a href="addAttributeXena.html" title="Add new coloring attributes via Xena"
               >previous</a> |
-            <a href="showAttrAndNode.html" title="Future: Show attributes &amp; nodes on map"
+            <a href="jobStatus.html" title="Job Status"
               >next</a> |
             <a href="genindex.html" title="General Index"
               >index</a>

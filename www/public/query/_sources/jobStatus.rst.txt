@@ -55,15 +55,11 @@ Where:
     }
  }
 
-
-
 Response error
 --------------
 
-Response errors are returned when the job status could not be obtained for some
-reason. This response will have some code other than HTTP 200 with the content
-containing a printable string and an optional stack trace. If there is no
-stackTrace that property will not be in the response::
+Response errors have some HTTP code other than 200, with JSON content that may
+contain a stack trace, such as::
 
  {
     "error" : <errorMessage>,

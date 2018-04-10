@@ -8,13 +8,12 @@ Web API
 
    addAttribute
    addAttributeXena
+   mapList
    jobStatus
    placeNode
 
    attrList
    layoutList
-   mapList
    showAttrAndNode
 
    overlayNode
-
