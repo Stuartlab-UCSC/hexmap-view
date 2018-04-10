@@ -1,7 +1,7 @@
 Place new nodes
 ===============
 
-https://hexcalc.ucsc.edu/query/**placeNode**
+https://hexcalc.ucsc.edu:8332/query/**placeNode**
 
 HTTP POST with content-type: application/json
 

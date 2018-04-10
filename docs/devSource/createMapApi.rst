@@ -1,7 +1,7 @@
 Create map
 ==========
 
-https://hexcalc.ucsc.edu:5000/query/**createMap**
+https://hexcalc.ucsc.edu:8332/query/**createMap**
 
 HTTP POST with content-type: application/json
 
@@ -119,7 +119,7 @@ something like::
 
  {
     "jobId": "123",
-    "jobStatusUrl": "https://hexcalc.ucsc.edu/5000/jobStatus/jobId/123",
+    "jobStatusUrl": "https://hexcalc.ucsc.edu:8332/jobStatus/jobId/123",
     "status": "InJobQueue"
  }
 
