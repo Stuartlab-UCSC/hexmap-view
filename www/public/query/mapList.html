@@ -53,7 +53,7 @@
             
   <div class="section" id="future-get-map-list">
 <h1>Future: Get map list<a class="headerlink" href="#future-get-map-list" title="Permalink to this headline">¶</a></h1>
-<p><a class="reference external" href="https://hexcalc.ucsc.edu:5000/mapList">https://hexcalc.ucsc.edu:5000/mapList</a></p>
+<p><a class="reference external" href="https://hexcalc.ucsc.edu/">https://hexcalc.ucsc.edu/</a><strong>mapList</strong></p>
 <p>HTTP GET</p>
 <p>data-type: json</p>
 <p>This API retrieves all of the public map names.</p>
@@ -65,13 +65,19 @@
 </div>
 <div class="section" id="response-success">
 <h2>Response success<a class="headerlink" href="#response-success" title="Permalink to this headline">¶</a></h2>
-<p>This is returned as HTTP 200 with the content being in JSON. For example:</p>
+<p>This is returned as HTTP 200 with the content in JSON. A map may have a
+single- or two-tier name. For example the maps, Gliomas, PancanAtlas/SampleMap,
+and PancanAtlas/Genemap would be represented as:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span>
-   <span class="s2">&quot;mapList&quot;</span> <span class="p">:</span> <span class="p">[</span>
-       <span class="s2">&quot;PancanAtlas/SampleMap&quot;</span><span class="p">,</span>
-       <span class="s2">&quot;WCDT&quot;</span><span class="p">,</span>
+   <span class="s2">&quot;mapList&quot;</span> <span class="p">:</span> <span class="p">{</span>
+       <span class="s2">&quot;Gliomas&quot;</span><span class="p">:</span> <span class="p">[],</span>
+       <span class="s2">&quot;PancanAtlas&quot;</span><span class="p">:</span> <span class="p">[</span>
+           <span class="s2">&quot;SampleMap&quot;</span><span class="p">,</span>
+           <span class="s2">&quot;GeneMap&quot;</span><span class="p">,</span>
+           <span class="o">...</span>
+       <span class="p">],</span>
        <span class="o">...</span>
-   <span class="p">]</span>
+   <span class="p">}</span>
 <span class="p">}</span>
 </pre></div>
 </div>

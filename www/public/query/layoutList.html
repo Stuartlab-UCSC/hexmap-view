@@ -53,10 +53,10 @@
             
   <div class="section" id="future-get-layout-list">
 <h1>Future: Get layout list<a class="headerlink" href="#future-get-layout-list" title="Permalink to this headline">¶</a></h1>
-<p><a class="reference external" href="https://hexcalc.ucsc.edu/layoutList/mapId">https://hexcalc.ucsc.edu/layoutList/mapId</a>/&lt;map-ID&gt;</p>
+<p><a class="reference external" href="https://hexcalc.ucsc.edu/">https://hexcalc.ucsc.edu/</a><strong>layoutList/mapId/&lt;map-ID&gt;</strong></p>
 <p>HTTP GET</p>
 <p>data-type: json</p>
-<p>This API retrieves all of the attribute IDs for a map.</p>
+<p>This API retrieves all of the layout IDs for a map.</p>
 <div class="section" id="example-url">
 <h2>Example URL<a class="headerlink" href="#example-url" title="Permalink to this headline">¶</a></h2>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">http</span><span class="p">:</span><span class="o">//</span><span class="n">hexcalc</span><span class="o">.</span><span class="n">ucsc</span><span class="o">.</span><span class="n">edu</span><span class="o">/</span><span class="n">layoutList</span><span class="o">/</span><span class="n">mapId</span><span class="o">/</span><span class="n">PancanAtlas</span><span class="o">/</span><span class="n">SampleMap</span>
@@ -65,7 +65,7 @@
 </div>
 <div class="section" id="response-success">
 <h2>Response success<a class="headerlink" href="#response-success" title="Permalink to this headline">¶</a></h2>
-<p>This is returned as HTTP 200 with the content being in JSON. For example:</p>
+<p>This is returned as HTTP 200 with the content in JSON. For example:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span>
    <span class="s2">&quot;mapId&quot;</span> <span class="p">:</span> <span class="o">&lt;</span><span class="nb">map</span><span class="o">-</span><span class="n">ID</span><span class="o">&gt;</span><span class="p">,</span>
    <span class="s2">&quot;layoutList&quot;</span> <span class="p">:</span> <span class="p">[</span>

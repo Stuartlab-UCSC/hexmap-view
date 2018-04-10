@@ -1,7 +1,7 @@
 Future: Get map list
 ====================
 
-https://hexcalc.ucsc.edu:5000/mapList
+https://hexcalc.ucsc.edu/**mapList**
 
 HTTP GET
 
@@ -18,14 +18,20 @@ Example URL
 Response success
 ----------------
 
-This is returned as HTTP 200 with the content in JSON. For example::
+This is returned as HTTP 200 with the content in JSON. A map may have a
+single- or two-tier name. For example the maps, Gliomas, PancanAtlas/SampleMap,
+and PancanAtlas/Genemap would be represented as::
 
  {
-    "mapList" : [
-        "PancanAtlas/SampleMap",
-        "WCDT",
+    "mapList" : {
+        "Gliomas": [],
+        "PancanAtlas": [
+            "SampleMap",
+            "GeneMap",
+            ...
+        ],
         ...
-    ]
+    }
  }
 
 Response error
