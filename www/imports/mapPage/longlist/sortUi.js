@@ -140,7 +140,13 @@ import './sort.html';
         });
     }
 
-	 function sortIt () {
+     function resetIt () {
+        // The default/density sort has been requested
+        sort.find_clumpiness_stats();
+        hide();
+    }
+
+     function sortIt () {
         var returnMessage,
             focusAttr = list.selected,
             focusAttr2 = list2.selected;
@@ -244,7 +250,10 @@ exports.init = function () {
         // Define the dialog options
         var opts = {
             title: title,
-            buttons: [{ text: 'Sort', click: sortIt }],
+            buttons: [
+                { text: 'Reset', click: resetIt },
+                { text: 'Sort', click: sortIt },
+            ],
         };
 
         // Create an instance of DialogHex with a link from the navbar menu item
