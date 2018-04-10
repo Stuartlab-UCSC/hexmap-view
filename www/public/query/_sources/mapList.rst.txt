@@ -1,5 +1,5 @@
-Future: Get the public maps available
-=====================================
+Future: Get map list
+====================
 
 https://hexcalc.ucsc.edu:5000/mapList
 
@@ -7,7 +7,7 @@ HTTP GET
 
 data-type: json
 
-This API retrieves all of the public maps.
+This API retrieves all of the public map names.
 
 Example URL
 -----------

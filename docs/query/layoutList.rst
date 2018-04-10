@@ -1,5 +1,5 @@
-Future: Get a map's layout names
-================================
+Future: Get layout list
+=======================
 
 https://hexcalc.ucsc.edu/layoutList/mapId/<map-ID>
 
