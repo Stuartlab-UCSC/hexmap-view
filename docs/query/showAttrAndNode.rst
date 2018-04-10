@@ -23,7 +23,7 @@ Content Example
     ],
     "node": [
         "TCGA-01",
-        "TCGA-01",
+        "TCGA-02",
         ...
     ],
  }

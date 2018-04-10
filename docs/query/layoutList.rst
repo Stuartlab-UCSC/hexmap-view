@@ -7,7 +7,7 @@ HTTP GET
 
 data-type: json
 
-This API retrieves all of the attribute IDs for a map.
+This API retrieves all of the layout IDs for a map.
 
 Example URL
 -----------
@@ -18,7 +18,7 @@ Example URL
 Response success
 ----------------
 
-This is returned as HTTP 200 with the content being in JSON. For example::
+This is returned as HTTP 200 with the content in JSON. For example::
 
  {
     "mapId" : <map-ID>,
