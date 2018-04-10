@@ -1,7 +1,7 @@
 Add new coloring attributes
 ===========================
 
-https://hexcalc.ucsc.edu:5000/query/**addAttribute**
+https://hexcalc.ucsc.edu/query/**addAttribute**
 
 HTTP POST with content-type: application/json
 

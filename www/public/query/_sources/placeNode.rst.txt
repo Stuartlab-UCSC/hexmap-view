@@ -1,7 +1,7 @@
 Place new nodes
 ===============
 
-https://hexcalc.ucsc.edu:5000/query/**placeNode**
+https://hexcalc.ucsc.edu/query/**placeNode**
 
 HTTP POST with content-type: application/json
 
@@ -79,7 +79,7 @@ something like::
 
  {
     "jobId": "123",
-    "jobStatusUrl": "https://hexCalc.sdsc.edu/5000/jobStatus/jobId/123",
+    "jobStatusUrl": "https://hexCalc.sdsc.edu/jobStatus/jobId/123",
     "status": "InJobQueue"
  }
 

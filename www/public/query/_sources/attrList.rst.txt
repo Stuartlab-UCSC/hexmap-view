@@ -1,7 +1,7 @@
 Future: Get attribute list
 ==========================
 
-https://hexcalc.ucsc.edu/attrList/mapId/<map-ID>
+https://hexcalc.ucsc.edu/**attrList/mapId/<map-ID>**
 
 HTTP GET
 
@@ -18,7 +18,7 @@ Example URL
 Response success
 ----------------
 
-This is returned as HTTP 200 with the content being in JSON. For example::
+This is returned as HTTP 200 with the content in JSON. For example::
 
  {
     "mapId" : <map-ID>,
