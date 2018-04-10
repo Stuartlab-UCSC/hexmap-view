@@ -29,9 +29,10 @@ See the `Technical Overview`_ below for details on ranking metrics.
 
 **Differential Attributes** :
 Selecting this option allows users to sort attributes by how well they
-distinguish one group of samples from another. The two groups of samples must be
-disjoint and user generated. A use case displaying this functionality can be
-seen at
+distinguish one group of samples from another. The two groups of samples must
+be created by the user selecting nodes or using existing shortlist attributes to
+create attributes from filtered values.
+A use case displaying this functionality can be seen at
 :doc:`Which genomic events distinguish one subtype of cancer from another? </case6subtype>`
 See the `Technical Overview`_ below for details on ranking metrics.
 
