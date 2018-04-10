@@ -5,7 +5,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Job Status &#8212; TumorMap API</title>
+    <title>Future: Get a map’s attribute names &#8212; TumorMap API</title>
     <link rel="stylesheet" href="_static/agogo.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="_static/custom.css" type="text/css" />
@@ -24,8 +24,8 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Place new nodes" href="placeNode.html" />
-    <link rel="prev" title="Add new coloring attributes via Xena" href="addAttributeXena.html" /> 
+    <link rel="next" title="Future: Get a map’s layout names" href="layoutList.html" />
+    <link rel="prev" title="Place new nodes" href="placeNode.html" /> 
   </head>
   <body>
     <div class="header-wrapper" role="banner">
@@ -33,9 +33,9 @@
         <div class="headertitle"><a
           href="index.html">TumorMap API</a></div>
         <div class="rel" role="navigation" aria-label="related navigation">
-          <a href="addAttributeXena.html" title="Add new coloring attributes via Xena"
-             accesskey="P">previous</a> |
           <a href="placeNode.html" title="Place new nodes"
+             accesskey="P">previous</a> |
+          <a href="layoutList.html" title="Future: Get a map’s layout names"
              accesskey="N">next</a> |
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a>
@@ -51,73 +51,38 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="job-status">
-<h1>Job Status<a class="headerlink" href="#job-status" title="Permalink to this headline">¶</a></h1>
-<p><a class="reference external" href="https://hexcalc.ucsc.edu:5000/jobStatus/jobId">https://hexcalc.ucsc.edu:5000/jobStatus/jobId</a>/&lt;jobId&gt;</p>
+  <div class="section" id="future-get-a-map-s-attribute-names">
+<h1>Future: Get a map’s attribute names<a class="headerlink" href="#future-get-a-map-s-attribute-names" title="Permalink to this headline">¶</a></h1>
+<p><a class="reference external" href="https://hexcalc.ucsc.edu/attrList/mapId">https://hexcalc.ucsc.edu/attrList/mapId</a>/&lt;map-ID&gt;</p>
 <p>HTTP GET</p>
 <p>data-type: json</p>
-<p>This API checks the status of a compute job.</p>
+<p>This API retrieves all of the attribute IDs for a map.</p>
 <div class="section" id="example-url">
 <h2>Example URL<a class="headerlink" href="#example-url" title="Permalink to this headline">¶</a></h2>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">hexcalc</span><span class="o">.</span><span class="n">ucsc</span><span class="o">.</span><span class="n">edu</span><span class="p">:</span><span class="mi">5000</span><span class="o">/</span><span class="n">jobStatus</span><span class="o">/</span><span class="n">jobId</span><span class="o">/</span><span class="mi">123</span>
-</pre></div>
-</div>
-<p>Where ‘123’ is the job ID which is returned from a web API call of the form:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">hexcalc</span><span class="o">.</span><span class="n">ucsc</span><span class="o">.</span><span class="n">edu</span><span class="p">:</span><span class="mi">5000</span><span class="o">/</span><span class="n">query</span><span class="o">/&lt;</span><span class="n">operation</span><span class="o">&gt;</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">http</span><span class="p">:</span><span class="o">//</span><span class="n">hexcalc</span><span class="o">.</span><span class="n">ucsc</span><span class="o">.</span><span class="n">edu</span><span class="o">/</span><span class="n">attrList</span><span class="o">/</span><span class="n">mapId</span><span class="o">/</span><span class="n">PancanAtlas</span><span class="o">/</span><span class="n">SampleMap</span>
 </pre></div>
 </div>
 </div>
 <div class="section" id="response-success">
 <h2>Response success<a class="headerlink" href="#response-success" title="Permalink to this headline">¶</a></h2>
-<p>This is returned as HTTP 200 with the content something like:</p>
+<p>This is returned as HTTP 200 with the content being in JSON. For example:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span>
-   <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;Success&quot;</span><span class="p">,</span>
-   <span class="s2">&quot;result&quot;</span><span class="p">:</span> <span class="s2">&quot;some result&quot;</span>
-<span class="p">}</span>
-</pre></div>
-</div>
-<p>Where:</p>
-<ul class="simple">
-<li><strong>status</strong> : one of:</li>
-</ul>
-<blockquote>
-<div><ul class="simple">
-<li>InJobQueue</li>
-<li>Running</li>
-<li>Success</li>
-<li>Error</li>
-</ul>
-</div></blockquote>
-<ul class="simple">
-<li><strong>result</strong> : Only Success and Error may have an optional result. This
-property is only present if there is a result. The form of the result depends
-on the status as follows:</li>
-</ul>
-<blockquote>
-<div><ul class="simple">
-<li>Success: the calculation result</li>
-<li>Error: the error message, with an optional stack trace as in this example:</li>
-</ul>
-</div></blockquote>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span>
-   <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;Error&quot;</span><span class="p">,</span>
-   <span class="s2">&quot;result&quot;</span><span class="p">:</span> <span class="p">{</span>
-       <span class="s2">&quot;error&quot;</span> <span class="p">:</span> <span class="o">&lt;</span><span class="n">errorMessage</span><span class="o">&gt;</span><span class="p">,</span>
-       <span class="s2">&quot;stackTrace&quot;</span> <span class="p">:</span> <span class="o">&lt;</span><span class="n">stackTrace</span><span class="o">&gt;</span>
-   <span class="p">}</span>
+   <span class="s2">&quot;mapId&quot;</span> <span class="p">:</span> <span class="o">&lt;</span><span class="nb">map</span><span class="o">-</span><span class="n">ID</span><span class="o">&gt;</span><span class="p">,</span>
+   <span class="s2">&quot;attrList&quot;</span> <span class="p">:</span> <span class="p">[</span>
+       <span class="s2">&quot;gender&quot;</span><span class="p">,</span>
+       <span class="s2">&quot;subType&quot;</span><span class="p">,</span>
+       <span class="o">...</span>
+   <span class="p">]</span>
 <span class="p">}</span>
 </pre></div>
 </div>
 </div>
 <div class="section" id="response-error">
 <h2>Response error<a class="headerlink" href="#response-error" title="Permalink to this headline">¶</a></h2>
-<p>Response errors are returned when the job status could not be obtained for some
-reason. This response will have some code other than HTTP 200 with the content
-containing a printable string and an optional stack trace. If there is no
-stackTrace that property will not be in the response:</p>
+<p>Response errors are returned with some code other than HTTP 200 with the content
+containing a more specific message as a JSON string in the form:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span>
-   <span class="s2">&quot;error&quot;</span> <span class="p">:</span> <span class="o">&lt;</span><span class="n">errorMessage</span><span class="o">&gt;</span><span class="p">,</span>
-   <span class="s2">&quot;stackTrace&quot;</span> <span class="p">:</span> <span class="o">&lt;</span><span class="n">trace</span><span class="o">&gt;</span>
+   <span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="s2">&quot;Some message.&quot;</span>
 <span class="p">}</span>
 </pre></div>
 </div>
@@ -134,9 +99,9 @@ stackTrace that property will not be in the response:</p>
           <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="addAttribute.html">Add new coloring attributes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="addAttributeXena.html">Add new coloring attributes via Xena</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Job Status</a></li>
+<li class="toctree-l1"><a class="reference internal" href="jobStatus.html">Job Status</a></li>
 <li class="toctree-l1"><a class="reference internal" href="placeNode.html">Place new nodes</a></li>
-<li class="toctree-l1"><a class="reference internal" href="attrList.html">Future: Get a map’s attribute names</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Future: Get a map’s attribute names</a></li>
 <li class="toctree-l1"><a class="reference internal" href="layoutList.html">Future: Get a map’s layout names</a></li>
 <li class="toctree-l1"><a class="reference internal" href="mapList.html">Future: Get the public maps available</a></li>
 <li class="toctree-l1"><a class="reference internal" href="showAttrAndNode.html">Future: Show attributes &amp; nodes on a map</a></li>
@@ -161,16 +126,16 @@ stackTrace that property will not be in the response:</p>
       <div class="footer">
         <div class="left">
           <div role="navigation" aria-label="related navigaton">
-            <a href="addAttributeXena.html" title="Add new coloring attributes via Xena"
-              >previous</a> |
             <a href="placeNode.html" title="Place new nodes"
+              >previous</a> |
+            <a href="layoutList.html" title="Future: Get a map’s layout names"
               >next</a> |
             <a href="genindex.html" title="General Index"
               >index</a>
           </div>
           <div role="note" aria-label="source link">
               <br/>
-              <a href="_sources/jobStatus.rst.txt"
+              <a href="_sources/attrList.rst.txt"
                 rel="nofollow">Show Source</a>
           </div>
         </div>
