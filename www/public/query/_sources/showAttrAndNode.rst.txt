@@ -1,5 +1,5 @@
-Future: Show attributes & nodes on a map
-========================================
+Future: Show attributes & nodes on map
+======================================
 
 https://hexcalc.ucsc.edu/showAttrNode
 

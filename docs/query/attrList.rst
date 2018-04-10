@@ -1,5 +1,5 @@
-Future: Get a map's attribute names
-===================================
+Future: Get attribute list
+==========================
 
 https://hexcalc.ucsc.edu/attrList/mapId/<map-ID>
 
