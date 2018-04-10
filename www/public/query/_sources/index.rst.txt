@@ -10,5 +10,11 @@ Web API
    addAttributeXena
    jobStatus
    placeNode
+
+   attrList
+   layoutList
+   mapList
+   showAttrAndNode
+
    overlayNode
 
