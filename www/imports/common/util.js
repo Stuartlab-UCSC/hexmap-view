@@ -78,7 +78,7 @@ exports.getDataType = function (layerName){
     } else if (exports.is_categorical(layerName)){
         dataType = "categorical"
     } else {
-        throw "Unrecognized dataType"
+        throw 'No dataType for attribute: ' + layerName;
     }
     return dataType
 }

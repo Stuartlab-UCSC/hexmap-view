@@ -1039,50 +1039,38 @@ exports.get_slider_range = function (layer_name) {
         return Session.get('shortlist')
     };
 
+exports.removeDynamicEntries = function () {
+    for (name in layers) {
+        if (layers[name].dynamic) {
+            delete layers[name];
+        }
+    }
+}
+
 exports.get_dynamic_entries_for_persistent_state = function () {
 
     // Return the dynamic entries in the short list, while converting the
     // color objects in the colormaps to saveable objects.
     var entries = {};
-
     _.each(layers, function (layer, name) {
-    
-        // Only consider dynamic layers that are not reflections.
-        // Reflections are restored by pulling from the reflection database.
         if (layer.dynamic) {
-            if (layer.reflection) {
            
-                // Remove this from the shortlist, reflections will load
-                // this layer on reload.
-                var shortlist = Session.get('shortlist'),
-                    index = shortlist.indexOf(name);
-                if (index > -1) {
-                    shortlist.splice(index, 1);
-                    Session.set('shortlist', shortlist);
-                }
-            } else {
-           
-                // Remove magnitude since its absence indicates that this layer
-                // is to be added to the UI shortlist on load.
-                delete layer.magnitude;
+            // Remove magnitude since its absence indicates that this layer
+            // is to be added to the UI shortlist on load.
+            delete layer.magnitude;
 
-                if (!_.isUndefined(colormaps[name])) {
-                
-                    // Convert the operating colormap colors to an object
-                    // with two arrays as:
-                    // {cats: ['subclass1', ...], colors: ['#123456', ...]}
-                    layer.colormap = colorEdit.colormapToState(colormaps[name]);
-                }
-                entries[name] = layer;
+            if (!_.isUndefined(colormaps[name])) {
+           
+                // Convert the operating colormap colors to an object
+                // with two arrays as:
+                // {cats: ['subclass1', ...], colors: ['#123456', ...]}
+                layer.colormap = colorEdit.colormapToState(colormaps[name]);
             }
+            entries[name] = layer;
         }
     });
 
-    if (_.keys(entries).length > 0) {
-        return entries;
-    } else {
-        return undefined;
-    }
+    return entries;
 }
 
 exports.complete_initialization = function (autorun) {

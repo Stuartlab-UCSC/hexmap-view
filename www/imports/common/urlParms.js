@@ -2,10 +2,11 @@
 // Handle project parameters in the URL.
 // Bookmarks and page-only parms are handled in state.js.
 
-import Layer from '/imports/mapPage/longlist/Layer.js';
+import bookmark from '/imports/common/bookmark';
+import Layer from '/imports/mapPage/longlist/Layer';
 import userMsg from '/imports/common/userMsg';
 
-exports.getParms = function () {
+function getParms () {
 
     // Retrieve the parameters in the url
     var parms = location.search.substr(1);
@@ -43,9 +44,9 @@ exports.getParms = function () {
     } else {
         return null;
     }
-};
+}
 
-exports.load = function (parms) {
+function loadWithProject (parms) {
 
     // Load state from parameters in the url when a project is included.
     var store = {
@@ -62,8 +63,7 @@ exports.load = function (parms) {
     loadAttrRequest(parms);
 
     return store;
-
-};
+}
 
 function loadOverlayNodes (parms, store) {
 
@@ -73,7 +73,7 @@ function loadOverlayNodes (parms, store) {
         // Split the comma-separated values into arrays
         var xs = parms.x.split(","),
             ys = parms.y.split(","),
-        // TODO: this won't work if there is a comma in a node name!
+            // TODO: this won't work if there is a comma in a node name!
             nodes = (!parms.node) ? [] : parms.node.split(",");
 
         store.overlayNodes = {};
@@ -120,7 +120,7 @@ function loadAttrRequest(parms) {
         getComputeData = (parms.compute === "addAttr");
 
     // Get out of here if an attribute has not been requested.
-    if (!(getComputeData || getXenaData)) {return}
+    if (!(getComputeData || getXenaData)) { return; }
 
     const url = parms.hub ? parms.hub : parms.url;
     const dataset = parms.dataset;
@@ -128,8 +128,8 @@ function loadAttrRequest(parms) {
     const cats = parms.cat;
     const colors = parms.color;
 
-    const parseJson = (response) => {return response.json()};
-    const recieveAttr = (data) => {return (processAttr(data, cats, colors))};
+    const parseJson = (response) => { return response.json(); };
+    const recieveAttr = (data) => { return (processAttr(data, cats, colors)); };
     // Structure the ajax called depending on what server the
     // data request is going to.
     let fetchInit = {};
@@ -155,7 +155,7 @@ function xenaQueryStr(attrName, dataset) {
         '"] :from ["' +
         dataset +
         '"]})';
-   return qstr;
+    return qstr;
 }
 
 function processAttr(result, cats, colors) {
@@ -169,18 +169,18 @@ function processAttr(result, cats, colors) {
             newLayer[attrName],
             cats,
             colors
-        )
+        );
     }
 
     addAttrToShortlist(newLayer);
 }
 
 function getAttrName(response){
-    const reponseKeys = Object.keys(response)
+    const reponseKeys = Object.keys(response);
     const attrName = reponseKeys.filter(
-        (key)=> {return key !== "sampleID"}
+        (key)=> { return key !== "sampleID"; }
     );
-    return attrName
+    return attrName;
 }
 
 function addAttrToShortlist(newLayer) {
@@ -213,7 +213,7 @@ function parseData(attrName, dataIn) {
     _.each(dataIn.sampleID, function (id, i) {
         data[id] = dataIn[attrName][i];
     });
-    return data
+    return data;
 }
 
 function buildLayer(data, attrName) {
@@ -224,7 +224,7 @@ function buildLayer(data, attrName) {
 
     let layer = {};
     layer[attrName] = layer_values;
-    return(layer)
+    return(layer);
 }
 
 function addColorMap(layerValues, catNames, colors) {
@@ -239,7 +239,7 @@ function addColorMap(layerValues, catNames, colors) {
 }
 
 function addPoundPrefix(strs) {
-    return strs.map((str) =>{ return "#".concat(str)})
+    return strs.map((str) =>{ return "#".concat(str); });
 }
 
 function projNameBackwardCompatability(project) {
@@ -264,3 +264,40 @@ function setLayout(parms) {
         Session.set('layoutName', parms.layout);
     }
 }
+
+exports.handle = function (stateLoadFx) {
+
+    // Handle any parameters in the URL.
+    var uParm = getParms();
+    if (uParm === null) {
+        return null;
+    }
+    
+    console.log('WARNING: loading from parameters in the URL,',
+        'other state was dropped.');
+
+    // Handle a bookmark ID parm in the URL.
+    if (uParm.bookmark) {
+        bookmark.load(uParm.bookmark, stateLoadFx);
+        // Other parms in the url are ignored.
+
+    // Handle other parms in the URL.
+    } else {
+
+        // Handle a map ID / project in the URL query.
+        if (uParm.p) {
+            stateLoadFx(loadWithProject(uParm));
+
+        // Handle a page in the URL query.
+        } else if (uParm.pg) {
+
+            // First get any state saved in localStore before we overlay
+            // the page ID. This allow one to pop over to the home page, and
+            // then back to the map previously viewed.
+            stateLoadFx();
+            Session.set('page', uParm.pg);
+        }
+    }
+    // State was loaded from urlParms.
+    return true;
+};

@@ -5,22 +5,159 @@ import overlayNodes from '/imports/mapPage/calc/overlayNodes';
 import rx from '/imports/common/rx';
 import shortlist from '/imports/mapPage/shortlist/shortlist';
 import urlParms from '/imports/common/urlParms';
-import userMsg from '/imports/common/userMsg';
 import utils from '/imports/common/utils';
-import bookmark from '/imports/common/bookmark';
 
 import '/imports/common/navBar.html';
 
-var DEFAULT_PAGE = 'homePage',
+var LOGGING = false,  // true means log the state and store on save and load
+    DEFAULT_PAGE = 'homePage',
     DEFAULT_PROJECT = 'Gliomas/',
-    DEFAULT_SORT = {
-        text: 'Density of attributes',
-        type: 'default',
-        focus_attr: null,
-        color: 'inherit',
-        background: 'inherit',
+    storageSupported,
+    storeName,
+    lastProject;
+
+// Persistent state variable names and defaults, with boolean options of:
+//      session: true indicates a meteor session var
+//      ctx: true indicates a ctx var
+//      no session or ctx flag indicates redux var
+//      project: true indicates a project-only var
+var varInfo = {
+    background: {
+        defalt: 'black',
+        session: true,
     },
-    storageSupported;
+    mapView: {
+        defalt: 'honeycomb',
+        session: true,
+    },
+    page: {
+        defalt: DEFAULT_PAGE,
+        session: true,
+    },
+    project: {
+        defalt: DEFAULT_PROJECT,
+        ctx: true,
+    },
+    transparent: {
+        defalt: false,
+        session: true,
+    },
+    active_layers: {
+        // TODO: two static actives fail to load
+        // while if one or both are dynamic attrs, they're' fine.
+        defalt: [],
+        session: true,
+        project: true,
+    },
+    center: {
+        defalt: [0, 0],
+        ctx: true,
+        project: true,
+    },
+    dynamic_attrs: {
+        defalt: {},
+        session: true,
+        project: true,
+    },
+    layoutIndex: {
+        defalt: 0,
+        session: true,
+        project: true,
+    },
+    overlayNodes: {
+        defalt: undefined,
+        session: true,
+        project: true,
+    },
+    shortlist: {
+        defalt: [],
+        session: true,
+        project: true,
+    },
+    zoom: {
+        defalt: 3,
+        ctx: true,
+        project: true,
+    },
+    /*
+    shortlist_filter_show_: {
+        defalt: undefined,
+        session: true,
+        project: true,
+
+    },
+    shortlist_filter_value_: {
+        defalt: undefined,
+        session: true,
+        project: true,
+    },
+    */
+};
+
+function isDefaultCenter(val) {
+    return (val &&
+        typeof val === 'object' &&
+        val.length === 2 &&
+        val[0] === 0 &&
+        val[1] === 0);
+}
+
+function isDefaultEmptyObject(val) {
+    return (val &&
+        typeof val === 'object' &&
+        Object.keys(val).length < 1);
+}
+
+function isDefaultEmptyArray(val) {
+    return (val &&
+        typeof val === 'object' &&
+        val.length < 1);
+}
+
+function isDefault (key, val) {
+    
+    // Special default values.
+    if (key === 'active_layers' || key === 'shortlist') {
+        return isDefaultEmptyArray(val);
+    } else if (key === 'dynamic_attrs') {
+        return isDefaultEmptyObject(val);
+    } else if (key === 'center') {
+        return isDefaultCenter(val);
+    } else {  // the usual case.
+        return (val === varInfo[key].defalt);
+    }
+}
+
+function logState (label) {
+    if (!LOGGING) {
+        return;
+    }
+    console.log(label, 'state...');
+    var val;
+    _.each(varInfo, function (info, key) {
+        if (info.session) {
+            val = Session.get(key);
+        } else if (info.ctx) {
+            val = ctx[key];
+        } else {
+            val = 'noValue';
+            //rx.get(key);
+        }
+        if (!isDefault(key, val)) {
+            console.log(key, ':', val);
+        }
+    });
+}
+
+function logStore (label, store) {
+    if (!LOGGING) {
+        return;
+    }
+    console.log(label, 'store...');
+    _.each(store, function (val, key) {
+        console.log(key, ':', store[key]);
+    });
+}
 
 function centerToArray (centerIn) {
 
@@ -29,264 +166,135 @@ function centerToArray (centerIn) {
     if (!Array.isArray(center)) {
 
         // This is stored this as an array of two numbers rather
-        // than as latLng since when we retrieve it, we won't know
-        // about google maps yet so won't understand LatLng.
+        // than as a third party library-specific format.
         center = [center.lat(), center.lng()];
     }
     return center;
 }
 
-var State = function() {
+function setDefaults (justProject, keepProject) {
 
-    // The state stores the values used across modules for different
-    // purposes. These may belong to this object or to the reactive meteor
-    // Session. Eventually maybe all of this object's vars will be migrated
-    // to meteor Session vars.
-    //
-    //      - localStorage: persist for the duration of the browser tab
-    //          session, that is, they remain as long as the browser tab
-    //          is used and not closed. These are written to the browser's
-    //          localStorage
-    //
-    //          - project localStorage: a subset that are cleared when the
-    //              project changes because they may not apply to the new
-    //              project
-    //
-    //      - other: persist for this page load only, and are not saved to
-    //          localStorage. Some of these belong to this object and some
-    //          to the reactive meteor Session. Not all of these vars are
-    //          initialized here, but in their respective file
-    //          initialization functions
-
-    var s = this;
-
-    s.defaultProject = DEFAULT_PROJECT;
-
-    // Keep localStore of different servers separate
-    s.storeName = location.host + '-hexMapState';
-
-    // Pull out any parameters in the URL
-    s.uParm = urlParms.getParms();
-
-    s.localStorage = {
-        // Contains the non-project state we want to save with unique keys
-        all: [
-            'background',
-            'mapView',
-            'page',
-            'project',
-            'transparent',
-        ],
-
-        // Contains the project state we want to save with unique keys
-        project: [
-            'active_layers',
-            'center',
-            'dynamic_attrs',
-            'layoutIndex',
-            'overlayNodes',
-            'shortlist',
-            //'shortlist_on_top',
-            'zoom',
-        ],
-
-        // Contains the state we want to save with keys that require a label
-        // appended to make the key unique
-        key_prefixes: [
-            'shortlist_filter_show_',
-            'shortlist_filter_value_',
-        ]
-    };
-
-    s.localStorage.unique_keys = s.localStorage.all.concat(
-        s.localStorage.project);
-};
-
-State.prototype.defaultProject = function () {
-    return this.defaultProject;
-};
-
-State.prototype.defaultSort = function () {
-    return DEFAULT_SORT;
-};
-
-State.prototype.setProjectDefaults = function () {
-    var s = this;
-
-    // Project variables maintained in this state object, with defaults.
-    // (alphabetically)
-
-    // Layer names displaying their colors
-    Session.set('active_layers', []);
-
-    // main google map center
-    s.center = null;
-
-    // Dynamic layers dict
-    Session.set('dynamic_attrs', undefined);
-    delete Session.keys.dynamic_attrs;
-
-    // List of layouts available
-    Session.set('layouts', undefined);
-    delete Session.keys.layouts;
-
-    // Index of active layout.
-    Session.set('layoutIndex', undefined);
-    delete Session.keys.layoutIndex;
-
-    // overlay nodes to include
-    Session.set('overlayNodes', undefined);
-    delete Session.keys.overlayNodes
-
-    // Array of layer names in the shortlist
-    Session.set('shortlist', []);
-
-    // maintain actives at the top (unused)
-    Session.set('shortlist_on_top', false);
-
-    // Map zoom level
-    s.zoom = 3;
-
-    // Project variables with prefixes
-    _.each(Session.keys, function (val, key) {
-        _.each(s.localStorage.key_prefixes, function (prefix) {
-            if (key.indexOf(prefix) > -1) {
-                Session.set(key, undefined);
-                delete Session.keys[key];
+    // Set the default of each persistent variable.
+    // @param justProject: true if we are only resetting the project variables.
+    _.each(varInfo, function (info, key) {
+         
+        // If this is not just for project vars
+        // or if this is just for project vars and this is a project var...
+        if (!(justProject) || (justProject && info.project)) {
+        
+            // Dynamic attrs need to be removed from the layers list.
+            if (key === 'dynamic_attrs') {
+                shortlist.removeDynamicEntries();
             }
-        });
-    });
-};
-
-State.prototype.setAllDefaults = function () {
-    var s = this;
-    s.setProjectDefaults();
-
-    // Reactive variables maintained in global state & not project-specific
-
-    // Main map background color
-    Session.set('background', 'black');
-
-    // View on hexagonal grid (honeycomb) or xy coords.
-    Session.set('mapView', 'honeycomb');
-
-    // The project data to load
-    s.project = DEFAULT_PROJECT;
-
-    // Default sort message & type
-    Session.set('sort', DEFAULT_SORT);
-
-    // Display of hexagon opacity.
-    Session.set('transparent', false);
-};
-
-State.prototype.jsonify = function (newPage) {
-
-    // Convert the current state to json.
-    var s = this,
-        store = {};
-
-    // Now we set the newPage
-    if (newPage) { Session.set('page', newPage); }
-    
-    // Gather any dynamic attributes
-    var dynamic_attrs =
-        shortlist.get_dynamic_entries_for_persistent_state();
-    if (dynamic_attrs) {
-        Session.set('dynamic_attrs', dynamic_attrs);
-    }
-
-    // Walk though our list of unique keys and save those
-    _.each(s.localStorage.unique_keys, function (key) {
-
-        // If this is a Session var we want to store it there
-        if (!Session.equals(key, undefined)) {
-            store[key] = Session.get(key);
-
-        // If this var belongs to this ctx object we want to store it here
-        } else if (!_.isUndefined(s[key]) && !_.isNull(s[key])) {
-            if (key === 'center') {
-                s.center = centerToArray(s.center);
+           
+            // If this is a Session var...
+            if (info.session) {
+                Session.set(key, info.defalt);
+                if (Session.get(key) === undefined) {
+                    delete Session.keys[key];
+                }
+           
+            // If this is a ctx var...
+            } else if (info.ctx) {
+                if (key === 'project' && keepProject) {
+                    // Keep the project name value.
+                } else {
+                    ctx[key] = info.defalt;
+                }
+           
+            // This is a redux var.
+            } else {
+                //rx.set(key + '.default', info.defalt);
             }
-            store[key] = s[key];
-        // This var has no value to store
-        } else {
-            return;
         }
     });
+}
 
-    // Walk though our list of key prefixes and save those with the full key
-    _.each(s.localStorage.key_prefixes, function (key_prefix) {
-        var prefix_len = key_prefix.length;
-        
-        // Find any session keys with this prefix
-        var keys = _.filter(_.keys(Session.keys), function (key) {
-            return (key.slice(0, prefix_len) === key_prefix);
-        });
-        
-        // Save each session var with this key prefix
-        _.each(keys, function (key) {
-            store[key] = Session.get(key);
-        });
-    });
+function localStore (oper, jsonStore) {
+    if (oper === 'get') {
+        return JSON.parse(window.localStorage.getItem(storeName));
 
+    } else if (oper === 'set') {
+        window.localStorage.setItem(storeName, jsonStore);
+        
+    } else if (oper === 'remove') {
+        window.localStorage.removeItem(storeName);
+        
+    } else {
+        console.log('bad operation for local store:', oper);
+    }
+}
+
+function jsonStringify (store) {
     return JSON.stringify(store);
-};
+    //return JSON.stringify(store, Object.keys(store).sort());
+}
 
-State.prototype.save = function (newPage) {
+function save () {
 
     // Save state by writing it to local browser store.
+
+    // If we have a new project, clear any state related to the old project
+    if (ctx.project !== lastProject) {
+        lastProject = ctx.project;
+        setDefaults(true);
+    }
+    
+    // Overwrite the previous state in localStorage
+    localStore('remove');
+    localStore('set', exports.saveEach());
+}
+
+function preBookmark () {
+
+    // A special hack before we had bookmarks going: load
+    // the hard-coded overlay node data specific to this project
+    // Use this method if we want the project in the drop-down lise
+    // If you ony want it accessible from a URL, use the method in
+    // loadFromUrl().
+    if (ctx.project.slice(0,13) === 'Youngwook/ori' ||
+        ctx.project.slice(0,13) === 'Youngwook.ori') {
+        Session.set('overlayNodes', overlayNodes.get('youngwookOriginal'));
+    } else if (ctx.project.slice(0,13) === 'Youngwook/qua') {
+        Session.set('overlayNodes',
+            overlayNodes.get('youngwookQuantileNormalization'));
+    } else if (ctx.project.slice(0,13) === 'Youngwook/exp') {
+        Session.set('overlayNodes',
+            overlayNodes.get('youngwookExponentialNormalization'));
+    }
+}
+
+function load (storeIn) {
+    
     if (!storageSupported) {
         return;
     }
-    var s = this,
-        jsonState;
+    
+    var store = storeIn || localStore('get');
 
-    // If we have a new project, clear any state related to the old project
-    if (!'lastProject' in s || s.project !== s.lastProject) {
-        Session.set('page', 'mapPage');
-        s.lastProject = s.project;
-        s.setProjectDefaults();
+    logStore('\nLoad', store);
 
-    }
-
-    jsonState = s.jsonify(newPage);
-
-    // Overwrite the previous state in localStorage
-    window.localStorage.removeItem(s.storeName);
-    window.localStorage.setItem(s.storeName, jsonState);
-};
-
-
-State.prototype.load = function (store) {
-
-    //console.log('load store:', store);
-
-    // Walk through the saved state loading anything we recognize
-    var s = this;
+    // Walk through the saved state loading anything we recognize;
     _.each(store, function (val, key) {
-
-        // Load any vars with unique keys
-        if (s.localStorage.unique_keys.indexOf(key) > -1) {
+    
+        // Find this key's info.
+        var info = varInfo[key];
         
-            // Load this object's vars into this state if maintained in this
-            // state rather than in a Session var
-            if (!_.isUndefined(s[key])) {
-                s[key] = val;
-
-            // Otherwise assume this is a Session var and load it into there
-            } else {
-                Session.set(key, val);
-            }
+        // Only deal with keys in the store that we recognize.
+        if (info !== undefined ) {
            
-        // This is not a unique key we recognize, so check for key prefixes
-        // that we recognize
-        } else {
-            _.each(s.localStorage.key_prefixes , function (key_prefix) {
-                if (key.slice(0, key_prefix.length) === key_prefix) {
-                    Session.set(key, val);
-                }
-            });
+            // If this is a meteor Session var...
+            if (info.session) {
+                Session.set(key, val);
+
+            // If this is a ctx var...
+            } else if (info.ctx) {
+                ctx[key] = val;
+
+            // This is a redux var.
+            } else {
+                // rx.set(key + '.loadState', val);
+            }
         }
     });
 
@@ -294,34 +302,18 @@ State.prototype.load = function (store) {
         Session.set('page', DEFAULT_PAGE);
     }
 
-    s.lastProject = s.project;
+    lastProject = ctx.project;
 
-    // A special hack since before we had bookmarks going: load
-    // the hard-coded overlay node data specific to this project
-    // Use this method if we want the project in the drop-down lise
-    // If you ony want it accessible from a URL, use the method in
-    // this.loadFromUrl().
-    if (s.project.slice(0,13) === 'Youngwook/ori' ||
-        s.project.slice(0,13) === 'Youngwook.ori') {
-        Session.set('overlayNodes', overlayNodes.get('youngwookOriginal'));
-    } else if (s.project.slice(0,13) === 'Youngwook/qua') {
-        Session.set('overlayNodes',
-            overlayNodes.get('youngwookQuantileNormalization'));
-    } else if (s.project.slice(0,13) === 'Youngwook/exp') {
-        Session.set('overlayNodes',
-            overlayNodes.get('youngwookExponentialNormalization'));
-    }
-    
+    preBookmark();
+
     rx.set('init.stateLoaded');
-};
-
-State.prototype.loadFromLocalStore = function () {
-
-    // Load state from local store
-    var s = this,
-        store = JSON.parse(window.localStorage.getItem(s.storeName));
-    s.load(store);
-};
+    
+    // Log all persistent store state values.
+    logState('Load');
+    
+    // TODO learning about tests. Remove after that.
+    return Session.get('background');
+}
 
 function checkLocalStore () {
 
@@ -330,66 +322,82 @@ function checkLocalStore () {
     // TODO if a browser does not support this, there is no way for a user
     // to change projects. Project could be passed in the URL
     try {
-        ("localStorage" in window && window.localStorage !== null); // jshint ignore: line
+        ("localStorage" in window && window.localStorage !== null);
     } catch (e) {
-        userMsg.warn("Browser does not support local storage.");
+        //userMsg.warn("Browser does not support local storage.");
         return false;
     }
     return true;
 }
 
+exports.saveEach = function () {
+
+    // Log all persistent store state values.
+    logState('\nSave');
+
+    // Save each persistent state value.
+    var store = {};
+
+    // Walk though our list of keys and save those that are not the default.
+    _.each(varInfo, function (info, key) {
+        var val = null;
+        
+        // If this is the map center, convert the latLng to xy coords.
+        if (key === 'center') {
+            val = centerToArray(ctx.center);
+           
+        // If dynamic attrs, convert to store format.
+        } else if (key === 'dynamic_attrs') {
+            val = shortlist.get_dynamic_entries_for_persistent_state();
+
+        // If this is a Session var...
+        } else if (info.session) {
+            val = Session.get(key);
+
+        // If this is a ctx var...
+        } else if (info.ctx) {
+            val = ctx[key];
+
+        // This is a redux var.
+        } else {
+            // val = rx.get(key);
+        }
+        
+        // Only save non-defaults.
+        if (!isDefault(key, val)) {
+            store[key] = val;
+        }
+    });
+    
+    logStore('Save', store);
+
+    return jsonStringify(store);
+};
+
+exports.hasLocalStore = function () {
+    return storageSupported;
+};
+
 exports.init = function () {
     storageSupported = checkLocalStore();
-    var s = new State();
-    s.setAllDefaults();
+    ctx = {}; // global
+    setDefaults();
 
-    // Initialize some flags
-    s.mapNotFoundNotified = false;
+    // Give different servers different store names.
+    storeName = location.host + '-hexMapState';
+    
+    // Load any parameters in the URL.
+    if (urlParms.handle(load) === null) {
 
-    // Load state from URL parms.
-    if (s.uParm !== null) {
-
-        console.log('info: local session state was ignored in favor of the',
-            'URL parameters');
-
-        // Handle a bookmark ID parm in the URL.
-        if (s.uParm.bookmark) {
-            bookmark.load(s.uParm.bookmark, s);
-            // Other parms in the url are ignored
-
-        // Handle other parms in the URL.
-        } else {
-
-            // Handle a map ID / project in the URL query.
-            if (s.uParm.p) {
-                var store = urlParms.load(s.uParm);
-                s.load(store);
-
-            // Handle a page in the URL query.
-            } else if (s.uParm.pg) {
-
-                // First get any saved state.
-                var state = s.loadFromLocalStore();
-                if (!state) { state = {}; }
-                state.page = s.uParm.pg
-                s.load(state);
-            }
-        }
-
-    // If session storage is supported ...
-    } else if (storageSupported) {
-
-        // Load from the local store if there is anything in there
-        s.loadFromLocalStore();
+        // Load from the local store.
+        load();
     }
 
     // Reset the state to factory defaults when requested.
     $('body').on('click', '.resetDefaults', function () {
-        var project = s.project;
-        s.setAllDefaults();
-        s.project = project;
-        utils.pageReload('mapPage');
-    })
+        setDefaults(false, true);
+        utils.loadPage('mapPage');
+    });
 
     if (storageSupported) {
 
@@ -401,9 +409,7 @@ exports.init = function () {
         //  - change page within app
         //	- change project
         window.addEventListener('beforeunload', function () {
-            s.save();
+            save();
         });
     }
-    
-    return s;
 };

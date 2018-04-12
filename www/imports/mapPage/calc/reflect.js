@@ -232,10 +232,19 @@ function getReflectionInfo() {
     };
 
     const setUnavailable = (error) => {
-        Session.set('reflectCriteria', false)
+        //console.log('relection criteria error:', error);
+        Session.set('reflectCriteria', false);
     };
     
-    fetch(url).then(parseJson)
+    fetch(url)
+        .then(function(response) {
+            //console.log('response:', response);
+            if (response.ok) {
+                return response.text();
+            }
+            throw new Error(response.status + ' ' + response.statusText);
+        })
+        .then(parseJson)
         .then(fillMenu)
         .then(setReady)
         .catch(setUnavailable);

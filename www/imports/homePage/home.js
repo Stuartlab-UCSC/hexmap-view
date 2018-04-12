@@ -1,8 +1,9 @@
 // Handle the home page.
 
-import navBar from '/imports/common/navBar.js';
-import createMap from '/imports/mapPage/calc/createMap.js';
-import util from '/imports/common/util.js';
+import navBar from '/imports/common/navBar';
+import createMap from '/imports/mapPage/calc/createMap';
+import util from '/imports/common/util';
+import utils from '/imports/common/utils';
 
 import '/imports/homePage/home.html';
 import '/imports/homePage/home.css';
@@ -12,31 +13,59 @@ Template.homePage.onRendered(function () {
     createMap.init();
 });
 
+var proj = [
+    {
+        id: 'PancanAtlas_SampleMap',
+        proj: 'PancanAtlas/SampleMap/',
+        png: 'pancanAtlas.png',
+        layoutIndex: 8,
+        searchSuffix: '&layout=Euclidean%20iCluster',
+    },
+    {
+        id: 'Pancan12_GeneMap',
+        proj: 'Pancan12/GeneMap/',
+        png: 'pancan12gene.png',
+    
+    },
+    {
+        id: 'Gliomas',
+        proj: 'Gliomas/',
+        png: 'gliomas-paper.png',
+    },
+    {
+        id: 'QuakeBrain',
+        proj: 'QuakeBrain/',
+        png: 'QuakeBrain.png',
+    },
+    {
+        id: 'pCHIPS',
+        proj: 'pCHIPS',
+        png: 'pchips.png',
+    },
+    {
+        id: 'mgmarin_public_PCAWG_JuncBASE_CassetteExonPSIs',
+        proj: 'mgmarin_public/PCAWG_JuncBASE_CassetteExonPSIs/',
+        label: 'PCAWG JuncBASE CassetteExonPSIs',
+        linkAnchor: 'PCAWGJuncBASE',
+        png: 'PCAWG_JuncBASE.png',
+    },
+];
+
 Template.homePage.helpers({
     projects: function () {
-        return [
-            { id: 'PancanAtlas/SampleMap', png: 'pancanAtlas.png',
-                href: 'PancanAtlas/SampleMap&layout=Euclidean%20iCluster' },
-            { id: 'Pancan12/SampleMap', png: 'pancan12.png' },
-            { id: 'Pancan12/GeneMap', png: 'pancan12gene.png' },
-            { id: 'Gliomas', png: 'gliomas-paper.png' },
-            { id: 'QuakeBrain', png: 'QuakeBrain.png' },
-            { id: 'pCHIPS', png: 'pchips.png' },
-            { id: 'mgmarin_public/PCAWG_JuncBASE_CassetteExonPSIs',
-                label: 'PCAWG JuncBASE CassetteExonPSIs',
-                linkAnchor: 'PCAWGJuncBASE',
-                png: 'PCAWG_JuncBASE.png' },
-        ];
+        return proj;
     },
     id: function () {
         return this.id;
     },
-    href: function () {
-        if (this.href) {
-            return this.href;
-        } else {
-            return this.id;
-        }
+    proj: function () {
+        return this.proj;
+    },
+    layoutIndex: function () {
+        return this.layoutIndex;
+    },
+    searchSuffix: function () {
+        return this.searchSuffix;
     },
     label: function () {
         if (this.label) {
@@ -67,6 +96,21 @@ Template.homePage.helpers({
 });
 
 exports.init = function () {
+
     Blaze.render(Template.homePage, $('body')[0]);
+
+    // When the dom is loaded, add click listeners to the thumbnails.
+    window.addEventListener("load", function() {
+        for (var i in proj) {
+            document.querySelector('#' + proj[i].id).onclick = function(ev) {
+                let data = ev.target.parentElement.dataset;
+                if (data.layoutIndex) {
+                    Session.set('layoutIndex', data.layoutIndex);
+                }
+                utils.loadProject(data.proj, data.searchSuffix);
+            };
+        }
+    });
+    
     util.googleAnalytics();
 };

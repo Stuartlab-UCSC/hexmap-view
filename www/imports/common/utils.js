@@ -1,6 +1,7 @@
 
 // Various utilities.
 import { unmountComponentAtNode } from 'react-dom';
+import state from '/imports/common/state';
 
 exports.unprintableAsciiCode = function (code, allowCR) {
     
@@ -81,13 +82,21 @@ function queryFreeReload () {
     }
 }
 
-exports.pageReload = function (page) {
-    Session.set('page', page);
-    queryFreeReload();
+exports.loadPage = function (page) {
+    if (state.hasLocalStore()) {
+        Session.set('page', page);
+        queryFreeReload();
+    } else {
+        window.location.search = '/?pg=' + page;
+    }
 };
 
-exports.loadProject = function (project) {
-    ctx.project = project;
-    Session.set('page', 'mapPage');
-    queryFreeReload();
+exports.loadProject = function (project, searchSuffix) {
+    if (state.hasLocalStore()) {
+        ctx.project = project;
+        Session.set('page', 'mapPage');
+        queryFreeReload();
+    } else {
+        window.location.search = '/?p=' + project + searchSuffix;
+    }
 };

@@ -49,6 +49,6 @@ Meteor.startup(() => {
     rxInternal.init();
     userMsg.init();
     unsubFx.isStateLoaded = rx.subscribe(isStateLoaded);
-    ctx = state.init();
+    state.init();
     rx.set('init.ctxLoaded');
 });
