@@ -18,9 +18,6 @@ function initDownloadSelectTool () {
         // Make the export form
         var export_form = $("<form/>").attr("title", "Attribute Download");
         
-        //export_form.append(
-            //$("<div/>").text("Select an attribute to download:"));
-        
         // Make a select box for picking from all selections.
         var WIDTH = 275;
         // Add a little more to the width so the select and text box line up.
@@ -28,28 +25,22 @@ function initDownloadSelectTool () {
 
         // Populate the select box with all entries in the shortlist.
         var activeLayers = shortlist.getAllLayerNames();
-        
-        console.log('activeLayers', activeLayers)
-        
         activeLayers.map(
             function(layerName) {
-            
-                console.log('layerName', layerName)
-                
                 select_box
                     .append($("<option/>")
                         .text(layerName).attr("value", layerName));
-        });
-
+            });
         
         export_form.append(select_box);
 
         // Make the text box.
-        var text_area = $("<textarea/>").addClass("export")
+        var text_area = $("<textarea/>")
+            .addClass("export")
             .width(WIDTH)
-            .height(WIDTH);
-        text_area.prop("readonly", true);
-            export_form.append(text_area);
+            .height(WIDTH)
+            .prop("readonly", true);
+        export_form.append(text_area);
 
         // Add a download file link. The "download" attribute makes the
         // browser save it, and the href data URI holds the data.
@@ -62,16 +53,18 @@ function initDownloadSelectTool () {
             });
         export_form.append(download_link);
 
+        /* eslint-disable no-unused-vars */
         function selectionStringExtender(textAreaStr, nodeId, value, layerName){
             // Used to fill the text box when the layer is a selection.
-            return textAreaStr.concat(nodeId)
+            return textAreaStr.concat(nodeId);
         }
 
+        /* eslint-disable no-unused-vars */
         function contStringExtender(textAreaStr, nodeId, value, layerName){
             // Used to fill the text box when the layer is continuous.
             return textAreaStr.concat(nodeId)
                 .concat("\t")
-                .concat(value)
+                .concat(value);
         }
 
         function catOrBinStringExtender(textAreaStr, nodeId, value, layerName){
@@ -83,7 +76,7 @@ function initDownloadSelectTool () {
             );
             return textAreaStr.concat(nodeId)
                 .concat("\t")
-                .concat(categoryString)
+                .concat(categoryString);
         }
 
         function textAreaExtender(layerName){
@@ -94,11 +87,11 @@ function initDownloadSelectTool () {
                 extender = selectionStringExtender;
             } else if (util.is_categorical(layerName) ||
                 util.is_binary(layerName)) {
-                extender = catOrBinStringExtender
+                extender = catOrBinStringExtender;
             } else if (util.is_continuous(layerName) ) {
-                extender = contStringExtender
+                extender = contStringExtender;
             } else {
-                throw "DataType for downloading not found."
+                throw "DataType for downloading not found.";
             }
 
             return extender;
@@ -109,7 +102,7 @@ function initDownloadSelectTool () {
                 (layers[layerName].dynamic)
                     ? ""
                     : "samples".concat("\t").concat(layerName)
-            )
+            );
 
         }
         function updateTextArea(layer_data, layerName, linelimit){
@@ -117,7 +110,7 @@ function initDownloadSelectTool () {
             // Will write no more lines than linelimit.
             var textAreaStr = firstLine(layerName),
                 linecount = 0,
-            // The function used to extend the text string:
+                // The function used to extend the text string:
                 textExtender = textAreaExtender(layerName);
 
             // Make the string that will populate the text box.
@@ -145,7 +138,7 @@ function initDownloadSelectTool () {
             }
             // Update the text area.
             text_area.text(textAreaStr);
-        };
+        }
 
         text_area.focus(function() {
             // Select all on focus.
@@ -182,8 +175,8 @@ function initDownloadSelectTool () {
             var MOST_TO_DISPLAY=200,
                 NO_LIMIT = undefined,
                 layerName = select_box.val();
-                if (_.isUndefined(layers[layerName])) return;
-                var layerData = layers[layerName].data;
+            if (_.isUndefined(layers[layerName])) { return; }
+            var layerData = layers[layerName].data;
 
             updateTextArea(layerData, layerName, MOST_TO_DISPLAY);
 
@@ -232,7 +225,7 @@ exports.save = function (filename, data) {
         elem.click();
         document.body.removeChild(elem);
     }
-}
+};
 
 exports.init = function () {
     initDownloadSelectTool();
@@ -251,4 +244,4 @@ exports.init = function () {
         ' title="Download positions of nodes on the hexagonal grid"' +
         ' download > Hexagon Coordinates </>');
     $('.fileMenu .xyAssignmentAnchor').append(link);
-}
+};

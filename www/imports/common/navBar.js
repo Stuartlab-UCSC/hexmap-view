@@ -1,5 +1,6 @@
 // Handle the navigation bar
 
+import utils from '/imports/common/utils';
 import './navBar.html';
 import './navBar.css';
 
@@ -27,4 +28,11 @@ exports.init = function () {
         $('body').find('.mapShow').show();
         $('body').css('overflow-y', 'hidden');
     }
+    
+    // When the dom is loaded, add a click listener to the Home menu item.
+    window.addEventListener("load", function() {
+        document.querySelector('.home').onclick = function() {
+            utils.loadPage('homePage');
+        };
+    });
 };

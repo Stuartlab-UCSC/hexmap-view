@@ -201,7 +201,7 @@ function create_map () {
     */
     
     if (DEV) {
-        console.log('\nCompute request options: ', opts);
+        console.log('\nInfo: compute request options: ', opts);
     }
     
     ajax.query('createMap', opts,

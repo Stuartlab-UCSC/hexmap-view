@@ -135,12 +135,9 @@ function load_dynamic_colormap (name, layer) {
         colormaps[name] = [];
     }
     
-    if (indexedCats && !layer.reflection) {
-
+    if (indexedCats) {
 
         // Replace category string values with codes if needed.
-        // Note: reflections are not loaded through here, but by the
-        // reflections module.
         if (layer.hasStringVals) {
      
             // These categories have not yet been encoded so encode them.
@@ -412,12 +409,8 @@ exports.with_one = function (layer_name, callback, dynamicLayers, byAttrId) {
             layers[layer_name] = {};
             layer = layers[layer_name];
         } else {
-    
-            console.log('TODO layer: "' + layer_name +
-                '" is not in the layers global.',
-                "If this is a reflection layer, this is expected. Otherwise,",
-                'try resetting to defaults.');
-            console.trace();
+            console.error('ACK!', layer_name,
+                'is not in the layers global for some reason');
             return;
         }
     }

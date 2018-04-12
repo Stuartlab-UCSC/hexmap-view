@@ -2,9 +2,6 @@
 // This contains the logic for retrieving the layout-aware and layout-ignore
 // sort attribute stats
 
-var app = app || {}; 
-
-
 import auth from '/imports/common/auth';
 import data from '/imports/mapPage/data/data';
 import filter from '/imports/mapPage/longlist/filter';
@@ -13,7 +10,15 @@ import { pollJobStatus, parseJson} from '/imports/common/pollJobStatus';
 import shortlist from '/imports/mapPage/shortlist/shortlist';
 import userMsg from '/imports/common/userMsg';
 
-var computingText = 'Computing statistics ...';
+var computingText = 'Computing statistics ...',
+    DEFAULT_SORT = {
+        text: 'Density of attributes',
+        type: 'default',
+        focus_attr: null,
+        color: 'inherit',
+        background: 'inherit',
+    },
+    firstSort = true;
 
 function finalCompare(a, b) {
 
@@ -154,14 +159,14 @@ function updateSortUi (type, text, focus_attr, opts) {
 
     // Set the sort properties and update the UI to sort them
     if (type === 'default') {
-        Session.set('sort', ctx.defaultSort());
+        Session.set('sort', DEFAULT_SORT);
         text = Session.get('sort').text;
 
     } else if (type === 'noStats') {
         if (!text || text === '') {
             text = 'Due to an error the sort is by the default: density';
         }
-        Session.set('sort', ctx.defaultSort());
+        Session.set('sort', DEFAULT_SORT);
     } else {
 
         Session.set('sort', {text: text, type: type, focus_attr: focus_attr,
@@ -573,6 +578,7 @@ exports.initialDensitySort = function () {
     exports.find_clumpiness_stats();
     var layer_array = Session.get('sortedLayers');
     layer_array.sort(finalCompare);
+    Session.set('sort', DEFAULT_SORT);
 }
 
 exports.sort_layers = function  () {

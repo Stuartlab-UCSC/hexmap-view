@@ -23,7 +23,7 @@ var __file = path.basename(__filename);
 
 var menuClass = 'fileMenu',
     menuOptionClass = 'createMap',
-    preOptsText = 'Compute request options: ',
+    preOptsText = 'Info: compute request options: ',
     expOpts = {
         basicTest:            '--layoutInputFile,' + featureRoot   +                   'full_matrix.tab,--layoutInputFormat,clusterData,--layoutName,layout,--outputDirectory,'      + viewRoot + ',--noLayoutIndependentStats,--noLayoutAwareStats',
         mapNameTest:          '--layoutInputFile,' + featurePrefix +       'mapNameTest/full_matrix.tab,--layoutInputFormat,clusterData,--layoutName,layout,--outputDirectory,' + viewPrefix + 'mapNameTest/,--noLayoutIndependentStats,--noLayoutAwareStats',

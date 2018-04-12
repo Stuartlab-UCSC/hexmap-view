@@ -2,6 +2,7 @@
 // An object to write and load state
 
 import DialogHex from '/imports/common/DialogHex';
+import state from '/imports/common/state';
 import tool from '/imports/mapPage/head/tool';
 import userMsg from '/imports/common/userMsg';
 import '/imports/common/navBar.html';
@@ -24,9 +25,8 @@ function createBookmark () {
     // Create a bookmark of the current view for later retrieval.
     bookmarkMessage.set('Creating bookmark...');
     bookmarkColor.set('black');
-    var $bookmarkMessage = $('#bookmarkDialog .message');
-
-    Meteor.call('createBookmark', ctx.jsonify(), function (error, result) {
+    
+    Meteor.call('createBookmark', state.saveEach(), function (error, result) {
         if (error) {
             bookmarkMessage.set('Sorry, bookmark could not be created due' +
                 ' to error: ' + error);
@@ -37,14 +37,15 @@ function createBookmark () {
             // Wait for the message to be applied to the input element
             // before selecting the entire string
             Meteor.setTimeout(function () {
-                $bookmarkMessage[0].setSelectionRange(0, result.length);
+                document.querySelector('#bookmarkDialog .message')
+                    .setSelectionRange(0, result.length);
             },0);
         }
     });
 }
 
 
-exports.load = function (bookmark, ctx) {
+exports.load = function (bookmark, loadFx) {
 
     // Load state from the given bookmark.
     Meteor.call('findBookmark', bookmark,
@@ -57,7 +58,7 @@ exports.load = function (bookmark, ctx) {
                 userMsg.error(result);
                 return;
             }
-            ctx.load(result);
+            loadFx(result);
         }
     );
 };
