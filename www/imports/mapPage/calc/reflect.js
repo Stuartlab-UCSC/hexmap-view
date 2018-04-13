@@ -7,7 +7,7 @@ import LayerNameList from '/imports/mapPage/shortlist/LayerNameList.js';
 import tool from '/imports/mapPage/head/tool.js';
 import util from '/imports/common/util.js';
 import React from 'react';
-import { pollJobStatus, parseJson} from '/imports/common/pollJobStatus'
+import { pollJobStatus, parseJson} from '/imports/mapPage/calc/pollJobStatus';
 import userMsg from '/imports/common/userMsg';
 
 import './reflect.html';

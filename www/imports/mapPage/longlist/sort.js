@@ -6,7 +6,7 @@ import auth from '/imports/common/auth';
 import data from '/imports/mapPage/data/data';
 import filter from '/imports/mapPage/longlist/filter';
 import rx from '/imports/common/rx';
-import { pollJobStatus, parseJson} from '/imports/common/pollJobStatus';
+import { pollJobStatus, parseJson} from '/imports/mapPage/calc/pollJobStatus';
 import shortlist from '/imports/mapPage/shortlist/shortlist';
 import userMsg from '/imports/common/userMsg';
 
