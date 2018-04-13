@@ -8,11 +8,6 @@ import utils from '/imports/common/utils';
 import '/imports/homePage/home.html';
 import '/imports/homePage/home.css';
 
-Template.homePage.onRendered(function () {
-    navBar.init();
-    createMap.init();
-});
-
 var proj = [
     {
         id: 'PancanAtlas_SampleMap',
@@ -50,6 +45,20 @@ var proj = [
         png: 'PCAWG_JuncBASE.png',
     },
 ];
+
+Template.homePage.onRendered(function () {
+    for (var i in proj) {
+        $('body').on('click', '#' + proj[i].id, function(ev) {
+            let data = ev.target.parentElement.dataset;
+            if (data.layoutIndex) {
+                Session.set('layoutIndex', data.layoutIndex);
+            }
+            utils.loadProject(data.proj, data.searchSuffix);
+        });
+    }
+    navBar.init();
+    createMap.init();
+});
 
 Template.homePage.helpers({
     projects: function () {
@@ -98,21 +107,5 @@ Template.homePage.helpers({
 exports.init = function () {
 
     Blaze.render(Template.homePage, $('body')[0]);
-
-    // When the dom is loaded, add click listeners to the thumbnails.
-    window.addEventListener("load", function() {
-        setTimeout(function () {
-            for (var i in proj) {
-                $('body').on('click', '#' + proj[i].id, function(ev) {
-                    let data = ev.target.parentElement.dataset;
-                    if (data.layoutIndex) {
-                        Session.set('layoutIndex', data.layoutIndex);
-                    }
-                    utils.loadProject(data.proj, data.searchSuffix);
-                });
-            }
-        }, 10);
-    });
-    
     util.googleAnalytics();
 };
