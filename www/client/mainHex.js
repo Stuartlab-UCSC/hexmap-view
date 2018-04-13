@@ -44,7 +44,29 @@ function isStateLoaded () {
     }
 }
 
+function defineEnvironment () {
+    if (Meteor.settings.public.DEV) {
+        DEV = true; //development functionality will be included
+    } else {
+        DEV = false;
+    }
+    VERSION = '1.0';
+    VIEW_DIR = Meteor.settings.public.VIEW_DIR;
+    HUB_URL = Meteor.settings.public.HUB_URL;
+    ctx = null; // The global client state
+    layers = {}; // contains almost all information about attributes
+    googlemap = null; // our main googlemap instance
+    colormaps = {};
+    polygons = {}; // Global: hold objects of polygons by signature name
+
+    // Deny all client-side updates to user documents
+    Meteor.users.deny({
+        update() { return true; }
+    });
+}
+
 Meteor.startup(() => {
+    defineEnvironment();
     perform.init();
     rxInternal.init();
     userMsg.init();

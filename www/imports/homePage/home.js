@@ -101,15 +101,17 @@ exports.init = function () {
 
     // When the dom is loaded, add click listeners to the thumbnails.
     window.addEventListener("load", function() {
-        for (var i in proj) {
-            document.querySelector('#' + proj[i].id).onclick = function(ev) {
-                let data = ev.target.parentElement.dataset;
-                if (data.layoutIndex) {
-                    Session.set('layoutIndex', data.layoutIndex);
-                }
-                utils.loadProject(data.proj, data.searchSuffix);
-            };
-        }
+        setTimeout(function () {
+            for (var i in proj) {
+                $('body').on('click', '#' + proj[i].id, function(ev) {
+                    let data = ev.target.parentElement.dataset;
+                    if (data.layoutIndex) {
+                        Session.set('layoutIndex', data.layoutIndex);
+                    }
+                    utils.loadProject(data.proj, data.searchSuffix);
+                });
+            }
+        }, 10);
     });
     
     util.googleAnalytics();
