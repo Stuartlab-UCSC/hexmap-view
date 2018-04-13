@@ -231,19 +231,10 @@ function getReflectionInfo() {
     };
 
     const setUnavailable = (error) => {
-        //console.log('relection criteria error:', error);
-        Session.set('reflectCriteria', false);
+        Session.set('reflectCriteria', false)
     };
     
-    fetch(url)
-        .then(function(response) {
-            //console.log('response:', response);
-            if (response.ok) {
-                return response.text();
-            }
-            throw new Error(response.status + ' ' + response.statusText);
-        })
-        .then(parseJson)
+    fetch(url).then(parseJson)
         .then(fillMenu)
         .then(setReady)
         .catch(setUnavailable);
