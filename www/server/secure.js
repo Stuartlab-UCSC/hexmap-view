@@ -4,22 +4,57 @@
 // This file contains all the meteor server code related to security:
 // logins, associating users with roles, authorization...
 
-//createRole('dev');
-//createRole('viewAll');
-//createRole('queryAPI');
-//createRole('dev');
-//createRole('CIRM');
-//removeRoles(['Pancan12']);
-//removeUsersFromRoles(['jstuart@ucsc.edu'], ['dev', 'Pancan12']);
-//showUsernames();
-//addUsersToRoles (['swat@soe.ucsc.edu'] , ['dev']);
-//removeUser('swat@ucsc.edu');
-/*
-var users = [
-    {email: 'swat@soe.ucsc.edu', roles: ['jobs']},
-];
-createUsers(users);
-*/
+function userActions () {
+
+    //createRole('dev');
+    //createRole('viewAll');
+    //createRole('queryAPI');
+    //createRole('dev');
+    //createRole('CIRM');
+    //removeRoles(['Pancan12']);
+    //removeUsersFromRoles(['jstuart@ucsc.edu'], ['dev', 'Pancan12']);
+    //showUsernames();
+    //addUsersToRoles (['swat@soe.ucsc.edu'] , ['dev']);
+    //removeUser('swat@ucsc.edu');
+    /*
+    var users = [
+        {email: 'swat@soe.ucsc.edu', roles: ['jobs']},
+    ];
+    createUsers(users);
+    */
+}
+
+function sendMail (users, subject, msg, callback) {
+
+    // Send mail to user(s) with the given subject and message.
+    // This can take one username or an array of usernames.
+    var command =
+        'echo "'
+        + msg
+        + '" | '
+        + 'mail -s "'
+        + subject
+        + '" -S from="'
+        + ADMIN_EMAIL
+        + '" '
+        + users.toString();
+    
+    if (DEV) {
+        console.log('sendMail():', command);
+        return;
+    }
+    
+    /* eslint-disable no-unused-vars */
+    exec(command, function (error, stdout, stderr) {
+        if (error) {
+            var errMsg = 'Error on sendMail(): ' + error;
+            console.log(errMsg);
+            if (callback) { callback(errMsg); }
+        } else {
+            if (callback) { callback(); }
+        }
+    });
+}
 
 function usernamesToUsers (usernamesIn) {
     var usernames = usernamesIn;
@@ -271,3 +306,38 @@ Meteor.methods({
         }
     },
 });
+
+Meteor.startup( () => {
+
+    if (Meteor.settings.public.DEV) {
+        DEV = true; //development functionality will be included
+    } else {
+        DEV = false;
+    }
+
+    URL_BASE = Meteor.settings.public.URL_BASE;
+
+    // Allow content from anywhere
+    var all = '*:*';
+    //var kolossus = '*.kolossus.sdsc.edu:*';
+
+    BrowserPolicy.content.allowOriginForAll(all);
+    
+    // We must allow use of evil eval in javascript for google charts.
+    BrowserPolicy.content.allowEval();
+        
+    // Allow content sniffing by google analytics
+    //BrowserPolicy.content.allowContentTypeSniffing();
+
+    // From the settings.json file.
+    ADMIN_EMAIL = Meteor.settings.public.ADMIN_EMAIL;
+    
+    Accounts.emailTemplates.from = ADMIN_EMAIL;
+    Accounts.emailTemplates.siteName = 'tumorMap.ucsc.edu';
+
+    exec = Npm.require('child_process').exec;
+    process = Npm.require('process');
+    
+    userActions();
+});
+

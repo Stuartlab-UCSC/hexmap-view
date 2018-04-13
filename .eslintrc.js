@@ -3,21 +3,24 @@ module.exports = {
     // Use false for immutable vars and true for mutable.
     "globals": {
         "_": false,
+        "colormaps": true,
         "ctx": true,
-        "ADMIN_EMAIL": false,
-        "DEV": false,
+        "ADMIN_EMAIL": true,
+        "DEV": true,
+        "exec": true,
         "GoogleMaps": false,
         "google": false,
         "googlemap": true,
-        "HUB_URL": false,
-        "layers": false,
+        "HUB_URL": true,
+        "layers": true,
         "PERFORM": false,
-        "polygons": false,
+        "polygons": true,
+        "process": true,
         "Roles": false, // this shouldn't need to be here
         "sendMail": false, // where is this defined?
-	"URL_BASE": false,
-        "VERSION": false,
-        "VIEW_DIR": false,
+	"URL_BASE": true,
+        "VERSION": true,
+        "VIEW_DIR": true,
     },
     "env": {
         "browser": true,

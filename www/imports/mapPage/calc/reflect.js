@@ -170,7 +170,6 @@ function executeReflection () {
         nodeIds : nodeIds,
         rankCategories: rankCategories,
         dynamicAttrName : selectionSelected,
-        viewerUrl : URL_BASE,
         email: Meteor.user().username,
     };
 

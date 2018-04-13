@@ -22,7 +22,6 @@ exports.init = function () {
 
     var meta = {
         date: date.slice(4, (date.indexOf('GMT') - 4)),
-        viewDir: VIEW_DIR,
         dev: DEV,
         appVersion: '"' + navigator.appVersion + '"',
         userAgent: '"' + navigator.userAgent + '"',
