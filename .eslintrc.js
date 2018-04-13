@@ -3,14 +3,15 @@ module.exports = {
     // Use false for immutable vars and true for mutable.
     "globals": {
         "_": false,
+        "ADMIN_EMAIL": true,
+        "BrowserPolicy": false,
         "colormaps": true,
         "ctx": true,
-        "ADMIN_EMAIL": true,
         "DEV": true,
         "exec": true,
-        "GoogleMaps": false,
         "google": false,
         "googlemap": true,
+        "GoogleMaps": false,
         "HUB_URL": true,
         "layers": true,
         "PERFORM": false,
