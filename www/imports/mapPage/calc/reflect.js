@@ -9,7 +9,7 @@ import React from 'react';
 import tool from '/imports/mapPage/head/tool.js';
 import userMsg from '/imports/common/userMsg';
 import util from '/imports/common/util.js';
-import { parseFetchedJson } from '/imports/common/utils';
+import { checkFetchStatus, parseFetchedJson } from '/imports/common/utils.js';
 
 import './reflect.html';
 
@@ -219,19 +219,6 @@ function getReflectionInfo() {
     // grab array for possible maps to reflect to
     const url = metaDataUrl();
     
-    const checkHttpStatus = (response) => {
-        if (response.ok) {
-            if (response.status === 200) {
-                return response;
-            } else if (response.status === 204) {
-                throw new Error('204');
-            } else {
-                throw new Error(response.status + ': ' + response.statusText);
-            }
-        }
-        throw new Error(response.status);
-    }
-
     const fillMenu = (data) => {
         toMapIds = data.toMapIds;
         dataTypes = data.dataTypes;
@@ -251,7 +238,7 @@ function getReflectionInfo() {
     };
     
     fetch(url)
-        .then(checkHttpStatus)
+        .then(checkFetchStatus)
         .then(parseFetchedJson)
         .then(fillMenu)
         .then(setReady)
