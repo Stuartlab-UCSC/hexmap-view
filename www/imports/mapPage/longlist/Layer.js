@@ -9,6 +9,7 @@ import rx from '/imports/common/rx';
 import shortlist from '/imports/mapPage/shortlist/shortlist';
 import userMsg from '/imports/common/userMsg';
 import util from '/imports/common/util';
+import { checkFetchStatus, parseFetchedJson } from '/imports/common/utils';
 
 var selection_prefix = 'Selection',
     selectionNamer;
@@ -274,22 +275,7 @@ function load_static_data (layer_name, callback, byAttrId) {
     }
     layers[layer_name].status = 'dataRequested';
 
-    function layerReceived (layer_parsed) {
-        var data = {};
-
-        for (var j = 0; j < layer_parsed.length; j++) {
-        
-            // This is the label of the hexagon
-            var label = layer_parsed[j][0];
-            
-            if (label === "") {
-                // Skip blank lines
-                continue;
-            }
-            
-            // Store the values in the layer
-            data[label] = parseFloat(layer_parsed[j][1]);
-        }
+    function saveData (data) {
 
         // Save the layer data in the global layers object.
         layers[layer_name].data = data
@@ -306,20 +292,40 @@ function load_static_data (layer_name, callback, byAttrId) {
         // have metadata. Recurse to get metadata.
         exports.with_one(layer_name, callback);
     }
+
+    function layerReceived (result) {
+        
+        // Transform the object of two arrays to the structure we want.
+        var data = {};
+        for (var j = 0; j < result.nodes.length; j++) {
+            data[result.nodes[j]] = parseFloat(result.values[j]);
+        }
+        saveData(data);
+    }
+    
+    function layerReceivedAsTsv (layer_parsed) {
+        
+        // Transform the tsv data to the structure we want.
+        var data = {};
+        for (var j = 0; j < layer_parsed.length; j++) {
+            var label = layer_parsed[j][0];
+            if (label === "") {
+                continue;
+            }
+            data[label] = parseFloat(layer_parsed[j][1]);
+        }
+        saveData(data);
+    }
     
     if (byAttrId) {
     
         // Get the attr values by ID (name).
-        let url = HUB_URL + '/attr/attrId/' + layer_name +
+        let url = HUB_URL + '/attr' +
+            '/attrId/' + layer_name +
             '/mapId/' + ctx.project;
         fetch(url)
-            .then(function(response) {
-                if (response.ok) {
-                    return response.text();
-                }
-                throw new Error(response.statusText);
-            })
-            .then(util.parseTsv)
+            .then(checkFetchStatus)
+            .then(parseFetchedJson)
             .then(layerReceived)
             .catch(function(error) {
                 util.mapNotFoundNotify(
@@ -327,7 +333,7 @@ function load_static_data (layer_name, callback, byAttrId) {
             });
             
     } else { // get by attr index
-        data.requestLayer(layer.dataId, { successFx: layerReceived })
+        data.requestLayer(layer.dataId, { successFx: layerReceivedAsTsv })
     }
 }
 
