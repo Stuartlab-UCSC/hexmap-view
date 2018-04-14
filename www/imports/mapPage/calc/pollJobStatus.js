@@ -3,6 +3,8 @@
  */
 // Uses fetch API and generators to poll.
 
+import { parseFetchedJson } from '/imports/common/utils';
+
 export function pollJobStatus(
     url=undefined,
     onSuccess=(response)=>{console.log(response);},
@@ -68,10 +70,6 @@ export function pollJobStatus(
 
 function *pollGenerator(url){
     while(true){
-        yield fetch(url).then(parseJson);
+        yield fetch(url).then(parseFetchedJson);
     }
-}
-
-export function parseJson(resp){
-    return resp.json();
 }

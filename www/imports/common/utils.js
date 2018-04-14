@@ -100,3 +100,8 @@ exports.loadProject = function (project, searchSuffix) {
         window.location.search = '/?p=' + project + searchSuffix;
     }
 };
+
+export function parseFetchedJson(response) {
+    return response.json();
+}
+

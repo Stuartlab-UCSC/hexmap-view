@@ -4,11 +4,12 @@
 import auth from '/imports/common/auth.js';
 import DialogHex from '/imports/common/DialogHex.js';
 import LayerNameList from '/imports/mapPage/shortlist/LayerNameList.js';
-import tool from '/imports/mapPage/head/tool.js';
-import util from '/imports/common/util.js';
+import { pollJobStatus } from '/imports/mapPage/calc/pollJobStatus';
 import React from 'react';
-import { pollJobStatus, parseJson} from '/imports/mapPage/calc/pollJobStatus';
+import tool from '/imports/mapPage/head/tool.js';
 import userMsg from '/imports/common/userMsg';
+import util from '/imports/common/util.js';
+import { parseFetchedJson } from '/imports/common/utils';
 
 import './reflect.html';
 
@@ -191,14 +192,13 @@ function executeReflection () {
 
 
     fetch(url, reflectionPost)
-        .then(parseJson)
+        .then(parseFetchedJson)
         .then((jresp)=> pollJobStatus(jresp.jobStatusUrl, openRoutePrompt));
 
     const openRoutePrompt = (jresp) => {
         // Open a prompt with a link to view the completed reflection.
         const result = jresp.result;
-        let msg = ` The reflection of ${selectionSelected} is viewable on
-                    ${toMapId}.`;
+        let msg = ` The reflection of ${selectionSelected} is viewable at`
 
         // Notify the user if data is any data was missing from request.
         let extra="";
@@ -209,7 +209,7 @@ function executeReflection () {
                      the reflected attribute.`
         }
         msg = extra + msg;
-        userMsg.jobSuccess(result, msg);
+        userMsg.jobSuccess(result, msg, { linkText: toMapId });
     };
 
     hide();
@@ -218,6 +218,19 @@ function executeReflection () {
 function getReflectionInfo() {
     // grab array for possible maps to reflect to
     const url = metaDataUrl();
+    
+    const checkHttpStatus = (response) => {
+        if (response.ok) {
+            if (response.status === 200) {
+                return response;
+            } else if (response.status === 204) {
+                throw new Error('204');
+            } else {
+                throw new Error(response.status + ': ' + response.statusText);
+            }
+        }
+        throw new Error(response.status);
+    }
 
     const fillMenu = (data) => {
         toMapIds = data.toMapIds;
@@ -231,10 +244,15 @@ function getReflectionInfo() {
     };
 
     const setUnavailable = (error) => {
+        if (error.message !== '204') {
+            console.error(error.message);
+        }
         Session.set('reflectCriteria', false)
     };
     
-    fetch(url).then(parseJson)
+    fetch(url)
+        .then(checkHttpStatus)
+        .then(parseFetchedJson)
         .then(fillMenu)
         .then(setReady)
         .catch(setUnavailable);
