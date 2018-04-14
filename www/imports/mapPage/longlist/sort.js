@@ -6,9 +6,10 @@ import auth from '/imports/common/auth';
 import data from '/imports/mapPage/data/data';
 import filter from '/imports/mapPage/longlist/filter';
 import rx from '/imports/common/rx';
-import { pollJobStatus, parseJson} from '/imports/mapPage/calc/pollJobStatus';
+import { pollJobStatus } from '/imports/mapPage/calc/pollJobStatus';
 import shortlist from '/imports/mapPage/shortlist/shortlist';
 import userMsg from '/imports/common/userMsg';
+import { parseFetchedJson} from '/imports/common/utils';
 
 var computingText = 'Computing statistics ...',
     DEFAULT_SORT = {
@@ -523,7 +524,7 @@ function getDynamicStats (focus_attr, opts) {
     };
 
     fetch(url, postForStatJobRequest)
-        .then(parseJson)
+        .then(parseFetchedJson)
         .then(
             (resp)=>pollJobStatus(
                 resp.jobStatusUrl,

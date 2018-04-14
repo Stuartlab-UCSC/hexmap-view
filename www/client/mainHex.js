@@ -15,6 +15,13 @@ import '/imports/lib/jquery-ui.css';
 import '/imports/common/colorsFont.css';
 import '/imports/common/navBar.css';
 
+if (Meteor.settings.public.DEV) {
+    DEV = true; //development functionality will be included
+} else {
+    DEV = false;
+}
+VERSION = '1.0';
+
 var unsubFx = {};
 
 Template.body.helpers({
@@ -45,12 +52,6 @@ function isStateLoaded () {
 }
 
 function defineEnvironment () {
-    if (Meteor.settings.public.DEV) {
-        DEV = true; //development functionality will be included
-    } else {
-        DEV = false;
-    }
-    VERSION = '1.0';
     VIEW_DIR = Meteor.settings.public.VIEW_DIR;
     HUB_URL = Meteor.settings.public.HUB_URL;
     ctx = null; // The global client state
