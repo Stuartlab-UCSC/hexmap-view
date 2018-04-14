@@ -11,7 +11,7 @@ echo
 echo
 
 if [ $RUN == 'all' ]; then
-    for f in $HEXMAP/tests/selenium/test/*_test.js
+    for f in $HEXMAP/tests/selenium/*_test.js
         do
         node $f
     done
