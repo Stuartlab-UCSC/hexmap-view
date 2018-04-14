@@ -1,81 +1,20 @@
 
-# $1 is one of / all / *_test.js / lint / lint *.js /
-# Run one or all tests or lint .js files.
+# $1 is optional and may be <something>_test.js for a single test file to run
+# or omitted to run all tests.
+
+RUN=$1
+if [ -z "$RUN" ]; then
+    RUN=all
+fi
 echo
 echo 
 echo
 
-if [ $1 == 'all' ]; then
+if [ $RUN == 'all' ]; then
     for f in $HEXMAP/tests/selenium/test/*_test.js
         do
         node $f
     done
-elif [ $1 == 'lint' ] && [ $2 ]; then
-    echo linting...
-    echo $(basename "$2")
-    eslint $2
-elif [ $1 == 'lint' ]; then
-    DONT_LINT_FILES=(
-        attrAdd.js
-        canvas2svg.js
-        color.js
-        colorEdit.js
-        colormapFuture.js
-        colorMix.js
-        coords.js
-        grid.js
-        DialogHex.js
-        filter.js
-        gChart.js
-        hexagons.js
-        infoWindow.js
-        jobs.js
-        jquery-ui.js
-        Layer.js
-        LayerNameList.js
-        legend.js
-        longList.js
-        mapLabel.js
-        mapLabel.min.js
-        NodeIdSelect.js
-        overlayNodeUi.js
-        overlayNodes.js
-        pdf.js
-        project.js
-        reflect.js
-        select.js
-        select2.js
-        setOper.js
-        shortlist.js
-        sort.js
-        sortUi.js
-        svg.js
-        tool.js
-        util.js
-        viewport.js
-    )
-
-    recurse() {
-        # recursively look for .js files and lint them
-        # where $1 is the directory to start searching
-        for i in "$1"/*
-            do
-            if [ -d "$i" ];then
-                recurse "$i"
-            elif [ -f "$i" ] && \
-                [[ $i == *.js ]] && \
-                [[ ! " ${DONT_LINT_FILES[@]} " =~ " $(basename "$i") " ]]
-                then
-                echo $(basename "$i")
-                eslint $i
-            fi
-        done
-    }
-
-    echo linting...
-    recurse $HEXMAP/www/client
-    recurse $HEXMAP/www/imports
-    recurse $HEXMAP/www/server
 else
     node $1
 fi
