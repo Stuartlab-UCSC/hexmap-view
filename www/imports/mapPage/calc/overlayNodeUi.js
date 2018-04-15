@@ -15,6 +15,7 @@ import userMsg from '/imports/common/userMsg';
 import util from '/imports/common/util';
 
 import './overlayNode.html';
+import '/imports/common/navBar.html';
 
 var title = 'Place New Nodes',
     dialogHex,

@@ -41,11 +41,15 @@
     padding: 0;
 }
 
-.modalBody {
+.modalBody,
+.modalBody input,
+.modalBody button,
+.modalBody textarea,
+.modalButtons button {
+    font-size: inherit;
 }
 
 .modalButtons button {
-    font-size: inherit;
     margin: 0.2em;
     padding: 0.2em 0.4em;
 }
@@ -75,7 +79,6 @@
 }
 
 .nodeIdSelectModal textarea {
-    font-size: inherit;
     width: 42em;
 }
 
