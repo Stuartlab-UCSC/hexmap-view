@@ -1,49 +1,91 @@
 // bookmark.js
-// An object to write and load state
+// Write and load persistent state
 
-import DialogHex from '/imports/common/DialogHex';
+import React, { Component } from 'react';
+import { render } from 'react-dom';
+
+import Modal from '/imports/component/Modal';
 import state from '/imports/common/state';
-import tool from '/imports/mapPage/head/tool';
 import userMsg from '/imports/common/userMsg';
+
 import '/imports/common/navBar.html';
+import '/imports/mapPage/init/mapPage.html';
 
-var bookmarkMessage = new ReactiveVar(),
-    bookmarkColor = new ReactiveVar('black'),
-    bookmarkDialogHex;
+var modal;
 
-Template.bookmarkT.helpers ({
-    message: function () {
-        return bookmarkMessage.get();
-    },
-    color: function () {
-        return bookmarkColor.get();
-    },
-});
-
-function createBookmark () {
-
-    // Create a bookmark of the current view for later retrieval.
-    bookmarkMessage.set('Creating bookmark...');
-    bookmarkColor.set('black');
+class BookmarkModal extends Component {
+    constructor (props) {
+        super(props);
+        this.state = props;
+        
+        this.handleCloseModal = this.handleCloseModal.bind(this);
+        this.handleButtonClick = this.handleButtonClick.bind(this);
+    }
     
-    Meteor.call('createBookmark', state.saveEach(), function (error, result) {
-        if (error) {
-            bookmarkMessage.set('Sorry, bookmark could not be created due' +
-                ' to error: ' + error);
-            bookmarkColor.set('red');
-        } else {
-            bookmarkMessage.set(result);
-            
-            // Wait for the message to be applied to the input element
-            // before selecting the entire string
-            Meteor.setTimeout(function () {
-                document.querySelector('#bookmarkDialog .message')
-                    .setSelectionRange(0, result.length);
-            },0);
-        }
-    });
-}
+    handleCloseModal () {
+        this.setState({ isOpen: false });
+    }
+    
+    copyToClipboard(text) {
+        var dummy = document.createElement("input");
+        document.body.appendChild(dummy);
+        dummy.setAttribute('value', text);
+        dummy.select();
+        document.execCommand("copy");
+        document.body.removeChild(dummy);
+    }
+    
+    handleButtonClick () {
+        this.copyToClipboard(this.a.innerHTML);
+    }
+  
+    render () {
 
+        // Only show when isOpen prop is true.
+        if (!this.state.isOpen) {
+            return null;
+        }
+        
+        var self = this,
+            button =
+                <button
+                    onClick = {self.handleButtonClick}
+                    className = 'defaultButton'
+                >
+                    Copy to Clipboard
+                </button>,
+            style = {
+                fontSize: '0.8em',
+                wordWrap: 'break-word',
+                wordBreak: 'break-all',
+            };
+
+        return (
+            <Modal
+                isOpen = {self.state.isOpen}
+                onRequestClose = {self.handleCloseModal}
+                className = 'bookmarkModal'
+                body = {
+                    <div>
+                        <div>
+                            Bookmark created:
+                        </div>
+                        <a
+                            href = {self.state.link}
+                            target = '_blank'
+                            className = 'bookmarkLink'
+                            style={style}
+                            ref={(a) => { this.a = a; }}
+                        >
+                            {self.state.link}
+                        </a>
+                    </div>
+                }
+                buttons = {button}
+            />
+        );
+    }
+}
 
 exports.load = function (bookmark, loadFx) {
 
@@ -63,25 +105,34 @@ exports.load = function (bookmark, loadFx) {
     );
 };
 
-function closeBookmark () {
-    bookmarkDialogHex.hide();
+function createModal (link) {
+    if (!modal) {
+        modal = render(
+            <BookmarkModal
+            />, document.getElementById('bookmarkModalWrap')
+        );
+    }
+    modal.setState({
+        link: link,
+        isOpen: true,
+    });
 }
 
-exports.init = function () {
+function createBookmark () {
 
-    // Create an instance of DialogHex
-    bookmarkDialogHex = DialogHex.create({
-        $el: $('#bookmarkDialog'),
-        opts: {
-            title: 'Bookmark',
-            position: { my: "left", at: "left+20", of: window },
-            close: closeBookmark,
-        },
-        showFx: createBookmark,
-    });
+    // Create a bookmark of the current view for later retrieval.
+    Meteor.call('createBookmark', state.saveEach(),
+        function (error, result) {
+            if (error) {
+                userMsg.error('Sorry, bookmark could not be created due' +
+                    ' to error: ' + error);
+            } else {
+                createModal(result);
+            }
+        }
+    );
+}
 
-    // Listen for the 'create bookmark' menu clicked
-    tool.add("bookmark", function () { bookmarkDialogHex.show(); },
-        'Access this view later by creating a bookmark');
-};
-
+Template.mapPage.onRendered(function () {
+    $('body').on('click', '.bookmark', createBookmark);
+});
