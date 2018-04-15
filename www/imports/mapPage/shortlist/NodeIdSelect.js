@@ -113,7 +113,7 @@ export default class NodeIdSelect extends Component {
         // Create the new attribute.
         if (cart.length < 1) {
             this.error(
-               'There are no valid node IDs so an attribute cannot be created.');
+               'There are no valid node IDs so the attribute was not created.');
             return;
         }
         

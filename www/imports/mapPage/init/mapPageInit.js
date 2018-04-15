@@ -3,7 +3,6 @@
  */
 
 import { Meteor } from 'meteor/meteor';
-import bookmark from '/imports/common/bookmark';
 import colorEdit from '/imports/mapPage/color/colorEdit';
 import colorMix from '/imports/mapPage/color/colorMix';
 import coords from '/imports/mapPage/viewport/coords';
@@ -87,7 +86,6 @@ function areLayoutsPopulated () {
             createMap.init();
             selectNode.init();
             gChart.init();
-            bookmark.init();
             if (!DEV) {
                 perform.log('google-analytics-loading');
                 util.googleAnalytics();

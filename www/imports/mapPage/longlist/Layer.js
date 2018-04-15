@@ -537,7 +537,7 @@ exports.create_dynamic_category = function (nodeIds, values, new_layer_name) {
     
     if (nodeIds.length < 1) {
         userMsg.error(
-            "No nodes had values, so an attribute will not be created.");
+            "No nodes had values, so the attribute was not created.");
         return;
     }
 
@@ -575,7 +575,7 @@ exports.create_dynamic_selection = function (nodeIds, new_layer_name) {
 
     if (nodeIds.length < 1) {
         userMsg.error(
-            "No nodes were selected, so an attribute will not be created.");
+            "No nodes were selected, so the attribute was not created.");
         return;
     }
 

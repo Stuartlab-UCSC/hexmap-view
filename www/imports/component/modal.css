@@ -5,9 +5,12 @@
 .ReactModal__Overlay {
     z-index: 2001;
     background-color: rgba(255, 255, 255, 0.3) !important;
+    width: 0;
+    height: 0;
 }
 
 .ReactModal__Content {
+    font-size: 0.9em;
     padding: 0.5em;
     background: white;
     border: 1px solid grey;
@@ -38,11 +41,13 @@
     padding: 0;
 }
 
-.modalBody > * > *,
+.modalBody {
+}
+
 .modalButtons button {
+    font-size: inherit;
     margin: 0.2em;
     padding: 0.2em 0.4em;
-    font-size: 0.9em;
 }
 
 .modalBody textarea {
@@ -53,6 +58,7 @@
     float: right;
 }
 .modalButtons {
+    margin-top: 0.4em;
     margin-right: 0.4em;
 }
 
@@ -69,10 +75,15 @@
 }
 
 .nodeIdSelectModal textarea {
+    font-size: inherit;
     width: 42em;
 }
 
 .nodeIdDropdown li span.selected {
     color: green;
     font-weight: bold;
+}
+
+.bookmarkModal {
+    width: 16em;
 }
