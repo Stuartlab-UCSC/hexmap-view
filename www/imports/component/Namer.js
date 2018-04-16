@@ -45,8 +45,8 @@ export default class Namer extends Component {
   
     handleTextKeyPress (event) {
 
-        // Allow a return key press to trigger the button.
-        if (event.which === 13 || event.keyCode === 13) {
+        // Allow an 'Enter' key press to trigger the button.
+        if (event.key === "Enter") {
             this.handleOkButtonClick();
         }
     }

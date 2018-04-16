@@ -23,7 +23,6 @@ export default class Modal extends Component {
         this.state = {
             isOpen: true,
             onRequestClose: props.onRequestClose,
-            closeTimeoutMS: props.closeTimeoutMS,
         };
         if (props.isOpen !== undefined) {
             this.state.isOpen = props.isOpen;
@@ -43,9 +42,6 @@ export default class Modal extends Component {
         // Only works sometimes.
         event.stopPropagation();
 
-        // Close immediately rather than waiting like we do for fading away.
-        this.setState({ closeTimeoutMS: 0 });
-        
         // Close without a response.
         if (this.state.onRequestClose) {
             // Execute the given close event handler.
@@ -59,12 +55,12 @@ export default class Modal extends Component {
         return (
             <ReactModal
                 isOpen = {self.state.isOpen}
-                closeTimeoutMS = {this.state.closeTimeoutMS}
                 contentLabel = 'useless'
                 onAfterOpen = {self.props.onAfterOpen}
                 onRequestClose = {self.state.onRequestClose}
                 className = {this.props.className + ' modal'}
-                parentSelector = {self.props.parentSelector}
+                shouldCloseOnOverlayClick =
+                    {this.props.shouldCloseOnOverlayClick}
                 ariaHideApp = {false}
             >
                 <div className = 'modalHeader'>
@@ -107,10 +103,6 @@ Modal.propTypes = {
     // Visibility of this component, passed thru to ReactModal.
     isOpen: PropTypes.bool,
     
-    // Function to retrieve containerId to destroy the react component within.
-    // Pass-thru to the React-modal.
-    parentSelector: PropTypes.func,
-    
     // Function to call when a modal is about to be closed.
     // Pass-thru to react-modal.
     onRequestClose: PropTypes.func,
@@ -119,11 +111,11 @@ Modal.propTypes = {
     // Pass-thru to react-modal.
     onAfterOpen: PropTypes.func,
     
-    // Take this long from the point of requesting a close
-    // to the modal actually closing.
-    closeTimeoutMS: PropTypes.number,
+    // False default means the dialog will not close on overlay click.
+    shouldCloseOnOverlayClick: PropTypes.bool,
 };
 
 Modal.defaultProps = {
     isOpen: true,
+    shouldCloseOnOverlayClick: false,
 };
