@@ -1,46 +1,20 @@
 
-// Colormap editor and color constance.
-// TODO pull the colormap editor out of here into its own file.
-// TODO move the color functions from colorMix.js to here.
+// The colormap editor.
 
+import Colormap from '/imports/mapPage/color/Colormap';
+import colorMix from '/imports/mapPage/color/colorMix';
 import DialogHex from '/imports/common/DialogHex';
 import hexagons from '/imports/mapPage/viewport/hexagons';
-import viewport from '/imports/mapPage/viewport/viewport';
-import colorMix from '/imports/mapPage/color/colorMix';
 import overlayNodes from '/imports/mapPage/calc/overlayNodes';
 import shortlist from '/imports/mapPage/shortlist/shortlist';
 import tool from '/imports/mapPage/head/tool';
-import '/imports/common/navBar.html';
+import viewport from '/imports/mapPage/viewport/viewport';
 import './colorEdit.html';
 import './colorEdit.css';
-import util from '/imports/common/util';
 
-// Some color constants
-var DISABLED_COLOR = '#aaaaaa',
-    BINARY_ON_DARK_BG = '#ffff00',
-    BINARY_ON_LIGHT_BG = '#ff0000',
-    BINARY_OFF_DARK_BG = '#404040',
-    BINARY_OFF_LIGHT_BG = '#c0c0c0',
-    COLOR_BINARY_BOTH_ON_DARK_BG = '#00FF00',   // 2 binary attrs, both on
-    COLOR_BINARY_BOTH_ON_LIGHT_BG = '#AA00AA',   // 2 binary attrs, both on
-    COLOR_BINARY_SECOND_ON = '#0000ff', // first off, second on.
-    CONTINUOUS_LOW_DARK_BG = BINARY_OFF_DARK_BG,
-    CONTINUOUS_HIGH_DARK_BG = BINARY_ON_DARK_BG,
-    CONTINUOUS_LOW_LIGHT_BG  = BINARY_OFF_LIGHT_BG,
-    CONTINUOUS_HIGH_LIGHT_BG  = BINARY_ON_LIGHT_BG,
-    CONTINUOUS2_HIGH_DARK_BG = '#0000ff', // 2 cont, second high, first low
-    CONTINUOUS2_HIGH_LIGHT_BG  = '#0000ff',// 2 cont, second high, first low
-    CONTINUOUS2_BOTH_HIGH_ALL_BG = '#00ff00';
-
-// The color to use as hexagon fill, depending on the background color
-var NO_DATA_LIGHT_BG = '#E0E0E0',
-    NO_DATA_DARK_BG = '#303030',
-    COLOR_NO_ATTRS = 'cyan',
-    badValue = false, // The current category input has a bad value
-    $link;
-    
-var $form,
-    dialogHex;
+var badValue = false, // The current category input has a bad value
+    $link,
+    $form;
 
 // Define the colormap template helper, at this scope for some reason
 Template.colormapT.helpers({
@@ -218,18 +192,18 @@ function makeTsv($link) {
     // Only add layers in the string that have been loaded into the
     // shortlist.
     Object.keys(colormaps).forEach(function (layer) {
-            if (shortlist.inShortList(layer)) {
-        tsv += layer;
-        _.each(colormaps[layer], function (cat, catIndex) {
-        
-            // If the colormap entry is not empty...
-            if (Object.keys(colormaps[layer]).length > 0) {
-                tsv += '\t' + catIndex + '\t' + cat.name + '\t' +
-                    cat.color.hexString();
-            }
-        });
-        tsv += '\n';
-            }
+        if (shortlist.inShortList(layer)) {
+            tsv += layer;
+            _.each(colormaps[layer], function (cat, catIndex) {
+            
+                // If the colormap entry is not empty...
+                if (Object.keys(colormaps[layer]).length > 0) {
+                    tsv += '\t' + catIndex + '\t' + cat.name + '\t' +
+                        cat.color.hexString();
+                }
+            });
+            tsv += '\n';
+        }
     });
 
     // Fill in the data URI for saving. We use the handy
@@ -240,46 +214,41 @@ function makeTsv($link) {
     $link[0].click();
 }
 
-exports.colormapToColorArray = function (layerVal, layerKey) {
+function colormapToColorArray (layerVal, layerKey) {
 
     // Convert one attr colormap colors into a form that templates
     // can use.
-    var cats = _.map(layerVal, function(val,i) {
+    var cats = _.map(layerVal, function(val) {
 
         var cat = {
-                name:  val.name,
-                fileVal: rgbArrayToObj(
-                    val.fileColor.values.rgb).hexString(),
-                operVal: val.color.hexString(),
-                layer: layerKey,
-            };
+            name:  val.name,
+            fileVal: rgbArrayToObj(
+                val.fileColor.values.rgb).hexString(),
+            operVal: val.color.hexString(),
+            layer: layerKey,
+        };
         setCatAttrs(cat);
         return cat;
     });
     return {name: layerKey, cats: cats, selected: ''};
-};
+}
 
-exports.getCategoryString = function(layerName, layerValue) {
-    return colormaps[layerName][layerValue].name
-};
-
-exports.colormapsToColorArray = function () {
+function colormapsToColorArray () {
 
     // Convert the colormaps into a form the template can use,
-            // filtering out any entries with no categories, and any entry
-            // that is not in the shortlist.
+    // filtering out any entries with no categories, and any entry
+    // that is not in the shortlist.
     return _.filter(
-                _.map(colormaps, exports.colormapToColorArray),
-        function (entry) {
-                    return (entry.cats.length > 0 &&
-                            shortlist.inShortList(entry.name)
-                    );
+        _.map(colormaps, colormapToColorArray), function (entry) {
+            return (entry.cats.length > 0 &&
+                    shortlist.inShortList(entry.name)
+            );
         }
     );
 }
 
 function render() {
-        Session.set('colorArray', exports.colormapsToColorArray());
+    Session.set('colorArray', colormapsToColorArray());
     $form
         .append($link)
         .on('click', 'tr', rowClick)
@@ -291,16 +260,16 @@ function binaryColorChanged (layerName) {
     // Determines whether the user has changed a binary colormap,
     // dependent on what background they are on.
     if (_.isUndefined(colormaps[layerName])){
-        return false
+        return false;
     }
     var on = 1,
         off = 0,
         currentOn = colormaps[layerName][on].color.hexString().toLowerCase(),
         currentOff= colormaps[layerName][off].color.hexString().toLowerCase(),
-        originalOff = exports.defaultBinaryOff().toLowerCase(),
-        originalOn = exports.defaultBinaryOn().toLowerCase();
+        originalOff = Colormap.defaultBinaryOff().toLowerCase(),
+        originalOn = Colormap.defaultBinaryOn().toLowerCase();
 
-    return (currentOn !== originalOn) || (currentOff !== originalOff)
+    return (currentOn !== originalOn) || (currentOff !== originalOff);
 }
 
 // BREAK THESE UP INTO LIGHT AND DARK INSTEAD OF RELYING ON THE BACKGROUND
@@ -310,7 +279,7 @@ function continuosColorChanged (layerName) {
     // dependent on what background they are on.
     //layerValue is 0 for low and 1 for high.
     if (_.isUndefined(colormaps[layerName])){
-        return false
+        return false;
     }
     var high = 1,
         low = 0,
@@ -318,218 +287,43 @@ function continuosColorChanged (layerName) {
             .hexString().toLowerCase(),
         currentL = colormaps[layerName][low].color
             .hexString().toLowerCase(),
-        originalH = exports.defaultContHigh().toLowerCase(),
-        originalL = exports.defaultContLow().toLowerCase();
+        originalH = Colormap.defaultContHigh().toLowerCase(),
+        originalL = Colormap.defaultContLow().toLowerCase();
 
-    return (currentH !== originalH) || (currentL !== originalL)
+    return (currentH !== originalH) || (currentL !== originalL);
 }
-
-exports.disabledColor = function () {
-    return DISABLED_COLOR;
-}
-
-exports.continuousLowColor = function(layerName) {
-    // Get's the low color for a continuous attribute using the
-    // appropriate colormap entry. If colormap entry is not present
-    // then a default according to the background is made.
-    var color,
-        low = 0;
-    if (colormaps[layerName]) {
-        color =  colormaps[layerName][low].color.hexString()
-    } else {
-        colormaps[layerName] = exports.defaultContinuousColormap();
-        color =  colormaps[layerName][low].color.hexString();
-    }
-    return color;
-}
-
-exports.continuousHighColor = function(layerName) {
-    // Get's the high color for a continuous attribute using the
-    // appropriate colormap entry. If colormap entry is not present
-    // then a default according to the background is made.
-    var color,
-        high = 1;
-    if (colormaps[layerName]) {
-        color =  colormaps[layerName][high].color.hexString()
-    } else {
-        colormaps[layerName] = exports.defaultContinuousColormap();
-        color =  colormaps[layerName][high].color.hexString();
-    }
-    return color;
-}
-
-exports.binaryOffColor = function(layerName) {
-    // Get's the off color for a binary attribute using the
-    // appropriate colormap entry. If colormap entry is not present
-    // then a default according to the background is made.
-    var color,
-        off = 0;
-    if (colormaps[layerName]) {
-        color =  colormaps[layerName][off].color.hexString()
-    } else {
-        colormaps[layerName] = exports.defaultBinaryColorMap();
-        color =  colormaps[layerName][off].color.hexString();
-    }
-    return color;
-}
-
-exports.binaryOnColor = function(layerName) {
-    // Get's the on color for a binary attribute using the
-    // appropriate colormap entry. If colormap entry is not present
-    // then a default according to the background is made.
-    var color,
-        on = 1;
-
-    if (colormaps[layerName]) {
-        color =  colormaps[layerName][on].color.hexString()
-    } else {
-        colormaps[layerName] = exports.defaultBinaryColorMap();
-        color =  colormaps[layerName][on].color.hexString()
-    }
-    return color;
-}
-
-exports.defaultContLow = function () {
-    return (Session.equals('background', 'white')) ?
-        CONTINUOUS_LOW_LIGHT_BG : CONTINUOUS_LOW_DARK_BG ;
-}
-
-exports.defaultContHigh = function () {
-    return (Session.equals('background', 'white')) ?
-        CONTINUOUS_HIGH_LIGHT_BG : CONTINUOUS_HIGH_DARK_BG;
-}
-
-exports.defaultContBothHigh = function () {
-    return CONTINUOUS2_BOTH_HIGH_ALL_BG
-}
-
-exports.defaultCont2High1Low = function () {
-    return (Session.equals('background', 'white')) ?
-        CONTINUOUS2_HIGH_LIGHT_BG : CONTINUOUS2_HIGH_DARK_BG;
-}
-
-exports.defaultBinaryOff = function () {
-    return (Session.equals('background', 'white')) ?
-        BINARY_OFF_LIGHT_BG : BINARY_OFF_DARK_BG;
-}
-
-exports.defaultBinaryOn = function () {
-    return (Session.equals('background', 'white')) ?
-        BINARY_ON_LIGHT_BG : BINARY_ON_DARK_BG;
-}
-
-exports.defaultBinBothOn = function () {
-    return (Session.equals('background', 'white')) ?
-        COLOR_BINARY_BOTH_ON_LIGHT_BG : COLOR_BINARY_BOTH_ON_DARK_BG;
-}
-
-exports.defaultSecondBinOn = function () {
-    return COLOR_BINARY_SECOND_ON;
-}
-
-exports.defaultBinaryColorMap = function () {
-    var defaultColormap = [
-        {
-            "color": new Color(exports.defaultBinaryOff()),
-            "fileColor": new Color(exports.defaultBinaryOff()),
-            "name": "0",
-        },
-        {
-            "color": new Color(exports.defaultBinaryOn()),
-            "fileColor": new Color(exports.defaultBinaryOn()),
-            "name": "1",
-        }
-    ];
-    return defaultColormap;
-}
-
-exports.defaultContinuousColormap = function () {
-    var defaultColormap = [
-        {
-            "color": new Color(exports.defaultContLow()),
-            "fileColor": new Color(exports.defaultContLow()),
-            "name": "Low",
-        },
-        {
-            "color": new Color(exports.defaultContHigh()),
-            "fileColor": new Color(exports.defaultContHigh()),
-            "name": "High",
-        }
-    ];
-    return defaultColormap;
-}
-
-exports.noDataColor = function () {
-    return (Session.equals('background', 'white')) ?
-        NO_DATA_LIGHT_BG : NO_DATA_DARK_BG;
-}
-
-exports.noAttrsColor = function () {
-    return COLOR_NO_ATTRS;
-}
-
-exports.colormapToState = function (colorVals) {
-
-    // Convert one attr colormap into a form that state can save.
-    var cats = _.map(colorVals, function(val) {
-            return val.name;
-
-        }),
-        colors = _.map(colorVals, function(val) {
-            return val.color.hexString();
-        });
-    return {cats: cats, colors: colors};
-};
-
-exports.findColorCount = function (layer_name) {
-    // Find the number of colors for this layer. Continuous values and
-    // undefined layer_names are assigned a count of zero.
-    var nColors = 0;
-
-    if (util.is_cat_or_bin(layer_name)) {
-        var colormap = colormaps[layer_name];
-        if (colormap.length > 0) {
-
-            // Categorical values
-            nColors = colormap.length;
-        }
-    }
-    return nColors
-};
 
 exports.init = function () {
-    
-    var $button = $('#navBar .colormap');
     $form = $('#colorMapDiv');
     $link = $('#colorMapDiv a');
 
     $('#background').on('click', function () {
-                // Continuous/binary layers in the shortlist whose
-                // colors have not been changed must have their colors updated
-                // with the new background.
-                var contLayers = shortlist.getContinuousLayerNames()
-                    .filter(function(layerName) {
-                        return !continuosColorChanged(layerName)
-                });
-                var binLayers = shortlist.getBinaryLayerNames()
-                    .filter(function(layerName) {
-                        return !binaryColorChanged(layerName)
-                });
+        // Continuous/binary layers in the shortlist whose
+        // colors have not been changed must have their colors updated
+        // with the new background.
+        var contLayers = shortlist.getContinuousLayerNames()
+            .filter(function(layerName) {
+                return !continuosColorChanged(layerName);
+            });
+        var binLayers = shortlist.getBinaryLayerNames()
+            .filter(function(layerName) {
+                return !binaryColorChanged(layerName);
+            });
 
-                // Toggle the background session variable.
+        // Toggle the background session variable.
         if (Session.equals('background', 'white')) {
             Session.set('background', 'black');
         } else {
             Session.set('background', 'white');
         }
 
-                //Provide colormaps in accordance with the new background.
-                _.forEach(contLayers, function(layerName) {
-                    colormaps[layerName] = exports.defaultContinuousColormap()
-                });
-                _.forEach(binLayers, function (layerName) {
-                    colormaps[layerName] = exports.defaultBinaryColorMap()
-                });
+        //Provide colormaps in accordance with the new background.
+        _.forEach(contLayers, function(layerName) {
+            colormaps[layerName] = Colormap.defaultContinuousColormap();
+        });
+        _.forEach(binLayers, function (layerName) {
+            colormaps[layerName] = Colormap.defaultBinaryColorMap();
+        });
 
         // The background change requires a new map to show the
         // background.
@@ -568,5 +362,5 @@ exports.init = function () {
         dialogHex.show();
         tool.activity(false);
     }, 'Change colors of attributes', 'mapShow');
-}
+};
 

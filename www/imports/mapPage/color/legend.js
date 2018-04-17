@@ -1,10 +1,10 @@
 // legend.js
 // Handle the legend.
 
-import colorMix from '/imports/mapPage/color/colorMix.js';
-import Layer from '/imports/mapPage/longlist/Layer.js';
-import shortlist from '/imports/mapPage/shortlist/shortlist.js';
-import colorEdit from '/imports/mapPage/color/colorEdit.js';
+import Colormap from '/imports/mapPage/color/Colormap';
+import colorMix from '/imports/mapPage/color/colorMix';
+import Layer from '/imports/mapPage/longlist/Layer';
+import shortlist from '/imports/mapPage/shortlist/shortlist';
 
 import './legend.css';
 
@@ -97,12 +97,12 @@ exports.redraw = function (retrieved_layers, current_layers, context) {
         colorCount1 = -1;
 
     // Get the vertical color count, the primary active attr.
-    colorCount0 = colorEdit.findColorCount(current_layers[0]);
+    colorCount0 = Colormap.findColorCount(current_layers[0]);
     if (colorCount0 > 0) {
 
         // This is either categorical or binary. Find the key height
-        var ideal_key_ht = IDEAL_ROW_HT * colorCount0,
-            max_key_ht = windowHt - keyOffsetTop - 160;
+        ideal_key_ht = IDEAL_ROW_HT * colorCount0;
+        max_key_ht = windowHt - keyOffsetTop - 160;
         key_ht = Math.min(ideal_key_ht, max_key_ht);
 
     } else {
@@ -131,11 +131,11 @@ exports.redraw = function (retrieved_layers, current_layers, context) {
         // Create a new context and save it for later in case an svg
         // download is requested since the svg context does not know how to
         // find the horizontal band background color.
-        context = display_context = canvas.getContext("2d")
+        context = display_context = canvas.getContext("2d");
     }
 
     // Get the horizontal color count, the secondary active attr.
-    colorCount1 = colorEdit.findColorCount(current_layers[1]);
+    colorCount1 = Colormap.findColorCount(current_layers[1]);
 
     for (var i = 0; i < KEY_WT; i++) {
 
@@ -210,15 +210,15 @@ exports.redraw = function (retrieved_layers, current_layers, context) {
             $("#high-x").show();
         }
     }
-}
+};
 
 exports.init = function () {
 
     // Resize the legend along with the window
     $(window).resize(function () {
-        current_layers = shortlist.get_active_coloring_layers();
+        var current_layers = shortlist.get_active_coloring_layers();
         Layer.with_many(current_layers, function(retrieved_layers) {
             exports.redraw(retrieved_layers, current_layers);
         });
     });
-}
+};

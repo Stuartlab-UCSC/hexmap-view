@@ -1,10 +1,10 @@
 // infoWindow.js
 // Handle the google maps infoWindow objects.
 
-import coords from '/imports/mapPage/viewport/coords.js';
-import Layer from '/imports/mapPage/longlist/Layer.js';
-import colorMix from '/imports/mapPage/color/colorMix.js';
-import tool from '/imports/mapPage/head/tool.js';
+import coords from '/imports/mapPage/viewport/coords';
+import Layer from '/imports/mapPage/longlist/Layer';
+import Colormap from '/imports/mapPage/color/Colormap';
+import tool from '/imports/mapPage/head/tool';
 
 import './infoWindow.html';
 
@@ -54,7 +54,7 @@ function get_signature_search_url() {
     if (_.isUndefined(mapMeta['nodeIdSearchUrl']) ){
         return default_url;
     } else {
-        return mapMeta['nodeIdSearchUrl']
+        return mapMeta['nodeIdSearchUrl'];
     }
 }
 
@@ -127,7 +127,7 @@ function with_infocard(signature, callback, gMap) {
                 // This holds the layer's value for this signature
                 var layer_value = retrieved_layers[i].data[signature];
                 
-                if (colorMix.have_colormap(current_layers[i])) {
+                if (Colormap.have_colormap(current_layers[i])) {
                     // This is a color map
                     
                     // This holds the category object for this category number, or
@@ -178,7 +178,7 @@ exports.close = function (mouseout) {
     
     // Also un-focus the search box
     $("#search").blur();
-}
+};
 
 exports.redraw = function (gMap, callback1) {
 
@@ -205,7 +205,7 @@ exports.redraw = function (gMap, callback1) {
             info_window.open(gMap ? gMap : googlemap);
         }, 0);
     }, gMap);
-}
+};
 
 exports.show = function (event, hexagon, gMap, callback1, justNodeId_in) {
 
@@ -231,7 +231,7 @@ exports.show = function (event, hexagon, gMap, callback1, justNodeId_in) {
 
     // Calculate the window's contents and make it display them.
     exports.redraw(gMap, callback1);
-}
+};
 
 exports.init = function (gMap) {
 
@@ -243,7 +243,7 @@ exports.init = function (gMap) {
 
     // Attach a listener for the ESC key to close the info_window
     // TODO use session var
-    google.maps.event.addDomListener(document, 'keyup', exports.mapKeyup);
+    google.maps.event.addDomListener(document, 'keyup', mapKeyup);
     
     // Add an event to close the info window when the user clicks outside of any
     // any hexagon
@@ -254,4 +254,4 @@ exports.init = function (gMap) {
     // And an event to clear the selected hex when the info_window closes.
     // TODO use session var
     google.maps.event.addListener(info_window, "closeclick", exports.close);
-}
+};

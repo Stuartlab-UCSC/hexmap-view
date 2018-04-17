@@ -2,13 +2,13 @@
 // Handle most of the functions of the shortlist, which contain the layers the
 // user has added so they can be quickly selected for display.
 
-import '/imports/lib/jquery-ui.js';
+import '/imports/lib/jquery-ui';
 
-import colorEdit from '/imports/mapPage/color/colorEdit.js';
-import gChart from '/imports/mapPage/shortlist/gChart.js';
-import colorMix from '/imports/mapPage/color/colorMix.js';
-import Layer from '/imports/mapPage/longlist/Layer.js';
-import util from '/imports/common/util.js';
+import Colormap from '/imports/mapPage/color/Colormap';
+import colorMix from '/imports/mapPage/color/colorMix';
+import gChart from '/imports/mapPage/shortlist/gChart';
+import Layer from '/imports/mapPage/longlist/Layer';
+import util from '/imports/common/util';
 
 import './shortlist.html';
 import './shortlist.css';
@@ -1064,7 +1064,7 @@ exports.get_dynamic_entries_for_persistent_state = function () {
                 // Convert the operating colormap colors to an object
                 // with two arrays as:
                 // {cats: ['subclass1', ...], colors: ['#123456', ...]}
-                layer.colormap = colorEdit.colormapToState(colormaps[name]);
+                layer.colormap = Colormap.colormapToState(colormaps[name]);
             }
             entries[name] = layer;
         }

@@ -1,13 +1,13 @@
 // download.js
 
-import pdf from '/imports/mapPage/viewport/pdf.js';
-import svg from '/imports/mapPage/viewport/svg.js';
-import tool from '/imports/mapPage/head/tool.js';
-import util from '/imports/common/util.js';
+import Colormap from '/imports/mapPage/color/Colormap';
+import pdf from '/imports/mapPage/viewport/pdf';
+import shortlist from '/imports/mapPage/shortlist/shortlist';
+import svg from '/imports/mapPage/viewport/svg';
+import tool from '/imports/mapPage/head/tool';
+import util from '/imports/common/util';
 
 import '/imports/mapPage/viewport/pdf.html';
-import colorEdit from '/imports/mapPage/color/colorEdit.js';
-import shortlist from '/imports/mapPage/shortlist/shortlist.js';
 
 function initDownloadSelectTool () {
 
@@ -70,7 +70,7 @@ function initDownloadSelectTool () {
         function catOrBinStringExtender(textAreaStr, nodeId, value, layerName){
             // Used to fill the text box when the layer is categorical or
             // binary.
-            var categoryString = colorEdit.getCategoryString(
+            var categoryString = Colormap.getCategoryString(
                 layerName,
                 value
             );

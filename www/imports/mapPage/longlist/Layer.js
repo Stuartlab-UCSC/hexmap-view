@@ -2,7 +2,7 @@
 // Most of the code to handle the layer data.
 
 import data from '/imports/mapPage/data/data';
-import colorEdit from '/imports/mapPage/color/colorEdit';
+import Colormap from '/imports/mapPage/color/Colormap';
 import colorMix from '/imports/mapPage/color/colorMix';
 import jPalette from '/imports/lib/jPalette';
 import rx from '/imports/common/rx';
@@ -464,15 +464,15 @@ exports.with_one = function (layer_name, callback, dynamicLayers, byAttrId) {
         if (util.is_continuous(layer_name)) {
             layer.maximum = maximum;
             layer.minimum = minimum;
-                colormaps[layer_name] = colorEdit.defaultContinuousColormap()
+                colormaps[layer_name] = Colormap.defaultContinuousColormap()
         }
         // Keep track of the unsigned magnitude.
         layer.magnitude = Math.max(Math.abs(minimum), maximum);
 
-        if (!colorMix.have_colormap(layer_name) && util.is_binary(layer_name)) {
+        if (!Colormap.have_colormap(layer_name) && util.is_binary(layer_name)) {
             // Add an empty colormap for this layer, so that 
             // auto-generated discrete colors will be used.
-		        colormaps[layer_name] = colorEdit.defaultBinaryColorMap();
+		        colormaps[layer_name] = Colormap.defaultBinaryColorMap();
         }
      
         // Add this layer to the shortlist.

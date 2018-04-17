@@ -2,10 +2,11 @@
  * Retrieve data.
  */
 
-import ajax from '/imports/mapPage/data/ajax.js';
-import perform from '/imports/common/perform.js';
-import rx from '/imports/common/rx.js';
-import util from '/imports/common/util.js';
+import ajax from '/imports/mapPage/data/ajax';
+import Colormap from '/imports/mapPage/color/Colormap';
+import perform from '/imports/common/perform';
+import rx from '/imports/common/rx';
+import util from '/imports/common/util';
 
 function request (id, opts) {
 
@@ -89,8 +90,7 @@ exports.requestLayoutNames = function (opts) {
 };
 
 exports.requestColormaps = function (opts) {
-    import colorMix from '/imports/mapPage/color/colorMix.js';
-    opts.successFx = opts.successFx || colorMix.colormapsReceived;
+    opts.successFx = opts.successFx || Colormap.received;
     request('colormaps', opts);
 };
 
