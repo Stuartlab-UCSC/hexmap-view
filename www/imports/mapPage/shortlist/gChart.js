@@ -2,8 +2,8 @@
 * gChart.js 
 * For use of google charts
 */
-import colorEdit from '/imports/mapPage/color/colorEdit.js';
-import Layer from '/imports/mapPage/longlist/Layer.js';
+import Colormap from '/imports/mapPage/color/Colormap';
+import Layer from '/imports/mapPage/longlist/Layer';
 
 var load = new ReactiveVar('notLoaded'), // notLoaded, loading, loaded
     appReady = new ReactiveVar(false),
@@ -25,15 +25,16 @@ function drawBarChart (layer_name, container) {
         });
 
         // Fill any undefined array values with zero
-            var filled = [];
-            for (var i = 0; i < counts.length; i += 1) {
+        var filled = [];
+        for (var i = 0; i < counts.length; i += 1) {
             filled[i] = (counts[i]) ? counts[i] : 0;
         }
         
         // Find the colors from the colormap or the default binary colors
-        var colormap = colormaps[layer_name];
+        var colormap = colormaps[layer_name],
+            colors;
         if (!colormap || Object.keys(colormap).length === 0) {
-                colors = [colorEdit.binaryOffColor(), colorEdit.binaryOnColor()];
+            colors = [Colormap.binaryOffColor(), Colormap.binaryOnColor()];
         } else {
             colors = _.map(colormap, function (cat) {
                 return cat.color.hexString();
@@ -51,28 +52,28 @@ function drawBarChart (layer_name, container) {
         }
         
         // Add the headers to the top of the data
-        var withHeaders = [['Category', 'Count', { role: 'style' }]]
-                            .concat(arrays);
+        var withHeaders =
+            [['Category', 'Count', { role: 'style' }]].concat(arrays);
                
         var data = google.visualization.arrayToDataTable(withHeaders);
 
         var options = {
-                backgroundColor: 'transparent',
-                chartArea: {
-                    bottom: 5,
-                    left: 0,
-                    right: 0,
-                    top: 0,
-                },
-                enableInteractivity: false,
-                legend: { position: 'none' },
-                vAxis: {
-                    gridlines: {color: 'transparent'},
-                    textPosition: 'none',
-                },
-            };
-        charts[layer_name] = new google.visualization.ColumnChart(container)
-                                .draw(data, options);
+            backgroundColor: 'transparent',
+            chartArea: {
+                bottom: 5,
+                left: 0,
+                right: 0,
+                top: 0,
+            },
+            enableInteractivity: false,
+            legend: { position: 'none' },
+            vAxis: {
+                gridlines: {color: 'transparent'},
+                textPosition: 'none',
+            },
+        };
+        charts[layer_name] =
+            new google.visualization.ColumnChart(container).draw(data, options);
     });
 }
 
@@ -110,8 +111,8 @@ function drawHistogram (layer_name, container) {
             return;
         }
 
-        charts[layer_name] = new google.visualization.Histogram(container)
-                                .draw(data, options);
+        charts[layer_name] =
+            new google.visualization.Histogram(container).draw(data, options);
     });
 }
 
@@ -130,7 +131,7 @@ exports.clear = function (layer_name) {
         charts[layer_name].clearChart();
         delete charts[layer_name];
     }
-}
+};
 
 exports.create = function (layer_name, $container, type) {
 
@@ -174,7 +175,7 @@ exports.create = function (layer_name, $container, type) {
             chartQueue = undefined;
         }
     });
-}
+};
 
 exports.init = function () {
     appReady.set(true);

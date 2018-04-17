@@ -1,15 +1,15 @@
 // hexagon.js
 // Handle things to do with hexagons.
 
-import data from '/imports/mapPage/data/data.js';
-import colorEdit from '/imports/mapPage/color/colorEdit.js';
-import coords from '/imports/mapPage/viewport/coords.js';
-import colorMix from '/imports/mapPage/color/colorMix.js';
-import infoWindow from '/imports/mapPage/viewport/infoWindow.js';
-import rx from '/imports/common/rx.js';
-import tool from '/imports/mapPage/head/tool.js';
-import util from '/imports/common/util.js';
-import utils from '/imports/common/utils.js';
+import data from '/imports/mapPage/data/data';
+import Colormap from '/imports/mapPage/color/Colormap';
+import colorMix from '/imports/mapPage/color/colorMix';
+import coords from '/imports/mapPage/viewport/coords';
+import infoWindow from '/imports/mapPage/viewport/infoWindow';
+import rx from '/imports/common/rx';
+import tool from '/imports/mapPage/head/tool';
+import util from '/imports/common/util';
+import utils from '/imports/common/utils';
 import '/imports/common/navBar.html';
 
 // What's the minimum number of pixels that sideLen must represent at the
@@ -126,7 +126,7 @@ function renderHexagon (row, column, nodeId, opts) {
         shapeOpts = {
             map: googlemap,
             //paths: coords,
-            fillColor: colorEdit.noDataColor(),
+            fillColor: Colormap.noDataColor(),
             zIndex: 1,
         };
     

@@ -1,21 +1,13 @@
-// viewport.js
-// Run the hexagram visualizer client.
+// Handle the mixing of colors.
 
 import '/imports/lib/color.js';
-import colorEdit from '/imports/mapPage/color/colorEdit.js';
-import hexagons from '/imports/mapPage/viewport/hexagons.js';
-import Layer from '/imports/mapPage/longlist/Layer.js';
-import legend from '/imports/mapPage/color/legend.js';
-import rx from '/imports/common/rx.js';
-import shortlist from '/imports/mapPage/shortlist/shortlist.js';
-import util from '/imports/common/util.js';
-
-exports.have_colormap = function (colormap_name) {
-    // Returns true if the given string is the name of a colormap, or false if 
-    // it is only a layer.
-
-    return (colormap_name in colormaps)
-};
+import Colormap from '/imports/mapPage/color/Colormap';
+import hexagons from '/imports/mapPage/viewport/hexagons';
+import Layer from '/imports/mapPage/longlist/Layer';
+import legend from '/imports/mapPage/color/legend';
+import rx from '/imports/common/rx';
+import shortlist from '/imports/mapPage/shortlist/shortlist';
+import util from '/imports/common/util';
 
 function get_range_position(score, low, high) {
     // Given a score float, and the lower and upper bounds of an interval (which
@@ -38,7 +30,7 @@ function get_range_position(score, low, high) {
     } else {
         // The interval is just a point
         // Just use 1 if we're above the point, and 0 if below.
-        score = (score > low)? 1 : -1
+        score = (score > low)? 1 : -1;
     }
     
     return score;
@@ -68,7 +60,7 @@ exports.refreshColors = function () {
     // Special case of no layers at all.
     if (_.isUndefined(layers) || Object.keys(layers) < 1) {
         for(var signature in polygons) {
-            hexagons.setOneColor(polygons[signature], colorEdit.noAttrsColor());
+            hexagons.setOneColor(polygons[signature], Colormap.noAttrsColor());
         }
         return;
     }
@@ -96,7 +88,7 @@ exports.refreshColors = function () {
         // Turn all the hexes the filtered-out color, pre-emptively
         // TODO redrawing would be faster to not change colors twice
         for(var signature in polygons) {
-            hexagons.setOneColor(polygons[signature], colorEdit.noDataColor());
+            hexagons.setOneColor(polygons[signature], Colormap.noDataColor());
         }
         
         // Go get the list of filter-passing hexes.
@@ -108,7 +100,7 @@ exports.refreshColors = function () {
                 
                 // This holds the color we are calculating for this hexagon.
                 // Start with the no data color.
-                var computed_color = colorEdit.noDataColor();
+                var computed_color = Colormap.noDataColor();
                 
                 if(at_least_one_layer) {
                     // We need to compute colors given the layers we found.
@@ -140,7 +132,7 @@ exports.refreshColors = function () {
                     } else {
                         // No second layer, so v axis is unused. Don't make it 
                         // undefined (it's not missing data), but set it to 0.
-                        var v = 0;
+                        v = 0;
                     }
                     
                     // Either of u or v may be undefined (or both) if the layer
@@ -163,7 +155,7 @@ exports.refreshColors = function () {
     // Make sure to also redraw the info window, which may be open.
     import infoWindow from '/imports/mapPage/viewport/infoWindow.js';
     infoWindow.redraw();
-}
+};
 
 exports.get_color = function (layerName1, layerVal1, layerName2, layerVal2) {
     // Either layer value may be undefined (or both), in which case the no-data color
@@ -241,16 +233,16 @@ exports.get_color = function (layerName1, layerVal1, layerName2, layerVal2) {
         color = exports.get_color(layerName2, layerVal2, layerName1, layerVal1);
 
     } else if (any_missing_values) {
-        color = colorEdit.noDataColor();
+        color = Colormap.noDataColor();
 
     } else if(oneBinaryLayer) {
         // User's choice from color map or default.
         if(layerVal1 === on) { // layerVal1 is 1
-            color =  colorEdit.binaryOnColor(layerName1);
+            color =  Colormap.binaryOnColor(layerName1);
         } else if (layerVal1 === off) { // layerVal1 is 0
-            color = colorEdit.binaryOffColor(layerName1);
+            color = Colormap.binaryOffColor(layerName1);
         } else {
-            throw "There was an error making the color of the binary layer"
+            throw "There was an error making the color of the binary layer";
         }
 
     } else if(bothLayersBinary) {
@@ -259,18 +251,18 @@ exports.get_color = function (layerName1, layerVal1, layerName2, layerVal2) {
         if(layerVal1 === on) {
             if(layerVal2 === on) {
                 // Both are on
-                return colorEdit.defaultBinBothOn();
+                return Colormap.defaultBinBothOn();
             } else if (layerVal2 === off) {
                 // Only the first is on
-                return colorEdit.defaultBinaryOn();
+                return Colormap.defaultBinaryOn();
             }
         } else if (layerVal1 === off) {
             if(layerVal2 === on) {
                 // Only the second is on
-                return colorEdit.defaultSecondBinOn();
+                return Colormap.defaultSecondBinOn();
             } else if (layerVal2 === off) {
                 // Neither is on
-                return colorEdit.defaultBinaryOff();
+                return Colormap.defaultBinaryOff();
             }
         }
 
@@ -286,10 +278,10 @@ exports.get_color = function (layerName1, layerVal1, layerName2, layerVal2) {
         // We want 100 to be included (since that's full brightness), but we
         // want to skip 0 (since no color can be seen at 0), so we add 5 to
         // the second layer's value.
-        var colorCountL2 = colorEdit.findColorCount(layerName2);
+        var colorCountL2 = Colormap.findColorCount(layerName2);
         hsv_value = (layerVal2 + 1) / colorCountL2 * 100;
         base_color.value(hsv_value);
-        color = base_color.hexString()
+        color = base_color.hexString();
 
     } else if (catOrBinAndContinous) {
         base_color = baseCategoricalColor(layerName1, layerVal1);
@@ -297,16 +289,16 @@ exports.get_color = function (layerName1, layerVal1, layerName2, layerVal2) {
         // value of 20 to avoid blacks.
         hsv_value = 60 + layerVal2 * 40;
         base_color.value(hsv_value);
-        color = base_color.hexString()
+        color = base_color.hexString();
 
     } else if(oneContinuousLayer) {
         // Sets the interpolation so the second color is not mixed.
         // Chooses the user's specified coloring or
-        color = mixOneContinuous(layerName1, layerVal1)
+        color = mixOneContinuous(layerName1, layerVal1);
     } else if (bothContinuous) {
-        color = mix2Continuos(layerVal1, layerVal2)
+        color = mix2Continuos(layerVal1, layerVal2);
     } else {
-        throw "An error occurred when determining a nodes color."
+        throw "An error occurred when determining a nodes color.";
     }
 
     return color;
@@ -332,7 +324,7 @@ function baseCategoricalColor(layerName, layerValue) {
             red : undefined,
             blue : undefined,
             green : undefined
-        })
+        });
     }
     return base_color;
 }
@@ -367,20 +359,19 @@ function parseColorPortions(hexStr){
         "red" : red_portion,
         "green" : green_portion,
         "blue" : blue_portion,
-    }
-
+    };
 }
 
 function colorify(red, green, blue){
     var color = "rgb(" + red + "," + green + "," + blue + ")";
-    return color
+    return color;
 }
 
 function mixOneContinuous(layerName, layerValue){
     var ignoreValue = -1;
     var ignoreColor = 0;
-    var highColor = colorEdit.continuousHighColor(layerName);
-    var lowColor = colorEdit.continuousLowColor(layerName);
+    var highColor = Colormap.continuousHighColor(layerName);
+    var lowColor = Colormap.continuousLowColor(layerName);
     var highColorParsed = parseColorPortions(highColor);
     var lowColorParsed = parseColorPortions(lowColor);
 
@@ -407,15 +398,15 @@ function mixOneContinuous(layerName, layerValue){
 
     var color = colorify(red, green, blue);
 
-    return color
+    return color;
 }
 
 function mix2Continuos(layerVal1, layerVal2){
     // Ignore color map entries.
-    var highColor1 = colorEdit.defaultContHigh();
-    var lowColor1 = colorEdit.defaultContLow();
-    var lowColor1HighColor2 = colorEdit.defaultCont2High1Low();
-    var bothHighColor = colorEdit.defaultContBothHigh();
+    var highColor1 = Colormap.defaultContHigh();
+    var lowColor1 = Colormap.defaultContLow();
+    var lowColor1HighColor2 = Colormap.defaultCont2High1Low();
+    var bothHighColor = Colormap.defaultContBothHigh();
 
     var high1Parsed = parseColorPortions(highColor1);
     var low1Parsed = parseColorPortions(lowColor1);
@@ -448,43 +439,5 @@ function mix2Continuos(layerVal1, layerVal2){
 
     var color = colorify(red, green , blue);
 
-    return color
-}
-
-exports.colormapsReceived = function (parsed, id) {
-
-    // Process downloaded color map information.
-    for(var i = 0; i < parsed.length; i++) {
-        // Get the name of the layer
-        var layer_name = parsed[i][0];
-        
-        // Skip blank lines
-        if(layer_name == "") {
-            continue;
-        }
-        
-        // This holds all the categories (name and color) by integer index
-        var colormap = [];
-     
-        for(j = 1; j < parsed[i].length; j += 3) {
-            // Store each color assignment.
-            // Doesn't run if there aren't any assignments, leaving an empty
-            // colormap object that just forces automatic color selection.
-            
-            // This holds the index of the category
-            var category_index = parseInt(parsed[i][j]);
-            
-            // The colormap gets an object with the name and color that the
-            // index number refers to. Color is stored as a color object.
-            colormap[category_index] = {
-                name: parsed[i][j + 1],
-                color: Color(parsed[i][j + 2]), // operating color in map
-                fileColor: Color(parsed[i][j + 2]), // color from orig file
-            };
-        }
-        
-        // Store the finished color map in the global object
-        colormaps[layer_name] = colormap;
-    }
-    rx.set('init.colormapLoaded');
+    return color;
 }

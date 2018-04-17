@@ -4,26 +4,14 @@
 
 DONT_LINT_FILES=(
     attrAdd.js
-    canvas2svg.js
-    color.js
-    colorEdit.js
-    colormapFuture.js
-    colorMix.js
     coords.js
     grid.js
     DialogHex.js
     filter.js
-    gChart.js
     hexagons.js
-    infoWindow.js
     jobs.js
-    jquery-ui.js
     Layer.js
-    LayerNameList.js
-    legend.js
     longList.js
-    mapLabel.js
-    mapLabel.min.js
     NodeIdSelect.js
     overlayNodeUi.js
     overlayNodes.js
@@ -31,13 +19,9 @@ DONT_LINT_FILES=(
     project.js
     reflect.js
     select.js
-    select2.js
-    setOper.js
     shortlist.js
     sort.js
-    sortUi.js
     svg.js
-    tool.js
     util.js
     viewport.js
 )
@@ -61,6 +45,9 @@ recurse() {
 
 echo linting...
 recurse $HEXMAP/www/client
-recurse $HEXMAP/www/imports
+recurse $HEXMAP/www/imports/common
+recurse $HEXMAP/www/imports/component
+recurse $HEXMAP/www/imports/homePage
+recurse $HEXMAP/www/imports/mapPage
 recurse $HEXMAP/www/server
 

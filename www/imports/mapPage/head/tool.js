@@ -1,6 +1,5 @@
 
-// atools.js: Code to run the tools in the menu bar that use map events.
-// References globals in colorMix.js to actually do the tools' work.
+// tools.js: Code to run the tools in the menu bar that use map events.
 
 // To add a tool:
 // * Make a $(function() {...}); block to hold your code.
@@ -10,8 +9,6 @@
 // * Make sure to call tool.activity with false when your tool's normal
 //   workflow completes, so that the infowindow can use click events again.
 //   (it got set to your tool's name by the code prepended to your callback).
-
-import util from '/imports/common/util.js';
 
 import '/imports/mapPage/head/header.html';
 import '/imports/mapPage/calc/reflect.html';
@@ -93,7 +90,8 @@ exports.add = function (tool_name, callback, hover_text, klass) {
         .on('click', callbacks[tool_name])
         .attr('title', hover_text)
         .addClass(klass);
-}
+};
+
 exports.activity = function (activate) {
     if (_.isUndefined(activate)) {
     
@@ -105,7 +103,7 @@ exports.activity = function (activate) {
         // Set the activity to the given activate of true or false.
         toolActive = activate;
     }
-}
+};
 
 exports.subscribe_listeners = function (maps_object) {
     // Put the given Google Maps object into the tool events system, so
@@ -131,9 +129,9 @@ exports.subscribe_listeners = function (maps_object) {
                         }
                     }
                 };
-        }(TOOL_EVENTS[i]));
+            }(TOOL_EVENTS[i]));
     }
-}
+};
 
 exports.initLabel = function () {
     import '/imports/lib/mapLabel.js';
@@ -149,7 +147,7 @@ exports.initLabel = function () {
             
         if(!text) {
             // They don't want to put a label
-                exports.activity(false);
+            exports.activity(false);
             return;
         }
         
@@ -177,7 +175,7 @@ exports.initLabel = function () {
             remove_tool_listener(handle);
         }, function() {
             // Cleanup: de-select ourselves.
-                exports.activity(false);
+            exports.activity(false);
         });
     }, 'Add a label to the map', 'mapShow');
-}
+};
