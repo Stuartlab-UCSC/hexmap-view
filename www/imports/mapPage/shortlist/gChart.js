@@ -98,7 +98,10 @@ function drawHistogram (layer_name, container) {
                 hAxis: {
                     ticks: [0],
                 },
-                histogram: { hideBucketItems: true, },
+                histogram: {
+                    hideBucketItems: true,
+                    maxNumBuckets: 20,
+                },
                 legend: { position: 'none' },
                 vAxis: {
                     gridlines: {color: 'transparent'},
