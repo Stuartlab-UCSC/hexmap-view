@@ -11,9 +11,7 @@ Web API
    mapList
    jobStatus
    placeNode
-
    attrList
    layoutList
-   showAttrAndNode
-
+   highAttrAndNode
    overlayNode

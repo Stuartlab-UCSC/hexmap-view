@@ -5,7 +5,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Future: Show attributes &amp; nodes on map &#8212; TumorMap API</title>
+    <title>Future: Highlight attributes &amp; nodes &#8212; TumorMap API</title>
     <link rel="stylesheet" href="_static/agogo.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="_static/custom.css" type="text/css" />
@@ -51,9 +51,9 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="future-show-attributes-nodes-on-map">
-<h1>Future: Show attributes &amp; nodes on map<a class="headerlink" href="#future-show-attributes-nodes-on-map" title="Permalink to this headline">¶</a></h1>
-<p><a class="reference external" href="https://hexcalc.ucsc.edu:8332/">https://hexcalc.ucsc.edu:8332/</a><strong>showAttrNode</strong></p>
+  <div class="section" id="future-highlight-attributes-nodes">
+<h1>Future: Highlight attributes &amp; nodes<a class="headerlink" href="#future-highlight-attributes-nodes" title="Permalink to this headline">¶</a></h1>
+<p><a class="reference external" href="https://hexcalc.ucsc.edu:8332/">https://hexcalc.ucsc.edu:8332/</a><strong>highlightAttrNode</strong></p>
 <p>HTTP POST with content-type: application/json</p>
 <p>data-type: json</p>
 <p>This API shows a map with the given list of attributes and nodes highlighted.</p>
@@ -62,12 +62,12 @@
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span>
    <span class="s2">&quot;map&quot;</span><span class="p">:</span> <span class="s2">&quot;CKCC/v1&quot;</span><span class="p">,</span>
    <span class="s2">&quot;layout&quot;</span><span class="p">:</span> <span class="s2">&quot;mRNA&quot;</span><span class="p">,</span>
-   <span class="s2">&quot;attribute&quot;</span><span class="p">:</span> <span class="p">[</span>
+   <span class="s2">&quot;attributes&quot;</span><span class="p">:</span> <span class="p">[</span>
        <span class="s2">&quot;gender&quot;</span><span class="p">,</span>
        <span class="s2">&quot;subType&quot;</span><span class="p">,</span>
        <span class="o">...</span>
    <span class="p">],</span>
-   <span class="s2">&quot;node&quot;</span><span class="p">:</span> <span class="p">[</span>
+   <span class="s2">&quot;nodes&quot;</span><span class="p">:</span> <span class="p">[</span>
        <span class="s2">&quot;TCGA-01&quot;</span><span class="p">,</span>
        <span class="s2">&quot;TCGA-02&quot;</span><span class="p">,</span>
        <span class="o">...</span>
@@ -79,8 +79,8 @@
 <ul class="simple">
 <li><strong>map</strong> : a unique identifier for a map</li>
 <li><strong>layout</strong> : name of a particular layout of nodes within a map.</li>
-<li><strong>attribute</strong> : an array of color attribute IDs.</li>
-<li><strong>node</strong> : an array of node IDs.</li>
+<li><strong>attributes</strong> : an array of color attribute IDs.</li>
+<li><strong>nodes</strong> : an array of node IDs.</li>
 </ul>
 </div>
 <div class="section" id="response-success">
@@ -124,7 +124,7 @@ contain a stack trace, such as:</p>
 <li class="toctree-l1"><a class="reference internal" href="placeNode.html">Place new nodes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="attrList.html">Future: Get attribute list</a></li>
 <li class="toctree-l1"><a class="reference internal" href="layoutList.html">Future: Get layout list</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Future: Show attributes &amp; nodes on map</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Future: Highlight attributes &amp; nodes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="overlayNode.html">Overlay nodes (deprecated)</a></li>
 </ul>
 
@@ -155,7 +155,7 @@ contain a stack trace, such as:</p>
           </div>
           <div role="note" aria-label="source link">
               <br/>
-              <a href="_sources/showAttrAndNode.rst.txt"
+              <a href="_sources/highAttrAndNode.rst.txt"
                 rel="nofollow">Show Source</a>
           </div>
         </div>

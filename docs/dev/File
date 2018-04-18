@@ -1,0 +1,4 @@
+This is the output of building the html in the directory
+hexagram/docs/devSource. To build, change to the devSource directory and:
+
+makehtml

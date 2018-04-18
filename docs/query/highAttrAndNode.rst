@@ -1,7 +1,7 @@
-Future: Show attributes & nodes on map
-======================================
+Future: Highlight attributes & nodes
+====================================
 
-https://hexcalc.ucsc.edu:8332/**showAttrNode**
+https://hexcalc.ucsc.edu:8332/**highlightAttrNode**
 
 HTTP POST with content-type: application/json
 
@@ -16,12 +16,12 @@ Content Example
  {
     "map": "CKCC/v1",
     "layout": "mRNA",
-    "attribute": [
+    "attributes": [
         "gender",
         "subType",
         ...
     ],
-    "node": [
+    "nodes": [
         "TCGA-01",
         "TCGA-02",
         ...
@@ -32,8 +32,8 @@ Where:
 
 * **map** : a unique identifier for a map
 * **layout** : name of a particular layout of nodes within a map.
-* **attribute** : an array of color attribute IDs.
-* **node** : an array of node IDs.
+* **attributes** : an array of color attribute IDs.
+* **nodes** : an array of node IDs.
 
 Response success
 ----------------
