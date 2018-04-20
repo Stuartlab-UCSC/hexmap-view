@@ -1,8 +1,10 @@
-// Handle the global colormaps and color constants.
+// Handle the colormaps and color constants.
 
 import rx from '/imports/common/rx';
-import '/imports/lib/color'; // source of 'Color'
+import '/imports/lib/color'; // source of 'Color' object
+import jPalette from '/imports/lib/jPalette';
 import util from '/imports/common/util';
+
 
 // Some color constants
 var BINARY_BOTH_ON_DARK_BG = '#00FF00',
@@ -81,98 +83,17 @@ exports.noAttrsColor = function () {
     return NO_ATTRS;
 };
 
-/*
-exports.colormapStateToOperating = function (stateColormap) {
-    
-    // Transform a layer's state colormap to an operating colormap.
-    // TODO should this load defaults if needed?
-    var operatingColormap = _.map(stateColormap.cats, function (cat, i) {
-        var operCat = {
-            name: cat,
-            color: new Color(stateColormap.colors[i]),
-        };
-        operCat.fileColor = oper.color;
-        return operCat;
-    });
-    return operatingColormap;
-};
-
-exports.colormapOperatingToState = function (operColormap) {
-
-    // Transform a layer's operating colormap to a state colormap.
-    // TODO should this only store non-defaults to state?
-    var stateColormap = {
-        cats: [],
-        colors: [],
-    };
-    _.each(operColormap, function (cat, i) {
-        stateColormap.cats.append();
-        stateColormap.colors.append();
-    });
-    return stateColormap;
-};
-*/
-
 exports.have_colormap = function (colormap_name) {
+
     // Returns true if the given string is the name of a colormap, or false if
     // it is only a layer.
-
     return (colormap_name in colormaps);
 };
 
 exports.getCategoryString = function(layerName, layerValue) {
+
+    // Find the string associated with this category code.
     return colormaps[layerName][layerValue].name;
-};
-
-exports.received = function (parsed) {
-
-    // Process downloaded color map information.
-    for(var i = 0; i < parsed.length; i++) {
-        // Get the name of the layer
-        var layer_name = parsed[i][0];
-        
-        // Skip blank lines
-        if(layer_name == "") {
-            continue;
-        }
-        
-        // This holds all the categories (name and color) by integer index
-        var colormap = [];
-     
-        for(var j = 1; j < parsed[i].length; j += 3) {
-            // Store each color assignment.
-            // Doesn't run if there aren't any assignments, leaving an empty
-            // colormap object that just forces automatic color selection.
-            
-            // This holds the index of the category
-            var category_index = parseInt(parsed[i][j]);
-            
-            // The colormap gets an object with the name and color that the
-            // index number refers to. Color is stored as a color object.
-            colormap[category_index] = {
-                name: parsed[i][j + 1],
-                color: Color(parsed[i][j + 2]), // operating color in map
-                fileColor: Color(parsed[i][j + 2]), // color from orig file
-            };
-        }
-        
-        // Store the finished color map in the global object
-        colormaps[layer_name] = colormap;
-    }
-    rx.set('init.colormapLoaded');
-};
-
-exports.colormapToState = function (colorVals) {
-
-    // Convert one attr colormap into a form that state can save.
-    var cats = _.map(colorVals, function(val) {
-            return val.name;
-
-        }),
-        colors = _.map(colorVals, function(val) {
-            return val.color.hexString();
-        });
-    return {cats: cats, colors: colors};
 };
 
 exports.findColorCount = function (layer_name) {
@@ -200,7 +121,7 @@ exports.continuousLowColor = function(layerName) {
     if (colormaps[layerName]) {
         color =  colormaps[layerName][low].color.hexString();
     } else {
-        colormaps[layerName] = exports.defaultContinuousColormap();
+        colormaps[layerName] = exports.defaultContinuous();
         color =  colormaps[layerName][low].color.hexString();
     }
     return color;
@@ -215,7 +136,7 @@ exports.continuousHighColor = function(layerName) {
     if (colormaps[layerName]) {
         color =  colormaps[layerName][high].color.hexString();
     } else {
-        colormaps[layerName] = exports.defaultContinuousColormap();
+        colormaps[layerName] = exports.defaultContinuous();
         color =  colormaps[layerName][high].color.hexString();
     }
     return color;
@@ -230,7 +151,7 @@ exports.binaryOffColor = function(layerName) {
     if (colormaps[layerName]) {
         color =  colormaps[layerName][off].color.hexString();
     } else {
-        colormaps[layerName] = exports.defaultBinaryColorMap();
+        colormaps[layerName] = exports.defaultBinary();
         color =  colormaps[layerName][off].color.hexString();
     }
     return color;
@@ -246,42 +167,174 @@ exports.binaryOnColor = function(layerName) {
     if (colormaps[layerName]) {
         color =  colormaps[layerName][on].color.hexString();
     } else {
-        colormaps[layerName] = exports.defaultBinaryColorMap();
+        colormaps[layerName] = exports.defaultBinary();
         color =  colormaps[layerName][on].color.hexString();
     }
     return color;
 };
 
-exports.defaultBinaryColorMap = function () {
+exports.defaultBinary = function () {
     var defaultColormap = [
         {
             "color": new Color(exports.defaultBinaryOff()),
-            "fileColor": new Color(exports.defaultBinaryOff()),
             "name": "0",
         },
         {
             "color": new Color(exports.defaultBinaryOn()),
-            "fileColor": new Color(exports.defaultBinaryOn()),
             "name": "1",
         }
     ];
     return defaultColormap;
 };
 
-exports.defaultContinuousColormap = function () {
+exports.defaultContinuous = function () {
     var defaultColormap = [
         {
             "color": new Color(exports.defaultContLow()),
-            "fileColor": new Color(exports.defaultContLow()),
             "name": "Low",
         },
         {
             "color": new Color(exports.defaultContHigh()),
-            "fileColor": new Color(exports.defaultContHigh()),
             "name": "High",
         }
     ];
     return defaultColormap;
 };
 
+exports.updateCategoryColor = function (layerName, catName, newHexStr) {
+
+    // Update the colormap, then redraw the hexmap
+    var catI;
+
+    // Find the category index of this color.
+    _.find(colormaps[layerName], function (cat, i) {
+        if (cat.name === catName) {
+            catI = i;
+            return true;
+        }
+        return false;
+    });
+    
+    // Update the global colormap only saving a persistColor if it is different
+    // from the new value.
+    // Also, remove any persistColor if it is the same as the new value.
+    var cat = colormaps[layerName][catI],
+        colorHexStr = cat.color.hexString(),
+        persistHexStr = cat.persistColor ?
+            cat.persistColor.hexString() : null;
+    
+    if (newHexStr === colorHexStr) {
+        // nothing to do here
+        
+    } else if (newHexStr === persistHexStr) {
+        cat.color = cat.persistColor;
+        delete cat.persistColor;
+        
+    } else if (persistHexStr === null) {
+        cat.persistColor = cat.color;
+        cat.color = new Color(newHexStr);
+        
+    } else {
+        cat.color = new Color(newHexStr);
+    }
+};
+
+exports.toStoreFormat = function (colormap) {
+
+    // Convert one attr colormap into a form that state can save.
+    var cats = _.map(colormap, function(val) {
+            return val.name;
+
+        }),
+        colors = _.map(colormap, function(val) {
+            return val.color.hexString();
+        });
+    return {cats: cats, colors: colors};
+};
+
+exports.fromStoreFormatCategories = function (cats, data) {
+
+    // Create an operating colormap for an attribute by the given categories
+    // from state, then generate colors. Return the operating colormap and
+    // operating data with codes replacing the category strings.
+    
+    // Generate colors.
+    var jpColormap = _.map(
+        jPalette.jColormap.get('hexmap')(cats.length + 1).map,
+        function (val, key) { // eslint-disable-line no-unused-vars
+    
+            // Ignore alpha, taking the default of one.
+            return {r: val.r, g: val.g, b: val.b};
+        }
+    );
+
+    // Remove the repeating red at the end.
+    jpColormap.splice(cats.length, 1);
+
+    // Create the operating colormap.
+    var colormap = _.map(jpColormap, function(color, i) {
+        return {
+            name: cats[i],
+            color: new Color(color), // operating color in map
+        };
+    });
+    
+    // Replace category string values in the data with codes.
+    var vals = _.map(data, function (strVal) {
+        return cats.indexOf(strVal);
+    });
+
+    return { colormap: colormap, data: _.object(_.keys(data), vals) };
+};
+
+exports.fromStoreFormat = function (colorStore) {
+
+    // Create an operating colormap for an attribute by the given colormap
+    // from store, returning the operating colormap.
+    return _.map(colorStore.cats, function (cat, i) {
+        return {
+            name: cat,
+            color: new Color(colorStore.colors[i]),
+        };
+    });
+};
+
+exports.received = function (parsed) {
+
+    // Process downloaded color map information.
+    for(var i = 0; i < parsed.length; i++) {
+        // Get the name of the layer
+        var layer_name = parsed[i][0];
+        
+        // Skip blank lines
+        if(layer_name == "") {
+            continue;
+        }
+        
+        // This holds all the categories (name and color) by integer index
+        var colormap = [];
+     
+        for (var j = 1; j < parsed[i].length; j += 3) {
+        
+            // Store each color assignment.
+            // Doesn't run if there aren't any assignments, leaving an empty
+            // colormap object that just forces automatic color selection.
+            
+            // This holds the index of the category
+            var category_index = parseInt(parsed[i][j]);
+            
+            // The colormap gets an object with the name and color using the
+            // position in the array as the index. The index given in the file
+            // is ignored. Color is stored as a Color object.
+            colormap[category_index] = {
+                name: parsed[i][j + 1],
+                color: new Color(parsed[i][j + 2]),
+            };
+        }
+        
+        // Store the finished color map in the global object
+        colormaps[layer_name] = colormap;
+    }
+    rx.set('init.colormapLoaded');
+};
 

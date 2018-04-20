@@ -1047,26 +1047,25 @@ exports.removeDynamicEntries = function () {
     }
 }
 
-exports.get_dynamic_entries_for_persistent_state = function () {
+exports.dynamicAttrsToStoreFormat = function () {
 
     // Return the dynamic entries in the short list, while converting the
     // color objects in the colormaps to saveable objects.
     var entries = {};
     _.each(layers, function (layer, name) {
         if (layer.dynamic) {
-           
-            // Remove magnitude since its absence indicates that this layer
-            // is to be added to the UI shortlist on load.
-            delete layer.magnitude;
+        
+            entries[name] = {
+                data: layer.data,
+                dataType: util.getDataType(name),
+            }
 
             if (!_.isUndefined(colormaps[name])) {
            
-                // Convert the operating colormap colors to an object
-                // with two arrays as:
-                // {cats: ['subclass1', ...], colors: ['#123456', ...]}
-                layer.colormap = Colormap.colormapToState(colormaps[name]);
+                // Convert the operating colormap to a store colormap.
+                entries[name].colormap =
+                    Colormap.toStoreFormat(colormaps[name]);
             }
-            entries[name] = layer;
         }
     });
 

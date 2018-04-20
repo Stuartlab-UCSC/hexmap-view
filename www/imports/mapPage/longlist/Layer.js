@@ -4,7 +4,6 @@
 import data from '/imports/mapPage/data/data';
 import Colormap from '/imports/mapPage/color/Colormap';
 import colorMix from '/imports/mapPage/color/colorMix';
-import jPalette from '/imports/lib/jPalette';
 import rx from '/imports/common/rx';
 import shortlist from '/imports/mapPage/shortlist/shortlist';
 import userMsg from '/imports/common/userMsg';
@@ -78,8 +77,8 @@ function let_user_name_layer (layer_name, callback) {
 function load_dynamic_colormap (name, layer) {
 
     // Load the colormap for dynamic categorical or binary attributes.
-    var cats = layer.uniqueVals,
-        indexedCats;
+    var cats = layer.categories || layer.uniqueVals,
+        result;
     const hasOnly1and0s = (
         cats.length === 2
         && (
@@ -90,64 +89,26 @@ function load_dynamic_colormap (name, layer) {
 
     if (!_.isUndefined(layer.colormap)) {
     
-        // Load the supplied colormap
-        colormaps[name] = _.map(layer.colormap.cats, function (cat, i) {
-            return {
-                name: cat,
-                color: new Color(layer.colormap.colors[i]),
-                fileColor: new Color(layer.colormap.colors[i]),
-            }
-        });
-
-        // Save the category index assignment.
-        indexedCats = layer.colormap.cats;
+        // There is a colormap supplied, so load it.
+        colormaps[name] = Colormap.fromStoreFormat(layer.colormap);
     
-    // If there are more that two categories or the categories are not ones
-    // or zeros, this gets a generated colormap.
-    } else if (cats.length > 2 || !hasOnly1and0s) {
-        // Generate a colormap.
-        var jpColormap = _.map(
-            jPalette.jColormap.get('hexmap')(cats.length + 1).map,
-            function (val, key) {
-        
-                // Ignore alpha, taking the default of one.
-                return {r: val.r, g: val.g, b: val.b};
-            }
-        );
- 
-        // Remove the repeating red at the end.
-        jpColormap.splice(cats.length, 1);
- 
-        // Load this generated colormap.
-        colormaps[name] = _.map(jpColormap, function(color, i) {
-            return {
-                name: cats[i],
-                color: Color(color), // operating color in map
-                fileColor: Color(color), // color from orig file
-            };
-        });
-     
-        indexedCats = cats;
+    } else if (!_.isUndefined(layer.categories) ||
+        cats.length > 2 ||
+        !hasOnly1and0s) {
+
+        // Either categories were supplied,
+        // or there are more that two categories
+        // or the data values are something other than only ones and zeros.
+        // So generate colors and convert the strings in the data to codes.
+        result = Colormap.fromStoreFormatCategories(cats, layer.data);
+        colormaps[name] = result.colormap;
+        layer.data = result.data;
      
     } else {
     
         // Load the default binary colormap for binary non-string values
         // those whose values are all ones or zeroes.
         colormaps[name] = [];
-    }
-    
-    if (indexedCats) {
-
-        // Replace category string values with codes if needed.
-        if (layer.hasStringVals) {
-     
-            // These categories have not yet been encoded so encode them.
-            var vals = _.map(layer.data, function (strVal, key) {
-                    return indexedCats.indexOf(strVal);
-                }),
-                keys = _.keys(layer.data);
-            layer.data = _.object(keys, vals);
-        }
     }
 }
 
@@ -199,6 +160,29 @@ function find_dynamic_values (layer) {
 function load_dynamic_data (layer_name, callback, dynamicLayers) {
 
     // Load dynamic data into the global layers object.
+    //
+    // format of dynamicLayers:
+    //  {
+    //      <layer-name>: {
+    //          data: {
+    //              <nodeId>: <value>,  (string or index for categoricals)
+    //              ...
+    //          },
+    //          dataType: <binary/categorical/continuous>,  (optional)
+    //          colormap: {  (only for string values)
+    //              cats: [
+    //              ],
+    //              colors: [
+    //              ]
+    //          },
+    //          categories: [  (only for string values)
+    //              ...
+    //          ]
+    //          (Note: data with string values must include
+    //           one of colormap or categories.)
+    //      },
+    //      ...
+    //  }
     var layer = dynamicLayers[layer_name],
         categories;
     layer.dynamic = true;
@@ -237,11 +221,13 @@ function load_dynamic_data (layer_name, callback, dynamicLayers) {
     
     // Add the layer to the appropriate dataType list.
     util.addToDataTypeList(layer_name, layer.dataType);
+    
     // Leave the dataType in the layer obj, we use it in saving state.
     // If there are string values, or there is a colormap supplied...
     if (layer.hasStringVals || !_.isUndefined(layer.colormap)) {
         load_dynamic_colormap(layer_name, layer);
     } else {
+    
         // This is continuous or binary of only 1 & 0,
         // so convert the values from strings to floats.
         var data = {};
@@ -464,7 +450,7 @@ exports.with_one = function (layer_name, callback, dynamicLayers, byAttrId) {
         if (util.is_continuous(layer_name)) {
             layer.maximum = maximum;
             layer.minimum = minimum;
-                colormaps[layer_name] = Colormap.defaultContinuousColormap()
+                colormaps[layer_name] = Colormap.defaultContinuous()
         }
         // Keep track of the unsigned magnitude.
         layer.magnitude = Math.max(Math.abs(minimum), maximum);
@@ -472,7 +458,7 @@ exports.with_one = function (layer_name, callback, dynamicLayers, byAttrId) {
         if (!Colormap.have_colormap(layer_name) && util.is_binary(layer_name)) {
             // Add an empty colormap for this layer, so that 
             // auto-generated discrete colors will be used.
-		        colormaps[layer_name] = Colormap.defaultBinaryColorMap();
+		        colormaps[layer_name] = Colormap.defaultBinary();
         }
      
         // Add this layer to the shortlist.
