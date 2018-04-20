@@ -348,7 +348,7 @@ exports.saveEach = function () {
            
         // If dynamic attrs, convert to store format.
         } else if (key === 'dynamic_attrs') {
-            val = shortlist.get_dynamic_entries_for_persistent_state();
+            val = shortlist.dynamicAttrsToStoreFormat();
 
         // If this is a Session var...
         } else if (info.session) {

@@ -14,7 +14,8 @@ import './colorEdit.css';
 
 var badValue = false, // The current category input has a bad value
     $link,
-    $form;
+    $form,
+    defaultBorder = '2px inset rgb(238, 238, 238)';
 
 // Define the colormap template helper, at this scope for some reason
 Template.colormapT.helpers({
@@ -78,7 +79,7 @@ function setCatAttrs (a) {
     } else {
         a.dark = '';
     }
-    if (a.operVal === a.fileVal) {
+    if (_.isUndefined(a.persistVal) || a.operVal === a.persistVal) {
         a.isFileVal = 'isFileVal';
     } else {
         a.isFileVal = '';
@@ -88,17 +89,7 @@ function setCatAttrs (a) {
 function updateColormap (aCat) {
 
     // Update the colormap, then redraw the hexmap
-    var layer = aCat.layer,
-        catI;
-
-    _.find(colormaps[layer], function (cat, i) {
-        if (cat.name === aCat.name) {
-            catI = i;
-            return true;
-        }
-        return false;
-    });
-    colormaps[layer][catI].color = new Color(aCat.operVal);
+    Colormap.updateCategoryColor(aCat.layer, aCat.name, aCat.operVal);
     colorMix.refreshColors();
 }
 
@@ -130,26 +121,23 @@ function inputBlur (ev) {
         cat = findColumnCat($t, colorArray),
         newVal = $t.prop('value').trim().toUpperCase();
 
-    if (cat.shaking === 'shaking') {
-
-        // nothing to do when the input box is shaking
-        return;
-    }
     if (!newVal.match(/^#([A-F0-9]{6})$/)) {
 
-        // An invalid hex string, so set the Session to shake then
-        // set the Session to not shake and put the focus back to this
-        cat.shaking = 'shaking';
+        // An invalid hex string, so put the focus back to this.
         Session.set('colorArray', colorArray);
         badValue = true;
-        $t.effect('shake', null, null, function () {
-            cat.shaking = '';
-            Session.set('colorArray', colorArray);
-            $t.focus();
-        });
+        $t.focus().css('border-color', 'red');
         return;
+    } else {
+        badValue = false;
+        $t.css('border', defaultBorder);
     }
-    $t.prop('value', newVal); // clean up the input box value
+    // Clean up the input box value.
+    $t.prop('value', newVal);
+    
+    // Set cursor at the end of the next input field.
+    $t.parent().next().next().find('input').focus();
+
     if (newVal !== cat.operVal) {
 
         // The new value is not the same as the operating color,
@@ -159,7 +147,6 @@ function inputBlur (ev) {
         Session.set('colorArray', colorArray);
         Meteor.flush();
         updateColormap(cat);
-        badValue = false;
     }
 }
 
@@ -177,7 +164,7 @@ function inputKeyup (ev) {
         // so the user will know what that is
         colorArray = Session.get('colorArray');
         cat = findColumnCat($t, colorArray);
-        $t.prop('value', cat.fileVal);
+        $t.prop('value', cat.persistVal);
     }
     if (ev.which === 13) {
 
@@ -222,8 +209,8 @@ function colormapToColorArray (layerVal, layerKey) {
 
         var cat = {
             name:  val.name,
-            fileVal: rgbArrayToObj(
-                val.fileColor.values.rgb).hexString(),
+            persistVal: val.persistColor ?
+                val.persistColor.hexString() : val.color.hexString(),
             operVal: val.color.hexString(),
             layer: layerKey,
         };
@@ -319,10 +306,10 @@ exports.init = function () {
 
         //Provide colormaps in accordance with the new background.
         _.forEach(contLayers, function(layerName) {
-            colormaps[layerName] = Colormap.defaultContinuousColormap();
+            colormaps[layerName] = Colormap.defaultContinuous();
         });
         _.forEach(binLayers, function (layerName) {
-            colormaps[layerName] = Colormap.defaultBinaryColorMap();
+            colormaps[layerName] = Colormap.defaultBinary();
         });
 
         // The background change requires a new map to show the
