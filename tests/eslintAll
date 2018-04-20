@@ -16,7 +16,6 @@ DONT_LINT_FILES=(
     overlayNodeUi.js
     overlayNodes.js
     pdf.js
-    project.js
     reflect.js
     select.js
     shortlist.js
