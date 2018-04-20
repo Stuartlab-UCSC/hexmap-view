@@ -140,32 +140,6 @@ exports.getUserMapAuthorization = function (successFx, errorFx) {
     });
 };
 
-exports.getProjectList = function (successFx, errorFx) {
-
-    // Ask the data server if this user is authorized to view the current map.
-    // @app.route('/projectList/email/<string:userEmail>/roles/<string:userRoles>',
-
-    var user = Meteor.user(),
-        url = HUB_URL + '/mapList';
-    
-    // If there is a signed in user, get the email and roles.
-    if (user) {
-        url += '/email/' + user.username;
-        var roles = rx.get('user.roles');
-        if (roles.length > 0) {
-            url += '/role/' + roles.join('+');
-        }
-    }
-    $.ajax({
-        type: 'GET',
-        url: url,
-        tryCount : 0,
-        retryLimit : retryLimit,
-        success: successFx,
-        error: errorFx,
-    });
-};
-
 exports.getJobStatus = function (jobId, jobStatusUrl, successFx, errorFx) {
     
     // Get a job's status. Job completion statuses are 'success' and 'error'.

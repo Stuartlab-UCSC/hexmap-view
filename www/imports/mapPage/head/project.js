@@ -3,23 +3,21 @@
 // doc dir
 
 import ajax from '/imports/mapPage/data/ajax';
-import auth from '/imports/common/auth';
-import React, { Component } from 'react';
+import React from 'react';
 import perform from '/imports/common/perform';
 import { render } from 'react-dom';
 import rx from '/imports/common/rx';
 import Select22 from '/imports/component/Select22';
 import userMsg from '/imports/common/userMsg';
 import util from '/imports/common/util';
-import utils from '/imports/common/utils';
+import { checkFetchStatus, loadProject, parseFetchedJson }
+    from '/imports/common/utils';
 
 // Placeholder text when no project is selected
 var PLACEHOLDER_TEXT = 'Select a Map.../';
 
 var projects; // project list
 var data; // data for select widget
-var prevListUsername = 'empty';
-var prevAuthUsername = 'empty';
 var unsubscribe = {};
 
 function is_project_on_list (project) {
@@ -57,16 +55,16 @@ function matcher (term, text, opt) {
     return false;
 }
 
-function formatResult (row, container) {
+function formatResult (row) {
 
     // Format a row in the result list.
     var style = '';
     if (row.hasOwnProperty('id') &&  // this is a leaf node
         row.id.indexOf('/') === row.id.lastIndexOf('/')) {
         
-            // With only one slash this project is not part of a group but we
-            // want to give it the importance of a group so we make it bold.
-            style = "style='font-weight:bold'";
+        // With only one slash this project is not part of a group but we
+        // want to give it the importance of a group so we make it bold.
+        style = "style='font-weight:bold'";
     }
     return "<div title='" + row.text + "'" + style + ">" + row.text + "</div>";
 }
@@ -93,27 +91,31 @@ function populate () {
     //     },
     // ]
 
-    if (!rx.get('projectList.receiving') && rx.get('init.headerLoaded')) {
+    if (!rx.get('projectList.receiving') && rx.get('init.domLoaded')) {
         unsubscribe.populate();
-        var selector;
     
-        data = _.map(projects, function (minors, major) {
-            var data = {text: major};
-            if (minors.length) {
-                data.children = _.map(minors, function (minor) {
-                    var id = major + '/' + minor + '/';
-                    return { id: id, text: minor };
-                });
+        data = projects.map((project) => {
+            var group = project[0],
+                subProjects = project[1],
+                dataGroup = {text: group};
+                
+            if (_.isUndefined(subProjects)) {
+                dataGroup.id = group + '/';
             } else {
-                data.id = major + '/';
+                dataGroup.children = subProjects.map((sub) => {
+                    return {
+                        id: group + '/' + sub + '/',
+                        text: sub
+                    };
+                });
             }
-            return data;
+            return dataGroup;
         });
     
         // Attach the selector.
         var value;
         if (is_project_on_list(ctx.project)) {
-             value = ctx.project;
+            value = ctx.project;
         } else {
             value = PLACEHOLDER_TEXT;
         }
@@ -130,7 +132,7 @@ function populate () {
                     matcher: matcher,
                 }}
                 onChange = {function (event) {
-                    utils.loadProject(event.val);
+                    loadProject(event.val);
                 }}
                 choiceDisplay = {function (dataId) {
                     return dataId.slice(0, -1); // remove trailing '/' for display
@@ -140,6 +142,35 @@ function populate () {
         perform.log('project-list-rendered');
         rx.set('projectList.changing.done');
     }
+}
+
+function projectListReceived (results) {
+    projects = results;
+    perform.log('project:list-got');
+    rx.set('projectList.receiving.done');
+}
+
+function getProjectList () {
+
+    // Retrieve the list of projects to which this user has access.
+    var user = Meteor.user(),
+        url = HUB_URL + '/mapList';
+    
+    // If there is a signed-in user, get the email and roles.
+    if (user) {
+        url += '/email/' + user.username;
+        var roles = rx.get('user.roles');
+        if (roles.length > 0) {
+            url += '/role/' + roles.join('+');
+        }
+    }
+    fetch(url)
+        .then(checkFetchStatus)
+        .then(parseFetchedJson)
+        .then(projectListReceived)
+        .catch(() => {
+            userMsg.error('Unable to retrieve map list.');
+        });
 }
 
 exports.authorize = function () {
@@ -156,7 +187,7 @@ exports.authorize = function () {
             }
             perform.log('project:authorized:' + rx.get('user.mapAuthorized'));
         },
-        function (error) {
+        function () {
             util.mapNotFoundNotify();
         }
     );
@@ -169,15 +200,5 @@ exports.authorize = function () {
     rx.set('projectList.receiving.now');
     unsubscribe.populate = rx.subscribe(populate);
     
-    // Retrieve the project list.
-    ajax.getProjectList(
-        function (results) {
-            perform.log('project:list-got');
-            projects = results;
-            rx.set('projectList.receiving.done');
-        },
-        function (error) {
-            userMsg.error("Unable to retrieve map list from server.");
-        }
-    );
+    getProjectList();
 };

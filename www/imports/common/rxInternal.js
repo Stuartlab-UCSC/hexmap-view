@@ -44,8 +44,8 @@ const reducers = {
     'init.googleMapApiLoaded': (state = false, action) => {
         return (action.type === 'init.googleMapApiLoaded') ? true : state;
     },
-    'init.headerLoaded': (state = false, action) => {
-        return (action.type === 'init.headerLoaded') ? true : state;
+    'init.domLoaded': (state = false, action) => {
+        return (action.type === 'init.domLoaded') ? true : state;
     },
     'init.layerDataTypesProcessed': (state = false, action) => {
         return (action.type === 'init.layerDataTypesProcessed') ? true : state;

@@ -46,7 +46,7 @@ Template.headerT.helpers({
     },
 });
 Template.mapPage.rendered = function () {
-    rx.set('init.headerLoaded');
+    rx.set('init.domLoaded');
 };
 
 // Phase 6b init: when the active layers have been added to the shortlist
@@ -176,13 +176,13 @@ function isReadyToRenderMap () {
     console.log("R['init.colormapLoaded']:", R['init.colormapLoaded'])
     console.log("R['init.activeAttrsLoaded']:", R['init.activeAttrsLoaded'])
     console.log("R['init.googleMapApiLoaded']:", R['init.googleMapApiLoaded'])
-    console.log("R['init.headerLoaded']:", R['init.headerLoaded'])
+    console.log("R['init.domLoaded']:", R['init.domLoaded'])
     */
     if (R['init.layoutPositionsLoaded'] &&
         R['init.colormapLoaded'] &&
         R['init.activeAttrsLoaded'] &&
         R['init.googleMapApiLoaded'] &&
-        R['init.headerLoaded']) {
+        R['init.domLoaded']) {
         
         unsubFx.isReadyToRenderMap();
         perform.log('3-init:prep-map');
@@ -301,7 +301,7 @@ function loadGoogleMapApi () {
 //                load the googlemap api,
 //                and show the loading snake.
 function hasDomLoaded () {
-    if (rx.get('init.headerLoaded')) {
+    if (rx.get('init.domLoaded')) {
     
         unsubFx.hasDomLoaded();
         perform.log('1b-init:snakes,dom-loaded');
