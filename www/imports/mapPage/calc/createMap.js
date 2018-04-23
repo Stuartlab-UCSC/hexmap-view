@@ -120,7 +120,7 @@ function log_it (msg_in, startDate, loaded, total, replace_last) {
 function report_error (result) {
 
     // Send the error message to the console.
-    rx.set('createMap.running.done');
+    rx.set('snake.createMapUpload.done');
     $dialogCreateButton.removeClass('ui-state-disabled');
     
     // Give the user a data/timestamp so the problem can be tracked down.

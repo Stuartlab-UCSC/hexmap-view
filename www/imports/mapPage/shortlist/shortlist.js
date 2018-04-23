@@ -8,6 +8,7 @@ import Colormap from '/imports/mapPage/color/Colormap';
 import colorMix from '/imports/mapPage/color/colorMix';
 import gChart from '/imports/mapPage/shortlist/gChart';
 import Layer from '/imports/mapPage/longlist/Layer';
+import rx from '/imports/common/rx';
 import util from '/imports/common/util';
 
 import './shortlist.html';
@@ -1083,7 +1084,10 @@ exports.complete_initialization = function (autorun) {
             });
         addInitialEntriesToShortlist(layerNames);
         Session.set('shortlistInited', true);
-   }
+        setTimeout(function () {
+            rx.set('snake.shortlist.hide');
+        });
+    }
  
     // Add the shortlist layer values to the global layers object.
     Layer.with_many(Session.get('shortlist'), loadRemainderOfEntries,

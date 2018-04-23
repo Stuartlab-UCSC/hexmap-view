@@ -6,7 +6,6 @@ import PropTypes from 'prop-types';
 import { render } from 'react-dom';
 
 import rx from '/imports/common/rx';
-import utils from '/imports/common/utils';
 import '/imports/common/snake.css';
 
 class Snake extends Component {
@@ -16,18 +15,12 @@ class Snake extends Component {
     }
     
     componentDidMount () {
-        this.unsubscribe = this.props.store.subscribe(this.forceUpdate);
+        this.unsubscribe = this.props.globalState.subscribe(this.forceUpdate);
     }
     
     render () {
-        var states = this.props.store.getState(),
-            snakeClients = [
-                'createMap.running',
-                'init',
-                'placeNode.running',
-                'projectList.changing',
-                'uploading',
-            ],
+        var states = this.props.globalState.getState(),
+            snakeClients = [this.props.stateVars],
         
             // Find those snake clients that want the snake displayed.
             wantSnake = _.filter(snakeClients, function (client) {
@@ -36,10 +29,9 @@ class Snake extends Component {
         
         // Display the snake element if any client wants it to.
         if (wantSnake.length > 0) {
-        
             return (
                 <div
-                    className = {'mapSnake snake'}
+                    className = {this.props.name +' snake'}
                 />
             );
     
@@ -52,7 +44,13 @@ class Snake extends Component {
 Snake.propTypes = {
 
     // Global state.
-    store: PropTypes.object.isRequired,
+    globalState: PropTypes.object.isRequired,
+
+    // Variables in global state that controls the snake visibility.
+    stateVars: PropTypes.array.isRequired,
+
+    // Name of this snake for the css class.
+    name: PropTypes.string.isRequired,
 };
 
 Snake.defaultProps = {
@@ -60,12 +58,22 @@ Snake.defaultProps = {
 };
 
 exports.init = function () {
-    //return;
     
-    // Initialize the main snake.
+    // Initialize the map snake.
     render(
         <Snake
-            store = {rx}
-        />, utils.createReactRoot('snakeContainer')
+            globalState = {rx}
+            stateVars = {['snake.map']}
+            name = 'mapSnake'
+        />, document.querySelector('#mapSnakeWrap')
+    );
+    
+    // Initialize the shortlist snake.
+    render(
+        <Snake
+            globalState = {rx}
+            stateVars = {['snake.shortlist']}
+            name = 'shortlistSnake'
+        />, document.querySelector('#shortlistSnakeWrap')
     );
 };
