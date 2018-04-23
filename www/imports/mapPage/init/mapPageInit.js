@@ -49,27 +49,38 @@ Template.mapPage.rendered = function () {
     rx.set('init.domLoaded');
 };
 
-// Phase 6b init: when the active layers have been added to the shortlist
+// Phase 6c init: when the active layers have been added to the shortlist
 //                and layout selector has been populated,
 //                and the map has rendered
 //                and the layer summary loaded
 //                complete initialization.
 function areLayoutsPopulated () {
     var R = rx.getState();
-    if (R['init.activeAttrsInShortlist'] &&
+    /*
+    console.log('\nareLayoutsPopulated()')
+    console.log('init.activeAttrs', R['init.activeAttrs'])
+    console.log('init.attrTypesLoaded', R['init.attrTypesLoaded'])
+    console.log('init.layoutsPopulated', R['init.layoutsPopulated'])
+    console.log('init.mapRendered', R['init.mapRendered'])
+    console.log('init.attrSummaryLoaded', R['init.attrSummaryLoaded'])
+    */
+    if (R['init.activeAttrs'] === 'inShortlist' &&
+        R['init.attrTypesLoaded'] &&
         R['init.layoutsPopulated'] &&
         R['init.mapRendered'] &&
         R['init.attrSummaryLoaded']) {
         
         unsubFx.areLayoutsPopulated();
-        perform.log('6b-init:complete initialization');
+        perform.log('6c-init:complete initialization');
+
+        // Initial those that need data retrieved.
+        layout.initList();
 
         // Timeout to allow the map to render.
         setTimeout(function () {
-            perform.log(' 6b-init:after-timeout');
             Session.set('shortlist', shortlistSaved);
             shortlist.complete_initialization();
-            layout.initList();
+            perform.log(' 6c-init:after-timeout');
             sortUi.init();
 
             import lazyLoader from '/imports/mapPage/init/lazyLoader';
@@ -125,11 +136,6 @@ function isMapRendered () {
         setTimeout(function () {
             perform.log(' 5-init:after-timeout');
 
-            data.requestLayoutNames(
-                { rxAction: 'init.layoutNamesReceived' });
-            data.requestAttributeTags();
-            data.requestMapMeta();
-            
             // Populate the longlist.
             import longlist from '/imports/mapPage/longlist/longlist';
             longlist.init();
@@ -139,9 +145,26 @@ function isMapRendered () {
             shortlistSaved = Session.get('shortlist');
             Session.set('shortlist', Session.get('active_layers'));
             shortlist.init();
-            rx.set('init.activeAttrsInShortlist');
+            rx.set('init.activeAttrs.inShortlist');
         });
     }
+}
+
+function loadGoogleMapApi () {
+    
+    // Request google map api
+    Meteor.autorun(function (autorun) {
+        if (GoogleMaps.loaded()) {
+            autorun.stop();
+            rx.set('init.googleMapApiLoaded');
+        }
+    });
+
+    // Pause to let other processing complete, like the snake display.
+    setTimeout(function () {
+        GoogleMaps.load(
+            { v: '3', key: 'AIzaSyBb8AJUB4x-xxdUCnjzb-Xbcg0-T1mPw3I' });
+    });
 }
 
 // Phase 4 init: when the map prep is complete and user is authorized,
@@ -153,10 +176,15 @@ function isMapPreppedAndUserAuthorized () {
         
         unsubFx.isMapPreppedAndUserAuthorized();
         perform.log('4-init:render-map');
-
-        // Pause to let previous processing complete.
+        
+        // Request secondary data.
+        data.requestLayoutNames(
+            { rxAction: 'init.layoutNamesReceived' });
+        data.requestAttributeTags();
+        data.requestMapMeta();
+        
+        // Wait for things to catch up.
         setTimeout(function () {
-            perform.log(' 4-init:after-timeout');
             viewport.init();
             rx.set('init.mapRendered');
         });
@@ -172,15 +200,16 @@ function isMapPreppedAndUserAuthorized () {
 function isReadyToRenderMap () {
     var R = rx.getState();
     /*
+    console.log('\nisReadyToRenderMap()')
     console.log("R['init.layoutPositionsLoaded']:", R['init.layoutPositionsLoaded'])
     console.log("R['init.colormapLoaded']:", R['init.colormapLoaded'])
-    console.log("R['init.activeAttrsLoaded']:", R['init.activeAttrsLoaded'])
+    console.log("R['init.activeAttrs']:", R['init.activeAttr'])
     console.log("R['init.googleMapApiLoaded']:", R['init.googleMapApiLoaded'])
     console.log("R['init.domLoaded']:", R['init.domLoaded'])
     */
     if (R['init.layoutPositionsLoaded'] &&
         R['init.colormapLoaded'] &&
-        R['init.activeAttrsLoaded'] &&
+        R['init.activeAttrs'] === 'valuesLoaded' &&
         R['init.googleMapApiLoaded'] &&
         R['init.domLoaded']) {
         
@@ -204,11 +233,17 @@ function isReadyToRenderMap () {
 }
 
 // Phase 2b init: when the layer summary is received,
-//                we may want to find an initial coloring layer.
+//                do the initial sort by density,
+//                find an initial coloring layer if we haven't already.
 function haveLayerSummary () {
     var R = rx.getState();
+    /*
+    console.log('\nhaveLayerSummary()')
+    console.log('init.attrSummaryLoaded', R['init.attrSummaryLoaded'])
+    console.log('init.attrTypesLoaded', R['init.attrTypesLoaded'])
+    */
     if (R['init.attrSummaryLoaded'] &&
-        R['init.layerDataTypesProcessed']) {
+        R['init.attrTypesLoaded']) {
     
         unsubFx.haveLayerSummary();
         perform.log('2b-init:find-first-layer-by-density');
@@ -220,23 +255,25 @@ function haveLayerSummary () {
             // Do the initial sort.
             let first = Session.get('first_layer');
             sort.initialDensitySort();
-        
-            // If there was no first layer until the density sort
-            // and there are static layers,
-            // set the first attr to the first attr in the sort,
-            // set the shortlist to the newly-found first layer,
-            // set the active layers to the first layer,
-            // and load the first layer data.
-            if (!first && ctx.static_layer_names.length > 0) {
-                first = Session.get('sortedLayers')[0];
-                Session.set('first_layer', first);
-                Session.set('shortlist', [first]);
-                Session.set('active_layers', [first]);
-                Layer.loadInitialActiveLayers();
+            
+            // If there are any static layers...
+            if (ctx.static_layer_names.length > 0) {
+                if (!first) {
+                    first = ctx.static_layer_names[0];
+                    Session.set('first_layer', first);
+                }
+                if (Session.get('active_layers').length < 1) {
+                   
+                    // Load the first layer's data.
+                    Session.set('shortlist', [first]);
+                    Session.set('active_layers', [first]);
+                    Layer.loadInitialActiveLayers();
+                }
+
             } else {
             
                 // No layers at all, so say they are loaded to proceed.
-                rx.set('init.activeAttrsLoaded');
+                rx.set('init.activeAttrs.valuesLoaded');
             }
         });
     }
@@ -246,67 +283,40 @@ function haveLayerSummary () {
 //                look for initial color layer.
 function haveDataTypes () {
     var R = rx.getState();
+    /*
+    console.log('\haveDataTypes()')
+    console.log('init.attrTypesLoaded', R['init.attrTypesLoaded'])
+    */
     if (R['init.attrTypesLoaded']) {
 
         unsubFx.haveDataTypes();
         perform.log('2a-init:get-active-attr-values');
         
+        let active_layers = Session.get('active_layers');
+        let first = Session.get('first_layer');
+
         // Pause to let other processing complete.
         setTimeout(function () {
-            perform.log(' 2a-init:after-timeout');
-            
-            let active_layers = Session.get('active_layers');
-            let shortlist = Session.get('shortlist');
-            let first = Session.get('first_layer');
 
-            // Request the initial coloring layers if we know them.
-            if (active_layers.length > 0) {
-                Session.set('first_layer', active_layers[0]);
-                Layer.loadInitialActiveLayers();
-                
-            } else if (shortlist.length > 0) {
-                Session.set('active_layers', [shortlist[0]]);
-                Session.set('first_layer', [shortlist[0]]);
-                Layer.loadInitialActiveLayers();
-                
-            } else if (first) {
+            // Request the 'first' attr as the initial coloring layer
+            // if we don't have active layers identified yet.
+            if (first && active_layers < 1) {
                 Session.set('shortlist', [first]);
                 Session.set('active_layers', [first]);
                 Layer.loadInitialActiveLayers();
-            } else {
-                rx.set('init.layerDataTypesProcessed');
             }
         });
     }
 }
 
-function loadGoogleMapApi () {
-    
-    // Request google map api
-    Meteor.autorun(function (autorun) {
-        if (GoogleMaps.loaded()) {
-            autorun.stop();
-            rx.set('init.googleMapApiLoaded');
-        }
-    });
-
-    // Pause to let other processing complete, like the snake display.
-    setTimeout(function () {
-        GoogleMaps.load(
-            { v: '3', key: 'AIzaSyBb8AJUB4x-xxdUCnjzb-Xbcg0-T1mPw3I' });
-    });
-}
-
 // Phase 1b init: when the DOM has loaded,
-//                load the googlemap api,
-//                and show the loading snake.
+//                show the loading snake.
 function hasDomLoaded () {
     if (rx.get('init.domLoaded')) {
-    
         unsubFx.hasDomLoaded();
         perform.log('1b-init:snakes,dom-loaded');
-        snake.init();
         
+        snake.init();
         if (DEV) {
             document.querySelector('#navBar .devMessage').classList.add('dev');
         }
@@ -314,7 +324,7 @@ function hasDomLoaded () {
 }
 
 // Phase 1a init: State has been received,
-//                so request primary data and authorization.
+//                so request primary.
 exports.init = function () {
     perform.log('1a-init:request-primary-data');
 
@@ -325,7 +335,6 @@ exports.init = function () {
     
     // Request the primary data.
     data.requestLayerSummary();
-    data.requestDataTypes({ rxAction: 'init.attrTypesLoaded' });
     data.requestLayoutAssignments();
     data.requestColormaps({ rxAction: 'init.colormapLoaded' });
     
@@ -340,6 +349,23 @@ exports.init = function () {
     unsubFx.areLayoutsPopulated = rx.subscribe(areLayoutsPopulated);
     unsubFx.areLayoutNamesReceived  = rx.subscribe(areLayoutNamesReceived);
 
-    // Load the google maps API.
+    // Initialize the data types arrays.
+    ctx.bin_layers = [];
+    ctx.cat_layers = [];
+    ctx.cont_layers = [];
+
+    // Request the initial coloring layers if we know them yet.
+    let active_layers = Session.get('active_layers');
+    let shortlist = Session.get('shortlist');
+    if (active_layers.length > 0) {
+        Session.set('first_layer', active_layers[0]);
+        Layer.loadInitialActiveLayers();
+    } else if (shortlist.length > 0) {
+        Session.set('first_layer', [shortlist[0]]);
+        Session.set('active_layers', [shortlist[0]]);
+        Layer.loadInitialActiveLayers();
+    }
+    data.requestDataTypes();
+    
     loadGoogleMapApi();
 };

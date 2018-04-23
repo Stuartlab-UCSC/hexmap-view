@@ -1076,14 +1076,6 @@ exports.complete_initialization = function (autorun) {
 
     // Executed after other initially visible widgets are populated.
     
-    /* unused
-    // Set up the flag to always put the active layers at the top of list
-    Session.set('shortlist_on_top', '');
-    $('.shortlist .on_top').on('click', function () {
-        Session.set('shortlist_on_top', '$(ev.target.checked)');
-    });
-    */
-    
     function loadRemainderOfEntries () {
         var actives = Session.get('active_layers'),
             layerNames = _.filter(Session.get('shortlist'), function (layer) {

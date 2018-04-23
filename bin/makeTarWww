@@ -24,11 +24,11 @@ cd $HEXMAP/www
 rm -rf .meteor/local
 
 echo creating tar file...
-tar czf $TAR_FILE .meteor client imports lib package.json public server
+tar czf $TAR_FILE .meteor client imports package.json public server
 
 cd $HEXMAP
-scp $TAR_FILE hexmap-new:dev
+scp $TAR_FILE hexmap-new:dev/hexdev
 echo
 echo If the scp session timed out, do:
-echo "scp $TAR_FILE hexmap-new:dev"
+echo "scp $TAR_FILE hexmap-new:dev/hexdev"
 

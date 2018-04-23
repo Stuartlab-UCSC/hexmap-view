@@ -23,11 +23,15 @@ const reducers = {
             return state;
         }
     },
-    'init.activeAttrsInShortlist': (state = false, action) => {
-        return (action.type === 'init.activeAttrsInShortlist') ? true : state;
-    },
-    'init.activeAttrsLoaded': (state = false, action) => {
-        return (action.type === 'init.activeAttrsLoaded') ? true : state;
+    'init.activeAttrs': (state = false, action) => {
+        switch (action.type) {
+        case 'init.activeAttrs.valuesLoaded':
+            return 'valuesLoaded';
+        case 'init.activeAttrs.inShortlist':
+            return 'inShortlist';
+        default:
+            return state;
+        }
     },
     'init.attrSummaryLoaded': (state = false, action) => {
         return (action.type === 'init.attrSummaryLoaded') ? true : state;
@@ -46,9 +50,6 @@ const reducers = {
     },
     'init.domLoaded': (state = false, action) => {
         return (action.type === 'init.domLoaded') ? true : state;
-    },
-    'init.layerDataTypesProcessed': (state = false, action) => {
-        return (action.type === 'init.layerDataTypesProcessed') ? true : state;
     },
     'init.layoutNamesReceived': (state = false, action) => {
         return (action.type === 'init.layoutNamesReceived') ? true : state;
