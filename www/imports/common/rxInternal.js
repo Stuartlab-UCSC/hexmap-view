@@ -102,6 +102,26 @@ const reducers = {
             return state;
         }
     },
+    'snake.map': (state = true, action) => {
+        switch (action.type) {
+        case 'snake.map.show':
+            return true;
+        case 'snake.map.hide':
+            return false;
+        default:
+            return state;
+        }
+    },
+    'snake.shortlist': (state = true, action) => {
+        switch (action.type) {
+        case 'snake.shortlist.show':
+            return true;
+        case 'snake.shortlist.hide':
+            return false;
+        default:
+            return state;
+        }
+    },
     'uploading': (state = false, action) => {
         switch (action.type) {
         case 'uploading.now':

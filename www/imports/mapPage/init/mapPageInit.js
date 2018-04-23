@@ -130,6 +130,7 @@ function isMapRendered () {
         // If there are no layers, refresh to get 'no layer color'.
         if (!Session.get('first_layer')) {
             colorMix.refreshColors();
+            rx.set('snake.map.hide');
         }
         
         // Timeout to allow the map to render.
@@ -183,10 +184,14 @@ function isMapPreppedAndUserAuthorized () {
         data.requestAttributeTags();
         data.requestMapMeta();
         
-        // Wait for things to catch up.
+        // This timeout prevents isMapRendered() from executing twice,
+        // for some timing reason.
         setTimeout(function () {
             viewport.init();
             rx.set('init.mapRendered');
+            setTimeout(function () {
+                rx.set('snake.map.hide');
+            });
         });
     }
 }
@@ -353,6 +358,7 @@ exports.init = function () {
     ctx.bin_layers = [];
     ctx.cat_layers = [];
     ctx.cont_layers = [];
+    
 
     // Request the initial coloring layers if we know them yet.
     let active_layers = Session.get('active_layers');

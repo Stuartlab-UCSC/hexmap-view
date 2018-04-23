@@ -1,6 +1,6 @@
 
 .snake {
-    position: absolute;
+    position: fixed;
     width: 24px;
     height: 24px;
     border-radius:24px;
@@ -9,13 +9,17 @@
     -webkit-animation: sweep 1s infinite linear;
     animation: sweep 1s infinite linear;
     border-bottom-style: solid;
-    border-bottom-color: #4CAF49; /* a lighter bootstrap message color */
+    border-bottom-color: orange;
 }
 @-webkit-keyframes sweep { to { -webkit-transform: rotate(360deg); } }
 @keyframes sweep { to { transform: rotate(360deg); } }
 
-.mapSnake {
-    position: fixed;
+.snake.shortlistSnake {
+    top: 75px;
+    right: 150px;
+}
+
+.snake.mapSnake {
     top: 200px;
     left: 41%;
     width: 64px;
@@ -23,4 +27,3 @@
     border-radius:64px;
     border-bottom-width: 12px;
 }
-
