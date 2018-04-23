@@ -16,9 +16,7 @@ function request (id, opts) {
     // @param rxAction; optional state action to take on success
     // @param stateVar; optional state variable to set to true on success
     perform.log(id + '.tab_requested');
-    if (_.isUndefined(opts)) {
-        opts = {};
-    }
+    opts = opts || {};
     var aOpts = {
         id: id,
         success: function (results) {
@@ -55,9 +53,7 @@ exports.requestMapMeta = function (opts) {
 
     // Request the metadata within the map minor data.
     import overlayNodes from '/imports/mapPage/calc/overlayNodes.js';
-    if (_.isUndefined(opts)) {
-        opts = {};
-    }
+    opts = opts || {};
     opts.ok404 = true;
     opts.successFx = opts.successFx || overlayNodes.receiveMapMetadata;
     opts.errorFx = opts.errorFx || overlayNodes.requestMapMetadataError;
@@ -66,9 +62,7 @@ exports.requestMapMeta = function (opts) {
 
 exports.requestAttributeTags = function (opts) {
     import filter from '/imports/mapPage/longlist/filter.js';
-    if (_.isUndefined(opts)) {
-        opts = {};
-    }
+    opts = opts || {};
     opts.ok404 = true;
     opts.successFx = opts.successFx || filter.receiveLayerTags;
     opts.errorFx = opts.errorFx || filter.requestLayerTagsError;
@@ -84,31 +78,33 @@ exports.requestLayoutNames = function (opts) {
         return;
     }
     rx.set('init.layoutNamesRequested');
+    opts = opts || {};
     opts.successFx = opts.successFx || layout.layoutNamesReceived;
     opts.ok404 = true;
     request('layouts', opts);
 };
 
 exports.requestColormaps = function (opts) {
+    opts = opts || {};
     opts.successFx = opts.successFx || Colormap.received;
     request('colormaps', opts);
 };
 
 exports.requestLayer = function (id, opts) {
+    opts = opts || {};
     request(id, opts);
 };
 
 exports.requestDataTypes = function (opts) {
     import longlist from '/imports/mapPage/longlist/longlist.js';
+    opts = opts || {};
     opts.successFx = opts.successFx || longlist.layerTypesReceived;
     request('Layer_Data_Types', opts);
 };
 
 exports.requestLayerSummary = function (opts) {
     import longlist from '/imports/mapPage/longlist/longlist.js';
-    if (!opts) {
-        opts = {};
-    }
+    opts = opts || {};
     opts.successFx = opts.successFx || longlist.layerSummaryLoaded;
     request('layers', opts);
 };
@@ -134,9 +130,7 @@ exports.requestLayoutAssignments = function (opts) {
             Session.set('layoutIndex', 0);
         }
     }
-    if (_.isUndefined(opts)) {
-        opts = {};
-    }
+    opts = opts || {};
     opts.successFx = opts.successFx || hexagons.layoutAssignmentsReceived;
     request((Session.get('mapView') === 'honeycomb' ? 'assignments' :
         'xyPreSquiggle_') + index, opts);

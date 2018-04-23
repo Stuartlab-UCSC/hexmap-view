@@ -218,24 +218,39 @@ exports.layerSummaryLoaded = function (parsed) {
 
 exports.layerTypesReceived = function (parsed) {
 
-    // This is an array of rows with the following content:
-    //    FirstAttribute        Layer6
-    //    Continuous        Layer1    Layer2    Layer3 ...
-    //    Binary    Layer4    Layer5    Layer6 ...
-    //    Categorical    Layer7    Layer8    Layer9 ...
+    // This is an array of arrays like this:
+    // [
+    //    ['FirstAttribute', 'Layer6'],
+    //    ['Continuous', 'Layer1', 'Layer2', ...],
+    //    ['Binary', 'Layer4', 'Layer5', ...],
+    //    ['Categorical', 'Layer8', 'Layer9', ...]
+    // ]
+    
+    function saveTypeList (initialTypes, line) {
+        var types = line.slice(1);
+        
+        // Add any initial active dynamic attrs back to the list.
+        for (var i = 0; i < initialTypes.length; i++) {
+            var attr = initialTypes[i];
+            if (types.indexOf(attr) < 0) {
+                types.push(attr);
+            }
+        }
+        return types;
+    }
+
     _.each(parsed, function (line) {
         if (line[0] === 'Binary') {
-            ctx.bin_layers = line.slice(1);
+            ctx.bin_layers = saveTypeList(ctx.bin_layers, line);
         } else if (line[0] === 'Continuous') {
-            ctx.cont_layers = line.slice(1);
+            ctx.cont_layers = saveTypeList(ctx.cont_layers, line);
         } else if (line[0] === 'Categorical') {
-            ctx.cat_layers = line.slice(1);
+            ctx.cat_layers = saveTypeList(ctx.cat_layers, line);
         } else if (line[0] === 'FirstAttribute') {
             Session.set('first_layer', line.slice(1).join());
         } // skip any lines we don't know about
     });
-
-    Session.set('layerTypesLoaded', true);
+    rx.set('init.attrTypesLoaded');
 };
 
 exports.init = function () {

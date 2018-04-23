@@ -15,4 +15,4 @@ fi
 cd $HEXMAP
 
 tar cf config.tar bin config
-scp config.tar hexmap-new:dev
+scp config.tar hexmap-new:dev/hexagram

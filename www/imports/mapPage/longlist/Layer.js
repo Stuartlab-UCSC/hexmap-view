@@ -279,12 +279,31 @@ function load_static_data (layer_name, callback, byAttrId) {
         exports.with_one(layer_name, callback);
     }
 
-    function layerReceived (result) {
+    function layerReceivedAsStruct (result) {
+    
+        // Save the data type if the data types have not been received yet,
+        // and find the appropriate number parser.
+        var parseFx,
+            type = result.dataType;
+        if (type === 'Binary') {
+            ctx.bin_layers.push(layer_name);
+            parseFx = parseInt;
+        } else if (type === 'Continuous') {
+            ctx.cont_layers.push(layer_name);
+            parseFx = parseFloat;
+        } else if (type === 'Categorical') {
+            ctx.cat_layers.push(layer_name);
+            parseFx = parseInt;
+        } else {
+            console.error(
+                'invalid data type of', type, 'for static attr:', layer_name);
+            return;
+        }
         
-        // Transform the object of two arrays to the structure we want.
+        // Transform the data of two arrays to the structure we want.
         var data = {};
         for (var j = 0; j < result.nodes.length; j++) {
-            data[result.nodes[j]] = parseFloat(result.values[j]);
+            data[result.nodes[j]] = parseFx(result.values[j]);
         }
         saveData(data);
     }
@@ -312,13 +331,14 @@ function load_static_data (layer_name, callback, byAttrId) {
         fetch(url)
             .then(checkFetchStatus)
             .then(parseFetchedJson)
-            .then(layerReceived)
+            .then(layerReceivedAsStruct)
             .catch(function(error) {
                 util.mapNotFoundNotify(
                     '(attrsByName: ' + layer_name + ')', error.stack);
             });
             
     } else { // get by attr index
+        layer.dataType = util.getDataType(layer_name)
         data.requestLayer(layer.dataId, { successFx: layerReceivedAsTsv })
     }
 }
@@ -333,8 +353,7 @@ exports.loadInitialActiveLayers = function () {
     function loaded () {
         loadedCount += 1;
         if (loadedCount === active.length) {
-            rx.set('init.activeAttrsLoaded');
-            rx.set('init.layerDataTypesProcessed')
+            rx.set('init.activeAttrs.valuesLoaded');
         }
     }
 
@@ -413,7 +432,6 @@ exports.with_one = function (layer_name, callback, dynamicLayers, byAttrId) {
         if (dynamicLayers && layer_name in dynamicLayers) {
             load_dynamic_data(layer_name, callback, dynamicLayers);
         } else {
-            layer.dataType =  util.getDataType(layer_name)
             load_static_data(layer_name, callback, byAttrId);
         }
 
