@@ -4,7 +4,6 @@
 import ajax from '/imports/mapPage/data/ajax';
 import auth from '/imports/common/auth';
 import DialogHex from '/imports/common/DialogHex';
-import rx from '/imports/common/rx';
 import tool from '/imports/mapPage/head/tool';
 import userMsg from '/imports/common/userMsg';
 import util from '/imports/common/util';
@@ -120,7 +119,6 @@ function log_it (msg_in, startDate, loaded, total, replace_last) {
 function report_error (result) {
 
     // Send the error message to the console.
-    rx.set('snake.createMapUpload.done');
     $dialogCreateButton.removeClass('ui-state-disabled');
     
     // Give the user a data/timestamp so the problem can be tracked down.
@@ -219,7 +217,6 @@ function create_map () {
         'Results will return when complete.',
     ]);
     hide();
-    rx.set('createMap.running.done');
 }
 
 function upload_attributes () {
@@ -260,8 +257,6 @@ function create_clicked () {
             ' a-z, A-Z, 0-9, dash (-), dot (.), underscore (_).');
         return;
     }
-    
-    rx.set('createMap.running.now');
 
     if (feature_upload.refs.fileObj) {
     
@@ -290,7 +285,6 @@ function create_clicked () {
     } else if (ui.get('layoutInputUrl')) {
         upload_attributes();
     } else {
-        rx.set('createMap.running.done');
         userMsg.error(
             'A layout input file or URL is required to create a map.');
     }
@@ -371,7 +365,6 @@ function show () {
         if (username) {
             build_dialog_content(username);
         } else {
-            rx.set('createMap.running.done');
             userMsg.error('Username could not be found.');
         }
     });

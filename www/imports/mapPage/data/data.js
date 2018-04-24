@@ -74,10 +74,10 @@ exports.requestLayoutNames = function (opts) {
 
     // This may have been requested already if a layout name was supplied,
     // but no layout index.
-    if (rx.get('init.layoutNamesRequested')) {
+    if (rx.get('init.layoutNames') === 'requested') {
         return;
     }
-    rx.set('init.layoutNamesRequested');
+    rx.set('init.layoutNames.requested');
     opts = opts || {};
     opts.successFx = opts.successFx || layout.layoutNamesReceived;
     opts.ok404 = true;
@@ -122,7 +122,7 @@ exports.requestLayoutAssignments = function (opts) {
             // A layout name was supplied, so we need to get the layout list
             // before we know the layout index to download layout node placement
             exports.requestLayoutNames(
-                { rxAction: 'init.layoutNamesReceived' });
+                { rxAction: 'init.layoutNames.received' });
             return;
         } else {
             // Default to the first layout.

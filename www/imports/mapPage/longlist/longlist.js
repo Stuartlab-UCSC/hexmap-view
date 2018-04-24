@@ -213,7 +213,7 @@ exports.layerSummaryLoaded = function (parsed) {
     // Initialize the display layers resulting from filtering to all layers.
     Session.set('displayLayers', Session.get('sortedLayers'));
 
-    rx.set('init.attrSummaryLoaded');
+    rx.set('inited.attrSummary');
 };
 
 exports.layerTypesReceived = function (parsed) {
@@ -250,7 +250,7 @@ exports.layerTypesReceived = function (parsed) {
             Session.set('first_layer', line.slice(1).join());
         } // skip any lines we don't know about
     });
-    rx.set('init.attrTypesLoaded');
+    rx.set('inited.attrTypes');
 };
 
 exports.init = function () {

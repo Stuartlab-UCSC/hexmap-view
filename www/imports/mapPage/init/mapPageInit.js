@@ -46,7 +46,7 @@ Template.headerT.helpers({
     },
 });
 Template.mapPage.rendered = function () {
-    rx.set('init.domLoaded');
+    rx.set('inited.dom');
 };
 
 // Phase 6c init: when the active layers have been added to the shortlist
@@ -59,16 +59,16 @@ function areLayoutsPopulated () {
     /*
     console.log('\nareLayoutsPopulated()')
     console.log('init.activeAttrs', R['init.activeAttrs'])
-    console.log('init.attrTypesLoaded', R['init.attrTypesLoaded'])
-    console.log('init.layoutsPopulated', R['init.layoutsPopulated'])
-    console.log('init.mapRendered', R['init.mapRendered'])
-    console.log('init.attrSummaryLoaded', R['init.attrSummaryLoaded'])
+    console.log('inited.attrTypes', R['inited.attrTypes'])
+    console.log('init.layoutNames', R['init.layoutNames'])
+    console.log('init.map', R['init.map'])
+    console.log('inited.attrSummary', R['inited.attrSummary'])
     */
     if (R['init.activeAttrs'] === 'inShortlist' &&
-        R['init.attrTypesLoaded'] &&
-        R['init.layoutsPopulated'] &&
-        R['init.mapRendered'] &&
-        R['init.attrSummaryLoaded']) {
+        R['inited.attrTypes'] &&
+        R['init.layoutNames'] === 'populated' &&
+        R['init.map'] === 'rendered' &&
+        R['inited.attrSummary']) {
         
         unsubFx.areLayoutsPopulated();
         perform.log('6c-init:complete initialization');
@@ -101,7 +101,7 @@ function areLayoutsPopulated () {
                 perform.log('google-analytics-loading');
                 util.googleAnalytics();
             }
-            rx.set('init.done');
+            rx.set('initialized');
         });
     }
 }
@@ -109,20 +109,20 @@ function areLayoutsPopulated () {
 // Phase 6a init: when the layout names have been received,
 //                populate the layout selector.
 function areLayoutNamesReceived () {
-    if (rx.get('init.layoutNamesReceived')) {
+    if (rx.get('init.layoutNames') === 'received') {
 
         unsubFx.areLayoutNamesReceived();
         perform.log('6a-init:layout-names-received');
 
         layout.initList();
-        rx.set('init.layoutsPopulated');
+        rx.set('init.layoutNames.populated');
     }
 }
 
 // Phase 5 init: when the map has been rendered,
 //               request the secondary data.
 function isMapRendered () {
-    if (rx.get('init.mapRendered')) {
+    if (rx.get('init.map') === 'rendered') {
     
         unsubFx.isMapRendered();
         perform.log('5-init:request-secondary-data');
@@ -157,7 +157,7 @@ function loadGoogleMapApi () {
     Meteor.autorun(function (autorun) {
         if (GoogleMaps.loaded()) {
             autorun.stop();
-            rx.set('init.googleMapApiLoaded');
+            rx.set('inited.googleMapApi');
         }
     });
 
@@ -172,7 +172,12 @@ function loadGoogleMapApi () {
 //               render the map.
 function isMapPreppedAndUserAuthorized () {
     var R = rx.getState();
-    if (R['init.mapPrepared'] &&
+    /*
+    console.log('\nisMapPreppedAndUserAuthorized()')
+    console.log("R['init.map']:", R['init.map'])
+    console.log("R['user.mapAuthorized']:", R['user.mapAuthorized'])
+    */
+    if (R['init.map'] === 'prepared' &&
         R['user.mapAuthorized'])  {
         
         unsubFx.isMapPreppedAndUserAuthorized();
@@ -180,7 +185,7 @@ function isMapPreppedAndUserAuthorized () {
         
         // Request secondary data.
         data.requestLayoutNames(
-            { rxAction: 'init.layoutNamesReceived' });
+            { rxAction: 'init.layoutNames.received' });
         data.requestAttributeTags();
         data.requestMapMeta();
         
@@ -188,7 +193,7 @@ function isMapPreppedAndUserAuthorized () {
         // for some timing reason.
         setTimeout(function () {
             viewport.init();
-            rx.set('init.mapRendered');
+            rx.set('init.map.rendered');
             setTimeout(function () {
                 rx.set('snake.map.hide');
             });
@@ -206,17 +211,17 @@ function isReadyToRenderMap () {
     var R = rx.getState();
     /*
     console.log('\nisReadyToRenderMap()')
-    console.log("R['init.layoutPositionsLoaded']:", R['init.layoutPositionsLoaded'])
-    console.log("R['init.colormapLoaded']:", R['init.colormapLoaded'])
-    console.log("R['init.activeAttrs']:", R['init.activeAttr'])
-    console.log("R['init.googleMapApiLoaded']:", R['init.googleMapApiLoaded'])
-    console.log("R['init.domLoaded']:", R['init.domLoaded'])
+    console.log("R['inited.layout']:", R['inited.layout'])
+    console.log("R['inited.colormap']:", R['inited.colormap'])
+    console.log("R['init.activeAttrs']:", R['init.activeAttrs'])
+    console.log("R['inited.googleMapApi']:", R['inited.googleMapApi'])
+    console.log("R['inited.dom']:", R['inited.dom'])
     */
-    if (R['init.layoutPositionsLoaded'] &&
-        R['init.colormapLoaded'] &&
+    if (R['inited.layout'] &&
+        R['inited.colormap'] &&
         R['init.activeAttrs'] === 'valuesLoaded' &&
-        R['init.googleMapApiLoaded'] &&
-        R['init.domLoaded']) {
+        R['inited.googleMapApi'] &&
+        R['inited.dom']) {
         
         unsubFx.isReadyToRenderMap();
         perform.log('3-init:prep-map');
@@ -232,7 +237,7 @@ function isReadyToRenderMap () {
             $(window).resize(utils.resizeMap);
             $('#shortlist_holder').css('top', $('#navBar').height());
             ctx.center = coords.centerToLatLng(ctx.center);
-            rx.set('init.mapPrepared');
+            rx.set('init.map.prepared');
         });
     }
 }
@@ -244,11 +249,11 @@ function haveLayerSummary () {
     var R = rx.getState();
     /*
     console.log('\nhaveLayerSummary()')
-    console.log('init.attrSummaryLoaded', R['init.attrSummaryLoaded'])
-    console.log('init.attrTypesLoaded', R['init.attrTypesLoaded'])
+    console.log('inited.attrSummary', R['inited.attrSummary'])
+    console.log('inited.attrTypes', R['inited.attrTypes'])
     */
-    if (R['init.attrSummaryLoaded'] &&
-        R['init.attrTypesLoaded']) {
+    if (R['inited.attrSummary'] &&
+        R['inited.attrTypes']) {
     
         unsubFx.haveLayerSummary();
         perform.log('2b-init:find-first-layer-by-density');
@@ -290,9 +295,9 @@ function haveDataTypes () {
     var R = rx.getState();
     /*
     console.log('\haveDataTypes()')
-    console.log('init.attrTypesLoaded', R['init.attrTypesLoaded'])
+    console.log('inited.attrTypes', R['inited.attrTypes'])
     */
-    if (R['init.attrTypesLoaded']) {
+    if (R['inited.attrTypes']) {
 
         unsubFx.haveDataTypes();
         perform.log('2a-init:get-active-attr-values');
@@ -317,7 +322,7 @@ function haveDataTypes () {
 // Phase 1b init: when the DOM has loaded,
 //                show the loading snake.
 function hasDomLoaded () {
-    if (rx.get('init.domLoaded')) {
+    if (rx.get('inited.dom')) {
         unsubFx.hasDomLoaded();
         perform.log('1b-init:snakes,dom-loaded');
         
@@ -341,7 +346,7 @@ exports.init = function () {
     // Request the primary data.
     data.requestLayerSummary();
     data.requestLayoutAssignments();
-    data.requestColormaps({ rxAction: 'init.colormapLoaded' });
+    data.requestColormaps({ rxAction: 'inited.colormap' });
     
     // Subscribe to state changes.
     unsubFx.hasDomLoaded = rx.subscribe(hasDomLoaded);
