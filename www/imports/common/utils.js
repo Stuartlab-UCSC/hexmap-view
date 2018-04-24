@@ -91,10 +91,11 @@ exports.loadPage = function (page) {
     }
 };
 
-exports.loadProject = function (project, searchSuffix) {
+exports.loadProject = function (project, layoutIndex, searchSuffix) {
     if (state.hasLocalStore()) {
         ctx.project = project;
         Session.set('page', 'mapPage');
+        Session.set('layoutIndex', layoutIndex);
         queryFreeReload();
     } else {
         window.location.search = '/?p=' + project + searchSuffix;
