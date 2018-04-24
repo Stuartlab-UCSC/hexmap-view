@@ -306,7 +306,7 @@ function load (storeIn) {
 
     preBookmark();
 
-    rx.set('init.stateLoaded');
+    rx.set('inited.state');
     
     // Log all persistent store state values.
     logState('Load');

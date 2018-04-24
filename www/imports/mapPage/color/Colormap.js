@@ -335,6 +335,6 @@ exports.received = function (parsed) {
         // Store the finished color map in the global object
         colormaps[layer_name] = colormap;
     }
-    rx.set('init.colormapLoaded');
+    rx.set('inited.colormap');
 };
 

@@ -104,7 +104,6 @@ exports.init = function () {
     for (var i in proj) {
         $('body').on('click', '#' + proj[i].id, function(ev) {
             let data = ev.target.parentElement.dataset;
-            console.log('init():data', data)
             utils.loadProject(data.proj, data.layoutindex, data.searchsuffix);
         });
     }

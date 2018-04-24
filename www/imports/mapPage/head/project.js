@@ -91,7 +91,7 @@ function populate () {
     //     },
     // ]
 
-    if (!rx.get('projectList.receiving') && rx.get('init.domLoaded')) {
+    if (rx.get('projectList') === 'loading' && rx.get('inited.dom')) {
         unsubscribe.populate();
     
         data = projects.map((project) => {
@@ -140,14 +140,14 @@ function populate () {
             />, $('#project')[0]);
         
         perform.log('project-list-rendered');
-        rx.set('projectList.changing.done');
+        rx.set('projectList.stable');
     }
 }
 
 function projectListReceived (results) {
     projects = results;
     perform.log('project:list-got');
-    rx.set('projectList.receiving.done');
+    rx.set('projectList.loading');
 }
 
 function getProjectList () {
@@ -196,8 +196,7 @@ exports.authorize = function () {
     perform.log('project:list-request');
     
     // Subscribe to state changes effecting the project list.
-    rx.set('projectList.changing.now');
-    rx.set('projectList.receiving.now');
+    rx.set('projectList.receiving');
     unsubscribe.populate = rx.subscribe(populate);
     
     getProjectList();

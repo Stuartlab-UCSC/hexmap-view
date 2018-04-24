@@ -270,7 +270,7 @@ function load_static_data (layer_name, callback, byAttrId) {
         // If this is the primary active attr, and the colormap is loaded,
         // then refresh the colors.
         if (shortlist.get_active_coloring_layers().indexOf(layer_name) > -1 &&
-            rx.get('init.colormapLoaded')) {
+            rx.get('inited.colormap')) {
             colorMix.refreshColors();
         }
 

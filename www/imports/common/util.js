@@ -126,6 +126,11 @@ exports.getHumanProject = function (project) {
     return project.slice(0, -1);
 }
 
+export function hideAllSnakes () {
+    rx.set('snake.map.hide');
+    rx.set('snake.shortlist.hide');
+}
+
 exports.mapNotFoundNotify = function (more, stackTrace) {
     if (!ctx.mapNotFoundNotified) {
         ctx.mapNotFoundNotified = true;
@@ -136,8 +141,8 @@ exports.mapNotFoundNotify = function (more, stackTrace) {
             msg += ' or sign in'
         }
         msg += '. ' + more;
-        rx.set('init.done');
         userMsg.error(msg, {logStr: stackTrace});
+        hideAllSnakes();
     }
 }
 

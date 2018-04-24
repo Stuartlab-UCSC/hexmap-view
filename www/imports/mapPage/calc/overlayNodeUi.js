@@ -29,7 +29,6 @@ Template.navBarT.helpers({
 
 function httpError (result) {
     userMsg.jobError(result, 'While calculating position of a new node:');
-    rx.set('placeNode.running.done');
 }
 
 function getJobStatus (jobId, jobStatusUrl) {
@@ -100,7 +99,6 @@ function doIt (nodeData) {
         'Results will return when complete.',
     ]);
     hide();
-    rx.set('placeNode.running.done');
 }
 
 function show () {
@@ -154,7 +152,6 @@ function preShow () {
                 parseTsv: true,
                 onSuccess: doIt,
                 onError: function (error) {
-                    rx.set('placeNode.running.done');
                     userMsg.error(error);
                 }
             }

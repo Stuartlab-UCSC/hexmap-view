@@ -5,24 +5,6 @@ import redux from 'redux';
 import rx from './rx.js';
 
 const reducers = {
-    'createMap.running': (state = false, action) => {
-        switch (action.type) {
-        case 'createMap.running.now':
-            return true;
-        case 'createMap.running.done':
-            return false;
-        default:
-            return state;
-        }
-    },
-    'init': (state = true, action) => {
-        switch (action.type) {
-        case 'init.done':
-            return false;
-        default:
-            return state;
-        }
-    },
     'init.activeAttrs': (state = false, action) => {
         switch (action.type) {
         case 'init.activeAttrs.valuesLoaded':
@@ -33,71 +15,68 @@ const reducers = {
             return state;
         }
     },
-    'init.attrSummaryLoaded': (state = false, action) => {
-        return (action.type === 'init.attrSummaryLoaded') ? true : state;
-    },
-    'init.attrTypesLoaded': (state = false, action) => {
-        return (action.type === 'init.attrTypesLoaded') ? true : state;
-    },
-    'init.colormapLoaded': (state = false, action) => {
-        return (action.type === 'init.colormapLoaded') ? true : state;
-    },
-    'init.ctxLoaded': (state = false, action) => {
-        return (action.type === 'init.ctxLoaded') ? true : state;
-    },
-    'init.googleMapApiLoaded': (state = false, action) => {
-        return (action.type === 'init.googleMapApiLoaded') ? true : state;
-    },
-    'init.domLoaded': (state = false, action) => {
-        return (action.type === 'init.domLoaded') ? true : state;
-    },
-    'init.layoutNamesReceived': (state = false, action) => {
-        return (action.type === 'init.layoutNamesReceived') ? true : state;
-    },
-    'init.layoutNamesRequested': (state = false, action) => {
-        return (action.type === 'init.layoutNamesRequested') ? true : state;
-    },
-    'init.layoutsPopulated': (state = false, action) => {
-        return (action.type === 'init.layoutsPopulated') ? true : state;
-    },
-    'init.layoutPositionsLoaded': (state = false, action) => {
-        return (action.type === 'init.layoutPositionsLoaded') ? true : state;
-    },
-    'init.mapPrepared': (state = false, action) => {
-        return (action.type === 'init.mapPrepared') ? true : state;
-    },
-    'init.mapRendered': (state = false, action) => {
-        return (action.type === 'init.mapRendered') ? true : state;
-    },
-    'init.stateLoaded': (state = false, action) => {
-        return (action.type === 'init.stateLoaded') ? true : state;
-    },
-    'placeNode.running': (state = false, action) => {
+    'init.layoutNames': (state = false, action) => {
         switch (action.type) {
-        case 'placeNode.running.now':
-            return true;
-        case 'placeNode.running.done':
-            return false;
+        case 'init.layoutNames.received':
+            return 'received';
+        case 'init.layoutNames.requested':
+            return 'requested';
+        case 'init.layoutNames.populated':
+            return 'populated';
         default:
             return state;
         }
     },
-    'projectList.changing': (state = false, action) => {
+    'init.map': (state = false, action) => {
         switch (action.type) {
-        case 'projectList.changing.now':
-            return true;
-        case 'projectList.changing.done':
-            return false;
+        case 'init.map.prepared':
+            return 'prepared';
+        case 'init.map.rendered':
+            return 'rendered';
         default:
             return state;
         }
     },
-    'projectList.receiving': (state = false, action) => {
+    'inited.attrSummary': (state = false, action) => {
+        return (action.type === 'inited.attrSummary') ? true : state;
+    },
+    'inited.attrTypes': (state = false, action) => {
+        return (action.type === 'inited.attrTypes') ? true : state;
+    },
+    'inited.colormap': (state = false, action) => {
+        return (action.type === 'inited.colormap') ? true : state;
+    },
+    'inited.ctx': (state = false, action) => {
+        return (action.type === 'inited.ctx') ? true : state;
+    },
+    'inited.dom': (state = false, action) => {
+        return (action.type === 'inited.dom') ? true : state;
+    },
+    'inited.googleMapApi': (state = false, action) => {
+        return (action.type === 'inited.googleMapApi') ? true : state;
+    },
+    'inited.layout': (state = false, action) => {
+        return (action.type === 'inited.layout') ? true : state;
+    },
+    'inited.state': (state = false, action) => {
+        return (action.type === 'inited.state') ? true : state;
+    },
+    'initializing': (state = true, action) => {
         switch (action.type) {
-        case 'projectList.receiving.now':
-            return true;
-        case 'projectList.receiving.done':
-            return false;
+        case 'initializing':
+            return ;
+        default:
+            return state;
+        }
+    },
+    'projectList': (state = 'updating', action) => {
+        switch (action.type) {
+        case 'projectList.loading':
+            return 'loading';
+        case 'projectList.receiving':
+            return 'receiving';
+        case 'projectList.stable':
+            return 'stable';
         default:
             return state;
         }
@@ -117,16 +96,6 @@ const reducers = {
         case 'snake.shortlist.show':
             return true;
         case 'snake.shortlist.hide':
-            return false;
-        default:
-            return state;
-        }
-    },
-    'uploading': (state = false, action) => {
-        switch (action.type) {
-        case 'uploading.now':
-            return true;
-        case 'uploading.done':
             return false;
         default:
             return state;

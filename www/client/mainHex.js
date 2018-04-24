@@ -34,8 +34,8 @@ Template.body.helpers({
 function isStateLoaded () {
     
     var R = rx.getState();
-    if (R['init.ctxLoaded'] &&
-        R['init.stateLoaded']) {
+    if (R['inited.ctx'] &&
+        R['inited.state']) {
         
         unsubFx.isStateLoaded();
         perform.log('init:state-loaded');
@@ -73,5 +73,5 @@ Meteor.startup(() => {
     userMsg.init();
     unsubFx.isStateLoaded = rx.subscribe(isStateLoaded);
     state.init();
-    rx.set('init.ctxLoaded');
+    rx.set('inited.ctx');
 });
