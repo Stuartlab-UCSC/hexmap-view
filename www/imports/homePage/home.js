@@ -12,6 +12,7 @@ var proj = [
     {
         id: 'PancanAtlas_SampleMap',
         proj: 'PancanAtlas/SampleMap/',
+        label: 'TCGA PanCanAtlas, Cell 2018',
         png: 'pancanAtlas.png',
         layoutIndex: 8,
         searchSuffix: '&layout=Euclidean%20iCluster',
@@ -47,15 +48,6 @@ var proj = [
 ];
 
 Template.homePage.onRendered(function () {
-    for (var i in proj) {
-        $('body').on('click', '#' + proj[i].id, function(ev) {
-            let data = ev.target.parentElement.dataset;
-            if (data.layoutIndex) {
-                Session.set('layoutIndex', data.layoutIndex);
-            }
-            utils.loadProject(data.proj, data.searchSuffix);
-        });
-    }
     navBar.init();
     createMap.init();
 });
@@ -107,5 +99,14 @@ Template.homePage.helpers({
 exports.init = function () {
 
     Blaze.render(Template.homePage, $('body')[0]);
+    
+    // Add the click handlers for the thumbnails.
+    for (var i in proj) {
+        $('body').on('click', '#' + proj[i].id, function(ev) {
+            let data = ev.target.parentElement.dataset;
+            console.log('init():data', data)
+            utils.loadProject(data.proj, data.layoutindex, data.searchsuffix);
+        });
+    }
     util.googleAnalytics();
 };
