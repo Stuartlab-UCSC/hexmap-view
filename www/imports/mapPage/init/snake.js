@@ -6,7 +6,7 @@ import PropTypes from 'prop-types';
 import { render } from 'react-dom';
 
 import rx from '/imports/common/rx';
-import '/imports/common/snake.css';
+import './snake.css';
 
 class Snake extends Component {
     constructor (props) {
@@ -75,5 +75,14 @@ exports.init = function () {
             stateVars = {['snake.shortlist']}
             name = 'shortlistSnake'
         />, document.querySelector('#shortlistSnakeWrap')
+    );
+    
+    // Initialize the project list snake.
+    render(
+        <Snake
+            globalState = {rx}
+            stateVars = {['snake.project']}
+            name = 'projectSnake'
+        />, document.querySelector('#projectSnakeWrap')
     );
 };

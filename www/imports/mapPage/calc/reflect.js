@@ -198,17 +198,16 @@ function executeReflection () {
     const openRoutePrompt = (jresp) => {
         // Open a prompt with a link to view the completed reflection.
         const result = jresp.result;
-        let msg = ` The reflection of ${selectionSelected} is viewable at`
+        let msg = ` The reflection is at`
 
         // Notify the user if data is any data was missing from request.
-        let extra="";
         const notAllDataThere = (result.nNodes < nodeIds.length );
         if (notAllDataThere) {
-            extra = `Only ${result.nNodes} from the ${nodeIds.length}
-                     nodes in ${selectionSelected} were available to calculate
-                     the reflected attribute.`
+        //         11000 from the 11000 nodes
+            msg = `${result.nNodes} from the ${nodeIds.length}
+                     nodes were available to calculate
+                     the reflection at`
         }
-        msg = extra + msg;
         userMsg.jobSuccess(result, msg, { linkText: toMapId });
     };
 

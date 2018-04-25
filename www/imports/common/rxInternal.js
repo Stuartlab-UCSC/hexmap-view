@@ -69,7 +69,7 @@ const reducers = {
             return state;
         }
     },
-    'projectList': (state = 'updating', action) => {
+    'projectList': (state = 'receiving', action) => {
         switch (action.type) {
         case 'projectList.loading':
             return 'loading';
@@ -77,6 +77,16 @@ const reducers = {
             return 'receiving';
         case 'projectList.stable':
             return 'stable';
+        default:
+            return state;
+        }
+    },
+    'snake.project': (state = true, action) => {
+        switch (action.type) {
+        case 'snake.project.show':
+            return true;
+        case 'snake.project.hide':
+            return false;
         default:
             return state;
         }

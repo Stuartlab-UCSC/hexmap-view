@@ -141,6 +141,7 @@ function populate () {
         
         perform.log('project-list-rendered');
         rx.set('projectList.stable');
+        rx.set('snake.project.hide');
     }
 }
 
@@ -197,6 +198,7 @@ exports.authorize = function () {
     
     // Subscribe to state changes effecting the project list.
     rx.set('projectList.receiving');
+    rx.set('snake.project.show');
     unsubscribe.populate = rx.subscribe(populate);
     
     getProjectList();
