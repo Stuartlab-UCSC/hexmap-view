@@ -15,9 +15,9 @@ var DEFAULT_MARKER_COLOR = 'ff0000',
     MARKER_IMAGE = "http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=%E2%80%A2|",
     markerScaledSize,
     markers = {},
-    node_id = new ReactiveVar(),
-    color = new ReactiveVar(),
-    scale = new ReactiveVar(),
+    node_id = new ReactiveVar(''),
+    color = new ReactiveVar(DEFAULT_MARKER_COLOR),
+    scale = new ReactiveVar(DEFAULT_MARKER_SCALE),
     $markerInfoWindow,
     initialized = false,
     infoWindow; // The info window for the marker, not a node.
@@ -27,7 +27,12 @@ Template.markerInfoWindow.helpers({
         return node_id.get();
     },
     color: function () {
-        return color.get();
+        let c = color.get();
+        if (c) {
+            return c;
+        } else {
+            return DEFAULT_MARKER_COLOR;
+        }
     },
     scale: function () {
         return scale.get();
@@ -212,9 +217,6 @@ function init () {
     if (initialized) return;
 
     initialized = true;
-    node_id.set('');
-    color.set(DEFAULT_MARKER_COLOR);
-    scale.set(DEFAULT_MARKER_SCALE);
     exports.show();
     $markerInfoWindow = $('#markerInfoWindow');
     overlayNodeUi.init();

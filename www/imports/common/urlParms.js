@@ -3,8 +3,8 @@
 // Bookmarks and page-only parms are handled in state.js.
 
 import bookmark from '/imports/common/bookmark';
-import Layer from '/imports/mapPage/longlist/Layer';
 import userMsg from '/imports/common/userMsg';
+import { checkFetchStatus, parseFetchedJson } from '/imports/common/utils';
 
 function getParms () {
 
@@ -46,23 +46,21 @@ function getParms () {
     }
 }
 
-function loadWithProject (parms) {
+function loadWithProject (parms, stateLoadFx) {
 
-    // Load state from parameters in the url when a project is included.
+    // Fill the store from parameters in the url when a project is included.
     var store = {
         project: projNameBackwardCompatability(parms.p),
         page: 'mapPage',
     };
 
-    setLayout(parms);
+    setLayout(parms, store);
 
     // Load any overlay nodes in the URL
     loadOverlayNodes(parms, store);
 
     // Find and request attrs.
-    loadAttrRequest(parms);
-
-    return store;
+    loadAttrRequest(parms, store, stateLoadFx);
 }
 
 function loadOverlayNodes (parms, store) {
@@ -92,11 +90,12 @@ function loadOverlayNodes (parms, store) {
     }
 }
 
-function loadAttrRequest(parms) {
+function loadAttrRequest(parms, store, stateLoadFx) {
+
     // Find any attribute requests.
     // @param parms the url parameters
     //
-    // For example of continuous on PRODUCTION:1
+    // For example of continuous from xena.
     // http://localhost:3333/?
     //      xena=addAttr&
     //      p=PancanAtlas/SampleMap&
@@ -105,7 +104,7 @@ function loadAttrRequest(parms) {
     //      dataset=TCGA_pancancer_10852whitelistsamples_68ImmuneSigs.xena&
     //      attr=B_cell_PCA_16704732
     //
-    // A categorical attribute:
+    // A categorical attribute from xena:
     // http://localhost:3333/?xena=addAttr&p=PancanAtlas/SampleMap&layout=mRNA&hub=https://tcga.xenahubs.net/data/&dataset=TCGA.PANCAN.sampleMap/PANCAN_clinicalMatrix&attr=sample_type&cat=Primary%20Tumor&color=1f77b4&cat=Primary%20solid%20Tumor&color=aec7e8&cat=Primary%20Blood%20Derived%20Cancer%20-%20Peripheral%20Blood&color=2ca02c&cat=Primary%20Blood%20Derived%20Cancer%20-%20Bone%20Marrow&color=98df8a&cat=Recurrent%20Tumor&color=d62728&cat=Recurrent%20Solid%20Tumor&color=ff9896&cat=Recurrent%20Blood%20Derived%20Cancer%20-%20Peripheral%20Blood&color=ff7f0e&cat=Recurrent%20Blood%20Derived%20Cancer%20-%20Bone%20Marrow&color=ffbb78&cat=Additional%20-%20New%20Primary&color=9467bd&cat=Metastatic&color=c5b0d5&cat=Additional%20Metastatic&color=8c564b&cat=Human%20Tumor%20Original%20Cells&color=c49c94&cat=Blood%20Derived%20Normal&color=e377c2&cat=Solid%20Tissue%20Normal&color=f7b6d2&cat=Buccal%20Cell%20Normal&color=bcbd22&cat=EBV%20Immortalized%20Normal&color=dbdb8d&cat=Bone%20Marrow%20Normal&color=17becf&cat=Cell%20Lines&color=9edae5&cat=Primary%20Xenograft%20Tissue&color=434348&cat=Cell%20Line%20Derived%20Xenograft%20Tissue&color=c7c7c7&cat=Control%20Analyte&color=1f77b4
 
     // Example of call to Xena for an attribute:
@@ -128,9 +127,14 @@ function loadAttrRequest(parms) {
     const cats = parms.cat;
     const colors = parms.color;
 
-    const parseJson = (response) => { return response.json(); };
-    const recieveAttr = (data) => { return (processAttr(data, cats, colors)); };
-    // Structure the ajax called depending on what server the
+    const receiveAttr = (data) => {
+        return (processAttr(data, cats, colors, store));
+    };
+    const receiveError = (error) => {
+        stateLoadFx(store);
+        return fetchError(error);
+    };
+    // Structure the fetch call depending on what server the
     // data request is going to.
     let fetchInit = {};
     if (getXenaData) {
@@ -142,10 +146,14 @@ function loadAttrRequest(parms) {
     }
 
     fetch(url, fetchInit)
-        .then(parseJson)
-        .then(recieveAttr)
-        .catch(ajaxError);
-
+        .then(checkFetchStatus)
+        .then(parseFetchedJson)
+        .then(receiveAttr)
+        .then(stateLoadFx)
+        .catch(receiveError);
+        
+    // Let the caller know we retrieved data.
+    return true;
 }
 
 function xenaQueryStr(attrName, dataset) {
@@ -158,7 +166,7 @@ function xenaQueryStr(attrName, dataset) {
     return qstr;
 }
 
-function processAttr(result, cats, colors) {
+function processAttr(result, cats, colors, store) {
     const attrName =  getAttrName(result);
     const parsedData = parseData(attrName, result);
     let newLayer = buildLayer(parsedData, attrName);
@@ -171,34 +179,23 @@ function processAttr(result, cats, colors) {
             colors
         );
     }
-
-    addAttrToShortlist(newLayer);
+    store.dynamic_attrs = newLayer;
+    store.active_layers = [attrName];
+    store.shortlist = [attrName];
+    return store;
 }
 
 function getAttrName(response){
     const reponseKeys = Object.keys(response);
-    const attrName = reponseKeys.filter(
+    const attrNames = reponseKeys.filter(
         (key)=> { return key !== "sampleID"; }
     );
-    return attrName;
+    return attrNames[0];
 }
 
-function addAttrToShortlist(newLayer) {
-    //Puts the given layer in the shortlist
-    const attrName = Object.keys(newLayer)[0];
-    Meteor.autorun(function (runner) {
-        var layerTypesLoaded = Session.get('layerTypesLoaded'),
-            shortlistInited = Session.get('shortlistInited');
-        if (layerTypesLoaded && shortlistInited) {
-            runner.stop();
-            Layer.with_one(attrName, function() {}, newLayer);
-        }
-    });
-}
-
-function ajaxError(error) {
+function fetchError(error) {
     if (error) {
-        userMsg.error(error);
+        userMsg.error(error.message);
     } else {
         userMsg.error('Unknown server error');
     }
@@ -259,9 +256,9 @@ function projNameBackwardCompatability(project) {
     return project + '/';
 }
 
-function setLayout(parms) {
+function setLayout(parms, store) {
     if (parms.layout) {
-        Session.set('layoutName', parms.layout);
+        store.layoutName = parms.layout;
     }
 }
 
@@ -286,18 +283,22 @@ exports.handle = function (stateLoadFx) {
 
         // Handle a map ID / project in the URL query.
         if (uParm.p) {
-            stateLoadFx(loadWithProject(uParm));
+            loadWithProject(uParm, stateLoadFx);
 
         // Handle a page in the URL query.
         } else if (uParm.pg) {
 
-            // First get any state saved in localStore before we overlay
-            // the page ID. This allow one to pop over to the home page, and
-            // then back to the map previously viewed.
+            // Load from store, except use this page.
+            // This allows one to pop over to the home page, and
+            // then back to the map and state previously viewed.
+            stateLoadFx(null, uParm.pg);
+            
+        } else {
+            // Some unrecognized parameter.
+            userMsg.error('There is some unrecognized parameter in the URL');
             stateLoadFx();
-            Session.set('page', uParm.pg);
         }
     }
-    // State was loaded from urlParms.
+    // State is/was being loaded from urlParms.
     return true;
 };

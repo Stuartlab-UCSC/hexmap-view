@@ -94,11 +94,10 @@ exports.load = function (bookmark, loadFx) {
         function (error, result) {
             if (error) {
                 userMsg.error(error.string());
-                return;
-            }                
-            if (result === 'Bookmark not found') {
+                result = undefined;
+            } else if (result === 'Bookmark not found') {
                 userMsg.error(result);
-                return;
+                result = undefined;
             }
             loadFx(result);
         }
