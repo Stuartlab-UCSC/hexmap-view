@@ -269,7 +269,7 @@ function haveLayerSummary () {
             // If there are any static layers...
             if (ctx.static_layer_names.length > 0) {
                 if (!first) {
-                    first = ctx.static_layer_names[0];
+                    first = Session.get('sortedLayers')[0];
                     Session.set('first_layer', first);
                 }
                 if (Session.get('active_layers').length < 1) {
