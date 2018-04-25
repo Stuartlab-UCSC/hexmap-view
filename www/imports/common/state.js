@@ -60,7 +60,12 @@ var varInfo = {
         project: true,
     },
     layoutIndex: {
-        defalt: 0,
+        defalt: undefined, // must be undefined for layoutName to be accepted.
+        session: true,
+        project: true,
+    },
+    layoutName: {
+        defalt: '',
         session: true,
         project: true,
     },
@@ -264,13 +269,19 @@ function preBookmark () {
     }
 }
 
-function load (storeIn) {
+function load (storeIn, page) {
     
     if (!storageSupported) {
         return;
     }
     
     var store = storeIn || localStore('get');
+    
+    // If a page was included, put that in the store before
+    // loading it into state.
+    if (page) {
+        store.page = page;
+    }
 
     logStore('\nLoad', store);
 
@@ -389,7 +400,7 @@ exports.init = function () {
     // Load any parameters in the URL.
     if (urlParms.handle(load) === null) {
 
-        // Load from the local store.
+        // Load from the local store since there were no url parameters.
         load();
     }
 
