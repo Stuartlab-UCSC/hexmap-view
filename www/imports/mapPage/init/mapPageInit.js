@@ -21,7 +21,7 @@ import rx from '/imports/common/rx';
 import shortlist from '/imports/mapPage/shortlist/shortlist';
 import selectNode from '/imports/mapPage/shortlist/select';
 import setOper from '/imports/mapPage/shortlist/setOper';
-import snake from '/imports/common/snake.js';
+import snake from '/imports/mapPage/init/snake.js';
 import sort from '/imports/mapPage/longlist/sort';
 import sortUi from '/imports/mapPage/longlist/sortUi';
 import tool from '/imports/mapPage/head/tool';

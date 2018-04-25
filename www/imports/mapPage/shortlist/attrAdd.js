@@ -46,7 +46,6 @@ addAsLayers = function (data) {
     // All the layers to our layers global and the shortlist.
     Layer.with_many(attrNames, function() {}, dynLayers);
 
-    // Remove the busy snake.
     rx.set('attrAdd:adding.done');
 
     // Destroy this dialogHex.

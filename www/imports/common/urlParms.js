@@ -6,42 +6,52 @@ import bookmark from '/imports/common/bookmark';
 import userMsg from '/imports/common/userMsg';
 import { checkFetchStatus, parseFetchedJson } from '/imports/common/utils';
 
-function getParms () {
+function getParms (loadStateFx) {
 
     // Retrieve the parameters in the url
     var parms = location.search.substr(1);
     var result = {};
     var found = false;
-    parms.split("&").forEach(function(part) {
-        if (part !== "") {
-            var item = part.split("="),
-                key = item[0],
-                val = decodeURIComponent(item[1]);
+    try {
+        parms.split("&").forEach(function(part) {
+            if (part !== "") {
+                var item = part.split("="),
+                    key = item[0],
+                    val = decodeURIComponent(item[1]);
 
-            // Do we already have a value for this key?
-            if (key in result) {
+                // Do we already have a value for this key?
+                if (key in result) {
 
-                // There is a value for this key already.
+                    // There is a value for this key already.
 
-                if (typeof result[key] !== 'object') {
+                    if (typeof result[key] !== 'object') {
 
-                    // The previous value for this key is a single value
-                    // so turn the string into an array of one.
-                    result[key] = [result[key]];
+                        // The previous value for this key is a single value
+                        // so turn the string into an array of one.
+                        result[key] = [result[key]];
+                    }
+                    // Add to the array.
+                    result[key].push(val);
+
+                } else {
+                    // A brand new key, so a simple value
+                    result[key] = val;
                 }
-                // Add to the array.
-                result[key].push(val);
-
-            } else {
-                // A brand new key, so a simple value
-                result[key] = val;
+                found = true;
             }
-            found = true;
+        });
+        if (found) {
+            return result;
+        } else {
+            return null;
         }
-    });
-    if (found) {
-        return result;
-    } else {
+    } catch (e) {
+        
+        let msg = 'The URL is malformed';
+        if (e) {
+            msg += ': ' + e;
+        }
+        userMsg.error(msg);
         return null;
     }
 }
@@ -60,7 +70,10 @@ function loadWithProject (parms, stateLoadFx) {
     loadOverlayNodes(parms, store);
 
     // Find and request attrs.
-    loadAttrRequest(parms, store, stateLoadFx);
+    let fetching = loadAttrRequest(parms, store, stateLoadFx);
+    if (!fetching) {
+        stateLoadFx(store);
+    }
 }
 
 function loadOverlayNodes (parms, store) {
@@ -295,7 +308,7 @@ exports.handle = function (stateLoadFx) {
             
         } else {
             // Some unrecognized parameter.
-            userMsg.error('There is some unrecognized parameter in the URL');
+            userMsg.error('There is some unrecognized parameter in the URL.');
             stateLoadFx();
         }
     }
