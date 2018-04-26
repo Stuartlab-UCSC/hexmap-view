@@ -6,9 +6,6 @@ import rx from './rx.js';
 
 const reducers = {
     'attrsActive': (state = [], action) => {
-        if (action.type.slice(0,10) === 'attrsActiv') {
-            _.noop();
-        }
         switch (action.type) {
         case 'attrsActive.deleteOne':
             return _.without(state, action.attr);
