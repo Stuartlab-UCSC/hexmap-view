@@ -233,10 +233,10 @@ Template.shortlistEntryT.helpers({
 
 function updateAttrsActiveForTemplate () {
 
-    // attrsActive state is tracked with a redux var, but templates need
+    // activeAttrs state is tracked with a redux var, but templates need
     // a meteor reactive variable to update. So whenever the redux state
     // changes, update the meteor reactive variable.
-    let aState = rx.get('attrsActive'),
+    let aState = rx.get('activeAttrs'),
         aTemplate = Session.get('active_layers');
     if (aState.length === aTemplate.length &&
         aState.every((v,i) => v === aTemplate[i])) {
@@ -563,7 +563,7 @@ function ui_and_list_delete (layer_name) {
     root.remove();
 
     // Remove this layer from active_layers if it was in there.
-    rx.set('attrsActive.deleteOne', { attr: layer_name });
+    rx.set('activeAttrs.deleteOne', { attr: layer_name });
 }
 
 function create_shortlist_ui_entry (layer_name) {
@@ -682,17 +682,17 @@ function primaryButtonClick (ev) {
     // This has a side effect of setting any secondary to primary,
     // or leaving no active layers.
     if (is_primary(layer_name)) {
-        rx.set('attrsActive.deleteOne', { attr: layer_name });
+        rx.set('activeAttrs.deleteOne', { attr: layer_name });
 
     // If this layer is secondary,
     // set it as the primary and only active layer.
     } else if (is_secondary(layer_name)) {
-        rx.set('attrsActive.updateAll', { attrs: [layer_name] });
+        rx.set('activeAttrs.updateAll', { attrs: [layer_name] });
         
     // This layer is not currently active, so make it primary
     // preserving any secondary.
     } else {
-        rx.set('attrsActive.upsertPrimary', { attr: layer_name });
+        rx.set('activeAttrs.upsertPrimary', { attr: layer_name });
     }
 }
 
@@ -701,17 +701,17 @@ function secondaryButtonClick (ev) {
 
     // If this layer is already secondary, remove it from secondary
     if (is_secondary(layer_name)) {
-        rx.set('attrsActive.deleteOne', { attr: layer_name });
+        rx.set('activeAttrs.deleteOne', { attr: layer_name });
         
     // If this layer is primary...
     } else if (is_primary(layer_name)) {
         
         // Switch places with the secondary.
-        rx.set('attrsActive.primaryToSecondary', { attr: layer_name });
+        rx.set('activeAttrs.primaryToSecondary', { attr: layer_name });
     } else {
     
         // Layer is not in the actives so update/insert it.
-        rx.set('attrsActive.upsertSecondary', { attr: layer_name });
+        rx.set('activeAttrs.upsertSecondary', { attr: layer_name });
     }
 }
 
@@ -812,7 +812,7 @@ exports.removeEntry = function (layer_name) {
 exports.get_active_coloring_layers = function () {
     // Returns an array of the string names of the layers that are
     // actively displaying their colors.
-    return rx.get('attrsActive');
+    return rx.get('activeAttrs');
 }
 
 exports.ui_and_list_add = function (layer_name) {
@@ -852,7 +852,7 @@ exports.ui_and_list_add = function (layer_name) {
     shortlist.splice(0, 0, layer_name);
 
     // Set the actives to just this layer.
-    rx.set('attrsActive.updateAll', { attrs: [layer_name] });
+    rx.set('activeAttrs.updateAll', { attrs: [layer_name] });
     
     Session.set('shortlist', shortlist);
 }
@@ -1054,7 +1054,7 @@ exports.complete_initialization = function () {
     // Executed after other initially visible widgets are populated.
     
     function loadRemainderOfEntries () {
-        var actives = rx.get('attrsActive'),
+        var actives = rx.get('activeAttrs'),
             layerNames = _.filter(Session.get('shortlist'), function (layer) {
                 return (actives.indexOf(layer) < 0);
             });
@@ -1080,7 +1080,7 @@ exports.init = function () {
     $shortlist = $('#shortlist');
     $dynamic_controls = $shortlist.find('.dynamic_controls');
     $float_controls = $shortlist.find('.float');
-    Session.set('active_layers', rx.get('attrsActive'));
+    Session.set('active_layers', rx.get('activeAttrs'));
     
     Session.set('shortlistInited', false);
     entriesInited.set(false);
@@ -1094,7 +1094,7 @@ exports.init = function () {
     create_float_controls();
     
     // Add the active shortlist layer values to the global layers object.
-    Layer.with_many(rx.get('attrsActive'), receivedInitialActiveLayers,
+    Layer.with_many(rx.get('activeAttrs'), receivedInitialActiveLayers,
         Session.get('dynamic_attrs'));
 
  }

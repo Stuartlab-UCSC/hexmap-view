@@ -5,25 +5,25 @@ import redux from 'redux';
 import rx from './rx.js';
 
 const reducers = {
-    'attrsActive': (state = [], action) => {
+    'activeAttrs': (state = [], action) => {
         switch (action.type) {
-        case 'attrsActive.deleteOne':
+        case 'activeAttrs.deleteOne':
             return _.without(state, action.attr);
-        case 'attrsActive.primaryToSecondary':
+        case 'activeAttrs.primaryToSecondary':
             if (state.length > 1) {
                 state = [state[1], state[0]];
             }
             return state;
-        case 'attrsActive.updateAll':
-        case 'attrsActive.loadState':
+        case 'activeAttrs.updateAll':
+        case 'activeAttrs.loadState':
             return action.attrs;
-        case 'attrsActive.upsertPrimary':
+        case 'activeAttrs.upsertPrimary':
             if (state.length < 2) {
                 return [action.attr];
             } else {
                 return [action.attr, state[1]];
             }
-        case 'attrsActive.upsertSecondary':
+        case 'activeAttrs.upsertSecondary':
             if (state.length < 1) {
                 return [action.attr];
             } else {
@@ -33,11 +33,18 @@ const reducers = {
             return state;
         }
     },
-    'init.attrsActive': (state = false, action) => {
+    'firstAttr': (state = null, action) => {
+        if (action.type === 'firstAttr') {
+            return action.attr;
+        } else {
+            return state;
+        }
+    },
+    'init.activeAttrs': (state = false, action) => {
         switch (action.type) {
-        case 'init.attrsActive.valuesLoaded':
+        case 'init.activeAttrs.valuesLoaded':
             return 'valuesLoaded';
-        case 'init.attrsActive.inShortlist':
+        case 'init.activeAttrs.inShortlist':
             return 'inShortlist';
         default:
             return state;
