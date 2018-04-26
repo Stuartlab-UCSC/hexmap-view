@@ -1,13 +1,45 @@
 
 // Public API for the redux store.
 
+// Pieces of state to retrieve, used with rx.get().
+// Usage:  rx.get(<state-bit>);
+// Where <state-bit> is one of the below.
+// Example:  rx.get('layout.name');
+const statePieces =  [ // eslint-disable-line
+    'attrsActive',
+    'init.attrsActive',
+    'init.layoutNames',
+    'init.map',
+    'inited.attrSummary',
+    'inited.attrTypes',
+    'inited.colormap',
+    'inited.ctx',
+    'inited.dom',
+    'inited.googleMapApi',
+    'inited.layout',
+    'inited.state',
+    'initializing',
+    'projectList',
+    'snake.map',
+    'snake.project',
+    'snake.shortlist',
+    'user.mapAuthorized',
+    'user.roles',
+];
+
 // Actions on state. used with rx.set().
 // Usage:  rx.set(<action>, <opts>);
 // Where <action> is one of the below, <opts> are defined in rxInternal.js.
 // Example:  rx.set('layout.nameSelected', { name: 'RPPA' });
 exports.stateActions = [
-    'init.activeAttrs.inShortlist',
-    'init.activeAttrs.valuesLoaded',
+    'attrsActive.deleteOne',
+    'attrsActive.loadState',
+    'attrsActive.primaryToSecondary',
+    'attrsActive.updateAll',
+    'attrsActive.upsertPrimary',
+    'attrsActive.upsertSecondary',
+    'init.attrsActive.inShortlist',
+    'init.attrsActive.valuesLoaded',
     'init.layoutNames.populated',
     'init.layoutNames.received',
     'init.layoutNames.requested',
@@ -38,31 +70,6 @@ exports.stateActions = [
     'user.mapAuthorized.not',
     'user.roles.empty',
     'user.roles.load',
-];
-
-// Pieces of state to retrieve, used with rx.get().
-// Usage:  rx.get(<state-bit>);
-// Where <state-bit> is one of the below.
-// Example:  rx.get('layout.name');
-const statePieces =  [ // eslint-disable-line
-    'init.activeAttrs',
-    'init.layoutNames',
-    'init.map',
-    'inited.attrSummary',
-    'inited.attrTypes',
-    'inited.colormap',
-    'inited.ctx',
-    'inited.dom',
-    'inited.googleMapApi',
-    'inited.layout',
-    'inited.state',
-    'initializing',
-    'projectList',
-    'snake.map',
-    'snake.project',
-    'snake.shortlist',
-    'user.mapAuthorized',
-    'user.roles',
 ];
 
 // The global redux state.

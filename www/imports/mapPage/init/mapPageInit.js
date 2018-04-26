@@ -58,13 +58,13 @@ function areLayoutsPopulated () {
     var R = rx.getState();
     /*
     console.log('\nareLayoutsPopulated()')
-    console.log('init.activeAttrs', R['init.activeAttrs'])
+    console.log('init.attrsActive', R['init.attrsActive'])
     console.log('inited.attrTypes', R['inited.attrTypes'])
     console.log('init.layoutNames', R['init.layoutNames'])
     console.log('init.map', R['init.map'])
     console.log('inited.attrSummary', R['inited.attrSummary'])
     */
-    if (R['init.activeAttrs'] === 'inShortlist' &&
+    if (R['init.attrsActive'] === 'inShortlist' &&
         R['inited.attrTypes'] &&
         R['init.layoutNames'] === 'populated' &&
         R['init.map'] === 'rendered' &&
@@ -144,9 +144,9 @@ function isMapRendered () {
             // Populate the shortlist with only the active layers by faking
             // the shortlist state var.
             shortlistSaved = Session.get('shortlist');
-            Session.set('shortlist', Session.get('active_layers'));
+            Session.set('shortlist', rx.get('attrsActive'));
             shortlist.init();
-            rx.set('init.activeAttrs.inShortlist');
+            rx.set('init.attrsActive.inShortlist');
         });
     }
 }
@@ -213,13 +213,13 @@ function isReadyToRenderMap () {
     console.log('\nisReadyToRenderMap()')
     console.log("R['inited.layout']:", R['inited.layout'])
     console.log("R['inited.colormap']:", R['inited.colormap'])
-    console.log("R['init.activeAttrs']:", R['init.activeAttrs'])
+    console.log("R['init.attrsActive']:", R['init.attrsActive'])
     console.log("R['inited.googleMapApi']:", R['inited.googleMapApi'])
     console.log("R['inited.dom']:", R['inited.dom'])
     */
     if (R['inited.layout'] &&
         R['inited.colormap'] &&
-        R['init.activeAttrs'] === 'valuesLoaded' &&
+        R['init.attrsActive'] === 'valuesLoaded' &&
         R['inited.googleMapApi'] &&
         R['inited.dom']) {
         
@@ -272,18 +272,18 @@ function haveLayerSummary () {
                     first = Session.get('sortedLayers')[0];
                     Session.set('first_layer', first);
                 }
-                if (Session.get('active_layers').length < 1) {
-                   
+                if (rx.get('attrsActive').length < 1) {
+
                     // Load the first layer's data.
                     Session.set('shortlist', [first]);
-                    Session.set('active_layers', [first]);
+                    rx.set('attrsActive.updateAll', { attrs: [first] });
                     Layer.loadInitialActiveLayers();
                 }
 
             } else {
             
                 // No layers at all, so say they are loaded to proceed.
-                rx.set('init.activeAttrs.valuesLoaded');
+                rx.set('init.attrsActive.valuesLoaded');
             }
         });
     }
@@ -302,7 +302,6 @@ function haveDataTypes () {
         unsubFx.haveDataTypes();
         perform.log('2a-init:get-active-attr-values');
         
-        let active_layers = Session.get('active_layers');
         let first = Session.get('first_layer');
 
         // Pause to let other processing complete.
@@ -310,9 +309,9 @@ function haveDataTypes () {
 
             // Request the 'first' attr as the initial coloring layer
             // if we don't have active layers identified yet.
-            if (first && active_layers < 1) {
+            if (first && rx.get('attrsActive').length < 1) {
                 Session.set('shortlist', [first]);
-                Session.set('active_layers', [first]);
+                rx.set('attrsActive.updateAll', { attrs: [first] });
                 Layer.loadInitialActiveLayers();
             }
         });
@@ -366,14 +365,14 @@ exports.init = function () {
     
 
     // Request the initial coloring layers if we know them yet.
-    let active_layers = Session.get('active_layers');
+    let attrsActive = rx.get('attrsActive');
     let shortlist = Session.get('shortlist');
-    if (active_layers.length > 0) {
-        Session.set('first_layer', active_layers[0]);
+    if (attrsActive.length > 0) {
+        Session.set('first_layer', attrsActive[0]);
         Layer.loadInitialActiveLayers();
     } else if (shortlist.length > 0) {
         Session.set('first_layer', [shortlist[0]]);
-        Session.set('active_layers', [shortlist[0]]);
+        rx.set('attrActive.updateAll', { attrs: [shortlist[0]] });
         Layer.loadInitialActiveLayers();
     }
     data.requestDataTypes();

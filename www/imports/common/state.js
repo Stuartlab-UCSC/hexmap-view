@@ -42,12 +42,10 @@ var varInfo = {
         defalt: false,
         session: true,
     },
-    active_layers: {
-        // TODO: two static actives fail to load
-        // while if one or both are dynamic attrs, they're' fine.
+    attrsActive: {
         defalt: [],
-        session: true,
         project: true,
+        rxDefaultAction: '.updateAll',
     },
     center: {
         defalt: [0, 0],
@@ -98,6 +96,7 @@ var varInfo = {
     },
     */
 };
+varInfo.attrsActive.rxDefaultOpt = { attrs: varInfo.attrsActive.defalt };
 
 function isDefaultCenter(val) {
     return (val &&
@@ -122,7 +121,7 @@ function isDefaultEmptyArray(val) {
 function isDefault (key, val) {
     
     // Special default values.
-    if (key === 'active_layers' || key === 'shortlist') {
+    if (key === 'attrsActive' || key === 'shortlist') {
         return isDefaultEmptyArray(val);
     } else if (key === 'dynamic_attrs') {
         return isDefaultEmptyObject(val);
@@ -145,8 +144,7 @@ function logState (label) {
         } else if (info.ctx) {
             val = ctx[key];
         } else {
-            val = 'noValue';
-            //rx.get(key);
+            val = rx.get(key);
         }
         if (!isDefault(key, val)) {
             console.log(key, ':', val);
@@ -209,7 +207,7 @@ function setDefaults (justProject, keepProject) {
            
             // This is a redux var.
             } else {
-                //rx.set(key + '.default', info.defalt);
+                rx.set(key + info.rxDefaultAction, info.rxDefaultOpt);
             }
         }
     });
@@ -286,7 +284,13 @@ function load (storeIn, page) {
     logStore('\nLoad', store);
 
     // Walk through the saved state loading anything we recognize;
-    _.each(store, function (val, key) {
+    _.each(store, function (val, keyIn) {
+        var key = keyIn;
+
+        // Handle any old names.
+        if (key === 'active_layers') {
+            key = 'attrsActive';
+        }
     
         // Find this key's info.
         var info = varInfo[key];
@@ -304,7 +308,7 @@ function load (storeIn, page) {
 
             // This is a redux var.
             } else {
-                // rx.set(key + '.loadState', val);
+                rx.set(key + '.loadState', { attrs: val });
             }
         }
     });
@@ -371,9 +375,9 @@ exports.saveEach = function () {
 
         // This is a redux var.
         } else {
-            // val = rx.get(key);
+            val = rx.get(key);
         }
-        
+
         // Only save non-defaults.
         if (!isDefault(key, val)) {
             store[key] = val;
