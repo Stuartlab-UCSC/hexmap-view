@@ -2,7 +2,7 @@
 # Untar a copy of the unbundle app to another unbundle instance.
 
 TAR_FILE=$1
-DEFAULT_TAR_FILE=/cluster/home/swat/dev/appCopy.tgz
+DEFAULT_TAR_FILE=/cluster/home/swat/dev/hexdev/appCopy.tgz
 
 $HEXMAP/bin/checkConfig.sh
 if [ "$?" == 1 ]; then

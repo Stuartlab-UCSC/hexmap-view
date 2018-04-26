@@ -11,7 +11,8 @@ import util from '/imports/common/util';
 import { checkFetchStatus, parseFetchedJson } from '/imports/common/utils';
 
 var selection_prefix = 'Selection',
-    selectionNamer;
+    selectionNamer,
+    unsubFx = {};
 
 function ask_user_to_name_layer (name, dup_name, callback) {
 
@@ -343,13 +344,15 @@ function load_static_data (layer_name, callback, byAttrId) {
     }
 }
 
-exports.loadInitialActiveLayers = function () {
+function loadLayerNow () {
+    var active = rx.get('activeAttrs');
+    if (active.length < 1) {
+        return;
+    }
+    unsubFx.loadLayerNow();
 
-    // Load the active layers that will be used to show the initial colors.
-    
-    var active = shortlist.get_active_coloring_layers(),
-        loadedCount = 0;
-    
+    var loadedCount = 0;
+
     function loaded () {
         loadedCount += 1;
         if (loadedCount === active.length) {
@@ -362,6 +365,11 @@ exports.loadInitialActiveLayers = function () {
         // with_one() works better than with_many() during initialization.
         exports.with_one(layerName, loaded, Session.get('dynamic_attrs'), true);
     });
+}
+exports.loadInitialActiveLayers = function () {
+
+    // Listen for the active layers to be found.
+    unsubFx.loadLayerNow = rx.subscribe(loadLayerNow);
 }
 
 exports.make_unique_name = function (layer_name) {

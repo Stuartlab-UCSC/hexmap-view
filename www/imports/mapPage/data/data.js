@@ -12,9 +12,9 @@ function request (id, opts) {
 
     // Retrieve a data file via ajax.
     // @param id: the identifier for this data (file)
-    // @param successFx: function to call on success
-    // @param rxAction; optional state action to take on success
-    // @param stateVar; optional state variable to set to true on success
+    // @param opts.successFx: function to call on success
+    // @param opts.rxAction; optional state action to take on success
+    // @param opts.stateVar; optional state variable to set to true on success
     perform.log(id + '.tab_requested');
     opts = opts || {};
     var aOpts = {

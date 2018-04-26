@@ -9,6 +9,8 @@ import coords from '/imports/mapPage/viewport/coords';
 import createMap from '/imports/mapPage/calc/createMap';
 import data from '/imports/mapPage/data/data';
 import download from '/imports/mapPage/data/download';
+import { checkFetchStatus, parseFetchedJson, fetchError }
+    from '/imports/common/utils';
 import gChart from '/imports/mapPage/shortlist/gChart';
 import hexagons from '/imports/mapPage/viewport/hexagons';
 import viewport from '/imports/mapPage/viewport/viewport';
@@ -277,7 +279,6 @@ function haveLayerSummary () {
                     // Load the first layer's data.
                     Session.set('shortlist', [first]);
                     rx.set('activeAttrs.updateAll', { attrs: [first] });
-                    Layer.loadInitialActiveLayers();
                 }
 
             } else {
@@ -312,7 +313,6 @@ function haveDataTypes () {
             if (first && rx.get('activeAttrs').length < 1) {
                 Session.set('shortlist', [first]);
                 rx.set('activeAttrs.updateAll', { attrs: [first] });
-                Layer.loadInitialActiveLayers();
             }
         });
     }
@@ -332,6 +332,23 @@ function hasDomLoaded () {
     }
 }
 
+function getFirstAttr () {
+
+    function loadData(first) {
+        if (first === null) { return; }
+        
+        rx.set('firstAttr', { attr: first });
+        rx.set('activeAttrs.updateAll', { attrs: [first] });
+    }
+    
+    let url = HUB_URL + '/firstAttr/mapId/' + ctx.project;
+    fetch(url)
+        .then(checkFetchStatus)
+        .then(parseFetchedJson)
+        .then(loadData)
+        .catch(fetchError);
+}
+
 // Phase 1a init: State has been received,
 //                so request primary.
 exports.init = function () {
@@ -342,11 +359,30 @@ exports.init = function () {
     Session.set('initedHexagons', false);
     Session.set('mapMeta', {});
     
+    // Request the initial coloring layers if we know them yet.
+    Layer.loadInitialActiveLayers();
+    let activeAttrs = rx.get('activeAttrs');
+    let shortlist = Session.get('shortlist');
+    if (activeAttrs.length > 0) {
+        rx.set('firstAttr', { attr: activeAttrs[0] });
+    } else if (shortlist.length > 0) {
+        rx.set('firstAttr', { attr: shortlist[0] });
+        rx.set('activeAttrs.updateAll', { attrs: [shortlist[0]] });
+    } else {
+        getFirstAttr();
+    }
+    
+    // Initialize the data types arrays.
+    ctx.bin_layers = [];
+    ctx.cat_layers = [];
+    ctx.cont_layers = [];
+    
     // Request the primary data.
     data.requestLayerSummary();
     data.requestLayoutAssignments();
     data.requestColormaps({ rxAction: 'inited.colormap' });
-    
+    data.requestDataTypes();
+
     // Subscribe to state changes.
     unsubFx.hasDomLoaded = rx.subscribe(hasDomLoaded);
     unsubFx.haveLayerSummary = rx.subscribe(haveLayerSummary);
@@ -358,24 +394,5 @@ exports.init = function () {
     unsubFx.areLayoutsPopulated = rx.subscribe(areLayoutsPopulated);
     unsubFx.areLayoutNamesReceived  = rx.subscribe(areLayoutNamesReceived);
 
-    // Initialize the data types arrays.
-    ctx.bin_layers = [];
-    ctx.cat_layers = [];
-    ctx.cont_layers = [];
-    
-
-    // Request the initial coloring layers if we know them yet.
-    let activeAttrs = rx.get('activeAttrs');
-    let shortlist = Session.get('shortlist');
-    if (activeAttrs.length > 0) {
-        rx.set('firstAttr', { attr: activeAttrs[0] });
-        Layer.loadInitialActiveLayers();
-    } else if (shortlist.length > 0) {
-        rx.set('firstAttr', { attr: shortlist[0] });
-        rx.set('attrActive.updateAll', { attrs: [shortlist[0]] });
-        Layer.loadInitialActiveLayers();
-    }
-    data.requestDataTypes();
-    
     loadGoogleMapApi();
 };
