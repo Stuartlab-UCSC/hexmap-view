@@ -30,5 +30,4 @@ cd $HEXMAP
 scp $TAR_FILE hexmap-new:dev/hexdev
 echo
 echo If the scp session timed out, do:
-echo "scp $TAR_FILE hexmap-new:dev/hexdev"
-
+echo "scp $TAR_FILE hexmap-new:dev/hexdevpwd"

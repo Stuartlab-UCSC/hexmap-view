@@ -118,3 +118,8 @@ export function checkFetchStatus (response) {
     }
     throw new Error(response.status);
 }
+
+export function fetchError(e) {
+    console.error('fetch error:', e);
+}
+
