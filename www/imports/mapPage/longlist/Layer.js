@@ -347,13 +347,13 @@ exports.loadInitialActiveLayers = function () {
 
     // Load the active layers that will be used to show the initial colors.
     
-    var active = Session.get('active_layers'),
+    var active = shortlist.get_active_coloring_layers(),
         loadedCount = 0;
     
     function loaded () {
         loadedCount += 1;
         if (loadedCount === active.length) {
-            rx.set('init.activeAttrs.valuesLoaded');
+            rx.set('init.attrsActive.valuesLoaded');
         }
     }
 

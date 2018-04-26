@@ -57,6 +57,9 @@ function get_range_display_values (layer_name, i, showing) {
 
 function is_layer_active (layer_name) {
     var active = Session.get('active_layers');
+    if (_.isUndefined(active)) {
+        return false;
+    }
     return (active.length > 0 &&
                 active.indexOf(layer_name) > -1);
 }
@@ -227,6 +230,20 @@ Template.shortlistEntryT.helpers({
         return is_hovered(this.toString()) ? 'initial' : 'none';
     },
 });
+
+function updateAttrsActiveForTemplate () {
+
+    // attrsActive state is tracked with a redux var, but templates need
+    // a meteor reactive variable to update. So whenever the redux state
+    // changes, update the meteor reactive variable.
+    let aState = rx.get('attrsActive'),
+        aTemplate = Session.get('active_layers');
+    if (aState.length === aTemplate.length &&
+        aState.every((v,i) => v === aTemplate[i])) {
+    } else {
+        Session.set('active_layers', aState);
+    }
+}
 
 function create_filter_select_options (layer_name, layer, filter_value) {
 
@@ -533,7 +550,6 @@ function ui_and_list_delete (layer_name) {
     // Moves via the jqueryUI sortable are handled in the sortable's update
     // function.
     var shortlist = Session.get('shortlist'),
-        active = Session.get('active_layers'),
         root = get_root_from_layer_name(layer_name),
         index;
 
@@ -546,12 +562,8 @@ function ui_and_list_delete (layer_name) {
     // Remove from the shortlist UI.
     root.remove();
 
-    // Remove this layer from active_layers if it was in there
-    index = active.indexOf(layer_name);
-    if (index > -1) {
-        active.splice(index, 1); // Remove this from the active
-        Session.set('active_layers', active);
-    }
+    // Remove this layer from active_layers if it was in there.
+    rx.set('attrsActive.deleteOne', { attr: layer_name });
 }
 
 function create_shortlist_ui_entry (layer_name) {
@@ -629,10 +641,12 @@ function when_active_color_layers_change () {
     // indicators on the UI and refresh the map colors.
     var active = Session.get('active_layers'),
         entriesReady = entriesInited.get(),
-        length = active.length,
+        length,
         $anchor;
-        
-        if (!entriesReady) { return; }
+    
+    if (_.isUndefined(active) || !entriesReady) { return; }
+    
+    length = active.length;
 
     // For each of primary index and secondary index...
     _.each([0, 1], function (index) {
@@ -662,74 +676,43 @@ function when_active_color_layers_change () {
 }
 
 function primaryButtonClick (ev) {
-    var layer_name = get_layer_name_from_child(ev.target),
-        active = Session.get('active_layers');
-
-    // If top flag is set,
-    // move the layer from the current position to the first
-    //move_entry(layer_name, 1);
+    var layer_name = get_layer_name_from_child(ev.target);
 
     // If this layer is already primary, remove it as primary.
     // This has a side effect of setting any secondary to primary,
     // or leaving no active layers.
     if (is_primary(layer_name)) {
-        active.splice(0, 1);
+        rx.set('attrsActive.deleteOne', { attr: layer_name });
 
     // If this layer is secondary,
     // set it as the primary and only active layer.
     } else if (is_secondary(layer_name)) {
-        active = [layer_name];
+        rx.set('attrsActive.updateAll', { attrs: [layer_name] });
         
     // This layer is not currently active, so make it primary
     // preserving any secondary.
     } else {
-        active.splice(0, 1, layer_name);
+        rx.set('attrsActive.upsertPrimary', { attr: layer_name });
     }
-    Session.set('active_layers', active);
 }
 
 function secondaryButtonClick (ev) {
-    var active = Session.get('active_layers'),
-        layer_name = get_layer_name_from_child(ev.target);
+         layer_name = get_layer_name_from_child(ev.target);
 
     // If this layer is already secondary, remove it from secondary
     if (is_secondary(layer_name)) {
-        active = active.slice(0, 1);
+        rx.set('attrsActive.deleteOne', { attr: layer_name });
         
     // If this layer is primary...
     } else if (is_primary(layer_name)) {
         
-        // If there is no secondary, do nothing.
-        // We shouldn't get here because if this is primary and there
-        // is no secondary, then the floating secondry is not displayed.
-        if (active.length < 2) { return; }
-        
-        // There is a secondary,
-        // so make this secondary, and that one primary
-        active = [active[1], active[0]];
-        
-        // If top flag is set, move this to the 2nd position
-        //move_entry(layer_name, 2);
-        
-    // If there is a primary, but not this layer,
-    // replace/add this layer as secondary
-    } else if (active.length > 0) {
-        active = [active[0], layer_name];
-        
-        // If top flag is set, move this to the 2nd position
-        //move_entry(layer_name, 2);
-        
-    // There is no primary.
-    // so make this primary instead of the requested secondary
+        // Switch places with the secondary.
+        rx.set('attrsActive.primaryToSecondary', { attr: layer_name });
     } else {
-        active = [layer_name];
-        
-        // If top flag is set, move this to the 1st position
-        //move_entry(layer_name, 1);
+    
+        // Layer is not in the actives so update/insert it.
+        rx.set('attrsActive.upsertSecondary', { attr: layer_name });
     }
-
-    // Update the active layers state and refresh the colors
-    Session.set('active_layers', active);
 }
 
 function removeButtonClick (ev) {
@@ -829,7 +812,7 @@ exports.removeEntry = function (layer_name) {
 exports.get_active_coloring_layers = function () {
     // Returns an array of the string names of the layers that are
     // actively displaying their colors.
-    return Session.get('active_layers');
+    return rx.get('attrsActive');
 }
 
 exports.ui_and_list_add = function (layer_name) {
@@ -845,7 +828,6 @@ exports.ui_and_list_add = function (layer_name) {
     }
 
     var shortlist = Session.get('shortlist'),
-        active = Session.get('active_layers'),
         root = get_root_from_layer_name(layer_name),
         index = shortlist.indexOf(layer_name);
         
@@ -869,15 +851,9 @@ exports.ui_and_list_add = function (layer_name) {
     // Add the layer to the top of the shortlist start variable
     shortlist.splice(0, 0, layer_name);
 
-    // If there is a secondary active or this layer is not already the
-    // primary active...
-    if (active.length > 1 || active[0] !== layer_name) {
-
-        // Replace the primary active with this new entry,
-        // dropping any secondary
-     
-        Session.set('active_layers', [layer_name]);
-    }
+    // Set the actives to just this layer.
+    rx.set('attrsActive.updateAll', { attrs: [layer_name] });
+    
     Session.set('shortlist', shortlist);
 }
 
@@ -1073,12 +1049,12 @@ exports.dynamicAttrsToStoreFormat = function () {
     return entries;
 }
 
-exports.complete_initialization = function (autorun) {
+exports.complete_initialization = function () {
 
     // Executed after other initially visible widgets are populated.
     
     function loadRemainderOfEntries () {
-        var actives = Session.get('active_layers'),
+        var actives = rx.get('attrsActive'),
             layerNames = _.filter(Session.get('shortlist'), function (layer) {
                 return (actives.indexOf(layer) < 0);
             });
@@ -1104,6 +1080,7 @@ exports.init = function () {
     $shortlist = $('#shortlist');
     $dynamic_controls = $shortlist.find('.dynamic_controls');
     $float_controls = $shortlist.find('.float');
+    Session.set('active_layers', rx.get('attrsActive'));
     
     Session.set('shortlistInited', false);
     entriesInited.set(false);
@@ -1111,12 +1088,13 @@ exports.init = function () {
     // Run this whenever the active list changes to update the hot primary
     // and secondary icons and change the map colors.
     Meteor.autorun(when_active_color_layers_change);
+    rx.subscribe(updateAttrsActiveForTemplate);
     
     // Create the controls that move from entry to entry.
     create_float_controls();
     
     // Add the active shortlist layer values to the global layers object.
-    Layer.with_many(Session.get('active_layers'), receivedInitialActiveLayers,
+    Layer.with_many(rx.get('attrsActive'), receivedInitialActiveLayers,
         Session.get('dynamic_attrs'));
 
  }

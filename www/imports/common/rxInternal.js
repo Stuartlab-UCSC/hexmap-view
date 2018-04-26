@@ -5,11 +5,42 @@ import redux from 'redux';
 import rx from './rx.js';
 
 const reducers = {
-    'init.activeAttrs': (state = false, action) => {
+    'attrsActive': (state = [], action) => {
+        if (action.type.slice(0,10) === 'attrsActiv') {
+            _.noop();
+        }
         switch (action.type) {
-        case 'init.activeAttrs.valuesLoaded':
+        case 'attrsActive.deleteOne':
+            return _.without(state, action.attr);
+        case 'attrsActive.primaryToSecondary':
+            if (state.length > 1) {
+                state = [state[1], state[0]];
+            }
+            return state;
+        case 'attrsActive.updateAll':
+        case 'attrsActive.loadState':
+            return action.attrs;
+        case 'attrsActive.upsertPrimary':
+            if (state.length < 2) {
+                return [action.attr];
+            } else {
+                return [action.attr, state[1]];
+            }
+        case 'attrsActive.upsertSecondary':
+            if (state.length < 1) {
+                return [action.attr];
+            } else {
+                return [state[0], action.attr];
+            }
+        default:
+            return state;
+        }
+    },
+    'init.attrsActive': (state = false, action) => {
+        switch (action.type) {
+        case 'init.attrsActive.valuesLoaded':
             return 'valuesLoaded';
-        case 'init.activeAttrs.inShortlist':
+        case 'init.attrsActive.inShortlist':
             return 'inShortlist';
         default:
             return state;

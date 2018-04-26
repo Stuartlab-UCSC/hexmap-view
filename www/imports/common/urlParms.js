@@ -6,7 +6,7 @@ import bookmark from '/imports/common/bookmark';
 import userMsg from '/imports/common/userMsg';
 import { checkFetchStatus, parseFetchedJson } from '/imports/common/utils';
 
-function getParms (loadStateFx) {
+function getParms () {
 
     // Retrieve the parameters in the url
     var parms = location.search.substr(1);
