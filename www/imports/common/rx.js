@@ -6,8 +6,9 @@
 // Where <state-bit> is one of the below.
 // Example:  rx.get('layout.name');
 const statePieces =  [ // eslint-disable-line
-    'attrsActive',
-    'init.attrsActive',
+    'activeAttrs',
+    'firstAttr',
+    'init.activeAttrs',
     'init.layoutNames',
     'init.map',
     'inited.attrSummary',
@@ -32,14 +33,15 @@ const statePieces =  [ // eslint-disable-line
 // Where <action> is one of the below, <opts> are defined in rxInternal.js.
 // Example:  rx.set('layout.nameSelected', { name: 'RPPA' });
 exports.stateActions = [
-    'attrsActive.deleteOne',
-    'attrsActive.loadState',
-    'attrsActive.primaryToSecondary',
-    'attrsActive.updateAll',
-    'attrsActive.upsertPrimary',
-    'attrsActive.upsertSecondary',
-    'init.attrsActive.inShortlist',
-    'init.attrsActive.valuesLoaded',
+    'activeAttrs.deleteOne',
+    'activeAttrs.loadState',
+    'activeAttrs.primaryToSecondary',
+    'activeAttrs.updateAll',
+    'activeAttrs.upsertPrimary',
+    'activeAttrs.upsertSecondary',
+    'firstAttr',
+    'init.activeAttrs.inShortlist',
+    'init.activeAttrs.valuesLoaded',
     'init.layoutNames.populated',
     'init.layoutNames.received',
     'init.layoutNames.requested',

@@ -353,7 +353,7 @@ exports.loadInitialActiveLayers = function () {
     function loaded () {
         loadedCount += 1;
         if (loadedCount === active.length) {
-            rx.set('init.attrsActive.valuesLoaded');
+            rx.set('init.activeAttrs.valuesLoaded');
         }
     }
 

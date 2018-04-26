@@ -247,7 +247,7 @@ exports.layerTypesReceived = function (parsed) {
         } else if (line[0] === 'Categorical') {
             ctx.cat_layers = saveTypeList(ctx.cat_layers, line);
         } else if (line[0] === 'FirstAttribute') {
-            Session.set('first_layer', line.slice(1).join());
+            rx.set('firstAttr', { attr: line[1] });
         } // skip any lines we don't know about
     });
     rx.set('inited.attrTypes');

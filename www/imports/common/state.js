@@ -42,7 +42,7 @@ var varInfo = {
         defalt: false,
         session: true,
     },
-    attrsActive: {
+    activeAttrs: {
         defalt: [],
         project: true,
         rxDefaultAction: '.updateAll',
@@ -96,7 +96,7 @@ var varInfo = {
     },
     */
 };
-varInfo.attrsActive.rxDefaultOpt = { attrs: varInfo.attrsActive.defalt };
+varInfo.activeAttrs.rxDefaultOpt = { attrs: varInfo.activeAttrs.defalt };
 
 function isDefaultCenter(val) {
     return (val &&
@@ -121,7 +121,7 @@ function isDefaultEmptyArray(val) {
 function isDefault (key, val) {
     
     // Special default values.
-    if (key === 'attrsActive' || key === 'shortlist') {
+    if (key === 'activeAttrs' || key === 'shortlist') {
         return isDefaultEmptyArray(val);
     } else if (key === 'dynamic_attrs') {
         return isDefaultEmptyObject(val);
@@ -289,7 +289,7 @@ function load (storeIn, page) {
 
         // Handle any old names.
         if (key === 'active_layers') {
-            key = 'attrsActive';
+            key = 'activeAttrs';
         }
     
         // Find this key's info.
