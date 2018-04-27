@@ -5,7 +5,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Future: Highlight attributes &amp; nodes &#8212; TumorMap API</title>
+    <title>Highlight attributes &amp; nodes &#8212; TumorMap API</title>
     <link rel="stylesheet" href="_static/agogo.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="_static/custom.css" type="text/css" />
@@ -25,7 +25,7 @@
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Overlay nodes (deprecated)" href="overlayNode.html" />
-    <link rel="prev" title="Future: Get layout list" href="layoutList.html" /> 
+    <link rel="prev" title="Get layout list" href="layoutList.html" /> 
   </head>
   <body>
     <div class="header-wrapper" role="banner">
@@ -33,7 +33,7 @@
         <div class="headertitle"><a
           href="index.html">TumorMap API</a></div>
         <div class="rel" role="navigation" aria-label="related navigation">
-          <a href="layoutList.html" title="Future: Get layout list"
+          <a href="layoutList.html" title="Get layout list"
              accesskey="P">previous</a> |
           <a href="overlayNode.html" title="Overlay nodes (deprecated)"
              accesskey="N">next</a> |
@@ -51,8 +51,8 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="future-highlight-attributes-nodes">
-<h1>Future: Highlight attributes &amp; nodes<a class="headerlink" href="#future-highlight-attributes-nodes" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="highlight-attributes-nodes">
+<h1>Highlight attributes &amp; nodes<a class="headerlink" href="#highlight-attributes-nodes" title="Permalink to this headline">¶</a></h1>
 <p><a class="reference external" href="https://hexcalc.ucsc.edu:8332/">https://hexcalc.ucsc.edu:8332/</a><strong>highlightAttrNode</strong></p>
 <p>HTTP POST with content-type: application/json</p>
 <p>data-type: json</p>
@@ -78,10 +78,12 @@
 <p>Where:</p>
 <ul class="simple">
 <li><strong>map</strong> : a unique identifier for a map</li>
-<li><strong>layout</strong> : name of a particular layout of nodes within a map.</li>
-<li><strong>attributes</strong> : an array of color attribute IDs.</li>
-<li><strong>nodes</strong> : an array of node IDs.</li>
+<li><strong>layout</strong> : name of a particular layout of nodes within a map, optional;
+if not included, the default layout will be used</li>
+<li><strong>attributes</strong> : an array of color attribute IDs, optional (1)</li>
+<li><strong>nodes</strong> : an array of node IDs, optional (1)</li>
 </ul>
+<p>Note (1): One or both of attributes or nodes is required</p>
 </div>
 <div class="section" id="response-success">
 <h2>Response success<a class="headerlink" href="#response-success" title="Permalink to this headline">¶</a></h2>
@@ -122,9 +124,9 @@ contain a stack trace, such as:</p>
 <li class="toctree-l1"><a class="reference internal" href="mapList.html">Get map list</a></li>
 <li class="toctree-l1"><a class="reference internal" href="jobStatus.html">Job Status</a></li>
 <li class="toctree-l1"><a class="reference internal" href="placeNode.html">Place new nodes</a></li>
-<li class="toctree-l1"><a class="reference internal" href="attrList.html">Future: Get attribute list</a></li>
-<li class="toctree-l1"><a class="reference internal" href="layoutList.html">Future: Get layout list</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Future: Highlight attributes &amp; nodes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="attrList.html">Get attribute list</a></li>
+<li class="toctree-l1"><a class="reference internal" href="layoutList.html">Get layout list</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Highlight attributes &amp; nodes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="overlayNode.html">Overlay nodes (deprecated)</a></li>
 </ul>
 
@@ -146,7 +148,7 @@ contain a stack trace, such as:</p>
       <div class="footer">
         <div class="left">
           <div role="navigation" aria-label="related navigaton">
-            <a href="layoutList.html" title="Future: Get layout list"
+            <a href="layoutList.html" title="Get layout list"
               >previous</a> |
             <a href="overlayNode.html" title="Overlay nodes (deprecated)"
               >next</a> |

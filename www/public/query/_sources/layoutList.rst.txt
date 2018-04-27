@@ -1,5 +1,5 @@
-Future: Get layout list
-=======================
+Get layout list
+===============
 
 https://hexcalc.ucsc.edu:8332/**layoutList/mapId/<map-ID>**
 

@@ -1,5 +1,5 @@
-Future: Highlight attributes & nodes
-====================================
+Highlight attributes & nodes
+============================
 
 https://hexcalc.ucsc.edu:8332/**highlightAttrNode**
 
@@ -31,9 +31,12 @@ Content Example
 Where:
 
 * **map** : a unique identifier for a map
-* **layout** : name of a particular layout of nodes within a map.
-* **attributes** : an array of color attribute IDs.
-* **nodes** : an array of node IDs.
+* **layout** : name of a particular layout of nodes within a map, optional;
+  if not included, the default layout will be used
+* **attributes** : an array of color attribute IDs, optional (1)
+* **nodes** : an array of node IDs, optional (1)
+
+Note (1): One or both of attributes or nodes is required
 
 Response success
 ----------------
