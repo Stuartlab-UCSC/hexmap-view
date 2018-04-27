@@ -207,7 +207,9 @@ function setDefaults (justProject, keepProject) {
            
             // This is a redux var.
             } else {
-                rx.set(key + info.rxDefaultAction, info.rxDefaultOpt);
+                if (key === 'activeAttrs') {
+                rx.set('activeAttrs.loadState', { attrs: [] });
+                }
             }
         }
     });
@@ -308,7 +310,9 @@ function load (storeIn, page) {
 
             // This is a redux var.
             } else {
-                rx.set(key + '.loadState', { attrs: val });
+                if (key === 'activeAttrs') {
+                rx.set('activeAttrs.loadState', { attrs: val });
+                }
             }
         }
     });
@@ -375,7 +379,7 @@ exports.saveEach = function () {
 
         // This is a redux var.
         } else {
-            val = rx.get(key);
+            val = rx.get('activeAttrs');
         }
 
         // Only save non-defaults.
