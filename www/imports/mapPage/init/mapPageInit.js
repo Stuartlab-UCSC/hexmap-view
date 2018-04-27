@@ -269,7 +269,7 @@ function haveLayerSummary () {
             sort.initialDensitySort();
             
             // If there are any static layers...
-            if (ctx.static_layer_names.length > 0) {
+            if (Session.get('sortedLayers').length > 0) {
                 if (!first) {
                     first = Session.get('sortedLayers')[0];
                     rx.set('firstAttr', { attr: first });
@@ -338,6 +338,7 @@ function getFirstAttr () {
         if (first === null) { return; }
         
         rx.set('firstAttr', { attr: first });
+        Session.set('shortlist', [first]);
         rx.set('activeAttrs.updateAll', { attrs: [first] });
     }
     
@@ -359,6 +360,11 @@ exports.init = function () {
     Session.set('initedHexagons', false);
     Session.set('mapMeta', {});
     
+    // Initialize the data types arrays.
+    ctx.bin_layers = [];
+    ctx.cat_layers = [];
+    ctx.cont_layers = [];
+    
     // Request the initial coloring layers if we know them yet.
     Layer.loadInitialActiveLayers();
     let activeAttrs = rx.get('activeAttrs');
@@ -371,11 +377,6 @@ exports.init = function () {
     } else {
         getFirstAttr();
     }
-    
-    // Initialize the data types arrays.
-    ctx.bin_layers = [];
-    ctx.cat_layers = [];
-    ctx.cont_layers = [];
     
     // Request the primary data.
     data.requestLayerSummary();
