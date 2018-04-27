@@ -20,7 +20,7 @@ var LOGGING = false,  // true means log the state and store on save and load
 //      session: true indicates a meteor session var
 //      ctx: true indicates a ctx var
 //      no session or ctx flag indicates redux var
-//      project: true indicates a project-only var
+//      project: true indicates a project-specific var
 var varInfo = {
     background: {
         defalt: 'black',
@@ -45,16 +45,14 @@ var varInfo = {
     activeAttrs: {
         defalt: [],
         project: true,
-        rxDefaultAction: '.updateAll',
     },
     center: {
         defalt: [0, 0],
         ctx: true,
         project: true,
     },
-    dynamic_attrs: {
+    dynamicAttrs: {
         defalt: {},
-        session: true,
         project: true,
     },
     layoutIndex: {
@@ -96,7 +94,6 @@ var varInfo = {
     },
     */
 };
-varInfo.activeAttrs.rxDefaultOpt = { attrs: varInfo.activeAttrs.defalt };
 
 function isDefaultCenter(val) {
     return (val &&
@@ -123,7 +120,7 @@ function isDefault (key, val) {
     // Special default values.
     if (key === 'activeAttrs' || key === 'shortlist') {
         return isDefaultEmptyArray(val);
-    } else if (key === 'dynamic_attrs') {
+    } else if (key === 'dynamicAttrs') {
         return isDefaultEmptyObject(val);
     } else if (key === 'center') {
         return isDefaultCenter(val);
@@ -139,6 +136,7 @@ function logState (label) {
     console.log(label, 'state...');
     var val;
     _.each(varInfo, function (info, key) {
+        //if (key === 'activeAttrs' || key === 'dynamicAttrs') {
         if (info.session) {
             val = Session.get(key);
         } else if (info.ctx) {
@@ -149,6 +147,7 @@ function logState (label) {
         if (!isDefault(key, val)) {
             console.log(key, ':', val);
         }
+        //}
     });
 }
 
@@ -158,7 +157,9 @@ function logStore (label, store) {
     }
     console.log(label, 'store...');
     _.each(store, function (val, key) {
+        //if (key === 'activeAttrs' || key === 'dynamicAttrs') {
         console.log(key, ':', store[key]);
+        //}
     });
 }
 
@@ -186,7 +187,7 @@ function setDefaults (justProject, keepProject) {
         if (!(justProject) || (justProject && info.project)) {
         
             // Dynamic attrs need to be removed from the layers list.
-            if (key === 'dynamic_attrs') {
+            if (key === 'dynamicAttrs') {
                 shortlist.removeDynamicEntries();
             }
            
@@ -207,9 +208,7 @@ function setDefaults (justProject, keepProject) {
            
             // This is a redux var.
             } else {
-                if (key === 'activeAttrs') {
-                rx.set('activeAttrs.loadState', { attrs: [] });
-                }
+                rx.set(key + '.loadPersist', { loadPersist: info.defalt });
             }
         }
     });
@@ -292,6 +291,8 @@ function load (storeIn, page) {
         // Handle any old names.
         if (key === 'active_layers') {
             key = 'activeAttrs';
+        } else if (key === 'dynamic_attrs') {
+            key = 'dynamicAttrs';
         }
     
         // Find this key's info.
@@ -310,9 +311,7 @@ function load (storeIn, page) {
 
             // This is a redux var.
             } else {
-                if (key === 'activeAttrs') {
-                rx.set('activeAttrs.loadState', { attrs: val });
-                }
+                rx.set(key + '.loadPersist', { loadPersist: val });
             }
         }
     });
@@ -366,7 +365,7 @@ exports.saveEach = function () {
             val = centerToArray(ctx.center);
            
         // If dynamic attrs, convert to store format.
-        } else if (key === 'dynamic_attrs') {
+        } else if (key === 'dynamicAttrs') {
             val = shortlist.dynamicAttrsToStoreFormat();
 
         // If this is a Session var...
@@ -379,7 +378,7 @@ exports.saveEach = function () {
 
         // This is a redux var.
         } else {
-            val = rx.get('activeAttrs');
+            val = rx.get(key);
         }
 
         // Only save non-defaults.

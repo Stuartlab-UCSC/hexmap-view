@@ -192,8 +192,8 @@ function processAttr(result, cats, colors, store) {
             colors
         );
     }
-    store.dynamic_attrs = newLayer;
-    store.active_layers = [attrName];
+    store.dynamicAttrs = newLayer;
+    store.activeLayers = [attrName];
     store.shortlist = [attrName];
     return store;
 }
