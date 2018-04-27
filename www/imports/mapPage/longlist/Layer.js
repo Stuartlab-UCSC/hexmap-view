@@ -345,13 +345,12 @@ function load_static_data (layer_name, callback, byAttrId) {
 }
 
 function loadLayerNow () {
-    var active = rx.get('activeAttrs');
+    var active = rx.get('activeAttrs'),
+        loadedCount = 0;
     if (active.length < 1) {
         return;
     }
     unsubFx.loadLayerNow();
-
-    var loadedCount = 0;
 
     function loaded () {
         loadedCount += 1;
@@ -363,7 +362,7 @@ function loadLayerNow () {
     _.each(active, function (layerName) {
         
         // with_one() works better than with_many() during initialization.
-        exports.with_one(layerName, loaded, Session.get('dynamic_attrs'), true);
+        exports.with_one(layerName, loaded, rx.get('dynamicAttrs'), true);
     });
 }
 exports.loadInitialActiveLayers = function () {

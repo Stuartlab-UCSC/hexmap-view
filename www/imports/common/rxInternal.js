@@ -9,29 +9,34 @@ const reducers = {
         switch (action.type) {
         case 'activeAttrs.deleteOne':
             return _.without(state, action.attr);
+        case 'activeAttrs.loadPersist':
+            return action.loadPersist;
         case 'activeAttrs.primaryToSecondary':
             if (state.length > 1) {
-                state = [state[1], state[0]];
+                return [state[1].slice(), state[0].slice()];
             }
             return state;
         case 'activeAttrs.updateAll':
-        case 'activeAttrs.loadState':
             return action.attrs;
         case 'activeAttrs.upsertPrimary':
             if (state.length < 2) {
                 return [action.attr];
             } else {
-                return [action.attr, state[1]];
+                return [action.attr, state[1].slice()];
             }
         case 'activeAttrs.upsertSecondary':
             if (state.length < 1) {
                 return [action.attr];
             } else {
-                return [state[0], action.attr];
+                return [state[0].slice, action.attr];
             }
         default:
             return state;
         }
+    },
+    'dynamicAttrs': (state = null, action) => {
+        return (action.type === 'dynamicAttrs.loadPersist') ?
+            action.loadPersist : state;
     },
     'firstAttr': (state = null, action) => {
         if (action.type === 'firstAttr') {

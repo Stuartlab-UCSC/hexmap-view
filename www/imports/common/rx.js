@@ -7,6 +7,7 @@
 // Example:  rx.get('layout.name');
 const statePieces =  [ // eslint-disable-line
     'activeAttrs',
+    'dynamicAttrs',
     'firstAttr',
     'init.activeAttrs',
     'init.layoutNames',
@@ -32,13 +33,15 @@ const statePieces =  [ // eslint-disable-line
 // Usage:  rx.set(<action>, <opts>);
 // Where <action> is one of the below, <opts> are defined in rxInternal.js.
 // Example:  rx.set('layout.nameSelected', { name: 'RPPA' });
+// Actions ending with 'loadPersist' are written to localStore and bookmarks.
 exports.stateActions = [
     'activeAttrs.deleteOne',
-    'activeAttrs.loadState',
+    'activeAttrs.loadPersist',
     'activeAttrs.primaryToSecondary',
     'activeAttrs.updateAll',
     'activeAttrs.upsertPrimary',
     'activeAttrs.upsertSecondary',
+    'dynamicAttrs.loadPersist',
     'firstAttr',
     'init.activeAttrs.inShortlist',
     'init.activeAttrs.valuesLoaded',
@@ -119,6 +122,25 @@ exports.subscribe = function (callback) {
     // @returns: a function to unsubscribe from state changes.
     return reduxStore.subscribe(callback);
 };
+
+export function isArrayEqual(prevVal, newVal) {
+
+    // Arrays with the same element but different order are assumed unequal.
+    var is = true;
+    if (newVal &&
+        typeof prevVal === 'object' &&
+        typeof newVal === 'object') {
+        for (var i = 0; i < prevVal.length; i++) {
+            if (prevVal[i] !== newVal[i]) {
+                is = false;
+                break;
+            }
+        }
+    } else {
+        is = false;
+    }
+    return is;
+}
 
 exports.init = function (store) {
     reduxStore = store;

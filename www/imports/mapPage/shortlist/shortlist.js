@@ -15,7 +15,7 @@ import './shortlist.html';
 import './shortlist.css';
 
 var initialization_started = false;
-
+var prevActiveAttrs;
 var range_extents = new ReactiveDict(); // to show the min & max values
 var zeroShow = new ReactiveDict(); // To show or hide the zero tick mark
 var filterBuilt = new ReactiveDict(); // Is filter built?
@@ -639,13 +639,17 @@ function when_active_color_layers_change () {
 
     // When the active layers change update the primary and secondary
     // indicators on the UI and refresh the map colors.
-    var active = Session.get('active_layers'),
+    var active = rx.get('activeAttrs'),
         entriesReady = entriesInited.get(),
         length,
         $anchor;
     
-    if (_.isUndefined(active) || !entriesReady) { return; }
-    
+    if (_.isUndefined(active) ||
+        !entriesReady ||
+        rx.isArrayEqual(prevActiveAttrs, active)) {
+        return;
+    }
+    prevActiveAttrs = active.slice();
     length = active.length;
 
     // For each of primary index and secondary index...
@@ -1067,7 +1071,7 @@ exports.complete_initialization = function () {
  
     // Add the shortlist layer values to the global layers object.
     Layer.with_many(Session.get('shortlist'), loadRemainderOfEntries,
-        Session.get('dynamic_attrs'));
+        rx.get('dynamicAttrs'));
 }
 
 exports.init = function () {
@@ -1087,7 +1091,7 @@ exports.init = function () {
     
     // Run this whenever the active list changes to update the hot primary
     // and secondary icons and change the map colors.
-    Meteor.autorun(when_active_color_layers_change);
+    rx.subscribe(when_active_color_layers_change);
     rx.subscribe(updateAttrsActiveForTemplate);
     
     // Create the controls that move from entry to entry.
@@ -1095,6 +1099,6 @@ exports.init = function () {
     
     // Add the active shortlist layer values to the global layers object.
     Layer.with_many(rx.get('activeAttrs'), receivedInitialActiveLayers,
-        Session.get('dynamic_attrs'));
+        rx.get('dynamicAttrs'));
 
  }
