@@ -1,5 +1,5 @@
-Future: Get attribute list
-==========================
+Get attribute list
+==================
 
 https://hexcalc.ucsc.edu:8332/**attrList/mapId/<map-ID>**
 
