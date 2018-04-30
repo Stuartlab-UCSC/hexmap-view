@@ -36,11 +36,7 @@ export default class Namer extends Component {
     }
     
     handleOkButtonClick () {
-        if (this.state.textInputStr) {
-            this.handleCloseModal(this.state.textInputStr.trim());
-        } else {
-            this.handleCloseModal();
-        }
+        this.handleCloseModal(this.state.textInputStr.trim());
     }
   
     handleTextKeyPress (event) {
@@ -59,49 +55,39 @@ export default class Namer extends Component {
         var self = this;
         
         // Set the text value here to force the cursor to the end.
-        if (this.state.textInputStr) {
-            setTimeout(function () {
-                if (self.$text) {
-                    self.$text.val(self.state.textInputStr).focus();
-                }
-            }, 300);
-        }
+        setTimeout(function () {
+            if (self.$text) {
+                self.$text.val(self.state.textInputStr).focus();
+            }
+        }, 300);
     }
     
     renderButton (self) {
         
         // Build the button.
-        var button = null;
-        
-        if (self.state.textInputStr) {
-            button =
-                <button
-                    onClick = {self.handleOkButtonClick}
-                    className = 'defaultButton'
-                >
-                    OK
-                </button>
-            ;
-        }
+        var button =
+            <button
+                onClick = {self.handleOkButtonClick}
+                className = 'defaultButton'
+            >
+                OK
+            </button>
+        ;
         return button;
     }
 
     renderTextInput (self) {
     
         // Build the text input box.
-        var input = null;
-        
-        if (this.state.textInputStr) {
-            input =
-                <input
-                    type = 'text'
-                    onKeyPress = {self.handleTextKeyPress}
-                    onChange = {self.handleTextChange}
-                    style={{ width: '20em' }}
-                    ref={(input) => { this.$text = $(input); }}
-                />
-            ;
-        }
+        var input =
+            <input
+                type = 'text'
+                onKeyPress = {self.handleTextKeyPress}
+                onChange = {self.handleTextChange}
+                style={{ width: '20em' }}
+                ref={(input) => { this.$text = $(input); }}
+            />
+        ;
         
         return input;
     }
@@ -162,4 +148,5 @@ Namer.propTypes = {
 
 Namer.defaultProps = {
     isOpen: true,
+    textInputStr: '',
 };
