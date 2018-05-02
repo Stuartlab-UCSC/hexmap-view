@@ -139,13 +139,19 @@ function loadAttrRequest(parms, store, stateLoadFx) {
     const attrName = parms.attr;
     const cats = parms.cat;
     const colors = parms.color;
+    
+    // So we can access store in sub-functions on a different 'thread'.
+    var thisStore = store;
 
     const receiveAttr = (data) => {
-        return (processAttr(data, cats, colors, store));
+        return (processAttr(data, cats, colors, thisStore));
     };
     const receiveError = (error) => {
-        stateLoadFx(store);
-        return fetchError(error);
+        if (error) {
+            userMsg.error(error.message);
+        } else {
+            userMsg.error('Unknown server error');
+        }
     };
     // Structure the fetch call depending on what server the
     // data request is going to.
@@ -204,14 +210,6 @@ function getAttrName(response){
         (key)=> { return key !== "sampleID"; }
     );
     return attrNames[0];
-}
-
-function fetchError(error) {
-    if (error) {
-        userMsg.error(error.message);
-    } else {
-        userMsg.error('Unknown server error');
-    }
 }
 
 function parseData(attrName, dataIn) {

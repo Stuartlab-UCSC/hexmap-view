@@ -74,7 +74,7 @@ exports.requestLayoutNames = function (opts) {
 
     // This may have been requested already if a layout name was supplied,
     // but no layout index.
-    if (rx.get('init.layoutNames') === 'requested') {
+    if (rx.get('init.layoutNames')) {
         return;
     }
     rx.set('init.layoutNames.requested');
