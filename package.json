@@ -22,9 +22,13 @@
   "homepage": "https://github.com/ucscHexmap/hexagram#readme",
   "devDependencies": {
     "babel-eslint": "^7.2.3",
+    "es-module-loader": "^2.2.8",
     "eslint": "^4.19.0",
     "eslint-plugin-node": "^5.2.0",
-    "eslint-plugin-react": "^7.4.0"
+    "eslint-plugin-react": "^7.4.0",
+    "react": "^16.3.2",
+    "react-contextmenu": "^2.9.2",
+    "react-dom": "^16.3.2"
   },
   "dependencies": {}
 }

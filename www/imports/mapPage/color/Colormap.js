@@ -90,12 +90,6 @@ exports.have_colormap = function (colormap_name) {
     return (colormap_name in colormaps);
 };
 
-exports.getCategoryString = function(layerName, layerValue) {
-
-    // Find the string associated with this category code.
-    return colormaps[layerName][layerValue].name;
-};
-
 exports.findColorCount = function (layer_name) {
     // Find the number of colors for this layer. Continuous values and
     // undefined layer_names are assigned a count of zero.
@@ -200,6 +194,49 @@ exports.defaultContinuous = function () {
     ];
     return defaultColormap;
 };
+
+export function getCategoryCount (attrName) {
+
+    // Get an array of category strings of a colormap.
+    let count = 0
+    if (attrName in colormaps) {
+        count = colormaps[attrName].length
+    }
+    return count
+}
+
+exports.getCategoryStrings = function(attrName) {
+
+    // Get an array of category strings of a colormap.
+    if (attrName in colormaps) {
+        return colormaps[attrName].map(cat => cat.name)
+    }
+    return []
+};
+
+exports.getCategoryString = function(attrName, catIndex) {
+
+    // Find the string associated with this category code.
+    if (attrName in colormaps) {
+        return colormaps[attrName][catIndex].name;
+    }
+    return ''
+};
+
+export function getCategoryIndex (attrName, catName) {
+
+    // Find the index associated with this category string.
+    // Start off as if we were passed and index rather than a name.
+    let index = catName
+    if (attrName in colormaps) {
+        colormaps[attrName].forEach((cat, i) => {
+            if (cat.name === catName) {
+                index = i
+            }
+        })
+    }
+    return index
+}
 
 exports.updateCategoryColor = function (layerName, catName, newHexStr) {
 

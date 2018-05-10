@@ -69,18 +69,20 @@ exports.session = function (prefix, operation, name, val) {
     }
 }
 
-exports.getDataType = function (layerName){
-    let dataType;
-    if (exports.is_binary(layerName)){
-        dataType = "binary"
-    } else if (exports.is_continuous(layerName)){
-        dataType = "continuous"
-    } else if (exports.is_categorical(layerName)){
-        dataType = "categorical"
-    } else {
-        throw 'No dataType for attribute: ' + layerName;
+exports.getDataType = function (layerName) {
+    let dataType = layers[layerName.dataType];
+    if (dataType === undefined) {
+        if (exports.is_binary(layerName)){
+            dataType = "binary"
+        } else if (exports.is_continuous(layerName)){
+            dataType = "continuous"
+        } else if (exports.is_categorical(layerName)){
+            dataType = "categorical"
+        } else {
+            throw 'No dataType for attribute: ' + layerName;
+        }
     }
-    return dataType
+    return dataType;
 }
 
 exports.is_continuous = function (layer_name) {
