@@ -199,7 +199,7 @@ function processAttr(result, cats, colors, store) {
         );
     }
     store.dynamicAttrs = newLayer;
-    store.activeLayers = [attrName];
+    store.activeAttrs = [attrName];
     store.shortlist = [attrName];
     return store;
 }
