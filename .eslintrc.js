@@ -69,10 +69,6 @@ module.exports = {
         "node/no-unsupported-features": ["error", {
             "version": 8,
             "ignores": ["modules"]
-        }],
-        "semi": [
-            "error",
-            "always"
-        ]
+        }]
     }
 };

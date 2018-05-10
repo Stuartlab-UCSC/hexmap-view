@@ -3,6 +3,9 @@
 // user has added so they can be quickly selected for display.
 
 import '/imports/lib/jquery-ui';
+import React from 'react';
+import { render } from 'react-dom';
+import { Provider } from 'react-redux'
 
 import Colormap from '/imports/mapPage/color/Colormap';
 import colorMix from '/imports/mapPage/color/colorMix';
@@ -11,8 +14,11 @@ import Layer from '/imports/mapPage/longlist/Layer';
 import rx from '/imports/common/rx';
 import util from '/imports/common/util';
 
+import ShortEntryMenuCont from '/imports/mapPage/shortlist/ShortEntryMenuCont';
+
 import './shortlist.html';
 import './shortlist.css';
+import './shortEntry.css';
 
 var initialization_started = false;
 var prevActiveAttrs;
@@ -106,7 +112,7 @@ function get_root_from_layer_name (layer_name) {
     return $('.shortlist_entry[data-layer="' + layer_name + '"]');
 }
 
-function get_layer_name_from_child (child) {
+export function get_layer_name_from_child (child) {
     var $child = $(child);
     if (!$child || $child.length > 0) {
         var root = get_root_from_child(child);
@@ -126,9 +132,6 @@ function get_layer_name_from_child (child) {
 }
 
 Template.shortlist.helpers({
-    on_top: function () {
-        return (Session.get('shortlist_on_top')) ? 'checked' : '';
-    },
     primary_east: function () {
         return (is_secondary(hover_layer_name.get())) ? 'east' : '';
     },
@@ -185,10 +188,7 @@ Template.shortlistEntryT.helpers({
                 'initial' : 'none';
     },
     filter_display: function () {
-        var layer_name = this.toString(),
-            show = is_filter_showing(layer_name),
-            active = is_layer_active(layer_name);
-        return (show && active) ? 'block' : 'none';
+        return (is_filter_active(this.toString()) ? 'block' : 'none');
     },
     filter_value_display: function () {
         return (util.is_continuous(this.toString())) ? 'none' : 'initial';
@@ -900,15 +900,9 @@ exports.with_filtered_signatures = function (filters, callback) {
 
             // For each filtering layer
             for(var i = 0; i < filter_layers.length; i++) {
-                // Continuous filters get a "clamping" effect, meaning
-                // that values outside of the filter are set to the
-                // highest or lowest value instead of getting the
-                // noDataColor.
-                if (util.is_continuous(filters[i].layer_name)){
-                    continue;
-                }
+
                 if(!filters[i].filter_function(
-                    filter_layers[i].data[signature])) {
+                    filter_layers[i].data[signature], signature)) {
                     // If the signature fails the filter function for the
                     // layer, skip the signature.
                     pass = false;
@@ -935,7 +929,9 @@ exports.get_current_filters = function () {
     // Filter objects have a layer name and a boolean-valued filter function
     // that returns true or false, given a value from that layer.
     var current_filters = [];
-    
+    var allFilters = rx.get('shortEntry.filter');
+    var activeAttrs = rx.get('activeAttrs');
+
     _.each(Session.get('shortlist'), function (layer_name) {
 
         // Go through all the shortlist entries.
@@ -943,17 +939,40 @@ exports.get_current_filters = function () {
         // config variables.
 
         // if the filter is showing and the layer is active, apply a filter
-        if (is_filter_active(layer_name)) {
+        if (activeAttrs.indexOf(layer_name) > -1) {
 
-            // This will hold our filter function. Start with no-op filter.
-            var filter_function = function(value) {  // jshint ignore: line
-                return true;
-            };
+            // This will hold our filter function.
+            var filter = allFilters[layer_name];
+            var filter_function
 
             // Define the functions and values to use for filtering
-            var desired = util.session('filter_value', 'get', layer_name);
-            
-            if (util.is_continuous(layer_name)) {
+            //var desired = util.session('filter_value', 'get', layer_name);
+           
+            if (filter) {
+                switch (filter.by) {
+                case 'attr':
+                    filter_function = function (value, nodeId) {
+                        return (layers[filter.value].data[nodeId] === 1);
+                    }
+                    break
+                case 'category':
+                    filter_function = function (value, nodeId) {
+                        return (filter.values.indexOf(value) > -1)
+                    }
+                    break
+                }
+           } else {
+                filter_function = function(value) {  // jshint ignore: line
+                    return true;
+                };
+           }
+            /*
+                // Continuous filters get a "clamping" effect, meaning
+                // that values outside of the filter are set to the
+                // highest or lowest value instead of getting the
+                // noDataColor.
+
+            } else if (util.is_continuous(layer_name)) {
                  // Use a range for continuous values.
                 filter_function = function(value) {
                      return (value >= desired[0] && value <= desired[1]);
@@ -965,7 +984,7 @@ exports.get_current_filters = function () {
                 filter_function = function(value) {
                     return (value === desired);
                 };
-            }
+            */
 
             // Add a filter on this layer, with the function we've prepared.
             current_filters.push({
@@ -1039,6 +1058,13 @@ exports.dynamicAttrsToStoreFormat = function () {
             entries[name] = {
                 data: layer.data,
                 dataType: util.getDataType(name),
+                dynamic: true,
+            }
+            if (!_.isUndefined(layer.selection)) {
+                entries[name].selection = layer.selection;
+            }
+            if (!_.isUndefined(layer.positives)) {
+                entries[name].positives = layer.positives;
             }
 
             if (!_.isUndefined(colormaps[name])) {
@@ -1100,5 +1126,12 @@ exports.init = function () {
     // Add the active shortlist layer values to the global layers object.
     Layer.with_many(rx.get('activeAttrs'), receivedInitialActiveLayers,
         rx.get('dynamicAttrs'));
-
+    
+    const store = rx.getStore();
+    render(
+        <Provider store={store}>
+            <ShortEntryMenuCont />
+        </Provider>,
+        document.getElementById('shortEntryMenuWrap')
+    )
  }

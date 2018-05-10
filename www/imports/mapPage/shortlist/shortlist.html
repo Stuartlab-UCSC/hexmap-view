@@ -1,3 +1,4 @@
+
 <template name='shortlist'>
     <div class="mapShow shortlist col">
         <div id="shortlist_holder" class="panel_holder">
@@ -10,6 +11,7 @@
                 </div>
                 <div id="shortlist" class="panel_contents">
                     <div class='dynamic_controls' style='display:none'>
+                        <div id='shortEntryMenuWrap' class='float'></div>
                         <img class='primary {{ primary_east }} float circle' src='{{ primary_icon }}' title='Display in the map as the primary variable' />
                         <img class='secondary {{ secondary_east }} float circle' src='{{ secondary_icon }}' style='display:{{ secondary_icon_display }}' title='Display in the map as the secondary variable' />
                         <img class='remove float' src='{{ remove_icon}}' title='Remove this attribute from the shortlist' />

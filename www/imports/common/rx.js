@@ -22,6 +22,9 @@ const statePieces =  [ // eslint-disable-line
     'inited.state',
     'initializing',
     'projectList',
+    'shortEntry.bgNodes.visible',
+    'shortEntry.filter',
+    'shortEntry.menu.attr',
     'snake.map',
     'snake.project',
     'snake.shortlist',
@@ -62,6 +65,15 @@ exports.stateActions = [
     'projectList.loading',
     'projectList.receiving',
     'projectList.stable',
+    'shortEntry.bgNodes.visible.toggle',
+    'shortEntry.filter.attr',
+    'shortEntry.filter.category',
+    'shortEntry.filter.category.all',
+    'shortEntry.filter.category.none',
+    'shortEntry.filter.drop',
+    'shortEntry.filter.range',
+    'shortEntry.filter.threshold',
+    'shortEntry.menu.attr',
     'snake.map.hide',
     'snake.map.show',
     'snake.project.hide',
@@ -140,6 +152,10 @@ export function isArrayEqual(prevVal, newVal) {
         is = false;
     }
     return is;
+}
+
+export function getStore () {
+    return reduxStore;
 }
 
 exports.init = function (store) {
