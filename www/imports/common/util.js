@@ -35,40 +35,6 @@ exports.clean_file_name = function (dirty) {
     return dirty.replace(/[^A-Za-z0-9_\-\.]/g, "_");
 }
 
-exports.session = function (prefix, operation, name, val) {
-
-    // Perform a get, set, or equals on a session variable which represents
-    // a dict within a dict.
-    // So we can save 'shortlist_filter_value.disease' with a unique Session
-    // variable name of 'shortlist_filter_value_disease'.
-
-    var key;
-
-    // Build the key from the prefix and name
-    if (prefix === 'filter_show') {
-        key = 'shortlist_filter_show_' + name;
-    } else if (prefix === 'filter_value') {
-        key = 'shortlist_filter_value_' + name;
-    } else {
-        userMsg.error('Illegal prefix on session(): ' + prefix);
-        console.trace();
-    }
-
-    if (operation === 'get') {
-        return Session.get(key);
-
-    } else if (operation === 'equals') {
-        return Session.equals(key, val);
-
-    } else if (operation === 'set') {
-        Session.set(key, val);
-
-    } else {
-        userMsg.error('Illegal operation on session()');
-        console.trace();
-    }
-}
-
 exports.getDataType = function (layerName) {
     let dataType = layers[layerName.dataType];
     if (dataType === undefined) {
