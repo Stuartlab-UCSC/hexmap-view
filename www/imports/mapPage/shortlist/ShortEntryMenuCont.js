@@ -119,7 +119,7 @@ const getFilterValues = () => {
 
 const mapStateToProps = () => {
 
-    // Map state to menu properties.
+    // Map state to the shortEntryMenu properties.
     return {
         active: getActive(),
         dataType: getDataType(),
@@ -204,7 +204,7 @@ const onFilterAttr = (attr, value, dispatch) => {
 
 const mapDispatchToProps = (dispatch) => {
 
-    // Map the state handlers to menu properties.
+    // Map the event handlers to the shortEntryMenu properties.
     return {
         onTrigger: ev => {
             dispatch({
@@ -268,6 +268,8 @@ const mapDispatchToProps = (dispatch) => {
     }
 }
 
+// Connect the value props and eventHandler props
+// to the presentational component: ShortEntryMenu.
 const ShortEntryMenuCont = connect(
     mapStateToProps,
     mapDispatchToProps
