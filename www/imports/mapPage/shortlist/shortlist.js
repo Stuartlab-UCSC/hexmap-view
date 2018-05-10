@@ -21,7 +21,6 @@ import './shortlist.css';
 import './shortEntry.css';
 
 var initialization_started = false;
-var prevActiveAttrs;
 var range_extents = new ReactiveDict(); // to show the min & max values
 var zeroShow = new ReactiveDict(); // To show or hide the zero tick mark
 var filterBuilt = new ReactiveDict(); // Is filter built?
@@ -230,20 +229,6 @@ Template.shortlistEntryT.helpers({
         return is_hovered(this.toString()) ? 'initial' : 'none';
     },
 });
-
-function updateAttrsActiveForTemplate () {
-
-    // activeAttrs state is tracked with a redux var, but templates need
-    // a meteor reactive variable to update. So whenever the redux state
-    // changes, update the meteor reactive variable.
-    let aState = rx.get('activeAttrs'),
-        aTemplate = Session.get('active_layers');
-    if (aState.length === aTemplate.length &&
-        aState.every((v,i) => v === aTemplate[i])) {
-    } else {
-        Session.set('active_layers', aState);
-    }
-}
 
 function create_filter_select_options (layer_name, layer, filter_value) {
 
@@ -646,10 +631,10 @@ function when_active_color_layers_change () {
     
     if (_.isUndefined(active) ||
         !entriesReady ||
-        rx.isArrayEqual(prevActiveAttrs, active)) {
+        rx.isArrayEqual(Session.get('active_layers'), active)) {
         return;
     }
-    prevActiveAttrs = active.slice();
+    Session.set('active_layers', rx.copyStringArray(active));
     length = active.length;
 
     // For each of primary index and secondary index...
@@ -672,9 +657,11 @@ function when_active_color_layers_change () {
         }
     });
 
-    // Finally, refresh the map colors if we have the data,
-    // otherwise the colors are refreshed when the data arrives.
-    if (active.length > 0 && layers[active[0]].data) {
+    // Finally, refresh the map colors if we have the data for the primary,
+    // or if there are no actives. When there is no data it means the attr was
+    // just added to the shortlist and it's data has not yet arrived.
+    // In this case, the colors are refreshed when the data arrives.
+    if ((active.length > 0 && layers[active[0]].data) || active.length < 1) {
         colorMix.refreshColors();
     }
 }
@@ -701,7 +688,7 @@ function primaryButtonClick (ev) {
 }
 
 function secondaryButtonClick (ev) {
-         layer_name = get_layer_name_from_child(ev.target);
+    layer_name = get_layer_name_from_child(ev.target);
 
     // If this layer is already secondary, remove it from secondary
     if (is_secondary(layer_name)) {
@@ -1110,7 +1097,6 @@ exports.init = function () {
     $shortlist = $('#shortlist');
     $dynamic_controls = $shortlist.find('.dynamic_controls');
     $float_controls = $shortlist.find('.float');
-    Session.set('active_layers', rx.get('activeAttrs'));
     
     Session.set('shortlistInited', false);
     entriesInited.set(false);
@@ -1118,7 +1104,6 @@ exports.init = function () {
     // Run this whenever the active list changes to update the hot primary
     // and secondary icons and change the map colors.
     rx.subscribe(when_active_color_layers_change);
-    rx.subscribe(updateAttrsActiveForTemplate);
     
     // Create the controls that move from entry to entry.
     create_float_controls();
