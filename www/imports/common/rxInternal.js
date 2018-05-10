@@ -6,9 +6,11 @@ import rx from './rx.js';
 
 const reducers = {
     'activeAttrs': (state = [], action) => {
+        let newState = []
         switch (action.type) {
         case 'activeAttrs.deleteOne':
-            return _.without(state, action.attr);
+            newState = rx.copyStringArray(state)
+            return _.without(newState, action.attr);
         case 'activeAttrs.loadPersist':
             return action.loadPersist;
         case 'activeAttrs.primaryToSecondary':
@@ -28,7 +30,7 @@ const reducers = {
             if (state.length < 1) {
                 return [action.attr];
             } else {
-                return [state[0].slice, action.attr];
+                return [state[0].slice(), action.attr];
             }
         default:
             return state;
