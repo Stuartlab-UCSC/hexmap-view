@@ -125,11 +125,14 @@ exports.subscribe = function (callback) {
 
 export function isArrayEqual(prevVal, newVal) {
 
-    // Arrays with the same element but different order are assumed unequal.
+    // Performs a compare between two arrays of strings or arrays of simple
+    // values; arrays may not contain objects.
+    // Arrays with the same elements but different order are unequal.
     var is = true;
     if (newVal &&
         typeof prevVal === 'object' &&
-        typeof newVal === 'object') {
+        typeof newVal === 'object' &&
+        prevVal.length === newVal.length) {
         for (var i = 0; i < prevVal.length; i++) {
             if (prevVal[i] !== newVal[i]) {
                 is = false;
@@ -140,6 +143,12 @@ export function isArrayEqual(prevVal, newVal) {
         is = false;
     }
     return is;
+}
+
+export function copyStringArray(orig) {
+
+    // Make a deep copy of an array of strings.
+    return orig.map(str => str.slice());
 }
 
 exports.init = function (store) {
