@@ -961,7 +961,7 @@ exports.get_current_filters = function () {
                     break
                 case 'category':
                     filter_function = function (value, nodeId) {
-                        return (filter.values.indexOf(value) > -1)
+                        return (filter.value.indexOf(value) > -1)
                     }
                     break
                 }
