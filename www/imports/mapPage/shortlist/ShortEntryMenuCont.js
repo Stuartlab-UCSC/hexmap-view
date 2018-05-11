@@ -104,7 +104,7 @@ const getFilterValues = () => {
             case 'category':
                 
                 // Return current categories selected in state.
-                return filter.values.map(value => {
+                return filter.value.map(value => {
                     return Colormap.getCategoryString(attr, value)
                 })
             case 'range':
@@ -149,7 +149,7 @@ const onFilterCategory = (attr, value, dispatch) => {
         let update = false;
         let count = Colormap.getCategoryCount(attr)
         if (filter && filter.by === 'category') {
-            if (filter.values.length !== count) {
+            if (filter.value.length !== count) {
                 update = true
             }
         } else {
@@ -162,7 +162,7 @@ const onFilterCategory = (attr, value, dispatch) => {
             dispatch({
                 type: 'shortEntry.filter.category.all',
                 attr,
-                values: _.range(count),
+                value: _.range(count),
             })
             colorMix.refreshColors()
         }

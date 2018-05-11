@@ -167,7 +167,7 @@ const reducers = {
             newState = cloneStateExceptAttr()
             newState[action.attr] = {
                 by: 'category',
-                values: action.values,
+                value: action.value,
             }
             return newState
         
@@ -191,18 +191,18 @@ const reducers = {
                 if (filter.by === 'category') {
                 
                     // If the new value is in the list of values...
-                    let index = filter.values.indexOf(action.value)
+                    let index = filter.value.indexOf(action.value)
                     if (index > -1) {
                     
                         // If there are more values than this one.
-                        if (filter.values.length > 1) {
+                        if (filter.value.length > 1) {
                             
                             // Remove just this value from the list of values.
-                            let newValues = filter.values.slice(0)
+                            let newValues = filter.value.slice(0)
                             newValues.splice(index, 1)
                             newState[action.attr] = {
                                 by: 'category',
-                                values: newValues
+                                value: newValues
                             }
                         }
                         return newState
@@ -211,7 +211,7 @@ const reducers = {
                         // Add the new value to the list of values.
                         newState[action.attr] = {
                             by: 'category',
-                            values: filter.values.slice(0).concat(action.value)
+                            value: filter.value.slice(0).concat(action.value)
                         }
                         return newState
                     }
@@ -221,7 +221,7 @@ const reducers = {
             // category, so add the new state.
             newState[action.attr] = {
                 by: 'category',
-                values: [action.value]
+                value: [action.value]
             }
             return newState
             
