@@ -21,7 +21,7 @@ import './shortlist.css';
 import './shortEntry.css';
 
 var initialization_started = false;
-var filterShow = new ReactiveDict({}); // whether or not there is a filter, regardless of active?
+var hasFilter = new ReactiveDict({}); // whether or not there is a filter, regardless of actively coloring.
 var zeroShow = new ReactiveDict(); // To show or hide the zero tick mark
 var filterBuilt = new ReactiveDict(); // Is filter built?
 var slider_vals = new ReactiveDict(); // low and high values as sliding
@@ -43,7 +43,7 @@ var icon = {
 
 function get_range_display_values (layer_name, i) {
     var vals;
-    var showing = is_filter_showing(layer_name)
+    var showing = does_have_filter(layer_name)
     if (showing) {
     
         // The values as the slider is sliding.
@@ -87,16 +87,16 @@ function is_hovered (layer_name) {
     return (hovered === layer_name);
 }
 
-function is_filter_showing (layer_name) {
+function does_have_filter (layer_name) {
     if (!layer_name) { return false; }
-    var show = filterShow.get(layer_name)
+    var show = hasFilter.get(layer_name)
 
     if (_.isUndefined(show)) { return false; }
     return show;
 }
 
 function is_filter_active (layer_name) {
-    return (is_filter_showing(layer_name) && is_layer_active(layer_name));
+    return (does_have_filter(layer_name) && is_layer_active(layer_name));
 }
 
 function get_root_from_child (child) {
@@ -182,9 +182,7 @@ Template.shortlistEntryT.helpers({
     },
     filter_icon_display: function () {
         var layer_name = this.toString();
-        return ((is_hovered(layer_name) || is_filter_showing(layer_name)) &&
-            is_layer_active(layer_name)) ?
-                'initial' : 'none';
+        return (is_filter_active(layer_name)) ? 'initial' : 'none';
     },
     filter_display: function () {
         return (is_filter_active(this.toString()) ? 'block' : 'none');
@@ -257,7 +255,7 @@ function create_range_slider (layer_name, root) {
             high = ui.values[1] * factor;
         
         // Save to global state and slider vals.
-        rx.set('shortEntry.filter.continuous.value',
+        rx.set('shortEntry.filter.continuous',
             {attr: layer_name, value: [low, high] })
         slider_vals.set(layer_name, [low, high]);
     };
@@ -380,7 +378,7 @@ function build_filter (layer_name) {
     
     // The filter may already be built and we only build it when the
     // filter is to be shown.
-    if (filterBuilt.get(layer_name) || !is_filter_showing(layer_name)) {
+    if (filterBuilt.get(layer_name) || !does_have_filter(layer_name)) {
         return;
     }
     
@@ -404,24 +402,22 @@ function build_filter (layer_name) {
     });
 }
 
-function filter_control_changed (ev) {
+function syncFilterStateWithTemplate () {
+    let filterBy = rx.get('shortEntry.menu.filter')
+    let actives = rx.get('activeAttrs')
     
-    // We are responding to a context menu filter button press.
-    // We are responding to a filter button press to turn filtering
-    // on or off.
-    var root = get_root_from_child ($(ev.target));
-    layer_name = get_layer_name_from_root(root);
-
-    // Set the filter show flag may not yet be defined.
-    if (_.isUndefined(filterShow.get(layer_name))) {
-        // turn on the filter showing flag
-        filterShow.set(layer_name, true);
-    } else {
-        // toggle the filterShowing flag.
-        filterShow.set(layer_name, !is_filter_showing(layer_name));
-    }
-
-    build_filter(layer_name);
+    // Sync filterBy state with hasFilter for template.
+    actives.forEach(function (act) {
+        let show = hasFilter.get(act)
+        if (filterBy[act]) {
+            build_filter(act)
+            if (!show) {
+                hasFilter.set(act, true)
+            }
+        } else if (show) {
+            hasFilter.set(act, false)
+        }
+    })
 }
 
 function ui_and_list_delete (layer_name) {
@@ -471,9 +467,6 @@ function create_shortlist_ui_entry (layer_name) {
             create_shortlist_ui_entry_with_data (layer_name, root);
         });
     }
-
-    // Create the filter button click handler
-    root.find('.filter').click(filter_control_changed);
 
     // On mouse entering the shortlist entry, show the floating controls
     // and the filter button
@@ -617,7 +610,7 @@ function addInitialEntriesToShortlist (layerNames) {
     _.each(layerNames, function (layer_name) {
     
         $shortlist.append(create_shortlist_ui_entry(layer_name));
-        if (is_filter_showing(layer_name)) {
+        if (does_have_filter(layer_name)) {
             build_filter(layer_name)
         }
     });
@@ -665,7 +658,6 @@ exports.removeEntry = function (layer_name) {
 
         // Clear any filter values and show state for this layer
         rx.set('shortEntry.filter.drop', {attr: layer_name})
-        filterShow.delete(layer_name)
         
         // Update the shortlist state variable and UI.
         ui_and_list_delete(layer_name);
@@ -827,6 +819,7 @@ exports.get_current_filters = function () {
                 case 'range':
                     let range = filter.value
                     filter_function = function (value, nodeId) {
+                        let include = (value >= range[0] && value <= range[1])
                         return (value >= range[0] && value <= range[1]);
                     }
                     break
@@ -847,17 +840,12 @@ exports.get_current_filters = function () {
 exports.get_slider_range = function (layer_name) {
 
     // Given the name of a layer, get the slider range from its shortlist UI
-    // entry if the filter is active. If not active, return the layer's
-    // max and min. Assumes the layer has a shortlist UI entry.
-    if (filterShow.get(layer_name)) {
-        var range = slider_vals.get(layer_name);
-        if (_.isUndefined(range)) {
-            return [layers[layer_name].minimum, layers[layer_name].maximum];
-        } else {
-            return range;
-        }
-    } else {
+    // entry. If there is no slider yet, return the attr's min & max.
+    var range = slider_vals.get(layer_name);
+    if (_.isUndefined(range)) {
         return [layers[layer_name].minimum, layers[layer_name].maximum];
+    } else {
+        return range;
     }
 }
 
@@ -964,7 +952,7 @@ exports.init = function () {
     // Run this whenever the active list changes to update the hot primary
     // and secondary icons and change the map colors.
     rx.subscribe(when_active_color_layers_change);
-    rx.subscribe(when_active_color_layers_change);
+    rx.subscribe(syncFilterStateWithTemplate);
 
     // Create the controls that move from entry to entry.
     create_float_controls();

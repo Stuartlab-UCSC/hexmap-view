@@ -13,8 +13,11 @@ import util from '/imports/common/util';
 let pActiveAttrs = null
 let pFilterBy = [null]
 let pFilterVal = [null]
+let lastRefreshTimeStamp = Date.now()
+let refreshTimer
+let refreshTimeout = 0
 
-function get_range_position(score, low, high) {
+function get_range_position(scoreIn, low, high, filterBy) {
     // Given a score float, and the lower and upper bounds of an interval (which
     // may be equal, but not backwards), return a number in the range -1 to 1
     // that expresses the position of the score in the [low, high] interval.
@@ -22,8 +25,19 @@ function get_range_position(score, low, high) {
     
     // This holds the length of the input interval
     var interval_length = high - low;
-    
+    var score = scoreIn
     if(interval_length > 0) {
+    
+        if (filterBy === 'threshold') {
+        
+            // If the score is out of bounds, set it to lower or upper bound.
+            if (score < low) {
+                score = low
+            } else if (score > high) {
+                score = high
+            }
+        }
+    
         // First rescale 0 to 1
         score = (score - low) / interval_length;
         
@@ -39,6 +53,40 @@ function get_range_position(score, low, high) {
     }
     
     return score;
+}
+
+function findContinuousFilters (current_layers) {
+
+    // Set up the limits for continuous attrs.
+    let filterBys = rx.get('shortEntry.menu.filter')
+    let filterVals = rx.get('shortEntry.filter')
+    var layer_limits = [];
+    var filterBy = []
+    current_layers.forEach(function (attr) {
+        let dataType = util.getDataType(attr)
+        
+        // Values for non-continuous attrs.
+        let range = null
+        let by = null
+        if (dataType === 'continuous') {
+            
+            // Default the values as if there is no filter,
+            // which is the same as filter by range using min and max.
+            range = [layers[attr].minimum, layers[attr].maximum]
+            by = 'range'
+            if (filterBys[attr] === 'range' ||
+                filterBys[attr] === 'threshold') {
+                by = filterBys[attr]
+                if (filterVals[attr]) {
+                    range = filterVals[attr].value
+                }
+            }
+        }
+        layer_limits.push(range)
+        filterBy.push(by)
+    })
+
+    return {by: filterBy, range: layer_limits}
 }
 
 export function refreshColors () {
@@ -79,30 +127,28 @@ export function refreshColors () {
         // colormaps are ignored.
         
         // We need to do this inside the callback, once we already have the
-        // layers, so that we properly use the newest slider range endpoints,
-        // which are updated asynchronously.
-        var layer_limits = [];
+        // layers, so that we use the newest slider range endpoints.
         var at_least_one_layer = retrieved_layers.length >= 1;
         var two_layers = retrieved_layers.length >= 2;
-        for(var i = 0; i < current_layers.length; i++) {
-            var range = shortlist.get_slider_range(current_layers[i]);
-            layer_limits.push(range);
-        }
         
+        // Set up the limits for continuous attrs.
+        let continuousFilter = findContinuousFilters(current_layers)
+        let filterBy = continuousFilter.by
+        let layer_limits =  continuousFilter.range
 
         // Turn all the hexes the filtered-out color, pre-emptively
         // TODO redrawing would be faster to not change colors twice
         for(var signature in polygons) {
             hexagons.setOneColor(polygons[signature], Colormap.noDataColor());
         }
-        
+
         // Go get the list of filter-passing hexes.
         shortlist.with_filtered_signatures(filters, function(signatures) {
             for(var i = 0; i < signatures.length; i++) {
                 // For each hex assign the filter
                 // This holds its signature label
                 var label = signatures[i];
-                
+
                 // This holds the color we are calculating for this hexagon.
                 // Start with the no data color.
                 var computed_color = Colormap.noDataColor();
@@ -116,10 +162,10 @@ export function refreshColors () {
                     var u = retrieved_layers[0].data[label];
                     
                     if(util.is_continuous(current_layers[0])) {
-                        // Take into account the slider values and re-scale the 
+                        // Take into account the slider values and re-scale the
                         // layer value to express its position between them.
                         u = get_range_position(u, layer_limits[0][0], 
-                            layer_limits[0][1]);
+                            layer_limits[0][1], filterBy[0]);
                     }
                     
                     if(two_layers) {
@@ -131,11 +177,11 @@ export function refreshColors () {
                             // the layer value to express its position between
                             // them.
                             v = get_range_position(v, layer_limits[1][0], 
-                                layer_limits[1][1]);
+                                layer_limits[1][1], filterBy[1]);
                         }
                         
                     } else {
-                        // No second layer, so v axis is unused. Don't make it 
+                        // No second layer, so v axis is unused. Don't make it
                         // undefined (it's not missing data), but set it to 0.
                         v = 0;
                     }
@@ -148,7 +194,7 @@ export function refreshColors () {
                     computed_color = get_color(current_layers[0], u,
                         current_layers[1], v);
                 }
-                
+                    
                 // Set the color by the composed layers.
                 hexagons.setOneColor(polygons[label], computed_color);
             }
@@ -160,6 +206,18 @@ export function refreshColors () {
     // Make sure to also redraw the info window, which may be open.
     import infoWindow from '/imports/mapPage/viewport/infoWindow.js';
     infoWindow.redraw();
+}
+
+function refreshRequest () {
+    
+    // To avoid multiple refreshes in a short period of time, wait for
+    // so many milliseconds to refresh.
+    let now = Date.now();
+    let betweenRequests = now - lastRefreshTimeStamp
+    console.error('since last refreshColors():', betweenRequests)
+    lastRefreshTimeStamp = now
+    clearTimeout(refreshTimer)
+    refreshTimer = setTimeout(refreshColors, refreshTimeout)
 }
 
 function refreshColorByState () {
@@ -218,7 +276,7 @@ function refreshColorByState () {
             }
         }
         if (receivedAttrs) {
-            refreshColors()
+            refreshRequest()
         }
     }
 }
