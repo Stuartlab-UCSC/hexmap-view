@@ -14,16 +14,14 @@ import Layer from '/imports/mapPage/longlist/Layer';
 import rx from '/imports/common/rx';
 import util from '/imports/common/util';
 
-import ShortEntryMenuCont from '/imports/mapPage/shortlist/ShortEntryMenuCont';
+import ShortEntryMenuWrap from '/imports/mapPage/shortlist/ShortEntryMenuWrap';
 
 import './shortlist.html';
 import './shortlist.css';
 import './shortEntry.css';
 
 var initialization_started = false;
-var range_extents = new ReactiveDict(); // to show the min & max values
-var filterValues = new ReactiveDict({}); // hold filter values
-var filterShow = new ReactiveDict({}); // hold the boolean of filter showing
+var filterShow = new ReactiveDict({}); // whether or not there is a filter, regardless of active?
 var zeroShow = new ReactiveDict(); // To show or hide the zero tick mark
 var filterBuilt = new ReactiveDict(); // Is filter built?
 var slider_vals = new ReactiveDict(); // low and high values as sliding
@@ -39,13 +37,13 @@ var icon = {
     primary_hot: '/icons/primary-hot.png',
     secondary: '/icons/secondary.png',
     secondary_hot: '/icons/secondary-hot.png',
-    filter: '/icons/filter.png',
     filter_hot: '/icons/filter-hot.png',
     close: '/icons/close.svg',
 };
 
-function get_range_display_values (layer_name, i, showing) {
+function get_range_display_values (layer_name, i) {
     var vals;
+    var showing = is_filter_showing(layer_name)
     if (showing) {
     
         // The values as the slider is sliding.
@@ -53,7 +51,7 @@ function get_range_display_values (layer_name, i, showing) {
     } else {
     
         // The min or max of all the layer's values.
-        vals = range_extents.get(layer_name);
+        vals = [layers[layer_name].minimum, layers[layer_name].maximum]
     }
     if (vals && !_.isUndefined(vals[i])) {
         return vals[i];
@@ -180,7 +178,7 @@ Template.shortlistEntryT.helpers({
         return (zeroShow.get(this.toString())) ? 'initial' : 'none';
     },
     filter_icon: function () {
-        return (is_filter_active(this.toString()) ? icon.filter_hot : icon.filter);
+        return icon.filter_hot;
     },
     filter_icon_display: function () {
         var layer_name = this.toString();
@@ -191,14 +189,8 @@ Template.shortlistEntryT.helpers({
     filter_display: function () {
         return (is_filter_active(this.toString()) ? 'block' : 'none');
     },
-    filter_value_display: function () {
-        return (util.is_continuous(this.toString())) ? 'none' : 'initial';
-    },
-    filter_value: function () {
-        return filterValues.get(this.toString());
-    },
     range: function () {
-        var vals = filterValues.get(this.toString());
+        var vals = slider_vals.get(this.toString());
         return (_.isUndefined(vals)) ? [0,0] : vals;
     },
     slider_display: function () {
@@ -207,8 +199,7 @@ Template.shortlistEntryT.helpers({
     },
     low: function () {
         var layer_name = this.toString(),
-            val = get_range_display_values(
-                layer_name, 0, is_filter_showing(layer_name));
+            val = get_range_display_values(layer_name, 0);
         if (typeof val === 'number') {
             val = Number(val).toExponential(1);
         }
@@ -216,94 +207,16 @@ Template.shortlistEntryT.helpers({
     },
     high: function () {
         var layer_name = this.toString(),
-            val = get_range_display_values(
-                layer_name, 1, is_filter_showing(layer_name));
+            val = get_range_display_values(layer_name, 1);
         if (typeof val === 'number') {
             val = Number(val).toExponential(1);
         }
         return val;
     },
-    save_filter_bottom: function () {
-        var layer_name = this.toString();
-        return (util.is_continuous(layer_name) ? '-0.25em' : '-0.35em');
-    },
     save_filter_display: function () {
         return is_hovered(this.toString()) ? 'initial' : 'none';
     },
 });
-
-function create_filter_select_options (layer_name, layer, filter_value) {
-
-    // Create the value filter dropdown for discrete values,
-    // If we have not yet created it.
-    // Note that binary values without entries in the input colormap file
-    // DO have a colormap entry in the code.
-
-    // If the select list is already filled in there is nothing to do
-    if (filter_value.children().length > 0) { return; }
-    
-    // Find the option codes and text
-    var first = 0,
-        preSort,
-        data = [];
-    if (layer_name in colormaps) {
-        if (colormaps[layer_name].length > 0) {
-
-            // Categorical or binary with colors assigned by input file
-            preSort = _.map(colormaps[layer_name], function (cat, code) {
-                return {text: cat.name, code: code};
-            });
-            data = _.sortBy(preSort, function (cat) {
-                return cat.text;
-            });
-        } else {
-
-            // Binary without colors assigned by input file
-            first = 1;
-            data = [
-                {text: 1, code: 1},
-                {text: 0, code: 0},
-            ];
-        }
-    } else { // No colormap categorical. This shouldn't happen.
-        console.log('error: no colormap for categorical attr: ' +
-            'please log an issue on git with a re-creatable error',
-             layer_name);
-    }
-
-    // Create the option elements
-    _.each(data, function (cat) {
-        var option = $("<option/>")
-            .attr('value', cat.code)
-            .text(cat.text);
-        filter_value.append(option);
-    });
-
-    // Select the appropriate option on first opening
-    var value = filterValues.get(layer_name);
-    if (_.isNull(value)) {
-
-        // There is no value saved, so leave menu set to the first option,
-        // and initialize the saved value to the first one.
-        filterValues.set(layer_name, parseInt(first));
-
-    } else {
-
-        // There is a value saved, so set the menu to that option.
-        filter_value.val(value);
-    }
-
-    // Update colors to reflect the filter created by the initial selection
-    colorMix.refreshColors();
-
-    // Define the event handler for selecting an item
-    filter_value.on('change', function (ev) {
-        filterValues.set(layer_name, parseInt(ev.target.value));
-        
-        // Update the colors to reflect the filter updated by this select
-        colorMix.refreshColors();
-    });
-}
 
 function create_range_slider (layer_name, root) {
 
@@ -324,33 +237,33 @@ function create_range_slider (layer_name, root) {
 
     // Handle a slider handle moving
     var sliding = function(event, ui) {
-        var low = ui.values[0],
-            high = ui.values[1];
+        var low = ui.values[0] * factor,
+            high = ui.values[1] * factor;
         
-        slider_vals.set(layer_name, [low * factor, high * factor]);
+        slider_vals.set(layer_name, [low, high]);
 
         // Set the width of the low and high masks
         var x_span = $(event.target).width(); // The span in pixels
 
-        root.find('.low_mask').width(Math.abs(low * factor - min) / span * x_span);
-        root.find('.high_mask').width(Math.abs(max - high * factor) / span * x_span);
+        root.find('.low_mask').width(Math.abs(low - min) / span * x_span);
+        root.find('.high_mask').width(Math.abs(max - high) / span * x_span);
 
     };
 
     // Handler to apply the filter after the user has finished sliding
     var done_sliding = function (event, ui) {
 
-        var low = ui.values[0],
-            high = ui.values[1];
+        var low = ui.values[0] * factor,
+            high = ui.values[1] * factor;
         
-        filterValues.set(layer_name,
-            [low * factor, high * factor]);
-        slider_vals.set(layer_name, [low * factor, high * factor]);
-        colorMix.refreshColors();
+        // Save to global state and slider vals.
+        rx.set('shortEntry.filter.continuous.value',
+            {attr: layer_name, value: [low, high] })
+        slider_vals.set(layer_name, [low, high]);
     };
 
     // Create the slider
-    var vals = _.map(filterValues.get(layer_name),
+    var vals = _.map(slider_vals.get(layer_name),
             function (val) {
                 return val / factor;
             }
@@ -385,17 +298,12 @@ function create_shortlist_ui_entry_with_data (layer_name, root) {
         var min = layers[layer_name].minimum,
             max = layers[layer_name].maximum;
 
-        if (_.isUndefined(
-            filterValues.get(layer_name))) {
+        if (_.isUndefined(slider_vals.get(layer_name))) {
         
             // Range filter values are not yet saved,
-            // so initialize the state and slider to the layer extents.
-            filterValues.set(layer_name, [min, max]);
+            // so initialize the slider to the layer extents.
             slider_vals.set(layer_name, [min, max]);
         }
-
-        // Set the extents of the range
-        range_extents.set(layer_name, [min, max]);
 
         // Put a tick on zero if zero is in the range.
         // Dom object needs to be drawn already so we can see the offset.
@@ -416,18 +324,6 @@ function create_shortlist_ui_entry_with_data (layer_name, root) {
         }
 
     } else {
-        if (_.isUndefined(
-            filterValues.get(layer_name))) {
-        
-            // Filter value is not yet saved,
-            // so initialize it to the first option.
-            var val = 0;
-            if (util.is_binary(layer_name)) {
-                val = 1;
-            }
-                
-            filterValues.set(layer_name, val);
-        }
         
         // Build the barChart after the filter values are sure to be defined
         setTimeout(function () {
@@ -440,7 +336,10 @@ function create_shortlist_ui_entry_with_data (layer_name, root) {
 function save_filter_clicked (layer_name) {
 
     // Clicking on the save button creates a dynamic layer
-    var value = filterValues.get(layer_name),
+    let filter = rx.get('shortEntry.filter')[layer_name]
+    if (!filter) { return }
+    
+    var value = filter.value,
         layer = layers[layer_name],
         nodeIds = [];
     
@@ -462,6 +361,7 @@ function save_filter_clicked (layer_name) {
         });
 
         // Find the category label for the new layer name
+        // TODO multiple categories
         var category = colormaps[layer_name][value];
         if (category) {
             value = category.name;
@@ -494,11 +394,6 @@ function build_filter (layer_name) {
         
             // Add a range slider
             create_range_slider(layer_name, root);
-        } else {
-
-            // Add a value picker
-            create_filter_select_options(layer_name, layer,
-                root.find('.filter_contents').find('.filter_value'));
         }
         
         filterBuilt.set(layer_name, true);
@@ -511,6 +406,7 @@ function build_filter (layer_name) {
 
 function filter_control_changed (ev) {
     
+    // We are responding to a context menu filter button press.
     // We are responding to a filter button press to turn filtering
     // on or off.
     var root = get_root_from_child ($(ev.target));
@@ -518,15 +414,14 @@ function filter_control_changed (ev) {
 
     // Set the filter show flag may not yet be defined.
     if (_.isUndefined(filterShow.get(layer_name))) {
+        // turn on the filter showing flag
         filterShow.set(layer_name, true);
     } else {
+        // toggle the filterShowing flag.
         filterShow.set(layer_name, !is_filter_showing(layer_name));
     }
 
     build_filter(layer_name);
-
-    // Update the colors with the new filtering or lack thereof.
-    colorMix.refreshColors();
 }
 
 function ui_and_list_delete (layer_name) {
@@ -656,32 +551,7 @@ function when_active_color_layers_change () {
                 index === 0 ? '.is_primary' : '.is_secondary'));
         }
     });
-
-    // Finally, refresh the map colors if we have the data for the primary,
-    // or if there are no actives. When there is no data it means the attr was
-    // just added to the shortlist and it's data has not yet arrived.
-    // In this case, the colors are refreshed when the data arrives.
-    if ((active.length > 0 && layers[active[0]].data) || active.length < 1) {
-        colorMix.refreshColors();
-    }
 }
-/* not yet
-function whenFilterChanges () {
-    let state = rx.get('shortEntry.filter')
-    let stateKeys = Object.keys(state)
-    let template = filterValues.get()
-    let templateKeys = []
-    let changed = false
-    if (template) {
-        templateKeys = Object.keys(template)
-    } else {
-        template = {}
-    }
-    if ((typeof state === typeof template) &&
-        (stateKeys.length === templateKeys.length) &&
-        for
-}
-*/
 
 function primaryButtonClick (ev) {
     var layer_name = get_layer_name_from_child(ev.target);
@@ -747,15 +617,6 @@ function addInitialEntriesToShortlist (layerNames) {
     _.each(layerNames, function (layer_name) {
     
         $shortlist.append(create_shortlist_ui_entry(layer_name));
-    
-        // Initialize value display for continuous if it needs it.
-        if (util.is_continuous(layer_name) &&
-            _.isUndefined(filterValues.get(layer_name))) {
-
-            filterValues.set(layer_name,
-                [layers[layer_name].minimum, layers[layer_name].maximum]);
-           
-        }
         if (is_filter_showing(layer_name)) {
             build_filter(layer_name)
         }
@@ -803,7 +664,7 @@ exports.removeEntry = function (layer_name) {
         gChart.clear(layer_name);
 
         // Clear any filter values and show state for this layer
-        filterValues.delete(layer_name)
+        rx.set('shortEntry.filter.drop', {attr: layer_name})
         filterShow.delete(layer_name)
         
         // Update the shortlist state variable and UI.
@@ -811,9 +672,6 @@ exports.removeEntry = function (layer_name) {
 
         // Remove this layer's shortlist entry template
         delete template[layer_name];
-
-        // Refresh the map.
-        colorMix.refreshColors();
     }
 }
 
@@ -945,13 +803,15 @@ exports.get_current_filters = function () {
         // if the filter is showing and the layer is active, apply a filter
         if (activeAttrs.indexOf(layer_name) > -1) {
 
-            // This will hold our filter function.
-            var filter = allFilters[layer_name];
-            var filter_function
-
             // Define the functions and values to use for filtering
-            //var desired = filterValues.get(layer_name);
+            var filter = allFilters[layer_name];
            
+            // The default filter function.
+            filter_function = function (value, nodeId) {  // jshint ignore: line
+                return true;
+            };
+
+            // Set the filter depending upon attr, category or range filter.
             if (filter) {
                 switch (filter.by) {
                 case 'attr':
@@ -964,31 +824,14 @@ exports.get_current_filters = function () {
                         return (filter.value.indexOf(value) > -1)
                     }
                     break
+                case 'range':
+                    let range = filter.value
+                    filter_function = function (value, nodeId) {
+                        return (value >= range[0] && value <= range[1]);
+                    }
+                    break
                 }
-           } else {
-                filter_function = function(value) {  // jshint ignore: line
-                    return true;
-                };
            }
-            /*
-                // Continuous filters get a "clamping" effect, meaning
-                // that values outside of the filter are set to the
-                // highest or lowest value instead of getting the
-                // noDataColor.
-
-            } else if (util.is_continuous(layer_name)) {
-                 // Use a range for continuous values.
-                filter_function = function(value) {
-                     return (value >= desired[0] && value <= desired[1]);
-                };
-
-            } else {
-
-                // Use a discrete value match.
-                filter_function = function(value) {
-                    return (value === desired);
-                };
-            */
 
             // Add a filter on this layer, with the function we've prepared.
             current_filters.push({
@@ -1007,7 +850,7 @@ exports.get_slider_range = function (layer_name) {
     // entry if the filter is active. If not active, return the layer's
     // max and min. Assumes the layer has a shortlist UI entry.
     if (filterShow.get(layer_name)) {
-        var range = filterValues.get(layer_name);
+        var range = slider_vals.get(layer_name);
         if (_.isUndefined(range)) {
             return [layers[layer_name].minimum, layers[layer_name].maximum];
         } else {
@@ -1018,30 +861,30 @@ exports.get_slider_range = function (layer_name) {
     }
 }
 
-    exports.inShortList = function(layerName){
-        var shortList = Session.get('shortlist');
-        return (shortList.indexOf(layerName) > -1)
-    }
+exports.inShortList = function(layerName){
+    var shortList = Session.get('shortlist');
+    return (shortList.indexOf(layerName) > -1)
+}
 
-    exports.getContinuousLayerNames = function() {
-        var shortlist = Session.get('shortlist');
-        var contLayers = shortlist.filter(function(layerName) {
-            return util.is_continuous(layerName)
-        });
-        return contLayers
-    }
+exports.getContinuousLayerNames = function() {
+    var shortlist = Session.get('shortlist');
+    var contLayers = shortlist.filter(function(layerName) {
+        return util.is_continuous(layerName)
+    });
+    return contLayers
+}
 
-    exports.getBinaryLayerNames = function() {
-        var shortlist = Session.get('shortlist');
-        var binLayers = shortlist.filter(function(layerName) {
-            return util.is_binary(layerName)
-        });
-        return binLayers
-    }
+exports.getBinaryLayerNames = function() {
+    var shortlist = Session.get('shortlist');
+    var binLayers = shortlist.filter(function(layerName) {
+        return util.is_binary(layerName)
+    });
+    return binLayers
+}
 
-    exports.getAllLayerNames = function() {
-        return Session.get('shortlist')
-    };
+exports.getAllLayerNames = function() {
+    return Session.get('shortlist')
+};
 
 exports.removeDynamicEntries = function () {
     for (name in layers) {
@@ -1121,7 +964,8 @@ exports.init = function () {
     // Run this whenever the active list changes to update the hot primary
     // and secondary icons and change the map colors.
     rx.subscribe(when_active_color_layers_change);
-    
+    rx.subscribe(when_active_color_layers_change);
+
     // Create the controls that move from entry to entry.
     create_float_controls();
     
@@ -1132,7 +976,7 @@ exports.init = function () {
     const store = rx.getStore();
     render(
         <Provider store={store}>
-            <ShortEntryMenuCont />
+            <ShortEntryMenuWrap />
         </Provider>,
         document.getElementById('shortEntryMenuWrap')
     )

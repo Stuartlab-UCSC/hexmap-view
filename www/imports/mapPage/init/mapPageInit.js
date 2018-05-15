@@ -129,11 +129,7 @@ function isMapRendered () {
         unsubFx.isMapRendered();
         perform.log('5-init:request-secondary-data');
         
-        // If there are no layers, refresh to get 'no layer color'.
-        if (rx.get('firstAttr') === null) {
-            colorMix.refreshColors();
-            rx.set('snake.map.hide');
-        }
+        colorMix.init()
         
         // Timeout to allow the map to render.
         setTimeout(function () {

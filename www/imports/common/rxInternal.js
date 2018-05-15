@@ -128,8 +128,8 @@ const reducers = {
             !state : state;
     },
     'shortEntry.filter': (state = {}, action) => {
-        
-        // Make a full copy of filter state, excluding the current attr.
+    
+        // Make a copy of filter state, excluding the current attr.
         function cloneStateExceptAttr () {
             let filteredState = _.filter(state, function (oneAttr) {
                 return oneAttr.attr !== action.attr;
@@ -151,7 +151,7 @@ const reducers = {
             // one, toggle to remove the filter.
             if (action.attr in state && 'value' in state[action.attr] &&
                 state[action.attr].value === action.value) {
-                return newState
+                delete newState[action.attr]
             } else {
                 
                 // There is a new value, so change that.
@@ -159,9 +159,9 @@ const reducers = {
                     by: 'attr',
                     value: action.value,
                 }
-                return newState
             }
-            
+            return newState
+
         // Select all of the values in the category list.
         case 'shortEntry.filter.category.all':
             newState = cloneStateExceptAttr()
@@ -225,53 +225,38 @@ const reducers = {
             }
             return newState
             
+        // Change the value of a continuous filter using the same filterBy.
+        // TODO needed?
+        case 'shortEntry.filter.continuous.value':
+            console.log('rx shortEntry.filter:action:', action)
+            newState = cloneStateExceptAttr();
+            newState[action.attr] = {
+                by: state[action.attr].by,
+                value: action.value,
+            }
+            return newState
+
         // Remove the filter if there is one for this filter group.
         case 'shortEntry.filter.drop':
-            if (action.attr) {
-                return cloneStateExceptAttr();
-            } else {
+            return cloneStateExceptAttr();
             
-                // Otherwise, leave the existing state.
-                return state;
-            }
-            
-        // Update the filter to range values.
-        case 'shortEntry.filter.range':
+        // Update the filter to use range or threshold values.
+        // TODO needed?
+        case 'shortEntry.filter.continuous':
+            console.log('rx shortEntry.filter:action:', action)
             newState = cloneStateExceptAttr();
-
-            // If byRange is set, toggle to remove the byRange filter.
-            if (action.attr in state && state[action.attr].by === 'range') {
-                return newState;
-            } else {
             
-                // Replace the filter with this new one.
-                newState[action.attr] = {
-                    by: 'range',
-                }
-                return newState
+            // Add/replace the filter with this new one.
+            newState[action.attr] = {
+                by: action.by,
+                value: action.value,
             }
-            
-        // Update the filter to threshold values.
-        case 'shortEntry.filter.threshold':
-            newState = cloneStateExceptAttr();
-
-            // If byThreshold is set, toggle to remove the byThreshold filter.
-            if (action.attr in state && state[action.attr].by === 'threshold') {
-                return newState;
-            } else {
-            
-                // Replace the filter with this new one.
-                newState[action.attr] = {
-                    by: 'threshold',
-                }
-                return newState
-            }
+            return newState
         default:
             return state;
         }
     },
-    
-    // The attr over which the shortlist entry context menu is hovering.
+    // The attr over which the shortlist entry context menu is displayed.
     'shortEntry.menu.attr': (state = null, action) => {
         if (action.type === 'shortEntry.menu.attr') {
             if (action.attr) {
@@ -281,6 +266,37 @@ const reducers = {
             }
         } else {
             return state;
+        }
+    },
+    'shortEntry.menu.filter': (state = {}, action) => {
+        let newState = _.clone(state)
+        switch (action.type) {
+        case 'shortEntry.menu.filter.click':
+
+            // If the newly clicked filter is the same as the previous,
+            // uncheck the filter. Otherwise check the filter.
+            if (action.attr in state && action.clicked === state[action.attr]) {
+                delete newState[action.attr]
+            } else {
+                newState[action.attr] = action.clicked
+            }
+            return newState
+        case 'shortEntry.menu.filter.select':
+            if (!state[action.attr] || state[action.attr] !== action.select) {
+                newState[action.attr] = action.select
+                return newState
+            } else {
+                return state
+            }
+        case 'shortEntry.menu.filter.unselect':
+            if (state[action.attr] && state[action.attr] === action.select) {
+                delete newState[action.attr]
+                return newState
+            } else {
+                return state
+            }
+        default:
+            return state
         }
     },
     'snake.project': (state = true, action) => {
