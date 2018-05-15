@@ -12,44 +12,18 @@ const selectAll = 'select all'
 const selectNone = 'select none'
 const tooManyCategories = 'too many categories to display'
 
-const onContinuousAdd = (attr, by, dispatch) => {
-    
-    // Handle a click on range or threshold filter on main menu when the
-    // filter for continuous does not yet exist.
+const onContinuousValue = (attr, by, dispatch) => {
+
+    // Handle an update to a range or threshold filter value.
     dispatch({
-        type: 'shortEntry.filter.continuous.add',
+        type: 'shortEntry.filter.continuous',
+        attr,
         by,
-        value: shortlist.get_slider_range(attr),
+        value: shortlist.get_slider_range(attr)
     })
 }
 
-const onValueContinuous = (attr, value, dispatch) => {
-
-    // Handle an update to a range or threshold filter value.
-    // Check to see if the values changed here rather than in redux
-    // so we don't have any unnecessary redraws.
-    // Note values are passed when the state is updated by the slider sliding,
-    // and not passed when the context menu items is clicked
-    let update = true
-    let filter = rx.get('shortEntry.filter')[attr]
-    if (filter) {
-        var curVals = filter.value;
-        if (curVals[0] === value[0] && curVals[1] === value[1]) {
-            
-            // Nothing to do here with no change in values.
-            update = false
-        }
-    }
-    if (update) {
-        dispatch({
-            type: 'shortEntry.filter.continuous.value',
-            attr,
-            value,
-        })
-    }
-}
-
-const onValueCategorySelectAll = (attr, value, dispatch) => {
+const onCategoryValueSelectAll = (attr, value, dispatch) => {
 
     // Set all categories.
     let count = Colormap.getCategoryCount(attr)
@@ -67,7 +41,7 @@ const onValueCategorySelectAll = (attr, value, dispatch) => {
     })
 }
 
-const onValueCategorySelectNone = (attr, value, dispatch) => {
+const onCategoryValueSelectNone = (attr, value, dispatch) => {
 
     // Unselect any values.
     dispatch({
@@ -83,7 +57,7 @@ const onValueCategorySelectNone = (attr, value, dispatch) => {
     })
 }
 
-const onValueCategoryOne = (attr, value, dispatch) => {
+const onCategoryValueOne = (attr, value, dispatch) => {
 
     // Select the specific category.
     dispatch({
@@ -110,24 +84,24 @@ const onValueCategoryOne = (attr, value, dispatch) => {
     }
 }
 
-const onValueCategory = (attr, value, dispatch) => {
+const onCategoryValue = (attr, value, dispatch) => {
 
     // Handle a click on a category list item.
     value = Colormap.getCategoryIndex(attr, value)
 
     switch (value) {
     case selectAll:
-        onValueCategorySelectAll(attr, value, dispatch)
+        onCategoryValueSelectAll(attr, value, dispatch)
         break
     case selectNone:
-        onValueCategorySelectNone(attr, value, dispatch)
+        onCategoryValueSelectNone(attr, value, dispatch)
         break
     default:
-        onValueCategoryOne(attr, value, dispatch)
+        onCategoryValueOne(attr, value, dispatch)
     }
 }
 
-const onValueAttr = (attr, value, dispatch) => {
+const onAttrValue = (attr, value, dispatch) => {
 
     // Upon click of an attribute on the attr filter submenu.
     // Toggle the click state on the attr clicked.
@@ -258,35 +232,47 @@ export const onMenu = (attr, clicked, dispatch) => {
 
     // This is a click on the main menu of a filter item.
     
-    // If one of 'attr' or 'category' was clicked it means the current
-    // checkmark is on that menu item, so drop the filter values.
-    if (clicked === 'attr' || clicked === 'category') {
-        dispatch({
-            type: 'shortEntry.filter.drop',
-            attr,
-        })
-    }
-
     // Toggle that menu item off or on.
     dispatch({
         type: 'shortEntry.menu.filter.click',
         attr,
         clicked,
     })
+
+    let selected = rx.get('shortEntry.menu.filter')[attr]
+    if (selected === clicked) {
+    
+        // The menu option is now selected. Only range and threshold filters
+        // can be turned on by a main menu click, so get the slider values.
+        dispatch({
+            type: 'shortEntry.filter.continuous',
+            attr,
+            by: clicked,
+            value: shortlist.get_slider_range(attr),
+        })
+        
+    } else {
+    
+        // The menu option is now unselected, so drop the filter values.
+        dispatch({
+            type: 'shortEntry.filter.drop',
+            attr,
+        })
+    }
 }
 
 export const onValue = (ev, data, dispatch) => {
     let attr = shortlist.get_layer_name_from_child(ev.target)
-    let value = data.value
     switch (data.by) {
     case 'attr':
-        onValueAttr(attr, value, dispatch)
+        onAttrValue(attr, data.value, dispatch)
         break
     case 'category':
-        onValueCategory(attr, value, dispatch)
+        onCategoryValue(attr, data.value, dispatch)
         break
-    case 'continuous':
-        onValueContinuous(attr, value, dispatch)
+    case 'range':
+    case 'threshold':
+        onContinuousValue(attr, data.by, dispatch)
         break
     case 'hideBgNodes':
         break

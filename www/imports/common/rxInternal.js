@@ -140,7 +140,7 @@ const reducers = {
             return newState;
         }
         let newState = {}
-        let filter = {}
+        let filter
         switch (action.type) {        
         
         // Update the filter by attr value.
@@ -187,7 +187,7 @@ const reducers = {
             if (action.attr in state) {
                 
                 // If the filter is by category...
-                let filter = state[action.attr]
+                filter = state[action.attr]
                 if (filter.by === 'category') {
                 
                     // If the new value is in the list of values...
@@ -225,13 +225,17 @@ const reducers = {
             }
             return newState
             
-        // Change the value of a continuous filter using the same filterBy.
-        // TODO needed?
-        case 'shortEntry.filter.continuous.value':
-            console.log('rx shortEntry.filter:action:', action)
+        // Change the value of a continuous filter using the same filterBy
+        // if a continuous filter already exists.
+        case 'shortEntry.filter.continuous':
+            var by = action.by
+            if (!by) {
+                by = state[action.attr].by
+            }
             newState = cloneStateExceptAttr();
             newState[action.attr] = {
-                by: state[action.attr].by,
+                attr: action.attr,
+                by: by,
                 value: action.value,
             }
             return newState
@@ -240,18 +244,6 @@ const reducers = {
         case 'shortEntry.filter.drop':
             return cloneStateExceptAttr();
             
-        // Update the filter to use range or threshold values.
-        // TODO needed?
-        case 'shortEntry.filter.continuous':
-            console.log('rx shortEntry.filter:action:', action)
-            newState = cloneStateExceptAttr();
-            
-            // Add/replace the filter with this new one.
-            newState[action.attr] = {
-                by: action.by,
-                value: action.value,
-            }
-            return newState
         default:
             return state;
         }

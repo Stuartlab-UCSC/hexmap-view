@@ -51,8 +51,9 @@ const filterByRange = (active, dataType, filterChecked, onMainMenu) => {
     }
     let menuItem =
         <MenuItem
-            data = {{id: 'range'}}
+            data = {{id: 'range', by: 'range'}}
             onClick = {onMainMenu}
+            preventClose = {true}
         >
             { (filterChecked === 'range') ?
                 '✓ Filter by Range' : 'Filter by Range' }
@@ -69,8 +70,9 @@ const filterByThreshold = (active, dataType, filterChecked, onMainMenu) => {
     }
     let menuItem =
         <MenuItem
-            data = {{id: 'threshold'}}
+            data = {{id: 'threshold', by: 'threshold'}}
             onClick = {onMainMenu}
+            preventClose = {true}
         >
             { (filterChecked === 'threshold') ?
                 '✓ Filter by Threshold' : 'Filter by Threshold' }
