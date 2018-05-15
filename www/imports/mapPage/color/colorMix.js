@@ -9,6 +9,11 @@ import rx from '/imports/common/rx';
 import shortlist from '/imports/mapPage/shortlist/shortlist';
 import util from '/imports/common/util';
 
+// Previous active attrs and filters.
+let pActiveAttrs = null
+let pFilterBy = [null]
+let pFilterVal = [null]
+
 function get_range_position(score, low, high) {
     // Given a score float, and the lower and upper bounds of an interval (which
     // may be equal, but not backwards), return a number in the range -1 to 1
@@ -36,7 +41,7 @@ function get_range_position(score, low, high) {
     return score;
 }
 
-exports.refreshColors = function () {
+export function refreshColors () {
 
     // Make the view display the correct hexagons in the colors of the current
     // layer(s), as read from the values of the layer pickers in the global
@@ -140,7 +145,7 @@ exports.refreshColors = function () {
                     // OK. Compute the color that we should use to express this
                     // combination of layer values. It's OK to pass undefined
                     // names here for layers.
-                    computed_color = exports.get_color(current_layers[0], u, 
+                    computed_color = get_color(current_layers[0], u,
                         current_layers[1], v);
                 }
                 
@@ -155,9 +160,70 @@ exports.refreshColors = function () {
     // Make sure to also redraw the info window, which may be open.
     import infoWindow from '/imports/mapPage/viewport/infoWindow.js';
     infoWindow.redraw();
-};
+}
 
-exports.get_color = function (layerName1, layerVal1, layerName2, layerVal2) {
+function refreshColorByState () {
+
+    // Check state to see if colors need refreshing.
+    let update = false
+    let activeAttrs = rx.get('active.attrs')
+    let filterBy = []
+    let filterVal = []
+    
+    // First compare active coloring attrs.
+    if (!rx.isArrayEqual(activeAttrs, pActiveAttrs)) {
+        update = true
+    }
+    
+    // For each active attr.
+    if (activeAttrs) {
+        for (let i = 0; i < activeAttrs.length; i++) {
+            filterBy[i] = rx.get('shortEntry.menu.filter')[activeAttrs[i]]
+            filterVal[i] = rx.get('shortEntry.filter')[activeAttrs[i]]
+
+            // If we haven't found a need to update yet...
+            if (!update) {
+            
+                // Compare the filterBy.
+                if (filterBy[i] === pFilterBy[i]) {
+            
+                    // Compare the filter values.
+                    if (filterVal[i].value.length === pFilterVal[i].value.length) {
+                        let j = 0
+                        while (j < filterVal[i].value.length) {
+                            if (filterVal[i].value[j] !== pFilterVal[i].value[j]) {
+                                update = true
+                                break
+                            }
+                            j++
+                        }
+                    }
+                }
+            }
+        }
+    }
+    if (update) {
+        pActiveAttrs = activeAttrs
+        pFilterBy = filterBy
+        pFilterVal = filterVal
+        let i = 0
+        let receivedAttrs = true
+        if (activeAttrs) {
+            while (i < activeAttrs.length) {
+                if (layers[activeAttrs[i]].status !== 'received') {
+                    receivedAttrs = false
+                    break
+                }
+                i++
+            }
+        }
+        if (receivedAttrs) {
+            refreshColors()
+        }
+    }
+}
+
+export function get_color (layerName1, layerVal1, layerName2, layerVal2) {
     // Either layer value may be undefined (or both), in which case the no-data color
     // is returned. If a layer name is undefined, that layer dimension is
     // ignored.
@@ -230,7 +296,7 @@ exports.get_color = function (layerName1, layerVal1, layerName2, layerVal2) {
 
     if(continuousAndCatOrBin) {
         //Manipulate the ordering of arguments so an extra case is not needed.
-        color = exports.get_color(layerName2, layerVal2, layerName1, layerVal1);
+        color = get_color(layerName2, layerVal2, layerName1, layerVal1);
 
     } else if (any_missing_values) {
         color = Colormap.noDataColor();
@@ -302,7 +368,7 @@ exports.get_color = function (layerName1, layerVal1, layerName2, layerVal2) {
     }
 
     return color;
-};
+}
 
 function baseCategoricalColor(layerName, layerValue) {
     var base_color;
@@ -440,4 +506,8 @@ function mix2Continuos(layerVal1, layerVal2){
     var color = colorify(red, green , blue);
 
     return color;
+}
+
+export function init () {
+    rx.subscribe(refreshColorByState)
 }

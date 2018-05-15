@@ -143,12 +143,6 @@
     color: #555555;
 }
 
-.shortlist_entry .filter_value {
-    max-width: 13em;
-    margin-right: 0.2em;
-    margin-bottom: 0.25em;
-}
-
 .shortlist_entry .range_slider {
     /* font-size should be the same as the chart */
     font-size: 1em;
