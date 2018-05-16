@@ -95,10 +95,6 @@ function does_have_filter (layer_name) {
     return show;
 }
 
-function is_filter_active (layer_name) {
-    return (does_have_filter(layer_name) && is_layer_active(layer_name));
-}
-
 function get_root_from_child (child) {
     return $(child).parents('.shortlist_entry');
 }
@@ -182,10 +178,10 @@ Template.shortlistEntryT.helpers({
     },
     filter_icon_display: function () {
         var layer_name = this.toString();
-        return (is_filter_active(layer_name)) ? 'initial' : 'none';
+        return (does_have_filter(layer_name)) ? 'initial' : 'none';
     },
     filter_display: function () {
-        return (is_filter_active(this.toString()) ? 'block' : 'none');
+        return (does_have_filter(this.toString()) ? 'block' : 'none');
     },
     range: function () {
         var vals = slider_vals.get(this.toString());
@@ -508,21 +504,8 @@ function make_sortable_ui_and_list () {
     });
 }
 
-function when_active_color_layers_change () {
-
-    // When the active layers change update the primary and secondary
-    // indicators on the UI and refresh the map colors.
-    var active = rx.get('activeAttrs'),
-        entriesReady = entriesInited.get(),
-        length,
-        $anchor;
-
-    if (_.isUndefined(active) ||
-        !entriesReady ||
-        rx.isArrayEqual(Session.get('active_layers'), active)) {
-        return;
-    }
-    Session.set('active_layers', rx.copyStringArray(active));
+function attachActiveIcons () {
+    let active = Session.get('active_layers');
     length = active.length;
 
     // For each of primary index and secondary index...
@@ -544,6 +527,24 @@ function when_active_color_layers_change () {
                 index === 0 ? '.is_primary' : '.is_secondary'));
         }
     });
+}
+
+function when_active_color_layers_change () {
+
+    // When the active layers change update the primary and secondary
+    // indicators on the UI and refresh the map colors.
+    var active = rx.get('activeAttrs'),
+        entriesReady = entriesInited.get(),
+        length,
+        $anchor;
+
+    if (_.isUndefined(active) ||
+        !entriesReady ||
+        rx.isArrayEqual(Session.get('active_layers'), active)) {
+        return;
+    }
+    Session.set('active_layers', rx.copyStringArray(active));
+    attachActiveIcons()
 }
 
 function primaryButtonClick (ev) {
@@ -664,6 +665,9 @@ exports.removeEntry = function (layer_name) {
 
         // Remove this layer's shortlist entry template
         delete template[layer_name];
+        
+        // Reattach the primary and secondary icons.
+        attachActiveIcons();
     }
 }
 
@@ -785,6 +789,8 @@ exports.get_current_filters = function () {
     var current_filters = [];
     var allFilters = rx.get('shortEntry.filter');
     var activeAttrs = rx.get('activeAttrs');
+    
+    var filter_functions = []
 
     _.each(Session.get('shortlist'), function (layer_name) {
 
@@ -793,7 +799,7 @@ exports.get_current_filters = function () {
         // config variables.
 
         // if the filter is showing and the layer is active, apply a filter
-        if (activeAttrs.indexOf(layer_name) > -1) {
+        //if (activeAttrs.indexOf(layer_name) > -1) {
 
             // Define the functions and values to use for filtering
             var filter = allFilters[layer_name];
@@ -806,13 +812,9 @@ exports.get_current_filters = function () {
             // Set the filter depending upon attr, category or range filter.
             if (filter) {
                 switch (filter.by) {
-                case 'attr':
-                    filter_function = function (value, nodeId) {
-                        return (layers[filter.value].data[nodeId] === 1);
-                    }
-                    break
                 case 'category':
                     filter_function = function (value, nodeId) {
+                        let pass = (filter.value.indexOf(value) > -1)
                         return (filter.value.indexOf(value) > -1)
                     }
                     break
@@ -831,7 +833,7 @@ exports.get_current_filters = function () {
                 layer_name: layer_name,
                 filter_function: filter_function,
             });
-        }
+        //}
     });
     
     return current_filters;
@@ -953,6 +955,7 @@ exports.init = function () {
     // and secondary icons and change the map colors.
     rx.subscribe(when_active_color_layers_change);
     rx.subscribe(syncFilterStateWithTemplate);
+    Session.set('active_layers', null)
 
     // Create the controls that move from entry to entry.
     create_float_controls();
