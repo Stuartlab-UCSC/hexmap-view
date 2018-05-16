@@ -15,13 +15,16 @@ import rx from '/imports/common/rx';
 import util from '/imports/common/util';
 
 import ShortEntryMenuWrap from '/imports/mapPage/shortlist/ShortEntryMenuWrap';
+import ShortEntryMenuFilter
+    from '/imports/mapPage/shortlist/ShortEntryMenuFilter';
 
 import './shortlist.html';
 import './shortlist.css';
 import './shortEntry.css';
 
 var initialization_started = false;
-var hasFilter = new ReactiveDict({}); // whether or not there is a filter, regardless of actively coloring.
+var showSlider = new ReactiveDict({}); // should the filter slider show?
+var hasFilter = new ReactiveDict({}); // does a filter exists?
 var zeroShow = new ReactiveDict(); // To show or hide the zero tick mark
 var filterBuilt = new ReactiveDict(); // Is filter built?
 var slider_vals = new ReactiveDict(); // low and high values as sliding
@@ -43,7 +46,7 @@ var icon = {
 
 function get_range_display_values (layer_name, i) {
     var vals;
-    var showing = does_have_filter(layer_name)
+    var showing = should_show_slider(layer_name)
     if (showing) {
     
         // The values as the slider is sliding.
@@ -66,7 +69,7 @@ function is_layer_active (layer_name) {
         return false;
     }
     return (active.length > 0 &&
-                active.indexOf(layer_name) > -1);
+        active.indexOf(layer_name) > -1);
 }
 
 function is_primary (layer_name) {
@@ -87,12 +90,20 @@ function is_hovered (layer_name) {
     return (hovered === layer_name);
 }
 
-function does_have_filter (layer_name) {
+function should_show_slider (layer_name) {
     if (!layer_name) { return false; }
-    var show = hasFilter.get(layer_name)
+    var show = showSlider.get(layer_name)
 
     if (_.isUndefined(show)) { return false; }
     return show;
+}
+
+function does_have_filter (layer_name) {
+    if (!layer_name) { return false; }
+    var has = hasFilter.get(layer_name)
+
+    if (_.isUndefined(has)) { return false; }
+    return has;
 }
 
 function get_root_from_child (child) {
@@ -181,7 +192,7 @@ Template.shortlistEntryT.helpers({
         return (does_have_filter(layer_name)) ? 'initial' : 'none';
     },
     filter_display: function () {
-        return (does_have_filter(this.toString()) ? 'block' : 'none');
+        return (should_show_slider(this.toString()) ? 'block' : 'none');
     },
     range: function () {
         var vals = slider_vals.get(this.toString());
@@ -251,8 +262,7 @@ function create_range_slider (layer_name, root) {
             high = ui.values[1] * factor;
         
         // Save to global state and slider vals.
-        rx.set('shortEntry.filter.continuous',
-            {attr: layer_name, value: [low, high] })
+        ShortEntryMenuFilter.onContinuousValue(layer_name, low, high)
         slider_vals.set(layer_name, [low, high]);
     };
 
@@ -333,21 +343,25 @@ function save_filter_clicked (layer_name) {
     let filter = rx.get('shortEntry.filter')[layer_name]
     if (!filter) { return }
     
-    var value = filter.value,
-        layer = layers[layer_name],
-        nodeIds = [];
+    let layer = layers[layer_name],
+        nodeIds = [],
+        label;
     
     if (util.is_continuous(layer_name)) {
+        let low = filter.low
+        let high = filter.high
 
         // Get the range values
         nodeIds = _.filter(_.keys(polygons), function (nodeId) {
-            return (layer.data[nodeId] >= value[0] &&
-                    layer.data[nodeId] <= value[1]);
+            return (layer.data[nodeId] >= low &&
+                    layer.data[nodeId] <= high);
         });
-        value = value[0].toExponential(1).toString() +
-            ' to ' + value[1].toExponential(1).toString();
+        label = low.toExponential(1).toString() +
+            ' to ' + high.toExponential(1).toString();
 
     } else { // Binary and categorical layers
+    
+        let value = filter.value
     
         // Gather Tumor-ID Signatures with the value
         nodeIds = _.filter(_.keys(polygons), function (nodeId) {
@@ -358,12 +372,12 @@ function save_filter_clicked (layer_name) {
         // TODO multiple categories
         var category = colormaps[layer_name][value];
         if (category) {
-            value = category.name;
+            label = category.name;
         }
     }
     
     // Suggest a name for this new layer
-    var name = layer_name + ': ' + value.toString();
+    var name = layer_name + ': ' + label;
     // Create the dynamic layer
     Layer.create_dynamic_selection(nodeIds, name);
 }
@@ -374,7 +388,7 @@ function build_filter (layer_name) {
     
     // The filter may already be built and we only build it when the
     // filter is to be shown.
-    if (filterBuilt.get(layer_name) || !does_have_filter(layer_name)) {
+    if (filterBuilt.get(layer_name) || !should_show_slider(layer_name)) {
         return;
     }
     
@@ -399,19 +413,29 @@ function build_filter (layer_name) {
 }
 
 function syncFilterStateWithTemplate () {
-    let filterBy = rx.get('shortEntry.menu.filter')
-    let actives = rx.get('activeAttrs')
+
+    // Sync filter state with template variables.
+    let filterBys = rx.get('shortEntry.menu.filter')
+    let filters = rx.get('shortEntry.filter')
+    Session.get('shortlist').forEach(function (attr) {
     
-    // Sync filterBy state with hasFilter for template.
-    actives.forEach(function (act) {
-        let show = hasFilter.get(act)
-        if (filterBy[act]) {
-            build_filter(act)
-            if (!show) {
-                hasFilter.set(act, true)
-            }
-        } else if (show) {
-            hasFilter.set(act, false)
+        // Handle showing of filter sliders for continuous.
+        let filterBy = filterBys[attr]
+        let shouldShow = (filterBy !== undefined &&
+            (filterBy === 'range' || filterBy === 'threshold'))
+        let showing = showSlider.get(attr)
+        if (shouldShow && !showing) {
+            showSlider.set(attr, !showing)
+            build_filter(attr)
+        } else if (!shouldShow && showing) {
+            showSlider.set(attr, !showing)
+        }
+
+        // Handle showing of the filter icon.
+        shouldShow = (filters[attr] !== undefined)
+        showing = hasFilter.get(attr)
+        if ((!shouldShow && showing) || (shouldShow && !showing)) {
+            hasFilter.set(attr, !showing)
         }
     })
 }
@@ -611,7 +635,8 @@ function addInitialEntriesToShortlist (layerNames) {
     _.each(layerNames, function (layer_name) {
     
         $shortlist.append(create_shortlist_ui_entry(layer_name));
-        if (does_have_filter(layer_name)) {
+        let filterBy = rx.get('shortEntry.menu.filter')[layer_name]
+        if (filterBy && (filterBy === 'range' || filterBy === 'threshold')) {
             build_filter(layer_name)
         }
     });
@@ -737,6 +762,8 @@ exports.with_filtered_signatures = function (filters, callback) {
     // TODO: Re-organize this to do filters one at a time, recursively, like
     // a reasonable second-order filter.
     
+    //console.log('with_filtered_signatures():filters:', filters)
+    
     // Prepare a list of all the layers
     var layer_names = [];
     
@@ -799,30 +826,30 @@ exports.get_current_filters = function () {
         // config variables.
 
         // if the filter is showing and the layer is active, apply a filter
-        //if (activeAttrs.indexOf(layer_name) > -1) {
+        if (activeAttrs.indexOf(layer_name) > -1) {
 
             // Define the functions and values to use for filtering
             var filter = allFilters[layer_name];
            
+            //console.log('get_current_filters:filter:', filter)
+
             // The default filter function.
             filter_function = function (value, nodeId) {  // jshint ignore: line
                 return true;
             };
-
+           
             // Set the filter depending upon attr, category or range filter.
             if (filter) {
+                //console.log('isFilter')
                 switch (filter.by) {
                 case 'category':
                     filter_function = function (value, nodeId) {
-                        let pass = (filter.value.indexOf(value) > -1)
                         return (filter.value.indexOf(value) > -1)
                     }
                     break
                 case 'range':
-                    let range = filter.value
                     filter_function = function (value, nodeId) {
-                        let include = (value >= range[0] && value <= range[1])
-                        return (value >= range[0] && value <= range[1]);
+                         return (value >= filter.low && value <= filter.high);
                     }
                     break
                 }
@@ -833,7 +860,7 @@ exports.get_current_filters = function () {
                 layer_name: layer_name,
                 filter_function: filter_function,
             });
-        //}
+        }
     });
     
     return current_filters;

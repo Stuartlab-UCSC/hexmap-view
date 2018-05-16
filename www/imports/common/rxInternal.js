@@ -209,15 +209,12 @@ const reducers = {
         // Change the value of a continuous filter using the same filterBy
         // if a continuous filter already exists.
         case 'shortEntry.filter.continuous':
-            var by = action.by
-            if (!by) {
-                by = state[action.attr].by
-            }
-            newState = cloneStateExceptAttr();
+            newState = cloneStateExceptAttr()
             newState[action.attr] = {
                 attr: action.attr,
-                by: by,
-                value: action.value,
+                by: action.by,
+                low: action.low,
+                high: action.high,
             }
             return newState
 

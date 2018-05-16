@@ -9,13 +9,10 @@ import rx from '/imports/common/rx';
 import shortlist from '/imports/mapPage/shortlist/shortlist';
 import util from '/imports/common/util';
 
-// Previous active attrs and filters.
-let pActiveAttrs = null
-let pFilterBy = [null]
-let pFilterVal = [null]
 let refreshTimer
 
 function get_range_position(scoreIn, low, high, filterBy) {
+
     // Given a score float, and the lower and upper bounds of an interval (which
     // may be equal, but not backwards), return a number in the range -1 to 1
     // that expresses the position of the score in the [low, high] interval.
@@ -53,41 +50,30 @@ function get_range_position(scoreIn, low, high, filterBy) {
     return score;
 }
 
-function findContinuousFilters (current_layers) {
+function findContinuousFilters (attrNames) {
 
     // Set up the limits for continuous attrs.
-    let filterBys = rx.get('shortEntry.menu.filter')
-    let filterVals = rx.get('shortEntry.filter')
-    var layer_limits = [];
-    var filterBy = []
-    current_layers.forEach(function (attr) {
-        let dataType = util.getDataType(attr)
+    let filters = rx.get('shortEntry.filter')
+    let limits = {}
+    attrNames.forEach(attr => {
+        let filter = filters[attr]
+        if (filter) {
+            limits[attr] = filter
+        } else {
         
-        // Values for non-continuous attrs.
-        let range = null
-        let by = null
-        if (dataType === 'continuous') {
-            
-            // Default the values as if there is no filter,
-            // which is the same as filter by range using min and max.
-            range = [layers[attr].minimum, layers[attr].maximum]
-            by = 'range'
-            if (filterBys[attr] === 'range' ||
-                filterBys[attr] === 'threshold') {
-                by = filterBys[attr]
-                if (filterVals[attr]) {
-                    range = filterVals[attr].value
-                }
+            // With no filter, use the attr's min and max.
+            limits[attr] = {
+                by: 'range',
+                low: layers[attr].minimum,
+                high: layers[attr].maximum,
             }
         }
-        layer_limits.push(range)
-        filterBy.push(by)
     })
 
-    return {by: filterBy, range: layer_limits}
+    return limits
 }
 
-export function refreshColors () {
+function refreshColorsInner () {
 
     // Make the view display the correct hexagons in the colors of the current
     // layer(s), as read from the values of the layer pickers in the global
@@ -100,12 +86,11 @@ export function refreshColors () {
     if (rx.get('init.map') !== 'rendered') {
         return;
     }
-    
-    console.log('refreshColors()')
-    
+    //console.log('refreshColorsInner()')
+
     // This holds a list of the string names of the currently selected layers,
     // in order.
-    var current_layers = shortlist.get_active_coloring_layers();
+    var actives = shortlist.get_active_coloring_layers();
     
     // This holds all the current filters
     var filters = shortlist.get_current_filters();
@@ -119,7 +104,7 @@ export function refreshColors () {
     }
     
     // Obtain the layer objects (mapping from signatures/hex labels to colors)
-    Layer.with_many(current_layers, function(retrieved_layers) {  
+    Layer.with_many(actives, function(attrs) {
 
         // This holds arrays of the lower and upper limit we want to use for 
         // each layer, by layer number. The lower limit corresponds to u or 
@@ -128,13 +113,11 @@ export function refreshColors () {
         
         // We need to do this inside the callback, once we already have the
         // layers, so that we use the newest slider range endpoints.
-        var at_least_one_layer = retrieved_layers.length >= 1;
-        var two_layers = retrieved_layers.length >= 2;
+        var at_least_one_layer = attrs.length >= 1;
+        var two_layers = attrs.length >= 2;
         
-        // Set up the limits for continuous attrs.
-        let continuousFilter = findContinuousFilters(current_layers)
-        let filterBy = continuousFilter.by
-        let layer_limits =  continuousFilter.range
+        // Get the limits for continuous attrs.
+        let limits = findContinuousFilters(actives)
 
         // Go get the list of filter-passing hexes.
         shortlist.with_filtered_signatures(filters, function(signatures) {
@@ -154,25 +137,26 @@ export function refreshColors () {
                     // Get the heat along u and v axes. This puts us in a square
                     // of side length 2. Fun fact: undefined / number = NaN, but
                     // !(NaN == NaN)
-                    var u = retrieved_layers[0].data[label];
+                    var u = attrs[0].data[label];
                     
-                    if(util.is_continuous(current_layers[0])) {
+                    if(util.is_continuous(actives[0])) {
+                        
                         // Take into account the slider values and re-scale the
                         // layer value to express its position between them.
-                        u = get_range_position(u, layer_limits[0][0], 
-                            layer_limits[0][1], filterBy[0]);
+                        u = get_range_position(u, limits[actives[0]].low,
+                            limits[actives[0]].high, limits[actives[0]].by);
                     }
                     
-                    if(two_layers) {
+                    if (two_layers) {
                         // There's a second layer, so use the v axis.
-                        var v = retrieved_layers[1].data[label];
+                        var v = attrs[1].data[label];
                         
-                        if(util.is_continuous(current_layers[1])) {
+                        if(util.is_continuous(actives[1])) {
                             // Take into account the slider values and re-scale
                             // the layer value to express its position between
                             // them.
-                            v = get_range_position(v, layer_limits[1][0], 
-                                layer_limits[1][1], filterBy[1]);
+                            v = get_range_position(v, limits[actives[1]].low,
+                                limits[actives[1]].high, limits[actives[1]].by);
                         }
                         
                     } else {
@@ -186,8 +170,7 @@ export function refreshColors () {
                     // OK. Compute the color that we should use to express this
                     // combination of layer values. It's OK to pass undefined
                     // names here for layers.
-                    computed_color = get_color(current_layers[0], u,
-                        current_layers[1], v);
+                    computed_color = get_color(actives[0], u, actives[1], v);
                 }
                     
                 // Set the color by the composed layers.
@@ -195,7 +178,7 @@ export function refreshColors () {
             }
         });
 
-        legend.redraw(retrieved_layers, current_layers);
+        legend.redraw(attrs, actives);
     });
     
     // Make sure to also redraw the info window, which may be open.
@@ -203,69 +186,12 @@ export function refreshColors () {
     infoWindow.redraw();
 }
 
-function refreshColorByState () {
-
-    // Check state to see if colors need refreshing.
-    let update = false
-    let activeAttrs = rx.get('active.attrs')
-    let filterBy = []
-    let filterVal = []
+export function refreshColors() {
     
-    // First compare active coloring attrs.
-    if (!rx.isArrayEqual(activeAttrs, pActiveAttrs)) {
-        update = true
-    }
-    
-    // For each active attr.
-    if (activeAttrs) {
-        for (let i = 0; i < activeAttrs.length; i++) {
-            filterBy[i] = rx.get('shortEntry.menu.filter')[activeAttrs[i]]
-            filterVal[i] = rx.get('shortEntry.filter')[activeAttrs[i]]
-
-            // If we haven't found a need to update yet...
-            if (!update) {
-            
-                // Compare the filterBy.
-                if (filterBy[i] === pFilterBy[i]) {
-            
-                    // Compare the filter values.
-                    if (filterVal[i].value.length === pFilterVal[i].value.length) {
-                        let j = 0
-                        while (j < filterVal[i].value.length) {
-                            if (filterVal[i].value[j] !== pFilterVal[i].value[j]) {
-                                update = true
-                                break
-                            }
-                            j++
-                        }
-                    }
-                }
-            }
-        }
-    }
-    if (update) {
-        pActiveAttrs = activeAttrs
-        pFilterBy = filterBy
-        pFilterVal = filterVal
-        let i = 0
-        let receivedAttrs = true
-        if (activeAttrs) {
-            while (i < activeAttrs.length) {
-                if (layers[activeAttrs[i]].status !== 'received') {
-                    receivedAttrs = false
-                    break
-                }
-                i++
-            }
-        }
-        if (receivedAttrs) {
-            //refreshColors()
-            
-            // Use a timeout to throttle the color refreshes.
-            clearTimeout(refreshTimer)
-            refreshTimer = setTimeout(refreshColors)
-        }
-    }
+    // Use a timeout to throttle the color refreshes.
+    //console.log('refreshColors()')
+    clearTimeout(refreshTimer)
+    refreshTimer = setTimeout(refreshColorsInner)
 }
 
 export function get_color (layerName1, layerVal1, layerName2, layerVal2) {
@@ -551,8 +477,4 @@ function mix2Continuos(layerVal1, layerVal2){
     var color = colorify(red, green , blue);
 
     return color;
-}
-
-export function init () {
-    rx.subscribe(refreshColorByState)
 }

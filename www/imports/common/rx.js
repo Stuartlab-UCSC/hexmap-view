@@ -137,19 +137,21 @@ exports.subscribe = function (callback) {
     return reduxStore.subscribe(callback);
 };
 
-export function isArrayEqual(prevVal, newVal) {
+export function isArrayEqual(a1, a2) {
 
     // Performs a compare between two arrays of strings or arrays of simple
     // values; arrays may not contain objects.
     // Arrays with the same elements but different order are unequal.
-    var is = true;
-    if (newVal &&
-        prevVal &&
-        typeof prevVal === 'object' &&
-        typeof newVal === 'object' &&
-        prevVal.length === newVal.length) {
-        for (var i = 0; i < prevVal.length; i++) {
-            if (prevVal[i] !== newVal[i]) {
+    // Null and undefined are considered equal.
+    if (!a2 && !a1) {
+        return true
+    }
+    let is = true;
+    if (a2 && a1 &&
+        typeof a1 === 'object' && typeof a2 === 'object' &&
+        a1.length === a2.length) {
+        for (var i = 0; i < a1.length; i++) {
+            if (a1[i] !== a2[i]) {
                 is = false;
                 break;
             }

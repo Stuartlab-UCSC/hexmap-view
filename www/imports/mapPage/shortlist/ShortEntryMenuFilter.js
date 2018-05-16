@@ -2,36 +2,67 @@
 // Logic and state for the filter items in the short list entry context menu.
 
 import Colormap from '/imports/mapPage/color/Colormap';
+import colorMix from '/imports/mapPage/color/colorMix';
 import rx from '/imports/common/rx';
 import shortlist from '/imports/mapPage/shortlist/shortlist';
 import util from '/imports/common/util';
 
-const selectAllNoneLimit = 2
+const selectAllNoneLimit = 7
 const categoryCountLimit = 50
 const selectAll = 'select all'
 const selectNone = 'select none'
 const tooManyCategories = 'too many categories to display'
 
-const onContinuousValue = (attr, by, dispatch) => {
+const updateColors = (attr, prev) => {
 
-    // Handle an update to a range or threshold filter value.
-    dispatch({
-        type: 'shortEntry.filter.continuous',
-        attr,
-        by,
-        value: shortlist.get_slider_range(attr)
-    })
+    // Update the colors if the new filter is not the same as the previous.
+    let changed = false
+    let next = rx.get('shortEntry.filter')[attr]
+    
+    // If both do not exist...
+    if (!prev && !next) {
+        // no change
+        
+    // If both exist and have the same filterBy, compare the filter values.
+    } else if (prev && next &&
+        prev.by === next.by) {
+        if (prev.by === 'category') {
+            prev.value.sort((a,b) => {a - b})
+            next.value.sort((a,b) => {a - b})
+            if (prev.value.length === next.value.length) {
+                let i = 0
+                while (i < prev.value.length) {
+                    if (prev.value[i] !== next.value[i]) {
+                        changed = true
+                        break
+                    }
+                    i++
+                }
+            }
+        } else {  // range or threshold
+            if (prev.low !== next.low || prev.high !== next.high) {
+                changed = true
+            }
+        }
+    } else {
+        changed = true
+    }
+    if (changed) {
+        colorMix.refreshColors()
+    }
 }
 
-const onCategoryValueSelectAll = (attr, value, dispatch) => {
+const onCategoryValueAll = (attr, value, dispatch) => {
 
     // Set all categories.
     let count = Colormap.getCategoryCount(attr)
+    let prev = rx.get('shortEntry.filter')[attr]
     dispatch({
         type: 'shortEntry.filter.category.all',
         attr,
         value: _.range(count),
     })
+    updateColors(attr, prev)
 
     // Select category in the main menu filter.
     dispatch({
@@ -41,14 +72,16 @@ const onCategoryValueSelectAll = (attr, value, dispatch) => {
     })
 }
 
-const onCategoryValueSelectNone = (attr, value, dispatch) => {
+const onCategoryValueNone = (attr, value, dispatch) => {
 
     // Unselect any values.
+    let prev = rx.get('shortEntry.filter')[attr]
     dispatch({
         type: 'shortEntry.filter.category.none',
         attr,
     })
-
+    updateColors(attr, prev)
+    
     // Unselect category in the main menu filter.
     dispatch({
         type: 'shortEntry.menu.filter.unselect',
@@ -58,13 +91,14 @@ const onCategoryValueSelectNone = (attr, value, dispatch) => {
 }
 
 const onCategoryValueOne = (attr, value, dispatch) => {
-
-    // Select the specific category.
+    // Select/unselect the specific category.
+    let prev = rx.get('shortEntry.filter')[attr]
     dispatch({
         type: 'shortEntry.filter.category',
         attr,
         value,
     })
+    updateColors(attr, prev)
 
     // Set the main menu filter checkmark depending on whether any
     // categories are selected.
@@ -91,10 +125,10 @@ const onCategoryValue = (attr, value, dispatch) => {
 
     switch (value) {
     case selectAll:
-        onCategoryValueSelectAll(attr, value, dispatch)
+        onCategoryValueAll(attr, value, dispatch)
         break
     case selectNone:
-        onCategoryValueSelectNone(attr, value, dispatch)
+        onCategoryValueNone(attr, value, dispatch)
         break
     default:
         onCategoryValueOne(attr, value, dispatch)
@@ -177,44 +211,62 @@ export const getValues = () => {
                 })
             case 'range':
             case 'threshold':
-            case 'attr':
-                return filter.value
+                return [filter.low, filter.high]
             }
         }
     }
     return null
 }
 
+export const onContinuousValue = (attr, low, high) => {
+
+    // Handle an update to a range or threshold filter value.
+    // This only comes in from a slider value move event
+    let prev = rx.get('shortEntry.filter')[attr]
+    
+    // If low and high are not provided, get them from the slider.
+    if (!low) {
+        let lowHigh = shortlist.get_slider_range(attr)
+        low = lowHigh[0]
+        high = lowHigh[1]
+    }
+
+    // If the new values are the same as the layer's min & max,
+    // remove the filter.
+    if (low === layers[attr].minimum && high === layers[attr].maximum) {
+        rx.set('shortEntry.filter.drop', {attr})
+    } else {
+        rx.set('shortEntry.filter.continuous', {
+            attr,
+            by: rx.get('shortEntry.menu.filter')[attr],
+            low,
+            high,
+        })
+    }
+    updateColors(attr, prev)
+}
+
 export const onMenu = (attr, clicked, dispatch) => {
 
     // This is a click on the main menu of a filter item.
     
-    // Toggle that menu item off or on.
+    // Toggle the menu item.
     dispatch({
         type: 'shortEntry.menu.filter.click',
         attr,
         clicked,
     })
-
-    let selected = rx.get('shortEntry.menu.filter')[attr]
-    if (selected === clicked) {
-    
-        // The menu option is now selected. Only range and threshold filters
-        // can be turned on by a main menu click, so get the slider values.
-        dispatch({
-            type: 'shortEntry.filter.continuous',
-            attr,
-            by: clicked,
-            value: shortlist.get_slider_range(attr),
-        })
+    let next = rx.get('shortEntry.menu.filter')[attr]
+    if (next === clicked) {
+        onContinuousValue(attr)
         
-    } else {
-    
-        // The menu option is now unselected, so drop the filter values.
+    } else { // unselected, so drop any filter.
+        let prev = rx.get('shortEntry.filter')[attr]
         dispatch({
             type: 'shortEntry.filter.drop',
             attr,
         })
+        updateColors(attr, prev)
     }
 }
 
@@ -223,10 +275,6 @@ export const onValue = (ev, data, dispatch) => {
     switch (data.by) {
     case 'category':
         onCategoryValue(attr, data.value, dispatch)
-        break
-    case 'range':
-    case 'threshold':
-        onContinuousValue(attr, data.by, dispatch)
         break
     case 'hideBgNodes':
         break

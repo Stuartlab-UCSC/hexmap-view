@@ -18,6 +18,7 @@
 }
 
 #shortlist .entryMenu {
+    top: 80px !important;
     left: auto !important;
     right: 300px !important;
     min-width: 13em;

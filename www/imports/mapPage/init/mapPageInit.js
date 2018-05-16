@@ -4,7 +4,6 @@
 
 import { Meteor } from 'meteor/meteor';
 import colorEdit from '/imports/mapPage/color/colorEdit';
-import colorMix from '/imports/mapPage/color/colorMix';
 import coords from '/imports/mapPage/viewport/coords';
 import createMap from '/imports/mapPage/calc/createMap';
 import data from '/imports/mapPage/data/data';
@@ -128,8 +127,6 @@ function isMapRendered () {
     
         unsubFx.isMapRendered();
         perform.log('5-init:request-secondary-data');
-        
-        colorMix.init()
         
         // Timeout to allow the map to render.
         setTimeout(function () {
