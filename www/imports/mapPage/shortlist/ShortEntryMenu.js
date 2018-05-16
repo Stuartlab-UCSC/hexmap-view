@@ -43,10 +43,10 @@ const trigger = onTrigger => {
     return trigger;
 }
 
-const filterByRange = (active, dataType, filterChecked, onMainMenu) => {
+const filterByRange = (dataType, filterChecked, onMainMenu) => {
 
     // Render the range filter menu item for continuous data types.
-    if (!active || (dataType !== 'continuous')) {
+    if (!dataType || (dataType !== 'continuous')) {
         return null
     }
     let menuItem =
@@ -62,10 +62,10 @@ const filterByRange = (active, dataType, filterChecked, onMainMenu) => {
     return menuItem
 }
 
-const filterByThreshold = (active, dataType, filterChecked, onMainMenu) => {
+const filterByThreshold = (dataType, filterChecked, onMainMenu) => {
 
     // Render the threshold filter menu item for continuous data types.
-    if (!active || (dataType !== 'continuous')) {
+    if (!dataType || (dataType !== 'continuous')) {
         return null
     }
     let menuItem =
@@ -108,12 +108,12 @@ const filterByCategoryValue = (item, i, filterValues, onFilterValue) => {
     return menuItem
 }
 
-const filterByCategory = (active, dataType, filterChecked, filterList,
+const filterByCategory = (dataType, filterChecked, filterList,
     filterValues, onMainMenu, onFilterValue) => {
 
     // Render the category filter submenu and list of categories.
     // For binary and categorical data types.
-    if (!active || (dataType === 'continuous')) {
+    if (!dataType || (dataType === 'continuous')) {
         return null
     }
     let title = 'Filter by Category'
@@ -143,68 +143,6 @@ const filterByCategory = (active, dataType, filterChecked, filterList,
     return submenu;
 }
 
-const filterByAttrValue = (dataType, filterList, filterValue,
-    onFilterValue) => {
-    var items = null
-    if (filterList && filterList.length > 0) {
-        items = filterList.map((item, i) =>
-            <MenuItem
-                data = {{value: item, by: 'attr'}}
-                onClick = {onFilterValue}
-                key = {i}
-            >
-                { (item === filterValue) ? '✓ ' + item : item }
-            </MenuItem>
-        );
-
-    } else {
-        var msg
-        if (dataType === 'binary') {
-            msg = 'Add another binary attribute to short list'
-        } else {
-            msg = 'Add a binary attribute to short list'
-        }
-        items =
-            <MenuItem
-                attributes = {{className: 'error'}}
-            >
-                {msg}
-            </MenuItem>
-    }
-    return items
-}
-
-const filterByAttr = (active, dataType, filterChecked, filterList, filterValues,
-    onMainMenu, onFilterValue) => {
-    if (!active) {
-        return null
-    }
-    let title = 'Filter by Attribute'
-    let onClick = null
-    let data = null
-    let preventClose = true
-
-    // If the main menu filter by attr is checked...
-    if (filterChecked === 'attr') {
-        title = '✓ ' + title
-        onClick = onMainMenu
-        data = {id: 'attr'}
-        preventClose = null
-    }
-    let submenu = <SubMenu
-        title = {title}
-        onClick = {onClick}
-        data = {data}
-        preventClose = {preventClose}
-        hoverDelay = {0}
-    >
-        { filterByAttrValue(dataType, filterList, filterValues,
-            onFilterValue) }
-    </SubMenu>
-    
-    return submenu;
-}
-
 const handleClick = (ev, data) => {
     console.log('handleClick():data:', data)
 }
@@ -220,7 +158,7 @@ const menuItem = (label, clickHandler, menuItemId) => {
     return item
 }
 
-const ShortEntryMenu = ({ active, dataType, filterChecked, filterLists, filterValues,
+const ShortEntryMenu = ({ dataType, filterChecked, filterList, filterValues,
     onTrigger, onMainMenu, onFilterValue}) => (
     <div>
         { trigger(onTrigger) }
@@ -229,11 +167,9 @@ const ShortEntryMenu = ({ active, dataType, filterChecked, filterLists, filterVa
             className = 'entryMenu'
             hideOnLeave = {true}
         >        
-            { filterByRange(active, dataType, filterChecked, onMainMenu) }
-            { filterByThreshold(active, dataType, filterChecked, onMainMenu) }
-            { filterByCategory(active, dataType, filterChecked, filterLists.category,
-                filterValues, onMainMenu, onFilterValue) }
-            { filterByAttr(active, dataType, filterChecked, filterLists.attr,
+            { filterByRange(dataType, filterChecked, onMainMenu) }
+            { filterByThreshold(dataType, filterChecked, onMainMenu) }
+            { filterByCategory(dataType, filterChecked, filterList,
                 filterValues, onMainMenu, onFilterValue) }
 
             { menuItem('Set Operation', handleClick, 'setOperation') }
@@ -243,11 +179,10 @@ const ShortEntryMenu = ({ active, dataType, filterChecked, filterLists, filterVa
 )
 
 ShortEntryMenu.propTypes = {
-    active: PropTypes.bool,          // menu attr is actively coloring
     dataType: PropTypes.string,      // dataType of the menu attr
     filterChecked: PropTypes.string, // group to filter by
-    filterLists: PropTypes.object,  // lists from which to select a filter value
-    filterValues: PropTypes.node,   // filter values
+    filterList: PropTypes.array,     // list from which to select a filter value
+    filterValues: PropTypes.node,    // filter values
 
     onTrigger: PropTypes.func,
     onMainMenu: PropTypes.func,

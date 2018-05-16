@@ -13,9 +13,7 @@ import util from '/imports/common/util';
 let pActiveAttrs = null
 let pFilterBy = [null]
 let pFilterVal = [null]
-let lastRefreshTimeStamp = Date.now()
 let refreshTimer
-let refreshTimeout = 0
 
 function get_range_position(scoreIn, low, high, filterBy) {
     // Given a score float, and the lower and upper bounds of an interval (which
@@ -103,6 +101,8 @@ export function refreshColors () {
         return;
     }
     
+    console.log('refreshColors()')
+    
     // This holds a list of the string names of the currently selected layers,
     // in order.
     var current_layers = shortlist.get_active_coloring_layers();
@@ -136,19 +136,14 @@ export function refreshColors () {
         let filterBy = continuousFilter.by
         let layer_limits =  continuousFilter.range
 
-        // Turn all the hexes the filtered-out color, pre-emptively
-        // TODO redrawing would be faster to not change colors twice
-        for(var signature in polygons) {
-            hexagons.setOneColor(polygons[signature], Colormap.noDataColor());
-        }
-
         // Go get the list of filter-passing hexes.
         shortlist.with_filtered_signatures(filters, function(signatures) {
-            for(var i = 0; i < signatures.length; i++) {
-                // For each hex assign the filter
-                // This holds its signature label
-                var label = signatures[i];
-
+            for (let sig in polygons) {
+                if (signatures.indexOf(sig) < 0) {
+                    hexagons.setOneColor(polygons[sig], Colormap.noDataColor());
+                    continue
+                }
+                var label = sig
                 // This holds the color we are calculating for this hexagon.
                 // Start with the no data color.
                 var computed_color = Colormap.noDataColor();
@@ -208,18 +203,6 @@ export function refreshColors () {
     infoWindow.redraw();
 }
 
-function refreshRequest () {
-    
-    // To avoid multiple refreshes in a short period of time, wait for
-    // so many milliseconds to refresh.
-    let now = Date.now();
-    let betweenRequests = now - lastRefreshTimeStamp
-    console.error('since last refreshColors():', betweenRequests)
-    lastRefreshTimeStamp = now
-    clearTimeout(refreshTimer)
-    refreshTimer = setTimeout(refreshColors, refreshTimeout)
-}
-
 function refreshColorByState () {
 
     // Check state to see if colors need refreshing.
@@ -276,7 +259,11 @@ function refreshColorByState () {
             }
         }
         if (receivedAttrs) {
-            refreshRequest()
+            //refreshColors()
+            
+            // Use a timeout to throttle the color refreshes.
+            clearTimeout(refreshTimer)
+            refreshTimer = setTimeout(refreshColors)
         }
     }
 }

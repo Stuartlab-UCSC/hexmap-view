@@ -101,44 +101,6 @@ const onCategoryValue = (attr, value, dispatch) => {
     }
 }
 
-const onAttrValue = (attr, value, dispatch) => {
-
-    // Upon click of an attribute on the attr filter submenu.
-    // Toggle the click state on the attr clicked.
-    dispatch({
-        type: 'shortEntry.filter.attr',
-        attr,
-        value,
-    })
-    
-    // Set the main menu filter checkmark depending on the toggle state of
-    // the attr clicked.
-    let attrFilter = rx.get('shortEntry.filter')[attr]
-    if (attrFilter) {
-        dispatch({
-            type: 'shortEntry.menu.filter.select',
-            attr,
-            select: 'attr'
-        })
-    } else {
-        dispatch({
-            type: 'shortEntry.menu.filter.unselect',
-            attr,
-            select: 'attr'
-        })
-    }
-}
-
-export const getActive = (attrIn) => {
-
-    // Return true if the attribute is actively coloring.
-    var attr = attrIn
-    if (!attr) {
-        attr = rx.get('shortEntry.menu.attr')
-    }
-    return (rx.get('activeAttrs').indexOf(attr) > -1)
-}
-
 export const getDataType = (attrIn) => {
 
     // Get the data type of the attribute.
@@ -157,7 +119,7 @@ export const getChecked = () => {
 
     // Get the filterChecked value in state.
     let attr = rx.get('shortEntry.menu.attr')
-    if (getActive(attr)) {
+    if (attr) {
         var checked = rx.get('shortEntry.menu.filter')[attr]
         return checked
     }
@@ -181,34 +143,29 @@ const getCategoryList = (attr) => {
     return list
 }
 
-export const getLists = () => {
+export const getList = () => {
 
-    // Get the lists for all of the filter groups.
+    // Get the list of values for a binary or categorical attr.
     let attr = rx.get('shortEntry.menu.attr')
-    let lists = {}
+    let list = []
     
     // Only an active attribute has filter options on the menu.
-    if (getActive(attr)) {
+    if (attr) {
     
         // Get the filter by values determined by data type.
         let dataType = getDataType(attr)
         if (dataType === 'binary' || dataType === 'categorical') {
-            lists.category = getCategoryList(attr)
+            list = getCategoryList(attr)
         }
-        
-        // Get the filter by attrs list.
-        let attrIds = Session.get('shortlist').filter(
-            id => util.getDataType(id) === 'binary' && id !== attr)
-        lists.attr = (_.isUndefined(attrIds)) ? [] : attrIds
     }
-    return lists
+    return list
 }
 
 export const getValues = () => {
 
     // Get the selected items in the filterBy list in state.
     let attr = rx.get('shortEntry.menu.attr')
-    if (getActive(attr)) {
+    if (attr) {
         let filter = rx.get('shortEntry.filter')[attr]
         if (filter) {
             switch (filter.by) {
@@ -264,9 +221,6 @@ export const onMenu = (attr, clicked, dispatch) => {
 export const onValue = (ev, data, dispatch) => {
     let attr = shortlist.get_layer_name_from_child(ev.target)
     switch (data.by) {
-    case 'attr':
-        onAttrValue(attr, data.value, dispatch)
-        break
     case 'category':
         onCategoryValue(attr, data.value, dispatch)
         break

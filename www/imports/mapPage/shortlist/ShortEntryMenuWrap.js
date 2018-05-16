@@ -12,10 +12,9 @@ const mapStateToProps = () => {
 
     // Map state to the shortEntryMenu properties.
     return {
-        active: ShortEntryMenuFilter.getActive(),
         dataType: ShortEntryMenuFilter.getDataType(),
         filterChecked: ShortEntryMenuFilter.getChecked(),
-        filterLists: ShortEntryMenuFilter.getLists(),
+        filterList: ShortEntryMenuFilter.getList(),
         filterValues: ShortEntryMenuFilter.getValues(),
     }
 }
@@ -33,7 +32,6 @@ const mapDispatchToProps = (dispatch) => {
         onMainMenu: (ev, data) => {
             let attr = shortlist.get_layer_name_from_child(ev.target)
             switch (data.id) {
-            case 'attr':
             case 'category':
             case 'range':
             case 'threshold':

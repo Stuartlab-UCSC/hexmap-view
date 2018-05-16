@@ -67,7 +67,6 @@ exports.stateActions = [
     'projectList.receiving',
     'projectList.stable',
     'shortEntry.bgNodes.visible.toggle',
-    'shortEntry.filter.attr',
     'shortEntry.filter.category',
     'shortEntry.filter.category.all',
     'shortEntry.filter.category.none',
@@ -145,6 +144,7 @@ export function isArrayEqual(prevVal, newVal) {
     // Arrays with the same elements but different order are unequal.
     var is = true;
     if (newVal &&
+        prevVal &&
         typeof prevVal === 'object' &&
         typeof newVal === 'object' &&
         prevVal.length === newVal.length) {

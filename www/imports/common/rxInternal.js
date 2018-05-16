@@ -143,25 +143,6 @@ const reducers = {
         let filter
         switch (action.type) {        
         
-        // Update the filter by attr value.
-        case 'shortEntry.filter.attr':
-            newState = cloneStateExceptAttr();
-            
-            // If a value is already set and it is the same as the new
-            // one, toggle to remove the filter.
-            if (action.attr in state && 'value' in state[action.attr] &&
-                state[action.attr].value === action.value) {
-                delete newState[action.attr]
-            } else {
-                
-                // There is a new value, so change that.
-                newState[action.attr] = {
-                    by: 'attr',
-                    value: action.value,
-                }
-            }
-            return newState
-
         // Select all of the values in the category list.
         case 'shortEntry.filter.category.all':
             newState = cloneStateExceptAttr()
