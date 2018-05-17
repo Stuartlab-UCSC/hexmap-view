@@ -3,6 +3,7 @@
 
 import Colormap from '/imports/mapPage/color/Colormap';
 import colorMix from '/imports/mapPage/color/colorMix';
+import Layer from '/imports/mapPage/longlist/Layer';
 import rx from '/imports/common/rx';
 import shortlist from '/imports/mapPage/shortlist/shortlist';
 import util from '/imports/common/util';
@@ -52,6 +53,21 @@ const updateColors = (attr, prev) => {
     if (changed) {
         colorMix.refreshColors()
     }
+}
+
+const onCreateFilterAttr = () => {
+
+    // Clicking on the save button creates a dynamic attr using all
+    // of the current filters to select nodes.
+    let filterFunctions = shortlist.get_current_filters();
+    shortlist.with_filtered_signatures(filterFunctions, function(nodeIds) {
+    
+        // Suggest a name for this new attr.
+        var name = 'with filters';
+        
+        // Create the dynamic attr.
+        Layer.create_dynamic_selection(nodeIds, name);
+    })
 }
 
 const onCategoryValueAll = (attr, value, dispatch) => {
@@ -153,7 +169,7 @@ export const getDataType = (attrIn) => {
 
 export const getChecked = () => {
 
-    // Get the filterChecked value in state.
+    // Get the menu filter checked in state.
     let attr = rx.get('shortEntry.menu.attr')
     if (attr) {
         let checked = rx.get('shortEntry.menu.filter')[attr]
@@ -220,6 +236,12 @@ export const getValues = () => {
     return null
 }
 
+export const getAnyFilters = () => {
+
+    // Return whether any filters exist or not.
+    return (Object.keys(rx.get('shortEntry.filter')).length > 0)
+}
+
 export const onContinuousValue = (attr, low, high) => {
 
     // Handle an update to a range or threshold filter value.
@@ -251,38 +273,40 @@ export const onContinuousValue = (attr, low, high) => {
 export const onMenu = (attr, clicked, dispatch) => {
 
     // This is a click on the main menu of a filter item.
-    if (clicked === 'createFilterAttr') {
-        console.log('clicked:', clicked)
-        //shortlist.save_filter_clicked(attr)
-        return
-    }
+    let next
+    switch (clicked) {
+    case 'createFilterAttr':
+        onCreateFilterAttr()
+        break
+    default:
     
-    // Toggle the menu item.
-    dispatch({
-        type: 'shortEntry.menu.filter.click',
-        attr,
-        clicked,
-    })
-    let next = rx.get('shortEntry.menu.filter')[attr]
-    
-    // Only continuous values get to here.
-    if (next === clicked) {
-        let highMask = document.querySelector(
-            '.shortlist_entry[data-layer="' + attr + '"] .high_mask')
-        if (clicked === 'threshold') {
-            highMask.classList.add('threshold')
-        } else {
-            highMask.classList.remove('threshold')
-        }
-        onContinuousValue(attr)
-
-    } else { // unselected, so drop any filter.
-        let prev = rx.get('shortEntry.filter')[attr]
+        // Toggle the menu item.
         dispatch({
-            type: 'shortEntry.filter.drop',
+            type: 'shortEntry.menu.filter.click',
             attr,
+            clicked,
         })
-        updateColors(attr, prev)
+        next = rx.get('shortEntry.menu.filter')[attr]
+    
+        // Only continuous values get to here.
+        if (next === clicked) {
+            let highMask = document.querySelector(
+                '.shortlist_entry[data-layer="' + attr + '"] .high_mask')
+            if (clicked === 'threshold') {
+                highMask.classList.add('threshold')
+            } else {
+                highMask.classList.remove('threshold')
+            }
+            onContinuousValue(attr)
+
+        } else { // unselected, so drop any filter.
+            let prev = rx.get('shortEntry.filter')[attr]
+            dispatch({
+                type: 'shortEntry.filter.drop',
+                attr,
+            })
+            updateColors(attr, prev)
+        }
     }
 }
 

@@ -16,6 +16,7 @@ const mapStateToProps = () => {
         filterChecked: ShortEntryMenuFilter.getChecked(),
         filterList: ShortEntryMenuFilter.getList(),
         filterValues: ShortEntryMenuFilter.getValues(),
+        anyFilters: ShortEntryMenuFilter.getAnyFilters(),
     }
 }
 
