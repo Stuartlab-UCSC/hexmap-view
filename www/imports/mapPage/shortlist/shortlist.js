@@ -114,7 +114,7 @@ function get_layer_name_from_root (root) {
     return (root && root.length > 0) ? root.data('layer') : null;
 }
 
-function get_root_from_layer_name (layer_name) {
+export function get_root_from_layer_name (layer_name) {
     return $('.shortlist_entry[data-layer="' + layer_name + '"]');
 }
 
@@ -217,9 +217,6 @@ Template.shortlistEntryT.helpers({
             val = Number(val).toExponential(1);
         }
         return val;
-    },
-    save_filter_display: function () {
-        return is_hovered(this.toString()) ? 'initial' : 'none';
     },
 });
 
@@ -337,7 +334,7 @@ function create_shortlist_ui_entry_with_data (layer_name, root) {
     }
 }
 
-function save_filter_clicked (layer_name) {
+export function save_filter_clicked (layer_name) {
 
     // Clicking on the save button creates a dynamic layer
     let filter = rx.get('shortEntry.filter')[layer_name]
@@ -405,10 +402,6 @@ function build_filter (layer_name) {
         }
         
         filterBuilt.set(layer_name, true);
-
-        root.find('.save_filter').click(function() {
-            save_filter_clicked(layer_name);
-        });
     });
 }
 
@@ -569,6 +562,7 @@ function when_active_color_layers_change () {
     }
     Session.set('active_layers', rx.copyStringArray(active));
     attachActiveIcons()
+    colorMix.refreshColors()
 }
 
 function primaryButtonClick (ev) {
@@ -813,54 +807,44 @@ exports.get_current_filters = function () {
     // Returns an array of filter objects, according to the shortlist UI.
     // Filter objects have a layer name and a boolean-valued filter function
     // that returns true or false, given a value from that layer.
-    var current_filters = [];
     var allFilters = rx.get('shortEntry.filter');
-    var activeAttrs = rx.get('activeAttrs');
-    
+    var current_filters = [];
     var filter_functions = []
 
-    _.each(Session.get('shortlist'), function (layer_name) {
+    // Go through all the filters.
+    
+    Object.keys(allFilters).forEach(layer_name => {
 
-        // Go through all the shortlist entries.
-        // This function is also the scope used for filtering function
-        // config variables.
+         // Define the functions and values to use for filtering
+        var filter = allFilters[layer_name];
+       
+        //console.log('get_current_filters:filter:', filter)
 
-        // if the filter is showing and the layer is active, apply a filter
-        if (activeAttrs.indexOf(layer_name) > -1) {
-
-            // Define the functions and values to use for filtering
-            var filter = allFilters[layer_name];
-           
-            //console.log('get_current_filters:filter:', filter)
-
-            // The default filter function.
-            filter_function = function (value, nodeId) {  // jshint ignore: line
-                return true;
-            };
-           
-            // Set the filter depending upon attr, category or range filter.
-            if (filter) {
-                //console.log('isFilter')
-                switch (filter.by) {
-                case 'category':
-                    filter_function = function (value, nodeId) {
-                        return (filter.value.indexOf(value) > -1)
-                    }
-                    break
-                case 'range':
-                    filter_function = function (value, nodeId) {
-                         return (value >= filter.low && value <= filter.high);
-                    }
-                    break
-                }
-           }
-
-            // Add a filter on this layer, with the function we've prepared.
-            current_filters.push({
-                layer_name: layer_name,
-                filter_function: filter_function,
-            });
+        // The default filter function.
+        filter_function = function (value, nodeId) {  // jshint ignore: line
+            return true;
+        };
+       
+        // Set the filter depending upon attr, category or range filter.
+        //console.log('isFilter')
+        switch (filter.by) {
+        case 'category':
+            filter_function = function (value, nodeId) {
+                return (filter.value.indexOf(value) > -1)
+            }
+            break
+        case 'range':
+            filter_function = function (value, nodeId) {
+                 return (value >= filter.low && value <= filter.high);
+            }
+            break
         }
+
+        // Add a filter on this layer, with the function we've prepared.
+        current_filters.push({
+            layer_name: layer_name,
+            filter_function: filter_function,
+        });
     });
     
     return current_filters;

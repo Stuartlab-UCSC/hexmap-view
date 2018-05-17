@@ -38,6 +38,8 @@ const updateColors = (attr, prev) => {
                     }
                     i++
                 }
+            } else {
+                changed = true
             }
         } else {  // range or threshold
             if (prev.low !== next.low || prev.high !== next.high) {
@@ -77,7 +79,7 @@ const onCategoryValueNone = (attr, value, dispatch) => {
     // Unselect any values.
     let prev = rx.get('shortEntry.filter')[attr]
     dispatch({
-        type: 'shortEntry.filter.category.none',
+        type: 'shortEntry.filter.drop',
         attr,
     })
     updateColors(attr, prev)
@@ -138,7 +140,7 @@ const onCategoryValue = (attr, value, dispatch) => {
 export const getDataType = (attrIn) => {
 
     // Get the data type of the attribute.
-    var attr = attrIn
+    let attr = attrIn
     if (!attr) {
         attr = rx.get('shortEntry.menu.attr')
     }
@@ -154,7 +156,7 @@ export const getChecked = () => {
     // Get the filterChecked value in state.
     let attr = rx.get('shortEntry.menu.attr')
     if (attr) {
-        var checked = rx.get('shortEntry.menu.filter')[attr]
+        let checked = rx.get('shortEntry.menu.filter')[attr]
         return checked
     }
     return null
@@ -230,7 +232,7 @@ export const onContinuousValue = (attr, low, high) => {
         low = lowHigh[0]
         high = lowHigh[1]
     }
-
+   
     // If the new values are the same as the layer's min & max,
     // remove the filter.
     if (low === layers[attr].minimum && high === layers[attr].maximum) {
@@ -249,6 +251,11 @@ export const onContinuousValue = (attr, low, high) => {
 export const onMenu = (attr, clicked, dispatch) => {
 
     // This is a click on the main menu of a filter item.
+    if (clicked === 'createFilterAttr') {
+        console.log('clicked:', clicked)
+        //shortlist.save_filter_clicked(attr)
+        return
+    }
     
     // Toggle the menu item.
     dispatch({
@@ -257,9 +264,18 @@ export const onMenu = (attr, clicked, dispatch) => {
         clicked,
     })
     let next = rx.get('shortEntry.menu.filter')[attr]
+    
+    // Only continuous values get to here.
     if (next === clicked) {
+        let highMask = document.querySelector(
+            '.shortlist_entry[data-layer="' + attr + '"] .high_mask')
+        if (clicked === 'threshold') {
+            highMask.classList.add('threshold')
+        } else {
+            highMask.classList.remove('threshold')
+        }
         onContinuousValue(attr)
-        
+
     } else { // unselected, so drop any filter.
         let prev = rx.get('shortEntry.filter')[attr]
         dispatch({
@@ -277,8 +293,6 @@ export const onValue = (ev, data, dispatch) => {
         onCategoryValue(attr, data.value, dispatch)
         break
     case 'hideBgNodes':
-        break
-    case 'createFilterAttr':
         break
     }
 }

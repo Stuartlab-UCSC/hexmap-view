@@ -15,6 +15,7 @@ const tooManyCategories = 'too many categories to display'
 let contextTrigger = null;
 
 const toggleMenu = ev => {
+    ev.clientY = ev.clientY - 10
     if (contextTrigger) {
         contextTrigger.handleContextClick(ev);
     }
@@ -143,10 +144,6 @@ const filterByCategory = (dataType, filterChecked, filterList,
     return submenu;
 }
 
-const handleClick = (ev, data) => {
-    console.log('handleClick():data:', data)
-}
-
 const menuItem = (label, clickHandler, menuItemId) => {
     let item =
         <MenuItem
@@ -172,7 +169,7 @@ const ShortEntryMenu = ({ dataType, filterChecked, filterList, filterValues,
             { filterByCategory(dataType, filterChecked, filterList,
                 filterValues, onMainMenu, onFilterValue) }
 
-            { menuItem('Set Operation', handleClick, 'setOperation') }
+            { menuItem('Save Filter', onMainMenu, 'createFilterAttr') }
 
         </ContextMenu>
     </div>

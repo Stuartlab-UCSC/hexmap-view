@@ -15,7 +15,7 @@
                         <img class='primary {{ primary_east }} float circle' src='{{ primary_icon }}' title='Display in the map as the primary variable' />
                         <img class='secondary {{ secondary_east }} float circle' src='{{ secondary_icon }}' style='display:{{ secondary_icon_display }}' title='Display in the map as the secondary variable' />
                         <img class='remove float' src='{{ remove_icon}}' title='Remove this attribute from the shortlist' />
-
+                        <img class='move float' src='/icons/resize-vertical.svg' title='Move entry up or down' />
                         <img class='is_primary circle' src='{{ is_primary_icon }}' title='The primary variable displayed in the map' />
                         <img class='is_secondary circle' src='{{ is_secondary_icon }}' title='The secondary variable displayed in the map' />
                     </div>
@@ -30,13 +30,10 @@
     {{#each layer}}
         <div class='shortlist_entry' data-layer='{{ this }}'>
         
-            <div class='controls'>
-                <img class='move' src='/icons/resize-vertical.svg' title='Move entry up or down' />
-                <img class='filter circle' data-layer='{{ this }}' src='{{ filter_icon }}' style='display:{{ filter_icon_display }}' title="This attribute's values are being filtered" />
-            </div>
+            <img class='filter circle' data-layer='{{ this }}' src='{{ filter_icon }}' style='display:{{ filter_icon_display }}' title="This attribute's values are being filtered" />
 
-             <div class='contents'>
-                <div>{{ this }}</div>
+            <div class='contents'>
+                <div class='attr_label'>{{ this }}</div>
                 <div class='metadata_holder'></div>
                 
                 <div class='chart_holder'>
@@ -54,11 +51,13 @@
                             <div class='low_mask mask'></div>
                             <div class='high_mask mask'></div>
                         </div>
-                        <img class='save_filter bottom circle' data-layer='{{ this }}' style='display:{{ save_filter_display }};margin-bottom:-0.25em' src='/icons/file-new.png' title='Create an attribute from this filter' />
                     </div>
                 </div>
         
             </div>
+            <div class='controls'>
+            </div>
+
         </div>
     {{/each}}
 </template>

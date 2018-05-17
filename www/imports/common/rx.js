@@ -69,7 +69,6 @@ exports.stateActions = [
     'shortEntry.bgNodes.visible.toggle',
     'shortEntry.filter.category',
     'shortEntry.filter.category.all',
-    'shortEntry.filter.category.none',
     'shortEntry.filter.continuous',
     'shortEntry.filter.drop',
     'shortEntry.menu.attr',
