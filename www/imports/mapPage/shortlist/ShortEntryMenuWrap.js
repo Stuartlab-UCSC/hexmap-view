@@ -35,6 +35,7 @@ const mapDispatchToProps = (dispatch) => {
             case 'category':
             case 'range':
             case 'threshold':
+            case 'createFilterAttr':
                 ShortEntryMenuFilter.onMenu(attr, data.id, dispatch)
                 break
             case 'hideBgNodes':

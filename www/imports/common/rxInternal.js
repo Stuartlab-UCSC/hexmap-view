@@ -4,6 +4,10 @@
 import redux from 'redux';
 import rx from './rx.js';
 
+function clone (obj) {
+    return JSON.parse(JSON.stringify(obj))
+}
+
 const reducers = {
     'activeAttrs': (state = [], action) => {
         let newState = []
@@ -128,41 +132,22 @@ const reducers = {
             !state : state;
     },
     'shortEntry.filter': (state = {}, action) => {
-    
-        // Make a copy of filter state, excluding the current attr.
-        function cloneStateExceptAttr () {
-            let filteredState = _.filter(state, function (oneAttr) {
-                return oneAttr.attr !== action.attr;
-            });
-            let newState = _.map(filteredState, function (oneAttr) {
-                return _.clone(oneAttr);
-            });
-            return newState;
-        }
-        let newState = {}
+        let newState
         let filter
         switch (action.type) {        
         
         // Select all of the values in the category list.
         case 'shortEntry.filter.category.all':
-            newState = cloneStateExceptAttr()
+            newState = clone(state)
             newState[action.attr] = {
                 by: 'category',
                 value: action.value,
             }
             return newState
         
-        // Unselect all of the values in the category list.
-        case 'shortEntry.filter.category.none':
-            filter = state[action.attr]
-            if (filter && filter.by === 'category') {
-                return cloneStateExceptAttr()
-            }
-            return state
-        
         // Update the category values to be filtered by.
         case 'shortEntry.filter.category':
-            newState = cloneStateExceptAttr();
+            newState = clone(state)
 
             // If there is a filter for this attr in state...
             if (action.attr in state) {
@@ -175,9 +160,14 @@ const reducers = {
                     let index = filter.value.indexOf(action.value)
                     if (index > -1) {
                     
-                        // If there are more values than this one.
-                        if (filter.value.length > 1) {
-                            
+                        // If there is just this value in the list....
+                        if (filter.value.length < 2) {
+                        
+                            // Remove the filter entirely
+                            delete newState[action.attr]
+                            return newState
+                        } else {
+                        
                             // Remove just this value from the list of values.
                             let newValues = filter.value.slice(0)
                             newValues.splice(index, 1)
@@ -209,9 +199,8 @@ const reducers = {
         // Change the value of a continuous filter using the same filterBy
         // if a continuous filter already exists.
         case 'shortEntry.filter.continuous':
-            newState = cloneStateExceptAttr()
+            newState = clone(state)
             newState[action.attr] = {
-                attr: action.attr,
                 by: action.by,
                 low: action.low,
                 high: action.high,
@@ -220,8 +209,9 @@ const reducers = {
 
         // Remove the filter if there is one for this filter group.
         case 'shortEntry.filter.drop':
-            return cloneStateExceptAttr();
-            
+            newState = clone(state)
+            delete newState[action.attr]
+            return newState
         default:
             return state;
         }
@@ -239,12 +229,13 @@ const reducers = {
         }
     },
     'shortEntry.menu.filter': (state = {}, action) => {
-        let newState = _.clone(state)
+        let newState
         switch (action.type) {
         case 'shortEntry.menu.filter.click':
 
             // If the newly clicked filter is the same as the previous,
             // uncheck the filter. Otherwise check the filter.
+            newState = clone(state)
             if (action.attr in state && action.clicked === state[action.attr]) {
                 delete newState[action.attr]
             } else {
@@ -253,6 +244,7 @@ const reducers = {
             return newState
         case 'shortEntry.menu.filter.select':
             if (!state[action.attr] || state[action.attr] !== action.select) {
+                newState = clone(state)
                 newState[action.attr] = action.select
                 return newState
             } else {
@@ -260,6 +252,7 @@ const reducers = {
             }
         case 'shortEntry.menu.filter.unselect':
             if (state[action.attr] && state[action.attr] === action.select) {
+                newState = clone(state)
                 delete newState[action.attr]
                 return newState
             } else {
