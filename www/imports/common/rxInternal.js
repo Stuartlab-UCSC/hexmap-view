@@ -207,11 +207,16 @@ const reducers = {
             }
             return newState
 
-        // Remove the filter if there is one for this filter group.
+        // Remove the filter.
         case 'shortEntry.filter.drop':
             newState = clone(state)
             delete newState[action.attr]
             return newState
+            
+        // Load from persistent store.
+        case 'shortEntry.filter.loadPersist':
+            return action.loadPersist;
+            
         default:
             return state;
         }
@@ -242,6 +247,8 @@ const reducers = {
                 newState[action.attr] = action.clicked
             }
             return newState
+        case 'shortEntry.menu.filter.loadPersist':
+            return action.loadPersist;
         case 'shortEntry.menu.filter.select':
             if (!state[action.attr] || state[action.attr] !== action.select) {
                 newState = clone(state)

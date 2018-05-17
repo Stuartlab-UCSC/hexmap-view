@@ -22,29 +22,13 @@ var LOGGING = false,  // true means log the state and store on save and load
 //      no session or ctx flag indicates redux var
 //      project: true indicates a project-specific var
 var varInfo = {
-    background: {
-        defalt: 'black',
-        session: true,
-    },
-    mapView: {
-        defalt: 'honeycomb',
-        session: true,
-    },
-    page: {
-        defalt: DEFAULT_PAGE,
-        session: true,
-    },
-    project: {
-        defalt: DEFAULT_PROJECT,
-        ctx: true,
-    },
-    transparent: {
-        defalt: false,
-        session: true,
-    },
     activeAttrs: {
         defalt: [],
         project: true,
+    },
+    background: {
+        defalt: 'black',
+        session: true,
     },
     center: {
         defalt: [0, 0],
@@ -65,34 +49,47 @@ var varInfo = {
         session: true,
         project: true,
     },
+    mapView: {
+        defalt: 'honeycomb',
+        session: true,
+    },
     overlayNodes: {
         defalt: undefined,
         session: true,
         project: true,
+    },
+    page: {
+        defalt: DEFAULT_PAGE,
+        session: true,
+    },
+    project: {
+        defalt: DEFAULT_PROJECT,
+        ctx: true,
+    },
+    'shortEntry.filter': {
+        defalt: {},
+        project: true,
+
+    },
+    'shortEntry.menu.filter': {
+        defalt: {},
+        project: true,
+
     },
     shortlist: {
         defalt: [],
         session: true,
         project: true,
     },
+    transparent: {
+        defalt: false,
+        session: true,
+    },
     zoom: {
         defalt: 3,
         ctx: true,
         project: true,
     },
-    /*
-    shortlist_filter_show_: {
-        defalt: undefined,
-        session: true,
-        project: true,
-
-    },
-    shortlist_filter_value_: {
-        defalt: undefined,
-        session: true,
-        project: true,
-    },
-    */
 };
 
 function isDefaultCenter(val) {

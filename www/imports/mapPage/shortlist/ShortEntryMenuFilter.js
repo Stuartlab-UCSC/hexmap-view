@@ -242,10 +242,12 @@ export const getAnyFilters = () => {
     return (Object.keys(rx.get('shortEntry.filter')).length > 0)
 }
 
-export const onContinuousValue = (attr, low, high) => {
+export const onContinuousValue = (attr, lowIn, highIn) => {
 
     // Handle an update to a range or threshold filter value.
     // This only comes in from a slider value move event
+    let low = lowIn
+    let high = highIn
     let prev = rx.get('shortEntry.filter')[attr]
     
     // If low and high are not provided, get them from the slider.
@@ -256,8 +258,10 @@ export const onContinuousValue = (attr, low, high) => {
     }
    
     // If the new values are the same as the layer's min & max,
-    // remove the filter.
-    if (low === layers[attr].minimum && high === layers[attr].maximum) {
+    // remove the filter. Except if this from a main menu click rather than
+    // a slider movement, don't drop the filte
+    if (lowIn &&
+        low === layers[attr].minimum && high === layers[attr].maximum) {
         rx.set('shortEntry.filter.drop', {attr})
     } else {
         rx.set('shortEntry.filter.continuous', {
