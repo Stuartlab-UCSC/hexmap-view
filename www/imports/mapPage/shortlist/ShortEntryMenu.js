@@ -24,10 +24,12 @@ const toggleMenu = ev => {
 const trigger = onTrigger => {
 
     // Render the context menu trigger on the hovered shortlist entry.
-    var trigger =
+    let attributes = {title: 'Options for this attribute'}
+    let trigger =
         <div>
             <ContextMenuTrigger
                 id = 'shortEntryMenuTrigger'
+                attributes = {attributes}
                 ref = {c => contextTrigger = c}
             >
                 <button
@@ -50,10 +52,12 @@ const filterByRange = (dataType, filterChecked, onMainMenu) => {
     if (!dataType || (dataType !== 'continuous')) {
         return null
     }
+    let attributes = {title: 'Only include nodes within a range of values'}
     let menuItem =
         <MenuItem
             data = {{id: 'range', by: 'range'}}
             onClick = {onMainMenu}
+            attributes = {attributes}
             preventClose = {true}
         >
             { (filterChecked === 'range') ?
@@ -63,20 +67,22 @@ const filterByRange = (dataType, filterChecked, onMainMenu) => {
     return menuItem
 }
 
-const filterByThreshold = (dataType, filterChecked, onMainMenu) => {
+const applyThresholds = (dataType, filterChecked, onMainMenu) => {
 
-    // Render the threshold filter menu item for continuous data types.
+    // Render the threshold menu item for continuous data types.
     if (!dataType || (dataType !== 'continuous')) {
         return null
     }
+    let attributes = {title: 'Color nodes by applying threshold values'}
     let menuItem =
         <MenuItem
             data = {{id: 'threshold', by: 'threshold'}}
             onClick = {onMainMenu}
+            attributes = {attributes}
             preventClose = {true}
         >
             { (filterChecked === 'threshold') ?
-                '✓ Filter by Threshold' : 'Filter by Threshold' }
+                '✓ Apply Thresholds' : 'Apply Thresholds' }
         </MenuItem>
 
     return menuItem
@@ -118,6 +124,7 @@ const filterByCategory = (dataType, filterChecked, filterList,
         return null
     }
     let title = 'Filter by Category'
+    let attributes = {title: 'Only include nodes with certain categories'}
     let onClick = null
     let data = null
     let preventClose = true
@@ -133,6 +140,7 @@ const filterByCategory = (dataType, filterChecked, filterList,
         title = {title}
         onClick = {onClick}
         data = {data}
+        attributes = {attributes}
         preventClose = {preventClose}
         hoverDelay = {0}
     >
@@ -144,19 +152,25 @@ const filterByCategory = (dataType, filterChecked, filterList,
     return submenu;
 }
 
-const menuItem = (label, clickHandler, menuItemId) => {
+const createFilterAttr = (onClick, anyFilters) => {
+    let attributes = {title: (anyFilters) ?
+        'Create a new attribute applying all filters' :
+        'There are no filters to save'
+    }
     let item =
         <MenuItem
-            data = {{id: menuItemId}}
-            onClick = {clickHandler}
+            data = {{id: 'createFilterAttr'}}
+            attributes = {attributes}
+            onClick = {onClick}
+            disabled = {!anyFilters}
         >
-            {label}
+            Save Filter
         </MenuItem>
     return item
 }
 
 const ShortEntryMenu = ({ dataType, filterChecked, filterList, filterValues,
-    onTrigger, onMainMenu, onFilterValue}) => (
+    onTrigger, onMainMenu, onFilterValue, anyFilters}) => (
     <div>
         { trigger(onTrigger) }
         <ContextMenu
@@ -164,12 +178,11 @@ const ShortEntryMenu = ({ dataType, filterChecked, filterList, filterValues,
             className = 'entryMenu'
             hideOnLeave = {true}
         >        
+            { applyThresholds(dataType, filterChecked, onMainMenu) }
             { filterByRange(dataType, filterChecked, onMainMenu) }
-            { filterByThreshold(dataType, filterChecked, onMainMenu) }
             { filterByCategory(dataType, filterChecked, filterList,
                 filterValues, onMainMenu, onFilterValue) }
-
-            { menuItem('Save Filter', onMainMenu, 'createFilterAttr') }
+            { createFilterAttr(onMainMenu, anyFilters) }
 
         </ContextMenu>
     </div>
@@ -180,6 +193,7 @@ ShortEntryMenu.propTypes = {
     filterChecked: PropTypes.string, // group to filter by
     filterList: PropTypes.array,     // list from which to select a filter value
     filterValues: PropTypes.node,    // filter values
+    anyFilters: PropTypes.bool,      // whether any filters exist or not
 
     onTrigger: PropTypes.func,
     onMainMenu: PropTypes.func,

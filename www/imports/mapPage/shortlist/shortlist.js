@@ -334,51 +334,6 @@ function create_shortlist_ui_entry_with_data (layer_name, root) {
     }
 }
 
-export function save_filter_clicked (layer_name) {
-
-    // Clicking on the save button creates a dynamic layer
-    let filter = rx.get('shortEntry.filter')[layer_name]
-    if (!filter) { return }
-    
-    let layer = layers[layer_name],
-        nodeIds = [],
-        label;
-    
-    if (util.is_continuous(layer_name)) {
-        let low = filter.low
-        let high = filter.high
-
-        // Get the range values
-        nodeIds = _.filter(_.keys(polygons), function (nodeId) {
-            return (layer.data[nodeId] >= low &&
-                    layer.data[nodeId] <= high);
-        });
-        label = low.toExponential(1).toString() +
-            ' to ' + high.toExponential(1).toString();
-
-    } else { // Binary and categorical layers
-    
-        let value = filter.value
-    
-        // Gather Tumor-ID Signatures with the value
-        nodeIds = _.filter(_.keys(polygons), function (nodeId) {
-            return (layer.data[nodeId] === value);
-        });
-
-        // Find the category label for the new layer name
-        // TODO multiple categories
-        var category = colormaps[layer_name][value];
-        if (category) {
-            label = category.name;
-        }
-    }
-    
-    // Suggest a name for this new layer
-    var name = layer_name + ': ' + label;
-    // Create the dynamic layer
-    Layer.create_dynamic_selection(nodeIds, name);
-}
-
 function build_filter (layer_name) {
 
     // Build a filter area.
