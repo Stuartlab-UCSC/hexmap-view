@@ -83,7 +83,8 @@ function refreshColorsInner () {
     // Instead of calling this, you probably want to call refreshColors().
     
     // Don't do multiple refreshes during initialization.
-    if (rx.get('init.map') !== 'rendered') {
+    if (rx.get('init.map') !== 'rendered' ||
+        rx.get('init.activeAttrs') !== 'inShortlist') {
         return;
     }
     //console.log('refreshColorsInner()')
