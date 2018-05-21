@@ -226,16 +226,22 @@ function create_range_slider (layer_name, root) {
 
     // If the range slider has already been created, there is nothing to do.
     if (root.find('.ui-slider-range').length > 0) { return; }
-
+    
     var layer = layers[layer_name],
         min = layer.minimum,
         max = layer.maximum,
         span = max - min,
-        
-        // This factor is used to compensate for the jquery-ui slider
-        // that has a problem with maximum values less than one.
-        // The factor makes the slider max be between one and 10.
-        factor = Math.pow(10, Math.floor(Math.log(max) / Math.LN10));
+    
+    // This factor is used to compensate for the jquery-ui slider
+    // that has a problem with maximum values less than one.
+    // The factor makes the slider max be between one and 10.
+    factor = Math.pow(10, Math.floor(Math.log(max) / Math.LN10));
+    
+    // Set the starting position of the sliders
+    let filter = rx.get('shortEntry.filter')[layer_name]
+    if (filter) {
+        slider_vals.set(layer_name, [filter.low, filter.high])
+    }
 
     // Handle a slider handle moving
     var sliding = function(event, ui) {
