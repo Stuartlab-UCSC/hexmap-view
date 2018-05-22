@@ -18,39 +18,55 @@ const getCapability = () => {
     }
     
     // Initialize capability to those that all attrs have all the time.
-    let capability = ['correlationSort', 'editColors', 'download']
+    let able = ['correlationSort', 'editColors', 'download']
     
+    // Capability due to hide or show of filters
+    able.push((rx.get('shortEntry.menu.hideBgNodes')) ?
+        'hideBgNodes' : 'showBgNodes')
+
     // Capability due to having a filter.
-    let filter = rx.get('shortEntry.filter')[attr]
-    if (filter) {
-        capability.push('createFilterAttr')
-        capability.push((rx.get('shortEntry.menu.hideBgNodes')) ?
-            'hideBgNodes' : 'showBgNodes')
-    }
+    able.push('createFilterAttr')
+    /*
+    let filters = rx.get('shortEntry.filter')
+    let filtersLength = filters.length
+    let thresholdFiltersLength = (_.filter(filters, (filter) => {
+        return filter.by === 'threshold'
+    })).length
+    console.log('thresholdFiltersLength', thresholdFiltersLength)
     
-    // Add capabilities based on dataType.
+    // Only consider when there are filters other than 'threshold'.
+    if (filtersLength > 0 && filtersLength > thresholdFiltersLength) {
+        let filter = filters[attr]
+        
+        // If this is the only filter and it
+        if ((filter && filter.by !== 'threshold') || thresholdFiltersLength > 1) {
+            able.push('createFilterAttr')
+        }
+    }
+    */
+    // Capabilities based on dataType.
     switch (util.getDataType(attr)) {
     case 'binary':
-        capability.push('category', 'setOperation')
+        able.push('category', 'setOperation')
         if (Session.equals('reflectCriteria', true)) {
-            capability.push('reflection')
+            able.push('reflection')
         }
         break
     case 'categorical':
-        capability.push('category', 'setOperation')
+        able.push('category', 'setOperation')
         break
     case 'continuous':
-        capability.push('range', 'threshold')
+        able.push('range', 'threshold')
         break
     }
-    return capability
+    return able
 }
 
 const mapStateToProps = () => {
 
     // Map state to the shortEntryMenu properties.
     return {
-        capability: getCapability(),
+        able: getCapability(),
         filterChecked: ShortEntryMenuFilter.getChecked(),
         filterList: ShortEntryMenuFilter.getList(),
         filterValues: ShortEntryMenuFilter.getValues(),
