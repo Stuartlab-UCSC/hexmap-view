@@ -269,6 +269,13 @@ const reducers = {
             return state
         }
     },
+    'shortEntry.menu.hideBgNodes': (state = false, action) => {
+        if (action.type === 'shortEntry.menu.hideBgNodes') {
+            return !state
+        } else {
+            return state;
+        }
+    },
     'snake.project': (state = true, action) => {
         switch (action.type) {
         case 'snake.project.show':

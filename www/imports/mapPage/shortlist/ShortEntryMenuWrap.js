@@ -23,7 +23,9 @@ const getCapability = () => {
     // Capability due to having a filter.
     let filter = rx.get('shortEntry.filter')[attr]
     if (filter) {
-        capability.push('hideBgNodes', 'createFilterAttr')
+        capability.push('createFilterAttr')
+        capability.push((rx.get('shortEntry.menu.hideBgNodes')) ?
+            'hideBgNodes' : 'showBgNodes')
     }
     
     // Add capabilities based on dataType.
@@ -72,10 +74,9 @@ const mapDispatchToProps = (dispatch) => {
             case 'category':
             case 'range':
             case 'threshold':
+            case 'hideBgNodes':
             case 'createFilterAttr':
                 ShortEntryMenuFilter.onMenu(attr, data.id, dispatch)
-                break
-            case 'hideBgNodes': // TODO
                 break
             case 'setOperation':
                 tool.getCallback('setOperations')()

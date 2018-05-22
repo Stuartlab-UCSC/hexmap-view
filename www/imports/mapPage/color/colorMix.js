@@ -119,15 +119,23 @@ function refreshColorsInner () {
         
         // Get the limits for continuous attrs.
         let limits = findContinuousFilters(actives)
+        
+        // Determine the color of nodes not passing the filters.
+        let bgNodeColor = Colormap.noDataColor();
+        if (rx.get('shortEntry.menu.hideBgNodes')) {
+            bgNodeColor = (Session.get('background') === 'black') ?
+                '#000000' : '#ffffff';
+        }
 
         // Go get the list of filter-passing hexes.
         shortlist.with_filtered_signatures(filters, function(signatures) {
             for (let sig in polygons) {
                 if (signatures.indexOf(sig) < 0) {
-                    hexagons.setOneColor(polygons[sig], Colormap.noDataColor());
+                    hexagons.setOneColor(polygons[sig], bgNodeColor);
                     continue
                 }
                 var label = sig
+                
                 // This holds the color we are calculating for this hexagon.
                 // Start with the no data color.
                 var computed_color = Colormap.noDataColor();
