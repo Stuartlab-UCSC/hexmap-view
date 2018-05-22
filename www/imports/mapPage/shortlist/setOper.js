@@ -2,6 +2,7 @@
 // Handle the UI for the set operations.
 
 import Layer from '/imports/mapPage/longlist/Layer';
+import rx from '/imports/common/rx';
 import tool from '/imports/mapPage/head/tool';
 import util from '/imports/common/util';
 
@@ -389,6 +390,13 @@ function update_layer_selectors () {
     
     first_opening = false;
     
+    // Find the attr from most recently-pressed shortlist context menu
+    let shortEntryMenuAttr = rx.get('shortEntry.menu.attr')
+    if (shortEntryMenuAttr &&
+        util.getDataType(shortEntryMenuAttr) === 'continuous') {
+        shortEntryMenuAttr = null
+    }
+    
     // Add the layer names from the shortlist to the drop downs that store
     // layer names.
     var shortlist = Session.get('shortlist');
@@ -398,6 +406,9 @@ function update_layer_selectors () {
                 var option = document.createElement("option");
                 option.text = shortlist[j];
                 option.value = j+1;
+                if (i === 0 && shortEntryMenuAttr === shortlist[j]) {
+                    option.selected = true
+                }
                 drop_downs[i].add(option);
             }
         }
@@ -540,7 +551,7 @@ exports.init = function () {
         // if the user clicks on the function icon it will open immediately
         if (set_operation_clicks % 2 != 0){
             show_set_operation_window ();
-            // Update so that there are no repeated "Select" Attrributes
+            // Update so that there are no repeated "Select" Attributes
             update_layer_selectors ();
         } else {
             hide_window ();

@@ -74,6 +74,11 @@ function remove_tool_listener (handle) {
     delete tool_listeners[handle];
 }
 
+export function getCallback (toolName) {
+    console.log('getCallback()')
+    return callbacks[toolName]
+}
+
 exports.add = function (tool_name, callback, hover_text, klass) {
 
     // Register a name for a tool that matches the select data in a

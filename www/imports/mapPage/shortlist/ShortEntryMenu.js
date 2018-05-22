@@ -5,6 +5,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { ContextMenu, MenuItem, SubMenu, ContextMenuTrigger }
     from "react-contextmenu";
+
 import '/imports/mapPage/init/contextMenu.css';
 import './shortEntry.css';
 
@@ -46,10 +47,10 @@ const trigger = onTrigger => {
     return trigger;
 }
 
-const filterByRange = (dataType, filterChecked, onMainMenu) => {
+const filterByRange = (capability, filterChecked, onMainMenu) => {
 
     // Render the range filter menu item for continuous data types.
-    if (!dataType || (dataType !== 'continuous')) {
+    if (capability.indexOf('range') < 0) {
         return null
     }
     let attributes = {title: 'Only include nodes within a range of values'}
@@ -67,10 +68,10 @@ const filterByRange = (dataType, filterChecked, onMainMenu) => {
     return menuItem
 }
 
-const applyThresholds = (dataType, filterChecked, onMainMenu) => {
+const applyThresholds = (capability, filterChecked, onMainMenu) => {
 
     // Render the threshold menu item for continuous data types.
-    if (!dataType || (dataType !== 'continuous')) {
+    if (capability.indexOf('threshold') < 0) {
         return null
     }
     let attributes = {title: 'Color nodes by applying threshold values'}
@@ -115,12 +116,11 @@ const filterByCategoryValue = (item, i, filterValues, onFilterValue) => {
     return menuItem
 }
 
-const filterByCategory = (dataType, filterChecked, filterList,
+const filterByCategory = (capability, filterChecked, filterList,
     filterValues, onMainMenu, onFilterValue) => {
 
     // Render the category filter submenu and list of categories.
-    // For binary and categorical data types.
-    if (!dataType || (dataType === 'continuous')) {
+    if (capability.indexOf('category') < 0) {
         return null
     }
     let title = 'Filter by Category'
@@ -152,7 +152,12 @@ const filterByCategory = (dataType, filterChecked, filterList,
     return submenu;
 }
 
-const createFilterAttr = (onClick, anyFilters) => {
+const createFilterAttr = (capability, anyFilters, onClick) => {
+
+    // Render the 'create attr from filter' menu option.
+    if (capability.indexOf('createFilterAttr') < 0) {
+        return null
+    }
     let attributes = {title: (anyFilters) ?
         'Create a new attribute applying all filters' :
         'There are no filters to save'
@@ -169,7 +174,22 @@ const createFilterAttr = (onClick, anyFilters) => {
     return item
 }
 
-const ShortEntryMenu = ({ dataType, filterChecked, filterList, filterValues,
+const menuItem = (capability, id, label, title, onClick) => {
+    if (capability.indexOf(id) < 0) {
+        return null
+    }
+    let item =
+        <MenuItem
+            data = {{id: id}}
+            attributes = {{title: title}}
+            onClick = {onClick}
+        >
+            {label}
+        </MenuItem>
+    return item
+}
+
+const ShortEntryMenu = ({ capability, filterChecked, filterList, filterValues,
     onTrigger, onMainMenu, onFilterValue, anyFilters}) => (
     <div>
         { trigger(onTrigger) }
@@ -178,18 +198,32 @@ const ShortEntryMenu = ({ dataType, filterChecked, filterList, filterValues,
             className = 'entryMenu'
             hideOnLeave = {true}
         >        
-            { applyThresholds(dataType, filterChecked, onMainMenu) }
-            { filterByRange(dataType, filterChecked, onMainMenu) }
-            { filterByCategory(dataType, filterChecked, filterList,
+            { applyThresholds(capability, filterChecked, onMainMenu) }
+            { filterByRange(capability, filterChecked, onMainMenu) }
+            { filterByCategory(capability, filterChecked, filterList,
                 filterValues, onMainMenu, onFilterValue) }
-            { createFilterAttr(onMainMenu, anyFilters) }
+            { createFilterAttr(capability, anyFilters, onMainMenu) }
+            { menuItem(capability, 'hideBgNodes', 'Hide Background Nodes',
+                "Hide the background nodes", onMainMenu) }
+            <hr></hr>
+            { menuItem(capability, 'setOperation', 'Set Operation',
+                "Perform a set operation on two attributes", onMainMenu) }
+            { menuItem(capability, 'correlationSort', 'Correlation Sort',
+                "Sort attributes by correlation", onMainMenu) }
+            { menuItem(capability, 'reflection', 'Reflect onto Another Map',
+                'Reflect this attribute onto another map', onMainMenu) }
+            <hr></hr>
+            { menuItem(capability, 'editColors', 'Edit Colors',
+                "Change colors for this attribute", onMainMenu) }
+            { menuItem(capability, 'download', 'Download',
+                "Download the attribute's values", onMainMenu) }
 
         </ContextMenu>
     </div>
 )
 
 ShortEntryMenu.propTypes = {
-    dataType: PropTypes.string,      // dataType of the menu attr
+    capability: PropTypes.array,     // capabilities to determine menu items
     filterChecked: PropTypes.string, // group to filter by
     filterList: PropTypes.array,     // list from which to select a filter value
     filterValues: PropTypes.node,    // filter values

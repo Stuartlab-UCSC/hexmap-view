@@ -3,16 +3,52 @@
 
 import { connect } from 'react-redux'
 
-import shortlist from '/imports/mapPage/shortlist/shortlist';
-import ShortEntryMenu from '/imports/mapPage/shortlist/ShortEntryMenu';
+import rx from '/imports/common/rx'
+import shortlist from '/imports/mapPage/shortlist/shortlist'
+import ShortEntryMenu from '/imports/mapPage/shortlist/ShortEntryMenu'
 import ShortEntryMenuFilter
-    from '/imports/mapPage/shortlist/ShortEntryMenuFilter';
+    from '/imports/mapPage/shortlist/ShortEntryMenuFilter'
+import tool from '/imports/mapPage/head/tool'
+import util from '/imports/common/util'
+
+const getCapability = () => {
+    let attr = rx.get('shortEntry.menu.attr')
+    if (!(attr)) {
+        return []
+    }
+    
+    // Initialize capability to those that all attrs have all the time.
+    let capability = ['correlationSort', 'editColors', 'download']
+    
+    // Capability due to having a filter.
+    let filter = rx.get('shortEntry.filter')[attr]
+    if (filter) {
+        capability.push('hideBgNodes', 'createFilterAttr')
+    }
+    
+    // Add capabilities based on dataType.
+    switch (util.getDataType(attr)) {
+    case 'binary':
+        capability.push('category', 'setOperation')
+        if (Session.equals('reflectCriteria', true)) {
+            capability.push('reflection')
+        }
+        break
+    case 'categorical':
+        capability.push('category', 'setOperation')
+        break
+    case 'continuous':
+        capability.push('range', 'threshold')
+        break
+    }
+    return capability
+}
 
 const mapStateToProps = () => {
 
     // Map state to the shortEntryMenu properties.
     return {
-        dataType: ShortEntryMenuFilter.getDataType(),
+        capability: getCapability(),
         filterChecked: ShortEntryMenuFilter.getChecked(),
         filterList: ShortEntryMenuFilter.getList(),
         filterValues: ShortEntryMenuFilter.getValues(),
@@ -39,19 +75,22 @@ const mapDispatchToProps = (dispatch) => {
             case 'createFilterAttr':
                 ShortEntryMenuFilter.onMenu(attr, data.id, dispatch)
                 break
-            case 'hideBgNodes':
-                break
-            case 'createAttr':
+            case 'hideBgNodes': // TODO
                 break
             case 'setOperation':
+                tool.getCallback('setOperations')()
                 break
             case 'correlationSort':
+                tool.getCallback('statsSort')()
                 break
             case 'reflection':
+                tool.getCallback('reflectTrigger')()
                 break
             case 'editColors':
+                tool.getCallback('colormap')()
                 break
             case 'download':
+                tool.getCallback('hexagonNames')()
                 break
             }
         },

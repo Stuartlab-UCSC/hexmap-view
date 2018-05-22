@@ -4,6 +4,7 @@
 import Colormap from '/imports/mapPage/color/Colormap';
 import DialogHex from '/imports/common/DialogHex';
 import LayerNameList from '/imports/mapPage/shortlist/LayerNameList';
+import rx from '/imports/common/rx';
 import sort from './sort';
 import tool from '/imports/mapPage/head/tool';
 import userMsg from '/imports/common/userMsg';
@@ -122,6 +123,10 @@ function enableAll() {
 function show () {
 
     // Show the contents of the dialog, once per trigger button click
+    
+    // Find the most recent shortlist context menu click.
+    listSelected = rx.get('shortEntry.menu.attr')
+    
     list = LayerNameList.create($('#sort-attributes-dialog .listAnchor'),
         $('#sort-attributes-dialog .listLabel'), listSelected);
     list2 = LayerNameList.create($('#sort-attributes-dialog .listAnchor2'),

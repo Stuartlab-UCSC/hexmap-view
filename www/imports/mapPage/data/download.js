@@ -2,6 +2,7 @@
 
 import Colormap from '/imports/mapPage/color/Colormap';
 import pdf from '/imports/mapPage/viewport/pdf';
+import rx from '/imports/common/rx';
 import shortlist from '/imports/mapPage/shortlist/shortlist';
 import svg from '/imports/mapPage/viewport/svg';
 import tool from '/imports/mapPage/head/tool';
@@ -25,12 +26,18 @@ function initDownloadSelectTool () {
 
         // Populate the select box with all entries in the shortlist.
         var activeLayers = shortlist.getAllLayerNames();
+        let shortEntryMenuAttr = rx.get('shortEntry.menu.attr')
         activeLayers.map(
             function(layerName) {
+                let selected = false
+                if (layerName === shortEntryMenuAttr) {
+                    selected = true
+                }
                 select_box
                     .append($("<option/>")
-                        .text(layerName).attr("value", layerName));
-            });
+                        .text(layerName).attr({value: layerName, selected: selected}));
+            }
+        );
         
         export_form.append(select_box);
 
@@ -205,7 +212,7 @@ function initDownloadSelectTool () {
                 tool.activity(false);
             }
         });
-    }, 'Export the selection as a list of hexagon IDs', 'mapShow');
+    }, "Download the attribute's values", 'mapShow');
 }
 
 function getDataUrl (prefix) {
