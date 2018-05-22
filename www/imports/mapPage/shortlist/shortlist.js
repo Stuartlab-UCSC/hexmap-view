@@ -25,6 +25,7 @@ import './shortEntry.css';
 var initialization_started = false;
 var showSlider = new ReactiveDict({}); // should the filter slider show?
 var hasFilter = new ReactiveDict({}); // does a filter exists?
+var anyFilters = new ReactiveVar(false) // are there any filters
 var zeroShow = new ReactiveDict(); // To show or hide the zero tick mark
 var filterBuilt = new ReactiveDict(); // Is filter built?
 var slider_vals = new ReactiveDict(); // low and high values as sliding
@@ -138,6 +139,12 @@ export function get_layer_name_from_child (child) {
 }
 
 Template.shortlist.helpers({
+    filter_icon: function () {
+        return icon.filter_hot
+    },
+    filter_display: function () {
+        return (anyFilters.get()) ? 'initial' : 'none'
+    },
     primary_east: function () {
         return (is_secondary(hover_layer_name.get())) ? 'east' : '';
     },
@@ -385,12 +392,15 @@ function syncFilterStateWithTemplate () {
             showSlider.set(attr, !showing)
         }
 
-        // Handle showing of the filter icon.
+        // Handle showing of the filter icon on the entry.
         shouldShow = (filters[attr] !== undefined)
         showing = hasFilter.get(attr)
         if ((!shouldShow && showing) || (shouldShow && !showing)) {
             hasFilter.set(attr, !showing)
         }
+        
+        // Handle showing of the filter icon at the top of the list.
+        anyFilters.set(Object.keys(filters).length > 0)
     })
 }
 
