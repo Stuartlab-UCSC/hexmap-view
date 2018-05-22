@@ -174,6 +174,26 @@ const createFilterAttr = (capability, anyFilters, onClick) => {
     return item
 }
 
+const hideBgNodes = (capability, onClick) => {
+
+    // Render the 'hide background colors' menu option.
+    let label = 'Hide Background Nodes'
+    if (capability.indexOf('hideBgNodes') > -1) {
+        label = '✓ ' + label
+    } else if (capability.indexOf('showBgNodes') < 0) {
+        return null
+    }
+    let item =
+        <MenuItem
+            data = {{id: 'hideBgNodes'}}
+            attributes = {{title: 'Hide the nodes not passing filters'}}
+            onClick = {onClick}
+        >
+            {label}
+        </MenuItem>
+    return item
+}
+
 const menuItem = (capability, id, label, title, onClick) => {
     if (capability.indexOf(id) < 0) {
         return null
@@ -203,8 +223,7 @@ const ShortEntryMenu = ({ capability, filterChecked, filterList, filterValues,
             { filterByCategory(capability, filterChecked, filterList,
                 filterValues, onMainMenu, onFilterValue) }
             { createFilterAttr(capability, anyFilters, onMainMenu) }
-            { menuItem(capability, 'hideBgNodes', 'Hide Background Nodes',
-                "Hide the background nodes", onMainMenu) }
+            { hideBgNodes(capability, onMainMenu) }
             <hr></hr>
             { menuItem(capability, 'setOperation', 'Set Operation',
                 "Perform a set operation on two attributes", onMainMenu) }

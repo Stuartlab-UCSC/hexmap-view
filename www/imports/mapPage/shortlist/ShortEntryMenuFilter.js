@@ -265,6 +265,10 @@ export const onMenu = (attr, clicked, dispatch) => {
     // This is a click on the main menu of a filter item.
     let next
     switch (clicked) {
+    case 'hideBgNodes':
+        dispatch({ type: 'shortEntry.menu.hideBgNodes' })
+        colorMix.refreshColors()
+        break
     case 'createFilterAttr':
         onCreateFilterAttr()
         break
