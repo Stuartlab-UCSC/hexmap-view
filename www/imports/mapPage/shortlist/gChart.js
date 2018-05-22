@@ -77,42 +77,45 @@ function drawBarChart (layer_name, container) {
     });
 }
 
-function drawHistogram (layer_name, container, arrays) {
+function drawHistogram (layer_name, container) {
 
     Layer.with_one(layer_name, function () {
-        //let arrays = findData(layer_name, filteredNodes),
-        let withHeaders,
-            data,
-            options;
-
-        withHeaders = [['Node', '']].concat(arrays)
-        data = google.visualization.arrayToDataTable(withHeaders)
-        options = {
-            backgroundColor: 'transparent',
-            bar: { gap: 0 },
-            chartArea: {
-                bottom: 5,
-                left: 0,
-                right: 0,
-                top: 0,
-            },
-            colors: ['#555555'],
-            enableInteractivity: false,
-            hAxis: {
-                ticks: [0],
-            },
-            histogram: {
-                hideBucketItems: true,
-                maxNumBuckets: 20,
-            },
-            legend: { position: 'none' },
-            vAxis: {
-                gridlines: {color: 'transparent'},
-                textPosition: 'none',
-            },
+        var layer = layers[layer_name],
+            arrays = _.zip(_.keys(layer.data), _.values(layer.data)),
+            withHeaders = [['Node', '']].concat(arrays),
+            data = google.visualization.arrayToDataTable(withHeaders),
+            options = {
+                backgroundColor: 'transparent',
+                bar: { gap: 0 },
+                chartArea: {
+                    bottom: 5,
+                    left: 0,
+                    right: 0,
+                    top: 0,
+                },
+                colors: ['#555555'],
+                enableInteractivity: false,
+                hAxis: {
+                    ticks: [0],
+                },
+                histogram: {
+                    hideBucketItems: true,
+                    maxNumBuckets: 20,
+                },
+                legend: { position: 'none' },
+                vAxis: {
+                    gridlines: {color: 'transparent'},
+                    textPosition: 'none',
+                },
+            };
+        
+        // If there is no data, there is no chart to draw
+        if (arrays.length < 1) {
+            return;
         }
-        charts[layer_name] = new google.visualization.Histogram(container)
-            .draw(data, options);
+
+        charts[layer_name] =
+            new google.visualization.Histogram(container).draw(data, options);
     });
 }
 
@@ -126,14 +129,14 @@ function loadGoogleCharts() {
     });
 }
 
-export function clear (layer_name) {
+exports.clear = function (layer_name) {
     if (charts[layer_name]) {
         charts[layer_name].clearChart();
         delete charts[layer_name];
     }
-}
+};
 
-export function draw (layer_name, $container, type, data) {
+exports.create = function (layer_name, $container, type) {
 
     var status = load.get(),
         container = $container[0];
@@ -141,7 +144,7 @@ export function draw (layer_name, $container, type, data) {
     // If google charts is loaded, just draw it
     if (status ==='loaded') {
         if (type === 'histogram') {
-            drawHistogram(layer_name, container, data);
+            drawHistogram(layer_name, container);
         } else {
             drawBarChart(layer_name, container);
         }
@@ -154,10 +157,9 @@ export function draw (layer_name, $container, type, data) {
 
     // Save the chart data to be drawn after google charts is loaded
     chartQueue.push({
-        layer_name,
-        container,
-        type,
-        data: (data) ? data : null,
+        layer_name: layer_name,
+        container: container,
+        type: type,
     });
 
     // After google charts is loaded, draw those waiting to be drawn
@@ -167,7 +169,7 @@ export function draw (layer_name, $container, type, data) {
             comp.stop();
             _.each(chartQueue, function (chart) {
                 if (chart.type === 'histogram') {
-                    drawHistogram(chart.layer_name, chart.container, chart.data);
+                    drawHistogram(chart.layer_name, chart.container);
                    
                 } else { // Assume bar chart
                     drawBarChart(chart.layer_name, chart.container);
@@ -176,7 +178,7 @@ export function draw (layer_name, $container, type, data) {
             chartQueue = undefined;
         }
     });
-}
+};
 
 exports.init = function () {
     appReady.set(true);

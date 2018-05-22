@@ -46,9 +46,17 @@ var icon = {
 };
 
 function get_range_display_values (layer_name, i) {
-
-    // Update the display as the sliders are moved.
-    var vals = slider_vals.get(layer_name);
+    var vals;
+    var showing = should_show_slider(layer_name)
+    if (showing) {
+    
+        // The values as the slider is sliding.
+        vals = slider_vals.get(layer_name);
+    } else {
+    
+        // The min or max of all the layer's values.
+        vals = [layers[layer_name].minimum, layers[layer_name].maximum]
+    }
     if (vals && !_.isUndefined(vals[i])) {
         return vals[i];
     } else {
@@ -290,89 +298,56 @@ function create_range_slider (layer_name, root) {
     sliding({target: slider_line[0]}, {values: vals});
 }
 
-function findChartData (layer_name, filteredNodes) {
-    var layer = layers[layer_name],
-        keys,
-        filteredKeys,
-        values,
-        filteredValues;
-    //console.log('layer:', layer)
-    keys = Object.keys(layer.data)
-    //console.log('keys:', keys)
-    filteredKeys = filteredNodes
-        .filter(node => { return (keys.indexOf(node) > -1) })
-    //console.log('filteredKeys:', filteredKeys)
-    filteredValues = filteredKeys.map(key => { return layer.data[key] })
-    //console.log('filteredValues:', filteredValues)
-    return _.zip(filteredKeys, filteredValues)
-}
-
-function drawChart (layer_name, root) {
-
-    with_filtered_signatures(function (filteredNodes) {
-        if (!root) {
-            root = get_root_from_layer_name(layer_name);
-        }
-        if (util.is_continuous(layer_name)) {
-            var dataArrays = findChartData(layer_name, filteredNodes)
-            if (dataArrays.length < 1) {
-                gChart.clear(layer_name)
-                //root.find(.chart_area).hide()
-                return
-            }
-
-            // Create the histogram.
-            gChart.draw(
-                layer_name, root.find('.chart'), 'histogram', dataArrays);
-
-            var min = layers[layer_name].minimum,
-                max = layers[layer_name].maximum;
-
-            if (_.isUndefined(slider_vals.get(layer_name))) {
-            
-                // Range filter values are not yet saved,
-                // so initialize the slider to the min & max filtered values.
-                slider_vals.set(layer_name, [min, max]);
-            }
-
-            // Put a tick on zero if zero is in the range.
-            // Dom object needs to be drawn already so we can see the offset.
-            if (0 > min && 0 < max) {
-                zeroShow.set(layer_name, true);
-
-                // Wait for the DOM to update so ...
-                Meteor.setTimeout(function () {
-                    var root = get_root_from_layer_name(layer_name),
-                        chart = root.find('.chart'),
-                        x_span = chart.width(),
-                        x_low_width = -min / (max - min) * x_span;
-                    root.find('.zero_tick').css('left', x_low_width);
-                    root.find('.zero').css('left', x_low_width -9);
-                }, 500);
-            } else {
-                zeroShow.set(layer_name, false);
-            }
-
-        } else {
-            
-            // Build the barChart.
-            gChart.draw(layer_name, root.find('.chart'), 'barChart');
-        }
-    })
-}
-
 function create_shortlist_ui_entry_with_data (layer_name, root) {
     // Add all of the metadata
     Layer.fill_metadata(root.find('.metadata_holder'), layer_name);
-    
-    // Create the chart after google chart has a chance to load.
-    setTimeout(function () {
-        //console.log('create_shortlist_ui_entry_with_data():layer:', layer_name, layers[layer_name])
-        drawChart(layer_name, root);
-    }, 10);
+
+    if (util.is_continuous(layer_name)) {
+
+        // Create the chart after google chart has a chance to load.
+        setTimeout(function () {
+            gChart.create(layer_name, root.find('.chart'), 'histogram');
+        }, 10);
+
+        var min = layers[layer_name].minimum,
+            max = layers[layer_name].maximum;
+
+        if (_.isUndefined(slider_vals.get(layer_name))) {
+        
+            // Range filter values are not yet saved,
+            // so initialize the slider to the layer extents.
+            slider_vals.set(layer_name, [min, max]);
+        }
+
+        // Put a tick on zero if zero is in the range.
+        // Dom object needs to be drawn already so we can see the offset.
+        if (0 > min && 0 < max) {
+            zeroShow.set(layer_name, true);
+
+            // Wait for the DOM to update so ...
+            Meteor.setTimeout(function () {
+                var root = get_root_from_layer_name(layer_name),
+                    chart = root.find('.chart'),
+                    x_span = chart.width(),
+                    x_low_width = -min / (max - min) * x_span;
+                root.find('.zero_tick').css('left', x_low_width);
+                root.find('.zero').css('left', x_low_width -9);
+            }, 500);
+        } else {
+            zeroShow.set(layer_name, false);
+        }
+
+    } else {
+        
+        // Build the barChart after the filter values are sure to be defined
+        setTimeout(function () {
+            gChart.create(layer_name, root.find('.chart'), 'barChart');
+        }, 10);
+
+    }
 }
 
-function build_continuous_filter (layer_name) {
+function build_filter (layer_name) {
 
     // Build a filter area.
     
@@ -386,10 +361,16 @@ function build_continuous_filter (layer_name) {
     
     // Figure out what kind of filter settings we take based on
     // what kind of layer we are.
+    Layer.with_one (layer_name, function (layer) {
     
-    // Add a range slider
-    create_range_slider(layer_name, root);
-    filterBuilt.set(layer_name, true);
+        if (util.is_continuous(layer_name)) {
+        
+            // Add a range slider
+            create_range_slider(layer_name, root);
+        }
+        
+        filterBuilt.set(layer_name, true);
+    });
 }
 
 function syncFilterStateWithTemplate () {
@@ -399,14 +380,14 @@ function syncFilterStateWithTemplate () {
     let filters = rx.get('shortEntry.filter')
     Session.get('shortlist').forEach(function (attr) {
     
-        // Handle showing of range sliders for continuous.
+        // Handle showing of filter sliders for continuous.
         let filterBy = filterBys[attr]
         let shouldShow = (filterBy !== undefined &&
             (filterBy === 'range' || filterBy === 'threshold'))
         let showing = showSlider.get(attr)
         if (shouldShow && !showing) {
             showSlider.set(attr, !showing)
-            build_continuous_filter(attr)
+            build_filter(attr)
         } else if (!shouldShow && showing) {
             showSlider.set(attr, !showing)
         }
@@ -621,7 +602,7 @@ function addInitialEntriesToShortlist (layerNames) {
         $shortlist.append(create_shortlist_ui_entry(layer_name));
         let filterBy = rx.get('shortEntry.menu.filter')[layer_name]
         if (filterBy && (filterBy === 'range' || filterBy === 'threshold')) {
-            build_continuous_filter(layer_name)
+            build_filter(layer_name)
         }
     });
 }
@@ -738,14 +719,15 @@ exports.update_ui_metadata = function () {
     });
 }
 
-export function with_filtered_signatures (callback) {
-
-    // Finds the filter functions based on shortlist filters.
+exports.with_filtered_signatures = function (filters, callback) {
+    // Takes an array of filters, as produced by get_current_filters.
     // Computes an array of all signatures passing all filters, and passes
     // that to the given callback.
     
-    // Find the filter functions.
-    filters = get_current_filters()
+    // TODO: Re-organize this to do filters one at a time, recursively, like
+    // a reasonable second-order filter.
+    
+    //console.log('with_filtered_signatures():filters:', filters)
     
     // Prepare a list of all the layers
     var layer_names = [];
@@ -755,6 +737,7 @@ export function with_filtered_signatures (callback) {
     }
     
     Layer.with_many(layer_names, function(filter_layers) {
+        // filter_layers is guaranteed to be in the same order as filters.
         
         // This is an array of signatures that pass all the filters.
         var passing_signatures = [];
@@ -790,13 +773,14 @@ export function with_filtered_signatures (callback) {
     });
 }
 
-function get_current_filters () {
+exports.get_current_filters = function () {
 
     // Returns an array of filter objects, according to the shortlist UI.
     // Filter objects have a layer name and a boolean-valued filter function
     // that returns true or false, given a value from that layer.
     var allFilters = rx.get('shortEntry.filter');
     var current_filters = [];
+    var filter_functions = []
 
     // Go through all the filters.
     

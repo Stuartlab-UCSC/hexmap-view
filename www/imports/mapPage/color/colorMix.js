@@ -87,7 +87,15 @@ function refreshColorsInner () {
         rx.get('init.activeAttrs') !== 'inShortlist') {
         return;
     }
+    //console.log('refreshColorsInner()')
 
+    // This holds a list of the string names of the currently selected layers,
+    // in order.
+    var actives = shortlist.get_active_coloring_layers();
+    
+    // This holds all the current filters
+    var filters = shortlist.get_current_filters();
+ 
     // Special case of no layers at all.
     if (_.isUndefined(layers) || Object.keys(layers) < 1) {
         for(var signature in polygons) {
@@ -95,10 +103,6 @@ function refreshColorsInner () {
         }
         return;
     }
-
-    // This holds a list of the string names of the currently selected layers,
-    // in order.
-    var actives = shortlist.get_active_coloring_layers();
     
     // Obtain the layer objects (mapping from signatures/hex labels to colors)
     Layer.with_many(actives, function(attrs) {
@@ -124,7 +128,7 @@ function refreshColorsInner () {
         }
 
         // Go get the list of filter-passing hexes.
-        shortlist.with_filtered_signatures(function(signatures) {
+        shortlist.with_filtered_signatures(filters, function(signatures) {
             for (let sig in polygons) {
                 if (signatures.indexOf(sig) < 0) {
                     hexagons.setOneColor(polygons[sig], bgNodeColor);
