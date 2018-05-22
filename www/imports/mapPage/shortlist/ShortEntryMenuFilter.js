@@ -153,20 +153,6 @@ const onCategoryValue = (attr, value, dispatch) => {
     }
 }
 
-export const getDataType = (attrIn) => {
-
-    // Get the data type of the attribute.
-    let attr = attrIn
-    if (!attr) {
-        attr = rx.get('shortEntry.menu.attr')
-    }
-    if (attr) {
-        return util.getDataType(attr)
-    } else {
-        return null
-    }
-}
-
 export const getChecked = () => {
 
     // Get the menu filter checked in state.
@@ -205,7 +191,7 @@ export const getList = () => {
     if (attr) {
     
         // Get the filter by values determined by data type.
-        let dataType = getDataType(attr)
+        let dataType = util.getDataType(attr)
         if (dataType === 'binary' || dataType === 'categorical') {
             list = getCategoryList(attr)
         }

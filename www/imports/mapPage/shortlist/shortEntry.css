@@ -41,7 +41,7 @@
 }
 
 #shortlist .remove  {
-    right: 0.5em;
+    right: 1em;
     font-size: 0.7em;
 }
 
@@ -99,7 +99,7 @@
 
 .shortlist_entry .move {
     top: 2.5em;
-    right: 0em;
+    right: 0.5em;
     height: 1.3em;
     width: 1.3em;
 }

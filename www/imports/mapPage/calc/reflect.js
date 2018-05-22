@@ -273,7 +273,7 @@ exports.init = function () {
 
     // Listen for the menu clicked
     tool.add("reflectTrigger", function(ev) {
-        if (!$(ev.target).hasClass('disabled')) {
+        if (!$('#reflectDialog .reflectTrigger').hasClass('disabled')) {
             dialogHex.show();
         }
     }, 'Reflect nodes onto another map');
