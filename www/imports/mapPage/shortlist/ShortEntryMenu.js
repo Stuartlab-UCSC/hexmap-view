@@ -47,10 +47,10 @@ const trigger = onTrigger => {
     return trigger;
 }
 
-const filterByRange = (capability, filterChecked, onMainMenu) => {
+const filterByRange = (able, filterChecked, onMainMenu) => {
 
     // Render the range filter menu item for continuous data types.
-    if (capability.indexOf('range') < 0) {
+    if (able.indexOf('range') < 0) {
         return null
     }
     let attributes = {title: 'Only include nodes within a range of values'}
@@ -68,10 +68,10 @@ const filterByRange = (capability, filterChecked, onMainMenu) => {
     return menuItem
 }
 
-const applyThresholds = (capability, filterChecked, onMainMenu) => {
+const applyThresholds = (able, filterChecked, onMainMenu) => {
 
     // Render the threshold menu item for continuous data types.
-    if (capability.indexOf('threshold') < 0) {
+    if (able.indexOf('threshold') < 0) {
         return null
     }
     let attributes = {title: 'Color nodes by applying threshold values'}
@@ -116,11 +116,11 @@ const filterByCategoryValue = (item, i, filterValues, onFilterValue) => {
     return menuItem
 }
 
-const filterByCategory = (capability, filterChecked, filterList,
-    filterValues, onMainMenu, onFilterValue) => {
+const filterByCategory = (able, filterChecked, filterList, filterValues,
+    onMainMenu, onFilterValue) => {
 
     // Render the category filter submenu and list of categories.
-    if (capability.indexOf('category') < 0) {
+    if (able.indexOf('category') < 0) {
         return null
     }
     let title = 'Filter by Category'
@@ -152,10 +152,10 @@ const filterByCategory = (capability, filterChecked, filterList,
     return submenu;
 }
 
-const createFilterAttr = (capability, anyFilters, onClick) => {
+const createFilterAttr = (able, anyFilters, onClick) => {
 
     // Render the 'create attr from filter' menu option.
-    if (capability.indexOf('createFilterAttr') < 0) {
+    if (able.indexOf('createFilterAttr') < 0) {
         return null
     }
     let attributes = {title: (anyFilters) ?
@@ -169,24 +169,25 @@ const createFilterAttr = (capability, anyFilters, onClick) => {
             onClick = {onClick}
             disabled = {!anyFilters}
         >
-            Save Filter
+            Create Attribute from Filter
         </MenuItem>
     return item
 }
 
-const hideBgNodes = (capability, onClick) => {
+const hideBgNodes = (able, onClick) => {
 
     // Render the 'hide background colors' menu option.
     let label = 'Hide Background Nodes'
-    if (capability.indexOf('hideBgNodes') > -1) {
+    if (able.indexOf('hideBgNodes') > -1) {
         label = '✓ ' + label
-    } else if (capability.indexOf('showBgNodes') < 0) {
+    } else if (able.indexOf('showBgNodes') < 0) {
         return null
     }
     let item =
         <MenuItem
             data = {{id: 'hideBgNodes'}}
-            attributes = {{title: 'Hide the nodes not passing filters'}}
+            attributes = {{
+                title: 'Hide the nodes with no data or not passing filters'}}
             onClick = {onClick}
         >
             {label}
@@ -194,8 +195,8 @@ const hideBgNodes = (capability, onClick) => {
     return item
 }
 
-const menuItem = (capability, id, label, title, onClick) => {
-    if (capability.indexOf(id) < 0) {
+const menuItem = (able, id, label, title, onClick) => {
+    if (able.indexOf(id) < 0) {
         return null
     }
     let item =
@@ -209,7 +210,7 @@ const menuItem = (capability, id, label, title, onClick) => {
     return item
 }
 
-const ShortEntryMenu = ({ capability, filterChecked, filterList, filterValues,
+const ShortEntryMenu = ({ able, filterChecked, filterList, filterValues,
     onTrigger, onMainMenu, onFilterValue, anyFilters}) => (
     <div>
         { trigger(onTrigger) }
@@ -218,23 +219,24 @@ const ShortEntryMenu = ({ capability, filterChecked, filterList, filterValues,
             className = 'entryMenu'
             hideOnLeave = {true}
         >        
-            { applyThresholds(capability, filterChecked, onMainMenu) }
-            { filterByRange(capability, filterChecked, onMainMenu) }
-            { filterByCategory(capability, filterChecked, filterList,
-                filterValues, onMainMenu, onFilterValue) }
-            { createFilterAttr(capability, anyFilters, onMainMenu) }
-            { hideBgNodes(capability, onMainMenu) }
+            { hideBgNodes(able, onMainMenu) }
             <hr></hr>
-            { menuItem(capability, 'setOperation', 'Set Operation',
+            { applyThresholds(able, filterChecked, onMainMenu) }
+            { filterByRange(able, filterChecked, onMainMenu) }
+            { filterByCategory(able, filterChecked, filterList,
+                filterValues, onMainMenu, onFilterValue) }
+            { createFilterAttr(able, anyFilters, onMainMenu) }
+            <hr></hr>
+            { menuItem(able, 'setOperation', 'Set Operation',
                 "Perform a set operation on two attributes", onMainMenu) }
-            { menuItem(capability, 'correlationSort', 'Correlation Sort',
+            { menuItem(able, 'correlationSort', 'Correlation Sort',
                 "Sort attributes by correlation", onMainMenu) }
-            { menuItem(capability, 'reflection', 'Reflect onto Another Map',
+            { menuItem(able, 'reflection', 'Reflect onto Another Map',
                 'Reflect this attribute onto another map', onMainMenu) }
             <hr></hr>
-            { menuItem(capability, 'editColors', 'Edit Colors',
+            { menuItem(able, 'editColors', 'Edit Colors',
                 "Change colors for this attribute", onMainMenu) }
-            { menuItem(capability, 'download', 'Download',
+            { menuItem(able, 'download', 'Download',
                 "Download the attribute's values", onMainMenu) }
 
         </ContextMenu>
@@ -242,7 +244,7 @@ const ShortEntryMenu = ({ capability, filterChecked, filterList, filterValues,
 )
 
 ShortEntryMenu.propTypes = {
-    capability: PropTypes.array,     // capabilities to determine menu items
+    able: PropTypes.array,           // capabilities to determine menu items
     filterChecked: PropTypes.string, // group to filter by
     filterList: PropTypes.array,     // list from which to select a filter value
     filterValues: PropTypes.node,    // filter values
