@@ -292,14 +292,11 @@ function create_range_slider (layer_name, root) {
 
 function findChartData (layer_name, filteredNodes) {
     var layer = layers[layer_name],
-        keys,
-        filteredKeys,
-        values,
-        filteredValues;
-    keys = Object.keys(layer.data)
-    filteredKeys = filteredNodes
-        .filter(node => { return (keys.indexOf(node) > -1) })
-    filteredValues = filteredKeys.map(key => { return layer.data[key] })
+        keys = Object.keys(layer.data),
+        filteredKeys = filteredNodes
+            .filter(node => { return (keys.indexOf(node) > -1) }),
+        filteredValues= filteredKeys.map(key => { return layer.data[key] })
+    
     return _.zip(filteredKeys, filteredValues)
 }
 
@@ -310,19 +307,30 @@ function drawChart (layer_name, filteredNodes, root) {
     }
 
     if (util.is_continuous(layer_name)) {
-            var dataArrays = findChartData(layer_name, filteredNodes)
-            if (dataArrays.length < 1) {
-                gChart.clear(layer_name)
-                //root.find(.chart_area).hide()
-                return
-            }
+        var dataArrays = findChartData(layer_name, filteredNodes)
+        let chartArea = root.find('.chart_area')
+        if (dataArrays.length < 1) {
+        
+            // With no data, there is no chart to draw.
+            //gChart.clear(layer_name)
+            //chartArea.hide()
+            return
+        }
+        
+        //chartArea.show()
 
-            // Create the histogram.
-            gChart.draw(
-                layer_name, root.find('.chart'), 'histogram', dataArrays);
+        // Create the histogram.
+        gChart.draw(
+            layer_name, root.find('.chart'), 'histogram', dataArrays);
+        
+        // Find the min and max.
+        let layerData = layers[layer_name].data
+        let vals = dataArrays.map(keyVal => {
+            return layerData[keyVal[0]]
+        })
 
-        var min = layers[layer_name].minimum,
-            max = layers[layer_name].maximum;
+        var min = Math.min.apply(null, vals),
+            max = Math.max.apply(null, vals)
 
         if (_.isUndefined(slider_vals.get(layer_name))) {
         
@@ -332,32 +340,34 @@ function drawChart (layer_name, filteredNodes, root) {
         }
 
         // Put a tick on zero if zero is in the range.
-        // Dom object needs to be drawn already so we can see the offset.
-        if (0 > min && 0 < max) {
-            zeroShow.set(layer_name, true);
+        zeroShow.set(layer_name, (0 > min && 0 < max))
 
-            // Wait for the DOM to update so ...
-            Meteor.setTimeout(function () {
-                var root = get_root_from_layer_name(layer_name),
-                    chart = root.find('.chart'),
-                    x_span = chart.width(),
-                    x_low_width = -min / (max - min) * x_span;
-                root.find('.zero_tick').css('left', x_low_width);
-                root.find('.zero').css('left', x_low_width -9);
-            }, 500);
-        } else {
-            zeroShow.set(layer_name, false);
-        }
+        // Wait for the chart to complete drawing so we can see the offset.
+        Meteor.setTimeout(function () {
+            var root = get_root_from_layer_name(layer_name),
+                chart = root.find('.chart'),
+                x_span = chart.width(),
+                x_low_width = -min / (max - min) * x_span;
+            root.find('.zero_tick').css('left', x_low_width);
+            root.find('.zero').css('left', x_low_width -9);
+        }, 500);
 
     } else {
         
-            // Build the barChart.
-            gChart.draw(layer_name, root.find('.chart'), 'barChart');
+        // Build the barChart.
+        gChart.draw(layer_name, root.find('.chart'), 'barChart', filteredNodes);
     }
 }
 
-function create_shortlist_ui_entry_with_data (layer_name, root) {
+export function drawAllCharts (filteredNodes) {
+    /*
+    Session.get('shortlist').forEach (attr => {
+        drawChart(attr, filteredNodes)
+    })
+    */
+}
 
+function create_shortlist_ui_entry_with_data (layer_name, root) {
 
     // Add all of the metadata
     Layer.fill_metadata(root.find('.metadata_holder'), layer_name);
@@ -610,7 +620,7 @@ function create_float_controls () {
     $shortlist.find('.remove').on('click', removeButtonClick);
 }
 
-function addInitialEntriesToShortlist (layerNames) {    
+function addInitialEntriesToShortlist (layerNames) {
     // Add some initial entries to the shortlist.
     _.each(layerNames, function (layer_name) {
     
@@ -914,7 +924,7 @@ exports.dynamicAttrsToStoreFormat = function () {
 exports.complete_initialization = function () {
 
     // Executed after other initially visible widgets are populated.
-    
+
     function loadRemainderOfEntries () {
         var actives = rx.get('activeAttrs'),
             layerNames = _.filter(Session.get('shortlist'), function (layer) {
