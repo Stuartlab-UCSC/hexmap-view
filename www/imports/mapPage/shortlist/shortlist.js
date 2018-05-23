@@ -46,17 +46,9 @@ var icon = {
 };
 
 function get_range_display_values (layer_name, i) {
-    var vals;
-    var showing = should_show_slider(layer_name)
-    if (showing) {
-    
-        // The values as the slider is sliding.
-        vals = slider_vals.get(layer_name);
-    } else {
-    
-        // The min or max of all the layer's values.
-        vals = [layers[layer_name].minimum, layers[layer_name].maximum]
-    }
+
+    // Update the display as the sliders are moved.
+    var vals = slider_vals.get(layer_name);
     if (vals && !_.isUndefined(vals[i])) {
         return vals[i];
     } else {
@@ -298,16 +290,36 @@ function create_range_slider (layer_name, root) {
     sliding({target: slider_line[0]}, {values: vals});
 }
 
-function create_shortlist_ui_entry_with_data (layer_name, root) {
-    // Add all of the metadata
-    Layer.fill_metadata(root.find('.metadata_holder'), layer_name);
+function findChartData (layer_name, filteredNodes) {
+    var layer = layers[layer_name],
+        keys,
+        filteredKeys,
+        values,
+        filteredValues;
+    keys = Object.keys(layer.data)
+    filteredKeys = filteredNodes
+        .filter(node => { return (keys.indexOf(node) > -1) })
+    filteredValues = filteredKeys.map(key => { return layer.data[key] })
+    return _.zip(filteredKeys, filteredValues)
+}
+
+function drawChart (layer_name, filteredNodes, root) {
+
+    if (!root) {
+        root = get_root_from_layer_name(layer_name);
+    }
 
     if (util.is_continuous(layer_name)) {
+            var dataArrays = findChartData(layer_name, filteredNodes)
+            if (dataArrays.length < 1) {
+                gChart.clear(layer_name)
+                //root.find(.chart_area).hide()
+                return
+            }
 
-        // Create the chart after google chart has a chance to load.
-        setTimeout(function () {
-            gChart.create(layer_name, root.find('.chart'), 'histogram');
-        }, 10);
+            // Create the histogram.
+            gChart.draw(
+                layer_name, root.find('.chart'), 'histogram', dataArrays);
 
         var min = layers[layer_name].minimum,
             max = layers[layer_name].maximum;
@@ -315,7 +327,7 @@ function create_shortlist_ui_entry_with_data (layer_name, root) {
         if (_.isUndefined(slider_vals.get(layer_name))) {
         
             // Range filter values are not yet saved,
-            // so initialize the slider to the layer extents.
+            // so initialize the slider to the min & max filtered values.
             slider_vals.set(layer_name, [min, max]);
         }
 
@@ -339,15 +351,22 @@ function create_shortlist_ui_entry_with_data (layer_name, root) {
 
     } else {
         
-        // Build the barChart after the filter values are sure to be defined
-        setTimeout(function () {
-            gChart.create(layer_name, root.find('.chart'), 'barChart');
-        }, 10);
-
+            // Build the barChart.
+            gChart.draw(layer_name, root.find('.chart'), 'barChart');
     }
 }
 
-function build_filter (layer_name) {
+function create_shortlist_ui_entry_with_data (layer_name, root) {
+
+
+    // Add all of the metadata
+    Layer.fill_metadata(root.find('.metadata_holder'), layer_name);
+    with_filtered_signatures(function (filteredNodes) {
+        drawChart(layer_name, filteredNodes, root)
+    })
+}
+
+function build_continuous_filter (layer_name) {
 
     // Build a filter area.
     
@@ -362,13 +381,9 @@ function build_filter (layer_name) {
     // Figure out what kind of filter settings we take based on
     // what kind of layer we are.
     Layer.with_one (layer_name, function (layer) {
-    
-        if (util.is_continuous(layer_name)) {
         
-            // Add a range slider
-            create_range_slider(layer_name, root);
-        }
-        
+        // Add a range slider
+        create_range_slider(layer_name, root);
         filterBuilt.set(layer_name, true);
     });
 }
@@ -380,14 +395,14 @@ function syncFilterStateWithTemplate () {
     let filters = rx.get('shortEntry.filter')
     Session.get('shortlist').forEach(function (attr) {
     
-        // Handle showing of filter sliders for continuous.
+        // Handle showing of range sliders for continuous.
         let filterBy = filterBys[attr]
         let shouldShow = (filterBy !== undefined &&
             (filterBy === 'range' || filterBy === 'threshold'))
         let showing = showSlider.get(attr)
         if (shouldShow && !showing) {
             showSlider.set(attr, !showing)
-            build_filter(attr)
+            build_continuous_filter(attr)
         } else if (!shouldShow && showing) {
             showSlider.set(attr, !showing)
         }
@@ -602,7 +617,7 @@ function addInitialEntriesToShortlist (layerNames) {
         $shortlist.append(create_shortlist_ui_entry(layer_name));
         let filterBy = rx.get('shortEntry.menu.filter')[layer_name]
         if (filterBy && (filterBy === 'range' || filterBy === 'threshold')) {
-            build_filter(layer_name)
+            build_continuous_filter(layer_name)
         }
     });
     colorMix.refreshColors()
