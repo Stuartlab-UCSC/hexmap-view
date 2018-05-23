@@ -59,8 +59,7 @@ const onCreateFilterAttr = () => {
 
     // Clicking on the save button creates a dynamic attr using all
     // of the current filters to select nodes.
-    let filterFunctions = shortlist.get_current_filters();
-    shortlist.with_filtered_signatures(filterFunctions, function(nodeIds) {
+    shortlist.with_filtered_signatures(function(nodeIds) {
     
         // Suggest a name for this new attr.
         var name = 'with filters';

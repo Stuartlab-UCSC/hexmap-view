@@ -605,6 +605,7 @@ function addInitialEntriesToShortlist (layerNames) {
             build_filter(layer_name)
         }
     });
+    colorMix.refreshColors()
 }
 
 function receivedInitialActiveLayers (layers_added) {
@@ -719,15 +720,14 @@ exports.update_ui_metadata = function () {
     });
 }
 
-exports.with_filtered_signatures = function (filters, callback) {
-    // Takes an array of filters, as produced by get_current_filters.
+export function with_filtered_signatures (callback) {
+
+    // Finds the filter functions based on shortlist filters.
     // Computes an array of all signatures passing all filters, and passes
     // that to the given callback.
     
-    // TODO: Re-organize this to do filters one at a time, recursively, like
-    // a reasonable second-order filter.
-    
-    //console.log('with_filtered_signatures():filters:', filters)
+    // Find the filter functions.
+    filters = get_current_filters()
     
     // Prepare a list of all the layers
     var layer_names = [];
@@ -737,7 +737,6 @@ exports.with_filtered_signatures = function (filters, callback) {
     }
     
     Layer.with_many(layer_names, function(filter_layers) {
-        // filter_layers is guaranteed to be in the same order as filters.
         
         // This is an array of signatures that pass all the filters.
         var passing_signatures = [];
@@ -773,14 +772,13 @@ exports.with_filtered_signatures = function (filters, callback) {
     });
 }
 
-exports.get_current_filters = function () {
+function get_current_filters () {
 
     // Returns an array of filter objects, according to the shortlist UI.
     // Filter objects have a layer name and a boolean-valued filter function
     // that returns true or false, given a value from that layer.
     var allFilters = rx.get('shortEntry.filter');
     var current_filters = [];
-    var filter_functions = []
 
     // Go through all the filters.
     
