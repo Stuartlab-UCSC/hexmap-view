@@ -75,6 +75,7 @@ function remove_tool_listener (handle) {
 }
 
 export function getCallback (toolName) {
+    console.log('getCallback()')
     return callbacks[toolName]
 }
 
