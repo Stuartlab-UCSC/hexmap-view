@@ -3,7 +3,6 @@
 
 import { connect } from 'react-redux'
 
-import rx from '/imports/common/rx'
 import shortlist from '/imports/mapPage/shortlist/shortlist'
 import ShortEntryMenu from '/imports/mapPage/shortlist/ShortEntryMenu'
 import ShortEntryMenuFilter
@@ -11,8 +10,8 @@ import ShortEntryMenuFilter
 import tool from '/imports/mapPage/head/tool'
 import util from '/imports/common/util'
 
-const getCapability = () => {
-    let attr = rx.get('shortEntry.menu.attr')
+const getCapability = (state) => {
+    let attr = state['shortEntry.menu.attr']
     if (!(attr)) {
         return []
     }
@@ -21,13 +20,13 @@ const getCapability = () => {
     let able = ['correlationSort', 'editColors', 'download']
     
     // Capability due to hide or show of filters
-    able.push((rx.get('shortEntry.menu.hideBgNodes')) ?
+    able.push((state['shortEntry.menu.hideBgNodes']) ?
         'hideBgNodes' : 'showBgNodes')
 
     // Capability due to having a filter.
     able.push('createFilterAttr')
     /*
-    let filters = rx.get('shortEntry.filter')
+    let filters = state'shortEntry.filter']
     let filtersLength = filters.length
     let thresholdFiltersLength = (_.filter(filters, (filter) => {
         return filter.by === 'threshold'
@@ -62,15 +61,15 @@ const getCapability = () => {
     return able
 }
 
-const mapStateToProps = () => {
+const mapStateToProps = (state) => {
 
     // Map state to the shortEntryMenu properties.
     return {
-        able: getCapability(),
-        filterChecked: ShortEntryMenuFilter.getChecked(),
-        filterList: ShortEntryMenuFilter.getList(),
-        filterValues: ShortEntryMenuFilter.getValues(),
-        anyFilters: ShortEntryMenuFilter.getAnyFilters(),
+        able: getCapability(state),
+        filterChecked: ShortEntryMenuFilter.getChecked(state),
+        filterList: ShortEntryMenuFilter.getList(state),
+        filterValues: ShortEntryMenuFilter.getValues(state),
+        anyFilters: ShortEntryMenuFilter.getAnyFilters(state),
     }
 }
 
