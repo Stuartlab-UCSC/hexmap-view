@@ -92,27 +92,59 @@ const applyThresholds = (able, filterChecked, onMainMenu) => {
 const filterByCategoryValue = (item, i, filterValues, onFilterValue) => {
 
     // Render one category name.
+    let label = (filterValues && filterValues.indexOf(item) > -1) ?
+         '✓ ' + item : item
     let attributes = null
     let disabled = false
+    let style = {padding: '0.3em 0.7em'}
+    
     if (item === selectAll || item === selectNone) {
-        attributes = {style: {fontStyle: 'italic'}}
+        style.fontStyle = 'italic'
     } else if (item === tooManyCategories) {
         attributes = {className: 'error'}
         disabled = true
     }
-    let menuItem =
-        <MenuItem
-            data = {{value: item, by: 'category'}}
-            onClick = {onFilterValue}
+    
+    let items =
+        <option
+            value = {item}
             key = {i}
-            preventClose = {true}
+            data = {{by: 'category'}}
             attributes = {attributes}
+            style = {style}
             disabled = {disabled}
         >
-            { (filterValues && filterValues.indexOf(item) > -1) ?
-                '✓ ' + item : item }
+            { label }
+        </option>
+    return items
+}
+
+const filterByCategoryList = (filterList, filterValues, onFilterValue) => {
+
+    // Render the category list.
+    let attributes = {
+        className: 'scrollable select',
+        fontSize: '1.1em',
+        
+    }
+    let menuItem =
+        <MenuItem
+            data = {{by: 'categoryList'}}
+            preventClose = {true}
+            attributes = {attributes}
+        >
+            <select
+                onChange = {onFilterValue}
+                data = {{by: 'category'}}
+                multiple = {true}
+                style = {{fontSize: '1.1em', height: '100%'}}
+            >
+                { filterList.map((item, i) =>
+                    filterByCategoryValue(item, i, filterValues, onFilterValue)
+                )}
+            </select>
         </MenuItem>
-        ;
+    
     return menuItem
 }
 
@@ -124,7 +156,12 @@ const filterByCategory = (able, filterChecked, filterList, filterValues,
         return null
     }
     let title = 'Filter by Category'
-    let attributes = {title: 'Only include nodes with certain categories'}
+    let attributes = {
+        title: 'Only include nodes with certain categories',
+        classList: 'scrollable',
+        padding: 0,
+        margin: 0,
+    }
     let onClick = null
     let data = null
     let preventClose = true
@@ -144,9 +181,7 @@ const filterByCategory = (able, filterChecked, filterList, filterValues,
         preventClose = {preventClose}
         hoverDelay = {0}
     >
-        { filterList.map((item, i) =>
-            filterByCategoryValue(item, i, filterValues, onFilterValue)
-        ) }
+        { filterByCategoryList(filterList, filterValues, onFilterValue) }
     </SubMenu>
 
     return submenu;
