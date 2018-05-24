@@ -152,12 +152,12 @@ const onCategoryValue = (attr, value, dispatch) => {
     }
 }
 
-export const getChecked = () => {
+export const getChecked = (state) => {
 
     // Get the menu filter checked in state.
-    let attr = rx.get('shortEntry.menu.attr')
+    let attr = state['shortEntry.menu.attr']
     if (attr) {
-        let checked = rx.get('shortEntry.menu.filter')[attr]
+        let checked = state['shortEntry.menu.filter'][attr]
         return checked
     }
     return null
@@ -180,10 +180,10 @@ const getCategoryList = (attr) => {
     return list
 }
 
-export const getList = () => {
+export const getList = (state) => {
 
     // Get the list of values for a binary or categorical attr.
-    let attr = rx.get('shortEntry.menu.attr')
+    let attr = state['shortEntry.menu.attr']
     let list = []
     
     // Only an active attribute has filter options on the menu.
@@ -198,12 +198,12 @@ export const getList = () => {
     return list
 }
 
-export const getValues = () => {
+export const getValues = (state) => {
 
     // Get the selected items in the filterBy list in state.
-    let attr = rx.get('shortEntry.menu.attr')
+    let attr = state['shortEntry.menu.attr']
     if (attr) {
-        let filter = rx.get('shortEntry.filter')[attr]
+        let filter = state['shortEntry.filter'][attr]
         if (filter) {
             switch (filter.by) {
             case 'category':
@@ -221,10 +221,10 @@ export const getValues = () => {
     return null
 }
 
-export const getAnyFilters = () => {
+export const getAnyFilters = (state) => {
 
     // Return whether any filters exist or not.
-    return (Object.keys(rx.get('shortEntry.filter')).length > 0)
+    return (Object.keys(state['shortEntry.filter']).length > 0)
 }
 
 export const onContinuousValue = (attr, lowIn, highIn) => {
