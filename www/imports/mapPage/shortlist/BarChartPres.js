@@ -8,7 +8,7 @@ import {
     VerticalBarSeries,
 } from 'react-vis';
 
-export const BarChartPres = ({ data }) => (
+const BarChartPres = ({ data }) => (
     <div>
         <XYPlot
             xDomain={[0, 2]}

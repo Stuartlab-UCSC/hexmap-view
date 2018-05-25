@@ -3,7 +3,7 @@
 */
 import { connect } from 'react-redux'
 
-import { BarChart } from '/imports/mapPage/shortlist/BarChart'
+import BarChartPres from '/imports/mapPage/shortlist/BarChartPres'
 import Colormap from '/imports/mapPage/color/Colormap'
 import Layer from '/imports/mapPage/longlist/Layer'
 
@@ -64,7 +64,7 @@ function getData (state) {
 
 const mapStateToProps = (state) => {
 
-    // Map state to the BarChart properties.
+    // Map state to the properties.
     return {
         data: getData(state),
     }
@@ -72,15 +72,15 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = (dispatch) => {
 
-    // Map the event handlers to the BarChart properties.
+    // Map the event handlers to the properties.
     return {}
 }
 
 // Connect the value props and eventHandler props
-// to the presentational component: BarChart.
-const BarChartWrap = connect(
+// to the presentational component.
+const BarChart = connect(
     mapStateToProps,
     mapDispatchToProps
 )(BarChart)
 
-export default BarChartWrap;
+export default BarChart;
