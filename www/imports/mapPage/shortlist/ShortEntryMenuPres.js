@@ -1,5 +1,5 @@
 
-// Render the short list entry context menu.
+// Presentational component for the short list entry context menu.
 
 import React from 'react';
 import PropTypes from 'prop-types';

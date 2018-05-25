@@ -1,5 +1,5 @@
 
-// Container logic and state for the short list entry context menu.
+// Logic and state for the short list entry context menu.
 
 import { connect } from 'react-redux'
 
