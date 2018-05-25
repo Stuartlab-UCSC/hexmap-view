@@ -245,7 +245,7 @@ const menuItem = (able, id, label, title, onClick) => {
     return item
 }
 
-const ShortEntryMenu = ({ able, filterChecked, filterList, filterValues,
+const shortEntryMenuPres = ({ able, filterChecked, filterList, filterValues,
     onTrigger, onMainMenu, onFilterValue, anyFilters}) => (
     <div>
         { trigger(onTrigger) }
@@ -278,7 +278,7 @@ const ShortEntryMenu = ({ able, filterChecked, filterList, filterValues,
     </div>
 )
 
-ShortEntryMenu.propTypes = {
+shortEntryMenuPres.propTypes = {
     able: PropTypes.array,           // capabilities to determine menu items
     filterChecked: PropTypes.string, // group to filter by
     filterList: PropTypes.array,     // list from which to select a filter value
@@ -290,4 +290,4 @@ ShortEntryMenu.propTypes = {
     onFilterValue: PropTypes.func,
 }
 
-export default ShortEntryMenu;
+export default shortEntryMenuPres;
