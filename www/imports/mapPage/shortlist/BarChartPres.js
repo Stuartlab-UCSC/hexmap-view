@@ -1,5 +1,5 @@
 /*
-* A bar chart in the shortlist.
+* Presentational component for the bar chart in the shortlist.
 */
 import React from 'react';
 import PropTypes from 'prop-types';
@@ -8,7 +8,7 @@ import {
     VerticalBarSeries,
 } from 'react-vis';
 
-export const BarChart = ({ data }) => (
+export const BarChartPres = ({ data }) => (
     <div>
         <XYPlot
             xDomain={[0, 2]}
@@ -24,8 +24,8 @@ export const BarChart = ({ data }) => (
     </div>
 )
 
-BarChart.propTypes = {
+BarChartPres.propTypes = {
     data: PropTypes.array,
 };
 
-//export default BarChart;
+export default BarChartPres;
