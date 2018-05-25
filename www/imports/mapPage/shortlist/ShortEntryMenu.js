@@ -118,9 +118,9 @@ const mapDispatchToProps = (dispatch) => {
 
 // Connect the value props and eventHandler props
 // to the presentational component.
-const ShortEntryMenuWrap = connect(
+const ShortEntryMenu = connect(
     mapStateToProps,
     mapDispatchToProps
 )(ShortEntryMenuPres)
 
-export default ShortEntryMenuWrap;
+export default ShortEntryMenu;

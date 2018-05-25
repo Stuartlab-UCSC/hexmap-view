@@ -14,7 +14,7 @@ import Layer from '/imports/mapPage/longlist/Layer';
 import rx from '/imports/common/rx';
 import util from '/imports/common/util';
 
-import ShortEntryMenuWrap from '/imports/mapPage/shortlist/ShortEntryMenuWrap';
+import ShortEntryMenu from '/imports/mapPage/shortlist/ShortEntryMenu';
 import ShortEntryMenuFilter
     from '/imports/mapPage/shortlist/ShortEntryMenuFilter';
 
@@ -972,7 +972,7 @@ exports.init = function () {
     const store = rx.getStore();
     render(
         <Provider store={store}>
-            <ShortEntryMenuWrap />
+            <ShortEntryMenu />
         </Provider>,
         document.getElementById('shortEntryMenuWrap')
     )
