@@ -9,7 +9,7 @@ import shortlist from '/imports/mapPage/shortlist/shortlist';
 import util from '/imports/common/util';
 
 const selectAllNoneLimit = 7
-const categoryCountLimit = 50
+const categoryCountLimit = 100
 const selectAll = 'select all'
 const selectNone = 'select none'
 const tooManyCategories = 'too many categories to display'
