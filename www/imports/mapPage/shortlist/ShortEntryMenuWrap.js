@@ -4,7 +4,7 @@
 import { connect } from 'react-redux'
 
 import shortlist from '/imports/mapPage/shortlist/shortlist'
-import ShortEntryMenu from '/imports/mapPage/shortlist/ShortEntryMenu'
+import ShortEntryMenuPres from '/imports/mapPage/shortlist/ShortEntryMenuPres'
 import ShortEntryMenuFilter
     from '/imports/mapPage/shortlist/ShortEntryMenuFilter'
 import tool from '/imports/mapPage/head/tool'
@@ -63,7 +63,7 @@ const getCapability = (state) => {
 
 const mapStateToProps = (state) => {
 
-    // Map state to the shortEntryMenu properties.
+    // Map state to the properties.
     return {
         able: getCapability(state),
         filterChecked: ShortEntryMenuFilter.getChecked(state),
@@ -75,7 +75,7 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = (dispatch) => {
 
-    // Map the event handlers to the shortEntryMenu properties.
+    // Map the event handlers to the properties.
     return {
         onTrigger: ev => {
             dispatch({
@@ -117,10 +117,10 @@ const mapDispatchToProps = (dispatch) => {
 }
 
 // Connect the value props and eventHandler props
-// to the presentational component: ShortEntryMenu.
+// to the presentational component.
 const ShortEntryMenuWrap = connect(
     mapStateToProps,
     mapDispatchToProps
-)(ShortEntryMenu)
+)(ShortEntryMenuPres)
 
 export default ShortEntryMenuWrap;
