@@ -9,7 +9,6 @@ import shortlist from '/imports/mapPage/shortlist/shortlist';
 import util from '/imports/common/util';
 
 const selectAllNoneLimit = 7
-const categoryCountLimit = 100
 const selectAll = 'select all'
 const selectNone = 'select none'
 const tooManyCategories = 'too many categories to display'
@@ -172,8 +171,6 @@ const getCategoryList = (attr) => {
         // With no category strings,
         // assume this is binary with no colormap
         list = [0, 1]
-    } else if (list.length > categoryCountLimit) {
-        list = [tooManyCategories]
     } else if (list.length > selectAllNoneLimit) {
         list.splice(0, 0, selectAll, selectNone)
     }
