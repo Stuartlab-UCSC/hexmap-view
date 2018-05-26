@@ -1,5 +1,5 @@
 
-/* Shortlist entry context menu */
+/* Shortlist Circle & Float Controls */
 
 #shortEntryMenuWrap {
     width: 0;
@@ -23,13 +23,10 @@
     min-width: 13em;
 }
 
-#shortlist .entryMenu .select {
-    height: 200px !important;
-    padding: 0;
-    margin: 0;
+#shortlist .entryMenu .react-contextmenu {
+    overflow-y: auto;
+    max-height: 14em;
 }
-
-/* Shortlist Circle & Float Controls */
 
 #shortlist .circle,
 #shortlist .remove  {
