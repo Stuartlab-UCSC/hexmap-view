@@ -23,6 +23,11 @@
     min-width: 13em;
 }
 
+#shortlist .entryMenu .react-contextmenu {
+    overflow-y: auto;
+    max-height: 14em;
+}
+
 #shortlist .circle,
 #shortlist .remove  {
     height: 1.25em;
