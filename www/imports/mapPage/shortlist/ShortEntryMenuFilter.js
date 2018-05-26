@@ -305,6 +305,11 @@ export const onMenu = (attr, clicked, dispatch) => {
 
 export const onValue = (ev, data, dispatch) => {
     let attr = shortlist.get_layer_name_from_child(ev.target)
-    onCategoryValue(attr, ev.target.value, dispatch)
-
+    switch (data.by) {
+    case 'category':
+        onCategoryValue(attr, data.value, dispatch)
+        break
+    case 'hideBgNodes':
+        break
+    }
 }
