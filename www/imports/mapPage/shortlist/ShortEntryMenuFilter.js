@@ -11,7 +11,6 @@ import util from '/imports/common/util';
 const selectAllNoneLimit = 7
 const selectAll = 'select all'
 const selectNone = 'select none'
-const tooManyCategories = 'too many categories to display'
 
 const updateColors = (attr, prev) => {
 
@@ -218,12 +217,6 @@ export const getValues = (state) => {
     return null
 }
 
-export const getAnyFilters = (state) => {
-
-    // Return whether any filters exist or not.
-    return (Object.keys(state['shortEntry.filter']).length > 0)
-}
-
 export const onContinuousValue = (attr, lowIn, highIn) => {
 
     // Handle an update to a range or threshold filter value.
@@ -267,6 +260,10 @@ export const onMenu = (attr, clicked, dispatch) => {
         break
     case 'createFilterAttr':
         onCreateFilterAttr()
+        break
+    case 'deleteAllFilters':
+        rx.set('shortEntry.filter.dropAll')
+        colorMix.refreshColors()
         break
     default:
     

@@ -72,6 +72,7 @@ exports.stateActions = [
     'shortEntry.filter.category.all',
     'shortEntry.filter.continuous',
     'shortEntry.filter.drop',
+    'shortEntry.filter.dropAll',
     'shortEntry.filter.loadPersist',
     'shortEntry.menu.attr',
     'shortEntry.menu.filter.click',

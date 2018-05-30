@@ -47,6 +47,27 @@ const trigger = onTrigger => {
     return trigger;
 }
 
+const hideBgNodes = (able, onClick) => {
+
+    // Render the 'hide background colors' menu option.
+    let label = 'Hide Background Nodes'
+    if (able.indexOf('hideBgNodes') > -1) {
+        label = '✓ ' + label
+    } else if (able.indexOf('showBgNodes') < 0) {
+        return null
+    }
+    let item =
+        <MenuItem
+            data = {{id: 'hideBgNodes'}}
+            attributes = {{
+                title: 'Hide the nodes with no data or not passing filters'}}
+            onClick = {onClick}
+        >
+            {label}
+        </MenuItem>
+    return item
+}
+
 const filterByRange = (able, filterChecked, onMainMenu) => {
 
     // Render the range filter menu item for continuous data types.
@@ -64,7 +85,6 @@ const filterByRange = (able, filterChecked, onMainMenu) => {
             { (filterChecked === 'range') ?
                 '✓ Filter by Range' : 'Filter by Range' }
         </MenuItem>
-
     return menuItem
 }
 
@@ -85,7 +105,6 @@ const applyThresholds = (able, filterChecked, onMainMenu) => {
             { (filterChecked === 'threshold') ?
                 '✓ Apply Thresholds' : 'Apply Thresholds' }
         </MenuItem>
-
     return menuItem
 }
 
@@ -112,7 +131,6 @@ const filterByCategoryValue = (item, i, filterValues, onFilterValue) => {
             { (filterValues && filterValues.indexOf(item) > -1) ?
                 '✓ ' + item : item }
         </MenuItem>
-        ;
     return menuItem
 }
 
@@ -152,45 +170,20 @@ const filterByCategory = (able, filterChecked, filterList, filterValues,
     return submenu;
 }
 
-const createFilterAttr = (able, anyFilters, onClick) => {
+const createFilterAttr = (able, onClick) => {
 
     // Render the 'create attr from filter' menu option.
     if (able.indexOf('createFilterAttr') < 0) {
         return null
     }
-    let attributes = {title: (anyFilters) ?
-        'Create a new attribute applying all filters' :
-        'There are no filters to save'
-    }
     let item =
         <MenuItem
             data = {{id: 'createFilterAttr'}}
-            attributes = {attributes}
+            attributes = {{
+                title: 'Create a new attribute applying all filters'}}
             onClick = {onClick}
-            disabled = {!anyFilters}
         >
             Create Attribute from Filter
-        </MenuItem>
-    return item
-}
-
-const hideBgNodes = (able, onClick) => {
-
-    // Render the 'hide background colors' menu option.
-    let label = 'Hide Background Nodes'
-    if (able.indexOf('hideBgNodes') > -1) {
-        label = '✓ ' + label
-    } else if (able.indexOf('showBgNodes') < 0) {
-        return null
-    }
-    let item =
-        <MenuItem
-            data = {{id: 'hideBgNodes'}}
-            attributes = {{
-                title: 'Hide the nodes with no data or not passing filters'}}
-            onClick = {onClick}
-        >
-            {label}
         </MenuItem>
     return item
 }
@@ -210,8 +203,32 @@ const menuItem = (able, id, label, title, onClick) => {
     return item
 }
 
+const select = (able, onMainMenu) => {
+
+    // Render the select nodes submenu.
+    if (able.indexOf('select') < 0) {
+        return null
+    }
+    let submenu = <SubMenu
+        title = 'Create with Selection'
+        data = {{id: 'select'}}
+        attributes = {{
+            title: 'Create an attribute by selecting nodes on the map'}}
+        hoverDelay = {0}
+    >
+        { menuItem(able, 'byRectangle', 'by Rectangle',
+            "Select a rectangular region of nodes", onMainMenu) }
+        { menuItem(able, 'byPolygon', 'by Polygon',
+            "Select a polygonal region of nodes", onMainMenu) }
+        { menuItem(able, 'byNodeId', 'by Node IDs',
+            "Select nodes by node IDs", onMainMenu) }
+    </SubMenu>
+    
+    return submenu;
+}
+
 const ShortEntryMenuPres = ({ able, filterChecked, filterList, filterValues,
-    onTrigger, onMainMenu, onFilterValue, anyFilters}) => (
+    onTrigger, onMainMenu, onFilterValue}) => (
     <div>
         { trigger(onTrigger) }
         <ContextMenu
@@ -225,7 +242,10 @@ const ShortEntryMenuPres = ({ able, filterChecked, filterList, filterValues,
             { filterByRange(able, filterChecked, onMainMenu) }
             { filterByCategory(able, filterChecked, filterList,
                 filterValues, onMainMenu, onFilterValue) }
-            { createFilterAttr(able, anyFilters, onMainMenu) }
+            { createFilterAttr(able, onMainMenu) }
+            { menuItem(able, 'clearAllFilters', 'Clear All Filters',
+                "Remove ALL filters from ALL attributes in the short list",
+                onMainMenu) }
             <hr></hr>
             { menuItem(able, 'setOperation', 'Set Operation',
                 "Perform a set operation on two attributes", onMainMenu) }
@@ -238,6 +258,14 @@ const ShortEntryMenuPres = ({ able, filterChecked, filterList, filterValues,
                 "Change colors for this attribute", onMainMenu) }
             { menuItem(able, 'download', 'Download',
                 "Download the attribute's values", onMainMenu) }
+            <hr></hr>
+            { select(able, onMainMenu) }
+            { menuItem(able, 'addAttr', 'Add Yours',
+                "Add an attribute from your data", onMainMenu) }
+            { menuItem(able, 'deleteAttr', 'Delete',
+                "Delete this attribute from the short list", onMainMenu) }
+            { menuItem(able, 'deleteAllAttrs', 'Delete All',
+                "Delete ALL attributes from the short list", onMainMenu) }
 
         </ContextMenu>
     </div>

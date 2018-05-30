@@ -12,7 +12,7 @@ import userMsg from '/imports/common/userMsg';
 
 import '/imports/mapPage/shortlist/attrAdd.html';
 
-var dialogHex;
+var dialogHex = null;
 
 function destroy() {
 
@@ -61,9 +61,10 @@ function handleReadError(msg) {
     userMsg.error(msg);
 }
 
-function createWindow() {
+export function create() {
 
     // Create the dialog.
+    if (!dialogHex) {
 
     // Retrieve the html template.
     Blaze.render(Template.attrAddTemplate, $('.content')[0]);
@@ -87,9 +88,6 @@ function createWindow() {
         opts: { title: 'Add Color Attributes' },
         helpAnchor: '/help/addAttr.html',
     });
+    }
     dialogHex.show();
-}
-
-exports.init = function () {
-    createWindow();
 }
