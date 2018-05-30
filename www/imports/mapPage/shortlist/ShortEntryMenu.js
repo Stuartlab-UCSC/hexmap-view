@@ -3,6 +3,9 @@
 
 import { connect } from 'react-redux'
 
+import attrAdd from '/imports/mapPage/shortlist/attrAdd'
+import rx from '/imports/common/rx'
+import select from '/imports/mapPage/shortlist/select'
 import shortlist from '/imports/mapPage/shortlist/shortlist'
 import ShortEntryMenuPres from '/imports/mapPage/shortlist/ShortEntryMenuPres'
 import ShortEntryMenuFilter
@@ -17,14 +20,21 @@ const getCapability = (state) => {
     }
     
     // Initialize capability to those that all attrs have all the time.
-    let able = ['correlationSort', 'editColors', 'download']
+    let able = ['correlationSort', 'editColors', 'download', 'addAttr',
+        'select', 'byRectangle', 'byPolygon', 'byNodeId', 'deleteAttr',
+        'deleteAllAttrs']
     
     // Capability due to hide or show of filters
+    // TODO always show to have an effect even when no filters?
     able.push((state['shortEntry.menu.hideBgNodes']) ?
         'hideBgNodes' : 'showBgNodes')
 
-    // Capability due to having a filter.
-    able.push('createFilterAttr')
+    // Show only when any filters exist.
+    if (Object.keys(rx.get('shortEntry.filter')).length) {
+        able.push('createFilterAttr')
+        able.push('clearAllFilters')
+    }
+
     /*
     let filters = state'shortEntry.filter']
     let filtersLength = filters.length
@@ -43,6 +53,7 @@ const getCapability = (state) => {
         }
     }
     */
+    
     // Capabilities based on dataType.
     switch (util.getDataType(attr)) {
     case 'binary':
@@ -69,13 +80,13 @@ const mapStateToProps = (state) => {
         filterChecked: ShortEntryMenuFilter.getChecked(state),
         filterList: ShortEntryMenuFilter.getList(state),
         filterValues: ShortEntryMenuFilter.getValues(state),
-        anyFilters: ShortEntryMenuFilter.getAnyFilters(state),
     }
 }
 
 const mapDispatchToProps = (dispatch) => {
 
     // Map the event handlers to the properties.
+    let entries
     return {
         onTrigger: ev => {
             dispatch({
@@ -91,6 +102,7 @@ const mapDispatchToProps = (dispatch) => {
             case 'threshold':
             case 'hideBgNodes':
             case 'createFilterAttr':
+            case 'clearAllFilters':
                 ShortEntryMenuFilter.onMenu(attr, data.id, dispatch)
                 break
             case 'setOperation':
@@ -107,6 +119,27 @@ const mapDispatchToProps = (dispatch) => {
                 break
             case 'download':
                 tool.getCallback('hexagonNames')()
+                break
+            case 'byRectangle':
+                select.byRectangle()
+                break
+            case 'byPolygon':
+                select.byPolygon()
+                break
+            case 'byNodeId':
+                select.byNodeId()
+                break
+            case 'addAttr':
+                attrAdd.create();
+                break
+            case 'deleteAttr':
+                shortlist.removeEntry(attr)
+                break
+            case 'deleteAllAttrs':
+                entries = Session.get('shortlist')
+                entries.forEach(attr => {
+                    shortlist.removeEntry(attr)
+                })
                 break
             }
         },

@@ -207,12 +207,16 @@ const reducers = {
             }
             return newState
 
-        // Remove the filter.
+        // Remove one attr's filter.
         case 'shortEntry.filter.drop':
             newState = clone(state)
             delete newState[action.attr]
             return newState
-            
+
+        // Remove all filters.
+        case 'shortEntry.filter.dropAll':
+            return {}
+
         // Load from persistent store.
         case 'shortEntry.filter.loadPersist':
             return action.loadPersist;

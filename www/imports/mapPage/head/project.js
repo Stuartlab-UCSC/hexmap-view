@@ -174,6 +174,46 @@ function getProjectList () {
         });
 }
 
+/*
+    // TODO future delete map
+                    <li class='deleteMap mapShow'>
+                        Delete this Map
+                    </li>
+
+    // Destroy a map in the database.
+    $('body').on('click', '.deleteMap', function () {
+ 
+        // Ask the user if she is sure.
+        // TODO
+ 
+        // Now tell the data server to remove this map.
+        url = HUB_URL + '/mapList';
+ 
+        // If there is a signed-in user, get the email and roles.
+        if (user) {
+            url += '/email/' + user.username;
+            var roles = rx.get('user.roles');
+            if (roles.length > 0) {
+                url += '/role/' + roles.join('+');
+            }
+        }
+        fetch(url)
+            .then(checkFetchStatus)
+            .then(parseFetchedJson)
+            .then(projectListReceived)
+            .catch(() => {
+                userMsg.error('Unable to retrieve map list.');
+            });
+
+        // Reload and user will be asked to select a project.
+        // TODO should be able to create a map here?
+        utils.loadPage('mapPage');
+    });
+
+
+*/
+
+
 exports.authorize = function () {
     
     // Check to see if the user is authorized to view the project

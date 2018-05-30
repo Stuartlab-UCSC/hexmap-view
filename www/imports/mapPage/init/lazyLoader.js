@@ -38,6 +38,6 @@ exports.init = function () {
 
     $('#navBar .attrAdd').on('click', function () {
         import attrAdd from '/imports/mapPage/shortlist/attrAdd.js';
-        attrAdd.init();
+        attrAdd.create();
     });
 };

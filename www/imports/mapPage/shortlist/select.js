@@ -268,7 +268,18 @@ function select_string(string) {
     }
 }
 
-function selectImport() {
+function prepSelect () {
+    resetEverything();
+    
+    // Let the tool handler know this is active so another map tool cannot
+    // be made active.
+    tool.activity(true);
+
+    // Set the selection color depending on the background
+    color = (Session.equals('background', 'white')) ? 'black' : 'white';
+}
+
+export function byNodeId() {
 
     // A tool for importing a list of hexes as a selection
     // Make the import form
@@ -334,30 +345,29 @@ function selectImport() {
     });
 }
 
+export function byRectangle () {
+    prepSelect();
+    isRectangle = true;
+    setUpShapeSelect();
+}
+
+export function byPolygon () {
+    prepSelect();
+    isRectangle = false;
+    setUpShapeSelect();
+}
+
 function clicked(ev) {
-
-    // This executes when one of the select navBar buttons is pressed.
-
-    resetEverything();
     var $tool = $(ev.target);
-
-    // Let the tool handler know this is active so another map tool cannot
-    // be made active.
-    tool.activity(true);
-
-    // Set the selection color depending on the background
-    color = (Session.equals('background', 'white')) ? 'black' : 'white';
-
     if ($tool.hasClass('rectangle')) {
-        isRectangle = true;
-        setUpShapeSelect();
+        byRectangle();
 
     } else if ($tool.hasClass('polygon')) {
         isRectangle = false;
         setUpShapeSelect();
 
     } else { // The import function must have been selected
-        selectImport();
+        byNodeId();
     }
 }
 
