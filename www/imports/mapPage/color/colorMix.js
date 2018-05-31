@@ -84,7 +84,7 @@ function refreshColorsInner () {
     
     // Don't do multiple refreshes during initialization.
     if (rx.get('init.map') !== 'rendered' ||
-        rx.get('init.activeAttrs') !== 'inShortlist') {
+        !rx.get('inited.coloringAttrs')) {
         return;
     }
  

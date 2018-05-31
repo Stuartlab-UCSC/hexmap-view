@@ -96,6 +96,7 @@ exports.getHumanProject = function (project) {
 
 export function hideAllSnakes () {
     rx.set('snake.map.hide');
+    rx.set('snake.project.hide');
     rx.set('snake.shortlist.hide');
 }
 

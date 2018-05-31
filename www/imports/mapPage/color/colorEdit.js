@@ -14,8 +14,7 @@ import './colorEdit.css';
 
 var badValue = false, // The current category input has a bad value
     $link,
-    $form,
-    defaultBorder = '2px inset rgb(238, 238, 238)';
+    $form;
 
 // Define the colormap template helper, at this scope for some reason
 Template.colormapT.helpers({
@@ -41,49 +40,43 @@ Template.navBarT.helpers({
     }
 });
 
-function findRowLayer ($row, colorArray) {
+function findRowIndex ($row, colorArray) {
 
     // Find the layer in the colorArray from a row element
     var layerName = $row.find('td:first').attr('title');
-    return _.find(colorArray, function (layer) {
-        return (layer.name === layerName);
-    });
+    let row
+    colorArray.find((line, index) => {
+        row = index
+        return (line.name === layerName);
+    })
+    return row
 }
 
-function findColumnCat ($input, colorArray) {
+function findColumnIndex ($input, colorArray) {
 
     // Find the category in the colorArray from an input element
-    var layer = findRowLayer($input.parents('tr'), colorArray),
+    var row = findRowIndex($input.parents('tr'), colorArray),
         $el = $input.parent().prev(),
         catName = $.trim(($el).text());
 
     // Trim and remove the trailing colon
     catName = catName.slice(0, catName.length - 1);
 
-    // Return the wanted category
-    return _.find(layer.cats, function (cat) {
+    // Get the wanted category/column index.
+    let col
+    colorArray[row].cats.find((cat, index) => {
+        col = index
         return (cat.name === catName);
-    });
-}
-
-// Convert an rgb array, [66, 77, 88], to an object, {r:66, b:77, g:88}
-function rgbArrayToObj (arr) {
-    return new Color({r: arr[0], g: arr[1], b: arr[2]});
+    })
+    return {row, col}
 }
 
 function setCatAttrs (a) {
 
     // Set category input attributes that may change with user edits.
-    if (rgbArrayToObj(a.operVal).dark()) {
-        a.dark = 'dark';
-    } else {
-        a.dark = '';
-    }
-    if (_.isUndefined(a.persistVal) || a.operVal === a.persistVal) {
-        a.isFileVal = 'isFileVal';
-    } else {
-        a.isFileVal = '';
-    }
+    a.dark = (Color(a.operVal).dark()) ? 'dark' : ''
+    a.isFileVal = (!a.persistVal || a.operVal === a.persistVal) ?
+        'isFileVal' : ''
 }
 
 function updateColormap (aCat) {
@@ -99,16 +92,13 @@ function rowClick(ev) {
     // Highlights the clicked row to make it easier for the user
     // to follow across all of the categories for this layer.
     var $t = $(ev.currentTarget),
+        colorArray = Session.get('colorArray'),
+        rowIndex = findRowIndex($t, colorArray)
 
-        // Clear the 'selected' attribute of all layers
-        colorArray = _.map(Session.get('colorArray'), function (layer) {
-            var l = _.clone(layer);
-            l.selected = '';
-            return l;
-        }),
-        // Find the current layer in the color array
-        selected = findRowLayer($t, colorArray);
-    selected.selected = 'selected';
+    // Set the 'selected' attribute of all layers
+    colorArray.forEach((row, i) => {
+        row.selected = (i === rowIndex) ? 'selected' : ''
+    })
     Session.set('colorArray', colorArray);
 }
 
@@ -116,30 +106,32 @@ function inputBlur (ev) {
 
     // Fires when a color input field loses focus.
     // Update its properties & the map
-    var $t = $(ev.currentTarget),
+    var t = ev.currentTarget,
+        $t = $(t),
+        newVal = $t.prop('value').trim().toUpperCase(),
         colorArray = Session.get('colorArray'),
-        cat = findColumnCat($t, colorArray),
-        newVal = $t.prop('value').trim().toUpperCase();
+        index = findColumnIndex($t, colorArray),
+        cat = colorArray[index.row].cats[index.col]
 
     if (!newVal.match(/^#([A-F0-9]{6})$/)) {
 
         // An invalid hex string, so put the focus back to this.
-        Session.set('colorArray', colorArray);
         badValue = true;
-        $t.focus().css('border-color', 'red');
+        t.classList.add('error')
+        $t.focus();
         return;
-    } else {
-        badValue = false;
-        $t.css('border', defaultBorder);
     }
+    badValue = false;
+
     // Clean up the input box value.
+    t.classList.remove('error')
     $t.prop('value', newVal);
     
     // Set cursor at the end of the next input field.
     $t.parent().next().next().find('input').focus();
 
     if (newVal !== cat.operVal) {
-
+    
         // The new value is not the same as the operating color,
         // so update the operating color & update the colormap
         cat.operVal = newVal;
@@ -155,16 +147,15 @@ function inputKeyup (ev) {
     // Fires when a key is released in a color input field
     var $t = $(ev.currentTarget),
         newVal = $t.prop('value').trim(),
-        colorArray,
-        cat;
+        colorArray;
 
     if (newVal === '') {
 
         // The textbox is empty so display the file color string
         // so the user will know what that is
         colorArray = Session.get('colorArray');
-        cat = findColumnCat($t, colorArray);
-        $t.prop('value', cat.persistVal);
+        let index = findColumnIndex($t, colorArray);
+        $t.prop('value', colorArray[index.row].cats[index.col].persistVal);
     }
     if (ev.which === 13) {
 
