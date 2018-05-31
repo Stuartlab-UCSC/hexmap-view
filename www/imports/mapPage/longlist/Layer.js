@@ -260,9 +260,8 @@ function load_static_data (layer_name, callback, byAttrId) {
     if (layer.status !== undefined) {
         return;
     }
-    if (!layers[layer_name].status) {
-        layers[layer_name].status = 'dataRequested';
-    }
+    
+    layers[layer_name].status = 'dataRequested';
 
     function saveData (data) {
 
