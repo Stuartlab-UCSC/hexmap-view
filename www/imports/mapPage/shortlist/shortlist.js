@@ -66,15 +66,15 @@ function is_layer_active (layer_name) {
 }
 
 function is_primary (layer_name) {
-    var actives = Session.get('active_layers');
     if (!layer_name) { return false; }
-    return (actives.indexOf(layer_name) === 0);
+    var actives = Session.get('active_layers');
+    return (actives && actives.indexOf(layer_name) === 0);
 }
 
 function is_secondary (layer_name) {
-    var actives = Session.get('active_layers');
     if (!layer_name) { return false; }
-    return (actives.indexOf(layer_name) === 1);
+    var actives = Session.get('active_layers');
+    return (actives && actives.indexOf(layer_name) === 1);
 }
 
 function is_hovered (layer_name) {
@@ -963,7 +963,7 @@ exports.init = function () {
     // and secondary icons and change the map colors.
     rx.subscribe(when_active_color_layers_change);
     rx.subscribe(syncFilterStateWithTemplate);
-    Session.set('active_layers', null)
+    Session.set('active_layers', null) // just for templates
 
     // Create the controls that move from entry to entry.
     create_float_controls();

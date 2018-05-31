@@ -59,14 +59,12 @@ function areLayoutsPopulated () {
     var R = rx.getState();
     /*
     console.log('\nareLayoutsPopulated()')
-    console.log('init.activeAttrs', R['init.activeAttrs'])
     console.log('inited.attrTypes', R['inited.attrTypes'])
     console.log('init.layoutNames', R['init.layoutNames'])
     console.log('init.map', R['init.map'])
     console.log('inited.attrSummary', R['inited.attrSummary'])
     */
-    if (R['init.activeAttrs'] === 'inShortlist' &&
-        R['inited.attrTypes'] &&
+    if (R['inited.attrTypes'] &&
         R['init.layoutNames'] === 'populated' &&
         R['init.map'] === 'rendered' &&
         R['inited.attrSummary']) {
@@ -141,7 +139,6 @@ function isMapRendered () {
             shortlistSaved = Session.get('shortlist');
             Session.set('shortlist', rx.get('activeAttrs'));
             shortlist.init();
-            rx.set('init.activeAttrs.inShortlist');
         });
     }
 }
@@ -208,13 +205,13 @@ function isReadyToRenderMap () {
     console.log('\nisReadyToRenderMap()')
     console.log("R['inited.layout']:", R['inited.layout'])
     console.log("R['inited.colormap']:", R['inited.colormap'])
-    console.log("R['init.activeAttrs']:", R['init.activeAttrs'])
+    console.log("R['inited.coloringAttrs']:", R['inited.coloringAttrs'])
     console.log("R['inited.googleMapApi']:", R['inited.googleMapApi'])
     console.log("R['inited.dom']:", R['inited.dom'])
     */
     if (R['inited.layout'] &&
         R['inited.colormap'] &&
-        R['init.activeAttrs'] === 'valuesLoaded' &&
+        R['inited.coloringAttrs'] &&
         R['inited.googleMapApi'] &&
         R['inited.dom']) {
         
@@ -277,7 +274,7 @@ function haveLayerSummary () {
             } else {
             
                 // No layers at all, so say they are loaded to proceed.
-                rx.set('init.activeAttrs.valuesLoaded');
+                rx.set('inited.coloringAttrs');
             }
         });
     }
@@ -359,7 +356,7 @@ exports.init = function () {
     ctx.cont_layers = [];
     
     // Request the initial coloring layers if we know them yet.
-    Layer.loadInitialActiveLayers();
+    Layer.loadInitialLayers();
     let activeAttrs = rx.get('activeAttrs');
     let shortlist = Session.get('shortlist');
     if (activeAttrs.length > 0) {
