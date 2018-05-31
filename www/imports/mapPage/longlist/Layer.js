@@ -260,14 +260,16 @@ function load_static_data (layer_name, callback, byAttrId) {
     if (layer.status !== undefined) {
         return;
     }
-    layers[layer_name].status = 'dataRequested';
+    if (!layers[layer_name].status) {
+        layers[layer_name].status = 'dataRequested';
+    }
 
     function saveData (data) {
 
         // Save the layer data in the global layers object.
         layers[layer_name].data = data
         layers[layer_name].status = 'dataReceived';
-        
+
         // If this is the primary active attr, and the colormap is loaded,
         // then refresh the colors.
         if (shortlist.get_active_coloring_layers().indexOf(layer_name) > -1 &&
@@ -345,29 +347,32 @@ function load_static_data (layer_name, callback, byAttrId) {
 }
 
 function loadLayerNow () {
-    var active = rx.get('activeAttrs'),
+
+    // On initialization, we need to load the active layers and layers with
+    // filters to be able to render the initial colors.
+    let attrs = _.unique(
+        rx.get('activeAttrs').concat(Object.keys(rx.get('shortEntry.filter'))))
         loadedCount = 0;
-    if (active.length < 1) {
+    if (attrs.length < 1) {
         return;
     }
     unsubFx.loadLayerNow();
 
     function loaded () {
         loadedCount += 1;
-        if (loadedCount === active.length) {
-            rx.set('init.activeAttrs.valuesLoaded');
+        if (loadedCount === attrs.length) {
+            rx.set('inited.coloringAttrs');
         }
     }
-
-    _.each(active, function (layerName) {
+    _.each(attrs, function (layerName) {
         
         // with_one() works better than with_many() during initialization.
         exports.with_one(layerName, loaded, rx.get('dynamicAttrs'), true);
     });
 }
-exports.loadInitialActiveLayers = function () {
+exports.loadInitialLayers = function () {
 
-    // Listen for the active layers to be found.
+    // Listen for the active layers & filters to be found.
     unsubFx.loadLayerNow = rx.subscribe(loadLayerNow);
 }
 
@@ -432,7 +437,7 @@ exports.with_one = function (layer_name, callback, dynamicLayers, byAttrId) {
             return;
         }
     }
-    
+
     if (layer.data === undefined) {
 
         // This layer's data has not yet been loaded so load it.
@@ -443,7 +448,7 @@ exports.with_one = function (layer_name, callback, dynamicLayers, byAttrId) {
         }
 
     } else if (layer.magnitude === undefined) {
-     
+
         // We've downloaded it already, or generated it locally, but we
         // don't know the magnitude and it needs to be added to the
         // shortlist. Compute magnitude and add to the shortlist.
@@ -481,7 +486,7 @@ exports.with_one = function (layer_name, callback, dynamicLayers, byAttrId) {
         layer.magnitude = Math.max(Math.abs(minimum), maximum);
 
         if (!Colormap.have_colormap(layer_name) && util.is_binary(layer_name)) {
-            // Add an empty colormap for this layer, so that 
+            // Add an empty colormap for this layer, so that
             // auto-generated discrete colors will be used.
 		        colormaps[layer_name] = Colormap.defaultBinary();
         }
@@ -516,7 +521,8 @@ exports.with_many = function (layer_list, callback, dynamicLayers) {
     // to call with_many because they are loaded before being added to the
     // shortlist. In this case we can reference the global layers array
     // directly.
-    if(layer_list.length == 0) {
+    if(layer_list.length < 1) {
+
         // Base case: run the callback with an empty list
         callback([]);
     } else {
@@ -532,7 +538,7 @@ exports.with_many = function (layer_list, callback, dynamicLayers) {
                 // Mutate the array. Shouldn't matter because it won't matter 
                 // for us if callback does it.
                 rest.push(last);
-                
+
                 // Send the complete array to the callback.
                 callback(rest);
             

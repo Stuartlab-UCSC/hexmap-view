@@ -51,16 +51,6 @@ const reducers = {
             return state;
         }
     },
-    'init.activeAttrs': (state = false, action) => {
-        switch (action.type) {
-        case 'init.activeAttrs.valuesLoaded':
-            return 'valuesLoaded';
-        case 'init.activeAttrs.inShortlist':
-            return 'inShortlist';
-        default:
-            return state;
-        }
-    },
     'init.layoutNames': (state = false, action) => {
         switch (action.type) {
         case 'init.layoutNames.received':
@@ -88,6 +78,9 @@ const reducers = {
     },
     'inited.attrTypes': (state = false, action) => {
         return (action.type === 'inited.attrTypes') ? true : state;
+    },
+    'inited.coloringAttrs': (state = false, action) => {
+        return (action.type === 'inited.coloringAttrs') ? true : state;
     },
     'inited.colormap': (state = false, action) => {
         return (action.type === 'inited.colormap') ? true : state;
