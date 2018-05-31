@@ -11,7 +11,6 @@ import util from '/imports/common/util';
 const selectAllNoneLimit = 7
 const selectAll = 'select all'
 const selectNone = 'select none'
-const tooManyCategories = 'too many categories to display'
 
 const updateColors = (attr, prev) => {
 
