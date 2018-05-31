@@ -371,9 +371,12 @@ function create_shortlist_ui_entry_with_data (layer_name, root) {
 
     // Add all of the metadata
     Layer.fill_metadata(root.find('.metadata_holder'), layer_name);
-    with_filtered_signatures(function (filteredNodes) {
-        drawChart(layer_name, filteredNodes, root)
-    })
+    
+    // Draw any charts that need redrawing.
+    //with_filtered_signatures(function (filteredNodes) {
+        //drawChart(layer_name, filteredNodes, root)
+        drawChart(layer_name, Object.keys(polygons), root)
+    //})
 }
 
 function build_continuous_filter (layer_name) {
