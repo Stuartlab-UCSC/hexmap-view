@@ -14,8 +14,7 @@ import './colorEdit.css';
 
 var badValue = false, // The current category input has a bad value
     $link,
-    $form,
-    defaultBorder = '2px inset rgb(238, 238, 238)';
+    $form;
 
 // Define the colormap template helper, at this scope for some reason
 Template.colormapT.helpers({
@@ -93,8 +92,8 @@ function rowClick(ev) {
     // Highlights the clicked row to make it easier for the user
     // to follow across all of the categories for this layer.
     var $t = $(ev.currentTarget),
-        colorArray = Session.get('colorArray')
-        rowIndex = findRowIndex($t, colorArray),
+        colorArray = Session.get('colorArray'),
+        rowIndex = findRowIndex($t, colorArray)
 
     // Set the 'selected' attribute of all layers
     colorArray.forEach((row, i) => {
@@ -148,15 +147,14 @@ function inputKeyup (ev) {
     // Fires when a key is released in a color input field
     var $t = $(ev.currentTarget),
         newVal = $t.prop('value').trim(),
-        colorArray,
-        cat;
+        colorArray;
 
     if (newVal === '') {
 
         // The textbox is empty so display the file color string
         // so the user will know what that is
         colorArray = Session.get('colorArray');
-        index = findColumnIndex($t, colorArray);
+        let index = findColumnIndex($t, colorArray);
         $t.prop('value', colorArray[index.row].cats[index.col].persistVal);
     }
     if (ev.which === 13) {
