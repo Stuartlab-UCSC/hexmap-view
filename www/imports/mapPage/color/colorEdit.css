@@ -32,21 +32,14 @@
     width: 6em;
     color: black;
 }
-#colorTable input.dark:not(.isFileVal) {
+#colorTable input.dark {
     color: white;
 }
 #colorTable input.isFileVal {
     font-style: italic;
-    color: #777777;
 }
-#colorTable input.isFileVal.dark {
-    color: #bbbbbb;
-}
-#colorTable input.empty {
-    font-style: italic;
-    color: #777777;
-}
-#colorTable input.empty.dark {
-    color: #bbbbbb;
+#colorTable input.error {
+    color: red;
+    background-color: white !important;
 }
 
