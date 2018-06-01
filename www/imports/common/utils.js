@@ -123,3 +123,8 @@ export function fetchError(e) {
     console.error('fetch error:', e);
 }
 
+export function clone (obj) {
+
+    // Clone a jsonifyable object.
+    return JSON.parse(JSON.stringify(obj))
+}

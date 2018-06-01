@@ -1,16 +1,19 @@
 
 // Logic and state for the filter items in the short list entry context menu.
 
-import Colormap from '/imports/mapPage/color/Colormap';
-import colorMix from '/imports/mapPage/color/colorMix';
-import Layer from '/imports/mapPage/longlist/Layer';
-import rx from '/imports/common/rx';
-import shortlist from '/imports/mapPage/shortlist/shortlist';
-import util from '/imports/common/util';
+import '/imports/lib/color'; // source of 'Color' object
+import Colormap from '/imports/mapPage/color/Colormap'
+import colorMix from '/imports/mapPage/color/colorMix'
+import Layer from '/imports/mapPage/longlist/Layer'
+import rx from '/imports/common/rx'
+import shortlist from '/imports/mapPage/shortlist/shortlist'
+import util from '/imports/common/util'
 
 const selectAllNoneLimit = 7
 const selectAll = 'select all'
 const selectNone = 'select none'
+const tooManyCatsLimit = 300
+const tooManyCats =  'too many categories to display, >' + tooManyCatsLimit
 
 const updateColors = (attr, prev) => {
 
@@ -164,14 +167,25 @@ export const getChecked = (state) => {
 const getCategoryList = (attr) => {
 
     // Get the filter by category list in state.
-    let list = Colormap.getCategoryStrings(attr)
+    let list = Colormap.getOne(attr)
+    let white = Color([255,255,255])
     if (list.length < 1) {
 
         // With no category strings,
         // assume this is binary with no colormap
-        list = [0, 1]
+        list = [
+            { name: 0, color: Colormap.defaultBinaryOff() },
+            { name: 1, color: Colormap.defaultBinaryOn() },
+        ]
+    } else if (list.length > tooManyCatsLimit) {
+        list = [
+            { name: tooManyCats, color: white },
+        ]
     } else if (list.length > selectAllNoneLimit) {
-        list.splice(0, 0, selectAll, selectNone)
+        list.splice(0, 0,
+            { name: selectAll, color: white },
+            { name: selectNone, color: white }
+        )
     }
     return list
 }
