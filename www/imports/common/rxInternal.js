@@ -3,10 +3,12 @@
 
 import redux from 'redux';
 import rx from './rx.js';
-
-function clone (obj) {
+import { clone } from '/imports/common/utils'
+/*
+export function clone (obj) {
     return JSON.parse(JSON.stringify(obj))
 }
+*/
 
 const reducers = {
     'activeAttrs': (state = [], action) => {

@@ -11,7 +11,7 @@ import './shortEntry.css';
 
 const selectAll = 'select all'
 const selectNone = 'select none'
-const tooManyCategories = 'too many categories to display'
+const tooManyCats = 'too many categories to display'
 
 let contextTrigger = null;
 
@@ -108,28 +108,46 @@ const applyThresholds = (able, filterChecked, onMainMenu) => {
     return menuItem
 }
 
+const indexOfCategory = (filterValues, catIn) => {
+    let index = -1
+    filterValues.find((catName, i) => {
+        if (catName === catIn.name) {
+            index = i
+            return true
+        } else {
+            return false
+        }
+    })
+    return index
+}
+
 const filterByCategoryValue = (item, i, filterValues, onFilterValue) => {
 
     // Render one category name.
     let attributes = null
     let disabled = false
-    if (item === selectAll || item === selectNone) {
-        attributes = {style: {fontStyle: 'italic'}}
-    } else if (item === tooManyCategories) {
+    if (item.name === selectAll || item.name === selectNone) {
+        attributes = { style: {fontStyle: 'italic' }}
+    } else if (item.name.slice(0, tooManyCats.length) === tooManyCats) {
         attributes = {className: 'error'}
         disabled = true
+    } else {
+        attributes = {style: {
+            color: (item.color.dark()) ? 'white' : 'black',
+            backgroundColor: item.color.hexString(),
+        }}
     }
     let menuItem =
         <MenuItem
-            data = {{value: item, by: 'category'}}
+            data = {{value: item.name, by: 'category'}}
             onClick = {onFilterValue}
             key = {i}
             preventClose = {true}
             attributes = {attributes}
             disabled = {disabled}
         >
-            { (filterValues && filterValues.indexOf(item) > -1) ?
-                '✓ ' + item : item }
+            { (filterValues && indexOfCategory(filterValues, item) > -1) ?
+                '✓ ' + item.name : item.name }
         </MenuItem>
     return menuItem
 }

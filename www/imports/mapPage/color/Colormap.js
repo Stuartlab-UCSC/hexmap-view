@@ -195,6 +195,16 @@ exports.defaultContinuous = function () {
     return defaultColormap;
 };
 
+export function getOne (attrName) {
+
+    // Return a shallow copy of an attr's colormap.
+    if (colormaps[attrName]) {
+        return colormaps[attrName].map(cat => {
+            return cat
+        })
+    }
+}
+
 export function getCategoryCount (attrName) {
 
     // Get an array of category strings of a colormap.
