@@ -227,7 +227,7 @@ exports.getCategoryStrings = function(attrName) {
 exports.getCategoryString = function(attrName, catIndex) {
 
     // Find the string associated with this category code.
-    if (attrName in colormaps) {
+    if (attrName in colormaps && catIndex in colormaps[attrName]) {
         return colormaps[attrName][catIndex].name;
     }
     return ''
