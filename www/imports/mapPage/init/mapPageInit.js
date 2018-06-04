@@ -33,6 +33,9 @@ import '/imports/mapPage/init/mapPage.html';
 import '/imports/mapPage/init/mapPage.css';
 import '/imports/mapPage/head/header.css';
 
+// Global
+reverseCategorySortToMatchLayoutPyAndLegend = true
+
 var shortlistSaved;
 
 // State unsubscribe functions.
