@@ -275,7 +275,7 @@ export const onMenu = (attr, clicked, dispatch) => {
     case 'createFilterAttr':
         onCreateFilterAttr()
         break
-    case 'deleteAllFilters':
+    case 'clearAllFilters':
         rx.set('shortEntry.filter.dropAll')
         colorMix.refreshColors()
         break
