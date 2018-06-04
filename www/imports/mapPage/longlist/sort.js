@@ -9,6 +9,7 @@ import rx from '/imports/common/rx';
 import { pollJobStatus } from '/imports/mapPage/calc/pollJobStatus';
 import shortlist from '/imports/mapPage/shortlist/shortlist';
 import userMsg from '/imports/common/userMsg';
+import util from '/imports/common/util';
 import { parseFetchedJson} from '/imports/common/utils';
 
 var computingText = 'Computing statistics ...',
@@ -505,10 +506,7 @@ function getDynamicStats (focus_attr, opts) {
             break;
         case "layoutIndependent":
             url = HUB_URL + "/oneByAll/statCalculation";
-            dType = datatypeMapping[layers[focus_attr].dataType];
-            if (!dType) {
-                dType = util.getDataType(focus_attr)
-            }
+            dType = datatypeMapping[util.getDataType(focus_attr)];
             parms["focusAttrDatatype"] = dType;
             break;
         case "differential":
