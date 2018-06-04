@@ -187,6 +187,9 @@ const getCategoryList = (attr) => {
             { name: selectNone, color: white }
         )
     }
+    if (reverseCategorySortToMatchLayoutPyAndLegend) {
+        return list.reverse()
+    }
     return list
 }
 
@@ -199,7 +202,7 @@ export const getList = (state) => {
     // Only an active attribute has filter options on the menu.
     if (attr) {
     
-        // Get the filter by values determined by data type.
+        // Get the category names and colors.
         let dataType = util.getDataType(attr)
         if (dataType === 'binary' || dataType === 'categorical') {
             list = getCategoryList(attr)

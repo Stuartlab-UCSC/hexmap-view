@@ -19,6 +19,7 @@ module.exports = {
         "PERFORM": false,
         "polygons": true,
         "process": true,
+        "reverseCategorySortToMatchLayoutPyAndLegend": true,
         "Roles": false, // this shouldn't need to be here
         "sendMail": false, // where is this defined?
 	"URL_BASE": true,

@@ -41,7 +41,6 @@ function drawBarChart (layer_name, container, nodeIds) {
         })
 
         // Fill any undefined array values with zero
-        console.log('counts:', counts)
         var filled = [];
         for (var i = 0; i < catCount; i += 1) {
             filled[i] = (counts[i]) ? counts[i] : 0;
@@ -56,6 +55,10 @@ function drawBarChart (layer_name, container, nodeIds) {
         // If there is no data, there is no chart to draw
         if (arrays.length < 1) {
             return;
+        }
+        
+        if (reverseCategorySortToMatchLayoutPyAndLegend) {
+            arrays.reverse()
         }
         
         // Add the headers to the top of the data
