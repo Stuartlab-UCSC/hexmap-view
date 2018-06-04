@@ -506,6 +506,9 @@ function getDynamicStats (focus_attr, opts) {
         case "layoutIndependent":
             url = HUB_URL + "/oneByAll/statCalculation";
             dType = datatypeMapping[layers[focus_attr].dataType];
+            if (!dType) {
+                dType = util.getDataType(focus_attr)
+            }
             parms["focusAttrDatatype"] = dType;
             break;
         case "differential":
