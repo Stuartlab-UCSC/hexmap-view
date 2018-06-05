@@ -174,21 +174,26 @@ const getCategoryList = (attr) => {
         // With no category strings,
         // assume this is binary with no colormap
         list = [
-            { name: 0, color: Colormap.defaultBinaryOff() },
             { name: 1, color: Colormap.defaultBinaryOn() },
+            { name: 0, color: Colormap.defaultBinaryOff() },
         ]
+    } else if (list.length === 2 && list[0].name === '0') {
+    
+        // For binaries with category names of '0', '1',
+        // we always want the one-value first.
+        list = [list[1], list[0]]
     } else if (list.length > tooManyCatsLimit) {
         list = [
             { name: tooManyCats, color: white },
         ]
     } else if (list.length > selectAllNoneLimit) {
+        if (reverseCategorySortToMatchLayoutPyAndLegend) {
+            list.reverse()
+        }
         list.splice(0, 0,
             { name: selectAll, color: white },
             { name: selectNone, color: white }
         )
-    }
-    if (reverseCategorySortToMatchLayoutPyAndLegend) {
-        return list.reverse()
     }
     return list
 }
