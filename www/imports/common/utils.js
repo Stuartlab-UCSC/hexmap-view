@@ -125,6 +125,6 @@ export function fetchError(e) {
 
 export function clone (obj) {
 
-    // Clone a jsonifyable object.
+    // Clone a jsonifyable object, which does not include dates or functions.
     return JSON.parse(JSON.stringify(obj))
 }
