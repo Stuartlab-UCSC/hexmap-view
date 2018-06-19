@@ -208,12 +208,14 @@ exports.googleAnalytics = function () {
 
     // Before including google analytics, respect the user's wish not to be
     // tracked if she set this in her browser preferences.
-    if (!dnt._dntEnabled()) {
+    if (!dnt._dntEnabled() || (window.ga && ga.loaded)) {
         /* eslint-disable */
         window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
         ga('create', 'UA-76132249-2', 'auto');
         ga('send', 'pageview');
         /* eslint-enable */
+    } else {
+        document.location = url;
     }
 }
 
