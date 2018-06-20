@@ -24,6 +24,8 @@
 }
 
 #shortlist .entryMenu .react-contextmenu {
+    margin: 0;
+    padding: 0;
     overflow-y: auto;
     max-height: 21em;
 }
