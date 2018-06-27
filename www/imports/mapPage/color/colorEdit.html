@@ -34,10 +34,11 @@
                     {{this.name}}:
                 </td>
                 <td>
+                    <input type='color' title='{{this.name}} of {{this.layer}}'
+                        value='{{this.operVal}}' class='color'>
                     <input title='{{this.name}} of {{this.layer}}'
                         value='{{this.operVal}}'
-                        style='background-color:{{this.operVal}}'
-                        class='td {{this.dark}} {{this.isFileVal}} {{this.shaking}}'>
+                        class='td text {{this.dark}} {{this.isFileVal}}'>
                 </td>
             {{/each}}
         </tr>

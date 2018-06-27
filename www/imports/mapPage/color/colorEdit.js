@@ -58,7 +58,7 @@ function findColumnIndex ($input, colorArray) {
     var row = findRowIndex($input.parents('tr'), colorArray),
         $el = $input.parent().prev(),
         catName = $.trim(($el).text());
-
+    
     // Trim and remove the trailing colon
     catName = catName.slice(0, catName.length - 1);
 
@@ -74,7 +74,6 @@ function findColumnIndex ($input, colorArray) {
 function setCatAttrs (a) {
 
     // Set category input attributes that may change with user edits.
-    a.dark = (Color(a.operVal).dark()) ? 'dark' : ''
     a.isFileVal = (!a.persistVal || a.operVal === a.persistVal) ?
         'isFileVal' : ''
 }
@@ -126,8 +125,6 @@ function inputBlur (ev) {
     // Clean up the input box value.
     t.classList.remove('error')
     $t.prop('value', newVal);
-    
-    // Set cursor at the end of the next input field.
 
     if (newVal !== cat.operVal) {
     
@@ -155,6 +152,9 @@ function inputKeyup (ev) {
         colorArray = Session.get('colorArray');
         let index = findColumnIndex($t, colorArray);
         $t.prop('value', colorArray[index.row].cats[index.col].persistVal);
+        
+        // Trigger the blur event so the color block and map will update.
+        $t.parent().next().next().find('input').focus();
     }
     if (ev.which === 13) {
 
@@ -229,8 +229,9 @@ function render() {
     $form
         .append($link)
         .on('click', 'tr', rowClick)
-        .on('blur', 'input', inputBlur)
-        .on('keyup', 'input', inputKeyup);
+        .on('blur', 'input.text', inputBlur)
+        .on('keyup', 'input.text', inputKeyup)
+        .on('change', 'input.color', inputBlur)
 }
 
 function binaryColorChanged (layerName) {
