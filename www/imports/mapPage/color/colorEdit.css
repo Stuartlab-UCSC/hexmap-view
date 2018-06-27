@@ -28,18 +28,16 @@
 #colorTable td span {
     padding: 0.2em 0.4em;
 }
-#colorTable input {
-    width: 6em;
-    color: black;
+#colorTable input.color {
+    width: 1.5em;
 }
-#colorTable input.dark {
-    color: white;
+#colorTable input.text {
+    width: 6em;
 }
 #colorTable input.isFileVal {
     font-style: italic;
 }
 #colorTable input.error {
     color: red;
-    background-color: white !important;
 }
 
