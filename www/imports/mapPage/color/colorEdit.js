@@ -128,7 +128,6 @@ function inputBlur (ev) {
     $t.prop('value', newVal);
     
     // Set cursor at the end of the next input field.
-    $t.parent().next().next().find('input').focus();
 
     if (newVal !== cat.operVal) {
     
