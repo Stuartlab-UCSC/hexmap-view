@@ -40,7 +40,7 @@ fi
 # Meteor settings.json variables.
 export ADMIN_EMAIL=hexmap@ucsc.edu
 export DEV=false
-export HUB_URL=https://hexcalc.ucsc.edu:8332
+export HUB_URL=https://hexcalc.ucsc.edu:443
 # Below paths/require/the/trailing/slash/.
 export VIEW_DIR=/hive/groups/hexmap/prod/data/view/
 
