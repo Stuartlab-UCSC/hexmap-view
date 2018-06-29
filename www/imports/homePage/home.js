@@ -107,5 +107,5 @@ exports.init = function () {
             utils.loadProject(data.proj, data.layoutindex, data.searchsuffix);
         });
     }
-    util.googleAnalytics();
+    util.googleCheck();
 };

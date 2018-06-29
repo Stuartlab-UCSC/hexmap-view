@@ -204,11 +204,19 @@ exports.addToDataTypeList = function (layer_name, dataType) {
     }
 }
 
-exports.googleAnalytics = function () {
+exports.googleCheck = function () {
+
+    // Do not track setting in browser effects some google graphics.
+    if (dnt._dntEnabled()) {
+        if (rx.get('doNotTrack') !== 'displayed') {
+            userMsg.warn(`"Do Not Track" is enabled in your browser. This may
+ block some google map graphics.`)
+            rx.set('doNotTrack.displayed')
+        }
 
     // Before including google analytics, respect the user's wish not to be
     // tracked if she set this in her browser preferences.
-    if (!dnt._dntEnabled() || (window.ga && ga.loaded)) {
+    } else if (window.ga && ga.loaded){
         /* eslint-disable */
         window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
         ga('create', 'UA-76132249-2', 'auto');

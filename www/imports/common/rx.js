@@ -7,6 +7,7 @@
 // Example:  rx.get('layout.name');
 const statePieces =  [ // eslint-disable-line
     'activeAttrs',
+    'doNotTrack',
     'dynamicAttrs',
     'firstAttr',
     'init.layoutNames',
@@ -45,6 +46,8 @@ exports.stateActions = [
     'activeAttrs.updateAll',
     'activeAttrs.upsertPrimary',
     'activeAttrs.upsertSecondary',
+    'doNotTrack.Displayed',
+    'doNotTrack.loadPersist',
     'dynamicAttrs.loadPersist',
     'firstAttr',
     'init.layoutNames.populated',
