@@ -14,11 +14,12 @@ function userActions () {
     //removeRoles(['Pancan12']);
     //removeUsersFromRoles(['jstuart@ucsc.edu'], ['dev', 'Pancan12']);
     //showUsernames();
-    //addUsersToRoles (['swat@soe.ucsc.edu'] , ['dev']);
+    addUsersToRoles (['fgrishaw@ucsc.edu'] , ['dev']);
     //removeUser('swat@ucsc.edu');
     /*
     var users = [
         {email: 'swat@soe.ucsc.edu', roles: ['jobs']},
+        {email: 'fgrishaw@ucsc.edu', roles: ['CKCC']},
     ];
     createUsers(users);
     */
@@ -150,6 +151,8 @@ function addUsersToRoles (usernames, roles) {
     // Duplicate roles will be not added
     var users = usernamesToUsers(usernames);
     if (users) {
+        console.log(
+            'adding users to roles. usernames: ', users, 'roles:', roles)
         Roles.addUsersToRoles(users, roles);
     }
 }
