@@ -37,6 +37,16 @@ const reducers = {
             return state;
         }
     },
+    'doNotTrack': (state = null, action) => {
+        switch(action.type) {
+        case 'doNotTrack.displayed':
+            return 'displayed'
+        case 'doNotTrack.loadPersist':
+            return action.loadPersist
+        default:
+            return state
+        }
+    },
     'dynamicAttrs': (state = null, action) => {
         return (action.type === 'dynamicAttrs.loadPersist') ?
             action.loadPersist : state;

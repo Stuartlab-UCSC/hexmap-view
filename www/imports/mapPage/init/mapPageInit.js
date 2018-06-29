@@ -99,10 +99,8 @@ function areLayoutsPopulated () {
             createMap.init();
             selectNode.init();
             gChart.init();
-            if (!DEV) {
-                perform.log('google-analytics-loading');
-                util.googleAnalytics();
-            }
+            perform.log('google-analytics-loading');
+            util.googleCheck();
             rx.set('initialized');
         });
     }

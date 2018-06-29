@@ -30,6 +30,9 @@ var varInfo = {
         defalt: 'black',
         session: true,
     },
+    doNotTrack: {
+        defalt: null,
+    },
     center: {
         defalt: [0, 0],
         ctx: true,
@@ -74,7 +77,6 @@ var varInfo = {
     'shortEntry.menu.filter': {
         defalt: {},
         project: true,
-
     },
     shortlist: {
         defalt: [],
