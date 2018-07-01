@@ -1,5 +1,6 @@
 // Handle the navigation bar
 
+import project from '/imports/mapPage/head/project';
 import utils from '/imports/common/utils';
 import './navBar.html';
 import './navBar.css';
@@ -32,5 +33,10 @@ exports.init = function () {
     // Add a click listener to the Home menu item.
     $('body').on('click', '.home', function() {
         utils.loadPage('homePage');
+    });
+    
+    // Add a click listener to the Delete Map item.
+    $('#navBar').on('click', '.deleteMap', function() {
+        project.deleteMap()
     });
 };

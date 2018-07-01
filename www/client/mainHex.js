@@ -3,7 +3,6 @@
 import { Meteor } from 'meteor/meteor';
 import auth from '/imports/common/auth.js';
 import mapPageInit from '/imports/mapPage/init/mapPageInit.js';
-import navBar from '/imports/common/navBar.js';
 import perform from '/imports/common/perform.js';
 import rx from '/imports/common/rx.js';
 import rxInternal from '/imports/common/rxInternal.js';
@@ -13,7 +12,6 @@ import userMsg from '/imports/common/userMsg';
 // We need this order to retain the correct cascading effect.
 import '/imports/lib/jquery-ui.css';
 import '/imports/common/colorsFont.css';
-import '/imports/common/navBar.css';
 
 if (Meteor.settings.public.DEV) {
     DEV = true; //development functionality will be included
@@ -41,7 +39,6 @@ function isStateLoaded () {
         perform.log('init:state-loaded');
         
         auth.init();
-        navBar.init();
 
         if (Session.equals('page', 'mapPage')) {
             mapPageInit.init();
@@ -52,6 +49,7 @@ function isStateLoaded () {
 }
 
 function defineEnvironment () {
+    URL_BASE = Meteor.settings.public.URL_BASE;
     VIEW_DIR = Meteor.settings.public.VIEW_DIR;
     HUB_URL = Meteor.settings.public.HUB_URL;
     ctx = null; // The global client state

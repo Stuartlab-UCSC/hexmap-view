@@ -16,6 +16,7 @@ import viewport from '/imports/mapPage/viewport/viewport';
 import Layer from '/imports/mapPage/longlist/Layer';
 import layout from '/imports/mapPage/head/layout';
 import legend from '/imports/mapPage/color/legend';
+import navBar from '/imports/common/navBar';
 import perform from '/imports/common/perform';
 import reflect from '/imports/mapPage/calc/reflect';
 import rx from '/imports/common/rx';
@@ -51,6 +52,7 @@ Template.headerT.helpers({
 });
 Template.mapPage.rendered = function () {
     rx.set('inited.dom');
+    navBar.init();
 };
 
 // Phase 6c init: when the active layers have been added to the shortlist
@@ -171,7 +173,7 @@ function isMapPreppedAndUserAuthorized () {
     console.log("R['user.mapAuthorized']:", R['user.mapAuthorized'])
     */
     if (R['init.map'] === 'prepared' &&
-        R['user.mapAuthorized'])  {
+        R['user.mapAuthorized'] !== 'not')  {
         
         unsubFx.isMapPreppedAndUserAuthorized();
         perform.log('4-init:render-map');
