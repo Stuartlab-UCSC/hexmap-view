@@ -74,7 +74,7 @@ exports.resizeMap = function () {
     $('#visualization').show();
 };
 
-function queryFreeReload () {
+export function queryFreeReload () {
     if (window.location.search.length > 0) {
         window.location.search = '';
     } else {
@@ -125,6 +125,6 @@ export function fetchError(e) {
 
 export function clone (obj) {
 
-    // Clone a jsonifyable object, which does not include dates or functions.
+    // Deep copy a jsonifyable object, which does not include dates/functions.
     return JSON.parse(JSON.stringify(obj))
 }

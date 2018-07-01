@@ -89,8 +89,9 @@ exports.stateActions = [
     'snake.shortlist.show',
     'uploading.done',
     'uploading.now',
-    'user.mapAuthorized.yes',
+    'user.mapAuthorized.edit',
     'user.mapAuthorized.not',
+    'user.mapAuthorized.view',
     'user.roles.empty',
     'user.roles.load',
 ];

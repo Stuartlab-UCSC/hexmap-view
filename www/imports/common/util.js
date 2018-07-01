@@ -109,7 +109,10 @@ exports.mapNotFoundNotify = function (more, stackTrace) {
         if (Meteor.user() === null) {
             msg += ' or sign in'
         }
-        msg += '. ' + more;
+        msg += '.'
+        if (more) {
+            msg += ' ' + more;
+        }
         userMsg.error(msg, {logStr: stackTrace});
         hideAllSnakes();
     }

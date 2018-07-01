@@ -10,7 +10,7 @@ import rx from '/imports/common/rx';
 import Select22 from '/imports/component/Select22';
 import userMsg from '/imports/common/userMsg';
 import util from '/imports/common/util';
-import { checkFetchStatus, loadProject, parseFetchedJson }
+import { checkFetchStatus, loadProject, parseFetchedJson, queryFreeReload }
     from '/imports/common/utils';
 
 // Placeholder text when no project is selected
@@ -19,6 +19,7 @@ var PLACEHOLDER_TEXT = 'Select a Map.../';
 var projects; // project list
 var data; // data for select widget
 var unsubscribe = {};
+let okCancel = null;
 
 function is_project_on_list (project) {
 
@@ -174,62 +175,83 @@ function getProjectList () {
         });
 }
 
-/*
-    // TODO future delete map
-                    <li class='deleteMap mapShow'>
-                        Delete this Map
-                    </li>
+function mapDeleted (result) {
+    userMsg.info('Map successfully removed from the database: ' + result.map)
+    queryFreeReload()
+}
 
-    // Destroy a map in the database.
-    $('body').on('click', '.deleteMap', function () {
- 
-        // Ask the user if she is sure.
-        // TODO
- 
-        // Now tell the data server to remove this map.
-        url = HUB_URL + '/mapList';
- 
-        // If there is a signed-in user, get the email and roles.
-        if (user) {
-            url += '/email/' + user.username;
-            var roles = rx.get('user.roles');
-            if (roles.length > 0) {
-                url += '/role/' + roles.join('+');
-            }
-        }
-        fetch(url)
-            .then(checkFetchStatus)
-            .then(parseFetchedJson)
-            .then(projectListReceived)
-            .catch(() => {
-                userMsg.error('Unable to retrieve map list.');
-            });
+function deleteMapNow (doIt) {
 
-        // Reload and user will be asked to select a project.
-        // TODO should be able to create a map here?
-        utils.loadPage('mapPage');
+    // Destroy the current map in the database now.
+    if (!doIt) {
+        return
+    }
+
+    // Tell the data server to remove this map.
+    let url = URL_BASE + '/deleteMap' +
+        '/mapId/' + ctx.project +
+        '/email/' + Meteor.user().username
+    fetch(url)
+        .then(checkFetchStatus)
+        .then(parseFetchedJson)
+        .then(mapDeleted)
+        .catch((error) => {
+            userMsg.error('Unable to delete map from the database: ' + error);
+        });
+}
+
+export function deleteMap () {
+    
+    // Destroy the current map in the database.
+
+    // Ask the user if she is sure.
+    let promptStr="Do you really want to delete this map and all of it's data?"
+    if (!okCancel) {
+        import React from 'react';
+        import { render } from 'react-dom';
+        import OkCancel from '/imports/component/OkCancel';
+        okCancel = render(
+            <OkCancel
+                promptStr = {promptStr}
+            />, document.getElementById('deleteMapOkCancelWrap')
+        );
+    }
+    okCancel.setState({
+        promptStr: promptStr,
+        isOpen: true,
+        callback: deleteMapNow
     });
+}
 
+function showHideDeleteMenuItem () {
 
-*/
-
+    // Add or remove the click listener to the Delete Map item.
+    let val = (rx.get('user.mapAuthorized') === 'edit') ? 'edit' : 'none'
+    document.querySelector('#navBar .deleteMap')
+        .style.setProperty('display', val)
+}
 
 exports.authorize = function () {
     
     // Check to see if the user is authorized to view the project
     // every time the user changes.
-    rx.set('user.mapAuthorized.not');
     ajax.getUserMapAuthorization(
         function (results) {
-            if (results.authorized === true) {
-                rx.set('user.mapAuthorized.yes');
+            if (results.authorized === 'view') {
+                rx.set('user.mapAuthorized.view');
+            } else if (results.authorized === 'edit') {
+                rx.set('user.mapAuthorized.edit');
             } else {
+                rx.set('user.mapAuthorized.not');
                 util.mapNotFoundNotify();
             }
+            showHideDeleteMenuItem()
             perform.log('project:authorized:' + rx.get('user.mapAuthorized'));
         },
         function () {
+            rx.set('user.mapAuthorized.not');
             util.mapNotFoundNotify();
+            showHideDeleteMenuItem()
         }
     );
 

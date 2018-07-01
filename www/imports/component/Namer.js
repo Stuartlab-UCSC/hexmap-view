@@ -4,7 +4,6 @@
 // If you want something more complex use Modal.js instead.
 
 import React, { Component } from 'react';
-//import { render } from 'react-dom';
 import PropTypes from 'prop-types';
 
 import Modal from './Modal.js';

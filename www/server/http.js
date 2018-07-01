@@ -94,6 +94,33 @@ function receiveQuery (operation, req, res) {
     });
 }
 
+function deleteMap (req, res) {
+
+    // Delete a map on the data server.
+
+    // Find the username
+    let urlParts = req.url.split('/')
+    let username = urlParts[urlParts.indexOf('email') + 1]
+    
+    // Get the user's roles.
+    let user = Accounts.findUserByUsername(username)
+    let roles = Roles.getRolesForUser(user._id);
+    
+    let url = HUB_URL + '/deleteMap' + req.url
+    if (roles.length > 0) {
+        url += '/role/' + roles.join('+');
+    }
+    
+    // Tell the data server to remove the map.
+    HTTP.call('GET', url, (error, result) => {
+        if (error) {
+            respond(500, res, error);
+        } else {
+            respond(200, res, result.data);
+        }
+    });
+}
+
 WebApp.connectHandlers.use('/test', function (req, res) {
     respond(200, res, 'just testing');
 });
@@ -101,3 +128,10 @@ WebApp.connectHandlers.use('/test', function (req, res) {
 WebApp.connectHandlers.use('/query/createBookmark', function (req, res, next) {
     receiveQuery('createBookmark', req, res, next);
 });
+
+// http://localhost:5000/deleteMap/mapId/unitTest/noNeighbors/email/swat@soe.ucsc.edu
+WebApp.connectHandlers.use('/deleteMap', function (req, res, next) {
+    deleteMap(req, res, next);
+});
+
+HUB_URL = Meteor.settings.public.HUB_URL;

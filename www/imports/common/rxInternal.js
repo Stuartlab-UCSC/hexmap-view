@@ -157,12 +157,14 @@ const reducers = {
             return state;
         }
     },
-    'user.mapAuthorized': (state = false, action) => {
+    'user.mapAuthorized': (state = 'not', action) => {
         switch (action.type) {
-        case 'user.mapAuthorized.yes':
-            return true;
+        case 'user.mapAuthorized.edit':
+            return 'edit';
+        case 'user.mapAuthorized.view':
+            return 'view';
         case 'user.mapAuthorized.not':
-            return false;
+            return 'not';
         default:
             return state;
         }
