@@ -254,16 +254,16 @@ const ShortEntryMenuPres = ({ able, filterChecked, filterList, filterValues,
             className = 'entryMenu'
             hideOnLeave = {true}
         >        
-            { hideBgNodes(able, onMainMenu) }
-            <hr></hr>
-            { applyThresholds(able, filterChecked, onMainMenu) }
             { filterByRange(able, filterChecked, onMainMenu) }
+            { applyThresholds(able, filterChecked, onMainMenu) }
             { filterByCategory(able, filterChecked, filterList,
                 filterValues, onMainMenu, onFilterValue) }
             { createFilterAttr(able, onMainMenu) }
             { menuItem(able, 'clearAllFilters', 'Clear All Filters',
                 "Remove ALL filters from ALL attributes in the short list",
                 onMainMenu) }
+            <hr></hr>
+            { hideBgNodes(able, onMainMenu) }
             <hr></hr>
             { menuItem(able, 'setOperation', 'Set Operation',
                 "Perform a set operation on two attributes", onMainMenu) }

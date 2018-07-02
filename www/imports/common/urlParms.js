@@ -3,6 +3,7 @@
 // Bookmarks and page-only parms are handled in state.js.
 
 import bookmark from '/imports/common/bookmark';
+import rx from '/imports/common/rx';
 import userMsg from '/imports/common/userMsg';
 import { checkFetchStatus, parseFetchedJson } from '/imports/common/utils';
 
@@ -288,6 +289,9 @@ exports.handle = function (stateLoadFx) {
     if (uParm.bookmark) {
         bookmark.load(uParm.bookmark, stateLoadFx);
         // Other parms in the url are ignored.
+        
+        // Accessing via a bookmark makes the map viewable by anyone.
+        rx.set('bookmarkUsed')
 
     // Handle other parms in the URL.
     } else {
