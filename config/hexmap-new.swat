@@ -5,9 +5,9 @@
 USING_HTTPS=true
 if [  "$USING_HTTPS" == true ]; then
     # Paths to https certs.
-    export KEY=/data/certs/tumormap.key
-    export CERT=/data/certs/tumormap.crt
-    export CHAIN=/data/certs/chain.crt
+    export KEY=/data/certs/tumorMapCellAtlas_server.key
+    export CERT=/data/certs/tumorMapCellAtlas_server.crt
+    export CHAIN=/data/certs/tumorMapCellAtlas_chain.crt
 
     # Port for HTTP redirect
     export HTTP_PORT=8221
