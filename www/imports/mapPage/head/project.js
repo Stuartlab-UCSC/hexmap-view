@@ -252,7 +252,7 @@ export function deleteMap () {
 function showHideDeleteMenuItem () {
 
     // Add or remove the click listener to the Delete Map item.
-    let val = (rx.get('user.mapAuthorized') === 'edit') ? 'edit' : 'none'
+    let val = (rx.get('user.mapAuthorized') === 'edit') ? 'list-item' : 'none'
     document.querySelector('#navBar .deleteMap')
         .style.setProperty('display', val)
 }

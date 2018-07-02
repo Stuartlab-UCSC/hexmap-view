@@ -30,6 +30,10 @@ exports.init = function () {
         $('body').css('overflow-y', 'hidden');
     }
     
+    // Hide the delete map item to start.
+    document.querySelector('#navBar .deleteMap')
+        .style.setProperty('display', 'none')
+    
     // Add a click listener to the Home menu item.
     $('body').on('click', '.home', function() {
         utils.loadPage('homePage');
