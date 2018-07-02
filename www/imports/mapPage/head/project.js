@@ -73,7 +73,13 @@ function formatResult (row) {
 function populate () {
 
     // Populate the project list.
-    // The project data contain single- or two-tiered projects of the form:
+    // The data retrieved from the data server is in the form:
+    // [
+    //      [major1, [minor11, minor12]],
+    //      [major2],
+    //      ...
+    // ]
+    // The project list needs to contain one or two-tiered projects of the form:
     // [
     //     {
     //          id: 'nested-1',
@@ -148,6 +154,26 @@ function populate () {
 
 function projectListReceived (results) {
     projects = results;
+    
+    // If a bookmark was used, insert the mapId in the bookmark.
+    if (rx.get('bookmarkUsed')) {
+        let parts = ctx.project.split('/')
+        let major = parts[0]
+        
+        // Is the major part already in the list?
+        let found = projects.find(entry => {
+            return (entry[0] === major)
+        })
+        if (!found) {
+        
+            // Insert the map ID at the beginning of the list.
+            let entry = [parts[0]]
+            if (parts.length > 1) {
+                entry.push([parts[1]])
+            }
+            projects.unshift(entry);
+        }
+    }
     perform.log('project:list-got');
     rx.set('projectList.loading');
 }
@@ -235,26 +261,32 @@ exports.authorize = function () {
     
     // Check to see if the user is authorized to view the project
     // every time the user changes.
-    ajax.getUserMapAuthorization(
-        function (results) {
-            if (results.authorized === 'view') {
-                rx.set('user.mapAuthorized.view');
-            } else if (results.authorized === 'edit') {
-                rx.set('user.mapAuthorized.edit');
-            } else {
+    
+    // Allow anyone, anytime to look at a map in a bookmark.
+    if (rx.get('bookmarkUsed')) {
+        rx.set('user.mapAuthorized.view');
+    } else {
+        ajax.getUserMapAuthorization(
+            function (results) {
+                if (results.authorized === 'view') {
+                    rx.set('user.mapAuthorized.view');
+                } else if (results.authorized === 'edit') {
+                    rx.set('user.mapAuthorized.edit');
+                } else {
+                    rx.set('user.mapAuthorized.not');
+                    util.mapNotFoundNotify();
+                }
+                showHideDeleteMenuItem()
+                perform.log('project:authorized:' + rx.get('user.mapAuthorized'));
+            },
+            function () {
                 rx.set('user.mapAuthorized.not');
                 util.mapNotFoundNotify();
+                showHideDeleteMenuItem()
             }
-            showHideDeleteMenuItem()
-            perform.log('project:authorized:' + rx.get('user.mapAuthorized'));
-        },
-        function () {
-            rx.set('user.mapAuthorized.not');
-            util.mapNotFoundNotify();
-            showHideDeleteMenuItem()
-        }
-    );
-
+        );
+    }
+    
     // Re-populate projects whenever the user changes, including log out.
     perform.log('project:list-request');
     

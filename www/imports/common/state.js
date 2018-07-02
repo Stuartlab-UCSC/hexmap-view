@@ -205,8 +205,10 @@ function setDefaults (justProject, keepProject) {
                     ctx[key] = info.defalt;
                 }
            
-            // This is a redux var.
-            } else {
+            // Don't reset this one-time user info message about doNotTrack.
+            } else if (key !== 'doNotTrack') {
+           
+                // This is a redux var.
                 rx.set(key + '.loadPersist', { loadPersist: info.defalt });
             }
         }

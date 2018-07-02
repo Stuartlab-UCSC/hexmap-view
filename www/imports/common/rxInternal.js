@@ -37,6 +37,9 @@ const reducers = {
             return state;
         }
     },
+    'bookmarkUsed': (state = false, action) => {
+        return (action.type === 'bookmarkUsed') ? true : state;
+    },
     'doNotTrack': (state = null, action) => {
         switch(action.type) {
         case 'doNotTrack.displayed':
