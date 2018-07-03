@@ -14,7 +14,7 @@ function userActions () {
     //removeRoles(['Pancan12']);
     //removeUsersFromRoles(['jstuart@ucsc.edu'], ['dev', 'Pancan12']);
     //showUsernames();
-    addUsersToRoles (['fgrishaw@ucsc.edu'] , ['dev']);
+    //addUsersToRoles (['fgrishaw@ucsc.edu'] , ['dev']);
     //removeUser('swat@ucsc.edu');
     /*
     var users = [

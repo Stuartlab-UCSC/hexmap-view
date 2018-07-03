@@ -201,8 +201,8 @@ function getProjectList () {
         });
 }
 
-function mapDeleted (result) {
-    userMsg.info('Map successfully removed from the database: ' + result.map)
+function mapDeleted () {
+    delete ctx.project
     queryFreeReload()
 }
 
@@ -221,8 +221,8 @@ function deleteMapNow (doIt) {
         .then(checkFetchStatus)
         .then(parseFetchedJson)
         .then(mapDeleted)
-        .catch((error) => {
-            userMsg.error('Unable to delete map from the database: ' + error);
+        .catch(() => {
+            userMsg.error('Unable to delete map from the database');
         });
 }
 
