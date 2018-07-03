@@ -6,14 +6,17 @@ import colorMix from '/imports/mapPage/color/colorMix';
 import DialogHex from '/imports/common/DialogHex';
 import hexagons from '/imports/mapPage/viewport/hexagons';
 import overlayNodes from '/imports/mapPage/calc/overlayNodes';
+import rx from '/imports/common/rx';
 import shortlist from '/imports/mapPage/shortlist/shortlist';
 import tool from '/imports/mapPage/head/tool';
+import userMsg from '/imports/common/userMsg';
 import viewport from '/imports/mapPage/viewport/viewport';
+import { checkFetchStatus, parseFetchedJson } from '/imports/common/utils';
 import './colorEdit.html';
 import './colorEdit.css';
 
 var badValue = false, // The current category input has a bad value
-    $link,
+    $download,
     $form;
 
 // Define the colormap template helper, at this scope for some reason
@@ -21,8 +24,6 @@ Template.colormapT.helpers({
 
     // Use the Session version of the colormap
     colorArray: function () {
-        // TODO this should be a local reactiveVar rather than a global
-        // session var
         var colorArray = Session.get('colorArray');
         return colorArray;
     }
@@ -163,7 +164,7 @@ function inputKeyup (ev) {
     }
 }
 
-function makeTsv($link) {
+function makeTsv($download) {
     // Make a colormaps formatted string for a requested download.
     var tsv = '';
     // Only add layers in the string that have been loaded into the
@@ -185,10 +186,8 @@ function makeTsv($link) {
 
     // Fill in the data URI for saving. We use the handy
     // window.bota encoding function.
-    $link.attr("href", "data:text/plain;base64," +
-        window.btoa(tsv));
-
-    $link[0].click();
+    $download.attr("href", "data:text/plain;base64," + window.btoa(tsv));
+    $download[0].click();
 }
 
 function colormapToColorArray (layerVal, layerKey) {
@@ -224,10 +223,46 @@ function colormapsToColorArray () {
     );
 }
 
+function save() {
+
+    // Tell the data server to remove this map.
+    // Map our colors to the format expected by the data server.
+    // attrs = {
+    //  attr1: [cat1-0, color, cat1-1, color, cat1-2, color],
+    //  attr2: [cat2-0, color, cat2-1, color],
+    
+    let colorArray = Session.get('colorArray')
+    let colors = {}
+    colorArray.forEach(attr => {
+        let cats = []
+        attr.cats.forEach(cat => {
+            cats.push(cat.name, cat.operVal)
+        })
+        colors[attr.name] = cats
+    })
+    const post  = {
+        method: 'POST',
+        headers: new Headers({ 'Content-Type': 'application/json' }),
+        body: JSON.stringify({
+            mapId: ctx.project,
+            colors: colors,
+            userEmail: Meteor.user().username,
+        }),
+    };
+
+    const url = URL_BASE + '/updateColor'
+    fetch(url, post)
+        .then(checkFetchStatus)
+        .then(parseFetchedJson)
+        .catch(() => {
+            userMsg.error(['Unable to save new colors.']);
+        });
+}
+
 function render() {
     Session.set('colorArray', colormapsToColorArray());
     $form
-        .append($link)
+        .append($download)
         .on('click', 'tr', rowClick)
         .on('blur', 'input.text', inputBlur)
         .on('keyup', 'input.text', inputKeyup)
@@ -273,7 +308,7 @@ function continuosColorChanged (layerName) {
 
 exports.init = function () {
     $form = $('#colorMapDiv');
-    $link = $('#colorMapDiv a');
+    $download = $('#colorMapDiv a.download');
 
     $('#background').on('click', function () {
         // Continuous/binary layers in the shortlist whose
@@ -321,13 +356,22 @@ exports.init = function () {
                 text: 'Download',
                 click: function () {
                     if (!badValue) {
-                        makeTsv($link);
+                        makeTsv($download);
                         $form.dialog('destroy');
                     }
                 }
             }
         ],
     };
+    // Add the save button if the user has edit ability.
+    if (rx.get('user.mapAuthorized') === 'edit') {
+        opts.buttons.push({
+            text: 'Save',
+            click: save,
+        })
+    }
+    
+    // Create the dialog.
     var dialogHex = DialogHex.create({
         $el: $form,
         opts: opts,

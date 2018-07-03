@@ -6,8 +6,7 @@ import bookmark from './bookmark';
 
 function respond (statusCode, res, data_in) {
 
-    // This responds to an http request after converting data to json.
-    // TODO authenticate request for known users ?
+    // This responds to an http request before converting data to json.
     var data = JSON.stringify(data_in);
     res.setHeader('Content-Type', 'application/json');
     res.writeHead(statusCode);
@@ -22,16 +21,27 @@ function passPostChecks (req, res) {
     // Only POST methods are understood
     if (req.method !== 'POST') {
         respond(405, res, 'Only the POST method is understood here');
-        return false;
     }
     
     // Only json content type is understood
     if (req.headers['content-type'] !== 'application/json') {
         respond(400, res,
             'Only content-type of application/json is understood here');
-        return false;
     }
-    return true;
+}
+
+function parseJson (jsonData, res) {
+
+    // Parse the json data.
+    let data = null
+    try {
+        data = JSON.parse(jsonData);
+    } catch (e) {
+        var msg = 'server error decoding JSON: ' + e;
+        respond(500, res, {error: msg });
+        return;
+    }
+    return data
 }
 
 async function updateBookmarkDatabase (jsonState, email, res) {
@@ -44,19 +54,9 @@ async function updateBookmarkDatabase (jsonState, email, res) {
 }
 
 function createBookmark (jsonData, req, res) {
-    var data,
+    var data = parseJson(jsonData, res),
         jsonState = jsonData,
         email = null;
-    
-    // Validate the json.
-    try {
-        data = JSON.parse(jsonData);
-    } catch (e) {
-        var msg = 'server error decoding JSON: ' + e;
-        console.log(msg + ', JSON string:' + jsonData);
-        respond(500, res, {error: msg });
-        return;
-    }
 
     // Extract the email if there is one.
     if (data.hasOwnProperty('email')) {
@@ -68,12 +68,34 @@ function createBookmark (jsonData, req, res) {
     updateBookmarkDatabase(jsonState, email, res);
 }
 
-function receiveQuery (operation, req, res) {
+async function updateColor (jsonData, req, res) {
+    let data = parseJson(jsonData, res)
+    try {
+        let user = await Accounts.findUserByUsername(data.userEmail)
+        let roles = Roles.getRolesForUser(user._id);
+        if (roles.length > 0) {
+            data.userRole = roles
+        }
+        
+        // Request edit of the data server.
+        let url = HUB_URL + '/updateColor'
+        HTTP.call('POST', url, {data: data}, (error, result) => {
+            if (error) {
+                respond(500, res, result.data);
+            } else {
+                respond(200, res, result.data);
+            }
+        });
+    } catch (error) {
+        respond(500, res, { error: error });
+    }
+}
 
+function receivePost (operation, req, res) {
+    
     // Receive a query for an operation and process it
     
-    if (!passPostChecks(req, res)) { return; }
-    
+    passPostChecks(req, res)
     var jsonData = '';
     
     req.setEncoding('utf8');
@@ -87,18 +109,20 @@ function receiveQuery (operation, req, res) {
     req.on('end', function () {
         if (operation === 'createBookmark') {
             createBookmark(jsonData, req, res);
+        } else if (operation === 'updateColor') {
+            updateColor(jsonData, req, res);
         } else {
             respond(500, res,
-                {error: 'no handler for this query operation: ' + operation});
+                {error: 'no handler for this operation: ' + operation});
         }
     });
 }
 
-function deleteMap (req, res) {
+function editMapGet (operation, req, res) {
 
-    // Delete a map on the data server.
+    // Edit a map on the data server.
 
-    // Find the username
+    // Find the username.
     let urlParts = req.url.split('/')
     let username = urlParts[urlParts.indexOf('email') + 1]
     
@@ -106,12 +130,12 @@ function deleteMap (req, res) {
     let user = Accounts.findUserByUsername(username)
     let roles = Roles.getRolesForUser(user._id);
     
-    let url = HUB_URL + '/deleteMap' + req.url
+    let url = HUB_URL + '/' + operation + req.url
     if (roles.length > 0) {
         url += '/role/' + roles.join('+');
     }
     
-    // Tell the data server to remove the map.
+    // Request edit of the data server.
     HTTP.call('GET', url, (error, result) => {
         if (error) {
             respond(500, res, error);
@@ -125,13 +149,17 @@ WebApp.connectHandlers.use('/test', function (req, res) {
     respond(200, res, 'just testing');
 });
 
-WebApp.connectHandlers.use('/query/createBookmark', function (req, res, next) {
-    receiveQuery('createBookmark', req, res, next);
+WebApp.connectHandlers.use('/query/createBookmark', function (req, res) {
+    receivePost('createBookmark', req, res);
 });
 
-// http://localhost:5000/deleteMap/mapId/unitTest/noNeighbors/email/swat@soe.ucsc.edu
-WebApp.connectHandlers.use('/deleteMap', function (req, res, next) {
-    deleteMap(req, res, next);
+// /deleteMap/mapId/unitTest/noNeighbors/email/swat@soe.ucsc.edu
+WebApp.connectHandlers.use('/deleteMap', function (req, res) {
+    editMapGet('deleteMap', req, res)
+});
+
+WebApp.connectHandlers.use('/updateColor', function (req, res) {
+    receivePost('updateColor', req, res)
 });
 
 HUB_URL = Meteor.settings.public.HUB_URL;
