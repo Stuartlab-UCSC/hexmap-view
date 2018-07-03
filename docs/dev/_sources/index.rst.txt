@@ -10,4 +10,5 @@ Developer Docs
    computeInstall
    viewerInstallDev
    viewerInstallBundle
+   repository
    docs
