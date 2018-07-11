@@ -29,7 +29,10 @@
     padding: 0.2em 0.4em;
 }
 #colorTable input.color {
-    width: 1.5em;
+    width: 23px;
+    border: none;
+    padding: 1px;
+    margin: 0;
 }
 #colorTable input.text {
     width: 6em;
