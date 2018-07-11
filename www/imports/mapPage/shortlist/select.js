@@ -37,44 +37,32 @@ function setCursor (cursor) {
     });
 }
 
-function createPolygon (paths, preview) {
+function createPolygon (paths) {
 
-    // Make a polygon for the selection
-    var strokeOpacity = 1.0,
-        fillOpacity = 0.2,
-        draggable = true;
-
-    // If we are making a preview hexagon while selecting.
-    if (preview) {
-        strokeOpacity = 0.0;
-        fillOpacity = 0.6;
-        draggable = false;
-    }
-
+    // Make a polygon of the selector shape.
     return new google.maps.Polygon({
         strokeColor: color,
         strokeWeight: 1,
-        strokeOpacity: strokeOpacity,
+        strokeOpacity: 1.0,
         fillColor: color,
-        fillOpacity: fillOpacity,
+        fillOpacity: 0.2,
         clickable: false,
-        draggable: draggable,
+        draggable: true,
         map: googlemap,
         paths: paths,
         zIndex: 9,
     });
 }
 
-function findHexagonsInPolygon (bounds, isRect) {
-
+function findHexagonsInPolygon (shape) {
+    
     // Select hexagons that are contained within given polygon/rectangle.
     var inBounds = _.filter(Object.keys(polygons), function(hex) {
         var verts = polygons[hex].getPath();
         var contains = true;
         for (var j = 0; j < verts.getLength(); j += 1) {
             var v = verts.getAt(j);
-            if ((isRect && !bounds.contains(v)) || (!isRect &&
-                !google.maps.geometry.poly.containsLocation(v, bounds))) {
+            if (!google.maps.geometry.poly.containsLocation(v, shape)) {
                 contains = false;
                 break;
             }
@@ -373,7 +361,16 @@ function clicked(ev) {
 
 exports.findHexagonsInViewport = function () {
 
-    return findHexagonsInPolygon(googlemap.getBounds(), true);
+    let bounds = googlemap.getBounds()
+    let viewport = new google.maps.Polygon({
+        map: googlemap,
+        path: boundsToPath(bounds.getNorthEast(), bounds.getSouthWest()),
+        strokeOpacity: 0,
+        fillOpacity: 0,
+    })
+    let found = findHexagonsInPolygon(viewport)
+    viewport.setMap(null);
+    return found
 }
 
 exports.init = function () {

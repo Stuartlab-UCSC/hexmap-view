@@ -33,6 +33,7 @@
 
 import util from '/imports/common/util.js';
 import './coords.html';
+import rx from '/imports/common/rx'
 
 var SHOW_COORDS = false; // true = show them, false = not
 
@@ -53,6 +54,7 @@ var hexWidth = 0;
 var hexHeight = 0;
 
 var initialized = false;
+var unsub = {}
 
 function findScale (maxX, maxY) {
 
@@ -296,15 +298,13 @@ exports.centerToLatLng = function (centerIn) {
     return center;
 };
 
-exports.init = function () {
-
-    if (initialized ) return;
-    initialized = true;
+showCoords = () => {
+    if (rx.get('init.map') !== 'rendered') {
+        return
+    }
     
-    initMapType();
+    unsub.showCoords()
     
-    if (!SHOW_COORDS) return;
-
     $('#coords').show();
 
     var map = googlemap,
@@ -314,4 +314,14 @@ exports.init = function () {
     google.maps.event.addListener(map, 'mousemove', coordsMouseMove);
 }
 
-Session.set('initedMapType', true);
+exports.init = function () {
+
+    if (initialized ) return;
+    initialized = true;
+    
+    initMapType();
+    
+    if (SHOW_COORDS) {
+        unsub.showCoords = rx.subscribe(showCoords)
+    }
+}
