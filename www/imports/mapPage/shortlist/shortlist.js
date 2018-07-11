@@ -229,64 +229,53 @@ function create_range_slider (layer_name, root) {
     var layer = layers[layer_name],
         min = layer.minimum,
         max = layer.maximum,
-        span = max - min,
+        span = max - min;
     
-    // This factor is used to compensate for the jquery-ui slider
-    // that has a problem with maximum values less than one.
-    // The factor makes the slider max be between one and 10.
-    factor = Math.pow(10, Math.floor(Math.log(max) / Math.LN10));
-    
-    // Set the starting position of the sliders
-    let filter = rx.get('shortEntry.filter')[layer_name]
-    if (filter) {
-        slider_vals.set(layer_name, [filter.low, filter.high])
-    }
+    // Handle a slider handle moving.
+    var sliding = (event, ui, done) => {
+        let low = Math.max(min, (ui.values[0] * span) + min)
+        let high = Math.min(max, (ui.values[1] * span) + min)
 
-    // Handle a slider handle moving
-    var sliding = function(event, ui) {
-        var low = ui.values[0] * factor,
-            high = ui.values[1] * factor;
-        
         slider_vals.set(layer_name, [low, high]);
 
         // Set the width of the low and high masks
         var x_span = $(event.target).width(); // The span in pixels
-
         root.find('.low_mask').width(Math.abs(low - min) / span * x_span);
         root.find('.high_mask').width(Math.abs(max - high) / span * x_span);
-
-    };
-
-    // Handler to apply the filter after the user has finished sliding
-    var done_sliding = function (event, ui) {
-
-        var low = ui.values[0] * factor,
-            high = ui.values[1] * factor;
         
-        // Save to global state and slider vals.
-        ShortEntryMenuFilter.onContinuousValue(layer_name, low, high)
-        slider_vals.set(layer_name, [low, high]);
+        if (done) {
+
+            // Save to global state and slider vals.
+            ShortEntryMenuFilter.onContinuousValue(layer_name, low, high)
+            slider_vals.set(layer_name, [low, high]);
+        }
+    }
+
+    // Handler to apply the filter after the user has finished sliding.
+    var done_sliding = function (event, ui) {
+        sliding(event, ui, true)
     };
 
     // Create the slider
     var vals = _.map(slider_vals.get(layer_name),
             function (val) {
-                return val / factor;
+                return (val - min) / span;
             }
         ),
         slider_line = root.find('.range_slider');
+    
         slider_var = slider_line.slider({
-        range: true,
-        min: min / factor,
-        max: max / factor,
-        values: vals,
-        height: 10,
-        step: (max - min) / factor / 100,
-        slide: sliding,
-        stop: done_sliding,
-    });
+            range: true,
+            min: 0,
+            max: 1,
+            values: vals,
+            height: 10,
+            step: 1 / 100,
+            slide: sliding,
+            stop: done_sliding,
+        });
 
-    // Update the masks and slider with the saved values
+    // Initialize the masks and slider with the saved values.
     sliding({target: slider_line[0]}, {values: vals});
 }
 
