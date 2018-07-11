@@ -213,7 +213,7 @@ exports.googleCheck = function () {
     if (dnt._dntEnabled()) {
         if (rx.get('doNotTrack') !== 'displayed') {
             userMsg.warn(`"Do Not Track" is enabled in your browser. This may
- block some google map graphics.`)
+ block some functionality, particularly in Firefox.`)
             rx.set('doNotTrack.displayed')
         }
 
@@ -227,5 +227,3 @@ exports.googleCheck = function () {
         /* eslint-enable */
     }
 }
-
-
