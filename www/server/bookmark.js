@@ -1,7 +1,7 @@
 // bookmark.js
 // Bookmark server methods.
 
-var CryptoJS = Npm.require('crypto-js');
+import CryptoJS from 'crypto-js'
 
 var Bookmarks = new Mongo.Collection('bookmarks');
 

@@ -1,28 +1,26 @@
 #!/bin/bash
 # Install an instance of the hex viewer from an existing bundle.
 
-TAR_FILE=$1
-DEFAULT_TAR_FILE=/cluster/home/swat/dev/www.tar.gz
-
 $HEXMAP/bin/checkConfig.sh
 if [ "$?" == 1 ]; then
     exit 1
 fi
 source $HEX_VIEWER_CONFIG
 
+if [ -z $INSTALL_TAR_PATH ]; then
+    echo "Exited, the env var, INSTALL_TAR_PATH, must be defined"
+    echo "Do you want to run deployWww instead?"
+    exit 1
+fi
 if [ "$BUNDLED" == false ]; then
     echo "sorry, cannot install a bundle into your unbundled environment"
     exit 1
 fi
 
-if [ -z ${TAR_FILE} ]; then
-    TAR_FILE=$DEFAULT_TAR_FILE
-fi
-
 cd $HEXMAP
 # Untar the new code.
 echo untarring...
-tar xf $TAR_FILE
+tar xf $INSTALL_TAR_PATH/www.tar.gz
 
 # Install all the needed node packages
 echo npm installing...

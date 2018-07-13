@@ -2,6 +2,7 @@
 # For https, set below to "true" and change
 # the environment variables inside the if statement.
 # For HTTP, change the environment varibles in the else statement.
+
 USING_HTTPS=false
 if [  "$USING_HTTPS" = true ]; then
     export KEY=
@@ -38,6 +39,10 @@ if [  "$BUNDLED" == false ]; then
     export METEOR_PATH=/Users/swat/.meteor/meteor
     export SERVER_DIR=$HEXMAP/www/private/
 fi
+
+# Deployment target architecture and location.
+export DEPLOY_TARGET_ARCH=os.linux.x86_64
+export DEPLOY_TARGET_PATH=hexmap-new:dev
 
 # Meteor settings.json variables.
 export ADMIN_EMAIL=swat@soe.ucsc.edu
