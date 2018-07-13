@@ -5,8 +5,19 @@ $HEXMAP/bin/checkConfig.sh
 if [ "$?" == 1 ]; then
     exit 1
 fi
+
 source $HEX_VIEWER_CONFIG
 
+if [ -z $DEPLOY_TARGET_ARCH ]; then
+    echo "Exited, the env var, DEPLOY_TARGET_ARCH, must be defined"
+    echo "Do you want to run installWww instead?"
+    exit 1
+fi
+if [ -z $DEPLOY_TARGET_PATH ]; then
+    echo "Exited, the env var, DEPLOY_TARGET_PATH, must be defined"
+    echo "Do you want to run installWww instead?"
+    exit 1
+fi
 if [ "$BUNDLE" == true ]; then
     echo "sorry, cannot deploy from a bundled build"
     exit 1
@@ -15,9 +26,9 @@ fi
 # Build a www server with compression and other production enhancements.
 cd $HEXMAP/www
 $METEOR_PATH npm install --production
-$METEOR_PATH build $HEXMAP/deploy --architecture os.linux.x86_64
+$METEOR_PATH build $HEXMAP/deploy --architecture $DEPLOY_TARGET_ARCH
 cd $HEXMAP
-scp deploy/www.tar.gz hexmap-new:dev
+scp deploy/www.tar.gz $DEPLOY_TARGET_PATH
 echo
 echo If the scp session timed out, do:
-echo "scp deploy/www.tar.gz hexmap-new:dev"
+echo "scp deploy/www.tar.gz $DEPLOY_TARGET_PATH"

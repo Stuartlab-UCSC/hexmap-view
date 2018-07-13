@@ -37,6 +37,9 @@ if [  "$BUNDLED" == false ]; then
     export SERVER_DIR=
 fi
 
+# Install tar location.
+export INSTALL_TAR_PATH=/cluster/home/swat/dev
+
 # Meteor settings.json variables.
 export ADMIN_EMAIL=hexmap@ucsc.edu
 export DEV=false
