@@ -53,31 +53,66 @@
             
   <div class="section" id="view-server-install-development">
 <h1>View Server Install: development<a class="headerlink" href="#view-server-install-development" title="Permalink to this headline">¶</a></h1>
+<p>Note these version numbers:</p>
+<p><em>meteor</em> : <a class="reference external" href="mailto:METEOR&#37;&#52;&#48;1&#46;6&#46;1">METEOR<span>&#64;</span>1<span>&#46;</span>6<span>&#46;</span>1</a>
+<em>node</em> : v8.11
+<em>mongodb</em> : v3.4</p>
 <div class="section" id="install-meteor">
 <h2>Install meteor<a class="headerlink" href="#install-meteor" title="Permalink to this headline">¶</a></h2>
 <p>Install the specific meteor release:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span>cd
-curl https://install.meteor.com/ &gt; meteor.install
-vi meteor.install
-  (set the definition of RELEASE as RELEASE=$METEOR_VERSION)
-sh meteor.install
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">cd</span>
+<span class="n">curl</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">install</span><span class="o">.</span><span class="n">meteor</span><span class="o">.</span><span class="n">com</span><span class="o">/</span> <span class="o">&gt;</span> <span class="n">meteor</span><span class="o">.</span><span class="n">install</span>
+<span class="n">vi</span> <span class="n">meteor</span><span class="o">.</span><span class="n">install</span>
+  <span class="p">(</span><span class="nb">set</span> <span class="n">the</span> <span class="n">definition</span> <span class="n">of</span> <span class="n">RELEASE</span> <span class="k">as</span> <span class="n">RELEASE</span><span class="o">=&lt;</span><span class="n">meteor</span><span class="o">-</span><span class="n">version</span><span class="o">&gt;</span><span class="p">)</span>
+<span class="n">sh</span> <span class="n">meteor</span><span class="o">.</span><span class="n">install</span>
 </pre></div>
 </div>
 <p>This also installs meteor’s version of node and mongo.</p>
 </div>
+<div class="section" id="make-directories">
+<h2>Make directories<a class="headerlink" href="#make-directories" title="Permalink to this headline">¶</a></h2>
+<p>Make the application and data directories. The data directory does not need to
+be in any particular place in relation to the app directory.</p>
+<p><em>my-app</em> is your root directory for development of the application</p>
+<p><em>my-data</em> is the root directory of the user data</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">mkdir</span> <span class="o">-</span><span class="n">p</span> <span class="n">my</span><span class="o">-</span><span class="n">app</span><span class="o">/</span><span class="n">packages</span>
+<span class="n">mkdir</span> <span class="o">-</span><span class="n">p</span> <span class="n">my</span><span class="o">-</span><span class="n">data</span><span class="o">/</span><span class="n">featureSpace</span> <span class="n">my</span><span class="o">-</span><span class="n">data</span><span class="o">/</span><span class="n">view</span>
+</pre></div>
+</div>
+</div>
 <div class="section" id="get-code-from-repository">
 <h2>Get code from repository<a class="headerlink" href="#get-code-from-repository" title="Permalink to this headline">¶</a></h2>
-<p>The view server code repository is at: <a class="reference external" href="https://github.com/ucscHexmap/hexagram">https://github.com/ucscHexmap/hexagram</a></p>
-<p>The most current code is in the dev branch.</p>
+<p>Get the code:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="n">my</span><span class="o">-</span><span class="n">app</span>
+<span class="n">git</span> <span class="n">clone</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">ucscHexmap</span><span class="o">/</span><span class="n">hexagram</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="install-node-modules">
+<h2>Install node modules<a class="headerlink" href="#install-node-modules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="configure">
+<h2>Configure<a class="headerlink" href="#configure" title="Permalink to this headline">¶</a></h2>
+<p>Build a configuration file similar to my-app/hexagram/config/local.swat.
+This file may be put anywhere except in directories under my-app/hexagram
+because those are overwritten during install.</p>
 </div>
 <div class="section" id="set-environment-variables">
-<h2>Set Environment Variables<a class="headerlink" href="#set-environment-variables" title="Permalink to this headline">¶</a></h2>
-<p>Set the environment variables as:</p>
-<ul class="simple">
-<li>HEXMAP the ‘hexagram’ directory from your clone of the repository.</li>
-<li>HEX_VIEWER_CONFIG to the full path of your server configuration, similar to
-hexagram/config/dev-hexmap.swat</li>
-</ul>
+<h2>Set environment variables<a class="headerlink" href="#set-environment-variables" title="Permalink to this headline">¶</a></h2>
+<p>Define the full path of your application server:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">export</span> <span class="n">HEXMAP</span><span class="o">=/</span><span class="n">full</span><span class="o">-</span><span class="n">path</span><span class="o">-</span><span class="n">to</span><span class="o">-</span><span class="n">my</span><span class="o">-</span><span class="n">app</span><span class="o">/</span><span class="n">hexagram</span>
+</pre></div>
+</div>
+<p>Define the full path of your server configuration file:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">export</span> <span class="n">HEX_VIEWER_CONFIG</span><span class="o">=/</span><span class="n">full</span><span class="o">-</span><span class="n">path</span><span class="o">-</span><span class="n">to</span><span class="o">-</span><span class="n">my</span><span class="o">-</span><span class="n">config</span>
+
+<span class="n">export</span> <span class="o">/</span><span class="n">Users</span><span class="o">/</span><span class="n">swat</span><span class="o">/.</span><span class="n">meteor</span>
+</pre></div>
+</div>
+<p>Include this in your PATH:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$HOME/.meteor:$HEXMAP/packages/node/bin:$HEXMAP/packages/mongodb/bin:$PATH
+</pre></div>
+</div>
 </div>
 <div class="section" id="install-server">
 <h2>Install server<a class="headerlink" href="#install-server" title="Permalink to this headline">¶</a></h2>
@@ -86,35 +121,24 @@ hexagram/config/dev-hexmap.swat</li>
 meteor npm install
 </pre></div>
 </div>
-<p>Create directories for your data where we’ll refer to your data root as ‘$DATA’</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span>mkdir $DATA
-cd $DATA
-mkdir featureSpace layoutInput view
-</pre></div>
-</div>
 </div>
 <div class="section" id="start-server">
 <h2>Start server<a class="headerlink" href="#start-server" title="Permalink to this headline">¶</a></h2>
-<p>Start these servers:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span>cd $HEXMAP
+<p>Start these servers where http and https scripts are optional in the development
+environment.</p>
+<blockquote>
+<div>cd $HEXMAP
 start http
 start https
 start db
-start www
-</pre></div>
-</div>
-<p>Log files are in $HEXMAP/log.</p>
+start www</div></blockquote>
+<p>Log files are in the log directory.</p>
+<p>Other scripts are described in bin/README.</p>
 </div>
 <div class="section" id="sphinx">
 <h2>Sphinx<a class="headerlink" href="#sphinx" title="Permalink to this headline">¶</a></h2>
 <p>Use Sphinx to build this document.
 <a class="reference external" href="http://www.sphinx-doc.org/en/stable/install.html">http://www.sphinx-doc.org/en/stable/install.html</a></p>
-</div>
-<div class="section" id="references">
-<h2>References<a class="headerlink" href="#references" title="Permalink to this headline">¶</a></h2>
-<p>[1] S. Martin, W. M. Brown, R. Klavans, K. Boyack, “Dr. L: Distributed Recursive
-(Graph) Layout,” in preparation for Journal of Graph Algorithms and
-Applications.</p>
 </div>
 </div>
 

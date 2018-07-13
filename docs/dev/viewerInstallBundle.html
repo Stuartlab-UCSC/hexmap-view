@@ -53,70 +53,134 @@
             
   <div class="section" id="view-server-install-production">
 <h1>View Server Install: production<a class="headerlink" href="#view-server-install-production" title="Permalink to this headline">¶</a></h1>
-<p>This assumes you already have a development installation.</p>
-<p>We start with the <em>target</em> machine.</p>
-<div class="section" id="environment-variables">
-<h2>Environment Variables<a class="headerlink" href="#environment-variables" title="Permalink to this headline">¶</a></h2>
-<p>Set the environment variables on the production machine as:</p>
-<p>HEXMAP: the ‘hexagram’ directory from your clone of the repository</p>
-<p>HEX_VIEWER_CONFIG: the full path of your server configuration, similar to
-examples in $HEXMAP/config</p>
+<p>This assumes you already have a development installation somewhere else to
+make the deployment bundle to be installed.</p>
+<p>These steps are done on the <em>target</em> machine unless otherwise stated.</p>
+<p>Note these version numbers:</p>
+<p><em>node</em> : v8.11
+<em>mongodb</em> : v3.4</p>
+<div class="section" id="make-directories">
+<h2>Make directories<a class="headerlink" href="#make-directories" title="Permalink to this headline">¶</a></h2>
+<p>Make the application and data directories. The data directory does not need to
+be in any particular place in relation to the app directory.</p>
+<p><em>my-app</em> is your root directory for development of the application</p>
+<p><em>my-data</em> is the root directory of the user data</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">mkdir</span> <span class="n">my</span><span class="o">-</span><span class="n">app</span><span class="o">/</span><span class="n">hexagram</span>
+<span class="n">cd</span> <span class="n">my</span><span class="o">-</span><span class="n">app</span><span class="o">/</span><span class="n">hexagram</span>
+<span class="n">mkdir</span> <span class="n">db</span> <span class="n">log</span> <span class="n">node_modules</span> <span class="n">packages</span> <span class="n">pid</span> <span class="n">www</span>
+
+<span class="n">mkdir</span> <span class="o">-</span><span class="n">p</span> <span class="n">my</span><span class="o">-</span><span class="n">data</span><span class="o">/</span><span class="n">featureSpace</span> <span class="n">my</span><span class="o">-</span><span class="n">data</span><span class="o">/</span><span class="n">view</span>
+</pre></div>
+</div>
 </div>
 <div class="section" id="install-node">
 <h2>Install node<a class="headerlink" href="#install-node" title="Permalink to this headline">¶</a></h2>
 <p>Find the version of node to use with the meteor version being used and install
-than in $HEXMAP/packages/node</p>
+that. The distribution downloads are at:</p>
 <p><a class="reference external" href="https://nodejs.org/en/download/">https://nodejs.org/en/download/</a></p>
+<p>Install as follows, renaming the resulting directory. Something like:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="n">my</span><span class="o">-</span><span class="n">app</span><span class="o">/</span><span class="n">hexagram</span><span class="o">/</span><span class="n">packages</span>
+<span class="n">wget</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">nodejs</span><span class="o">.</span><span class="n">org</span><span class="o">/</span><span class="n">dist</span><span class="o">/</span><span class="n">v8</span><span class="o">.</span><span class="mf">11.3</span><span class="o">/</span><span class="n">node</span><span class="o">-</span><span class="n">v8</span><span class="o">.</span><span class="mf">11.3</span><span class="o">-</span><span class="n">linux</span><span class="o">-</span><span class="n">x64</span><span class="o">.</span><span class="n">tar</span><span class="o">.</span><span class="n">xz</span>
+<span class="n">tar</span> <span class="n">xf</span> <span class="n">node</span><span class="o">-</span><span class="n">v8</span><span class="o">.</span><span class="mf">11.3</span><span class="o">-</span><span class="n">linux</span><span class="o">-</span><span class="n">x64</span><span class="o">.</span><span class="n">tar</span><span class="o">.</span><span class="n">xz</span>
+<span class="n">mv</span> <span class="n">node</span><span class="o">-</span><span class="n">v8</span><span class="o">.</span><span class="mf">11.3</span><span class="o">-</span><span class="n">linux</span><span class="o">-</span><span class="n">x64</span> <span class="n">node</span>
+</pre></div>
+</div>
 </div>
 <div class="section" id="install-mongodb">
 <h2>Install mongodb<a class="headerlink" href="#install-mongodb" title="Permalink to this headline">¶</a></h2>
-<p>Find the version of mongodb to use with the meteor version being used and install
-than in $HEXMAP/packages/mongodb</p>
-<p><a class="reference external" href="https://docs.mongodb.com/manual/administration/install-community/">https://docs.mongodb.com/manual/administration/install-community/</a></p>
+<p>Find the version of mongodb to use with the meteor version being used and
+install that. The distribution downloads are at:</p>
+<p><a class="reference external" href="https://www.mongodb.com/download-center#community">https://www.mongodb.com/download-center#community</a></p>
+<p>Click on your platform to find a list of versions and select the one for your</p>
+<p>If there is more than one option, find the option for your OS version.</p>
+<p>If you need to find your redhat/centos version use:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">hostnamectl</span>
+</pre></div>
 </div>
-<div class="section" id="path-environment-variable">
-<h2>PATH environment variable<a class="headerlink" href="#path-environment-variable" title="Permalink to this headline">¶</a></h2>
+<p>If the current mongo version is not the same as the one being used by meteor,
+you need to find the appropriate image to download. Otherwise download using
+the instructions on the page continue with <em>Rename the directory</em>.</p>
+<div class="section" id="download-an-earlier-version">
+<h3>Download an earlier version<a class="headerlink" href="#download-an-earlier-version" title="Permalink to this headline">¶</a></h3>
+<p>Note the filename shown for the current version, something like:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">fastdl</span><span class="o">.</span><span class="n">mongodb</span><span class="o">.</span><span class="n">org</span><span class="o">/</span><span class="n">linux</span><span class="o">/</span><span class="n">mongodb</span><span class="o">-</span><span class="n">linux</span><span class="o">-</span><span class="n">x86_64</span><span class="o">-</span><span class="n">rhel70</span><span class="o">-</span><span class="mf">4.0</span><span class="o">.</span><span class="mf">0.</span><span class="n">tgz</span>
+</pre></div>
+</div>
+<p>Click on <em>All Version Binaries</em>.</p>
+<p>Find the filename similar to the one you noted above, looking for the most
+recent point release.</p>
+<p>For example on redhat/centos v7 mongodb v3.4:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>wget http://downloads.mongodb.org/linux/mongodb-linux-x86_64-rhel70-3.4.16.tgz?_ga=2.137449328.1707226230.1531432538-1246595538.1531432538
+tar xf *mongodb*
+</pre></div>
+</div>
+</div>
+<div class="section" id="rename-the-directory">
+<h3>Rename the directory<a class="headerlink" href="#rename-the-directory" title="Permalink to this headline">¶</a></h3>
+<p>Rename the directory resulting from untarring with something like:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">mv</span> <span class="n">mongodb</span><span class="o">-</span><span class="n">linux</span><span class="o">-</span><span class="n">x86_64</span><span class="o">-</span><span class="n">rhel70</span><span class="o">-</span><span class="mf">3.4</span><span class="o">.</span><span class="mi">16</span> <span class="n">mongodb</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="install-http-proxy">
+<h2>Install HTTP Proxy<a class="headerlink" href="#install-http-proxy" title="Permalink to this headline">¶</a></h2>
+<p>Install a node module needed for the http proxies:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="n">my</span><span class="o">-</span><span class="n">app</span><span class="o">/</span><span class="n">hexagram</span>
+<span class="n">npm</span> <span class="n">install</span> <span class="n">http</span><span class="o">-</span><span class="n">proxy</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="install-server-scripts">
+<h2>Install server scripts<a class="headerlink" href="#install-server-scripts" title="Permalink to this headline">¶</a></h2>
+<p>Here we use <em>dev</em> to refer to a development installation on the development
+machine that builds the <em>bundle</em> to install on a <em>target</em>.</p>
+<p>On dev copy the scripts to the target:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="n">my</span><span class="o">-</span><span class="n">app</span><span class="o">/</span><span class="n">hexagram</span>
+<span class="n">tar</span> <span class="n">cf</span> <span class="n">config</span><span class="o">.</span><span class="n">tar</span> <span class="nb">bin</span> <span class="n">config</span>
+<span class="n">scp</span> <span class="n">config</span><span class="o">.</span><span class="n">tar</span> <span class="n">my</span><span class="o">-</span><span class="n">target</span><span class="o">-</span><span class="n">host</span><span class="p">:</span><span class="n">my</span><span class="o">-</span><span class="n">target</span><span class="o">-</span><span class="n">app</span><span class="o">/</span><span class="n">hexagram</span>
+</pre></div>
+</div>
+<p>On the target install the scripts:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="n">my</span><span class="o">-</span><span class="n">app</span><span class="o">/</span><span class="n">hexagram</span>
+<span class="n">rm</span> <span class="o">-</span><span class="n">rf</span> <span class="nb">bin</span> <span class="n">config</span>
+<span class="n">tar</span> <span class="n">xf</span> <span class="n">config</span><span class="o">.</span><span class="n">tar</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="configure">
+<h2>Configure<a class="headerlink" href="#configure" title="Permalink to this headline">¶</a></h2>
+<p>Build a configuration file similar to my-app/hexagram/config/prod.
+This file may be put anywhere except in directories under my-app/hexagram
+because those are overwritten during install.</p>
+</div>
+<div class="section" id="set-environment-variables">
+<h2>Set environment variables<a class="headerlink" href="#set-environment-variables" title="Permalink to this headline">¶</a></h2>
+<p>Define the full path of your application server:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">export</span> <span class="n">HEXMAP</span><span class="o">=/</span><span class="n">full</span><span class="o">-</span><span class="n">path</span><span class="o">-</span><span class="n">to</span><span class="o">-</span><span class="n">my</span><span class="o">-</span><span class="n">app</span><span class="o">/</span><span class="n">hexagram</span>
+</pre></div>
+</div>
+<p>Define the full path of your server configuration file:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">export</span> <span class="n">HEX_VIEWER_CONFIG</span><span class="o">=/</span><span class="n">full</span><span class="o">-</span><span class="n">path</span><span class="o">-</span><span class="n">to</span><span class="o">-</span><span class="n">my</span><span class="o">-</span><span class="n">config</span>
+</pre></div>
+</div>
 <p>Include this in your PATH:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span>$HEXMAP/packages/node/bin:$HEXMAP/packages/mongodb/bin:$PATH
 </pre></div>
 </div>
 </div>
-<div class="section" id="install-an-http-proxy">
-<h2>Install an HTTP Proxy<a class="headerlink" href="#install-an-http-proxy" title="Permalink to this headline">¶</a></h2>
-<p>Install a node module needed for the http proxies:</p>
+<div class="section" id="install-server-code">
+<h2>Install server code<a class="headerlink" href="#install-server-code" title="Permalink to this headline">¶</a></h2>
+<p>Here we use <em>dev</em> to refer to a development installation on the development
+machine that builds the <em>bundle</em> to install on a <em>target</em>.</p>
+<p>On dev build the bundle and copy it to the target:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span>cd $HEXMAP
-npm install http-proxy
-</pre></div>
-</div>
-</div>
-<div class="section" id="install-the-servers">
-<h2>Install the servers<a class="headerlink" href="#install-the-servers" title="Permalink to this headline">¶</a></h2>
-<p>Here we use <em>dev</em> to refer to a development installation that builds the
-<em>bundle</em> to install on a <em>target</em>.</p>
-<p>On dev copy the run scripts to the target:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span>cd $HEXMAP
-scp -r bin &lt;target-host&gt;:&lt;target-$hexmap/bin&gt;
-</pre></div>
-</div>
-<p>On dev build the bundle and copy it to the target where:</p>
-<ul class="simple">
-<li>$METEOR_PATH is the path to your meteor binaries on dev</li>
-<li>&lt;architecture&gt; is the target’s archtecture such as “os.linux.x86_64”</li>
-</ul>
-<div class="highlight-default"><div class="highlight"><pre><span></span>cd $HEXMAP/www
-$METEOR_PATH npm install --production
-$METEOR_PATH build $HEXMAP/deploy --architecture &lt;architecture&gt;
-cd $HEXMAP
-scp deploy/www.tar.gz targetHost:targetPath
+deployWww
 </pre></div>
 </div>
 <p>On the target install the bundle:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span>cd $HEXMAP
-tar xf www.tar.gz
-cd $HEXMAP/bundle/programs/server
-$NODE_BIN/npm install &gt; $HEXMAP/log/npmInstall
-cd $HEXMAP
-mv bundle www
+installWww
 </pre></div>
 </div>
 </div>
@@ -135,6 +199,8 @@ start www
 </pre></div>
 </div>
 <p>Each server has a log file with an extension of: ‘.log’.</p>
+<p>If you are running on port 80 or 443, you will need to run the start and stop
+http(s) scripts as root after defining HEXMAP and HEX_VIEWER_CONFIG.</p>
 </div>
 </div>
 

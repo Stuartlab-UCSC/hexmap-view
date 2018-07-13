@@ -28,21 +28,39 @@ drl-graph-layout/readme.txt::
  ls ../bin
 
 
- Install the data server
- -----------------------
+Install server
+--------------
 
-The compute server code repository is at: https://github.com/ucscHexmap/compute
+The data server code repository is at: https://github.com/ucscHexmap/compute
 
-The most current code is in the dev branch.
+
+Configure
+---------
+
+Build a configuration file at ops/config.sh similar to
+ops/configExamples/prod.sh.
+
+
+Set environment variable
+------------------------
+
+Define the HEXCAL environment variable to point to the installation directory::
+
+ export HEXCALC=<your-path>/compute
 
 
 Start server
 ------------
 
-Start these servers where '$compute' is the installation directory::
+Start the server::
 
- cd $compute
- run
+ cd $HEXCALC
+ start
 
-The log file is at $compute/www.log
+The log file is at ops/log with older logs in ops/logsPrev.
+
+Other scripts are described in bin/README.
+
+
+
 
