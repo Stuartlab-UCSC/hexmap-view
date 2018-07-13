@@ -72,23 +72,34 @@ drl-graph-layout/readme.txt:</p>
 <span class="n">cp</span> <span class="n">Configuration</span><span class="o">.</span><span class="n">gnu</span> <span class="n">Configuration</span><span class="o">.</span><span class="n">mk</span>
 <span class="n">make</span>
 <span class="n">ls</span> <span class="o">../</span><span class="nb">bin</span>
-
-
-<span class="n">Install</span> <span class="n">the</span> <span class="n">data</span> <span class="n">server</span>
-<span class="o">-----------------------</span>
 </pre></div>
 </div>
-<p>The compute server code repository is at: <a class="reference external" href="https://github.com/ucscHexmap/compute">https://github.com/ucscHexmap/compute</a></p>
-<p>The most current code is in the dev branch.</p>
+</div>
+<div class="section" id="install-server">
+<h2>Install server<a class="headerlink" href="#install-server" title="Permalink to this headline">¶</a></h2>
+<p>The data server code repository is at: <a class="reference external" href="https://github.com/ucscHexmap/compute">https://github.com/ucscHexmap/compute</a></p>
+</div>
+<div class="section" id="configure">
+<h2>Configure<a class="headerlink" href="#configure" title="Permalink to this headline">¶</a></h2>
+<p>Build a configuration file at ops/config.sh similar to
+ops/configExamples/prod.sh.</p>
+</div>
+<div class="section" id="set-environment-variable">
+<h2>Set environment variable<a class="headerlink" href="#set-environment-variable" title="Permalink to this headline">¶</a></h2>
+<p>Define the HEXCAL environment variable to point to the installation directory:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">export</span> <span class="n">HEXCALC</span><span class="o">=&lt;</span><span class="n">your</span><span class="o">-</span><span class="n">path</span><span class="o">&gt;/</span><span class="n">compute</span>
+</pre></div>
+</div>
 </div>
 <div class="section" id="start-server">
 <h2>Start server<a class="headerlink" href="#start-server" title="Permalink to this headline">¶</a></h2>
-<p>Start these servers where ‘$compute’ is the installation directory:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span>cd $compute
-run
+<p>Start the server:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>cd $HEXCALC
+start
 </pre></div>
 </div>
-<p>The log file is at $compute/www.log</p>
+<p>The log file is at ops/log with older logs in ops/logsPrev.</p>
+<p>Other scripts are described in bin/README.</p>
 </div>
 </div>
 
