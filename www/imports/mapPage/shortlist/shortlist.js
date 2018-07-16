@@ -37,10 +37,14 @@ var selection_prefix = 'Selection';
 var hover_layer_name = new ReactiveVar(''); // Track the current layer
 var entriesInited = new ReactiveVar();
 var icon = {
-    primary: '/icons/primary.png',
-    primary_hot: '/icons/primary-hot.png',
-    secondary: '/icons/secondary.png',
-    secondary_hot: '/icons/secondary-hot.png',
+    primary: '/icons/heartY2grey.svg',
+    //primary: '/icons/primary.png',
+    primary_hot: '/icons/heartY2.svg',
+    //primary_hot: '/icons/primary-hot.png',
+    secondary: '/icons/heartX2grey.svg',
+    //secondary: '/icons/secondary.png',
+    secondary_hot: '/icons/heartX2.svg',
+    //secondary_hot: '/icons/secondary-hot.png',
     filter_hot: '/icons/filter-hot.png',
     close: '/icons/close.svg',
 };
