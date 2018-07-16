@@ -2,12 +2,16 @@
 # For https, set below to "true" and change
 # the environment variables inside the if statement.
 # For HTTP, change the environment varibles in the else statement.
+
+TOOLS=/data/home/swat
+
 USING_HTTPS=true
 if [  "$USING_HTTPS" == true ]; then
     # Paths to https certs.
-    export KEY=/data/certs/tumorMapCellAtlas_server.key
-    export CERT=/data/certs/tumorMapCellAtlas_server.crt
-    export CHAIN=/data/certs/tumorMapCellAtlas_chain.crt
+    CERTS=/data/certs
+    export KEY=$CERTS/tumorMapCellAtlas_server.key
+    export CERT=$CERTS/tumorMapCellAtlas_server.crt
+    export CHAIN=$CERTS/tumorMapCellAtlas_chain.crt
 
     # Port for HTTP redirect
     export HTTP_PORT=80
@@ -38,14 +42,14 @@ if [  "$BUNDLED" == false ]; then
 fi
 
 # Install tar location.
-export INSTALL_TAR_PATH=/cluster/home/swat/dev
+export INSTALL_TAR_PATH=$TOOLS/dev
 
 # Meteor settings.json variables.
 export ADMIN_EMAIL=hexmap@ucsc.edu
 export DEV=false
 export HUB_URL=https://hexcalc.ucsc.edu:443
 # Below paths/require/the/trailing/slash/.
-export VIEW_DIR=/hive/groups/hexmap/prod/data/view/
+export VIEW_DIR=/data/data/view/
 
 # Mongo db.
 DB_NAME=admin
