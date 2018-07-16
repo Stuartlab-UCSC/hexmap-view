@@ -9,8 +9,8 @@
 #shortlist .entryMenuTrigger {
     font-size: 1.2em;
     position: absolute;
-    top: 1.5em;
-    left: 0.3em;
+    top: 0;
+    left: 7px;
     padding: 0;
     z-index: 1;
     border: none;
@@ -30,10 +30,15 @@
     max-height: 21em;
 }
 
-#shortlist .circle,
 #shortlist .remove  {
-    height: 1.25em;
-    width: 1.25em;
+    height: 13px;
+    width: 13px;
+    z-index: 200;
+}
+
+#shortlist .circle {
+    height: 15px;
+    width: 15px;
     z-index: 200;
 }
 
@@ -42,7 +47,6 @@
 }
 
 #shortlist .remove,
-#shortlist .move,
 #shortlist .circle {
     position: absolute;
 }
@@ -53,32 +57,37 @@
 }
 
 #shortlist .circle  {
-    left: 0.3em;
+    left: 8px;
 }
 
 #shortlist .circle.east  {
-    left: 1.85em;
-    border-radius: 1em;
+    left: 32px;
 }
 
 #shortlist .circle.filter  {
-    bottom: 0.3em;
+    bottom: 8px;
 }
 
 #shortlist .circle:not(.filter)  {
-    top: 0.3em;
+    top: 32px;
 }
 
-#shortlist .circle.is_secondary:not(.filter),
-#shortlist .circle.secondary:not(.filter)  {
-    top: 0.4em;
+
+#shortlist .circle.secondary,
+#shortlist .circle.is_secondary {
+    transform: rotate(90deg);
+}
+
+#shortlist .circle.primary:not(.filter),
+#shortlist .circle.secondary:not(.filter):not(.shadow)  {
+    opacity: 0.5;
 }
 
 #shortlist .circle.secondary.shadow {
-    left: 1.7em;
-    top: 0;
-    height: 1.55em;
-    width: 1.75em;
+    left: 26px;
+    top: 26px;
+    height: 27px;
+    width: 27px;
     z-index: 100;
     background: #eeeeee;
 }
@@ -116,13 +125,6 @@
     cursor: grabbing;
     cursor: -moz-grabbing;
     cursor: -webkit-grabbing;
-}
-
-.shortlist_entry .move {
-    top: 2.5em;
-    right: 0.5em;
-    height: 1.3em;
-    width: 1.3em;
 }
 
 .shortlist_entry .controls,
