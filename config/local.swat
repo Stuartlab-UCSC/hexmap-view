@@ -44,7 +44,7 @@ fi
 
 # Deployment target architecture and location.
 export DEPLOY_TARGET_ARCH=os.linux.x86_64
-export DEPLOY_TARGET_PATH=hexmap-new:dev
+export DEPLOY_TARGET_PATH=hexmap-new:/data/home/swat/dev
 
 # Meteor settings.json variables.
 export ADMIN_EMAIL=swat@soe.ucsc.edu
