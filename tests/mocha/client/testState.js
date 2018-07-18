@@ -13,7 +13,7 @@ if (!(typeof MochaWeb === 'undefined')) {
             it ('state attributes & methods should exist', function () {
                 Meteor.flush();
                 var s = initState();
-                chai.assert.equal(Session.get('background'), 'black');
+                chai.assert.equal(rx.get('background'), 'black');
                 chai.assert.equal(s.zoom, 1);
                 chai.assert.equal(Session.get('layouts').length, 0);
                 chai.assert.equal(Session.get('current_layout_name'), null);

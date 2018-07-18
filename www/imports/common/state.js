@@ -21,6 +21,8 @@ var LOGGING = false,  // true means log the state and store on save and load
 //      ctx: true indicates a ctx var
 //      no session or ctx flag indicates redux var
 //      project: true indicates a project-specific var
+//      overrideUrl: true indicates the value in session state should
+//                   override the value in the url or bookmark
 var varInfo = {
     activeAttrs: {
         defalt: [],
@@ -28,7 +30,7 @@ var varInfo = {
     },
     background: {
         defalt: 'black',
-        session: true,
+        overrideUrl: true,
     },
     doNotTrack: {
         defalt: null,
@@ -274,8 +276,8 @@ function load (storeIn, page) {
     if (!storageSupported) {
         return;
     }
-    
-    var store = storeIn || localStore('get');
+    let sessionStore = localStore('get')
+    let store = storeIn || sessionStore;
     
     // If a page was included, put that in the store before
     // loading it into state.
@@ -312,7 +314,11 @@ function load (storeIn, page) {
 
             // This is a redux var.
             } else {
-                rx.set(key + '.loadPersist', { loadPersist: val });
+                let endVal = val
+                if (info.overrideUrl) {
+                    endVal = sessionStore.background
+                }
+                rx.set(key + '.loadPersist', { loadPersist: endVal });
             }
         }
     });
@@ -331,7 +337,7 @@ function load (storeIn, page) {
     logState('Load');
     
     // TODO learning about tests. Remove after that.
-    return Session.get('background');
+    return rx.get('background');
 }
 
 function checkLocalStore () {

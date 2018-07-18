@@ -264,7 +264,7 @@ function prepSelect () {
     tool.activity(true);
 
     // Set the selection color depending on the background
-    color = (Session.equals('background', 'white')) ? 'black' : 'white';
+    color = (rx.get('background') === 'white') ? 'black' : 'white';
 }
 
 export function byNodeId() {

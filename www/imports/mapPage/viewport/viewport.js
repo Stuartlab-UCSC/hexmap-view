@@ -5,6 +5,7 @@ import '/imports/lib/color';
 import colorMix from '/imports/mapPage/color/colorMix';
 import coords from '/imports/mapPage/viewport/coords';
 import hexagons from '/imports/mapPage/viewport/hexagons';
+import rx from '/imports/common/rx';
 import tool from '/imports/mapPage/head/tool';
 
 exports.create = function  () {
@@ -12,7 +13,7 @@ exports.create = function  () {
     // Create the google map.
     var mapOptions = {
         center: ctx.center,
-        backgroundColor: Session.get('background'),
+        backgroundColor: rx.get('background'),
         zoom: ctx.zoom,
         mapTypeId: "blank",
         // Don't show a map type picker.
