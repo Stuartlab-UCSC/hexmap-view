@@ -120,14 +120,6 @@ const reducers = {
     'inited.state': (state = false, action) => {
         return (action.type === 'inited.state') ? true : state;
     },
-    'initializing': (state = true, action) => {
-        switch (action.type) {
-        case 'initializing':
-            return ;
-        default:
-            return state;
-        }
-    },
     'projectList': (state = 'receiving', action) => {
         switch (action.type) {
         case 'projectList.loading':
