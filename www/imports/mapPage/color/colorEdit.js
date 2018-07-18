@@ -34,7 +34,7 @@ Template.colormapT.helpers({
 Template.navBarT.helpers({
 
     background: function () {
-        return (backgroundTemplate.get() === 'white') ? 'black' : 'white'
+        return (backgroundTemplate.get() === 'white') ? 'Black' : 'White'
     }
 });
 
