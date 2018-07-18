@@ -60,7 +60,7 @@ function findOpacity () {
         var additive = 0.05;
 
         // On a black background, the opacity needs to be higher.
-        if (Session.equals('background', 'black')) {
+        if (rx.get('background') === 'black') {
             additive = 0.5;
         }
 
@@ -92,7 +92,7 @@ function setZoomOptions(nodeId, xy, opts) {
                 : 0;
 
         opts.strokeWeight = weight;
-        opts.strokeColor = Session.get('background');
+        opts.strokeColor = rx.get('background');
         opts.strokeOpacity = 1.0;
     } else {
 

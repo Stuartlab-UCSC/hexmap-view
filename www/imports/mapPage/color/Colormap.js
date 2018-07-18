@@ -36,37 +36,37 @@ exports.disabled = function () {
 };
 
 exports.defaultContLow = function () {
-    return (Session.equals('background', 'white')) ?
+    return (rx.get('background') === 'white') ?
         CONTINUOUS_LOW_LIGHT_BG : CONTINUOUS_LOW_DARK_BG ;
 };
 
 exports.defaultContHigh = function () {
-    return (Session.equals('background', 'white')) ?
+    return (rx.get('background') === 'white') ?
         CONTINUOUS_HIGH_LIGHT_BG : CONTINUOUS_HIGH_DARK_BG;
 };
 
 exports.defaultContBothHigh = function () {
-    return (Session.equals('background', 'white')) ?
+    return (rx.get('background') === 'white') ?
         CONTINUOUS2_BOTH_HIGH_LIGHT_BG : CONTINUOUS2_BOTH_HIGH_DARK_BG;
 };
 
 exports.defaultCont2High1Low = function () {
-    return (Session.equals('background', 'white')) ?
+    return (rx.get('background') === 'white') ?
         CONTINUOUS2_2ND_HIGH_LIGHT_BG : CONTINUOUS2_2ND_HIGH_DARK_BG;
 };
 
 exports.defaultBinaryOff = function () {
-    return (Session.equals('background', 'white')) ?
+    return (rx.get('background') === 'white') ?
         BINARY_BOTH_OFF_LIGHT_BG : BINARY_BOTH_OFF_DARK_BG;
 };
 
 exports.defaultBinaryOn = function () {
-    return (Session.equals('background', 'white')) ?
+    return (rx.get('background') === 'white') ?
         BINARY_1ST_ON_LIGHT_BG : BINARY_1ST_ON_DARK_BG;
 };
 
 exports.defaultBinBothOn = function () {
-    return (Session.equals('background', 'white')) ?
+    return (rx.get('background') === 'white') ?
         BINARY_BOTH_ON_LIGHT_BG : BINARY_BOTH_ON_DARK_BG;
 };
 
@@ -75,7 +75,7 @@ exports.defaultSecondBinOn = function () {
 };
 
 exports.noDataColor = function () {
-    return (Session.equals('background', 'white')) ?
+    return (rx.get('background') === 'white') ?
         NO_DATA_LIGHT_BG : NO_DATA_DARK_BG;
 };
 

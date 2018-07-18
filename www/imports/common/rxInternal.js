@@ -37,6 +37,16 @@ const reducers = {
             return state;
         }
     },
+    'background': (state = 'black', action) => {
+        switch(action.type) {
+        case 'background.loadPersist':
+            return action.loadPersist
+        case 'background.toggle':
+            return (state === 'black') ? 'white' : 'black'
+        default:
+            return state
+        }
+    },
     'bookmarkUsed': (state = false, action) => {
         return (action.type === 'bookmarkUsed') ? true : state;
     },

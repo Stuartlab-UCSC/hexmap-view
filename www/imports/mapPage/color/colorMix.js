@@ -119,7 +119,7 @@ function refreshColorsInner () {
         // Determine the color of nodes not passing the filters.
         let bgNodeColor = Colormap.noDataColor();
         if (rx.get('shortEntry.menu.hideBgNodes')) {
-            bgNodeColor = (Session.get('background') === 'black') ?
+            bgNodeColor = (rx.get('background') === 'black') ?
                 '#000000' : '#ffffff';
         }
 
