@@ -4,8 +4,21 @@ View Server Install: development
 Note these version numbers:
 
 *meteor* : METEOR@1.6.1
+
 *node* : v8.11
+
 *mongodb* : v3.4
+
+
+Get code from repository
+------------------------
+
+Get the code where *my-app* is your root directory for the application
+::
+
+ mkdir my-app
+ cd my-app
+ git clone https://github.com/ucscHexmap/hexagram
 
 
 Install meteor
@@ -25,30 +38,36 @@ This also installs meteor's version of node and mongo.
 Make directories
 ----------------
 
-Make the application and data directories. The data directory does not need to
-be in any particular place in relation to the app directory.
-
-*my-app* is your root directory for development of the application
-
-*my-data* is the root directory of the user data
+Where *my-app* is your root directory for the application
 ::
 
- mkdir -p my-app/packages
- mkdir -p my-data/featureSpace my-data/view
+ cd my-app/hexagram
+ mkdir db log node_modules packages pid www
 
 
-Get code from repository
-------------------------
+Install node
+------------
 
-Get the code::
+Find the version of node to use with the meteor version being used and install
+that. The distribution downloads are at:
 
- cd my-app
- git clone https://github.com/ucscHexmap/hexagram
+https://nodejs.org/en/download/
+
+Install as follows, renaming the resulting directory to 'node'. Something like::
+
+ cd my-app/hexagram/packages
+ wget https://nodejs.org/dist/v8.11.3/node-v8.11.3-linux-x64.tar.xz
+ tar xf node-v8.11.3-linux-x64.tar.xz
+ mv node-v8.11.3-linux-x64 node
 
 
-Install node modules
---------------------
+Install node modules outside of Meteor
+--------------------------------------
 
+::
+
+ mkdir my-app/packages
+ TBD
 
 Configure
 ---------
@@ -74,8 +93,6 @@ Define the full path of your server configuration file::
 Include this in your PATH::
 
  $HOME/.meteor:$HEXMAP/packages/node/bin:$HEXMAP/packages/mongodb/bin:$PATH
-
-
 
 
 Install server

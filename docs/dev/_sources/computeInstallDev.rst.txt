@@ -27,11 +27,35 @@ drl-graph-layout/readme.txt::
  make
  ls ../bin
 
+In bin you should see 'truncate' among other binaries.
+
 
 Install server
 --------------
 
 The data server code repository is at: https://github.com/ucscHexmap/compute
+
+
+Make directories
+----------------
+
+Make the data directories and a log directory. The data directory does not need
+to be in any particular place in relation to the app directory.
+
+*my-app* is the root directory of the app, just above the 'compute' directory
+from the above install
+*my-data* is the root directory of the user data
+::
+
+ mkdir -p my-app/compute/ops/logsPrev
+ mkdir -p my-data/featureSpace my-data/view
+
+
+HTTPS
+-----
+
+If you want to use https, put the certificate someplace where the server will
+find it.
 
 
 Configure
@@ -44,9 +68,9 @@ ops/configExamples/prod.sh.
 Set environment variable
 ------------------------
 
-Define the HEXCAL environment variable to point to the installation directory::
+Define the HEXCALC environment variable to point to the installation directory::
 
- export HEXCALC=<your-path>/compute
+ export HEXCALC=my-app/compute
 
 
 Start server

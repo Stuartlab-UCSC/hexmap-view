@@ -7,7 +7,7 @@ Developer Docs
    :maxdepth: 1
 
    internalWebApi
-   computeInstall
+   computeInstallDev
    viewerInstallDev
    viewerInstallBundle
    repository
