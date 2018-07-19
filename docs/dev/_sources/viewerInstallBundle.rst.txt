@@ -9,24 +9,20 @@ These steps are done on the *target* machine unless otherwise stated.
 Note these version numbers:
 
 *node* : v8.11
+
 *mongodb* : v3.4
 
 Make directories
 ----------------
 
-Make the application and data directories. The data directory does not need to
-be in any particular place in relation to the app directory.
+Make some directories.
 
-*my-app* is your root directory for development of the application
-
-*my-data* is the root directory of the user data
+*my-app* is your root directory for the application
 ::
 
- mkdir my-app/hexagram
+ mkdir -p my-app/hexagram
  cd my-app/hexagram
  mkdir db log node_modules packages pid www
-
- mkdir -p my-data/featureSpace my-data/view
 
 
 Install node
@@ -37,7 +33,7 @@ that. The distribution downloads are at:
 
 https://nodejs.org/en/download/
 
-Install as follows, renaming the resulting directory. Something like::
+Install as follows, renaming the resulting directory to 'node'. Something like::
 
  cd my-app/hexagram/packages
  wget https://nodejs.org/dist/v8.11.3/node-v8.11.3-linux-x64.tar.xz
@@ -53,7 +49,7 @@ install that. The distribution downloads are at:
 
 https://www.mongodb.com/download-center#community
 
-Click on your platform to find a list of versions and select the one for your
+Click on your platform to find a list of versions.
 
 If there is more than one option, find the option for your OS version.
 
@@ -63,7 +59,8 @@ If you need to find your redhat/centos version use::
 
 If the current mongo version is not the same as the one being used by meteor,
 you need to find the appropriate image to download. Otherwise download using
-the instructions on the page continue with *Rename the directory*.
+the instructions on the mongodb page then continue below with
+*Rename the directory*.
 
 Download an earlier version
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^

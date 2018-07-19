@@ -74,10 +74,28 @@ drl-graph-layout/readme.txt:</p>
 <span class="n">ls</span> <span class="o">../</span><span class="nb">bin</span>
 </pre></div>
 </div>
+<p>In bin you should see ‘truncate’ among other binaries.</p>
 </div>
 <div class="section" id="install-server">
 <h2>Install server<a class="headerlink" href="#install-server" title="Permalink to this headline">¶</a></h2>
 <p>The data server code repository is at: <a class="reference external" href="https://github.com/ucscHexmap/compute">https://github.com/ucscHexmap/compute</a></p>
+</div>
+<div class="section" id="make-directories">
+<h2>Make directories<a class="headerlink" href="#make-directories" title="Permalink to this headline">¶</a></h2>
+<p>Make the data directories and a log directory. The data directory does not need
+to be in any particular place in relation to the app directory.</p>
+<p><em>my-app</em> is the root directory of the app, just above the ‘compute’ directory
+from the above install
+<em>my-data</em> is the root directory of the user data</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">mkdir</span> <span class="o">-</span><span class="n">p</span> <span class="n">my</span><span class="o">-</span><span class="n">app</span><span class="o">/</span><span class="n">compute</span><span class="o">/</span><span class="n">ops</span><span class="o">/</span><span class="n">logsPrev</span>
+<span class="n">mkdir</span> <span class="o">-</span><span class="n">p</span> <span class="n">my</span><span class="o">-</span><span class="n">data</span><span class="o">/</span><span class="n">featureSpace</span> <span class="n">my</span><span class="o">-</span><span class="n">data</span><span class="o">/</span><span class="n">view</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="https">
+<h2>HTTPS<a class="headerlink" href="#https" title="Permalink to this headline">¶</a></h2>
+<p>If you want to use https, put the certificate someplace where the server will
+find it.</p>
 </div>
 <div class="section" id="configure">
 <h2>Configure<a class="headerlink" href="#configure" title="Permalink to this headline">¶</a></h2>
@@ -86,8 +104,8 @@ ops/configExamples/prod.sh.</p>
 </div>
 <div class="section" id="set-environment-variable">
 <h2>Set environment variable<a class="headerlink" href="#set-environment-variable" title="Permalink to this headline">¶</a></h2>
-<p>Define the HEXCAL environment variable to point to the installation directory:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">export</span> <span class="n">HEXCALC</span><span class="o">=&lt;</span><span class="n">your</span><span class="o">-</span><span class="n">path</span><span class="o">&gt;/</span><span class="n">compute</span>
+<p>Define the HEXCALC environment variable to point to the installation directory:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">export</span> <span class="n">HEXCALC</span><span class="o">=</span><span class="n">my</span><span class="o">-</span><span class="n">app</span><span class="o">/</span><span class="n">compute</span>
 </pre></div>
 </div>
 </div>
@@ -146,7 +164,7 @@ start
           </div>
           <div role="note" aria-label="source link">
               <br/>
-              <a href="_sources/computeInstall.rst.txt"
+              <a href="_sources/computeInstallDev.rst.txt"
                 rel="nofollow">Show Source</a>
           </div>
         </div>

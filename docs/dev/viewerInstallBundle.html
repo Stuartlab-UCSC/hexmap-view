@@ -57,19 +57,15 @@
 make the deployment bundle to be installed.</p>
 <p>These steps are done on the <em>target</em> machine unless otherwise stated.</p>
 <p>Note these version numbers:</p>
-<p><em>node</em> : v8.11
-<em>mongodb</em> : v3.4</p>
+<p><em>node</em> : v8.11</p>
+<p><em>mongodb</em> : v3.4</p>
 <div class="section" id="make-directories">
 <h2>Make directories<a class="headerlink" href="#make-directories" title="Permalink to this headline">¶</a></h2>
-<p>Make the application and data directories. The data directory does not need to
-be in any particular place in relation to the app directory.</p>
-<p><em>my-app</em> is your root directory for development of the application</p>
-<p><em>my-data</em> is the root directory of the user data</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">mkdir</span> <span class="n">my</span><span class="o">-</span><span class="n">app</span><span class="o">/</span><span class="n">hexagram</span>
+<p>Make some directories.</p>
+<p><em>my-app</em> is your root directory for the application</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">mkdir</span> <span class="o">-</span><span class="n">p</span> <span class="n">my</span><span class="o">-</span><span class="n">app</span><span class="o">/</span><span class="n">hexagram</span>
 <span class="n">cd</span> <span class="n">my</span><span class="o">-</span><span class="n">app</span><span class="o">/</span><span class="n">hexagram</span>
 <span class="n">mkdir</span> <span class="n">db</span> <span class="n">log</span> <span class="n">node_modules</span> <span class="n">packages</span> <span class="n">pid</span> <span class="n">www</span>
-
-<span class="n">mkdir</span> <span class="o">-</span><span class="n">p</span> <span class="n">my</span><span class="o">-</span><span class="n">data</span><span class="o">/</span><span class="n">featureSpace</span> <span class="n">my</span><span class="o">-</span><span class="n">data</span><span class="o">/</span><span class="n">view</span>
 </pre></div>
 </div>
 </div>
@@ -78,7 +74,7 @@ be in any particular place in relation to the app directory.</p>
 <p>Find the version of node to use with the meteor version being used and install
 that. The distribution downloads are at:</p>
 <p><a class="reference external" href="https://nodejs.org/en/download/">https://nodejs.org/en/download/</a></p>
-<p>Install as follows, renaming the resulting directory. Something like:</p>
+<p>Install as follows, renaming the resulting directory to ‘node’. Something like:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="n">my</span><span class="o">-</span><span class="n">app</span><span class="o">/</span><span class="n">hexagram</span><span class="o">/</span><span class="n">packages</span>
 <span class="n">wget</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">nodejs</span><span class="o">.</span><span class="n">org</span><span class="o">/</span><span class="n">dist</span><span class="o">/</span><span class="n">v8</span><span class="o">.</span><span class="mf">11.3</span><span class="o">/</span><span class="n">node</span><span class="o">-</span><span class="n">v8</span><span class="o">.</span><span class="mf">11.3</span><span class="o">-</span><span class="n">linux</span><span class="o">-</span><span class="n">x64</span><span class="o">.</span><span class="n">tar</span><span class="o">.</span><span class="n">xz</span>
 <span class="n">tar</span> <span class="n">xf</span> <span class="n">node</span><span class="o">-</span><span class="n">v8</span><span class="o">.</span><span class="mf">11.3</span><span class="o">-</span><span class="n">linux</span><span class="o">-</span><span class="n">x64</span><span class="o">.</span><span class="n">tar</span><span class="o">.</span><span class="n">xz</span>
@@ -91,7 +87,7 @@ that. The distribution downloads are at:</p>
 <p>Find the version of mongodb to use with the meteor version being used and
 install that. The distribution downloads are at:</p>
 <p><a class="reference external" href="https://www.mongodb.com/download-center#community">https://www.mongodb.com/download-center#community</a></p>
-<p>Click on your platform to find a list of versions and select the one for your</p>
+<p>Click on your platform to find a list of versions.</p>
 <p>If there is more than one option, find the option for your OS version.</p>
 <p>If you need to find your redhat/centos version use:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">hostnamectl</span>
@@ -99,7 +95,8 @@ install that. The distribution downloads are at:</p>
 </div>
 <p>If the current mongo version is not the same as the one being used by meteor,
 you need to find the appropriate image to download. Otherwise download using
-the instructions on the page continue with <em>Rename the directory</em>.</p>
+the instructions on the mongodb page then continue below with
+<em>Rename the directory</em>.</p>
 <div class="section" id="download-an-earlier-version">
 <h3>Download an earlier version<a class="headerlink" href="#download-an-earlier-version" title="Permalink to this headline">¶</a></h3>
 <p>Note the filename shown for the current version, something like:</p>
@@ -213,7 +210,7 @@ http(s) scripts as root after defining HEXMAP and HEX_VIEWER_CONFIG.</p>
           <h3>Table Of Contents</h3>
           <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="internalWebApi.html">Internal Web API</a></li>
-<li class="toctree-l1"><a class="reference internal" href="computeInstall.html">Data Server Install</a></li>
+<li class="toctree-l1"><a class="reference internal" href="computeInstallDev.html">Data Server Install</a></li>
 <li class="toctree-l1"><a class="reference internal" href="viewerInstallDev.html">View Server Install: development</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">View Server Install: production</a></li>
 <li class="toctree-l1"><a class="reference internal" href="repository.html">Git Quick Start</a></li>
