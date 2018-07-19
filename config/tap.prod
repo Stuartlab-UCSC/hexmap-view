@@ -1,0 +1,63 @@
+#!/bin/bash
+# For https, set below to "true" and change
+# the environment variables inside the if statement.
+# For HTTP, change the environment varibles in the else statement.
+
+TOOLS=/soe/swat
+# HEXMAP should be /home/hexmap/data
+
+USING_HTTPS=true
+if [  "$USING_HTTPS" == true ]; then
+    # Paths to https certs.
+    CERTS=/home/hexmap/data/certs
+    export KEY=$CERTS/tumorMapCellAtlas_server.key
+    export CERT=$CERTS/tumorMapCellAtlas_server.crt
+    export CHAIN=$CERTS/tumorMapCellAtlas_chain.crt
+
+    # Port for HTTP redirect
+    export HTTP_PORT=80
+    # Port HTTPS uses.
+    export HTTPS_PORT=443
+    # The port the meteor app uses.
+    export PORT=8443
+    # The URL to which the https proxy redirects.
+    export METEOR_URL=http://tumormap.ucsc.edu:$PORT
+    # The URL exposed to the user.
+    export URL_BASE=https://tumormap.ucsc.edu:$HTTPS_PORT
+
+else
+    # For http
+    export PORT=
+    export URL_BASE=
+fi
+
+# Run in background, BACK, or foreground, FORE.
+export BACK_OR_FOREGROUND=BACK
+
+# Bundled deployment or unbundled?
+export BUNDLED=true
+if [  "$BUNDLED" == false ]; then
+    # Path to your meteor.
+    export METEOR_PATH=
+    export SERVER_DIR=
+fi
+
+# Install tar location.
+export INSTALL_TAR_PATH=$TOOLS/dev
+
+# Meteor settings.json variables.
+export ADMIN_EMAIL=hexmap@ucsc.edu
+export DEV=false
+export HUB_URL=https://hexcalc.ucsc.edu:443
+# Below paths/require/the/trailing/slash/.
+export VIEW_DIR=/home/hexmap/data/data/view/
+
+# Mongo db.
+DB_NAME=admin
+DB_PORT=27017
+export MONGO_BIN=$HEXMAP/packages/mongodb/bin
+export MONGO_URL=mongodb://localhost:$DB_PORT/$DB_NAME
+
+export NODE_BIN=$HEXMAP/packages/node/bin
+export ROOT_URL=$URL_BASE
+
