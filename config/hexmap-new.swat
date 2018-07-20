@@ -25,7 +25,7 @@ if [  "$USING_HTTPS" == true ]; then
 
 else
     # For http
-    export PORT=8555
+    export PORT=8222
     export URL_BASE=http://tumormap.ucsc.edu:$PORT
 fi
 
@@ -47,6 +47,7 @@ export INSTALL_TAR_PATH=$TOOLS/dev
 export ADMIN_EMAIL=swat@soe.ucsc.edu
 export DEV=true
 export HUB_URL=https://hexcalc.ucsc.edu:8442
+
 # Below paths/require/the/trailing/slash/.
 export VIEW_DIR=$HEXMAP/../data/view/
 
