@@ -53,71 +53,104 @@
             
   <div class="section" id="data-server-install">
 <h1>Data Server Install<a class="headerlink" href="#data-server-install" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="install-python">
-<h2>Install python<a class="headerlink" href="#install-python" title="Permalink to this headline">¶</a></h2>
-<p>See compute/build/README to install python and a python environment.</p>
-<p>Note that if you do not have libssl-dev installed, uwsgi will not have the https
-options available.</p>
+<div class="section" id="install-server-source-code">
+<h2>Install server source code<a class="headerlink" href="#install-server-source-code" title="Permalink to this headline">¶</a></h2>
+<p>The data server code repository is at: <a class="reference external" href="https://github.com/ucscHexmap/compute">https://github.com/ucscHexmap/compute</a>.
+Install the source, where <em>my-app</em> is the root directory of the app:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="n">my</span><span class="o">-</span><span class="n">app</span>
+<span class="n">git</span> <span class="n">clone</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">ucscHexmap</span><span class="o">/</span><span class="n">compute</span><span class="o">.</span><span class="n">git</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="set-environment-variable-and-path">
+<h2>Set environment variable and path<a class="headerlink" href="#set-environment-variable-and-path" title="Permalink to this headline">¶</a></h2>
+<p>Define the HEXCALC environment variable to point to the installation directory.
+Add the binary path to your path.
+You should put these in your login profile:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>export HEXCALC=my-app/compute
+PATH=$HEXCALC/bin:$PATH
+</pre></div>
+</div>
+</div>
+<div class="section" id="make-data-directories">
+<h2>Make data directories<a class="headerlink" href="#make-data-directories" title="Permalink to this headline">¶</a></h2>
+<p>Make data directories used during operations. The <em>my-data</em> directory does not
+need to be in any particular place in relation to the <em>my-app</em> directory:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">mkdir</span> <span class="o">-</span><span class="n">p</span> <span class="n">my</span><span class="o">-</span><span class="n">data</span><span class="o">/</span><span class="n">featureSpace</span> <span class="n">my</span><span class="o">-</span><span class="n">data</span><span class="o">/</span><span class="n">view</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="https">
+<h2>HTTPS<a class="headerlink" href="#https" title="Permalink to this headline">¶</a></h2>
+<p>If you want to use https, put the certificates someplace where the server will
+find it.</p>
 </div>
 <div class="section" id="install-drl">
 <h2>Install DrL<a class="headerlink" href="#install-drl" title="Permalink to this headline">¶</a></h2>
 <p>DrL graph layout [1]</p>
 <p>To install in most unices. Other platforms may be installed as indicated in the
 drl-graph-layout/readme.txt:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">wget</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">bitbucket</span><span class="o">.</span><span class="n">org</span><span class="o">/</span><span class="n">adam_novak</span><span class="o">/</span><span class="n">drl</span><span class="o">-</span><span class="n">graph</span><span class="o">-</span><span class="n">layout</span><span class="o">/</span><span class="n">get</span><span class="o">/</span><span class="n">c41341de8058</span><span class="o">.</span><span class="n">zip</span>
-<span class="c1">#alternatively:</span>
-    <span class="n">curl</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">bitbucket</span><span class="o">.</span><span class="n">org</span><span class="o">/</span><span class="n">adam_novak</span><span class="o">/</span><span class="n">drl</span><span class="o">-</span><span class="n">graph</span><span class="o">-</span><span class="n">layout</span><span class="o">/</span><span class="n">get</span><span class="o">/</span><span class="n">c41341de8058</span><span class="o">.</span><span class="n">zip</span> <span class="o">&gt;</span> <span class="n">c41341de8058</span><span class="o">.</span><span class="n">zip</span>
-<span class="n">unzip</span> <span class="n">c41341de8058</span><span class="o">.</span><span class="n">zip</span>
-<span class="n">cd</span> <span class="n">adam</span><span class="o">*/</span><span class="n">src</span>
-<span class="n">cp</span> <span class="n">Configuration</span><span class="o">.</span><span class="n">gnu</span> <span class="n">Configuration</span><span class="o">.</span><span class="n">mk</span>
-<span class="n">make</span>
-<span class="n">ls</span> <span class="o">../</span><span class="nb">bin</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span>cd $HEXCALC/../
+mkdir packages
+cd packages
+wget https://bitbucket.org/adam_novak/drl-graph-layout/get/c41341de8058.zip
+#alternatively:
+    curl https://bitbucket.org/adam_novak/drl-graph-layout/get/c41341de8058.zip &gt; c41341de8058.zip
+unzip c41341de8058.zip
+cd adam*/src
+cp Configuration.gnu Configuration.mk
+make
+ls ../bin
+cd ../../
+mv adam_novak-drl-graph-layout-c41341de8058 drl-graph-layout
 </pre></div>
 </div>
 <p>In bin you should see ‘truncate’ among other binaries.</p>
-</div>
-<div class="section" id="install-server">
-<h2>Install server<a class="headerlink" href="#install-server" title="Permalink to this headline">¶</a></h2>
-<p>The data server code repository is at: <a class="reference external" href="https://github.com/ucscHexmap/compute">https://github.com/ucscHexmap/compute</a></p>
-</div>
-<div class="section" id="make-directories">
-<h2>Make directories<a class="headerlink" href="#make-directories" title="Permalink to this headline">¶</a></h2>
-<p>Make the data directories and a log directory. The data directory does not need
-to be in any particular place in relation to the app directory.</p>
-<p><em>my-app</em> is the root directory of the app, just above the ‘compute’ directory
-from the above install
-<em>my-data</em> is the root directory of the user data</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">mkdir</span> <span class="o">-</span><span class="n">p</span> <span class="n">my</span><span class="o">-</span><span class="n">app</span><span class="o">/</span><span class="n">compute</span><span class="o">/</span><span class="n">ops</span><span class="o">/</span><span class="n">logsPrev</span>
-<span class="n">mkdir</span> <span class="o">-</span><span class="n">p</span> <span class="n">my</span><span class="o">-</span><span class="n">data</span><span class="o">/</span><span class="n">featureSpace</span> <span class="n">my</span><span class="o">-</span><span class="n">data</span><span class="o">/</span><span class="n">view</span>
-</pre></div>
-</div>
-</div>
-<div class="section" id="https">
-<h2>HTTPS<a class="headerlink" href="#https" title="Permalink to this headline">¶</a></h2>
-<p>If you want to use https, put the certificate someplace where the server will
-find it.</p>
 </div>
 <div class="section" id="configure">
 <h2>Configure<a class="headerlink" href="#configure" title="Permalink to this headline">¶</a></h2>
 <p>Build a configuration file at ops/config.sh similar to
 ops/configExamples/prod.sh.</p>
 </div>
-<div class="section" id="set-environment-variable">
-<h2>Set environment variable<a class="headerlink" href="#set-environment-variable" title="Permalink to this headline">¶</a></h2>
-<p>Define the HEXCALC environment variable to point to the installation directory:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">export</span> <span class="n">HEXCALC</span><span class="o">=</span><span class="n">my</span><span class="o">-</span><span class="n">app</span><span class="o">/</span><span class="n">compute</span>
+<div class="section" id="install-python">
+<h2>Install python<a class="headerlink" href="#install-python" title="Permalink to this headline">¶</a></h2>
+<p>See compute/build/README to install python and a python environment.</p>
+<p>Note that if you do not have libssl-dev installed, uwsgi will not have the https
+options available.</p>
+</div>
+<div class="section" id="script-to-run-on-protected-ports">
+<h2>Script to run on protected ports<a class="headerlink" href="#script-to-run-on-protected-ports" title="Permalink to this headline">¶</a></h2>
+<p>If you will be running on one of the protected ports such as
+80 or 443, build a script like so:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>cd $HEXCALC/../
+vi startWww
+export HEXCALC=my-app/compute
+$HEXCALC/bin/start
+
+chmod +x startWww
 </pre></div>
 </div>
 </div>
 <div class="section" id="start-server">
 <h2>Start server<a class="headerlink" href="#start-server" title="Permalink to this headline">¶</a></h2>
-<p>Start the server:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span>cd $HEXCALC
-start
+<div class="section" id="as-root">
+<h3>As root<a class="headerlink" href="#as-root" title="Permalink to this headline">¶</a></h3>
+<p>After the server is started on the protected port the user and group ID of the
+processes will be changed to the ownership as specified in the configuration
+file as HEX_UID and HEX_GID:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>sudo $HEXCALC/../startWww
 </pre></div>
 </div>
-<p>The log file is at ops/log with older logs in ops/logsPrev.</p>
+</div>
+<div class="section" id="as-non-root">
+<h3>As non-root<a class="headerlink" href="#as-non-root" title="Permalink to this headline">¶</a></h3>
+<p>If you will be running the server on an unprotected port, simply do:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$HEXCALC/bin/start
+</pre></div>
+</div>
+<p>The log file is at compute/ops/log with older logs in compute/ops/logsPrev.</p>
 <p>Other scripts are described in bin/README.</p>
+</div>
 </div>
 </div>
 
@@ -164,7 +197,7 @@ start
           </div>
           <div role="note" aria-label="source link">
               <br/>
-              <a href="_sources/computeInstallDev.rst.txt"
+              <a href="_sources/computeInstall.rst.txt"
                 rel="nofollow">Show Source</a>
           </div>
         </div>
