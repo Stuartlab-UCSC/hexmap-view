@@ -2,334 +2,333 @@
 <template name="homePage">
 {{> navBarT}}
 <div id='homePage'>
-<div style='padding-top:0.5em;vertical-align:top'>
-<a href="http://genomics.ucsc.edu" target='_blank'>
-    <img class='ucscgi_clear' src='ucscgi_clear.png' style='height:60px;margin-top:-6px'>
-</a>
-<span class='mapPage mapTitle'>
-    Tumor Map
-</span>
-    <div style='font-size:0.8em;vertical-align:top;display:inline-block;padding-top:1.7em;padding-left:2em'>
-        Method described at
-        <a
-            href = 'http://cancerres.aacrjournals.org/content/77/21/e111?utm_source=170580&utm_medium=clinical1&utm_campaign=compresfocus'
-            target='_blank'
-         >
-            Newton, et al., Cancer Research 2017
+    <div style='padding-top:0.5em;vertical-align:top'>
+        <a href="http://genomics.ucsc.edu" target='_blank'>
+            <img class='ucscgi_clear' src='ucscgi_clear.png' style='height:60px;margin-top:-6px'>
         </a>
-    </div>
-</div>
-<div class='allProjects'>
-
-    {{ #each projects }}
-        <div class='project'>
-            <div id={{ id }} class='thumbnail'
-                data-proj='{{ proj }}'
-                data-layoutIndex='{{ layoutIndex }}'
-                data-searchSuffix='{{ searchSuffix }}'
+        <span class='mapPage mapTitle'>
+            Tumor Map
+        </span>
+        <div style='font-size:0.8em;vertical-align:top;display:inline-block;padding-top:1.7em;padding-left:2em'>
+            Method described at
+            <a
+                href = 'http://cancerres.aacrjournals.org/content/77/21/e111?utm_source=170580&utm_medium=clinical1&utm_campaign=compresfocus'
+                target='_blank'
             >
-                <div style='padding-top:0.5em;'>{{ label }}</div>
-                <img src='{{ png }}' height='250px' style='padding-top:1em'>
+                Newton, et al., Cancer Research 2017
+            </a>
+        </div>
+    </div>
+    <div class='allProjects'>
+
+        {{ #each projects }}
+            <div class='project'>
+                <div id={{ id }} class='thumbnail'
+                    data-proj='{{ proj }}'
+                    data-layoutIndex='{{ layoutIndex }}'
+                    data-searchSuffix='{{ searchSuffix }}'
+                >
+                    <div style='padding-top:0.5em;'>{{ label }}</div>
+                    <img src='{{ png }}' height='250px' style='padding-top:1em'>
+                </div>
+                <div style='margin-top:0.5em;font-size:0.8em'>
+                    <a href='/help/existingMaps.html#{{ linkAnchor }}' target='_blank'>
+                        Details
+                    </a>
+                </div>
+            </div>
+        {{ /each }}
+
+        <div class='createMapHome project' style='display:none:font-size:0.8em'>
+            <div class='thumbnail'>
+                <div style='padding-top:0.5em;text-align:center'>
+                    Create a Map
+                </div>
+                <div style='padding-top:1em;height:301.61px;width:300px;display:block-inline;font-size:0.9em'>
+                    <!--
+                    <div style='padding-top:4em'>
+                        with your own data
+                    </div>
+                    -->
+                    <div style='padding-top:4em'>
+                        Use your own data<br>- or -<br>download this example data:
+                    </div>
+                    <div style='font-size:1.2em;padding-top:1em'>
+                        <a  href='example_layout_features.tab'
+                            download='example_layout_features.tab'
+                            title = 'Example layout feature file to create a map'
+                            style='color:#8EB4E3'>
+                            Layout input
+                        </a><br><br>
+                        <a  href='example_color_attributes.tab'
+                            download='example_color_attributes.tab'
+                            title = 'Example color attributes file to create a map'
+                            style='color:#8EB4E3'>
+                            Color attributes
+                        </a>
+                    </div>
+                    <div class='createMap' style='font-size:0.9em;margin-top:3em'>
+                        Create map
+                    </div>
+                </div>
             </div>
             <div style='margin-top:0.5em;font-size:0.8em'>
-                <a href='/help/existingMaps.html#{{ linkAnchor }}' target='_blank'>
-                    Details
+                <a href=''>
+                    .
                 </a>
             </div>
         </div>
-    {{ /each }}
+    </div>
 
-    <div class='createMapHome project' style='display:none:font-size:0.8em'>
-        <div class='thumbnail'>
-            <div style='padding-top:0.5em;text-align:center'>
-                Create a Map
-            </div>
-            <div style='padding-top:1em;height:301.61px;width:300px;display:block-inline;font-size:0.9em'>
-                <!--
-                <div style='padding-top:4em'>
-                    with your own data
-                </div>
-                -->
-                <div style='padding-top:4em'>
-                    Use your own data<br>- or -<br>download this example data:
-                </div>
-                <div style='font-size:1.2em;padding-top:1em'>
-                    <a  href='example_layout_features.tab'
-                        download='example_layout_features.tab'
-                        title = 'Example layout feature file to create a map'
-                        style='color:#8EB4E3'>
-                        Layout input
-                    </a><br><br>
-                    <a  href='example_color_attributes.tab'
-                        download='example_color_attributes.tab'
-                        title = 'Example color attributes file to create a map'
-                        style='color:#8EB4E3'>
-                        Color attributes
-                    </a>
-                </div>
-                <div class='createMap' style='font-size:0.9em;margin-top:3em'>
-                    Create map
-                </div>
-            </div>
+    <div style='display:inline-block;width:48%;vertical-align:top;padding-right:1em'>
+        <div class='home_section'>
+            <h3>
+                What is the tumor map?
+            </h3>
+            <p>
+                Tumor Map is an interactive browser that allows biologists, who may not
+                have computational expertise, to richly explore the results of
+                high-throughput cancer genomics experiments on thousands of patient samples.
+            </p>
         </div>
-        <div style='margin-top:0.5em;font-size:0.8em'>
-            <a href=''>
-                .
-            </a>
+        <div class='home_section'>
+            <h3>
+                About Us
+            </h3>
+            <p>
+                We research genomics in the
+                <a href="https://sysbiowiki.soe.ucsc.edu/Welcome" target='_blank'>Stuart Laboratory</a>,
+                part of the
+                <a href="http://genomics.ucsc.edu" target='_blank'>UC Santa Cruz Genomics Institute</a>.
+            </p>
+            <p>
+                <a href='https://www.soe.ucsc.edu/people/ynewton' target='_blank'>Yulia Newton</a><br>
+                <a href='https://www.soe.ucsc.edu/people/anovak' target='_blank'>Adam Novak</a><br>
+                <a href='https://www.soe.ucsc.edu/people/swat' target='_blank'>Teresa Swatloski</a><br>
+                <a href='https://sysbiowiki.soe.ucsc.edu/node/143' target='_blank'>Duncan McColl</a><br>
+                <a href='https://www.linkedin.com/in/schopra8' target='_blank'>Sahil Chopra</a><br>
+                <a href='https://www.soe.ucsc.edu/people/graim' target='_blank'>Kiley Graim</a><br>
+                <a href='https://www.soe.ucsc.edu/people/aweinstein' target='_blank'>Alana Weinstein</a><br>
+                <a href='https://www.soe.ucsc.edu/people/baertsch' target='_blank'>Robert Baertsch</a><br>
+                <a href='https://www.soe.ucsc.edu/people/ssalama' target='_blank'>Sofie Salama</a><br>
+                <a href='https://www.ohsu.edu/xd/education/schools/school-of-medicine/academic-programs/graduate-studies/faculty/grad-studies-faculty.cfm?facultyid=892' target='_blank'>Kyle Ellrott</a><br>
+                Manu Chopra<br>
+                <a href='https://www.soe.ucsc.edu/people/olena' target='_blank'>Olena Morozova</a><br>
+                <a href='https://www.soe.ucsc.edu/people/haussler' target='_blank'>David Haussler</a><br>
+                <a href='https://www.soe.ucsc.edu/people/jstuart' target='_blank'>Joshua Stuart</a><br>
+            </p>
+        </div>
+        <div class='home_section'>
+            <h3>
+                Reference
+            </h3>
+
+            <p style=font-size:0.8em>
+                TumorMap: Exploring the Molecular Similarities of Cancer Samples in
+                an Interactive Portal, Newton, et al
+                <a href = "http://cancerres.aacrjournals.org/content/77/21/e111?utm_source=170580&utm_medium=clinical1&utm_campaign=compresfocus" target='_blank'>
+                    Cancer Res November 1 2017 (77) (21) e111-e114; DOI: 10.1158/0008-5472.CAN-17-0580
+                </a>
+            </p>
+        </div>
+    </div>
+    <div style='display:inline-block;width:48%'>
+        <div class='home_section'>
+            <h3>
+                Help
+            </h3>
+            <p>
+                We have a few forms of help:
+                <ul>
+                    <li>
+                        Get started
+                        {{> tutorialMenuT }}
+                    </li>
+                    <li>
+                        <a href='/help/index.html' target='_blank'>User Guide</a>
+                    </li>
+                    <li>
+                        You may also ask for help via
+                        <a href="mailto:hexmap@ucsc.edu">email</a>
+                    </li>
+                    <li>
+                        Some of the map controls have a
+                        <img class='question-sign' src='/icons/question.png' style='height:16px'>
+                        to click
+                    </li>
+
+                    <li style='display:none'>
+                        Get in on the
+                        <a href='https://groups.google.com/a/ucsc.edu/forum/#!forum/hex' target='_blank'>discussion</a>
+                        to search and ask for help, tell us what you like or don't, and suggest new features
+                    </li>
+                    <li style='display:none'>
+                        You may also
+                        <a href="mailto:hexmap@ucsc.edu">email</a>
+                        the discussion group
+                    </li>
+                </ul>
+            </p>
+        </div>
+        <div class='home_section'>
+            <h3>
+                Our Mission
+            </h3>
+            <p>
+                We provide a visualization of tumor samples that share common molecular
+                profiles, allowing multiple platforms and data types to be combined to
+                view sample relationships in multiple omic spaces.  We want this tool to
+                help you by revealing patterns, answering questions and generating new
+                hypotheses.
+            </p>
         </div>
     </div>
 
-</div>
 
-<div style='display:inline-block;width:48%;vertical-align:top;padding-right:1em'>
-    <div class='home_section'>
-        <h3>
-            What is the tumor map?
-        </h3>
-        <p>
-            Tumor Map is an interactive browser that allows biologists, who may not
-            have computational expertise, to richly explore the results of
-            high-throughput cancer genomics experiments on thousands of patient samples.
-        </p>
+
+
+
+    <div style='display:none'>
+        <summary id='pancan12details' style='padding-bottom:0.5em'>
+            <h3>
+                PanCan12 Details
+            </h3>
+        </summary>
+        <div style='padding-top:0.7em;padding-left:1em;font-size:0.8em'>
+            <details>
+                    <summary>Layouts</summary>
+                    <ul>
+                    <li>mRNA - 3,589 samples</li>
+                    <li>Copy number - 4,693 samples </li>
+                    <li>RPPA - protein level - 3,467 samples</li>
+                    <li>DNA methylation - 2,206 samples</li>
+                    <li>Paradigm Activity Levels (vs. normal) - 3,516 samples</li>
+                    <li>micro RNA - 1,397 samples</li>
+                    <li>CLR - combines mRNA, microRNA and RPPA - 4,468 samples</li>
+                    </ul>
+                </details>
+            <details>
+                    <summary>Attributes</summary>
+                    <ul>
+                    <li>Tissue - 12 tumor types from TCGA Pancan</li>
+                    <li>Mutations - 225 gene level events</li>
+                    <li>Amplifications - 999 gene level events</li>
+                    <li>Deletions - 1,987 gene level events</li>
+                    <li>Gene Programs - Denise Wolf - 43 gene programs and pathways were created by applying a bimodality filter and Weighted Gene Correlation Network Analysis (WGCNA) to aggregate the bimodal signatures and pathways into coherent clusters.</li>
+                    <li>Pancan Subtypes from Breast, Overian, Colon, Rectal, GBM, UCEC</li>
+                    <li>Pancan Subtypes from Cell paper - in press</li>
+                    <li>Pardigm transcription hubs</li>
+                    <li>Pardigm activity hubs</li>
+                    <li>Summary stats for all layers </li>
+                    <li>Clinical attributes</li>
+                    </ul >
+                </details>
+            <details>
+                    <summary>Statistics</summary>
+                    <ul>
+                    <li style='display:none'>Sort Attributes by Contrasting Sample Sets</li>
+                    <li style='display:none'>Sort Attributes by a focus attribute (sample-based)</li>
+                    <li style='display:none'>Sort Attributes by a focus attribute (region-based)</li>
+                    <li>Sample grouping - draw a box on the map</li>
+                    <li>Union/Intersection/Difference of sets of Samples </li>
+                    </ul >
+                </details>
+            <details>
+                    <summary>Subtypes</summary>
+                    <ul>
+                    <li>BRCA</li>
+                    <li>COAD</li>
+                    <li>READ</li>
+                    <li>UCEC</li>
+                    <li>GBM</li>
+                    <li>OV</li>
+                    <li>pancan_subtype_integrated - cluster of clusters</li>
+                    <li>pancan_subtype_methylation</li>
+                    <li>pancan_subtype_RPPA</li>
+                    <li>pancan_subtype_mRNA</li>
+                    <li>pancan_subtype_miRNA</li>
+                    <li>pancan_subtype_mutations</li>
+                    </ul >
+                </details>
+            <details>
+                    <summary>Gene Programs</summary>
+                    <ul>
+                    <li>GP1_Proliferation/DNA repair program</li>
+                    <li>GP2_Immune (T cell/B cell) program</li>
+                    <li>GP3_Tumor suppressing miRNA targets program</li>
+                    <li>GP4_GPS/ECM program</li>
+                    <li>GP5_Myc targets/TERT program</li>
+                    <li>GP6_Squamous differentiation/development program</li>
+                    <li>GP7_Estrogen signaling program</li>
+                    <li>GP8_FOXO/stemness program</li>
+                    <li>GP9_Cell-cell adhesion program</li>
+                    <li>GP10_Fatty acid oxidation program</li>
+                    <li>GP11_Immune (IFN) program</li>
+                    <li>GP12_Hypoxia/Glycolosis program</li>
+                    <li>GP13_Neural signaling program</li>
+                    <li>GP14_Plasma membrane cell-cell signaling program</li>
+                    <li>GP15_EGF signaling program</li>
+                    <li>GP16_Protein kinase signaling (MAPKs) program</li>
+                    <li>GP17_Basal signaling program</li>
+                    <li>GP18_Vesicle/EPR membrane coat program</li>
+                    <li>GP19_1Q amplicon program</li>
+                    <li>GP20_TAL1-leukemia/erythropoiesis program</li>
+                    <li>GP21_Anti-apoptosis/DNA stability program</li>
+                    <li>GP22_16Q22-24 amplicon program</li>
+                    <li>AKT_PATHWAY program</li>
+                    <li>ALK_PATHWAY program</li>
+                    <li>CTLA4_PATHWAY program</li>
+                    <li>IGF1R_PATHWAY program</li>
+                    <li>MTOR_PATHWAY program</li>
+                    <li>PTEN_PATHWAY program</li>
+                    <li>RAS_PATHWAY program</li>
+                    <li>RB_PATHWAY program</li>
+                    <li>VEGF_PATHWAY program</li>
+                    <li>HDAC_TARGETS_DN program</li>
+                    <li>RETINOL_METABOLISM program</li>
+                    <li>MYC_AMPLIFICATION_TARGETS program</li>
+                    <li>RESPONSE_TO_ANDROGEN program</li>
+                    <li>PD1_SIGNALING program</li>
+                    <li>PI3K_CASCADE program</li>
+                    <li>CASPASE_CASCADE (APOPTOSIS) program</li>
+                    <li>HER2_AMPLIFIED program</li>
+                    <li>P53_MUTATED program</li>
+                    <li>BRCA_ATR_PATHWAY program</li>
+                    <li>PROLIFERATION/CELL CYCLE program</li>
+                    </ul >
+                </details>
+            <details>
+                    <summary>Clinical Features</summary>
+                    <ul style='word-wrap:break-word'>
+                    <li>gender</li><li>
+                    number_of_lymphnodes_positive</li><li>
+                    colon_polyps_present</li><li>
+                    microsatellite_instability</li><li>
+                    metastasis_pathological_spread</li><li>
+                    height</li><li>
+                    weight</li><li>
+                    age_at_initial_pathologic_diagnosis</li><li>
+                    icd_10</li><li>
+                    lymphovascular_invasion_present</li><li>
+                    karnofsky_performance_score</li><li>
+                    neoplasm_histologic_grade</li><li>
+                    icd_o_3_site</li><li>
+                    primary_tumor_t_stage</li><li>
+                    lymphnode_pathologic_spread</li><li>
+                    acute_myeloid_leukemia_calgb_cytogenetics_risk_category</li><li>
+                    tumor_stage_and_substage</li><li>
+                    neoplasm_disease_lymph_node_stage</li><li>
+                    primary_tumor_pathologic_spread</li><li>
+                    history_of_colon_polyps</li><li>
+                    tumor_stage</li><li>
+                    tissue_source</li>
+                    </ul>
+                </details>
+        </div>
     </div>
-    <div class='home_section'>
-        <h3>
-            About Us
-        </h3>
-        <p>
-            We research genomics in the
-            <a href="https://sysbiowiki.soe.ucsc.edu/Welcome" target='_blank'>Stuart Laboratory</a>,
-            part of the
-            <a href="http://genomics.ucsc.edu" target='_blank'>UC Santa Cruz Genomics Institute</a>.
-        </p>
-        <p>
-            <a href='https://www.soe.ucsc.edu/people/ynewton' target='_blank'>Yulia Newton</a><br>
-            <a href='https://www.soe.ucsc.edu/people/anovak' target='_blank'>Adam Novak</a><br>
-            <a href='https://www.soe.ucsc.edu/people/swat' target='_blank'>Teresa Swatloski</a><br>
-            <a href='https://sysbiowiki.soe.ucsc.edu/node/143' target='_blank'>Duncan McColl</a><br>
-            <a href='https://www.linkedin.com/in/schopra8' target='_blank'>Sahil Chopra</a><br>
-            <a href='https://www.soe.ucsc.edu/people/graim' target='_blank'>Kiley Graim</a><br>
-            <a href='https://www.soe.ucsc.edu/people/aweinstein' target='_blank'>Alana Weinstein</a><br>
-            <a href='https://www.soe.ucsc.edu/people/baertsch' target='_blank'>Robert Baertsch</a><br>
-            <a href='https://www.soe.ucsc.edu/people/ssalama' target='_blank'>Sofie Salama</a><br>
-            <a href='https://www.ohsu.edu/xd/education/schools/school-of-medicine/academic-programs/graduate-studies/faculty/grad-studies-faculty.cfm?facultyid=892' target='_blank'>Kyle Ellrott</a><br>
-            Manu Chopra<br>
-            <a href='https://www.soe.ucsc.edu/people/olena' target='_blank'>Olena Morozova</a><br>
-            <a href='https://www.soe.ucsc.edu/people/haussler' target='_blank'>David Haussler</a><br>
-            <a href='https://www.soe.ucsc.edu/people/jstuart' target='_blank'>Joshua Stuart</a><br>
-        </p>
-    </div>
-    <div class='home_section'>
-        <h3>
-            Reference
-        </h3>
 
-        <p style=font-size:0.8em>
-            TumorMap: Exploring the Molecular Similarities of Cancer Samples in
-            an Interactive Portal, Newton, et al
-            <a href = "http://cancerres.aacrjournals.org/content/77/21/e111?utm_source=170580&utm_medium=clinical1&utm_campaign=compresfocus" target='_blank'>
-                Cancer Res November 1 2017 (77) (21) e111-e114; DOI: 10.1158/0008-5472.CAN-17-0580
-            </a>
-        </p>
-    </div>
-</div>
-<div style='display:inline-block;width:48%'>
-    <div class='home_section'>
-        <h3>
-            Help
-        </h3>
-        <p>
-            We have a few forms of help:
-            <ul>
-                <li>
-                    Get started
-                    {{> tutorialMenuT }}
-                </li>
-                <li>
-                    <a href='/help/index.html' target='_blank'>User Guide</a>
-                </li>
-                <li>
-                    You may also ask for help via
-                    <a href="mailto:hexmap@ucsc.edu">email</a>
-                </li>
-                <li>
-                    Some of the map controls have a
-                    <img class='question-sign' src='/icons/question.png' style='height:16px'>
-                    to click
-                </li>
-
-                <li style='display:none'>
-                    Get in on the
-                    <a href='https://groups.google.com/a/ucsc.edu/forum/#!forum/hex' target='_blank'>discussion</a>
-                    to search and ask for help, tell us what you like or don't, and suggest new features
-                </li>
-                <li style='display:none'>
-                    You may also
-                    <a href="mailto:hexmap@ucsc.edu">email</a>
-                    the discussion group
-                </li>
-            </ul>
-        </p>
-    </div>
-    <div class='home_section'>
-        <h3>
-            Our Mission
-        </h3>
-        <p>
-            We provide a visualization of tumor samples that share common molecular
-            profiles, allowing multiple platforms and data types to be combined to
-            view sample relationships in multiple omic spaces.  We want this tool to
-            help you by revealing patterns, answering questions and generating new
-            hypotheses.
-        </p>
-    </div>
-</div>
-
-
-
-
-
-<div style='display:none'>
-    <summary id='pancan12details' style='padding-bottom:0.5em'>
-        <h3>
-            PanCan12 Details
-        </h3>
-    </summary>
-    <div style='padding-top:0.7em;padding-left:1em;font-size:0.8em'>
-        <details>
-                <summary>Layouts</summary>
-                <ul>
-                <li>mRNA - 3,589 samples</li>
-                <li>Copy number - 4,693 samples </li>
-                <li>RPPA - protein level - 3,467 samples</li>
-                <li>DNA methylation - 2,206 samples</li>
-                <li>Paradigm Activity Levels (vs. normal) - 3,516 samples</li>
-                <li>micro RNA - 1,397 samples</li>
-                <li>CLR - combines mRNA, microRNA and RPPA - 4,468 samples</li>
-                </ul>
-            </details>
-        <details>
-                <summary>Attributes</summary>
-                <ul>
-                <li>Tissue - 12 tumor types from TCGA Pancan</li>
-                <li>Mutations - 225 gene level events</li>
-                <li>Amplifications - 999 gene level events</li>
-                <li>Deletions - 1,987 gene level events</li>
-                <li>Gene Programs - Denise Wolf - 43 gene programs and pathways were created by applying a bimodality filter and Weighted Gene Correlation Network Analysis (WGCNA) to aggregate the bimodal signatures and pathways into coherent clusters.</li>
-                <li>Pancan Subtypes from Breast, Overian, Colon, Rectal, GBM, UCEC</li>
-                <li>Pancan Subtypes from Cell paper - in press</li>
-                <li>Pardigm transcription hubs</li>
-                <li>Pardigm activity hubs</li>
-                <li>Summary stats for all layers </li>
-                <li>Clinical attributes</li>
-                </ul >
-            </details>
-        <details>
-                <summary>Statistics</summary>
-                <ul>
-                <li style='display:none'>Sort Attributes by Contrasting Sample Sets</li>
-                <li style='display:none'>Sort Attributes by a focus attribute (sample-based)</li>
-                <li style='display:none'>Sort Attributes by a focus attribute (region-based)</li>
-                <li>Sample grouping - draw a box on the map</li>
-                <li>Union/Intersection/Difference of sets of Samples </li>
-                </ul >
-            </details>
-        <details>
-                <summary>Subtypes</summary>
-                <ul>
-                <li>BRCA</li>
-                <li>COAD</li>
-                <li>READ</li>
-                <li>UCEC</li>
-                <li>GBM</li>
-                <li>OV</li>
-                <li>pancan_subtype_integrated - cluster of clusters</li>
-                <li>pancan_subtype_methylation</li>
-                <li>pancan_subtype_RPPA</li>
-                <li>pancan_subtype_mRNA</li>
-                <li>pancan_subtype_miRNA</li>
-                <li>pancan_subtype_mutations</li>
-                </ul >
-            </details>
-        <details>
-                <summary>Gene Programs</summary>
-                <ul>
-                <li>GP1_Proliferation/DNA repair program</li>
-                <li>GP2_Immune (T cell/B cell) program</li>
-                <li>GP3_Tumor suppressing miRNA targets program</li>
-                <li>GP4_GPS/ECM program</li>
-                <li>GP5_Myc targets/TERT program</li>
-                <li>GP6_Squamous differentiation/development program</li>
-                <li>GP7_Estrogen signaling program</li>
-                <li>GP8_FOXO/stemness program</li>
-                <li>GP9_Cell-cell adhesion program</li>
-                <li>GP10_Fatty acid oxidation program</li>
-                <li>GP11_Immune (IFN) program</li>
-                <li>GP12_Hypoxia/Glycolosis program</li>
-                <li>GP13_Neural signaling program</li>
-                <li>GP14_Plasma membrane cell-cell signaling program</li>
-                <li>GP15_EGF signaling program</li>
-                <li>GP16_Protein kinase signaling (MAPKs) program</li>
-                <li>GP17_Basal signaling program</li>
-                <li>GP18_Vesicle/EPR membrane coat program</li>
-                <li>GP19_1Q amplicon program</li>
-                <li>GP20_TAL1-leukemia/erythropoiesis program</li>
-                <li>GP21_Anti-apoptosis/DNA stability program</li>
-                <li>GP22_16Q22-24 amplicon program</li>
-                <li>AKT_PATHWAY program</li>
-                <li>ALK_PATHWAY program</li>
-                <li>CTLA4_PATHWAY program</li>
-                <li>IGF1R_PATHWAY program</li>
-                <li>MTOR_PATHWAY program</li>
-                <li>PTEN_PATHWAY program</li>
-                <li>RAS_PATHWAY program</li>
-                <li>RB_PATHWAY program</li>
-                <li>VEGF_PATHWAY program</li>
-                <li>HDAC_TARGETS_DN program</li>
-                <li>RETINOL_METABOLISM program</li>
-                <li>MYC_AMPLIFICATION_TARGETS program</li>
-                <li>RESPONSE_TO_ANDROGEN program</li>
-                <li>PD1_SIGNALING program</li>
-                <li>PI3K_CASCADE program</li>
-                <li>CASPASE_CASCADE (APOPTOSIS) program</li>
-                <li>HER2_AMPLIFIED program</li>
-                <li>P53_MUTATED program</li>
-                <li>BRCA_ATR_PATHWAY program</li>
-                <li>PROLIFERATION/CELL CYCLE program</li>
-                </ul >
-            </details>
-        <details>
-                <summary>Clinical Features</summary>
-                <ul style='word-wrap:break-word'>
-                <li>gender</li><li>
-                number_of_lymphnodes_positive</li><li>
-                colon_polyps_present</li><li>
-                microsatellite_instability</li><li>
-                metastasis_pathological_spread</li><li>
-                height</li><li>
-                weight</li><li>
-                age_at_initial_pathologic_diagnosis</li><li>
-                icd_10</li><li>
-                lymphovascular_invasion_present</li><li>
-                karnofsky_performance_score</li><li>
-                neoplasm_histologic_grade</li><li>
-                icd_o_3_site</li><li>
-                primary_tumor_t_stage</li><li>
-                lymphnode_pathologic_spread</li><li>
-                acute_myeloid_leukemia_calgb_cytogenetics_risk_category</li><li>
-                tumor_stage_and_substage</li><li>
-                neoplasm_disease_lymph_node_stage</li><li>
-                primary_tumor_pathologic_spread</li><li>
-                history_of_colon_polyps</li><li>
-                tumor_stage</li><li>
-                tissue_source</li>
-                </ul>
-            </details>
-    </div>
-</div>
-
-<p style='font-size:0.7em'>
-    ({{ version }})
-</p>
+    <p style='font-size:0.7em'>
+        ({{ version }})
+    </p>
 </div>
 </template>
