@@ -12,6 +12,7 @@ var cellThumbData = [
     {
         id: 'Pancan12_GeneMap',
         proj: 'Pancan12/GeneMap/',
+        label: 'TCGA PanCan12 Gene Map',
         png: 'pancan12gene.png',
     
     },
