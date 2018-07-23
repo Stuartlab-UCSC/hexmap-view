@@ -12,7 +12,7 @@ This uses the view servers repository for the examples.
 **#1**. Get a copy of the source code on the dev branch. Change to the directory where
 you want to put the source code, then::
 
- git clone -b dev https://github.com/ucscHexmap/hexagram
+ git clone https://github.com/ucscHexmap/hexagram
  cd hexagram
  git fetch
  cd hexagram

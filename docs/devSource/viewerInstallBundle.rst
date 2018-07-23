@@ -87,6 +87,18 @@ Rename the directory resulting from untarring with something like::
  mv mongodb-linux-x86_64-rhel70-3.4.16 mongodb
 
 
+Update environment variables
+----------------------------
+
+Define the full path of your application server::
+
+ export HEXMAP=/full-path-to-my-app/hexagram
+
+Include this in your PATH to access mongo, node, npm::
+
+ $HEXMAP/packages/node/bin:$HEXMAP/packages/mongodb/bin:$PATH
+
+
 Install HTTP Proxy
 ------------------
 
@@ -102,13 +114,13 @@ Install server scripts
 Here we use *dev* to refer to a development installation on the development
 machine that builds the *bundle* to install on a *target*.
 
-On dev copy the scripts to the target::
+On *dev* copy the scripts to the *target*::
 
  cd my-app/hexagram
  tar cf config.tar bin config
  scp config.tar my-target-host:my-target-app/hexagram
 
-On the target install the scripts::
+On the *target* install the scripts::
 
  cd my-app/hexagram
  rm -rf bin config
@@ -122,21 +134,9 @@ Build a configuration file similar to my-app/hexagram/config/prod.
 This file may be put anywhere except in directories under my-app/hexagram
 because those are overwritten during install.
 
-
-Set environment variables
--------------------------
-
-Define the full path of your application server::
-
- export HEXMAP=/full-path-to-my-app/hexagram
-
 Define the full path of your server configuration file::
 
  export HEX_VIEWER_CONFIG=/full-path-to-my-config
-
-Include this in your PATH::
-
- $HEXMAP/packages/node/bin:$HEXMAP/packages/mongodb/bin:$PATH
 
 
 Install server code
