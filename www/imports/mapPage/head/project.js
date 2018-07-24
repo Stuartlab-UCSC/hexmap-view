@@ -231,7 +231,7 @@ export function deleteMap () {
     // Destroy the current map in the database.
 
     // Ask the user if she is sure.
-    let promptStr="Do you really want to delete this map and all of it's data?"
+    let promptStr="Delete this map and all of it's data?"
     if (!okCancel) {
         import React from 'react';
         import { render } from 'react-dom';

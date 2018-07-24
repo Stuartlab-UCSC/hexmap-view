@@ -160,7 +160,11 @@ Template.shortlist.helpers({
     },
     maskOpacity: function () {
         let hovered = hover_layer_name.get()
-        let activesLen = Session.get('active_layers').length
+        let actives = Session.get('active_layers')
+        let activesLen = 0
+        if (actives) {
+            activesLen = Session.get('active_layers').length
+        }
         if (is_primary(hovered)) {
             if (activesLen > 1) {
                 return '1'
