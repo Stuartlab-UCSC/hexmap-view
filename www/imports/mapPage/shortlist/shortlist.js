@@ -37,10 +37,8 @@ var selection_prefix = 'Selection';
 var hover_layer_name = new ReactiveVar(''); // Track the current layer
 var entriesInited = new ReactiveVar();
 var icon = {
-    primary: '/icons/primary.png',
-    primary_hot: '/icons/primary-hot.png',
-    secondary: '/icons/secondary.png',
-    secondary_hot: '/icons/secondary-hot.png',
+    primary: '/icons/eye1.svg',
+    secondary: '/icons/eye2.svg',
     filter_hot: '/icons/filter-hot.png',
     close: '/icons/close.svg',
 };
@@ -144,12 +142,10 @@ Template.shortlist.helpers({
         return (is_secondary(hover_layer_name.get())) ? '' : 'east';
     },
     primary_icon: function () {
-        return is_primary(hover_layer_name.get()) ?
-                    icon.primary_hot : icon.primary;
+        return icon.primary;
     },
     secondary_icon: function () {
-        return is_secondary(hover_layer_name.get()) ?
-                    icon.secondary_hot : icon.secondary;
+        return icon.secondary;
     },
     secondary_icon_display: function () {
         var layer_name =
@@ -162,11 +158,26 @@ Template.shortlist.helpers({
             return 'none';
         }
     },
+    maskOpacity: function () {
+        let hovered = hover_layer_name.get()
+        let activesLen = Session.get('active_layers').length
+        if (is_primary(hovered)) {
+            if (activesLen > 1) {
+                return '1'
+            }
+        } else if (is_secondary(hovered)) {
+            return '1'
+        } else if (activesLen > 0) {
+            return '1';
+        } else {
+            return '0'
+        }
+    },
     is_primary_icon: function () {
-        return icon.primary_hot;
+        return icon.primary;
     },
     is_secondary_icon: function () {
-        return icon.secondary_hot;
+        return icon.secondary;
     },
     remove_icon: function () {
         return icon.close;
