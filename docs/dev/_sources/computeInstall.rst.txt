@@ -79,42 +79,34 @@ Note that if you do not have libssl-dev installed, uwsgi will not have the https
 options available.
 
 
-Script to run on protected ports
---------------------------------
-
-If you will be running on one of the protected ports such as
-80 or 443, build a script like so::
-
- cd $HEXCALC/../
- vi startWww
- export HEXCALC=my-app/compute
- $HEXCALC/bin/start
-
- chmod +x startWww
-
-
 Start server
 ------------
 
-As root
-^^^^^^^
+If you will be running the server on an unprotected port, simply use this form::
 
-After the server is started on the protected port the user and group ID of the
-processes will be changed to the ownership as specified in the configuration
-file as HEX_UID and HEX_GID::
-
- sudo $HEXCALC/../startWww
-
-As non-root
-^^^^^^^^^^^
-
-If you will be running the server on an unprotected port, simply do::
-
- $HEXCALC/bin/start
+ cd $HEXCALC
+ bin/start
+ bin/stop
 
 The log file is at compute/ops/log with older logs in compute/ops/logsPrev.
 
 Other scripts are described in bin/README.
+
+On protected ports
+^^^^^^^^^^^^^^^^^^
+
+If you will be running the server on a protected port, including 80 or 443,
+you need to run the server as root. Prefix the above with
+*sudo --preserve-env*::
+
+ sudo --preserve-env $HEXCALC/bin/start
+ cd $HEXCALC
+ bin/stop
+
+After the server is started on the protected port the user and group ID of the
+processes will be changed to the ownership as specified in the configuration
+file as HEX_UID and HEX_GID.
+
 
 
 

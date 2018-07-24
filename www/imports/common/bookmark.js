@@ -68,7 +68,12 @@ class BookmarkModal extends Component {
                 body = {
                     <div>
                         <div>
-                            Bookmark created:
+                            Bookmark created.
+                        </div>
+                        <div
+                            style={{ fontSize: '0.85em' }}
+                        >
+                            Anyone with the link can access. No sign-in required.
                         </div>
                         <a
                             href = {self.state.link}
