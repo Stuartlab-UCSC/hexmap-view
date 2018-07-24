@@ -9,7 +9,8 @@ analyze
 *.tgz
 _build
 settings.json
-db
+db/*
+!db/README.txt
 log/*
 !log/README.txt
 node_modules/*

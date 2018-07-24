@@ -4,25 +4,21 @@ View Server Install: production
 This assumes you already have a development installation somewhere else to
 make the deployment bundle to be installed.
 
-These steps are done on the *target* machine unless otherwise stated.
-
 Note these version numbers:
 
 *node* : v8.11
 
 *mongodb* : v3.4
 
-Make directories
-----------------
 
-Make some directories.
+Install server source code
+--------------------------
 
-*my-app* is your root directory for the application
-::
+The data server code repository is at: https://github.com/ucscHexmap/hexagram.
+Install the source, where *my-app* is the root directory of the app::
 
- mkdir -p my-app/hexagram
- cd my-app/hexagram
- mkdir db log node_modules packages pid www
+ cd my-app
+ git clone https://github.com/ucscHexmap/hexagram.git
 
 
 Install node
@@ -87,18 +83,6 @@ Rename the directory resulting from untarring with something like::
  mv mongodb-linux-x86_64-rhel70-3.4.16 mongodb
 
 
-Update environment variables
-----------------------------
-
-Define the full path of your application server::
-
- export HEXMAP=/full-path-to-my-app/hexagram
-
-Include this in your PATH to access mongo, node, npm::
-
- $HEXMAP/packages/node/bin:$HEXMAP/packages/mongodb/bin:$PATH
-
-
 Install HTTP Proxy
 ------------------
 
@@ -108,49 +92,46 @@ Install a node module needed for the http proxies::
  npm install http-proxy
 
 
-Install server scripts
-----------------------
-
-Here we use *dev* to refer to a development installation on the development
-machine that builds the *bundle* to install on a *target*.
-
-On *dev* copy the scripts to the *target*::
-
- cd my-app/hexagram
- tar cf config.tar bin config
- scp config.tar my-target-host:my-target-app/hexagram
-
-On the *target* install the scripts::
-
- cd my-app/hexagram
- rm -rf bin config
- tar xf config.tar
-
-
 Configure
 ---------
 
 Build a configuration file similar to my-app/hexagram/config/prod.
-This file may be put anywhere except in directories under my-app/hexagram
+This file may be put anywhere except in directories under *my-app*/hexagram
 because those are overwritten during install.
 
-Define the full path of your server configuration file::
 
+Set environment variables
+-------------------------
+
+Define the HEXMAP environment variable where *my_app is the full path to your
+respository installation directory which should end with *hexagram*.
+
+Define the HEX_VIEWER_CONFIG where *my-config* is the full path to your
+configuration file.
+
+Add some executables to your path.
+
+You should put these in your login profile
+::
+
+ export HEXMAP=my-app/hexagram
+ export HEX_VIEWER_CONFIG=your-config
  export HEX_VIEWER_CONFIG=/full-path-to-my-config
+ PATH=$HEXMAP/packages/node/bin:$HEXMAP/packages/mongodb/bin:$PATH
 
 
-Install server code
--------------------
+Install server bundle
+---------------------
 
 Here we use *dev* to refer to a development installation on the development
-machine that builds the *bundle* to install on a *target*.
+machine that builds the compressed bundle to install on a *target*.
 
-On dev build the bundle and copy it to the target::
+On *dev* build the bundle and copy it to the *target*::
 
  cd $HEXMAP
  deployWww
 
-On the target install the bundle::
+On the *target* install the bundle::
 
  cd $HEXMAP
  installWww
@@ -159,20 +140,35 @@ On the target install the bundle::
 Start server
 ------------
 
-Start these servers if using https::
+If you will be running the servers on unprotected ports, simply use this form::
 
  cd $HEXMAP
- start http
- start https
-
-Start the database and www servers::
+ bin/start db
+ bin/start https
+ bin/start www
 
  cd $HEXMAP
- start db
- start www
+ bin/stop db
+ bin/stop https
+ bin/stop www
 
-Each server has a log file with an extension of: '.log'.
+The log files are at $HEXMAP/log.
 
-If you are running on port 80 or 443, you will need to run the start and stop
-http(s) scripts as root after defining HEXMAP and HEX_VIEWER_CONFIG.
+Other scripts are described in bin/README.
 
+On protected ports
+^^^^^^^^^^^^^^^^^^
+
+If you will be running any the servers on protected ports, including 80 or 443,
+you need to run those servers as root. Prefix the above with
+*sudo --preserve-env* for those servers on the protected ports::
+
+ cd $HEXMAP
+ bin/start db
+ sudo --preserve-env $HEXMAP/bin/start https
+ sudo --preserve-env $HEXMAP/bin/start www
+
+ cd $HEXMAP
+ bin/stop db
+ sudo --preserve-env $HEXMAP/bin/stop https
+ sudo --preserve-env $HEXMAP/bin/stop www
