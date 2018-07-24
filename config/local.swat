@@ -46,6 +46,7 @@ if [  "$BUNDLED" == false ]; then
 fi
 
 # Deployment target architecture and location.
+# Valid values: os.osx.x86_64, os.linux.x86_64, os.linux.x86_32
 export DEPLOY_TARGET_ARCH=os.linux.x86_64
 #export DEPLOY_TARGET_PATH=hexmap-new:/data/home/swat/dev
 
