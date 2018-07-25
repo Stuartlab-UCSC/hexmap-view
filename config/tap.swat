@@ -9,7 +9,7 @@
 
 TOOLS=/soe/swat
 
-USING_HTTPS=true
+USING_HTTPS=false
 if [  "$USING_HTTPS" == true ]; then
     # Paths to https certs.
     CERTS=$TOOLS/certs/tumorMapCellAtlas
@@ -23,15 +23,13 @@ if [  "$USING_HTTPS" == true ]; then
     export PORT=8223
     # The URL to which the https proxy redirects.
     export METEOR_URL=http://tumormap.ucsc.edu:$PORT
-    #export METEOR_URL=http://tumormap.ucsc.edu:$PORT
     # The URL exposed to the user.
     export URL_BASE=https://tumormap.ucsc.edu:$HTTPS_PORT
-    #export URL_BASE=https://tumormap.ucsc.edu:$HTTPS_PORT
 
 else
     # For http
     export PORT=8222
-    export URL_BASE=http://tumormap.ucsc.edu:$PORT
+    export URL_BASE=http://tap.soe.ucsc.edu:$PORT
 fi
 
 # Run in background, BACK, or foreground, FORE.
@@ -51,7 +49,7 @@ export INSTALL_TAR_PATH=$TOOLS/dev
 # Meteor settings.json variables.
 export ADMIN_EMAIL=swat@soe.ucsc.edu
 export DEV=true
-export HUB_URL=https://bop.soe.ucsc.edu:8442
+export HUB_URL=http://bop.soe.ucsc.edu:8442
 #export HUB_URL=https://hexcalc.ucsc.edu:8442
 
 # Below paths/require/the/trailing/slash/.
