@@ -17,6 +17,8 @@ let image = [
 ]
 
 const thumbnailHelp = (data) => {
+
+    // The thumbnail help link.
     let linkAnchor = data.id.toLowerCase()
     if (data.linkAnchor) {
         linkAnchor = data.linkAnchor.toLowerCase()
@@ -43,14 +45,6 @@ const thumbnailHelp = (data) => {
 }
 
 const thumbnail = (data, image, i) => {
-/*
-    let linkAnchor = data.id.toLowerCase()
-    if (data.linkAnchor) {
-        linkAnchor = data.linkAnchor.toLowerCase()
-    } else if (data.label) {
-        linkAnchor = data.label.toLowerCase()
-    }
-*/
     let thumb =
         <div
             className='project'
@@ -89,11 +83,15 @@ const thumbnail = (data, image, i) => {
  }
 
 const CreateMap = () => {
+
+    // A placeholder for the create map widget.
     let create = null
     return create
 }
 
 class WhatIs extends React.Component {
+
+    // The 'What Is' widget.
     render() {
         return (
             <div
@@ -112,7 +110,10 @@ class WhatIs extends React.Component {
     }
 }
 
+
 class Cell extends React.Component {
+
+    // The main component for the Cell Atlas home page.
     render() {
         return (
             <div id='homePage'>
