@@ -118,14 +118,6 @@ tar xf *mongodb*
 </div>
 </div>
 </div>
-<div class="section" id="install-http-proxy">
-<h2>Install HTTP Proxy<a class="headerlink" href="#install-http-proxy" title="Permalink to this headline">¶</a></h2>
-<p>Install a node module needed for the http proxies:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="n">my</span><span class="o">-</span><span class="n">app</span><span class="o">/</span><span class="n">hexagram</span>
-<span class="n">npm</span> <span class="n">install</span> <span class="n">http</span><span class="o">-</span><span class="n">proxy</span>
-</pre></div>
-</div>
-</div>
 <div class="section" id="configure">
 <h2>Configure<a class="headerlink" href="#configure" title="Permalink to this headline">¶</a></h2>
 <p>Build a configuration file similar to my-app/hexagram/config/prod.
@@ -136,14 +128,19 @@ because those are overwritten during install.</p>
 <h2>Set environment variables<a class="headerlink" href="#set-environment-variables" title="Permalink to this headline">¶</a></h2>
 <p>Define the HEXMAP environment variable where <em>my_app is the full path to your
 respository installation directory which should end with *hexagram</em>.</p>
-<p>Define the HEX_VIEWER_CONFIG where <em>my-config</em> is the full path to your
-configuration file.</p>
 <p>Add some executables to your path.</p>
 <p>You should put these in your login profile</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span>export HEXMAP=my-app/hexagram
-export HEX_VIEWER_CONFIG=your-config
 export HEX_VIEWER_CONFIG=/full-path-to-my-config
 PATH=$HEXMAP/packages/node/bin:$HEXMAP/packages/mongodb/bin:$PATH
+</pre></div>
+</div>
+</div>
+<div class="section" id="install-http-proxy">
+<h2>Install HTTP Proxy<a class="headerlink" href="#install-http-proxy" title="Permalink to this headline">¶</a></h2>
+<p>Install a node module needed for the http proxies:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="n">my</span><span class="o">-</span><span class="n">app</span><span class="o">/</span><span class="n">hexagram</span>
+<span class="n">npm</span> <span class="n">install</span> <span class="n">http</span><span class="o">-</span><span class="n">proxy</span>
 </pre></div>
 </div>
 </div>
@@ -164,7 +161,7 @@ installWww
 </div>
 <div class="section" id="start-server">
 <h2>Start server<a class="headerlink" href="#start-server" title="Permalink to this headline">¶</a></h2>
-<p>If you will be running the servers on unprotected ports, simply use this form:</p>
+<p>If you will be running the servers on unprotected ports, use this form:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span>cd $HEXMAP
 bin/start db
 bin/start https

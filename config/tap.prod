@@ -22,8 +22,8 @@ if [  "$USING_HTTPS" == true ]; then
     export METEOR_URL=http://tap.soe.ucsc.edu:$PORT
     #export METEOR_URL=http://tumormap.ucsc.edu:$PORT
     # The URL exposed to the user.
-    export METEOR_URL=http://tap.soe.ucsc.edu:$PORT
-    #export METEOR_URL=http://tumormap.ucsc.edu:$PORT
+    export URL_BASE=http://tap.soe.ucsc.edu:$HTTPS_PORT
+    #export URL_BASE=https://tumormap.ucsc.edu:$HTTPS_PORT
 
 else
     # For http

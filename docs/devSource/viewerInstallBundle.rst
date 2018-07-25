@@ -83,15 +83,6 @@ Rename the directory resulting from untarring with something like::
  mv mongodb-linux-x86_64-rhel70-3.4.16 mongodb
 
 
-Install HTTP Proxy
-------------------
-
-Install a node module needed for the http proxies::
-
- cd my-app/hexagram
- npm install http-proxy
-
-
 Configure
 ---------
 
@@ -106,18 +97,23 @@ Set environment variables
 Define the HEXMAP environment variable where *my_app is the full path to your
 respository installation directory which should end with *hexagram*.
 
-Define the HEX_VIEWER_CONFIG where *my-config* is the full path to your
-configuration file.
-
 Add some executables to your path.
 
 You should put these in your login profile
 ::
 
  export HEXMAP=my-app/hexagram
- export HEX_VIEWER_CONFIG=your-config
  export HEX_VIEWER_CONFIG=/full-path-to-my-config
  PATH=$HEXMAP/packages/node/bin:$HEXMAP/packages/mongodb/bin:$PATH
+
+
+Install HTTP Proxy
+------------------
+
+Install a node module needed for the http proxies::
+
+ cd my-app/hexagram
+ npm install http-proxy
 
 
 Install server bundle
@@ -140,7 +136,7 @@ On the *target* install the bundle::
 Start server
 ------------
 
-If you will be running the servers on unprotected ports, simply use this form::
+If you will be running the servers on unprotected ports, use this form::
 
  cd $HEXMAP
  bin/start db

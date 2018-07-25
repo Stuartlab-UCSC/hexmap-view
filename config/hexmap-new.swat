@@ -4,7 +4,7 @@
 
 TOOLS=/data/home/swat
 
-USING_HTTPS=true
+USING_HTTPS=false
 if [  "$USING_HTTPS" == true ]; then
     # Paths to https certs.
     CERTS=/data/certs
@@ -45,7 +45,7 @@ export INSTALL_TAR_PATH=$TOOLS/dev
 # Meteor settings.json variables.
 export ADMIN_EMAIL=swat@soe.ucsc.edu
 export DEV=true
-export HUB_URL=https://hexcalc.ucsc.edu:8442
+export HUB_URL=http://hexcalc.ucsc.edu:8442
 
 # Below paths/require/the/trailing/slash/.
 export VIEW_DIR=$HEXMAP/../data/view/

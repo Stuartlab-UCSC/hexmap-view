@@ -86,6 +86,8 @@ If you will be running the server on an unprotected port, simply use this form::
 
  cd $HEXCALC
  bin/start
+
+ cd $HEXCALC
  bin/stop
 
 The log file is at compute/ops/log with older logs in compute/ops/logsPrev.
@@ -100,6 +102,7 @@ you need to run the server as root. Prefix the above with
 *sudo --preserve-env*::
 
  sudo --preserve-env $HEXCALC/bin/start
+ 
  cd $HEXCALC
  bin/stop
 
