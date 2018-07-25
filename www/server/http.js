@@ -72,10 +72,7 @@ async function updateColor (jsonData, req, res) {
     let data = parseJson(jsonData, res)
     try {
         let user = await Accounts.findUserByUsername(data.userEmail)
-        let roles = Roles.getRolesForUser(user._id);
-        if (roles.length > 0) {
-            data.userRole = roles
-        }
+        data.userRole = Roles.getRolesForUser(user._id);
         
         // Request edit of the data server.
         let url = HUB_URL + '/updateColor'
