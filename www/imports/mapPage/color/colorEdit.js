@@ -357,7 +357,6 @@ exports.init = function () {
                 click: function () {
                     if (!badValue) {
                         makeTsv($download);
-                        $form.dialog('destroy');
                     }
                 }
             }
