@@ -44,11 +44,11 @@ Template.navBarT.helpers({
 function findRowIndex ($row, colorArray) {
 
     // Find the layer in the colorArray from a row element
-    var layerName = $row.find('td:first').attr('title');
+    var attr = $row[0].dataset.attr
     let row
     colorArray.find((line, index) => {
         row = index
-        return (line.name === layerName);
+        return (line.name === attr);
     })
     return row
 }
@@ -56,18 +56,12 @@ function findRowIndex ($row, colorArray) {
 function findColumnIndex ($input, colorArray) {
 
     // Find the category in the colorArray from an input element
-    var row = findRowIndex($input.parents('tr'), colorArray),
-        $el = $input.parent().prev(),
-        catName = $.trim(($el).text());
-    
-    // Trim and remove the trailing colon
-    catName = catName.slice(0, catName.length - 1);
-
-    // Get the wanted category/column index.
+    let cat = $input[0].dataset.cat
+    let row = findRowIndex($input, colorArray)
     let col
-    colorArray[row].cats.find((cat, index) => {
+    colorArray[row].cats.find((column, index) => {
         col = index
-        return (cat.name === catName);
+        return (column.name === cat)
     })
     return {row, col}
 }
@@ -141,7 +135,7 @@ function inputBlur (ev) {
 
 function inputKeyup (ev) {
 
-    // Fires when a key is released in a color input field
+    // Fires when a key is released in a color text input field
     var $t = $(ev.currentTarget),
         newVal = $t.prop('value').trim(),
         colorArray;
@@ -149,7 +143,7 @@ function inputKeyup (ev) {
     if (newVal === '') {
 
         // The textbox is empty so display the file color string
-        // so the user will know what that is
+        // so the user will know what that is.
         colorArray = Session.get('colorArray');
         let index = findColumnIndex($t, colorArray);
         $t.prop('value', colorArray[index.row].cats[index.col].persistVal);
