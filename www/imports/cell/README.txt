@@ -1,9 +1,14 @@
 
 To run the cell app:
 
-* Warning; this will overlay any changes made in app/src.
+    cd app
 
-cd app
-cp ../appSrc/* src
-npm run
+If you've just pulled from the repository, there will not be a node_modules
+directory here. In which case do:
+
+    npm install
+
+Then start the app with the usual:
+
+    npm start
 
