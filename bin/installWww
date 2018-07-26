@@ -7,6 +7,8 @@ if [ "$?" == 1 ]; then
 fi
 source $HEX_VIEWER_CONFIG
 
+AS_ROOT=$1
+
 if [ -z $INSTALL_TAR_PATH ]; then
     echo "Exited, the env var, INSTALL_TAR_PATH, must be defined"
     echo "Do you want to run deployWww instead?"
@@ -27,15 +29,8 @@ echo npm installing...
 cd $HEXMAP/bundle/programs/server
 $NODE_BIN/npm install > $HEXMAP/log/npmInstall
 
-echo stopping www
-cd $HEXMAP
-stop www
-
-echo removing old www files...
-rm -rf www
-
 echo moving new files to www
+cd $HEXMAP/
 mv bundle www
 
-echo starting www
-start www
+echo Install complete. Stop then start www.
