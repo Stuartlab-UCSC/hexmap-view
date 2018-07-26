@@ -4,7 +4,7 @@
 # For HTTP, change the environment varibles in the else statement.
 
 TOOLS=/soe/swat
-# HEXMAP should be /home/hexmap/data
+# HEXMAP should be /home/hexmap/data/hexagram
 
 USING_HTTPS=true
 if [  "$USING_HTTPS" == true ]; then
@@ -19,11 +19,11 @@ if [  "$USING_HTTPS" == true ]; then
     # The port the meteor app uses.
     export PORT=80
     # The URL to which the https proxy redirects.
-    export METEOR_URL=http://tap.soe.ucsc.edu:$PORT
-    #export METEOR_URL=http://tumormap.ucsc.edu:$PORT
+    #export METEOR_URL=http://tap.soe.ucsc.edu:$PORT
+    export METEOR_URL=http://tumormap.ucsc.edu:$PORT
     # The URL exposed to the user.
-    export URL_BASE=http://tap.soe.ucsc.edu:$HTTPS_PORT
-    #export URL_BASE=https://tumormap.ucsc.edu:$HTTPS_PORT
+    #export URL_BASE=http://tap.soe.ucsc.edu:$HTTPS_PORT
+    export URL_BASE=https://tumormap.ucsc.edu:$HTTPS_PORT
 
 else
     # For http
@@ -48,8 +48,8 @@ export INSTALL_TAR_PATH=$TOOLS/dev
 # Meteor settings.json variables.
 export ADMIN_EMAIL=hexmap@ucsc.edu
 export DEV=false
-export HUB_URL=https://bop.soe.ucsc.edu:443
-#export HUB_URL=https://hexcalc.ucsc.edu:443
+#export HUB_URL=https://bop.soe.ucsc.edu:443
+export HUB_URL=https://hexcalc.ucsc.edu:443
 
 # Below paths/require/the/trailing/slash/.
 export VIEW_DIR=/home/hexmap/data/data/view/
