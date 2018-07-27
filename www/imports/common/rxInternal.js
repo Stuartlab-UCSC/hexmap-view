@@ -37,6 +37,16 @@ const reducers = {
             return state;
         }
     },
+    'background': (state = 'black', action) => {
+        switch(action.type) {
+        case 'background.loadPersist':
+            return action.loadPersist
+        case 'background.toggle':
+            return (state === 'black') ? 'white' : 'black'
+        default:
+            return state
+        }
+    },
     'bookmarkUsed': (state = false, action) => {
         return (action.type === 'bookmarkUsed') ? true : state;
     },
@@ -109,14 +119,6 @@ const reducers = {
     },
     'inited.state': (state = false, action) => {
         return (action.type === 'inited.state') ? true : state;
-    },
-    'initializing': (state = true, action) => {
-        switch (action.type) {
-        case 'initializing':
-            return ;
-        default:
-            return state;
-        }
     },
     'projectList': (state = 'receiving', action) => {
         switch (action.type) {

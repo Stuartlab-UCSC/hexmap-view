@@ -1,7 +1,7 @@
 Job Status
 ==========
 
-https://hexcalc.ucsc.edu:8332/**jobStatus/jobId/<jobId>**
+https://hexcalc.ucsc.edu/**jobStatus/jobId/<jobId>**
 
 HTTP GET
 
@@ -13,11 +13,11 @@ Example URL
 -----------
 ::
 
- https://hexcalc.ucsc.edu:8332/jobStatus/jobId/123
+ https://hexcalc.ucsc.edu/jobStatus/jobId/123
 
 Where '123' is the job ID which is returned from a web API call of the form::
 
- https://hexcalc.ucsc.edu:8332/query/<operation>
+ https://hexcalc.ucsc.edu/query/<operation>
 
 Response success
 ----------------

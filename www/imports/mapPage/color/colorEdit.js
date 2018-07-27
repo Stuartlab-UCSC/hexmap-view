@@ -17,7 +17,8 @@ import './colorEdit.css';
 
 var badValue = false, // The current category input has a bad value
     $download,
-    $form;
+    $form,
+    backgroundTemplate = ReactiveVar();
 
 // Define the colormap template helper, at this scope for some reason
 Template.colormapT.helpers({
@@ -33,11 +34,7 @@ Template.colormapT.helpers({
 Template.navBarT.helpers({
 
     background: function () {
-        if (Session.get('background') === 'black') {
-            return 'White';
-        } else {
-            return 'Black';
-        }
+        return (backgroundTemplate.get() === 'white') ? 'Black' : 'White'
     }
 });
 
@@ -303,6 +300,8 @@ function continuosColorChanged (layerName) {
 exports.init = function () {
     $form = $('#colorMapDiv');
     $download = $('#colorMapDiv a.download');
+    
+    backgroundTemplate.set(rx.get('background'))
 
     $('#background').on('click', function () {
         // Continuous/binary layers in the shortlist whose
@@ -317,12 +316,14 @@ exports.init = function () {
                 return !binaryColorChanged(layerName);
             });
 
-        // Toggle the background session variable.
-        if (Session.equals('background', 'white')) {
-            Session.set('background', 'black');
+        // Toggle the session variable for the blaze template and
+        // toggle the persistent state variable.
+        if (rx.get('background') === 'white') {
+            backgroundTemplate.set('black');
         } else {
-            Session.set('background', 'white');
+            backgroundTemplate.set('white');
         }
+        rx.set('background.toggle')
 
         //Provide colormaps in accordance with the new background.
         _.forEach(contLayers, function(layerName) {

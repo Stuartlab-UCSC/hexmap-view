@@ -177,6 +177,16 @@ Template.shortlist.helpers({
             return '0'
         }
     },
+    dynamic: function () {
+        //console.log('layers:', layers)
+        if (typeof layers !== 'undefined') {
+            let layer = layers[hover_layer_name.get()]
+            if (typeof layer !== 'undefined' && layer.dynamic) {
+                return 'dynamic'
+            }
+        }
+        return ''
+    },
     is_primary_icon: function () {
         return icon.primary;
     },

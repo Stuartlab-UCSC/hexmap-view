@@ -1,7 +1,7 @@
 Get layout list
 ===============
 
-https://hexcalc.ucsc.edu:8332/**layoutList/mapId/<map-ID>**
+https://hexcalc.ucsc.edu/**layoutList/mapId/<map-ID>**
 
 HTTP GET
 
@@ -13,7 +13,7 @@ Example URL
 -----------
 ::
 
- https://hexcalc.ucsc.edu:8332/layoutList/mapId/PancanAtlas/SampleMap
+ https://hexcalc.ucsc.edu/layoutList/mapId/PancanAtlas/SampleMap
 
 Response success
 ----------------

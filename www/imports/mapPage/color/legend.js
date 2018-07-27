@@ -4,6 +4,7 @@
 import Colormap from '/imports/mapPage/color/Colormap';
 import colorMix from '/imports/mapPage/color/colorMix';
 import Layer from '/imports/mapPage/longlist/Layer';
+import rx from '/imports/common/rx'
 import shortlist from '/imports/mapPage/shortlist/shortlist';
 
 import './legend.css';
@@ -183,7 +184,7 @@ exports.redraw = function (retrieved_layers, current_layers, context) {
     // Hide all the labels and set their color
     $(".label").hide();
     $(".label").css('color',
-        Session.equals('background', 'black') ? 'white' : 'black');
+        rx.get('background') === 'black' ? 'white' : 'black');
 
     if (current_layers.length > 0) {
 

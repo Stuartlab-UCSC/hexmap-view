@@ -2,6 +2,7 @@
 // select.js: Handle the various ways to select hexagons.
 
 import Layer from '/imports/mapPage/longlist/Layer.js';
+import rx from '/imports/common/rx'
 import tool from '/imports/mapPage/head/tool.js';
 
 // boundaries of the selectable area
@@ -264,7 +265,7 @@ function prepSelect () {
     tool.activity(true);
 
     // Set the selection color depending on the background
-    color = (Session.equals('background', 'white')) ? 'black' : 'white';
+    color = (rx.get('background') === 'white') ? 'black' : 'white';
 }
 
 export function byNodeId() {

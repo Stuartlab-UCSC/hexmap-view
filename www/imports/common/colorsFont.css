@@ -49,12 +49,14 @@ body,
     background: rgba(255,255,255,0.8);
 }
 
-.shortlist_entry {
+.shortlist_entry,
+#shortlist div.secondary.mask {
     background: #eeeeee;
 }
 
 .shortlist_entry.dynamic,
-.shortlist_entry.dynamic .float_controls {
+.shortlist_entry.dynamic .float_controls,
+#shortlist div.secondary.mask.dynamic {
     background: #E0E0FF;
 }
 

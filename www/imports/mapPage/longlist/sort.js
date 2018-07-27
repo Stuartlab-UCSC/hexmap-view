@@ -179,7 +179,7 @@ function updateSortUi (type, text, focus_attr, opts) {
     longlist.update();
     shortlist.update_ui_metadata();
 
-    if (!rx.get('initializing')) {
+    if (rx.get('init.map') === 'rendered') {
         if (type === 'noStats') {
             if (text.indexOf('credential') < 0) {
                 userMsg.warn('Now sorted by Density of attributes.');
@@ -355,7 +355,7 @@ function receive_ignore_layout_stats (parsed, focus_attr, opts) {
         text += focus_attr + ' (ignoring layout)';
         updateSortUi(r.type, text, focus_attr, opts);
     }
-}
+ }
 
 function receive_layout_aware_stats (parsed, focus_attr, opts) {
 

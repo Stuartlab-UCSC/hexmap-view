@@ -7,6 +7,7 @@
 // Example:  rx.get('layout.name');
 const statePieces =  [ // eslint-disable-line
     'activeAttrs',
+    'background',
     'bookmarkUsed',
     'doNotTrack',
     'dynamicAttrs',
@@ -22,7 +23,6 @@ const statePieces =  [ // eslint-disable-line
     'inited.googleMapApi',
     'inited.layout',
     'inited.state',
-    'initializing',
     'projectList',
     'shortEntry.filter',
     'shortEntry.menu.attr',
@@ -47,6 +47,8 @@ exports.stateActions = [
     'activeAttrs.updateAll',
     'activeAttrs.upsertPrimary',
     'activeAttrs.upsertSecondary',
+    'background.loadPersist',
+    'background.toggle',
     'bookmarkUsed',
     'doNotTrack.Displayed',
     'doNotTrack.loadPersist',
@@ -66,7 +68,6 @@ exports.stateActions = [
     'inited.googleMapApi',
     'inited.layout',
     'inited.state',
-    'initializing',
     'projectList.loading',
     'projectList.receiving',
     'projectList.stable',
