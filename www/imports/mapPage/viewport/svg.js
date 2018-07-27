@@ -6,6 +6,7 @@ import coords from '/imports/mapPage/viewport/coords.js';
 import download from '/imports/mapPage/data/download.js';
 import Layer from '/imports/mapPage/longlist/Layer.js';
 import legend from '/imports/mapPage/color/legend.js';
+import rx from '/imports/common/rx'
 import selectNode from '/imports/mapPage/shortlist/select.js';
 import shortlist from '/imports/mapPage/shortlist/shortlist.js';
 
@@ -78,7 +79,7 @@ function googleToSvg () {
         + " x='1' y='1'"
         + " width='100%'"
         + " height='100%'"
-        + " fill='" + Session.get('background') + "'"
+        + " fill='" + rx.get('background') + "'"
         + " ></rect>\n";
 
     // Transform each polygon to xy space

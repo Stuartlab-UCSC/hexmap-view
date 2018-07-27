@@ -32,21 +32,21 @@ if (!(typeof MochaWeb === 'undefined')) {
             });
             it ('background should be black on initialization', function () {
                 Meteor.flush();
-                chai.assert(Session.equals('background', 'black')
+                chai.assert(rx.get('background') === 'black'
             });
             it ('background should be white when white selected', function () {
                 this.timeout(1000);
                 Meteor.flush();
                 $("#tool_change-background").click();
                 $("#background_white").click();
-                chai.assert(Session.equals('background', 'white');
+                chai.assert(rx.get('background') === 'white';
             });
             it ('background should be black when black selected', function () {
                 this.timeout(1000);
                 Meteor.flush();
                 $("#tool_change-background").click();
                 $("#background_black").click();
-                chai.assert(Session.equals('background', 'black');
+                chai.assert(rx.get('background') === 'black';
             });
         });
         describe ('Foreground color button', function () {

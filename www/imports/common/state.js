@@ -17,10 +17,14 @@ var LOGGING = false,  // true means log the state and store on save and load
     lastProject;
 
 // Persistent state variable names and defaults, with boolean options of:
-//      session: true indicates a meteor session var
-//      ctx: true indicates a ctx var
-//      no session or ctx flag indicates redux var
+//      session: true indicates state is maintained in a meteor session var
+//      ctx: true indicates state is maintained in a ctx var
+//      no session or ctx flag indicates state is maintained in a redux var
 //      project: true indicates a project-specific var
+//      persistForever: true indicates the user-selected value should always
+//                      persist, overriding defaults, bookmarks and URL parms.
+//                      This parm only effects vars maintained in redux
+//
 var varInfo = {
     activeAttrs: {
         defalt: [],
@@ -28,15 +32,16 @@ var varInfo = {
     },
     background: {
         defalt: 'black',
-        session: true,
-    },
-    doNotTrack: {
-        defalt: null,
+        persistForever: true,
     },
     center: {
         defalt: [0, 0],
         ctx: true,
         project: true,
+    },
+    doNotTrack: {
+        defalt: null,
+        persistForever: true,
     },
     dynamicAttrs: {
         defalt: {},
@@ -175,10 +180,14 @@ function centerToArray (centerIn) {
     return center;
 }
 
-function setDefaults (justProject, keepProject) {
+function setDefaults (justProject, keepMap, resetPersistForever) {
 
     // Set the default of each persistent variable.
     // @param justProject: true if we are only resetting the project variables.
+    // @param keepMap: true if we want to retain the current mapId value.
+    // @param resetPersistForever: true to initialize even the persistForever
+    //                             variables
+
     _.each(varInfo, function (info, key) {
          
         // If this is not just for project vars
@@ -199,17 +208,19 @@ function setDefaults (justProject, keepProject) {
            
             // If this is a ctx var...
             } else if (info.ctx) {
-                if (key === 'project' && keepProject) {
+                if (key === 'project' && keepMap) {
                     // Keep the project name value.
                 } else {
                     ctx[key] = info.defalt;
                 }
            
-            // Don't reset this one-time user info message about doNotTrack.
-            } else if (key !== 'doNotTrack') {
+            // This must be a redux var. If the var is not to persistForever...
+            } else if (!info.persistForever) {
+                rx.set(key + '.loadPersist', { loadPersist: info.defalt })
            
-                // This is a redux var.
-                rx.set(key + '.loadPersist', { loadPersist: info.defalt });
+            // Is a persistForever var, so if caller wants to reset these...
+            } else if (resetPersistForever) {
+                rx.set(key + '.loadPersist', { loadPersist: info.defalt })
             }
         }
     });
@@ -232,7 +243,6 @@ function localStore (oper, jsonStore) {
 
 function jsonStringify (store) {
     return JSON.stringify(store);
-    //return JSON.stringify(store, Object.keys(store).sort());
 }
 
 function save () {
@@ -274,8 +284,8 @@ function load (storeIn, page) {
     if (!storageSupported) {
         return;
     }
-    
-    var store = storeIn || localStore('get');
+    let sessionStore = localStore('get')
+    let store = storeIn || sessionStore;
     
     // If a page was included, put that in the store before
     // loading it into state.
@@ -285,7 +295,7 @@ function load (storeIn, page) {
 
     logStore('\nLoad', store);
 
-    // Walk through the saved state loading anything we recognize;
+    // Walk through the store, loading as operating values.
     _.each(store, function (val, keyIn) {
         var key = keyIn;
 
@@ -311,14 +321,27 @@ function load (storeIn, page) {
                 ctx[key] = val;
 
             // This is a redux var.
-            } else {
+            // If this is not a persistForever var...
+            } else if (!info.persistForever) {
                 rx.set(key + '.loadPersist', { loadPersist: val });
             }
         }
     });
-
-    if (Session.equals('page', undefined)) {
-        Session.set('page', DEFAULT_PAGE);
+    
+    // If the given store is not the session store,
+    // set the persistForever values in session store.
+    if (sessionStore !== storeIn) {
+    
+         // Walk through the session store.
+        _.each(sessionStore, function (val, key) {
+               
+            // Find this key's info.
+            var info = varInfo[key];
+            
+            if (info !== undefined && info.persistForever) {
+                rx.set(key + '.loadPersist', { loadPersist: val });
+            }
+        })
     }
 
     lastProject = ctx.project;
@@ -328,10 +351,6 @@ function load (storeIn, page) {
     rx.set('inited.state');
     
     // Log all persistent store state values.
-    logState('Load');
-    
-    // TODO learning about tests. Remove after that.
-    return Session.get('background');
 }
 
 function checkLocalStore () {
@@ -400,7 +419,7 @@ exports.hasLocalStore = function () {
 exports.init = function () {
     storageSupported = checkLocalStore();
     ctx = {}; // global
-    setDefaults();
+    setDefaults(null, null, true);
 
     // Give different servers different store names.
     storeName = location.host + '-hexMapState';

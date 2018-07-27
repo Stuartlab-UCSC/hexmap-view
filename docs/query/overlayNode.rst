@@ -3,7 +3,7 @@ Overlay nodes (deprecated)
 
 This API is deprecated so use the :doc:`placeNode` instead of this.
 
-https://hexcalc.ucsc.edu:8332/query/**overlayNodes**
+https://hexcalc.ucsc.edu/query/**overlayNodes**
 
 HTTP POST with content-type: application/json
 

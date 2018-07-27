@@ -1,7 +1,7 @@
 Get attribute list
 ==================
 
-https://hexcalc.ucsc.edu:8332/**attrList/mapId/<map-ID>**
+https://hexcalc.ucsc.edu/**attrList/mapId/<map-ID>**
 
 HTTP GET
 
@@ -13,7 +13,7 @@ Example URL
 -----------
 ::
 
- https://hexcalc.ucsc.edu:8332/attrList/mapId/PancanAtlas/SampleMap
+ https://hexcalc.ucsc.edu/attrList/mapId/PancanAtlas/SampleMap
 
 Response success
 ----------------

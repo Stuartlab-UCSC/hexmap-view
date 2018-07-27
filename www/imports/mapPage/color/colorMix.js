@@ -82,20 +82,6 @@ function refreshColorsInner () {
     // layers.
     // Instead of calling this, you probably want to call refreshColors().
     
-    // Don't do multiple refreshes during initialization.
-    if (rx.get('init.map') !== 'rendered' ||
-        !rx.get('inited.coloringAttrs')) {
-        return;
-    }
- 
-    // Special case of no layers at all.
-    if (_.isUndefined(layers) || Object.keys(layers) < 1) {
-        for(var signature in polygons) {
-            hexagons.setOneColor(polygons[signature], Colormap.noAttrsColor());
-        }
-        return;
-    }
-    
     // This holds a list of the string names of the currently selected layers,
     // in order.
     var actives = shortlist.get_active_coloring_layers();
@@ -119,7 +105,7 @@ function refreshColorsInner () {
         // Determine the color of nodes not passing the filters.
         let bgNodeColor = Colormap.noDataColor();
         if (rx.get('shortEntry.menu.hideBgNodes')) {
-            bgNodeColor = (Session.get('background') === 'black') ?
+            bgNodeColor = (rx.get('background') === 'black') ?
                 '#000000' : '#ffffff';
         }
 
@@ -189,12 +175,33 @@ function refreshColorsInner () {
     // Make sure to also redraw the info window, which may be open.
     import infoWindow from '/imports/mapPage/viewport/infoWindow.js';
     infoWindow.redraw();
+    
+    // Allow time to re-render before hiding the busy snake.
+    setTimeout(function () {
+        rx.set('snake.map.hide');
+    });
 }
 
 export function refreshColors() {
     
+    // Don't do multiple refreshes during initialization.
+    if (rx.get('init.map') !== 'rendered' ||
+        !rx.get('inited.coloringAttrs')) {
+        return;
+    }
+ 
+    // Special case of no layers at all.
+    if (_.isUndefined(layers) || Object.keys(layers) < 1) {
+        for(var signature in polygons) {
+            hexagons.setOneColor(polygons[signature], Colormap.noAttrsColor());
+        }
+        return;
+    }
+    
+    // Show the map snake while we refresh.
+    rx.set('snake.map.show');
+    
     // Use a timeout to throttle the color refreshes.
-    //console.log('refreshColors()')
     clearTimeout(refreshTimer)
     refreshTimer = setTimeout(refreshColorsInner)
 }
