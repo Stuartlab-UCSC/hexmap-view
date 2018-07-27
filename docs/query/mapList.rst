@@ -1,7 +1,7 @@
 Get map list
 ============
 
-https://hexcalc.ucsc.edu:8332/**mapList**
+https://hexcalc.ucsc.edu/**mapList**
 
 HTTP GET
 
@@ -13,7 +13,7 @@ Example URL
 -----------
 ::
 
- https://hexcalc.ucsc.edu:8332/mapList
+ https://hexcalc.ucsc.edu/mapList
 
 Response success
 ----------------
