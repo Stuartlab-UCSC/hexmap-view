@@ -137,11 +137,6 @@ exports.layerSummaryLoaded = function (parsed) {
     // Initialize the static layer names-index lookup.
     ctx.static_layer_names = [];
     
-    // If there are no static layers...
-    if (parsed.length < 1) {
-        Session.set('shortlist', []);
-    }
-    
     // Process each line of the file, one per layer.
     for (var i = 0; i < parsed.length; i++) {
     
