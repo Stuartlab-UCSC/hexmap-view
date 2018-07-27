@@ -1,7 +1,7 @@
 Highlight attributes & nodes
 ============================
 
-https://hexcalc.ucsc.edu:8332/**highlightAttrNode**
+https://hexcalc.ucsc.edu/**highlightAttrNode**
 
 HTTP POST with content-type: application/json
 
