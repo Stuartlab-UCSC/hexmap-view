@@ -510,7 +510,7 @@ function create_shortlist_ui_entry (layer_name) {
 
     return root;
 }
-
+/*
 function make_sortable_ui_and_list () {
 
     // This updates the shortlist UI and list when the user moves an entry.
@@ -533,6 +533,7 @@ function make_sortable_ui_and_list () {
         handle: ".controls"
     });
 }
+*/
 
 function attachActiveIcons () {
     let active = Session.get('active_layers');
@@ -653,10 +654,6 @@ function addInitialEntriesToShortlist (layerNames) {
 function receivedInitialActiveLayers (layers_added) {
 
     // The initial active layer values are now loaded.
-    
-    // Make the shortlist entries re-orderable
-    make_sortable_ui_and_list();
-    
     addInitialEntriesToShortlist(Session.get('shortlist'));
     entriesInited.set(true);
 }

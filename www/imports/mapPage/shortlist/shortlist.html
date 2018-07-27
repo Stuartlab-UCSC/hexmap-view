@@ -30,13 +30,10 @@
 <template name='shortlistEntryT'>
     {{#each layer}}
         <div class='shortlist_entry' data-layer='{{ this }}'>
-        
             <img class='filter circle' data-layer='{{ this }}' src='{{ filter_icon }}' style='display:{{ filter_icon_display }}' title="This attribute's values are being filtered" />
-
             <div class='contents'>
                 <div class='attr_label'>{{ this }}</div>
                 <div class='metadata_holder'></div>
-                
                 <div class='chart_holder'>
                     <div class='chart'></div>
                     <div class='range_values' style='display:{{ range_value_display }}'>
@@ -54,11 +51,7 @@
                         </div>
                     </div>
                 </div>
-        
             </div>
-            <div class='controls'>
-            </div>
-
         </div>
     {{/each}}
 </template>
