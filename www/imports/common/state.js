@@ -85,7 +85,6 @@ var varInfo = {
     },
     shortlist: {
         defalt: [],
-        session: true,
         project: true,
     },
     transparent: {
@@ -332,7 +331,7 @@ function load (storeIn, page) {
     // set the persistForever values in session store.
     if (sessionStore !== storeIn) {
     
-         // Walk through the session store.
+        // Walk through the session store.
         _.each(sessionStore, function (val, key) {
                
             // Find this key's info.

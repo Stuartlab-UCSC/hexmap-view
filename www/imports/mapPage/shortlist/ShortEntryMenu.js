@@ -136,7 +136,7 @@ const mapDispatchToProps = (dispatch) => {
                 shortlist.removeEntry(attr)
                 break
             case 'deleteAllAttrs':
-                entries = Session.get('shortlist')
+                entries = rx.get('shortlist')
                 entries.forEach(attr => {
                     shortlist.removeEntry(attr)
                 })

@@ -399,7 +399,7 @@ function update_layer_selectors () {
     
     // Add the layer names from the shortlist to the drop downs that store
     // layer names.
-    var shortlist = Session.get('shortlist');
+    var shortlist = rx.get('shortlist');
     for (var i = 0; i < drop_downs.length; i++){
         for (var j = 0; j < shortlist.length; j++) {
             if (!util.is_continuous(shortlist[j])) {

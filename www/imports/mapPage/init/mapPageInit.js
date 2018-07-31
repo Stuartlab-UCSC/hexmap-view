@@ -82,7 +82,7 @@ function areLayoutsPopulated () {
 
         // Timeout to allow the map to render.
         setTimeout(function () {
-            Session.set('shortlist', shortlistSaved);
+            rx.set('shortlist.initAll', { attrs: shortlistSaved });
             shortlist.complete_initialization();
             perform.log(' 6c-init:after-timeout');
             sortUi.init();
@@ -139,8 +139,8 @@ function isMapRendered () {
             
             // Populate the shortlist with only the active layers by faking
             // the shortlist state var.
-            shortlistSaved = Session.get('shortlist');
-            Session.set('shortlist', rx.get('activeAttrs'));
+            shortlistSaved = rx.get('shortlist');
+            rx.set('shortlist.initActives', { attrs: rx.get('activeAttrs') });
             shortlist.init();
         });
     }
@@ -270,7 +270,7 @@ function haveLayerSummary () {
                 if (rx.get('activeAttrs').length < 1) {
 
                     // Load the first layer's data.
-                    Session.set('shortlist', [first]);
+                    rx.set('shortlist.initFirst', { attr: first });
                     rx.set('activeAttrs.updateAll', { attrs: [first] });
                 }
 
@@ -304,7 +304,7 @@ function haveDataTypes () {
             // Request the 'first' attr as the initial coloring layer
             // if we don't have active layers identified yet.
             if (first && rx.get('activeAttrs').length < 1) {
-                Session.set('shortlist', [first]);
+                rx.set('shortlist.initFirst', { attr: first });
                 rx.set('activeAttrs.updateAll', { attrs: [first] });
             }
         });
@@ -331,7 +331,7 @@ function getFirstAttr () {
         if (first === null) { return; }
         
         rx.set('firstAttr', { attr: first });
-        Session.set('shortlist', [first]);
+        rx.set('shortlist.initFirst', { attr: first });
         rx.set('activeAttrs.updateAll', { attrs: [first] });
     }
     
@@ -348,7 +348,7 @@ function getFirstAttr () {
 exports.init = function () {
     perform.log('1a-init:request-primary-data');
 
-    // Iniitialize some session vars we don't want carried over
+    // Initialize some session vars we don't want carried over
     // from the last session.
     Session.set('initedHexagons', false);
     Session.set('mapMeta', {});
@@ -361,12 +361,12 @@ exports.init = function () {
     // Request the initial coloring layers if we know them yet.
     Layer.loadInitialLayers();
     let activeAttrs = rx.get('activeAttrs');
-    let shortlist = Session.get('shortlist');
+    let shortList = rx.get('shortlist');
     if (activeAttrs.length > 0) {
         rx.set('firstAttr', { attr: activeAttrs[0] });
-    } else if (shortlist.length > 0) {
-        rx.set('firstAttr', { attr: shortlist[0] });
-        rx.set('activeAttrs.updateAll', { attrs: [shortlist[0]] });
+    } else if (shortList.length > 0) {
+        rx.set('firstAttr', { attr: shortList[0] });
+        rx.set('activeAttrs.updateAll', { attrs: [shortList[0]] });
     } else {
         getFirstAttr();
     }
