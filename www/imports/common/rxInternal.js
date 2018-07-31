@@ -3,6 +3,7 @@
 
 import redux from 'redux';
 import shortEntryState from '/imports/mapPage/shortlist/shortEntryState';
+import shortlistState from '/imports/mapPage/shortlist/shortlistState';
 import rx from './rx';
 
 const reducers = {
@@ -214,6 +215,7 @@ exports.init = function () {
     // Combine the shortEntry reducers with these reducers.
     // TODO use nested reducers rather than a flat space.
     Object.assign(reducers, shortEntryState.getReducers())
+    Object.assign(reducers, shortlistState.getReducers())
 
     // Create the store.
     /* eslint-disable no-underscore-dangle */

@@ -2,6 +2,7 @@
 // A class for a layer name list
 
 import Colormap from '/imports/mapPage/color/Colormap';
+import rx from '/imports/common/rx';
 import util from '/imports/common/util';
 
 import './layerNameList.html';
@@ -19,7 +20,7 @@ function LayerNameList ($anchor, $label, selected, firstList) {
 LayerNameList.prototype.filterer = function (filter) {
 
     // Find the layer names in the short list
-    var list = Session.get('shortlist').slice();
+    var list = rx.get('shortlist');
 
     if (filter.binary) {
 

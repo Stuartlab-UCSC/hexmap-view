@@ -4,6 +4,7 @@
 import coords from '/imports/mapPage/viewport/coords';
 import Layer from '/imports/mapPage/longlist/Layer';
 import Colormap from '/imports/mapPage/color/Colormap';
+import rx from '/imports/common/rx';
 import tool from '/imports/mapPage/head/tool';
 
 import './infoWindow.html';
@@ -104,8 +105,8 @@ function with_infocard(signature, callback, gMap) {
     // This holds a list of the string names of the currently selected layers,
     // in order.
     // Just use everything on the shortlist.
-    var current_layers = Session.get('shortlist').slice();
-    
+    var current_layers = rx.get('shortlist')
+
     // Obtain the layer objects (mapping from signatures/hex labels to colors)
     Layer.with_many(current_layers, function(retrieved_layers) { 
         
