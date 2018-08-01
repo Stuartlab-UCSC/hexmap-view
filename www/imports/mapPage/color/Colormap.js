@@ -236,7 +236,7 @@ exports.getCategoryString = function(attrName, catIndex) {
 export function getCategoryIndex (attrName, catName) {
 
     // Find the index associated with this category string.
-    // Start off as if we were passed and index rather than a name.
+    // Start off as if we were passed an index rather than a name.
     let index = catName
     if (attrName in colormaps) {
         colormaps[attrName].forEach((cat, i) => {
@@ -246,6 +246,16 @@ export function getCategoryIndex (attrName, catName) {
         })
     }
     return index
+}
+
+export function stringValsToCodes (data, cats) {
+
+    // Replace category string values in the data with codes.
+    let codedData = {}
+    for (var key in data) {
+        codedData[key] = cats.indexOf(data[key])
+    }
+    return codedData
 }
 
 exports.updateCategoryColor = function (layerName, catName, newHexStr) {
@@ -327,11 +337,9 @@ exports.fromStoreFormatCategories = function (cats, data) {
     });
     
     // Replace category string values in the data with codes.
-    var vals = _.map(data, function (strVal) {
-        return cats.indexOf(strVal);
-    });
+    let codedData = stringValsToCodes (data, cats)
 
-    return { colormap: colormap, data: _.object(_.keys(data), vals) };
+    return { colormap, data: codedData };
 };
 
 exports.fromStoreFormat = function (colorStore) {
