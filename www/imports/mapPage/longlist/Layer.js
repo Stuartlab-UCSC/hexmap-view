@@ -92,7 +92,12 @@ function load_dynamic_colormap (name, layer) {
     
         // There is a colormap supplied, so load it.
         colormaps[name] = Colormap.fromStoreFormat(layer.colormap);
-    
+        
+        // Convert the string values to codes if needed.
+        if (layer.hasStringVals) {
+            layer.data = Colormap.stringValsToCodes(layer.data, cats)
+        }
+
     } else if (!_.isUndefined(layer.categories) ||
         cats.length > 2 ||
         !hasOnly1and0s) {
@@ -104,7 +109,7 @@ function load_dynamic_colormap (name, layer) {
         result = Colormap.fromStoreFormatCategories(cats, layer.data);
         colormaps[name] = result.colormap;
         layer.data = result.data;
-     
+        
     } else {
     
         // Load the default binary colormap for binary non-string values
