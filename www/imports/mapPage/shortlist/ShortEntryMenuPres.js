@@ -206,6 +206,13 @@ const createFilterAttr = (able, onClick) => {
     return item
 }
 
+const horizontalLine = (able, id) => {
+    if (able.indexOf(id) < 0) {
+        return null
+    }
+    let item = <hr></hr>
+    return item
+}
 const menuItem = (able, id, label, title, onClick) => {
     if (able.indexOf(id) < 0) {
         return null
@@ -254,6 +261,11 @@ const ShortEntryMenuPres = ({ able, filterChecked, filterList, filterValues,
             className = 'entryMenu'
             hideOnLeave = {true}
         >        
+            { menuItem(able, 'moveToTop', 'Move to Top',
+                "Move this attribute to the top of the short list",
+                onMainMenu) }
+            { horizontalLine(able, 'moveToTop') }
+
             { filterByRange(able, filterChecked, onMainMenu) }
             { applyThresholds(able, filterChecked, onMainMenu) }
             { filterByCategory(able, filterChecked, filterList,

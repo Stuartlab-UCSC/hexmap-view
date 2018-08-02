@@ -24,6 +24,12 @@ const getCapability = (state) => {
         'select', 'byRectangle', 'byPolygon', 'byNodeId', 'deleteAttr',
         'deleteAllAttrs']
     
+    // Capability due to more than one entry and not this entry.
+    let sList = state['shortlist']
+    if (sList.length && sList[0] !== attr) {
+        able.push('moveToTop')
+    }
+    
     // Capability due to hide or show of filters
     // TODO always show to have an effect even when no filters?
     able.push((state['shortEntry.menu.hideBgNodes']) ?
@@ -86,7 +92,6 @@ const mapStateToProps = (state) => {
 const mapDispatchToProps = (dispatch) => {
 
     // Map the event handlers to the properties.
-    let entries
     return {
         onTrigger: ev => {
             dispatch({
@@ -97,6 +102,12 @@ const mapDispatchToProps = (dispatch) => {
         onMainMenu: (ev, data) => {
             let attr = shortlist.get_layer_name_from_child(ev.target)
             switch (data.id) {
+            case 'moveToTop':
+                dispatch({
+                    type: 'shortlist.moveToTop',
+                    attr,
+                })
+                break
             case 'category':
             case 'range':
             case 'threshold':
@@ -133,12 +144,15 @@ const mapDispatchToProps = (dispatch) => {
                 attrAdd.create();
                 break
             case 'deleteAttr':
-                shortlist.removeEntry(attr)
+                dispatch({
+                    type: 'shortlist.deleteByMenu',
+                    attr,
+                })
                 break
             case 'deleteAllAttrs':
-                entries = rx.get('shortlist')
-                entries.forEach(attr => {
-                    shortlist.removeEntry(attr)
+                dispatch({
+                    type: 'shortlist.deleteAllByMenu',
+                    attr,
                 })
                 break
             }

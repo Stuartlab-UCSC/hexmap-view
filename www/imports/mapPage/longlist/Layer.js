@@ -494,10 +494,6 @@ exports.with_one = function (layer_name, callback, dynamicLayers, byAttrId) {
             // auto-generated discrete colors will be used.
 		        colormaps[layer_name] = Colormap.defaultBinary();
         }
-     
-        // Add this layer to the shortlist.
-        shortlist.ui_and_list_add(layer_name);
-        
         // Now layer metadata has been filled in. Call the callback.
         callback(layer);
     } else {
@@ -636,7 +632,9 @@ exports.create_dynamic_selection = function (nodeIds, new_layer_name) {
         var dynLayers = {};
         dynLayers[name] = layer;
         
-        exports.with_one(name, function(){}, dynLayers);
+        exports.with_one(name,
+            function(){ rx.set('shortlist.addDynamic', { attr: name })  },
+            dynLayers);
     }
     let_user_name_layer(new_layer_name, named);
 }

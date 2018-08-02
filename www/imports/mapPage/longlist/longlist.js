@@ -6,7 +6,6 @@ import { render } from 'react-dom';
 import Layer from '/imports/mapPage/longlist/Layer.js';
 import rx from '/imports/common/rx.js';
 import Select22 from '/imports/component/Select22.js';
-import shortlist from '/imports/mapPage/shortlist/shortlist.js';
 import sort from '/imports/mapPage/longlist/sort.js';
 
 // How many layer results should we display at once?
@@ -54,7 +53,7 @@ function handleSelecting (event) {
     var layer_name = event.val;
     
     // User chose this layer. Add it to the global shortlist.
-    shortlist.ui_and_list_add(layer_name);
+    rx.set('shortlist.addFromLongList', { attr: layer_name })
     
     // Don't actually change the selection.
     // This keeps the dropdown open when we click.

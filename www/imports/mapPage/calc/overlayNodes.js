@@ -144,6 +144,7 @@ exports.remove = function () {
 
     // Remove any overlay nodes due to menu click. And their attributes.
     var nodes = Session.get('overlayNodes');
+    let sList = []
 
     if (nodes) {
 
@@ -157,15 +158,16 @@ exports.remove = function () {
             
             // Remove any attributes generated for this node.
             var baseName = n + ': ' +
-                Session.get('layouts')[Session.get('layoutIndex')] + ': ',
-                nodeNames = baseName + 'neighbors',
-                values = baseName + 'neighbor values';
-            shortlist.removeEntry(nodeNames);
-            shortlist.removeEntry(values);
+                Session.get('layouts')[Session.get('layoutIndex')] + ': '
+            sList.push(baseName + 'neighbors')
+            sList.push(baseName + 'values')
         });
  
         markers = {};
     }
+    
+    // Update the shortlist.
+    rx.set('shortlist.deleteOverlayNodes', { attrs: sList })
 
     // Remove the overlayNode data
     Session.set('overlayNodes', undefined);
