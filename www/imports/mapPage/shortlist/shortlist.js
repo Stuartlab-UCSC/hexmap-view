@@ -487,7 +487,7 @@ export function create_shortlist_ui_entry (layer_name) {
         $dynamic_controls.append($float_controls);
     });
 
-    return root;
+    return root[0];
 }
 
 export function attrNameListChange () {
