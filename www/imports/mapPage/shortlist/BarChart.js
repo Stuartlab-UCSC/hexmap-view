@@ -2,6 +2,9 @@
 * The logic and state for a bar chart in the shortlist.
 */
 import { connect } from 'react-redux'
+import React from 'react'
+import PropTypes from 'prop-types'
+import { XYPlot, VerticalBarSeries, } from 'react-vis'
 
 import BarChartPres from '/imports/mapPage/shortlist/BarChartPres'
 import Colormap from '/imports/mapPage/color/Colormap'
@@ -14,8 +17,6 @@ function getData (state) {
     // TODO
     let attrId = '3_categories'
     let nodes = Object.keys(layers[attrId].data)
-    //nodes = ['S1', 'S2', 'S3']
-    
 
     // Find the colors from the colormap or the default binary colors.
     var colormap = colormaps[attrId],
@@ -29,10 +30,9 @@ function getData (state) {
         });
     }
 
-    // Find counts of each category
+    // Find counts of each category.
     var counts = []
     let attrData = layers[attrId].data
-    
     nodes.forEach(nodeId => {
         if (nodeId in attrData) {
             let cat = attrData[nodeId]
@@ -44,7 +44,7 @@ function getData (state) {
         }
     })
 
-    // Fill any undefined array values with zero
+    // Fill any undefined array values with zero.
     var filled = [];
     for (var i = 0; i < catCount; i += 1) {
         filled[i] = (counts[i]) ? counts[i] : 0
@@ -58,7 +58,7 @@ function getData (state) {
             color: colors[i],
         }
     })
-    
+
     return data
 }
 
@@ -81,6 +81,7 @@ const mapDispatchToProps = (dispatch) => {
 const BarChart = connect(
     mapStateToProps,
     mapDispatchToProps
-)(BarChart)
+)(BarChartPres)
 
 export default BarChart;
+
