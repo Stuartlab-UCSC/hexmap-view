@@ -20,7 +20,7 @@ import navBar from '/imports/common/navBar';
 import perform from '/imports/common/perform';
 import reflect from '/imports/mapPage/calc/reflect';
 import rx from '/imports/common/rx';
-import shortlist from '/imports/mapPage/shortlist/shortlist';
+import shortlistInit from '/imports/mapPage/shortlist/shortlistInit';
 import selectNode from '/imports/mapPage/shortlist/select';
 import setOper from '/imports/mapPage/shortlist/setOper';
 import snake from '/imports/mapPage/init/snake.js';
@@ -83,7 +83,7 @@ function areLayoutsPopulated () {
         // Timeout to allow the map to render.
         setTimeout(function () {
             rx.set('shortlist.initAll', { attrs: shortlistSaved });
-            shortlist.complete_initialization();
+            shortlistInit.complete_initialization();
             perform.log(' 6c-init:after-timeout');
             sortUi.init();
 
@@ -141,7 +141,7 @@ function isMapRendered () {
             // the shortlist state var.
             shortlistSaved = rx.get('shortlist');
             rx.set('shortlist.initActives', { attrs: rx.get('activeAttrs') });
-            shortlist.init();
+            shortlistInit.init();
         });
     }
 }

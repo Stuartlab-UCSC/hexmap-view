@@ -3,9 +3,6 @@
 // user has added so they can be quickly selected for display.
 
 import '/imports/lib/jquery-ui';
-import React from 'react';
-import { render } from 'react-dom';
-import { Provider } from 'react-redux'
 
 import Colormap from '/imports/mapPage/color/Colormap';
 import colorMix from '/imports/mapPage/color/colorMix';
@@ -14,7 +11,6 @@ import Layer from '/imports/mapPage/longlist/Layer';
 import rx from '/imports/common/rx';
 import util from '/imports/common/util';
 
-import ShortEntryMenu from '/imports/mapPage/shortlist/ShortEntryMenu';
 import ShortEntryMenuFilter
     from '/imports/mapPage/shortlist/ShortEntryMenuFilter';
 
@@ -22,7 +18,6 @@ import './shortlist.html';
 import './shortlist.css';
 import './shortEntry.css';
 
-var initialization_started = false;
 var showSlider = new ReactiveDict({}); // should the filter slider show?
 var hasFilter = new ReactiveDict({}); // does a filter exists?
 var anyFilters = new ReactiveVar(false) // are there any filters
@@ -33,10 +28,9 @@ var template = {}; // A template for each layer
 var $shortlist; // The shortlist DOM element
 var $dynamic_controls; // The control DOM elements that come and go
 var $float_controls; // The floating control DOM elements
-var selection_prefix = 'Selection';
 var hover_layer_name = new ReactiveVar(''); // Track the current layer
-var entriesInited = new ReactiveVar();
 var activeLayers = new ReactiveVar();
+let prevShortlist = []
 var icon = {
     primary: '/icons/eye1.svg',
     secondary: '/icons/eye2.svg',
@@ -53,15 +47,6 @@ function get_range_display_values (layer_name, i) {
     } else {
         return i < 1 ? 'low' : 'high';
     }
-}
-
-function is_layer_active (layer_name) {
-    var active = activeLayers.get();
-    if (_.isUndefined(active)) {
-        return false;
-    }
-    return (active.length > 0 &&
-        active.indexOf(layer_name) > -1);
 }
 
 function is_primary (layer_name) {
@@ -286,16 +271,16 @@ function create_range_slider (layer_name, root) {
         ),
         slider_line = root.find('.range_slider');
     
-        slider_var = slider_line.slider({
-            range: true,
-            min: 0,
-            max: 1,
-            values: vals,
-            height: 10,
-            step: 1 / 100,
-            slide: sliding,
-            stop: done_sliding,
-        });
+    slider_line.slider({
+        range: true,
+        min: 0,
+        max: 1,
+        values: vals,
+        height: 10,
+        step: 1 / 100,
+        slide: sliding,
+        stop: done_sliding,
+    });
 
     // Initialize the masks and slider with the saved values.
     sliding({target: slider_line[0]}, {values: vals});
@@ -378,18 +363,6 @@ export function drawAllCharts (filteredNodes) {
     */
 }
 
-function create_shortlist_ui_entry_with_data (layer_name, root) {
-
-    // Add all of the metadata
-    Layer.fill_metadata(root.find('.metadata_holder'), layer_name);
-    
-    // Draw any charts that need redrawing.
-    //with_filtered_signatures(function (filteredNodes) {
-        //drawChart(layer_name, filteredNodes, root)
-        drawChart(layer_name, Object.keys(polygons), root)
-    //})
-}
-
 function build_continuous_filter (layer_name) {
 
     // Build a filter area.
@@ -404,7 +377,7 @@ function build_continuous_filter (layer_name) {
     
     // Figure out what kind of filter settings we take based on
     // what kind of layer we are.
-    Layer.with_one (layer_name, function (layer) {
+    Layer.with_one (layer_name, function () {
         
         // Add a range slider
         create_range_slider(layer_name, root);
@@ -418,14 +391,11 @@ function syncStateWithTemplate () {
     let filterBys = rx.get('shortEntry.menu.filter')
     let filters = rx.get('shortEntry.filter')
     let rxList = rx.get('shortlist')
-    
+
     // When the active layers change update the primary and secondary
     // indicators on the UI and refresh the map colors.
-    var active = rx.get('activeAttrs'),
-        entriesReady = entriesInited.get(),
-        length,
-        $anchor;
-    if (entriesReady && !rx.isArrayEqual(activeLayers.get(), active)) {
+    let active = rx.get('activeAttrs')
+    if (!rx.isArrayEqual(activeLayers.get(), active)) {
         activeLayers.set(active);
         attachActiveIcons()
         colorMix.refreshColors()
@@ -458,35 +428,34 @@ function syncStateWithTemplate () {
     })
 }
 
-function ui_and_list_delete (layer_name) {
+function create_shortlist_ui_entry_with_data (layer_name, root) {
 
-    // This updates the shortlist variable and UI for remove from shortlist.
-    // Moves via the jqueryUI sortable are handled in the sortable's update
-    // function.
-    var root = get_root_from_layer_name(layer_name),
-        index;
-
-    if (rx.get('shortlist').indexOf(layer_name) < 0) { return; }
-
-    // Remove from the shortlist list
-    rx.set('shortlist.delete', { attr: layer_name })
+    // Add all of the metadata.
+    Layer.fill_metadata(root.find('.metadata_holder'), layer_name);
     
-    // Remove from the shortlist UI.
-    root.remove();
+    // Find any filter info.
+    let filterBy = rx.get('shortEntry.menu.filter')[layer_name]
+    if (filterBy && (filterBy === 'range' || filterBy === 'threshold')) {
+        build_continuous_filter(layer_name)
+    }
 
-    // Remove this layer from active_layers if it was in there.
-    rx.set('activeAttrs.deleteOne', { attr: layer_name });
+    // Draw any charts that need redrawing.
+    //with_filtered_signatures(function (filteredNodes) {
+        //drawChart(layer_name, filteredNodes, root)
+        drawChart(layer_name, Object.keys(polygons), root)
+    //})
 }
 
-function create_shortlist_ui_entry (layer_name) {
+export function create_shortlist_ui_entry (layer_name) {
 
     // Makes a shortlist DOM entry for one layer.
 
-    // Skip this if this layer does not yet exist
-    if (!layers[layer_name]) { return; }
+    // Skip this if this layer does not yet exist,
+    // or if this entry already exists.
+    if (!layers[layer_name] || (get_root_from_layer_name(layer_name).length)) {
+        return
+    }
     
-    // Initialize some vars used in the template
-
     // Load the shortlist entry template, passing the layer name
     template[layer_name] = Blaze.renderWithData(
         Template.shortlistEntryT, {layer: [layer_name]}, $shortlist[0]);
@@ -505,7 +474,7 @@ function create_shortlist_ui_entry (layer_name) {
     }
 
     // On mouse entering the shortlist entry, show the floating controls
-    // and the filter button
+    // and the filter button    console.log('root:', root)
     root.on('mouseenter', function () {
         root.prepend($float_controls);
         hover_layer_name.set(layer_name);
@@ -515,53 +484,76 @@ function create_shortlist_ui_entry (layer_name) {
     // and the filter button if the filter is not active
     root.on('mouseleave', function () {
         hover_layer_name.set('');
-        $('#shortlist .dynamic_controls').append($float_controls);
+        $dynamic_controls.append($float_controls);
     });
 
     return root;
 }
-/*
-function make_sortable_ui_and_list () {
 
-    // This updates the shortlist UI and list when the user moves an entry.
-     $shortlist.sortable({
-        update: function () {
+export function attrNameListChange () {
+    
+    // Update the shortlist entry elements when the attr name list changes.
+    let sList = rx.get('shortlist')
+    if (rx.isArrayEqual(sList, prevShortlist)) {
+        return
+    }
+    
+    // Save the attr names of entries currently in list.
+    let maybeDelete = prevShortlist.slice()
+    prevShortlist = sList
+    
+    // Loop through the entries, appending them in order of the shortlist state.
+    let listEl = document.querySelector('#shortlist')
+    let children = Array.from(listEl.children)
+    sList.forEach(listAttr => {
+        let foundEl = children.find(childEl => {
+            let elAttr = childEl.dataset.layer
+            if (elAttr && elAttr === listAttr) {
+                listEl.append(childEl)
+                return true
+            }
+            return false
+        })
+        if (foundEl) {
         
-            // Find shortlist entries, ignoring the dynamic controls.
-            var entries = _.filter($shortlist.children(), function (el) {
-                return (!_.isUndefined($(el).data("layer")));
-            });
-        
-            // Update the shortlist UI with the new order and refresh
-            var shortlist = _.map(entries, function (el) {
-                return $(el).data("layer");
-            });
-            Session.set('shortlist', shortlist);
-        },
-        // Use the controls area as the handle to move entries.
-        // This allows the user to select any text in the entry
-        handle: ".controls"
-    });
+            // Remove this attr from the list of attrs not yet found.
+            let index = maybeDelete.indexOf(foundEl.dataset.layer)
+            maybeDelete.splice(index, 1)
+
+        } else {  // Entry element was not found, so add it and make it active.
+            create_shortlist_ui_entry(listAttr)
+            rx.set('activeAttrs.updateAll', { attrs: [listAttr] });
+        }
+    })
+    
+    // Remove any entry elements no longer in the shortlist state.
+    maybeDelete.forEach((deleteAttr) => {
+        let foundEl = children.find(childEl => {
+            let elAttr = childEl.dataset.layer
+            if (elAttr && elAttr === deleteAttr) {
+                removeEntry(elAttr)
+                return true
+            }
+            return false
+        })
+
+        // Remove this layer from active_layers.
+        rx.set('activeAttrs.deleteOne', { attr: foundEl.dataset.layer });
+    })
 }
-*/
 
 function attachActiveIcons () {
     let active = activeLayers.get();
-    length = active.length;
+    let length = active.length;
 
     // For each of primary index and secondary index...
     _.each([0, 1], function (index) {
-    
+        let $anchor = $dynamic_controls
         if (length > index) {
  
             // There is an active so attach the icon to the layer's
             // shortlist entry.
             $anchor = get_root_from_layer_name(active[index]);
- 
-        } else {
- 
-            // There is no active, so hide the icon.
-            $anchor = $dynamic_controls;
         }
         if ($anchor && $shortlist) {
             $anchor.prepend($shortlist.find(
@@ -570,7 +562,7 @@ function attachActiveIcons () {
     });
 }
 
-function primaryButtonClick (ev) {
+export function primaryButtonClick (ev) {
     var layer_name = get_layer_name_from_child(ev.target);
 
     // If this layer is already primary, remove it as primary.
@@ -589,10 +581,10 @@ function primaryButtonClick (ev) {
     } else {
         rx.set('activeAttrs.upsertPrimary', { attr: layer_name });
     }
- }
+}
 
-function secondaryButtonClick (ev) {
-    layer_name = get_layer_name_from_child(ev.target);
+export function secondaryButtonClick (ev) {
+    let layer_name = get_layer_name_from_child(ev.target);
 
     // If this layer is already secondary, remove it from secondary
     if (is_secondary(layer_name)) {
@@ -610,46 +602,12 @@ function secondaryButtonClick (ev) {
     }
 }
 
-function removeButtonClick (ev) {
-    exports.removeEntry(get_layer_name_from_child(ev.target));
+export function removeButtonClick (ev) {
+    rx.set('shortlist.deleteByButton',
+        { attr: get_layer_name_from_child(ev.target) })
 }
 
-function create_float_controls () {
-
-    // This is the floating button control panel that appears when
-    // a shortlist entry is hovered upon.
-
-    // Handle the click of the primary button
-    $shortlist.on ('click', '.primary', primaryButtonClick);
-
-    // Handle the click of the secondary button
-    $shortlist.find('.secondary').on('click', secondaryButtonClick);
-
-    // Handle the removal from the short list
-    $shortlist.find('.remove').on('click', removeButtonClick);
-}
-
-function addInitialEntriesToShortlist (layerNames) {
-    // Add some initial entries to the shortlist.
-    _.each(layerNames, function (layer_name) {
-    
-        $shortlist.append(create_shortlist_ui_entry(layer_name));
-        let filterBy = rx.get('shortEntry.menu.filter')[layer_name]
-        if (filterBy && (filterBy === 'range' || filterBy === 'threshold')) {
-            build_continuous_filter(layer_name)
-        }
-    });
-    colorMix.refreshColors()
-}
-
-function receivedInitialActiveLayers (layers_added) {
-
-    // The initial active layer values are now loaded.
-    addInitialEntriesToShortlist(rx.get('shortlist'));
-    entriesInited.set(true);
-}
-
-exports.removeEntry = function (layer_name) {
+function removeEntry (layer_name) {
 
     // Remove an entry and all of its dependents if it is in the global layers.
     if (layers[layer_name]) {
@@ -659,7 +617,7 @@ exports.removeEntry = function (layer_name) {
             layers[layer_name].removeFx(layer_name);
         }
 
-        // Handle dynamic layers
+        // Remove dynamic layer info.
         if (layers[layer_name].dynamic) {
             delete layers[layer_name];
             if (layer_name in colormaps) {
@@ -678,13 +636,12 @@ exports.removeEntry = function (layer_name) {
         // Clear any google chart associated with this layer
         gChart.clear(layer_name);
 
-        // Clear any filter values and show state for this layer
+        // Clear any filter values.
         rx.set('shortEntry.filter.drop', {attr: layer_name})
-        
-        // Update the shortlist state variable and UI.
-        ui_and_list_delete(layer_name);
 
-        // Remove this layer's shortlist entry template
+        // Remove this layer's shortlist entry element.
+        let root = get_root_from_layer_name(layer_name);
+        root.remove()
         delete template[layer_name];
         
         // Reattach the primary and secondary icons.
@@ -698,46 +655,13 @@ exports.get_active_coloring_layers = function () {
     return rx.get('activeAttrs');
 }
 
-exports.ui_and_list_add = function (layer_name) {
-
-    // This updates the shortlist variable and UI for add to shortlist.
-    // Moves via the jqueryUI sortable are handled in the sortable's update
-    // function.
-    if (!Session.equals('shortlistInited', true)) {
-        
-        // We'll add the shortlist UI entries as part of initialization
-        // and not here.
-        return;
-    }
-    var root = get_root_from_layer_name(layer_name),
-        index = rx.get('shortlist').indexOf(layer_name);
-        
-    $shortlist = $shortlist || $('#shortlist');
-    
-    if (index > -1) {
-
-        // Move the entry to the top from it's current position
-        $shortlist.prepend(root);
-
-    } else {
-
-        // The layer is not yet in the shortlist
-        $shortlist.prepend(create_shortlist_ui_entry(layer_name));
-    }
-
-    // Set the actives to just this layer.
-    rx.set('activeAttrs.updateAll', { attrs: [layer_name] });
-
-    rx.set('shortlist.add', { attr: layer_name })
-}
-
 exports.update_ui_metadata = function () {
 
     // Update the metadata for each layer in the shortlist
     // TODO: make the metadata updates reactive
     _.each(rx.get('shortlist'), function(layer_name) {
         var root = get_root_from_layer_name(layer_name);
-            Layer.fill_metadata(root.find(".metadata_holder"), layer_name);
+        Layer.fill_metadata(root.find(".metadata_holder"), layer_name);
     });
 }
 
@@ -748,7 +672,7 @@ export function with_filtered_signatures (callback) {
     // that to the given callback.
     
     // Find the filter functions.
-    filters = get_current_filters()
+    let filters = get_current_filters()
     
     // Prepare a list of all the layers
     var layer_names = [];
@@ -805,13 +729,14 @@ function get_current_filters () {
     
     Object.keys(allFilters).forEach(layer_name => {
 
-         // Define the functions and values to use for filtering
+        // Define the functions and values to use for filtering
         var filter = allFilters[layer_name];
        
         //console.log('get_current_filters:filter:', filter)
 
         // The default filter function.
-        filter_function = function (value, nodeId) {  // jshint ignore: line
+        // eslint-disable-next-line no-unused-vars
+        var filter_function = function (value, unusedNodeId) {
             return true;
         };
        
@@ -819,13 +744,15 @@ function get_current_filters () {
         //console.log('isFilter')
         switch (filter.by) {
         case 'category':
-            filter_function = function (value, nodeId) {
+            // eslint-disable-next-line no-unused-vars
+            filter_function = function (value, unusedNodeId) {
                 return (filter.value.indexOf(value) > -1)
             }
             break
         case 'range':
-            filter_function = function (value, nodeId) {
-                 return (value >= filter.low && value <= filter.high);
+            // eslint-disable-next-line no-unused-vars
+            filter_function = function (value, unusedNodeId) {
+                return (value >= filter.low && value <= filter.high);
             }
             break
         }
@@ -875,7 +802,7 @@ exports.getAllLayerNames = function() {
 };
 
 exports.removeDynamicEntries = function () {
-    for (name in layers) {
+    for (var name in layers) {
         if (layers[name].dynamic) {
             delete layers[name];
         }
@@ -914,58 +841,34 @@ exports.dynamicAttrsToStoreFormat = function () {
     return entries;
 }
 
-exports.complete_initialization = function () {
+function create_float_controls () {
 
-    // Executed after other initially visible widgets are populated.
-    let shortList = rx.get('shortlist')
-    function loadRemainderOfEntries () {
-        var actives = rx.get('activeAttrs'),
-            layerNames = _.filter(shortList, function (layer) {
-                return (actives.indexOf(layer) < 0);
-            });
-        addInitialEntriesToShortlist(layerNames);
-        Session.set('shortlistInited', true);
-        setTimeout(function () {
-            rx.set('snake.shortlist.hide');
-        });
-    }
- 
-    // Add the shortlist layer values to the global layers object.
-    Layer.with_many(shortList, loadRemainderOfEntries,
-        rx.get('dynamicAttrs'));
-}
-
-exports.init = function () {
-
-    if (initialization_started) { return; }
-    
-    initialization_started = true;
-
-    // Initialize some handy variables
-    $shortlist = $('#shortlist');
-    $dynamic_controls = $shortlist.find('.dynamic_controls');
+    // This is the floating button control panel that appears when
+    // a shortlist entry is hovered upon.
+    $dynamic_controls = $('#shortlist .dynamic_controls')
     $float_controls = $shortlist.find('.float');
     
-    Session.set('shortlistInited', false);
-    entriesInited.set(false);
+    // Handle the click of the primary button
+    $shortlist.on ('click', '.primary', primaryButtonClick);
+
+    // Handle the click of the secondary button
+    $shortlist.find('.secondary').on('click', secondaryButtonClick);
+
+    // Handle the removal from the short list
+    $shortlist.find('.remove').on('click', removeButtonClick);
+}
+
+export function init () {
+
+    // Initialize the active layer reactive var just for templates.
+    activeLayers.set(null)
+
+    // Create the controls that move from entry to entry.
+    $shortlist = $('#shortlist');
+    create_float_controls();
     
     // Run this whenever the state variables change to sync them with the
     // template variables.
-    activeLayers.set(null) // just for templates
     rx.subscribe(syncStateWithTemplate);
+}
 
-    // Create the controls that move from entry to entry.
-    create_float_controls();
-    
-    // Add the active shortlist layer values to the global layers object.
-    Layer.with_many(rx.get('activeAttrs'), receivedInitialActiveLayers,
-        rx.get('dynamicAttrs'));
-    
-    const store = rx.getStore();
-    render(
-        <Provider store={store}>
-            <ShortEntryMenu />
-        </Provider>,
-        document.getElementById('shortEntryMenuWrap')
-    )
- }
