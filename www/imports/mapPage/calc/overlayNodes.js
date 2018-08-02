@@ -2,10 +2,11 @@
 // overlayNodes.js
 // Drop new nodes onto the map
 
-import coords from '/imports/mapPage/viewport/coords.js';
-import hexagons from '/imports/mapPage/viewport/hexagons.js';
-import overlayNodeUi from '/imports/mapPage/calc/overlayNodeUi.js';
-import shortlist from '/imports/mapPage/shortlist/shortlist.js';
+import coords from '/imports/mapPage/viewport/coords';
+import hexagons from '/imports/mapPage/viewport/hexagons';
+import overlayNodeUi from '/imports/mapPage/calc/overlayNodeUi';
+import rx from '/imports/common/rx';
+import shortlist from '/imports/mapPage/shortlist/shortlist';
 import '/imports/mapPage/viewport/infoWindow.html';
 
 var DEFAULT_MARKER_COLOR = 'ff0000',

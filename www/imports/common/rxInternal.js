@@ -121,6 +121,9 @@ const reducers = {
     'inited.state': (state = false, action) => {
         return (action.type === 'inited.state') ? true : state;
     },
+    'initialized': (state = false, action) => {
+        return (action.type === 'initialized') ? true : state;
+    },
     'projectList': (state = 'receiving', action) => {
         switch (action.type) {
         case 'projectList.loading':

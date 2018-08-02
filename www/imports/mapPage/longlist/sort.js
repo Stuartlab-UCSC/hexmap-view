@@ -179,7 +179,7 @@ function updateSortUi (type, text, focus_attr, opts) {
     longlist.update();
     shortlist.update_ui_metadata();
 
-    if (rx.get('init.map') === 'rendered') {
+    if (rx.get('initialized')) {
         if (type === 'noStats') {
             if (text.indexOf('credential') < 0) {
                 userMsg.warn('Now sorted by Density of attributes.');
