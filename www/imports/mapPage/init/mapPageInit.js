@@ -149,7 +149,7 @@ function isMapRendered () {
 function loadGoogleMapApi () {
     
     // Request google map api
-    Meteor.autorun(function (autorun) {
+    Tracker.autorun(function (autorun) {
         if (GoogleMaps.loaded()) {
             autorun.stop();
             rx.set('inited.googleMapApi');

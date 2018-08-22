@@ -12,7 +12,7 @@ fi
 # Run the view server.
 echo starting the www server
 cd $HEXMAP/www
-export MAIL_URL="smtp://localhost"
+export MAIL_URL="smtp://localhost:25"
 if [ "$BACK_OR_FOREGROUND" == "FORE" ]; then
     if [ "$BUNDLE_VIZ" == true ]; then
         $METEOR_PATH run --port $PORT --settings $HEXMAP/config/settings.json \

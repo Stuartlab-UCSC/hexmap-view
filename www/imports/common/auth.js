@@ -41,7 +41,7 @@ exports.credentialCheck = function (credential) {
 exports.init = function () {
 
     // Listen for a change of user including logout.
-    Meteor.autorun(function () {
+    Tracker.autorun(function () {
         var userId = Meteor.userId();
         perform.log('auth:user-change-check:userId:' + userId);
         
