@@ -28,6 +28,7 @@ cd $HEXMAP/bundle/programs/server
 $NODE_BIN/npm install > $HEXMAP/log/npmInstall
 
 echo moving new files to www
+rm -rf $HEXMAP/www
 cd $HEXMAP/
 mv bundle www
 
