@@ -633,7 +633,7 @@ exports.create_dynamic_selection = function (nodeIds, new_layer_name) {
         dynLayers[name] = layer;
         
         exports.with_one(name,
-            function(){ rx.set('shortlist.addDynamic', { attr: name })  },
+            function(){ rx.set('shortlist.addDynamicSelection', { attr: name })  },
             dynLayers);
     }
     let_user_name_layer(new_layer_name, named);

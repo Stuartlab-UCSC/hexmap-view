@@ -11,17 +11,19 @@ const deleteMany = (attrs, state) => {
     return newState
 }
 
-const addOne = (attr, state, addToTop) => {
+const addMany = (attrs, state, addToTop) => {
     let newState = state.slice()
-    let index = state.indexOf(attr)
-    if (index > -1) {
-        newState.splice(index, 1)
-    }
-    if (addToTop) {
-        newState.push(attr)
-    } else {
-        newState.unshift(attr)
-    }
+    attrs.forEach(attr => {
+        let index = state.indexOf(attr)
+        if (index > -1) {
+            newState.splice(index, 1)
+        }
+        if (addToTop) {
+            newState.push(attr)
+        } else {
+            newState.unshift(attr)
+        }
+    })
     return newState
 }
 
@@ -30,9 +32,11 @@ const reducers = {
         let index
         let newState
         switch (action.type) {
-        case 'shortlist.addDynamic':
+        case 'shortlist.addDynamicByAddAttr':
+            return addMany(action.attrs, state)
+        case 'shortlist.addDynamicSelection':
         case 'shortlist.addFromLongList':
-            return addOne(action.attr, state)
+            return addMany([action.attr], state)
         case 'shortlist.deleteAllByMenu':
             return []
         case 'shortlist.deleteByButton':
