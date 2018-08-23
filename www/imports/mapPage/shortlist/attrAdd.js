@@ -43,8 +43,10 @@ addAsLayers = function (data) {
         });
     });
     
-    // All the layers to our layers global and the shortlist.
-    Layer.with_many(attrNames, function() {}, dynLayers);
+    // Add all the layers to our layers global and the shortlist.
+    Layer.with_many(attrNames, () => {
+        rx.set('shortlist.addDynamicByAddAttr', { attrs: attrNames } )
+    }, dynLayers);
 
     rx.set('attrAdd:adding.done');
 
