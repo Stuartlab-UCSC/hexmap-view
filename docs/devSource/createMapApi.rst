@@ -82,7 +82,7 @@ Where:
   `User Guide <https://tumormap.ucsc.edu/help/createMap.html>`_.
 * **outputDirectory** : the directory in which to store the output. May be
   relative to the data root, such as "view/..." or a full path
-* **zeroReplace** : replace all NA values with zero
+* **zeroReplace** : replace feature NA values with zero
 
 ..
  FUTURE:
@@ -105,7 +105,6 @@ Where:
   statistics that are independent of the placement of nodes should be calculated.
   Note that these are compute-intensive so you may want to run them only when
   you are satisfied with your layout and coloring attributes.
-
  * **colormap** : optional, defaults to a colormap generated during computations.
   A colormap already defined for the color attributes which maps each category
   value to a color. New attributes and categories will be added to this colormap.
