@@ -3,7 +3,7 @@
 # the environment variables inside the if statement.
 # For HTTP, change the environment varibles in the else statement.
 
-export DEPLOY_TARGET_PATH=tap.soe.ucsc.edu:/soe/swat/dev
+export DEPLOY_TARGET_PATH=tap.soe.ucsc.edu:/soe/swat/dev/hexagram
 #export DEPLOY_TARGET_PATH=hexmap-new:/data/home/swat/dev
 
 TOOLS=/Users/swat

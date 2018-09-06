@@ -43,7 +43,7 @@ if [  "$BUNDLED" == false ]; then
 fi
 
 # Install tar location.
-export INSTALL_TAR_PATH=/home/hexmap/data/hexagram
+export INSTALL_TAR_PATH=/soe/swat/dev/hexagram
 
 # Meteor settings.json variables.
 export ADMIN_EMAIL=hexmap@ucsc.edu
