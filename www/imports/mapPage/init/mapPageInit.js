@@ -21,7 +21,7 @@ import perform from '/imports/common/perform';
 import reflect from '/imports/mapPage/calc/reflect';
 import rx from '/imports/common/rx';
 import shortlistInit from '/imports/mapPage/shortlist/shortlistInit';
-import selectNode from '/imports/mapPage/shortlist/select';
+import select from '/imports/mapPage/shortlist/select';
 import setOper from '/imports/mapPage/shortlist/setOper';
 import snake from '/imports/mapPage/init/snake.js';
 import sort from '/imports/mapPage/longlist/sort';
@@ -99,7 +99,7 @@ function areLayoutsPopulated () {
             infoWindow.init();
             setOper.init();
             createMap.init();
-            selectNode.init();
+            select.init();
             gChart.init();
             perform.log('google-analytics-loading');
             util.googleCheck();
