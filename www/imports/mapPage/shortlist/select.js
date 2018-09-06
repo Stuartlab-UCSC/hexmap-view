@@ -360,12 +360,41 @@ function clicked(ev) {
     }
 }
 
+function viewportToPath (ne, sw) {
+
+    // Converts viewport bounds to a polygon path. Force longitudes between
+    // -90 and 90 because // google.maps.geometry.poly.containsLocation() only
+    // properly compares longitude values between those values of the reference
+    // polygon to the location parameter.
+    let neLng = ne.lng()
+    let swLng = sw.lng()
+    let lngs=[ne.lng(), sw.lng()]
+    lngs.forEach((lng, i) => {
+        if (lng === 180) {
+            lng = -90
+        } else if (lng === -180) {
+            lng = 90
+        } else if (lng < 0) {
+            lng = Math.max(lng, -90)
+        } else {
+            lng = Math.min(lng, 90)
+        }
+        lngs[i] = lng
+    })
+    return [
+        new google.maps.LatLng(ne.lat(), lngs[0]),
+        new google.maps.LatLng(sw.lat(), lngs[0]),
+        new google.maps.LatLng(sw.lat(), lngs[1]),
+        new google.maps.LatLng(ne.lat(), lngs[1]),
+    ];
+}
+
 exports.findHexagonsInViewport = function () {
 
     let bounds = googlemap.getBounds()
     let viewport = new google.maps.Polygon({
         map: googlemap,
-        path: boundsToPath(bounds.getNorthEast(), bounds.getSouthWest()),
+        path: viewportToPath(bounds.getNorthEast(), bounds.getSouthWest()),
         strokeOpacity: 0,
         fillOpacity: 0,
     })

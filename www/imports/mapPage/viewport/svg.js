@@ -7,7 +7,7 @@ import download from '/imports/mapPage/data/download.js';
 import Layer from '/imports/mapPage/longlist/Layer.js';
 import legend from '/imports/mapPage/color/legend.js';
 import rx from '/imports/common/rx'
-import selectNode from '/imports/mapPage/shortlist/select.js';
+import select from '/imports/mapPage/shortlist/select.js';
 import shortlist from '/imports/mapPage/shortlist/shortlist.js';
 
 var xyMapSize = 5120 * 2,
@@ -60,7 +60,7 @@ function googleToSvg () {
     // Transform google elements to svg format
     var i,
         sPoly,
-        hexagonKeys = selectNode.findHexagonsInViewport(),
+        hexagonKeys = select.findHexagonsInViewport(),
         dims,
         svg;
         
