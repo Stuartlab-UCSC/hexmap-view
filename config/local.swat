@@ -3,9 +3,6 @@
 # the environment variables inside the if statement.
 # For HTTP, change the environment varibles in the else statement.
 
-export DEPLOY_TARGET_PATH=tap.soe.ucsc.edu:/soe/swat/dev/hexagram
-#export DEPLOY_TARGET_PATH=hexmap-new:/data/home/swat/dev
-
 TOOLS=/Users/swat
 
 USING_HTTPS=false
@@ -48,7 +45,7 @@ fi
 # Deployment target architecture and location.
 # Valid values: os.osx.x86_64, os.linux.x86_64, os.linux.x86_32
 export DEPLOY_TARGET_ARCH=os.linux.x86_64
-#export DEPLOY_TARGET_PATH=hexmap-new:/data/home/swat/dev
+export DEPLOY_TARGET_PATH=hexmap.gi.ucsc.edu:/data/home/swat/dev/hexagram
 
 # Meteor settings.json variables.
 export ADMIN_EMAIL=swat@soe.ucsc.edu

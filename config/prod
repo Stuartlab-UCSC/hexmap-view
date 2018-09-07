@@ -1,10 +1,8 @@
 #!/bin/bash
+
 # For https, set below to "true" and change
 # the environment variables inside the if statement.
 # For HTTP, change the environment varibles in the else statement.
-
-TOOLS=/data/home/swat
-
 USING_HTTPS=true
 if [  "$USING_HTTPS" == true ]; then
     # Paths to https certs.
@@ -40,7 +38,7 @@ if [  "$BUNDLED" == false ]; then
 fi
 
 # Install tar location.
-export INSTALL_TAR_PATH=$TOOLS/dev
+export INSTALL_TAR_PATH=/data/home/swat/dev/hexagram
 
 # Meteor settings.json variables.
 export ADMIN_EMAIL=hexmap@ucsc.edu

@@ -33,3 +33,6 @@ cd $HEXMAP/
 mv bundle www
 
 echo Install complete. Stop then start www.
+echo on production:
+echo   sudo ./stopWww
+echo   sudo ./startWww
