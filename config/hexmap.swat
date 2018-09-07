@@ -2,8 +2,6 @@
 # For https, set USING_HTTPS to true
 # For unbundled, set BUNDLED to false
 
-TOOLS=/data/home/swat
-
 USING_HTTPS=true
 if [  "$USING_HTTPS" == true ]; then
     # Paths to https certs.
@@ -40,7 +38,7 @@ if [  "$BUNDLED" == false ]; then
 fi
 
 # Install tar location.
-export INSTALL_TAR_PATH=$TOOLS/dev
+export INSTALL_TAR_PATH=/data/home/swat/dev/hexagram
 
 # Meteor settings.json variables.
 export ADMIN_EMAIL=swat@soe.ucsc.edu
