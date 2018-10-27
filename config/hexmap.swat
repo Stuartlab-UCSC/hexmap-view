@@ -38,7 +38,7 @@ if [  "$BUNDLED" == false ]; then
 fi
 
 # Install tar location.
-export INSTALL_TAR_PATH=/data/home/swat/dev/hexagram
+export INSTALL_TAR_PATH=plaza.gi.ucsc.edu:ops
 
 # Meteor settings.json variables.
 export ADMIN_EMAIL=swat@soe.ucsc.edu
