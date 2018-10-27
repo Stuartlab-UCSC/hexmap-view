@@ -24,11 +24,12 @@ if [ "$BUNDLE" == true ]; then
 fi
 
 # Build a www server with compression and other production enhancements.
+FILE=$HEXMAP/deploy/www.tar.gz
 cd $HEXMAP/www
 $METEOR_PATH npm install --production
 $METEOR_PATH build $HEXMAP/deploy --architecture $DEPLOY_TARGET_ARCH
 cd $HEXMAP
-scp deploy/www.tar.gz $DEPLOY_TARGET_PATH
-echo
-echo If the scp session timed out, do:
-echo "scp deploy/www.tar.gz $DEPLOY_TARGET_PATH"
+
+scp $FILE $DEPLOY_TARGET_PATH
+echo if the scp timed out, do:
+echo "scp $FILE $DEPLOY_TARGET_PATH"

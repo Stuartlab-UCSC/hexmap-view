@@ -45,7 +45,7 @@ fi
 # Deployment target architecture and location.
 # Valid values: os.osx.x86_64, os.linux.x86_64, os.linux.x86_32
 export DEPLOY_TARGET_ARCH=os.linux.x86_64
-export DEPLOY_TARGET_PATH=hexmap.gi.ucsc.edu:/data/home/swat/dev/hexagram
+export DEPLOY_TARGET_PATH=plaza.gi.ucsc.edu:ops
 
 # Meteor settings.json variables.
 export ADMIN_EMAIL=swat@soe.ucsc.edu

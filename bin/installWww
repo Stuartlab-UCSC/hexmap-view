@@ -17,10 +17,15 @@ if [ "$BUNDLED" == false ]; then
     exit 1
 fi
 
-cd $HEXMAP
+FILE=www.tar.gz
+LOCALTAR=$HEXMAP/$FILE
+FROMTAR=$INSTALL_TAR_PATH/$FILE
+echo "scp'g from $FROMTAR to $LOCALTAR..."
+scp $FROMTAR $LOCALTAR
+
 # Untar the new code.
 echo untarring...
-tar xf $INSTALL_TAR_PATH/www.tar.gz
+tar xf $LOCALTAR -C $HEXMAP
 
 # Install all the needed node packages
 echo npm installing...
@@ -29,10 +34,12 @@ $NODE_BIN/npm install > $HEXMAP/log/npmInstall
 
 echo moving new files to www
 rm -rf $HEXMAP/www
-cd $HEXMAP/
-mv bundle www
+mv $HEXMAP/bundle $HEXMAP/www
 
 echo Install complete. Stop then start www.
 echo on production:
-echo   sudo ./stopWww
-echo   sudo ./startWww
+echo   sudo $HEXMAP/stopWww
+echo   sudo $HEXMAP/startWww
+echo on dev:
+echo   stop www
+echo   start www
