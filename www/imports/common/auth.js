@@ -11,7 +11,7 @@ function getUserRoles () {
     // Whenever the user changes, including logout, check to see
     // what sort of credentials she has.
     rx.set('user.roles.empty');
-    perform.log('auth:credentials-request');
+    //perform.log('auth:credentials-request');
     Meteor.call('getUserAuthorizationRoles', function (error, results) {
         if (results) {
             rx.set('user.roles.load', { roles: results });
@@ -22,8 +22,8 @@ function getUserRoles () {
                 project.authorize();
             }
         }
-        perform.log('auth:credentials-got:has-roles?:' +
-            rx.get('user.roles'));
+        //perform.log('auth:credentials-got:has-roles?:' +
+        //    rx.get('user.roles'));
     });
 }
 
@@ -43,7 +43,7 @@ exports.init = function () {
     // Listen for a change of user including logout.
     Tracker.autorun(function () {
         var userId = Meteor.userId();
-        perform.log('auth:user-change-check:userId:' + userId);
+        //perform.log('auth:user-change-check:userId:' + userId);
         
         // Get the user's roles.
         getUserRoles();

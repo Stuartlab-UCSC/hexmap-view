@@ -10,7 +10,7 @@ import tool from '/imports/mapPage/head/tool';
 
 exports.create = function  () {
 
-    // Create the google map.
+    // Set the map options.
     var mapOptions = {
         center: ctx.center,
         backgroundColor: rx.get('background'),
@@ -26,7 +26,7 @@ exports.create = function  () {
         streetViewControl: false
     };
 
-    // Create the actual map
+    // Create the actual map.
     GoogleMaps.create({
         name: 'googlemap',
         options: mapOptions,

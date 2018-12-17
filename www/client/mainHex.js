@@ -36,7 +36,7 @@ function isStateLoaded () {
         R['inited.state']) {
         
         unsubFx.isStateLoaded();
-        perform.log('init:state-loaded');
+        //perform.log('init:state-loaded');
         
         auth.init();
 
@@ -66,7 +66,7 @@ function defineEnvironment () {
 
 Meteor.startup(() => {
     defineEnvironment();
-    perform.init();
+    perform.init('render');
     rxInternal.init();
     userMsg.init();
     unsubFx.isStateLoaded = rx.subscribe(isStateLoaded);

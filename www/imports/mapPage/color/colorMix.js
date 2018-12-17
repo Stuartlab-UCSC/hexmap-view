@@ -8,6 +8,7 @@ import legend from '/imports/mapPage/color/legend';
 import rx from '/imports/common/rx';
 import shortlist from '/imports/mapPage/shortlist/shortlist';
 import util from '/imports/common/util';
+import perform from '/imports/common/perform'
 
 let refreshTimer
 
@@ -84,6 +85,7 @@ function refreshColorsInner () {
     
     // This holds a list of the string names of the currently selected layers,
     // in order.
+    perform.log('refreshColorsInnerStart', 'render', true)
     var actives = shortlist.get_active_coloring_layers();
     
     // Obtain the layer objects (mapping from signatures/hex labels to colors)
@@ -180,6 +182,7 @@ function refreshColorsInner () {
     setTimeout(function () {
         rx.set('snake.map.hide');
     });
+    perform.log('refreshColorsInnerEnd', 'render')
 }
 
 export function refreshColors() {

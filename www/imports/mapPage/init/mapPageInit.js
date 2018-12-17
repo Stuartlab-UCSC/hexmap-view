@@ -75,7 +75,7 @@ function areLayoutsPopulated () {
         R['inited.attrSummary']) {
         
         unsubFx.areLayoutsPopulated();
-        perform.log('6c-init:complete initialization');
+        //perform.log('6c-init:complete initialization');
 
         // Initial those that need data retrieved.
         layout.initList();
@@ -84,7 +84,7 @@ function areLayoutsPopulated () {
         setTimeout(function () {
             rx.set('shortlist.initAll', { attrs: shortlistSaved });
             shortlistInit.complete_initialization();
-            perform.log(' 6c-init:after-timeout');
+            //perform.log(' 6c-init:after-timeout');
             sortUi.init();
 
             import lazyLoader from '/imports/mapPage/init/lazyLoader';
@@ -101,7 +101,7 @@ function areLayoutsPopulated () {
             createMap.init();
             select.init();
             gChart.init();
-            perform.log('google-analytics-loading');
+            //perform.log('google-analytics-loading');
             util.googleCheck();
             rx.set('initialized');
         });
@@ -114,7 +114,7 @@ function areLayoutNamesReceived () {
     if (rx.get('init.layoutNames') === 'received') {
 
         unsubFx.areLayoutNamesReceived();
-        perform.log('6a-init:layout-names-received');
+        //perform.log('6a-init:layout-names-received');
 
         layout.initList();
         rx.set('init.layoutNames.populated');
@@ -127,11 +127,11 @@ function isMapRendered () {
     if (rx.get('init.map') === 'rendered') {
     
         unsubFx.isMapRendered();
-        perform.log('5-init:request-secondary-data');
+        //perform.log('5-init:request-secondary-data');
         
         // Timeout to allow the map to render.
         setTimeout(function () {
-            perform.log(' 5-init:after-timeout');
+            //perform.log(' 5-init:after-timeout');
 
             // Populate the longlist.
             import longlist from '/imports/mapPage/longlist/longlist';
@@ -176,7 +176,7 @@ function isMapPreppedAndUserAuthorized () {
         R['user.mapAuthorized'] !== 'not')  {
         
         unsubFx.isMapPreppedAndUserAuthorized();
-        perform.log('4-init:render-map');
+        //perform.log('4-init:render-map');
         
         // Request secondary data.
         data.requestLayoutNames(
@@ -219,11 +219,11 @@ function isReadyToRenderMap () {
         R['inited.dom']) {
         
         unsubFx.isReadyToRenderMap();
-        perform.log('3-init:prep-map');
+        //perform.log('3-init:prep-map');
 
         // Pause to let other processing complete.
         setTimeout(function () {
-            perform.log(' 3-init:after-timeout');
+            //perform.log(' 3-init:after-timeout');
             coords.init();
             hexagons.init();
 
@@ -251,11 +251,11 @@ function haveLayerSummary () {
         R['inited.attrTypes']) {
     
         unsubFx.haveLayerSummary();
-        perform.log('2b-init:find-first-layer-by-density');
+        //perform.log('2b-init:find-first-layer-by-density');
 
         // Pause to let other processing complete.
         setTimeout(function () {
-            perform.log(' 2b-init:after-timeout');
+            //perform.log(' 2b-init:after-timeout');
 
             // Do the initial sort.
             let first = rx.get('firstAttr');
@@ -294,7 +294,7 @@ function haveDataTypes () {
     if (R['inited.attrTypes']) {
 
         unsubFx.haveDataTypes();
-        perform.log('2a-init:get-active-attr-values');
+        //perform.log('2a-init:get-active-attr-values');
         
         let first = rx.get('firstAttr');
 
@@ -316,7 +316,7 @@ function haveDataTypes () {
 function hasDomLoaded () {
     if (rx.get('inited.dom')) {
         unsubFx.hasDomLoaded();
-        perform.log('1b-init:snakes,dom-loaded');
+        //perform.log('1b-init:snakes,dom-loaded');
         
         snake.init();
         if (DEV) {
@@ -346,7 +346,7 @@ function getFirstAttr () {
 // Phase 1a init: State has been received,
 //                so request primary.
 exports.init = function () {
-    perform.log('1a-init:request-primary-data');
+    //perform.log('1a-init:request-primary-data');
 
     // Initialize some session vars we don't want carried over
     // from the last session.
