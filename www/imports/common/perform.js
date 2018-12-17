@@ -2,7 +2,7 @@
 // perform.js
 // Capture performance metrics.
 
-const PERFORM = true; // eslint-disable-line
+const PERFORM = false; // eslint-disable-line
 // Coding area to track where:
 //      null = initialization
 //      render = polyon rendering
