@@ -8,9 +8,9 @@ import coords from '/imports/mapPage/viewport/coords';
 import infoWindow from '/imports/mapPage/viewport/infoWindow';
 import rx from '/imports/common/rx';
 import tool from '/imports/mapPage/head/tool';
-import util from '/imports/common/util';
-import utils from '/imports/common/utils';
 import '/imports/common/navBar.html';
+import perform from '/imports/common/perform'
+import hexagonPresent from '/imports/mapPage/viewport/hexagonPresent'
 
 // What's the minimum number of pixels that sideLen must represent at the
 // current zoom level before we start drawing hex borders?
@@ -35,24 +35,6 @@ var hoverInfoShowing = false;
 var max_x,
     max_y;
 
-Template.navBarT.helpers({
-    mapViewLayoutSelected: function () {  
-        var page = Session.get('page'),
-            mapView = Session.get('mapView');
-        return (page && page === 'mapPage' && mapView &&
-            mapView === 'honeycomb') ? 'selected' : '';
-    },
-    mapViewXySelected: function () {
-        var page = Session.get('page'),
-            mapView = Session.get('mapView');
-        return (page && page === 'mapPage' && mapView &&
-            mapView === 'xyCoords') ? 'selected' : '';
-    },
-    transparentSelected: function () {
-        return (Session.get('transparent')) ? 'selected' : '';
-    },
-});
-
 function findOpacity () {
 
     if (Session.equals('transparent', true)) {
@@ -73,7 +55,7 @@ function findOpacity () {
 
 function setZoomOptions(nodeId, xy, opts) {
 
-    var polygonDrawn = polygons[nodeId] ? true : false;
+    // Called when zoom changes and at hexagon creation.
     opts = opts || {};
 
     opts.fillOpacity = opacity;
@@ -86,25 +68,20 @@ function setZoomOptions(nodeId, xy, opts) {
         // API docs say: pixelCoordinate = worldCoordinate * 2 ^ zoomLevel
         // So this holds the number of pixels that the global length sideLen
         // corresponds to at this zoom level.
-        var weight = (coords.getSideLen() * Math.pow(2, ctx.zoom) >=
-            MIN_BORDER_SIZE)
-                ? HEX_STROKE_WEIGHT
-                : 0;
-
+        var weight =
+            (coords.getSideLen() * Math.pow(2, ctx.zoom) >= MIN_BORDER_SIZE) ?
+                HEX_STROKE_WEIGHT : 0;
         opts.strokeWeight = weight;
-        opts.strokeColor = rx.get('background');
-        opts.strokeOpacity = 1.0;
     } else {
 
         // This must be an xyCoords mapview.
-        // Retain the hexgon size, regardless of zoom.
+        // Retain the hexagon size, regardless of zoom.
         var hexLen = XY_HEX_LEN_SEED / Math.pow(2, ctx.zoom);
         opts.path = coords.getHexLatLngCoords(xy, hexLen);
     }
 
     // If the hexagon has already been drawn...
-    if (polygonDrawn) {
-
+    if (polygons[nodeId]) {
         // Change the drawn polygon options.
         polygons[nodeId].setOptions(opts);
     }
@@ -121,12 +98,16 @@ function renderHexagon (row, column, nodeId, opts) {
     // Returns the Google Maps polygon.
     var xy = coords.get_xyWorld_from_xyHex(column, row),
         mapView = Session.get('mapView'),
+        /*
+        TODO useless
         thisSideLen = (mapView === 'honeycomb') ?
             coords.getSideLen() : coords.getSideLen() * 2,
+         */
         shapeOpts = {
             map: googlemap,
-            //paths: coords,
             fillColor: Colormap.noDataColor(),
+            strokeColor: rx.get('background'),
+            strokeOpacity: 1.0,
             zIndex: 1,
         };
     
@@ -143,16 +124,13 @@ function renderHexagon (row, column, nodeId, opts) {
     setZoomOptions(nodeId, xy, shapeOpts);
 
     if (mapView === 'honeycomb') {
-        // TODO this duplicates code above
         shapeOpts.path = coords.getHexLatLngCoords(xy, coords.getSideLen());
     } else {
         shapeOpts.strokeWeight = 0;
     }
 
-    // TODO can we process many polygons in one call to googlemaps?
-    // Can we leave out the fill color until we have one?
+    // TODO how to defer render until we have a fill color?
     // Construct the Polygon
-    var saveLabel
     var hexagon = new google.maps.Polygon(shapeOpts);
 
     // Save the honeycomb coordinates with the hexagon
@@ -177,7 +155,7 @@ function renderHexagon (row, column, nodeId, opts) {
     return hexagon;
 } 
 
-function removeHoverListeners (hexagon) {
+removeHoverListeners = (hexagon) => {
     google.maps.event.removeListener(hexagon.mouseover);
     google.maps.event.removeListener(hexagon.mouseout);
     delete hexagon.mouseover;
@@ -200,23 +178,30 @@ function addHoverListeners (hexagon) {
     }
 }
 
-function showHoverInfo () {
-    var el = $('#navBar .showHoverInfo');
+function initNewLayout () {
+    coords.findDimensions(max_x, max_y);
+    perform.log('create', 'render')
+    exports.create();
+    perform.log('refreshColors', 'render')
+    colorMix.refreshColors();
+}
+
+exports.setHoverInfoShowing = () => {
     if (hoverInfoShowing) {
         hoverInfoShowing = false;
         _.each(polygons, removeHoverListeners);
-        el.text('Show Node Hover');
     } else {
         hoverInfoShowing = true;
         _.each(polygons, addHoverListeners);
-        el.text('Hide Node Hover');
     }
+    return hoverInfoShowing
 }
 
-function initNewLayout () {
-    coords.findDimensions(max_x, max_y);
-    exports.create();
-    colorMix.refreshColors();
+exports.setOpacity = () => {
+    findOpacity();
+    _.each(polygons, function(hex) {
+        hex.setOptions({ fillOpacity: opacity });
+    });
 }
 
 exports.create = function () {
@@ -225,6 +210,8 @@ exports.create = function () {
     findOpacity();
 
     // Clear any old polygons from the map.
+    // TODO how do we clear the google map canvas?
+    // TODO would a google map overlay work any better than re-creating the map?
     _.each(_.keys(polygons), exports.removeOne);
     polygons = {};
     _.each(assignments, function (hex, id) {
@@ -250,6 +237,7 @@ exports.addOne = function (x, y, label, opts) {
     // Store by label
     polygons[label] = hexagon;
 
+    // TODO Add this after rendering all polygons.
     if (hoverInfoShowing) {
         addHoverListeners(hexagon);
     }
@@ -260,15 +248,18 @@ exports.addOne = function (x, y, label, opts) {
 }
 
 exports.zoomChanged = function () {
+    perform.log('zoomChangeStart', 'render', true)
     findOpacity();
     for (var signature in polygons) {
         setZoomOptions(signature, polygons[signature].xy);
     }
+    perform.log('zoomChangeEnd', 'render')
 }
 
 exports.setOneColor = function (hexagon, color) {
 
     // Given a polygon and a color, set the hexagon's fill color.
+    // TODO add another function to process a list of hexagons with a list of colors?
     hexagon.setOptions({
         fillColor: color
     });
@@ -277,6 +268,7 @@ exports.setOneColor = function (hexagon, color) {
 exports.layoutAssignmentsReceived = function (parsed, id) {
     // This is an array of rows, which are arrays of values:
     // id, x, y
+    perform.log('layoutAssignmentsReceived', 'render', true);
 
     // These file globals hold the maximum observed x & y.
     max_x = max_y = 0;
@@ -292,6 +284,7 @@ exports.layoutAssignmentsReceived = function (parsed, id) {
     // Show the number of nodes on the UI
     Session.set('nodeCount', parsed.length - start);
 
+    // Build each hexagon.
     for (var i = start; i < parsed.length; i++) {
         var x = parsed[i][1],
             y = parsed[i][2],
@@ -321,39 +314,7 @@ exports.getAssignmentsForMapViewChange = function () {
 
 exports.init = function () {
 
-    // Default the mapView to honeycomb.
-    Session.set('mapView', Session.get('mapView') || 'honeycomb');
-
-    // Default the transparency and set the opacity value.
-    Session.set('transparent', Session.get('transparent') || false);
-
-    // Show some non-dev widgets if need be.
-    if (DEV) {
-        $('#navBar .transparent').show();
-    } else {
-        $('#navBar .transparent').hide();
-    }
-
-    // Set some event handlers
-    $('#navBar li.mapLayout').on('click', function () {
-        Session.set('mapView', 'honeycomb');
-        Session.set('transparent', false);
-        exports.getAssignmentsForMapViewChange();
-    });
-
-    $('#navBar li.xyCoordView').on('click', function () {
-        Session.set('mapView', 'xyCoords');
-        Session.set('transparent', true);
-        exports.getAssignmentsForMapViewChange();
-    });
-    $('#navBar .transparent').on('click', function () {
-        Session.set('transparent', !Session.get('transparent'));
-        findOpacity();
-        _.each(polygons, function(hex) {
-            hex.setOptions({ fillOpacity: opacity });
-        });
-    });
-    $('#navBar .showHoverInfo').on('click', showHoverInfo);
+    hexagonPresent.init()
 
     // Get the node positions for the initial view.
     Session.set('initedHexagons', true);
