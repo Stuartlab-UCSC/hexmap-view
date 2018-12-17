@@ -58,7 +58,7 @@ exports.layoutNamesReceived = function (parsed) {
         }
         Session.set('layoutIndex', index);
         
-        perform.log('layouts-rendered');
+        //perform.log('layouts-rendered');
         
         // Now request the node locations since we have an index.
         data.requestLayoutAssignments();

@@ -15,12 +15,12 @@ function request (id, opts) {
     // @param opts.successFx: function to call on success
     // @param opts.rxAction; optional state action to take on success
     // @param opts.stateVar; optional state variable to set to true on success
-    perform.log(id + '.tab_requested');
+    //perform.log(id + '.tab_requested');
     opts = opts || {};
     var aOpts = {
         id: id,
         success: function (results) {
-            perform.log(id + '.tab_got');
+            //perform.log(id + '.tab_got');
             if (opts.successFx) {
                 opts.successFx(results, id);
             }

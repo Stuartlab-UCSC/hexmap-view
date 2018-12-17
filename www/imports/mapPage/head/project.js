@@ -146,7 +146,7 @@ function populate () {
                 }}
             />, $('#project')[0]);
         
-        perform.log('project-list-rendered');
+        //perform.log('project-list-rendered');
         rx.set('projectList.stable');
         rx.set('snake.project.hide');
     }
@@ -174,7 +174,7 @@ function projectListReceived (results) {
             projects.unshift(entry);
         }
     }
-    perform.log('project:list-got');
+    //perform.log('project:list-got');
     rx.set('projectList.loading');
 }
 
@@ -277,7 +277,7 @@ exports.authorize = function () {
                     util.mapNotFoundNotify();
                 }
                 showHideDeleteMenuItem()
-                perform.log('project:authorized:' + rx.get('user.mapAuthorized'));
+                //perform.log('project:authorized:' + rx.get('user.mapAuthorized'));
             },
             function () {
                 rx.set('user.mapAuthorized.not');
@@ -288,7 +288,7 @@ exports.authorize = function () {
     }
     
     // Re-populate projects whenever the user changes, including log out.
-    perform.log('project:list-request');
+    //perform.log('project:list-request');
     
     // Subscribe to state changes effecting the project list.
     rx.set('projectList.receiving');
