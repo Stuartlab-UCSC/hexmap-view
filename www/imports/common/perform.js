@@ -9,7 +9,6 @@ const PERFORM = false; // eslint-disable-line
 let AREA = 'render'
 let header = false; // true = log header
 var startTime = 1706190000000;
-                38878021969
 
 exports.log = function (msg, area=null, reset=false) {
     if (!PERFORM) { return; }
