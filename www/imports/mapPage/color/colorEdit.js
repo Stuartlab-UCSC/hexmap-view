@@ -4,7 +4,7 @@
 import Colormap from '/imports/mapPage/color/Colormap';
 import colorMix from '/imports/mapPage/color/colorMix';
 import DialogHex from '/imports/common/DialogHex';
-import hexagons from '/imports/mapPage/viewport/hexagons';
+import nodes from '/imports/mapPage/viewport/nodes';
 import overlayNodes from '/imports/mapPage/calc/overlayNodes';
 import rx from '/imports/common/rx';
 import shortlist from '/imports/mapPage/shortlist/shortlist';
@@ -336,7 +336,7 @@ exports.init = function () {
         // The background change requires a new map to show the
         // background.
         viewport.create();
-        hexagons.create();
+        nodes.create();
         colorMix.refreshColors();
         overlayNodes.show();
     });

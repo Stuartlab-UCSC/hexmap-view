@@ -124,6 +124,9 @@ const reducers = {
     'initialized': (state = false, action) => {
         return (action.type === 'initialized') ? true : state;
     },
+    'hoverInfoShowing': (state = false, action) => {
+        return (action.type === 'hoverInfoShowing.toggle') ? !state : state;
+    },
     'projectList': (state = 'receiving', action) => {
         switch (action.type) {
         case 'projectList.loading':

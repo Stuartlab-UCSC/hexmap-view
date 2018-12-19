@@ -1,16 +1,12 @@
 // hexagon.js
 // Handle things to do with hexagons.
 
-import data from '/imports/mapPage/data/data';
 import Colormap from '/imports/mapPage/color/Colormap';
-import colorMix from '/imports/mapPage/color/colorMix';
 import coords from '/imports/mapPage/viewport/coords';
 import infoWindow from '/imports/mapPage/viewport/infoWindow';
 import rx from '/imports/common/rx';
 import tool from '/imports/mapPage/head/tool';
 import '/imports/common/navBar.html';
-import perform from '/imports/common/perform'
-import hexagonPresent from '/imports/mapPage/viewport/hexagonPresent'
 
 // What's the minimum number of pixels that sideLen must represent at the
 // current zoom level before we start drawing hex borders?
@@ -22,20 +18,10 @@ var HEX_STROKE_WEIGHT = 2;
 // Some number used to determine the length for xy coords mapView.
 var XY_HEX_LEN_SEED = 9;
 
-// The node assignments in honeycomb space
-var assignments;
-
 // The opacity value when transparent is enabled.
 var opacity;
 
-// The hover info flag
-var hoverInfoShowing = false;
-
-// Save the xy extents.
-var max_x,
-    max_y;
-
-function findOpacity () {
+export function findOpacity () {
 
     if (Session.equals('transparent', true)) {
 
@@ -53,7 +39,7 @@ function findOpacity () {
     }
 }
 
-function setZoomOptions(nodeId, xy, opts) {
+export function setZoomOptions(nodeId, xy, opts) {
 
     // Called when zoom changes and at hexagon creation.
     opts = opts || {};
@@ -155,15 +141,15 @@ function renderHexagon (row, column, nodeId, opts) {
     return hexagon;
 } 
 
-removeHoverListeners = (hexagon) => {
+export function removeHoverListeners (hexagon) {
     google.maps.event.removeListener(hexagon.mouseover);
     google.maps.event.removeListener(hexagon.mouseout);
     delete hexagon.mouseover;
     delete hexagon.mouseout;
 }
 
-function addHoverListeners (hexagon) {
-    if (hoverInfoShowing) {
+export function addHoverListeners (hexagon) {
+    if (rx.get('hoverInfoShowing')) {
 
         // Set up the hover listeners to move the infowindow to this node
         // with just a node ID displayed.
@@ -178,25 +164,6 @@ function addHoverListeners (hexagon) {
     }
 }
 
-function initNewLayout () {
-    coords.findDimensions(max_x, max_y);
-    perform.log('create', 'render')
-    exports.create();
-    perform.log('refreshColors', 'render')
-    colorMix.refreshColors();
-}
-
-exports.setHoverInfoShowing = () => {
-    if (hoverInfoShowing) {
-        hoverInfoShowing = false;
-        _.each(polygons, removeHoverListeners);
-    } else {
-        hoverInfoShowing = true;
-        _.each(polygons, addHoverListeners);
-    }
-    return hoverInfoShowing
-}
-
 exports.setOpacity = () => {
     findOpacity();
     _.each(polygons, function(hex) {
@@ -204,20 +171,6 @@ exports.setOpacity = () => {
     });
 }
 
-exports.create = function () {
-
-    // Create the hexagons from the positions data.
-    findOpacity();
-
-    // Clear any old polygons from the map.
-    // TODO how do we clear the google map canvas?
-    // TODO would a google map overlay work any better than re-creating the map?
-    _.each(_.keys(polygons), exports.removeOne);
-    polygons = {};
-    _.each(assignments, function (hex, id) {
-        exports.addOne (hex.x, hex.y, id);
-    });
-}
 
 exports.removeOne = function (label) {
     google.maps.event.clearInstanceListeners(polygons[label]);
@@ -238,7 +191,7 @@ exports.addOne = function (x, y, label, opts) {
     polygons[label] = hexagon;
 
     // TODO Add this after rendering all polygons.
-    if (hoverInfoShowing) {
+    if (rx.get('hoverInfoShowing')) {
         addHoverListeners(hexagon);
     }
     
@@ -247,14 +200,6 @@ exports.addOne = function (x, y, label, opts) {
     hexagon.signature = label;
 }
 
-exports.zoomChanged = function () {
-    perform.log('zoomChangeStart', 'render', true)
-    findOpacity();
-    for (var signature in polygons) {
-        setZoomOptions(signature, polygons[signature].xy);
-    }
-    perform.log('zoomChangeEnd', 'render')
-}
 
 exports.setOneColor = function (hexagon, color) {
 
@@ -265,60 +210,3 @@ exports.setOneColor = function (hexagon, color) {
     });
 };
 
-exports.layoutAssignmentsReceived = function (parsed, id) {
-    // This is an array of rows, which are arrays of values:
-    // id, x, y
-    perform.log('layoutAssignmentsReceived', 'render', true);
-
-    // These file globals hold the maximum observed x & y.
-    max_x = max_y = 0;
-
-    // Find the max x and y while storing the assignments
-    assignments = {};
-    var start = 0;
-
-    if (parsed[0][0][0] === '#') {
-        start = 1;
-    }
-
-    // Show the number of nodes on the UI
-    Session.set('nodeCount', parsed.length - start);
-
-    // Build each hexagon.
-    for (var i = start; i < parsed.length; i++) {
-        var x = parsed[i][1],
-            y = parsed[i][2],
-            mapView = Session.get('mapView');
-        if (mapView === 'honeycomb') {
- 
-            // Force the nodes into hexagonal grid coordinates.
-            x = parseInt(x);
-            y = parseInt(y);
-        }
-        assignments[parsed[i][0]] = {x: x, y: y};
-        max_x = Math.max(x, max_x);
-        max_y = Math.max(y, max_y);
-    }
-    rx.set('inited.layout');
-    if (Session.equals('initedHexagons', true)) {
-        initNewLayout();
-    }
-};
-
-exports.getAssignmentsForMapViewChange = function () {
-
-    // Download the positions of nodes and fill in the global
-    // hexagon assignment grid.
-    data.requestLayoutAssignments();
-};
-
-exports.init = function () {
-
-    hexagonPresent.init()
-
-    // Get the node positions for the initial view.
-    Session.set('initedHexagons', true);
-    if (rx.get('inited.layout')) {
-        initNewLayout();
-    }
-};

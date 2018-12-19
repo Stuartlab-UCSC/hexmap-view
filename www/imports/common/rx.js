@@ -24,6 +24,7 @@ const statePieces =  [ // eslint-disable-line
     'inited.layout',
     'inited.state',
     'initialized',
+    'hoverInfoShowing',
     'projectList',
     'shortEntry.filter',
     'shortEntry.menu.attr',
