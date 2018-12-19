@@ -1,4 +1,4 @@
-// hexagonPresent.js
+// nodeControls.js
 // Handle UI controls having to do with hexagons.
 
 import '/imports/common/navBar.html';

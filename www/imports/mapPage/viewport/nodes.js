@@ -8,7 +8,7 @@ import rx from '/imports/common/rx';
 import '/imports/common/navBar.html';
 import perform from '/imports/common/perform'
 import hexagons from '/imports/mapPage/viewport/hexagons'
-import hexagonPresent from '/imports/mapPage/viewport/hexagonPresent'
+import nodeControls from '/imports/mapPage/viewport/nodeControls'
 
 // The node assignments in honeycomb space
 var assignments;
@@ -112,7 +112,7 @@ exports.getAssignmentsForMapViewChange = function () {
 
 exports.init = function () {
 
-    hexagonPresent.init()
+    nodeControls.init()
 
     // Get the node positions for the initial view.
     Session.set('initedHexagons', true);
