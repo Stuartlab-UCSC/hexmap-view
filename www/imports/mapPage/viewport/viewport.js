@@ -5,6 +5,7 @@ import '/imports/lib/color';
 import colorMix from '/imports/mapPage/color/colorMix';
 import coords from '/imports/mapPage/viewport/coords';
 import hexagons from '/imports/mapPage/viewport/hexagons';
+import nodes from '/imports/mapPage/viewport/nodes'
 import rx from '/imports/common/rx';
 import tool from '/imports/mapPage/head/tool';
 
@@ -47,7 +48,7 @@ exports.create = function  () {
     google.maps.event.addListener(googlemap, "zoom_changed", function() {
         // Get the current zoom level (low is out)
         ctx.zoom = googlemap.getZoom();
-        hexagons.zoomChanged();
+        nodes.zoomChanged();
     });
     
     // Listen to mouse events on this map
@@ -58,6 +59,6 @@ exports.init = function () {
 
     // Initialize the google map and create the hexagon assignments
     exports.create();
-    hexagons.create();
+    nodes.create();
     colorMix.refreshColors();
 };

@@ -85,7 +85,7 @@ exports.initList = function () {
         if (!Session.equals('layoutIndex', ev.target.value)) {
             Session.set('layoutIndex', ev.target.value);
             viewport.create();
-            hexagons.getAssignmentsForMapViewChange();
+            nodes.getAssignmentsForMapViewChange();
             
             // Update density stats to this layout and
             // resort the list to the default of density

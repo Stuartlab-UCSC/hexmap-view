@@ -11,7 +11,7 @@ import download from '/imports/mapPage/data/download';
 import { checkFetchStatus, parseFetchedJson, fetchError }
     from '/imports/common/utils';
 import gChart from '/imports/mapPage/shortlist/gChart';
-import hexagons from '/imports/mapPage/viewport/hexagons';
+import nodes from '/imports/mapPage/viewport/nodes';
 import viewport from '/imports/mapPage/viewport/viewport';
 import Layer from '/imports/mapPage/longlist/Layer';
 import layout from '/imports/mapPage/head/layout';
@@ -225,7 +225,7 @@ function isReadyToRenderMap () {
         setTimeout(function () {
             //perform.log(' 3-init:after-timeout');
             coords.init();
-            hexagons.init();
+            nodes.init();
 
             // Prepare to draw the map.
             utils.resizeMap();

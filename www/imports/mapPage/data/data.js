@@ -7,6 +7,7 @@ import Colormap from '/imports/mapPage/color/Colormap';
 import perform from '/imports/common/perform';
 import rx from '/imports/common/rx';
 import util from '/imports/common/util';
+import nodes from '/imports/mapPage/viewport/nodes'
 
 function request (id, opts) {
 
@@ -131,7 +132,7 @@ exports.requestLayoutAssignments = function (opts) {
         }
     }
     opts = opts || {};
-    opts.successFx = opts.successFx || hexagons.layoutAssignmentsReceived;
+    opts.successFx = opts.successFx || nodes.layoutAssignmentsReceived;
     request((Session.get('mapView') === 'honeycomb' ? 'assignments' :
         'xyPreSquiggle_') + index, opts);
 };
