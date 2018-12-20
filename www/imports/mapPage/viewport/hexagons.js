@@ -84,11 +84,6 @@ function renderHexagon (row, column, nodeId, opts) {
     // Returns the Google Maps polygon.
     var xy = coords.get_xyWorld_from_xyHex(column, row),
         mapView = Session.get('mapView'),
-        /*
-        TODO useless
-        thisSideLen = (mapView === 'honeycomb') ?
-            coords.getSideLen() : coords.getSideLen() * 2,
-         */
         shapeOpts = {
             map: googlemap,
             fillColor: Colormap.noDataColor(),
@@ -172,13 +167,30 @@ exports.setOpacity = () => {
 }
 
 
-exports.removeOne = function (label) {
+export function detachOne (label) {
+    // Detach the polygon from the map to redraw later.
+    // TODO background color change should use this rather than remove one.
+    // Which also means adding a function to add them back to the map rather
+    // than rebuilding the polygons from scratch.
     google.maps.event.clearInstanceListeners(polygons[label]);
     polygons[label].setMap(null);
+}
+
+export function removeOne (label) {
+    detachOne(label)
     delete polygons[label];
 }
 
-exports.addOne = function (x, y, label, opts) {
+export function removeAll () {
+    if (Object.keys(polygons).length > 0) {
+        for (let key in polygons) {
+            removeOne(key)
+        }
+        polygons = {}
+    }
+}
+
+export function addOne (x, y, label, opts)  {
 
     // Make a hexagon on the Google map and store that.
     // x and y are in object coordinates before transform to world xy coords
@@ -200,11 +212,16 @@ exports.addOne = function (x, y, label, opts) {
     hexagon.signature = label;
 }
 
+export function addMany (polygons) {
+    _.each(polygons, function (hex, id) {
+        addOne(hex.x, hex.y, id);
+    });
+}
+
 
 exports.setOneColor = function (hexagon, color) {
 
     // Given a polygon and a color, set the hexagon's fill color.
-    // TODO add another function to process a list of hexagons with a list of colors?
     hexagon.setOptions({
         fillColor: color
     });

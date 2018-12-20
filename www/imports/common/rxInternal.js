@@ -118,6 +118,9 @@ const reducers = {
     'inited.layout': (state = false, action) => {
         return (action.type === 'inited.layout') ? true : state;
     },
+    'inited.nodes': (state = false, action) => {
+        return (action.type === 'inited.nodes') ? true : state;
+    },
     'inited.state': (state = false, action) => {
         return (action.type === 'inited.state') ? true : state;
     },

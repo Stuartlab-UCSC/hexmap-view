@@ -111,7 +111,6 @@ exports.requestLayerSummary = function (opts) {
 };
 
 exports.requestLayoutAssignments = function (opts) {
-    import hexagons from '/imports/mapPage/viewport/hexagons.js';
     var index = Session.get('layoutIndex');
     
     // If no layout index was supplied ...

@@ -22,6 +22,7 @@ const statePieces =  [ // eslint-disable-line
     'inited.dom',
     'inited.googleMapApi',
     'inited.layout',
+    'inited.nodes',
     'inited.state',
     'initialized',
     'hoverInfoShowing',
