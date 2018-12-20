@@ -10,7 +10,9 @@ import perform from '/imports/common/perform'
 import hexagons from '/imports/mapPage/viewport/hexagons'
 import nodeControls from '/imports/mapPage/viewport/nodeControls'
 
-// The node assignments in honeycomb space
+// The node assignments in cartesian space.
+// Keep these around for now in case the map needs to be redrawn.
+// What are the cases when we draw polygons in the data layer?
 var assignments;
 
 // Save the xy extents.
@@ -37,18 +39,13 @@ exports.setHoverInfoShowing = () => {
 
 exports.create = function () {
 
-    // Create the hexagons from the positions data.
+    // (re)create the hexagons from the positions data.
     hexagons.findOpacity();
 
     // Clear any old polygons from the map.
-    // TODO how do we clear the google map canvas?
-    // TODO would a google map overlay work any better than re-creating the map?
+    hexagons.removeAll()
 
-    keys = _.keys(polygons)
-    if (keys.length) {
-        _.each(_.keys(polygons), hexagons.removeOne);
-        polygons = {};
-    }
+    // Build the polygons.
     _.each(assignments, function (hex, id) {
         hexagons.addOne (hex.x, hex.y, id);
     });
@@ -81,12 +78,12 @@ exports.layoutAssignmentsReceived = function (parsed, id) {
 
     // Show the number of nodes on the UI
     Session.set('nodeCount', parsed.length - start);
+    const mapView = Session.get('mapView');
 
     // Build each hexagon.
     for (var i = start; i < parsed.length; i++) {
         var x = parsed[i][1],
-            y = parsed[i][2],
-            mapView = Session.get('mapView');
+            y = parsed[i][2]
         if (mapView === 'honeycomb') {
 
             // Force the nodes into hexagonal grid coordinates.
@@ -98,9 +95,10 @@ exports.layoutAssignmentsReceived = function (parsed, id) {
         max_y = Math.max(y, max_y);
     }
     rx.set('inited.layout');
-    if (Session.equals('initedHexagons', true)) {
+    if (rx.get('inited.nodes')) {
         initNewLayout();
     }
+    parsed = null
 };
 
 exports.getAssignmentsForMapViewChange = function () {
@@ -115,7 +113,7 @@ exports.init = function () {
     nodeControls.init()
 
     // Get the node positions for the initial view.
-    Session.set('initedHexagons', true);
+    rx.set('inited.nodes');
     if (rx.get('inited.layout')) {
         initNewLayout();
     }

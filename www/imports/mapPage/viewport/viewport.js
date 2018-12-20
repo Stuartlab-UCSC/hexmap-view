@@ -22,6 +22,12 @@ exports.create = function  () {
             mapTypeIds: []
         },
         minZoom: 2,
+        /*
+        use a data layer to draw polygons. faster per
+        https://stackoverflow.com/questions/37109726/google-maps-polygons-slowing-down-the-browser
+        map.data.add({
+            geometry: new google.maps.Data.Polygon([coords])})
+         */
 
         // Or a street view man that lets you walk around various Earth places.
         streetViewControl: false
