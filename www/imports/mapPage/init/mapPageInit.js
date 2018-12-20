@@ -350,7 +350,6 @@ exports.init = function () {
 
     // Initialize some session vars we don't want carried over
     // from the last session.
-    Session.set('initedHexagons', false);
     Session.set('mapMeta', {});
     
     // Initialize the data types arrays.
