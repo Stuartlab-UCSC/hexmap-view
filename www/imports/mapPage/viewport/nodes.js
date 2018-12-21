@@ -31,32 +31,25 @@ exports.setHoverInfoShowing = () => {
     const showing = rx.get('hoverInfoShowing')
     rx.set('hoverInfoShowing.toggle')
     if (showing) {
-        _.each(polygons, hexagons.removeHoverListeners);
+        hexagons.removeHoverListener()
     } else {
-        _.each(polygons, hexagons.addHoverListeners);
+        hexagons.addHoverListener()
     }
 }
 
 exports.create = function () {
 
     // (re)create the hexagons from the positions data.
-    hexagons.findOpacity();
-
     // Clear any old polygons from the map.
     hexagons.removeAll()
 
     // Build the polygons.
-    _.each(assignments, function (hex, id) {
-        hexagons.addOne (hex.x, hex.y, id);
-    });
+    hexagons.addAll(assignments)
 }
 
 exports.zoomChanged = function () {
     perform.log('zoomChangeStart', 'render', true)
-    hexagons.findOpacity();
-    for (var signature in polygons) {
-        hexagons.setZoomOptions(signature, polygons[signature].xy);
-    }
+    hexagons.setZoomOptions()
     perform.log('zoomChangeEnd', 'render')
 }
 

@@ -21,7 +21,7 @@ var XY_HEX_LEN_SEED = 9;
 // The opacity value when transparent is enabled.
 var opacity;
 
-export function findOpacity () {
+const findOpacity = () => {
 
     if (Session.equals('transparent', true)) {
 
@@ -38,12 +38,10 @@ export function findOpacity () {
         opacity = 1.0;
     }
 }
-
-export function setZoomOptions(nodeId, xy, opts) {
+export const setOneZoomOptions = (nodeId, xy, opts) => {
 
     // Called when zoom changes and at hexagon creation.
     opts = opts || {};
-
     opts.fillOpacity = opacity;
 
     if (Session.equals('mapView', 'honeycomb')) {
@@ -57,6 +55,7 @@ export function setZoomOptions(nodeId, xy, opts) {
         var weight =
             (coords.getSideLen() * Math.pow(2, ctx.zoom) >= MIN_BORDER_SIZE) ?
                 HEX_STROKE_WEIGHT : 0;
+        console.log('setZoomOptions:weight:', weight)
         opts.strokeWeight = weight;
     } else {
 
@@ -71,8 +70,15 @@ export function setZoomOptions(nodeId, xy, opts) {
         // Change the drawn polygon options.
         polygons[nodeId].setOptions(opts);
     }
+}
 
-    // This has not yet been drawn yet,
+export function setZoomOptions(opts) {
+
+    findOpacity()
+    for (var nodeId in polygons) {
+        setOneZoomOptions(nodeId, polygons[nodeId].xy)
+    }
+    // This has not yet been drawn,
     // so return with the modified shape options provided.
     return;
 }
@@ -102,8 +108,7 @@ function renderHexagon (row, column, nodeId, opts) {
         }
     }
 
-    setZoomOptions(nodeId, xy, shapeOpts);
-
+    setOneZoomOptions(nodeId, xy, shapeOpts);
     if (mapView === 'honeycomb') {
         shapeOpts.path = coords.getHexLatLngCoords(xy, coords.getSideLen());
     } else {
@@ -136,26 +141,31 @@ function renderHexagon (row, column, nodeId, opts) {
     return hexagon;
 } 
 
-export function removeHoverListeners (hexagon) {
-    google.maps.event.removeListener(hexagon.mouseover);
-    google.maps.event.removeListener(hexagon.mouseout);
-    delete hexagon.mouseover;
-    delete hexagon.mouseout;
+export function removeHoverListener () {
+    _.each(polygons, function (hexagon) {
+        google.maps.event.removeListener(hexagon.mouseover);
+        google.maps.event.removeListener(hexagon.mouseout);
+        delete hexagon.mouseover;
+        delete hexagon.mouseout;
+    })
 }
 
-export function addHoverListeners (hexagon) {
+export function addHoverListener () {
     if (rx.get('hoverInfoShowing')) {
 
-        // Set up the hover listeners to move the infowindow to this node
-        // with just a node ID displayed.
-        hexagon.mouseover = google.maps.event.addListener(hexagon,
-            "mouseover", function (event) {
-                infoWindow.show(event, hexagon, null, null, true);
-            });
-        hexagon.mouseout = google.maps.event.addListener(hexagon,
-            "mouseout", function (event) {
-                infoWindow.close(true);
-            });
+        _.each(polygons, function (hexagon) {
+
+            // Set up the hover listeners to move the infowindow to this node
+            // with just a node ID displayed.
+            hexagon.mouseover = google.maps.event.addListener(hexagon,
+                "mouseover", function (event) {
+                    infoWindow.show(event, hexagon, null, null, true);
+                });
+            hexagon.mouseout = google.maps.event.addListener(hexagon,
+                "mouseout", function (event) {
+                    infoWindow.close(true);
+                });
+        })
     }
 }
 
@@ -212,12 +222,12 @@ export function addOne (x, y, label, opts)  {
     hexagon.signature = label;
 }
 
-export function addMany (polygons) {
-    _.each(polygons, function (hex, id) {
+export const addAll = (assignments) => {
+    findOpacity();
+    _.each(assignments, function (hex, id) {
         addOne(hex.x, hex.y, id);
     });
 }
-
 
 exports.setOneColor = function (hexagon, color) {
 
@@ -226,4 +236,3 @@ exports.setOneColor = function (hexagon, color) {
         fillColor: color
     });
 };
-
