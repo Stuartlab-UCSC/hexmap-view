@@ -98,7 +98,7 @@ exports.stateActions = [
     'shortlist.initActives',
     'shortlist.initAll',
     'shortlist.initFirst',
-    'shortlist.loadPersist':
+    'shortlist.loadPersist',
     'snake.map.hide',
     'snake.map.show',
     'snake.project.hide',
