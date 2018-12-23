@@ -59,7 +59,6 @@ var varInfo = {
     },
     mapView: {
         defalt: 'honeycomb',
-        session: true,
     },
     overlayNodes: {
         defalt: undefined,
@@ -77,7 +76,6 @@ var varInfo = {
     'shortEntry.filter': {
         defalt: {},
         project: true,
-
     },
     'shortEntry.menu.filter': {
         defalt: {},
@@ -86,10 +84,6 @@ var varInfo = {
     shortlist: {
         defalt: [],
         project: true,
-    },
-    transparent: {
-        defalt: false,
-        session: true,
     },
     zoom: {
         defalt: 3,

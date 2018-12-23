@@ -132,6 +132,6 @@ exports.requestLayoutAssignments = function (opts) {
     }
     opts = opts || {};
     opts.successFx = opts.successFx || nodes.layoutAssignmentsReceived;
-    request((Session.get('mapView') === 'honeycomb' ? 'assignments' :
+    request((rx.get('mapView') === 'honeycomb' ? 'assignments' :
         'xyPreSquiggle_') + index, opts);
 };

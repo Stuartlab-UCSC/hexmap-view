@@ -124,7 +124,7 @@ function criteriaCheck () {
         userMsg.error('Sorry, the required data to ' +
         'place new nodes is not available for this map.');
         return false;
-    } else if (! Session.equals('mapView', 'honeycomb')) {
+    } else if (rx.get('mapView') !== 'honeycomb') {
         userMsg.error('Sorry, nodes may only be placed in the ' +
             '"Hexagonal Grid" view. Selectable under the "View menu".');
         return false;

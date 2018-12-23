@@ -8,7 +8,6 @@ import rx from '/imports/common/rx';
 import '/imports/common/navBar.html';
 import perform from '/imports/common/perform'
 import hexagons from '/imports/mapPage/viewport/hexagons'
-import nodeControls from '/imports/mapPage/viewport/nodeControls'
 
 // The node assignments in cartesian space.
 // Keep these around for now in case the map needs to be redrawn.
@@ -25,16 +24,6 @@ function initNewLayout () {
     exports.create();
     perform.log('refreshColors', 'render')
     colorMix.refreshColors();
-}
-
-exports.setHoverInfoShowing = () => {
-    const showing = rx.get('hoverInfoShowing')
-    rx.set('hoverInfoShowing.toggle')
-    if (showing) {
-        hexagons.removeHoverListener()
-    } else {
-        hexagons.addHoverListener()
-    }
 }
 
 exports.create = function () {
@@ -71,13 +60,12 @@ exports.layoutAssignmentsReceived = function (parsed, id) {
 
     // Show the number of nodes on the UI
     Session.set('nodeCount', parsed.length - start);
-    const mapView = Session.get('mapView');
 
     // Build each hexagon.
     for (var i = start; i < parsed.length; i++) {
         var x = parsed[i][1],
             y = parsed[i][2]
-        if (mapView === 'honeycomb') {
+        if (rx.get('mapView') === 'honeycomb') {
 
             // Force the nodes into hexagonal grid coordinates.
             x = parseInt(x);
@@ -102,8 +90,6 @@ exports.getAssignmentsForMapViewChange = function () {
 };
 
 exports.init = function () {
-
-    nodeControls.init()
 
     // Get the node positions for the initial view.
     rx.set('inited.nodes');
