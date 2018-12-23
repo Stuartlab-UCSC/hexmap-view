@@ -40,6 +40,7 @@ const statePieces =  [ // eslint-disable-line
     'transparent', // boolean where true means nodes will be transparent
     'user.mapAuthorized',
     'user.roles',
+    'zoom', // zoom level of the map
 ];
 
 // The global redux state.

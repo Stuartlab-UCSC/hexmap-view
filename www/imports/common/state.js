@@ -87,7 +87,6 @@ var varInfo = {
     },
     zoom: {
         defalt: 3,
-        ctx: true,
         project: true,
     },
 };
