@@ -2,10 +2,10 @@
 // perform.js
 // Capture performance metrics.
 
-const PERFORM = true; // eslint-disable-line
-// Coding area to track where:
+const PERFORM = false; // eslint-disable-line
+// Coding AREA to track where:
 //      null = initialization
-//      render = polyon rendering
+//      render = polygon rendering
 let AREA = 'render'
 let header = false; // true = log header
 var startTime = 1706190000000;

@@ -120,23 +120,7 @@
             <li class='mapShow'>
                 View
                 <img src='/icons/caret-down.png' style='height:8px'>
-                <ul class='view'>
-                    <li class='mapLayout mapView {{ mapViewLayoutSelected }}'>
-                        Hexagonal Grid
-                    </li>
-                    <li class='xyCoordView mapView {{ mapViewXySelected}}'>
-                        Cartesian Plane
-                    </li>
-                    <li class='mapShow'>
-                        <hr>
-                    </li>
-                    <li class='transparent {{ transparentSelected }}' style='display:none'>
-                        Transparent
-                    </li>
-                    <li class='showHoverInfo'>
-                        Show Node Hover
-                    </li>
-                </ul>
+                <ul id='nodeMenuWrap' class='view'></ul>
             </li>
 
             <li class='mapShow'>

@@ -1,7 +1,13 @@
 // Handle the navigation bar
 
+import {render} from "react-dom";
+import React from "react";
+import { Provider } from 'react-redux'
 import project from '/imports/mapPage/head/project';
+import rx from '/imports/common/rx'
 import utils from '/imports/common/utils';
+import Node from '/imports/mapPage/viewport/Node'
+
 import './navBar.html';
 import './navBar.css';
 
@@ -17,7 +23,18 @@ Template.navBarT.helpers({
 
 exports.init = function () {
 
-    // Initialize for the page we are on, first enabling all
+    // Initialize for the page we are on.
+
+    // Add react components.
+    const store = rx.getStore()
+    render(
+        <Provider store={store}>
+            <Node />
+        </Provider>,
+        document.getElementById('nodeMenuWrap')
+    )
+
+    // Start with all features enabled.
     $('#navBar *').removeClass('disabled');
     if (Session.equals('page', 'homePage')) {
         $('body').find('.mapShow').hide();
@@ -30,6 +47,13 @@ exports.init = function () {
         $('body').css('overflow-y', 'hidden');
     }
     
+    // Handle development mode
+    if (DEV) {
+        $('#navBar .transparent').show();
+    } else {
+        $('#navBar .transparent').hide();
+    }
+
     // Hide the delete map item to start.
     document.querySelector('#navBar .deleteMap')
         .style.setProperty('display', 'none')

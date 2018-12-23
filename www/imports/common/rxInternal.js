@@ -127,8 +127,24 @@ const reducers = {
     'initialized': (state = false, action) => {
         return (action.type === 'initialized') ? true : state;
     },
-    'hoverInfoShowing': (state = false, action) => {
-        return (action.type === 'hoverInfoShowing.toggle') ? !state : state;
+    'mapView': (state = 'honeycomb', action) => {
+        switch (action.type) {
+        case 'mapView.loadPersist':
+            return action.loadPersist
+        case 'mapView.honeycomb':
+            return 'honeycomb'
+        case 'mapView.xyCoords':
+            return 'xyCoords'
+        default:
+            return state
+        }
+    },
+    'opacity': (state = 1.0, action) => {
+        if (action.type === 'opacity.setUi') {
+            return action.value;
+        } else {
+            return state
+        }
     },
     'projectList': (state = 'receiving', action) => {
         switch (action.type) {
@@ -141,6 +157,9 @@ const reducers = {
         default:
             return state;
         }
+    },
+    'showHoverInfo': (state = false, action) => {
+        return (action.type === 'showHoverInfo.toggle') ? !state : state;
     },
     'snake.project': (state = true, action) => {
         switch (action.type) {
@@ -170,6 +189,18 @@ const reducers = {
             return false;
         default:
             return state;
+        }
+    },
+    'transparent': (state = false, action) => {
+        switch (action.type) {
+        case 'transparent.on':
+            return true
+        case 'transparent.off':
+            return false
+        case 'transparent.toggle':
+            return !state
+        default:
+            return state
         }
     },
     'user.mapAuthorized': (state = 'not', action) => {

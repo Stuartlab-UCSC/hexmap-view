@@ -43,7 +43,12 @@ exports.create = function  () {
         
     // Attach the blank map type to the map
     googlemap.mapTypes.set("blank", new coords.BlankMap());
-    
+
+    // Set the proper transparency of nodes.
+    if (rx.get('mapView') === 'xyCoords') {
+        rx.set('transparent.on')
+    }
+
     google.maps.event.addListener(googlemap, "center_changed", function() {
         ctx.center = googlemap.getCenter();
     });

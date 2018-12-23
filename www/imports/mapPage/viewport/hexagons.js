@@ -22,8 +22,7 @@ var XY_HEX_LEN_SEED = 9;
 var opacity;
 
 const findOpacity = () => {
-
-    if (Session.equals('transparent', true)) {
+    if (rx.get('transparent')) {
 
         var additive = 0.05;
 
@@ -44,7 +43,7 @@ export const setOneZoomOptions = (nodeId, xy, opts) => {
     opts = opts || {};
     opts.fillOpacity = opacity;
 
-    if (Session.equals('mapView', 'honeycomb')) {
+    if (rx.get('mapView') === 'honeycomb') {
 
         // Given a polygon, set the weight of hexagon's border stroke, in
         // number of screen pixels, and the border color.
@@ -55,7 +54,6 @@ export const setOneZoomOptions = (nodeId, xy, opts) => {
         var weight =
             (coords.getSideLen() * Math.pow(2, ctx.zoom) >= MIN_BORDER_SIZE) ?
                 HEX_STROKE_WEIGHT : 0;
-        console.log('setZoomOptions:weight:', weight)
         opts.strokeWeight = weight;
     } else {
 
@@ -89,7 +87,6 @@ function renderHexagon (row, column, nodeId, opts) {
     // space before transform to xy world space.
     // Returns the Google Maps polygon.
     var xy = coords.get_xyWorld_from_xyHex(column, row),
-        mapView = Session.get('mapView'),
         shapeOpts = {
             map: googlemap,
             fillColor: Colormap.noDataColor(),
@@ -109,7 +106,7 @@ function renderHexagon (row, column, nodeId, opts) {
     }
 
     setOneZoomOptions(nodeId, xy, shapeOpts);
-    if (mapView === 'honeycomb') {
+    if (rx.get('mapView') === 'honeycomb') {
         shapeOpts.path = coords.getHexLatLngCoords(xy, coords.getSideLen());
     } else {
         shapeOpts.strokeWeight = 0;
@@ -151,7 +148,7 @@ export function removeHoverListener () {
 }
 
 export function addHoverListener () {
-    if (rx.get('hoverInfoShowing')) {
+    if (rx.get('showHoverInfo')) {
 
         _.each(polygons, function (hexagon) {
 
@@ -212,11 +209,6 @@ export function addOne (x, y, label, opts)  {
     // Store by label
     polygons[label] = hexagon;
 
-    // TODO Add this after rendering all polygons.
-    if (rx.get('hoverInfoShowing')) {
-        addHoverListeners(hexagon);
-    }
-    
     // Set the polygon's signature so we can look stuff up for it when 
     // it's clicked.
     hexagon.signature = label;
