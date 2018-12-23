@@ -15,7 +15,7 @@ exports.create = function  () {
     var mapOptions = {
         center: ctx.center,
         backgroundColor: rx.get('background'),
-        zoom: ctx.zoom,
+        zoom: rx.get('zoom'),
         mapTypeId: "blank",
         // Don't show a map type picker.
         mapTypeControlOptions: {
@@ -58,7 +58,7 @@ exports.create = function  () {
     // again if we come back.
     google.maps.event.addListener(googlemap, "zoom_changed", function() {
         // Get the current zoom level (low is out)
-        ctx.zoom = googlemap.getZoom();
+        rx.set('zoom.set', {value: googlemap.getZoom()})
         nodes.zoomChanged();
     });
     

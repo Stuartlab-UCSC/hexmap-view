@@ -225,6 +225,9 @@ const reducers = {
             return state;
         }
     },
+    'zoom': (state = 3, action) => {
+        return (action.type === 'zoom.set') ? action.value : state;
+    },
 };
 
 // Create one action.

@@ -8,8 +8,8 @@ import rx from '/imports/common/rx';
 import tool from '/imports/mapPage/head/tool';
 import '/imports/common/navBar.html';
 
-// What's the minimum number of pixels that sideLen must represent at the
-// current zoom level before we start drawing hex borders?
+// The minimum number of pixels that sideLen must represent at the
+// current zoom level before we start drawing hex borders.
 var MIN_BORDER_SIZE = 10;
 
 // And how thick should the border be when drawn?
@@ -32,7 +32,7 @@ const findOpacity = () => {
         }
 
         // Opacity is a function of zoom: more zoom means more opaque.
-        opacity = Math.min(1.0, ((ctx.zoom - 1) / 20) +  additive);
+        opacity = Math.min(1.0, ((rx.get('zoom') - 1) / 20) +  additive);
     } else {
         opacity = 1.0;
     }
@@ -52,14 +52,14 @@ export const setOneZoomOptions = (nodeId, xy, opts) => {
         // So this holds the number of pixels that the global length sideLen
         // corresponds to at this zoom level.
         var weight =
-            (coords.getSideLen() * Math.pow(2, ctx.zoom) >= MIN_BORDER_SIZE) ?
+            (coords.getSideLen() * Math.pow(2, rx.get('zoom')) >= MIN_BORDER_SIZE) ?
                 HEX_STROKE_WEIGHT : 0;
         opts.strokeWeight = weight;
     } else {
 
         // This must be an xyCoords mapview.
         // Retain the hexagon size, regardless of zoom.
-        var hexLen = XY_HEX_LEN_SEED / Math.pow(2, ctx.zoom);
+        var hexLen = XY_HEX_LEN_SEED / Math.pow(2, rx.get('zoom'));
         opts.path = coords.getHexLatLngCoords(xy, hexLen);
     }
 
