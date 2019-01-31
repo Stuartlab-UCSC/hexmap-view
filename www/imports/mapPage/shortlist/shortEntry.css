@@ -72,7 +72,7 @@
 #shortlist div.secondary.mask {
     left: 1.7em;
     width: 2.3em;
-    height 1.25em;
+    height: 1.25em;
     z-index: 100;
     opacity: 0;
 }
