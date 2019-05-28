@@ -37,9 +37,5 @@ rm -rf $HEXMAP/www
 mv $HEXMAP/bundle $HEXMAP/www
 
 echo Install complete. Stop then start www.
-echo on production:
-echo   sudo $HEXMAP/stopWww
-echo   sudo $HEXMAP/startWww
-echo on dev:
 echo   stop www
 echo   start www
