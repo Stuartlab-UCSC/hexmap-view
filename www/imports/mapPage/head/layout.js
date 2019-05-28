@@ -2,6 +2,7 @@
 
 import data from '/imports/mapPage/data/data';
 import hexagons from '/imports/mapPage/viewport/hexagons';
+import nodes from '/imports/mapPage/viewport/nodes';
 import viewport from '/imports/mapPage/viewport/viewport';
 import perform from '/imports/common/perform';
 import sort from '/imports/mapPage/longlist/sort';
