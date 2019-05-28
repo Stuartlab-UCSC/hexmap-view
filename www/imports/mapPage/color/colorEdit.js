@@ -125,7 +125,6 @@ function inputBlur (ev) {
         cat.operVal = newVal;
         setCatAttrs(cat);
         Session.set('colorArray', colorArray);
-        Meteor.flush();
         updateColormap(cat);
     }
 }
