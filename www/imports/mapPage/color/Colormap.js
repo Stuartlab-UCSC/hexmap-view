@@ -207,7 +207,7 @@ export function getOne (attrName) {
 
 export function getCategoryCount (attrName) {
 
-    // Get an array of category strings of a colormap.
+    // Get a count of category strings of a colormap.
     let count = 0
     if (attrName in colormaps) {
         count = colormaps[attrName].length
