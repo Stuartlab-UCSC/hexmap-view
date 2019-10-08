@@ -28,7 +28,7 @@
     "eslint-plugin-react": "7.4.0",
     "react": "16.3.2",
     "react-contextmenu": "2.9.2",
-    "react-dom": "16.3.2"
+    "react-dom": "16.3.3"
   },
   "dependencies": {}
 }
