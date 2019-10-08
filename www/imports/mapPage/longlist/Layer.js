@@ -121,18 +121,23 @@ function load_dynamic_colormap (name, layer) {
 function find_dynamic_data_type(layer) {
 
     // Find the data type for a dynamic attribute.
-    
- 
-    // If there are 2 or fewer unique values, this is binary.
-    if (layer.uniqueVals.length < 3) {
-        layer.dataType = 'binary';
+    var vals = layer.uniqueVals
  
     // If there are any strings, this is categorical.
-    } else if (_.find(layer.uniqueVals, function (value) {
-                return _.isNaN(parseFloat(value));
-            })
-        ) {
+    if (_.find(vals, function (value) { return _.isNaN(parseFloat(value)) })) {
         layer.dataType = 'categorical';
+ 
+    // Check for binary.
+    } else if (vals.length < 3) {
+        // If either value is 0 and other is not 1, this is continuous.
+        vals[0] = parseFloat(vals[0])
+        vals[1] = parseFloat(vals[1])
+        if ((vals[0] === 0 && vals[1] !== 1)
+            || (vals[1] === 0 && vals[0] !== 1)) {
+            layer.dataType = 'continuous';
+        } else {
+            layer.dataType = 'binary';
+        }
  
     // Otherwise, this is continuous.
     } else {
