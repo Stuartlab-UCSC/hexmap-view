@@ -4,11 +4,12 @@ Developer Docs
 ==============
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
 
+   operData
+   operView
+   publicMap
+   usersGroups
    internalWebApi
-   computeInstall
-   viewerInstallDev
-   viewerInstallBundle
-   repository
+   install
    docs

@@ -1,0 +1,204 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Production View Server Install &#8212; TumorMap Developer Documentation</title>
+    <link rel="stylesheet" href="_static/agogo.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Documents" href="docs.html" />
+    <link rel="prev" title="Development View Server Install" href="installViewerDev.html" /> 
+  </head>
+  <body>
+    <div class="header-wrapper" role="banner">
+      <div class="header">
+        <div class="headertitle"><a
+          href="index.html">TumorMap Developer Documentation</a></div>
+        <div class="rel" role="navigation" aria-label="related navigation">
+          <a href="installViewerDev.html" title="Development View Server Install"
+             accesskey="P">previous</a> |
+          <a href="docs.html" title="Documents"
+             accesskey="N">next</a> |
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a>
+        </div>
+       </div>
+    </div>
+
+    <div class="content-wrapper">
+      <div class="content">
+        <div class="document">
+            
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="production-view-server-install">
+<h1>Production View Server Install<a class="headerlink" href="#production-view-server-install" title="Permalink to this headline">¶</a></h1>
+<p>TBD: this install procedure needs to be tested.</p>
+<p>This assumes you already have an installation on a development
+machine, which is required to build the deployment “bundle” to be installed on
+the production machine.</p>
+<p>If you want to update an existing production machine, see the section,
+View Server Commands: Update View Server on Production.</p>
+<div class="section" id="retrieve-from-the-code-repository">
+<h2>Retrieve from the code repository<a class="headerlink" href="#retrieve-from-the-code-repository" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">clone</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">stuartlab</span><span class="o">-</span><span class="n">UCSC</span><span class="o">/</span><span class="n">hexmap</span><span class="o">-</span><span class="n">view</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="define-an-environment-variable">
+<h2>Define an environment variable<a class="headerlink" href="#define-an-environment-variable" title="Permalink to this headline">¶</a></h2>
+<p>Define a persistent envvar that points to this install:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">export</span> <span class="n">HEXMAP</span><span class="o">=</span><span class="n">full</span><span class="o">-</span><span class="n">path</span><span class="o">-</span><span class="n">to</span><span class="o">-</span><span class="n">code</span><span class="o">-</span><span class="n">installation</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="install-node">
+<h2>Install node<a class="headerlink" href="#install-node" title="Permalink to this headline">¶</a></h2>
+<p>Use node v8.11.3. The distribution downloads are at:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">nodejs</span><span class="o">.</span><span class="n">org</span><span class="o">/</span><span class="n">en</span><span class="o">/</span><span class="n">download</span><span class="o">/</span>
+</pre></div>
+</div>
+<p>Install as follows, renaming the resulting directory to ‘node’, like:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>cd $HEXMAP/packages
+wget https://nodejs.org/dist/v8.11.3/node-v8.11.3-linux-x64.tar.xz
+tar xf node-v8.11.3-linux-x64.tar.xz
+mv node-v8.11.3-linux-x64 node
+</pre></div>
+</div>
+</div>
+<div class="section" id="install-mongodb">
+<h2>Install mongodb<a class="headerlink" href="#install-mongodb" title="Permalink to this headline">¶</a></h2>
+<p>Use mongodb v3.4.16. The distribution downloads are at:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">www</span><span class="o">.</span><span class="n">mongodb</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">download</span><span class="o">-</span><span class="n">center</span><span class="c1">#community</span>
+</pre></div>
+</div>
+<p>Click on your platform to find a list of versions.</p>
+<p>If there is more than one option, find the option for your OS version.</p>
+<p>If you need to find your redhat/centos version use:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">hostnamectl</span>
+</pre></div>
+</div>
+<p>Note the filename shown for the current version, something like:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">fastdl</span><span class="o">.</span><span class="n">mongodb</span><span class="o">.</span><span class="n">org</span><span class="o">/</span><span class="n">linux</span><span class="o">/</span><span class="n">mongodb</span><span class="o">-</span><span class="n">linux</span><span class="o">-</span><span class="n">x86_64</span><span class="o">-</span><span class="n">rhel70</span><span class="o">-</span><span class="mf">3.4</span><span class="o">.</span><span class="mf">16.</span><span class="n">tgz</span>
+</pre></div>
+</div>
+<p>Click on <em>All Version Binaries</em>.</p>
+<p>Find the filename similar to the one you noted above.
+For example on redhat/centos v7 mongodb v3.4, use these
+commands to install:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>cd $HEXMAP/packages
+wget http://downloads.mongodb.org/linux/mongodb-linux-x86_64-rhel70-3.4.16.tgz?_ga=2.137449328.1707226230.1531432538-1246595538.1531432538
+tar xf mongodb-linux-x86_64-rhel70-3.4.16.tgz
+mv mongodb-linux-x86_64-rhel70-3.4.16 mongodb
+</pre></div>
+</div>
+</div>
+<div class="section" id="configure">
+<h2>Configure<a class="headerlink" href="#configure" title="Permalink to this headline">¶</a></h2>
+<p>Build a configuration file similar to $HEXMAP/config/prod.</p>
+</div>
+<div class="section" id="set-environment-variables">
+<h2>Set environment variables<a class="headerlink" href="#set-environment-variables" title="Permalink to this headline">¶</a></h2>
+<p>Define persistent envvars and add executables to your path. (You may already have
+HEXMAP defined.):</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>export HEXMAP=full-path-to-code-installation
+export HEX_VIEWER_CONFIG=/full-path-to-my-config
+PATH=$HEXMAP/packages/node/bin:$HEXMAP/packages/mongodb/bin:$PATH
+</pre></div>
+</div>
+</div>
+<div class="section" id="update-view-server-with-latest-code">
+<h2>Update view server with latest code<a class="headerlink" href="#update-view-server-with-latest-code" title="Permalink to this headline">¶</a></h2>
+<p>Now get the latest code onto the view server.
+This is described in the section, View Server Commands: Update View Server on
+Production.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+        </div>
+        <div class="sidebar">
+          <h3>Table Of Contents</h3>
+          <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="operData.html">Data server commands</a></li>
+<li class="toctree-l1"><a class="reference internal" href="operView.html">View server commands</a></li>
+<li class="toctree-l1"><a class="reference internal" href="publicMap.html">Public Maps</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usersGroups.html">Users and Groups</a></li>
+<li class="toctree-l1"><a class="reference internal" href="internalWebApi.html">Internal Web API</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="install.html">Install</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="installData.html">Data Server Install</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installViewerDev.html">Development View Server Install</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Production View Server Install</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="docs.html">Documents</a></li>
+</ul>
+
+          <div role="search">
+            <h3 style="margin-top: 1.5em;">Search</h3>
+            <form class="search" action="search.html" method="get">
+                <input type="text" name="q" />
+                <input type="submit" value="Go" />
+                <input type="hidden" name="check_keywords" value="yes" />
+                <input type="hidden" name="area" value="default" />
+            </form>
+          </div>
+        </div>
+        <div class="clearer"></div>
+      </div>
+    </div>
+
+    <div class="footer-wrapper">
+      <div class="footer">
+        <div class="left">
+          <div role="navigation" aria-label="related navigaton">
+            <a href="installViewerDev.html" title="Development View Server Install"
+              >previous</a> |
+            <a href="docs.html" title="Documents"
+              >next</a> |
+            <a href="genindex.html" title="General Index"
+              >index</a>
+          </div>
+          <div role="note" aria-label="source link">
+              <br/>
+              <a href="_sources/installViewerProd.rst.txt"
+                rel="nofollow">Show Source</a>
+          </div>
+        </div>
+
+        <div class="right">
+          
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2018, UCSC TumorMap developers.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.5.
+    </div>
+        </div>
+        <div class="clearer"></div>
+      </div>
+    </div>
+
+  </body>
+</html>

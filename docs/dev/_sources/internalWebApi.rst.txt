@@ -18,15 +18,29 @@ POST with content-type returned: application/json
 
 This API creates a bookmark on a view server with the given client state data.
 
+See:
 
-:doc:`/createMapApi`
---------------------
+.. toctree::
+   :maxdepth: 1
 
+   createBookmark
+
+Create Map
+----------
+
+Create a map with:
+
+.. toctree::
+   :maxdepth: 1
+
+   createMapApi
 
 Get Data
 --------
 
-https://<compute-server>/data/<data-ID>
+::
+
+ https://<compute-server>/data/<data-ID>
 
 GET with content-type returned: application/json
 
@@ -39,24 +53,3 @@ Example: retrieve the attribute metadata for the Pancan12 SampleMap::
 
 Returns json or tsv, depending on the file and in the same format as
 persistent store.
-
-
-Get available maps (future)
----------------------------
-
-https://<compute-server>/TBD
-
-GET with content-type returned: application/json
-
-Retrieve the map names available on this view server for which the user is
-authorized.
-
-
-Dynamic Statistics (future)
----------------------------
-
-https://<compute-server>/query/TBD
-
-POST with content-type returned: application/json
-
-Compute the statististics for a dynamically added attribute.

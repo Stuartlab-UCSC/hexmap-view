@@ -1,7 +1,7 @@
 Create map
 ==========
 
-https://hexcalc.ucsc.edu/query/**createMap**
+https://hexcalc.ucsc.edu/query/createMap
 
 HTTP POST with content-type: application/json
 
