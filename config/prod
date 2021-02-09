@@ -1,49 +1,20 @@
 #!/bin/bash
 
-# For https, set below to "true" and change
-# the environment variables inside the if statement.
-# For HTTP, change the environment varibles in the else statement.
-USING_HTTPS=false
-if [  "$USING_HTTPS" == true ]; then
-    # Paths to https certs.
-    CERTS=/data/certs
-    export KEY=$CERTS/tumorMapCellAtlas_server.key
-    export CERT=$CERTS/tumorMapCellAtlas_server.crt
-    export CHAIN=$CERTS/tumorMapCellAtlas_chain.crt
 
-    # Port HTTPS uses.
-    export HTTPS_PORT=443
-    # The port the meteor app uses.
-    export PORT=80
-    # The URL to which the https proxy redirects.
-    export METEOR_URL=http://tumormap.ucsc.edu:$PORT
-    # The URL exposed to the user.
-    export URL_BASE=https://tumormap.ucsc.edu:$HTTPS_PORT
+# This is for a production bundle, rather than development.
+export DEV=false
 
-else
-    # The (interface):port on which the server runs.
-    export PORT=127.0.0.1:8000
-    # The URL exposed to the user.
-    export URL_BASE=https://tumormap.ucsc.edu
-fi
+# The (interface):port on which the server runs.
+export PORT=127.0.0.1:8000
 
-# Run in background, BACK, or foreground, FORE.
-export BACK_OR_FOREGROUND=BACK
-
-# Bundled deployment or unbundled?
-export BUNDLED=true
-if [  "$BUNDLED" == false ]; then
-    # Path to your meteor.
-    export METEOR_PATH=
-    export SERVER_DIR=
-fi
+# The URL exposed to the user.
+export URL_BASE=https://tumormap.ucsc.edu
 
 # Install tar location.
 export INSTALL_TAR_PATH=swat@plaza.gi.ucsc.edu:ops
 
 # Meteor settings.json variables.
 export ADMIN_EMAIL=hexmap@ucsc.edu
-export DEV=false
 export HUB_URL=https://hexcalc.ucsc.edu:443
 # Below paths/require/the/trailing/slash/.
 export VIEW_DIR=/data/data/view/

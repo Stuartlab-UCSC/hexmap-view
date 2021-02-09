@@ -1,64 +1,35 @@
 #!/bin/bash
-# For https, set below to "true" and change
-# the environment variables inside the if statement.
-# For HTTP, change the environment varibles in the else statement.
 
 TOOLS=/Users/swat
 
-USING_HTTPS=false
-if [  "$USING_HTTPS" = true ]; then
-    export KEY=
-    export CERT=
-    export CHAIN=
-    # Port for HTTP redirect
-    export HTTP_PORT=
-    # Port HTTPS uses.
-    export HTTPS_PORT=
-	# The port the meteor app uses.
-	export PORT=
-    # The URL to which the https proxy redirects.
-	export METEOR_URL=
-	# The URL exposed to the user.
-	export URL_BASE=
+# Define the network port on which the application will run.
+export PORT=3333
+export URL_BASE=http://localhost:$PORT
 
-else
-    # For http
-	export PORT=3333
-	export URL_BASE=http://localhost:$PORT
-fi
+export DEV=true
+export METEOR_PATH=meteor
+export SERVER_DIR=$HEXMAP/www/private/
 
-# Run in background, BACK, or foreground, FORE.
-export BACK_OR_FOREGROUND=FORE
-
-# Build with the bundle visualizer, only works with BACK_OR_FOREGROUND=FORE.
+# Build with the bundle visualizer.
 # Set the app background to white and reload so you can see the black text.
 #export BUNDLE_VIZ=true
 
-# Bundled deployment or unbundled?
-export BUNDLED=false
-if [  "$BUNDLED" == false ]; then
-    # Path to your meteor.
-    export METEOR_PATH=$TOOLS/.meteor/meteor
-    export SERVER_DIR=$HEXMAP/www/private/
-fi
-
-# Deployment target architecture and location.
+# Production deployment target architecture and location.
 # Valid values: os.osx.x86_64, os.linux.x86_64, os.linux.x86_32
-export DEPLOY_TARGET_ARCH=os.linux.x86_64
-export DEPLOY_TARGET_PATH=plaza.gi.ucsc.edu:ops
+export TARGET_ARCH=os.linux.x86_64
+export TARGET_PATH=hexcalc.gi.ucsc.edu:ops
 
 # Meteor settings.json variables.
 export ADMIN_EMAIL=swat@soe.ucsc.edu
-export DEV=true
 export HUB_URL=http://localhost:5000
-# Below paths/require/the/trailing/slash/.
+# Where you want your view data. The below path requires the trailing slash.
 export VIEW_DIR=$TOOLS/data/view/
 
 # Mongo db.
 export DB_NAME=live
 export DB_PORT=27017
-export MONGO_BIN=$TOOLS/.meteor/packages/meteor-tool/1.5.2_2/mt-os.osx.x86_64/dev_bundle/mongodb/bin
+export MONGO_BIN=~/.meteor/packages/meteor-tool/1.8.0_1/mt-os.osx.x86_64/dev_bundle/mongodb/bin
 export MONGO_URL=mongodb://localhost:$DB_PORT/$DB_NAME
 
-export NODE_BIN=$TOOLS/packages/node-v6.10.3/bin
+export NODE_BIN=~/.meteor/packages/meteor-tool/1.8.0_1/mt-os.osx.x86_64/dev_bundle/bin
 export ROOT_URL=$URL_BASE

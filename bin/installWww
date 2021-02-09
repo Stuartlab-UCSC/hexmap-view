@@ -12,7 +12,7 @@ if [ -z $INSTALL_TAR_PATH ]; then
     echo "Do you want to run deployWww instead?"
     exit 1
 fi
-if [ "$BUNDLED" == false ]; then
+if [ "$DEV" == true ]; then
     echo "sorry, cannot install a bundle into your unbundled environment"
     exit 1
 fi

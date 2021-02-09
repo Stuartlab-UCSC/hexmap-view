@@ -8,17 +8,17 @@ fi
 
 source $HEX_VIEWER_CONFIG
 
-if [ -z $DEPLOY_TARGET_ARCH ]; then
-    echo "Exited, the env var, DEPLOY_TARGET_ARCH, must be defined"
+if [ -z $TARGET_ARCH ]; then
+    echo "Exited, the env var, TARGET_ARCH, must be defined"
     echo "Do you want to run installWww instead?"
     exit 1
 fi
-if [ -z $DEPLOY_TARGET_PATH ]; then
-    echo "Exited, the env var, DEPLOY_TARGET_PATH, must be defined"
+if [ -z $TARGET_PATH ]; then
+    echo "Exited, the env var, TARGET_PATH, must be defined"
     echo "Do you want to run installWww instead?"
     exit 1
 fi
-if [ "$BUNDLE" == true ]; then
+if [ "$DEV" == false ]; then
     echo "sorry, cannot deploy from a bundled build"
     exit 1
 fi
@@ -26,10 +26,10 @@ fi
 # Build a www server with compression and other production enhancements.
 FILE=$HEXMAP/deploy/www.tar.gz
 cd $HEXMAP/www
-$METEOR_PATH npm install --production
-$METEOR_PATH build $HEXMAP/deploy --architecture $DEPLOY_TARGET_ARCH
+meteor npm install --production
+meteor build $HEXMAP/deploy --architecture $TARGET_ARCH
 cd $HEXMAP
 
-scp $FILE $DEPLOY_TARGET_PATH
+scp $FILE $TARGET_PATH
 echo if the scp timed out, do:
-echo "scp $FILE $DEPLOY_TARGET_PATH"
+echo "scp $FILE $TARGET_PATH"

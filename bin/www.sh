@@ -13,7 +13,7 @@ fi
 echo starting the www server
 cd $HEXMAP/www
 export MAIL_URL="smtp://localhost:25"
-if [ "$BACK_OR_FOREGROUND" == "FORE" ]; then
+if [ "$DEV" == true ]; then
     if [ "$BUNDLE_VIZ" == true ]; then
         $METEOR_PATH run --port $PORT --settings $HEXMAP/config/settings.json \
             --extra-packages bundle-visualizer \
@@ -21,7 +21,7 @@ if [ "$BACK_OR_FOREGROUND" == "FORE" ]; then
     else
         $METEOR_PATH run --port $PORT --settings $HEXMAP/config/settings.json
     fi
-elif [ "$BUNDLED" == true ]; then
+else
     # Packaged Meteor apps use METEOR_SETTINGS environment variable.
     export METEOR_SETTINGS=$(cat $HEXMAP/config/settings.json)
 
@@ -34,8 +34,5 @@ elif [ "$BUNDLED" == true ]; then
     # or equivalent.
     (nohup $NODE_BIN/node $HEXMAP/www/main.js &> $HEXMAP/log/www \
       & echo $! > $HEXMAP/pid/www)
-else
-    (nohup $METEOR_PATH run --port $PORT --settings $HEXMAP/config/settings.json \
-       &> $HEXMAP/log/www & echo $! > $HEXMAP/pid/www)
 fi
 
