@@ -18,10 +18,12 @@ if [ "$DEV" == true ]; then
 fi
 
 FILE=www.tar.gz
-LOCALTAR=$HEXMAP/$FILE
-FROMTAR=$INSTALL_TAR_PATH/$FILE
-echo "scp'g from $FROMTAR to $LOCALTAR..."
-scp $FROMTAR $LOCALTAR
+LOCALTAR=$HEXMAP/log/$FILE
+
+# When scping from an intermediary machine due to firewall, etc.
+# FROMTAR=$INSTALL_TAR_PATH/$FILE
+# echo "scp'g from $FROMTAR to $LOCALTAR..."
+# scp $FROMTAR $LOCALTAR
 
 # Untar the new code.
 echo untarring...

@@ -2,30 +2,26 @@ Data Server Install
 ===================
 
 This installs the data server that is accessed by the view server as well as by
-public APIs. To install the view server, see the section in this document,
-Install: Development View Server or Install: Production View Server.
+public APIs. This assumes you have already installed the view server from::
+
+ https://github.com/stuartlab-UCSC/hexmap-view
+
 
 Retrieve from the code repository
 ---------------------------------
 
 ::
 
- git clone https://github.com/stuartlab-UCSC/hexmap-data
+ git clone https://github.com/stuartlab-UCSC/hexmap-data.git
 
-Set environment variable and path
----------------------------------
 
-Define a persistent envvar to the install directory and add it to your path::
+Set environment variable
+------------------------
+
+Define a persistent envvar to the install directory::
 
  export HEXCALC=/full-path-to-your-install-of-data-server
- PATH=$HEXCALC/bin:$PATH
 
-Make data directories
----------------------
-
-Make data directories used during operations::
-
- mkdir -p my-data/featureSpace my-data/view
 
 Install DrL graph layout
 ------------------------
@@ -49,18 +45,40 @@ drl-graph-layout/readme.txt::
 
 In bin you should see 'truncate' among other binaries.
 
+
 Configure
 ---------
 
-Build a configuration file at $HEXCALC/ops/config.sh similar to
-$HEXCALC/ops/configExamples/prod.sh.
+Build a configuration file at $HEXCALC/ops/config.sh similar to this for
+development::
 
-Install python
---------------
+ $HEXCALC/ops/configExamples/local.swat.
 
-See $HEXCALC/build/README to install python and a python environment.
+Or this for production::
+
+ $HEXCALC/ops/configExamples/prod.sh.
+ 
+Then create a symbolic link to your config file::
+
+ cd $HEXCALC/config
+ ln -s full-path-to-your-config config.sh
+
+
+Install a python2.7 environment
+-------------------------------
+
+See $HEXCALC/build/README.txt to install python and a python environment.
+
+
+Make data directories
+---------------------
+
+Make data directories used during operations::
+
+ mkdir -p my-data/featureSpace my-data/view
+
 
 Starting the server
 -------------------
 
-To start the data server see the section in this document, Operational Commands.
+To start the data server see the section in this document, Data Server Commands.

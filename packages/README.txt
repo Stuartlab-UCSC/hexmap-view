@@ -1,1 +1,2 @@
-This directory contains the packages.
+This directory contains the packages required to run hexmap-view.
+

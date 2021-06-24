@@ -1,0 +1,30 @@
+#!/bin/bash
+
+
+# This is for a test production bundle.
+export DEV=false
+
+# The (interface):port on which the server runs.
+export PORT=3333
+
+# The URL exposed to the user.
+export URL_BASE=http://127.0.0.1:$PORT
+
+# Install tar location.
+export INSTALL_TAR_PATH=swat@plaza.gi.ucsc.edu:ops
+
+# Meteor settings.json variables.
+export ADMIN_EMAIL=swat@soe.ucsc.edu
+
+export HUB_URL=https://hexcalc.ucsc.edu:443
+# Below paths/require/the/trailing/slash/.
+export VIEW_DIR=/data/data/view/
+
+# Mongo db.
+DB_NAME=swat
+DB_PORT=27066
+export MONGO_BIN=$HEXMAP/packages/mongodb/bin
+export MONGO_URL=mongodb://localhost:$DB_PORT/$DB_NAME
+
+export NODE_BIN=$HEXMAP/packages/node/bin
+export ROOT_URL=$URL_BASE

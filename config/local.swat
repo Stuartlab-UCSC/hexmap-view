@@ -17,7 +17,9 @@ export SERVER_DIR=$HEXMAP/www/private/
 # Production deployment target architecture and location.
 # Valid values: os.osx.x86_64, os.linux.x86_64, os.linux.x86_32
 export TARGET_ARCH=os.linux.x86_64
-export TARGET_PATH=hexcalc.gi.ucsc.edu:ops
+# The target path is the directory on your production machine.
+export TARGET_PATH=swat@hexmap.gi.ucsc.edu:dev/hexmap-view/log
+
 
 # Meteor settings.json variables.
 export ADMIN_EMAIL=swat@soe.ucsc.edu

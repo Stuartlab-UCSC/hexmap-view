@@ -28,3 +28,8 @@ Check data server process
 Log file
 ........
 The log file is at compute/ops/log.
+
+Tests
+.....
+
+TBD

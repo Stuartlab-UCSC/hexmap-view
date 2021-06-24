@@ -43,4 +43,4 @@ file::
 Start the servers
 -----------------
 
-To start the servers see the section in this document, Operational Commands.
+To start the servers see the section in this document, View server Commands.

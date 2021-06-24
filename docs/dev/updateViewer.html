@@ -5,7 +5,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Update View Server on Production &#8212; TumorMap Developer Documentation</title>
+    <title>Update View Server code on Production &#8212; TumorMap Developer Documentation</title>
     <link rel="stylesheet" href="_static/agogo.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="_static/custom.css" type="text/css" />
@@ -51,8 +51,8 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="update-view-server-on-production">
-<h1>Update View Server on Production<a class="headerlink" href="#update-view-server-on-production" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="update-view-server-code-on-production">
+<h1>Update View Server code on Production<a class="headerlink" href="#update-view-server-code-on-production" title="Permalink to this headline">¶</a></h1>
 <p>This assumes you already have a view server installed in a development
 environment and on the production machine.</p>
 <p>In the development environment build the bundle and copy it to the production
@@ -61,6 +61,7 @@ machine:</p>
 bin/deployWww
 </pre></div>
 </div>
+<p>Ignore warnings about “color.js”. It will be resolved at run-time.</p>
 <p>On the production machine install the bundle:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span>cd $HEXMAP
 bin/installWww

@@ -11,12 +11,17 @@ export PORT=127.0.0.1:8000
 export URL_BASE=https://tumormap.ucsc.edu
 
 # Install tar location.
-export INSTALL_TAR_PATH=swat@plaza.gi.ucsc.edu:ops
+export INSTALL_TAR_PATH=swat@hexmap.gi.ucsc.edu:$HEXMAP
+# If you need to go through an intermediary host:
+# export INSTALL_TAR_PATH=swat@plaza.gi.ucsc.edu:ops
 
 # Meteor settings.json variables.
 export ADMIN_EMAIL=hexmap@ucsc.edu
+# The URL for the hexmap-data server.
 export HUB_URL=https://hexcalc.ucsc.edu:443
-# Below paths/require/the/trailing/slash/.
+
+# The view data location.
+# Below path/requires/the/trailing/slash/.
 export VIEW_DIR=/data/data/view/
 
 # Mongo db.

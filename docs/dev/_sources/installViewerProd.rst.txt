@@ -29,47 +29,36 @@ Define a persistent envvar that points to this install::
 Install node
 ------------
 
-Use node v8.11.3. The distribution downloads are at::
-
- https://nodejs.org/en/download/
-
-Install as follows, renaming the resulting directory to 'node', like::
+Use node v8.11.3. Install as follows, linking the resulting directory to 'node',
+like::
 
  cd $HEXMAP/packages
  wget https://nodejs.org/dist/v8.11.3/node-v8.11.3-linux-x64.tar.xz
  tar xf node-v8.11.3-linux-x64.tar.xz
- mv node-v8.11.3-linux-x64 node
+ ln -s node-v8.11.3-linux-x64 node
 
 
 Install mongodb
 ---------------
 
-Use mongodb v3.4.16. The distribution downloads are at::
+Use mongodb v3.4, on-premises community. The distribution downloads are at::
 
- https://www.mongodb.com/download-center#community
+ https://www.mongodb.com/download-center
 
-Click on your platform to find a list of versions.
-
-If there is more than one option, find the option for your OS version.
+Find the version closest to v3.4 and your platform.
 
 If you need to find your redhat/centos version use::
 
  hostnamectl
 
-Note the filename shown for the current version, something like::
+Copy the link to the download.
 
- https://fastdl.mongodb.org/linux/mongodb-linux-x86_64-rhel70-3.4.16.tgz
-
-Click on *All Version Binaries*.
-
-Find the filename similar to the one you noted above.
-For example on redhat/centos v7 mongodb v3.4, use these
-commands to install::
+Use these commands to install, using the file in the link::
 
  cd $HEXMAP/packages
- wget http://downloads.mongodb.org/linux/mongodb-linux-x86_64-rhel70-3.4.16.tgz?_ga=2.137449328.1707226230.1531432538-1246595538.1531432538
+ wget https://fastdl.mongodb.org/linux/mongodb-linux-x86_64-3.6.23.tgz
  tar xf mongodb-linux-x86_64-rhel70-3.4.16.tgz
- mv mongodb-linux-x86_64-rhel70-3.4.16 mongodb
+ ln -s mongodb-linux-x86_64-rhel70-3.4.16 mongodb
 
 
 Configure
@@ -95,3 +84,9 @@ Update view server with latest code
 Now get the latest code onto the view server.
 This is described in the section, View Server Commands: Update View Server on
 Production.
+
+
+Start the servers
+-----------------
+
+To start the servers see the section in this document, View server Commands.
