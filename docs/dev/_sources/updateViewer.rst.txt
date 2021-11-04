@@ -12,7 +12,10 @@ machine::
  
 Ignore warnings about "color.js". It will be resolved at run-time.
 
-On the production machine install the bundle::
+If any of the files in bin or config have been updated, copy those over maually
+from your dev machine to their respective directories on production.
+
+On the production machine install the bundle while logged in as user 'hexmap'::
 
  cd $HEXMAP
  bin/installWww

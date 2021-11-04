@@ -3,3 +3,4 @@ d='../dev/'
 rm -rf $d/*
 make html
 mv _build/html/* $d
+echo The HTML pages have been moved to $HEXMAP/dev.

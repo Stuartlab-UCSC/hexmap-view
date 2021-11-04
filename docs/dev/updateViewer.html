@@ -62,7 +62,9 @@ bin/deployWww
 </pre></div>
 </div>
 <p>Ignore warnings about “color.js”. It will be resolved at run-time.</p>
-<p>On the production machine install the bundle:</p>
+<p>If any of the files in bin or config have been updated, copy those over maually
+from your dev machine to their respective directories on production.</p>
+<p>On the production machine install the bundle while logged in as user ‘hexmap’:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span>cd $HEXMAP
 bin/installWww
 </pre></div>

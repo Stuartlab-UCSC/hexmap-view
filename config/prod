@@ -5,7 +5,7 @@
 export DEV=false
 
 # The (interface):port on which the server runs.
-export PORT=127.0.0.1:8000
+export PORT=8000
 
 # The URL exposed to the user.
 export URL_BASE=https://tumormap.ucsc.edu

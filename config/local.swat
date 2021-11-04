@@ -19,7 +19,7 @@ export SERVER_DIR=$HEXMAP/www/private/
 export TARGET_ARCH=os.linux.x86_64
 # The target path is the directory on your production machine.
 #   for production:
-export TARGET_PATH=hexmap.gi.ucsc.edu:ops
+export TARGET_PATH=hexmap@hexmap.gi.ucsc.edu:/data
 #   for testing
 # export TARGET_PATH=swat@hexmap.gi.ucsc.edu:dev/hexmap-view/log
 

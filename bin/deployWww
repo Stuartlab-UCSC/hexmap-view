@@ -24,10 +24,10 @@ if [ "$DEV" == false ]; then
 fi
 
 # Build a www server with compression and other production enhancements.
-FILE=$HEXMAP/deploy/www.tar.gz
+FILE=$HEXMAP/www.tar.gz
 cd $HEXMAP/www
 meteor npm install --production
-meteor build $HEXMAP/deploy --architecture $TARGET_ARCH
+meteor build $HEXMAP --architecture $TARGET_ARCH
 cd $HEXMAP
 
 scp $FILE $TARGET_PATH

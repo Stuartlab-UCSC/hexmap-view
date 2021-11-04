@@ -18,7 +18,7 @@ if [ "$DEV" == true ]; then
 fi
 
 FILE=www.tar.gz
-LOCALTAR=$HEXMAP/log/$FILE
+LOCALTAR=$HEXMAP/$FILE
 
 # When scping from an intermediary machine due to firewall, etc.
 # FROMTAR=$INSTALL_TAR_PATH/$FILE
